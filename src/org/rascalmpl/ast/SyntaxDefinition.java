@@ -1,66 +1,191 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class SyntaxDefinition extends AbstractAST { 
-  public org.rascalmpl.ast.Start getStart() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Sym getDefined() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Prod getProduction() { throw new UnsupportedOperationException(); } public boolean hasStart() { return false; } public boolean hasDefined() { return false; } public boolean hasProduction() { return false; } public boolean isLanguage() { return false; }
-static public class Language extends SyntaxDefinition {
-/** start:Start "syntax" defined:Sym "=" production:Prod ";" -> SyntaxDefinition {cons("Language")} */
-	protected Language(INode node, org.rascalmpl.ast.Start start, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
-		this.node = node;
-		this.start = start;
-		this.defined = defined;
-		this.production = production;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSyntaxDefinitionLanguage(this);
-	}
 
-	public boolean isLanguage() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasStart() { return true; }
-	public boolean hasDefined() { return true; }
-	public boolean hasProduction() { return true; }
 
-private final org.rascalmpl.ast.Start start;
-	public org.rascalmpl.ast.Start getStart() { return start; }
-	private final org.rascalmpl.ast.Sym defined;
-	public org.rascalmpl.ast.Sym getDefined() { return defined; }
-	private final org.rascalmpl.ast.Prod production;
-	public org.rascalmpl.ast.Prod getProduction() { return production; }	
-}
-static public class Ambiguity extends SyntaxDefinition {
-  private final java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.SyntaxDefinition> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class SyntaxDefinition extends AbstractAST {
+  public SyntaxDefinition(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitSyntaxDefinitionAmbiguity(this);
+
+  public boolean hasStart() {
+    return false;
   }
-} public boolean isLayout() { return false; }
-static public class Layout extends SyntaxDefinition {
-/** "layout" defined:Sym "=" production:Prod ";" -> SyntaxDefinition {cons("Layout")} */
-	protected Layout(INode node, org.rascalmpl.ast.Sym defined, org.rascalmpl.ast.Prod production) {
-		this.node = node;
-		this.defined = defined;
-		this.production = production;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSyntaxDefinitionLayout(this);
-	}
 
-	public boolean isLayout() { return true; }
+  public org.rascalmpl.ast.Start getStart() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasDefined() { return true; }
-	public boolean hasProduction() { return true; }
+  public boolean hasProduction() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.Sym defined;
-	public org.rascalmpl.ast.Sym getDefined() { return defined; }
-	private final org.rascalmpl.ast.Prod production;
-	public org.rascalmpl.ast.Prod getProduction() { return production; }	
+  public org.rascalmpl.ast.Prod getProduction() {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean hasDefined() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Sym getDefined() {
+    throw new UnsupportedOperationException();
+  }
+
+
+static public class Ambiguity extends SyntaxDefinition {
+  private final java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.SyntaxDefinition> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitSyntaxDefinitionAmbiguity(this);
+  }
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+
+
+
+
+
+  public boolean isLanguage() {
+    return false;
+  }
+  
+static public class Language extends SyntaxDefinition {
+  // Production: sig("Language",[arg("org.rascalmpl.ast.Start","start"),arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+
+  
+     private final org.rascalmpl.ast.Start start;
+  
+     private final org.rascalmpl.ast.Sym defined;
+  
+     private final org.rascalmpl.ast.Prod production;
+  
+
+  
+public Language(INode node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+  super(node);
+  
+    this.start = start;
+  
+    this.defined = defined;
+  
+    this.production = production;
+  
+}
+
+
+  @Override
+  public boolean isLanguage() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSyntaxDefinitionLanguage(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Start getStart() {
+        return this.start;
+     }
+     
+     @Override
+     public boolean hasStart() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Sym getDefined() {
+        return this.defined;
+     }
+     
+     @Override
+     public boolean hasDefined() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Prod getProduction() {
+        return this.production;
+     }
+     
+     @Override
+     public boolean hasProduction() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isLayout() {
+    return false;
+  }
+  
+static public class Layout extends SyntaxDefinition {
+  // Production: sig("Layout",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+
+  
+     private final org.rascalmpl.ast.Sym defined;
+  
+     private final org.rascalmpl.ast.Prod production;
+  
+
+  
+public Layout(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+  super(node);
+  
+    this.defined = defined;
+  
+    this.production = production;
+  
+}
+
+
+  @Override
+  public boolean isLayout() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSyntaxDefinitionLayout(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Sym getDefined() {
+        return this.defined;
+     }
+     
+     @Override
+     public boolean hasDefined() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Prod getProduction() {
+        return this.production;
+     }
+     
+     @Override
+     public boolean hasProduction() {
+        return true;
+     }
+  	
+}
+
+
+
 }

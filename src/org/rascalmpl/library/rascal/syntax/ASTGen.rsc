@@ -1,7 +1,6 @@
 module rascal::syntax::ASTGen
 
 import rascal::syntax::Grammar;
-import rascal::syntax::Bootstrap;
 import rascal::syntax::Parameters;
 import ParseTree;
 
@@ -9,10 +8,6 @@ import IO;
 import String;
 import List;
 import Set;
-
-private str OUTDIR = "/Users/tvdstorm/GLT/rascal/build/rascal/src/org/rascalmpl/ast2"; 
-private str PKG = "org.rascalmpl.ast2";
-
 
 data AST = ast(str name, set[Sig] sigs) | leaf(str name);
 data Sig = sig(str name, list[Arg] args);
@@ -41,35 +36,25 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   return asts;
 }
 
-public void testIt() {
-  g = rascalGrammar();
-  g = expandParameterizedSymbols(g);
-  g.rules -= (sort("Pattern"): {}, sort("RascalReservedKeywords"): {});
-
-  g = visit (g) {
-    case sort("Pattern") => sort("Expression")
-  };
-
-  grammarToJavaAPI(OUTDIR, PKG, g);
-}
 
 
-public void grammarToJavaAPI(str outdir, str pkg, Grammar g) {
+
+public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
   model = grammarToASTModel(pkg, g);
-  grammarToVisitor(OUTDIR, PKG, model);
-  grammarToASTFactory(OUTDIR, PKG, model);
-  grammarToASTClasses(OUTDIR, PKG, model);
+  grammarToVisitor(outdir, pkg, model);
+  grammarToASTFactory(outdir, pkg, model);
+  grammarToASTClasses(outdir, pkg, model);
 }
 
-public void grammarToASTFactory(str outdir, str pkg, set[AST] asts) {
+public void grammarToASTFactory(loc outdir, str pkg, set[AST] asts) {
   fact =  "
 package <pkg>;
 import org.eclipse.imp.pdb.facts.INode;
 
 public class ASTFactory {
 <for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
-      public <sn>.<cn> make<sn><cn>(<signature(args)>) {
-         return new <sn>.<cn>(<actuals(args)>);
+      public <sn>.<cn> make<sn><cn>(INode node <signature(args)>) {
+         return new <sn>.<cn>(node <actuals(args)>);
       }
 <}>
 
@@ -86,11 +71,11 @@ public class ASTFactory {
 <}>
 }
 ";
-  loggedWriteFile(|file://<outdir>/ASTFactory.java|, fact);
+  loggedWriteFile(outdir + "/ASTFactory.java", fact);
 }
 
 
-public void grammarToVisitor(str outdir, str pkg, set[AST] asts) {
+public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
   ivisit = "
 package <pkg>;
 
@@ -107,7 +92,7 @@ public interface IASTVisitor\<T\> {
 }
 ";
 
- loggedWriteFile(|file://<outdir>/IASTVisitor.java|, ivisit);
+ loggedWriteFile(outdir + "/IASTVisitor.java", ivisit);
 
  nullVisit = "
 package <pkg>;
@@ -125,14 +110,14 @@ public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
 }
 ";
 
- loggedWriteFile(|file://<outdir>/NullASTVisitor.java|, nullVisit);
+ loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit);
 }
 
 
-public void grammarToASTClasses(str outdir, str pkg, set[AST] asts) {
+public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
      class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.INode"], a); 
-     loggedWriteFile(|file://<outdir>/<a.name>.java|, class); 
+     loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
 
@@ -147,6 +132,10 @@ import <i>;
 <}>
 
 public abstract class <ast.name> extends AbstractAST {
+  public <ast.name>(INode node) {
+    super(node);
+  }
+  
 <for (arg(typ, lab) <- allArgs) { clabel = capitalize(lab); >
   public boolean has<clabel>() {
     return false;
@@ -218,8 +207,8 @@ return "static public class Ambiguity extends <name> {
   private final java.util.List\<<pkg>.<name>\> alternatives;
 
   public Ambiguity(INode node, java.util.List\<<pkg>.<name>\> alternatives) {
+    super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-    this.node = node;
   }
 
   public java.util.List\<<pkg>.<name>\> getAlternatives() {
@@ -239,7 +228,7 @@ public str lexicalClass(str name) {
 static public class Lexical extends <name> {
   private final java.lang.String string;
   public Lexical(INode node, java.lang.String string) {
-    this.node = node;
+    super(node);
     this.string = string;
   }
   public java.lang.String getString() {
@@ -263,22 +252,22 @@ list[Arg] productionArgs(str pkg, Production p) {
        case \iter-star(\sort(str s)): a.typ = "<l>\<<pkg>.<s>\>";
        case \iter-seps(\sort(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
        case \iter-star-seps(\sort(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
-       case \parameterized-sort(str s, _): a.typ = "<pkg>.<s>";
-       case \iter(\parameterized-sort(str s, _)): a.typ = "<l>\<<pkg>.<s>\>";  
-       case \iter-star(\parameterized-sort(str s, _)): a.typ = "<l>\<<pkg>.<s>\>";
-       case \iter-seps(\parameterized-sort(str s, _), _): a.typ = "<l>\<<pkg>.<s>\>";
-       case \iter-star-seps(\parameterized-sort(str s, _), _): a.typ = "<l>\<<pkg>.<s>\>";
+       case \parameterized-sort(str s, [sort(str z)]): a.typ = "<pkg>.<s>_<z>";
+       case \iter(\parameterized-sort(str s, [sort(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";  
+       case \iter-star(\parameterized-sort(str s, [sort(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter-seps(\parameterized-sort(str s, [sort(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
+       case \iter-star-seps(\parameterized-sort(str s, [sort(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
      }
-     append a;
+     append a;   
    }
 }
-
+ 
 str signature(list[Arg] args) {
   if (args == []) {
      return "";
   }
   h = head(args);
-  return ("<h.typ> <h.name>" | "<it>,  <t> <a>" | arg(t, a) <- tail(args) );
+  return (", <h.typ> <h.name>" | "<it>,  <t> <a>" | arg(t, a) <- tail(args) );
 }
 
 str actuals(list[Arg] args) {
@@ -286,12 +275,13 @@ str actuals(list[Arg] args) {
      return "";
   }
   h = head(args);
-  return (h.name | "<it>, <a>" | arg(_, a) <- tail(args) );
+  return (", <h.name>" | "<it>, <a>" | arg(_, a) <- tail(args) );
 }
 
 public str construct(Sig sig) {
   return "
-public <sig.name>(<signature(sig.args)>) {
+public <sig.name>(INode node <signature(sig.args)>) {
+  super(node);
   <for (arg(_, name) <- sig.args) {>
     this.<name> = <name>;
   <}>
@@ -347,8 +337,8 @@ public str sortName(Production p) {
   if (\sort(str name) := p.rhs) {
      return name;
   }
-  if (\parameterized-sort(str name, _) := p.rhs) {
-     return name;
+  if (\parameterized-sort(str name, [\sort(str actual)]) := p.rhs) {
+     return name + "_" + actual;
   }
   throw "Production <p> has no sort name";
 }

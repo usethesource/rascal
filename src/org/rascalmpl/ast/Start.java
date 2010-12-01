@@ -1,43 +1,97 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Start extends AbstractAST { 
-  public boolean isAbsent() { return false; }
-static public class Absent extends Start {
-/**  -> Start {cons("Absent")} */
-	protected Absent(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStartAbsent(this);
-	}
 
-	public boolean isAbsent() { return true; }	
-}
-static public class Ambiguity extends Start {
-  private final java.util.List<org.rascalmpl.ast.Start> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Start> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Start> getAlternatives() {
-	return alternatives;
+package org.rascalmpl.ast;
+
+
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Start extends AbstractAST {
+  public Start(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitStartAmbiguity(this);
-  }
-} 
-public boolean isPresent() { return false; }
-static public class Present extends Start {
-/** "start" -> Start {cons("Present")} */
-	protected Present(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStartPresent(this);
-	}
 
-	public boolean isPresent() { return true; }	
+
+static public class Ambiguity extends Start {
+  private final java.util.List<org.rascalmpl.ast.Start> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Start> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.Start> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitStartAmbiguity(this);
+  }
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+
+
+
+
+
+  public boolean isAbsent() {
+    return false;
+  }
+  
+static public class Absent extends Start {
+  // Production: sig("Absent",[])
+
+  
+
+  
+public Absent(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isAbsent() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStartAbsent(this);
+  }
+  
+  	
+}
+
+
+  public boolean isPresent() {
+    return false;
+  }
+  
+static public class Present extends Start {
+  // Production: sig("Present",[])
+
+  
+
+  
+public Present(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isPresent() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStartPresent(this);
+  }
+  
+  	
+}
+
+
+
 }

@@ -45,21 +45,18 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
     
   // first we need to find the layout definition, because it affects all other productions
   // NOTE: this implies only one layout definition per scope is allowed, which needs to be checked
-  println("locating layout definition");  
   if ((SyntaxDefinition) `layout <Nonterminal u> = <Prod p>;` <- defs) {
       layoutName = "<u>"; 
       layoutProd = prod2prod(\layouts(layoutName), p, layoutName, true);
   }
     
     
-  println("locating start defs");
   for ((SyntaxDefinition) `start syntax <Sym u> = <Prod p>;` <- defs) {
     Symbol top = arg2symbol(u, false, layoutName);
     starts += start(top);
     prods += prod2prod(top, p, layoutName, false);
   }
   
-  println("locating normal synax definitions");
   for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
      prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
   }

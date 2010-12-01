@@ -5,14 +5,17 @@ import rascal::syntax::Grammar2Rascal;
 import rascal::syntax::Definition;
 import rascal::syntax::Grammar;
 import rascal::syntax::Generator;
-import rascal::syntax::RascalRascal; // for new parser
+import rascal::syntax::RascalRascal; 
+import rascal::syntax::ASTGen;
+import rascal::syntax::Parameters;
 import ParseTree;
 import IO;
-import ValueIO;
+import ValueIO;  
 
 private str package = "org.rascalmpl.library.rascal.syntax";
 private loc inputFolder = |rascal:///rascal/syntax|;
-private loc outputFolder = |project://RascalLibrary/src/rascal/syntax|;
+private loc outputFolder = |boot:///src/rascal/syntax|;
+private loc astFolder = |boot:///src/org/rascalmpl/ast|;
 private str grammarName = "RascalRascal";
 private str rootName = "RascalRascal";
 private str objectName = "ObjectRascalRascal";
@@ -23,6 +26,7 @@ public void bootstrap() {
   bootRootParser(gr);
   bootObjectParser(gr);
   bootMetaParser(gr);
+  bootAST(gr);
 }
 
 public Grammar getRascalGrammar() {
@@ -30,6 +34,22 @@ public Grammar getRascalGrammar() {
   Module \module = parse(#Module, inputFolder + "/<grammarName>.rsc");
   println("imploding the syntax definition and normalizing and desugaring it");
   return module2grammar(\module);
+}
+
+public void bootAST(Grammar g) {
+  g = expandParameterizedSymbols(g);
+  
+  patterns = g.rules[sort("Pattern")];
+  patterns = visit(patterns) { case sort("Pattern") => sort("Expression") }
+  
+  // extend Expression with the Patterns
+  g.rules[sort("Expression")] += patterns;
+  g.rules -= (sort("Pattern"): {}, sort("RascalReservedKeywords"): {});
+  
+  // make sure all uses of Pattern have been replaced by Expression
+  g = visit(g) { case sort("Pattern") => sort("Expression") }
+  
+  grammarToJavaAPI(astFolder, "org.rascalmpl.ast", g);
 }
 
 public void bootRootParser(Grammar gr) {

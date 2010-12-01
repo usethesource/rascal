@@ -1,59 +1,141 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Case extends AbstractAST { 
-  public org.rascalmpl.ast.PatternWithAction getPatternWithAction() { throw new UnsupportedOperationException(); }
-public boolean hasPatternWithAction() { return false; }
-public boolean isPatternWithAction() { return false; }
-static public class PatternWithAction extends Case {
-/** "case" patternWithAction:PatternWithAction -> Case {cons("PatternWithAction")} */
-	protected PatternWithAction(INode node, org.rascalmpl.ast.PatternWithAction patternWithAction) {
-		this.node = node;
-		this.patternWithAction = patternWithAction;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitCasePatternWithAction(this);
-	}
 
-	public boolean isPatternWithAction() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasPatternWithAction() { return true; }
 
-private final org.rascalmpl.ast.PatternWithAction patternWithAction;
-	public org.rascalmpl.ast.PatternWithAction getPatternWithAction() { return patternWithAction; }	
-}
-static public class Ambiguity extends Case {
-  private final java.util.List<org.rascalmpl.ast.Case> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Case> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Case> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Case extends AbstractAST {
+  public Case(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitCaseAmbiguity(this);
+
+  public boolean hasPatternWithAction() {
+    return false;
   }
-} 
-public org.rascalmpl.ast.Statement getStatement() { throw new UnsupportedOperationException(); }
-public boolean hasStatement() { return false; }
-public boolean isDefault() { return false; }
-static public class Default extends Case {
-/** "default" ":" statement:Statement -> Case {cons("Default")} */
-	protected Default(INode node, org.rascalmpl.ast.Statement statement) {
-		this.node = node;
-		this.statement = statement;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitCaseDefault(this);
-	}
 
-	public boolean isDefault() { return true; }
+  public org.rascalmpl.ast.PatternWithAction getPatternWithAction() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasStatement() { return true; }
+  public boolean hasStatement() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.Statement statement;
-	public org.rascalmpl.ast.Statement getStatement() { return statement; }	
+  public org.rascalmpl.ast.Statement getStatement() {
+    throw new UnsupportedOperationException();
+  }
+
+
+static public class Ambiguity extends Case {
+  private final java.util.List<org.rascalmpl.ast.Case> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Case> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.Case> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitCaseAmbiguity(this);
+  }
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+
+
+
+
+
+  public boolean isPatternWithAction() {
+    return false;
+  }
+  
+static public class PatternWithAction extends Case {
+  // Production: sig("PatternWithAction",[arg("org.rascalmpl.ast.PatternWithAction","patternWithAction")])
+
+  
+     private final org.rascalmpl.ast.PatternWithAction patternWithAction;
+  
+
+  
+public PatternWithAction(INode node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
+  super(node);
+  
+    this.patternWithAction = patternWithAction;
+  
+}
+
+
+  @Override
+  public boolean isPatternWithAction() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitCasePatternWithAction(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.PatternWithAction getPatternWithAction() {
+        return this.patternWithAction;
+     }
+     
+     @Override
+     public boolean hasPatternWithAction() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isDefault() {
+    return false;
+  }
+  
+static public class Default extends Case {
+  // Production: sig("Default",[arg("org.rascalmpl.ast.Statement","statement")])
+
+  
+     private final org.rascalmpl.ast.Statement statement;
+  
+
+  
+public Default(INode node , org.rascalmpl.ast.Statement statement) {
+  super(node);
+  
+    this.statement = statement;
+  
+}
+
+
+  @Override
+  public boolean isDefault() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitCaseDefault(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Statement getStatement() {
+        return this.statement;
+     }
+     
+     @Override
+     public boolean hasStatement() {
+        return true;
+     }
+  	
+}
+
+
+
 }

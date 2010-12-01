@@ -38,6 +38,7 @@ public set[Production] layoutProductions(Grammar object) {
 
 private Symbol rl = layouts("$QUOTES");
 
+// TODO: this does not generate productions for bound parameterized symbols
 public set[Production] fromRascal(Grammar object) {
   return  { prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
@@ -47,6 +48,7 @@ public set[Production] fromRascal(Grammar object) {
       | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
 }
 
+// TODO: this does not generate productions for bound parameterized symbols
 public set[Production] toRascal(Grammar object) {
   return  { prod([lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
           | Symbol nont <- object.rules, isNonterminal(nont) };

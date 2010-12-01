@@ -298,13 +298,6 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 	}
 
 	@Override
-	public IBooleanResult visitExpressionLexical(
-			org.rascalmpl.ast.Expression.Lexical x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
 	public IBooleanResult visitExpressionMatch(Match x) {
 		return new MatchResult(ctx, x.getPattern(), true, x.getExpression());
 	}
