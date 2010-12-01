@@ -245,6 +245,10 @@ public class ASTBuilder {
 			throw new ImplementationError("Could not retrieve sort name for " + tree);
 		}
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
+		
+		if (sort.equals("Mapping")) {
+			sort = "Mapping_Expression";
+		}
 
 		IList args = getASTArgs(tree);
 		int arity = args.length() + 1;
