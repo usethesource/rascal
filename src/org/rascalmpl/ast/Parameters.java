@@ -1,54 +1,133 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Parameters extends AbstractAST { 
-  public org.rascalmpl.ast.Formals getFormals() { throw new UnsupportedOperationException(); } public boolean hasFormals() { return false; } public boolean isDefault() { return false; }
-static public class Default extends Parameters {
-/** "(" formals:Formals ")" -> Parameters {cons("Default")} */
-	protected Default(INode node, org.rascalmpl.ast.Formals formals) {
-		this.node = node;
-		this.formals = formals;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitParametersDefault(this);
-	}
 
-	public boolean isDefault() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasFormals() { return true; }
 
-private final org.rascalmpl.ast.Formals formals;
-	public org.rascalmpl.ast.Formals getFormals() { return formals; }	
-}
-static public class Ambiguity extends Parameters {
-  private final java.util.List<org.rascalmpl.ast.Parameters> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Parameters> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Parameters> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Parameters extends AbstractAST {
+  public Parameters(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitParametersAmbiguity(this);
+
+  public boolean hasFormals() {
+    return false;
   }
-} public boolean isVarArgs() { return false; }
-static public class VarArgs extends Parameters {
-/** "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
-	protected VarArgs(INode node, org.rascalmpl.ast.Formals formals) {
-		this.node = node;
-		this.formals = formals;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitParametersVarArgs(this);
-	}
 
-	public boolean isVarArgs() { return true; }
+  public org.rascalmpl.ast.Formals getFormals() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasFormals() { return true; }
 
-private final org.rascalmpl.ast.Formals formals;
-	public org.rascalmpl.ast.Formals getFormals() { return formals; }	
+static public class Ambiguity extends Parameters {
+  private final java.util.List<org.rascalmpl.ast.Parameters> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Parameters> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.Parameters> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitParametersAmbiguity(this);
+  }
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+
+
+
+
+
+  public boolean isVarArgs() {
+    return false;
+  }
+  
+static public class VarArgs extends Parameters {
+  // Production: sig("VarArgs",[arg("org.rascalmpl.ast.Formals","formals")])
+
+  
+     private final org.rascalmpl.ast.Formals formals;
+  
+
+  
+public VarArgs(INode node , org.rascalmpl.ast.Formals formals) {
+  super(node);
+  
+    this.formals = formals;
+  
+}
+
+
+  @Override
+  public boolean isVarArgs() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitParametersVarArgs(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Formals getFormals() {
+        return this.formals;
+     }
+     
+     @Override
+     public boolean hasFormals() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isDefault() {
+    return false;
+  }
+  
+static public class Default extends Parameters {
+  // Production: sig("Default",[arg("org.rascalmpl.ast.Formals","formals")])
+
+  
+     private final org.rascalmpl.ast.Formals formals;
+  
+
+  
+public Default(INode node , org.rascalmpl.ast.Formals formals) {
+  super(node);
+  
+    this.formals = formals;
+  
+}
+
+
+  @Override
+  public boolean isDefault() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitParametersDefault(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Formals getFormals() {
+        return this.formals;
+     }
+     
+     @Override
+     public boolean hasFormals() {
+        return true;
+     }
+  	
+}
+
+
+
 }

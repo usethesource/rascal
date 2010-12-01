@@ -1,77 +1,193 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class DateTimeLiteral extends AbstractAST { 
-  public org.rascalmpl.ast.JustDate getDate() { throw new UnsupportedOperationException(); }
-public boolean hasDate() { return false; }
-public boolean isDateLiteral() { return false; }
-static public class DateLiteral extends DateTimeLiteral {
-/** date:JustDate -> DateTimeLiteral {prefer, cons("DateLiteral")} */
-	protected DateLiteral(INode node, org.rascalmpl.ast.JustDate date) {
-		this.node = node;
-		this.date = date;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDateTimeLiteralDateLiteral(this);
-	}
 
-	public boolean isDateLiteral() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasDate() { return true; }
 
-private final org.rascalmpl.ast.JustDate date;
-	public org.rascalmpl.ast.JustDate getDate() { return date; }	
-}
-static public class Ambiguity extends DateTimeLiteral {
-  private final java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.DateTimeLiteral> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class DateTimeLiteral extends AbstractAST {
+  public DateTimeLiteral(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitDateTimeLiteralAmbiguity(this);
+
+  public boolean hasDateAndTime() {
+    return false;
   }
-} 
-public org.rascalmpl.ast.JustTime getTime() { throw new UnsupportedOperationException(); }
-public boolean hasTime() { return false; }
-public boolean isTimeLiteral() { return false; }
-static public class TimeLiteral extends DateTimeLiteral {
-/** time:JustTime -> DateTimeLiteral {prefer, cons("TimeLiteral")} */
-	protected TimeLiteral(INode node, org.rascalmpl.ast.JustTime time) {
-		this.node = node;
-		this.time = time;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDateTimeLiteralTimeLiteral(this);
-	}
 
-	public boolean isTimeLiteral() { return true; }
+  public org.rascalmpl.ast.DateAndTime getDateAndTime() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasTime() { return true; }
+  public boolean hasTime() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.JustTime time;
-	public org.rascalmpl.ast.JustTime getTime() { return time; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.DateAndTime getDateAndTime() { throw new UnsupportedOperationException(); }
-public boolean hasDateAndTime() { return false; }
-public boolean isDateAndTimeLiteral() { return false; }
-static public class DateAndTimeLiteral extends DateTimeLiteral {
-/** dateAndTime:DateAndTime -> DateTimeLiteral {prefer, cons("DateAndTimeLiteral")} */
-	protected DateAndTimeLiteral(INode node, org.rascalmpl.ast.DateAndTime dateAndTime) {
-		this.node = node;
-		this.dateAndTime = dateAndTime;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDateTimeLiteralDateAndTimeLiteral(this);
-	}
+  public org.rascalmpl.ast.JustTime getTime() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isDateAndTimeLiteral() { return true; }
+  public boolean hasDate() {
+    return false;
+  }
 
-	public boolean hasDateAndTime() { return true; }
+  public org.rascalmpl.ast.JustDate getDate() {
+    throw new UnsupportedOperationException();
+  }
 
-private final org.rascalmpl.ast.DateAndTime dateAndTime;
-	public org.rascalmpl.ast.DateAndTime getDateAndTime() { return dateAndTime; }	
+
+static public class Ambiguity extends DateTimeLiteral {
+  private final java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.DateTimeLiteral> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitDateTimeLiteralAmbiguity(this);
+  }
 }
+
+
+
+
+
+  public boolean isDateAndTimeLiteral() {
+    return false;
+  }
+  
+static public class DateAndTimeLiteral extends DateTimeLiteral {
+  // Production: sig("DateAndTimeLiteral",[arg("org.rascalmpl.ast.DateAndTime","dateAndTime")])
+
+  
+     private final org.rascalmpl.ast.DateAndTime dateAndTime;
+  
+
+  
+public DateAndTimeLiteral(INode node , org.rascalmpl.ast.DateAndTime dateAndTime) {
+  super(node);
+  
+    this.dateAndTime = dateAndTime;
+  
+}
+
+
+  @Override
+  public boolean isDateAndTimeLiteral() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitDateTimeLiteralDateAndTimeLiteral(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.DateAndTime getDateAndTime() {
+        return this.dateAndTime;
+     }
+     
+     @Override
+     public boolean hasDateAndTime() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isTimeLiteral() {
+    return false;
+  }
+  
+static public class TimeLiteral extends DateTimeLiteral {
+  // Production: sig("TimeLiteral",[arg("org.rascalmpl.ast.JustTime","time")])
+
+  
+     private final org.rascalmpl.ast.JustTime time;
+  
+
+  
+public TimeLiteral(INode node , org.rascalmpl.ast.JustTime time) {
+  super(node);
+  
+    this.time = time;
+  
+}
+
+
+  @Override
+  public boolean isTimeLiteral() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitDateTimeLiteralTimeLiteral(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.JustTime getTime() {
+        return this.time;
+     }
+     
+     @Override
+     public boolean hasTime() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isDateLiteral() {
+    return false;
+  }
+  
+static public class DateLiteral extends DateTimeLiteral {
+  // Production: sig("DateLiteral",[arg("org.rascalmpl.ast.JustDate","date")])
+
+  
+     private final org.rascalmpl.ast.JustDate date;
+  
+
+  
+public DateLiteral(INode node , org.rascalmpl.ast.JustDate date) {
+  super(node);
+  
+    this.date = date;
+  
+}
+
+
+  @Override
+  public boolean isDateLiteral() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitDateTimeLiteralDateLiteral(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.JustDate getDate() {
+        return this.date;
+     }
+     
+     @Override
+     public boolean hasDate() {
+        return true;
+     }
+  	
+}
+
+
+
 }

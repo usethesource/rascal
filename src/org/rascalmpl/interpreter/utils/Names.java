@@ -121,6 +121,7 @@ public class Names {
 		private final String fName;
 		
 		public InventedName(String name) {
+			super(null);
 			fName = name;
 		}
 

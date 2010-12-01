@@ -620,11 +620,6 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	public IMatchingResult visitExpressionLessThanOrEq(LessThanOrEq x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
-	@Override
-	public IMatchingResult visitExpressionLexical(
-			org.rascalmpl.ast.Expression.Lexical x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
 
 	@Override
 	public IMatchingResult visitExpressionMatch(Match x) {

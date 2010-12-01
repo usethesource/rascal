@@ -61,7 +61,6 @@ import org.rascalmpl.ast.BasicType.Relation;
 import org.rascalmpl.ast.BasicType.Set;
 import org.rascalmpl.ast.BasicType.Value;
 import org.rascalmpl.ast.BasicType.Void;
-import org.rascalmpl.ast.Body.Anything;
 import org.rascalmpl.ast.Body.Toplevels;
 import org.rascalmpl.ast.Bound.Empty;
 import org.rascalmpl.ast.Case.PatternWithAction;
@@ -223,7 +222,6 @@ import org.rascalmpl.ast.Statement.Try;
 import org.rascalmpl.ast.Statement.TryFinally;
 import org.rascalmpl.ast.Statement.VariableDeclaration;
 import org.rascalmpl.ast.Statement.While;
-import org.rascalmpl.ast.StrChar.newline;
 import org.rascalmpl.ast.Strategy.BottomUp;
 import org.rascalmpl.ast.Strategy.BottomUpBreak;
 import org.rascalmpl.ast.Strategy.Innermost;
@@ -513,10 +511,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitBodyAmbiguity(org.rascalmpl.ast.Body.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitBodyAnything(Anything x) {
 		return L(x.getClass().toString());
 	}
 
@@ -1067,11 +1061,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return list(eX(x.getLhs()), BoxADT.LE, eX(x.getRhs()));
 	}
 
-	public IValue visitExpressionLexical(org.rascalmpl.ast.Expression.Lexical x) {
-		// TODO Auto-generated method stu
-		return list(L(x.getString()));
-	}
-
 	public IValue visitExpressionList(org.rascalmpl.ast.Expression.List x) {
 		IList r = list(eXs(x.getElements(), BoxADT.LBRACK, BoxADT.RBRACK));
 		// System.err.println(""+width(r)+"<"+UNITLENGTH);
@@ -1571,20 +1560,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitMappingAmbiguity(org.rascalmpl.ast.Mapping.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitMappingDefault(org.rascalmpl.ast.Mapping.Default x) {
+	public IValue visitMapping_ExpressionDefault(org.rascalmpl.ast.Mapping_Expression.Default x) {
 		return H(0, eX(x.getFrom()), BoxADT.COLON, eX(x.getTo()));
-	}
-
-	public IValue visitMarkerAmbiguity(org.rascalmpl.ast.Marker.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitMarkerLexical(org.rascalmpl.ast.Marker.Lexical x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitMidPathCharsAmbiguity(
@@ -1969,14 +1946,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return eX(x.getReplacementExpression());
 	}
 
-	public IValue visitRestAmbiguity(org.rascalmpl.ast.Rest.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitRestLexical(org.rascalmpl.ast.Rest.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitShellCommandAmbiguity(
 			org.rascalmpl.ast.ShellCommand.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -2227,10 +2196,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitStrCharLexical(org.rascalmpl.ast.StrChar.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitStrCharnewline(newline x) {
 		return L(x.getClass().toString());
 	}
 
@@ -2936,16 +2901,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				BoxADT.VBAR, eXs(x.getGenerators()));
 	}
 
-	public IValue visitRascalReservedKeywordsAmbiguity(
-			org.rascalmpl.ast.RascalReservedKeywords.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitRascalReservedKeywordsLexical(
-			org.rascalmpl.ast.RascalReservedKeywords.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	// IValue EmptyBlock(org.rascalmpl.ast.Statement statement) {
 	// IValue t = statement.accept(this);
 	// if (t == null)
@@ -3640,6 +3595,48 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitSymParameter(Parameter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitAssignableBracket(org.rascalmpl.ast.Assignable.Bracket x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitLAYOUTAmbiguity(org.rascalmpl.ast.LAYOUT.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitLAYOUTLexical(org.rascalmpl.ast.LAYOUT.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitMapping_ExpressionAmbiguity(
+			org.rascalmpl.ast.Mapping_Expression.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitPreModuleAmbiguity(
+			org.rascalmpl.ast.PreModule.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitPreModuleDefault(org.rascalmpl.ast.PreModule.Default x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitWordAmbiguity(org.rascalmpl.ast.Word.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitWordLexical(org.rascalmpl.ast.Word.Lexical x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

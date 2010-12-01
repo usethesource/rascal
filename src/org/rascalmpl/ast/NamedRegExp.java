@@ -1,31 +1,53 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class NamedRegExp extends AbstractAST { 
-  static public class Lexical extends NamedRegExp {
-	private final String string;
-         protected Lexical(INode node, String string) {
-		this.node = node;
-		this.string = string;
-	}
-	public String getString() {
-		return string;
-	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
-     		return v.visitNamedRegExpLexical(this);
-  	}
-} static public class Ambiguity extends NamedRegExp {
-  private final java.util.List<org.rascalmpl.ast.NamedRegExp> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NamedRegExp> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.NamedRegExp> getAlternatives() {
-	return alternatives;
+package org.rascalmpl.ast;
+
+
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class NamedRegExp extends AbstractAST {
+  public NamedRegExp(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitNamedRegExpAmbiguity(this);
+
+
+static public class Ambiguity extends NamedRegExp {
+  private final java.util.List<org.rascalmpl.ast.NamedRegExp> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NamedRegExp> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-} public abstract <T> T accept(IASTVisitor<T> visitor);
+
+  public java.util.List<org.rascalmpl.ast.NamedRegExp> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitNamedRegExpAmbiguity(this);
+  }
+}
+
+
+
+ 
+static public class Lexical extends NamedRegExp {
+  private final java.lang.String string;
+  public Lexical(INode node, java.lang.String string) {
+    super(node);
+    this.string = string;
+  }
+  public java.lang.String getString() {
+    return string;
+  }
+  public <T> T accept(IASTVisitor<T> v) {
+    return v.visitNamedRegExpLexical(this);
+  }
+}
+
+
+
+
+
 }

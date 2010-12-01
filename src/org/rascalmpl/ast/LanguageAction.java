@@ -1,59 +1,141 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class LanguageAction extends AbstractAST { 
-  public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
-public boolean hasExpression() { return false; }
-public boolean isBuild() { return false; }
-static public class Build extends LanguageAction {
-/** "=>" expression:Expression -> LanguageAction {cons("Build")} */
-	protected Build(INode node, org.rascalmpl.ast.Expression expression) {
-		this.node = node;
-		this.expression = expression;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitLanguageActionBuild(this);
-	}
 
-	public boolean isBuild() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasExpression() { return true; }
 
-private final org.rascalmpl.ast.Expression expression;
-	public org.rascalmpl.ast.Expression getExpression() { return expression; }	
-}
-static public class Ambiguity extends LanguageAction {
-  private final java.util.List<org.rascalmpl.ast.LanguageAction> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LanguageAction> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.LanguageAction> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class LanguageAction extends AbstractAST {
+  public LanguageAction(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitLanguageActionAmbiguity(this);
+
+  public boolean hasExpression() {
+    return false;
   }
-} 
-public java.util.List<org.rascalmpl.ast.Statement> getStatements() { throw new UnsupportedOperationException(); }
-public boolean hasStatements() { return false; }
-public boolean isAction() { return false; }
-static public class Action extends LanguageAction {
-/** "{" statements:Statement* "}" -> LanguageAction {cons("Action")} */
-	protected Action(INode node, java.util.List<org.rascalmpl.ast.Statement> statements) {
-		this.node = node;
-		this.statements = statements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitLanguageActionAction(this);
-	}
 
-	public boolean isAction() { return true; }
+  public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasStatements() { return true; }
+  public boolean hasStatements() {
+    return false;
+  }
 
-private final java.util.List<org.rascalmpl.ast.Statement> statements;
-	public java.util.List<org.rascalmpl.ast.Statement> getStatements() { return statements; }	
+  public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
+    throw new UnsupportedOperationException();
+  }
+
+
+static public class Ambiguity extends LanguageAction {
+  private final java.util.List<org.rascalmpl.ast.LanguageAction> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LanguageAction> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.LanguageAction> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitLanguageActionAmbiguity(this);
+  }
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
+
+
+
+
+
+  public boolean isBuild() {
+    return false;
+  }
+  
+static public class Build extends LanguageAction {
+  // Production: sig("Build",[arg("org.rascalmpl.ast.Expression","expression")])
+
+  
+     private final org.rascalmpl.ast.Expression expression;
+  
+
+  
+public Build(INode node , org.rascalmpl.ast.Expression expression) {
+  super(node);
+  
+    this.expression = expression;
+  
+}
+
+
+  @Override
+  public boolean isBuild() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitLanguageActionBuild(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Expression getExpression() {
+        return this.expression;
+     }
+     
+     @Override
+     public boolean hasExpression() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isAction() {
+    return false;
+  }
+  
+static public class Action extends LanguageAction {
+  // Production: sig("Action",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
+
+  
+     private final java.util.List<org.rascalmpl.ast.Statement> statements;
+  
+
+  
+public Action(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
+  super(node);
+  
+    this.statements = statements;
+  
+}
+
+
+  @Override
+  public boolean isAction() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitLanguageActionAction(this);
+  }
+  
+  
+     @Override
+     public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
+        return this.statements;
+     }
+     
+     @Override
+     public boolean hasStatements() {
+        return true;
+     }
+  	
+}
+
+
+
 }

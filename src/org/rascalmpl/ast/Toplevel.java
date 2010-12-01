@@ -1,38 +1,89 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Toplevel extends AbstractAST { 
-public org.rascalmpl.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); }
-public boolean hasDeclaration() { return false; }
-public boolean isGivenVisibility() { return false; }
-static public class GivenVisibility extends Toplevel {
-/** declaration:Declaration -> Toplevel {cons("GivenVisibility")} */
-	protected GivenVisibility(INode node, org.rascalmpl.ast.Declaration declaration) {
-		this.node = node;
-		this.declaration = declaration;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitToplevelGivenVisibility(this);
-	}
 
-	public boolean isGivenVisibility() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasDeclaration() { return true; }
 
-private final org.rascalmpl.ast.Declaration declaration;
-	public org.rascalmpl.ast.Declaration getDeclaration() { return declaration; }	
-}
-static public class Ambiguity extends Toplevel {
-  private final java.util.List<org.rascalmpl.ast.Toplevel> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Toplevel> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Toplevel> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Toplevel extends AbstractAST {
+  public Toplevel(INode node) {
+    super(node);
   }
   
+
+  public boolean hasDeclaration() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Declaration getDeclaration() {
+    throw new UnsupportedOperationException();
+  }
+
+
+static public class Ambiguity extends Toplevel {
+  private final java.util.List<org.rascalmpl.ast.Toplevel> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Toplevel> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.Toplevel> getAlternatives() {
+   return alternatives;
+  }
+
   public <T> T accept(IASTVisitor<T> v) {
-     return v.visitToplevelAmbiguity(this);
+	return v.visitToplevelAmbiguity(this);
   }
 }
+
+
+
+
+
+  public boolean isGivenVisibility() {
+    return false;
+  }
+  
+static public class GivenVisibility extends Toplevel {
+  // Production: sig("GivenVisibility",[arg("org.rascalmpl.ast.Declaration","declaration")])
+
+  
+     private final org.rascalmpl.ast.Declaration declaration;
+  
+
+  
+public GivenVisibility(INode node , org.rascalmpl.ast.Declaration declaration) {
+  super(node);
+  
+    this.declaration = declaration;
+  
+}
+
+
+  @Override
+  public boolean isGivenVisibility() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitToplevelGivenVisibility(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Declaration getDeclaration() {
+        return this.declaration;
+     }
+     
+     @Override
+     public boolean hasDeclaration() {
+        return true;
+     }
+  	
+}
+
+
+
 }

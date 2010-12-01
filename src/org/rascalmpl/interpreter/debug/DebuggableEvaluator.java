@@ -40,7 +40,6 @@ import org.rascalmpl.ast.Expression.IsDefined;
 import org.rascalmpl.ast.Expression.Join;
 import org.rascalmpl.ast.Expression.LessThan;
 import org.rascalmpl.ast.Expression.LessThanOrEq;
-import org.rascalmpl.ast.Expression.Lexical;
 import org.rascalmpl.ast.Expression.List;
 import org.rascalmpl.ast.Expression.Literal;
 import org.rascalmpl.ast.Expression.Map;
@@ -346,12 +345,6 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> visitExpressionLessThanOrEq(LessThanOrEq x) {
 		suspend(x);
 		return super.visitExpressionLessThanOrEq(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionLexical(Lexical x) {
-		suspend(x);
-		return super.visitExpressionLexical(x);
 	}
 
 	@Override

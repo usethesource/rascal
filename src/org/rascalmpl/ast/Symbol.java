@@ -1,244 +1,687 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Symbol extends AbstractAST { 
-  public org.rascalmpl.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean isOptional() { return false; } static public class Optional extends Symbol {
-/** symbol:Symbol "?" -> Symbol {cons("Optional")} */
-	protected Optional(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolOptional(this);
-	}
 
-	public boolean isOptional() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasSymbol() { return true; }
 
-private final org.rascalmpl.ast.Symbol symbol;
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
-} static public class Ambiguity extends Symbol {
-  private final java.util.List<org.rascalmpl.ast.Symbol> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Symbol> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Symbol> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Symbol extends AbstractAST {
+  public Symbol(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitSymbolAmbiguity(this);
+
+  public boolean hasLhs() {
+    return false;
   }
-} public boolean isIter() { return false; } static public class Iter extends Symbol {
-/** symbol:Symbol "+" -> Symbol {cons("Iter")} */
-	protected Iter(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolIter(this);
-	}
 
-	public boolean isIter() { return true; }
+  public org.rascalmpl.ast.Symbol getLhs() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasSymbol() { return true; }
+  public boolean hasRhs() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.Symbol symbol;
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isIterStar() { return false; } static public class IterStar extends Symbol {
-/** symbol:Symbol "*" -> Symbol {cons("IterStar")} */
-	protected IterStar(INode node, org.rascalmpl.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolIterStar(this);
-	}
+  public org.rascalmpl.ast.Symbol getRhs() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isIterStar() { return true; }
+  public boolean hasSep() {
+    return false;
+  }
 
-	public boolean hasSymbol() { return true; }
+  public org.rascalmpl.ast.StrCon getSep() {
+    throw new UnsupportedOperationException();
+  }
 
-private final org.rascalmpl.ast.Symbol symbol;
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }	
-} public boolean isEmpty() { return false; }
-static public class Empty extends Symbol {
-/** "(" ")" -> Symbol {cons("Empty")} */
-	protected Empty(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolEmpty(this);
-	}
+  public boolean hasSingelQuotedString() {
+    return false;
+  }
 
-	public boolean isEmpty() { return true; }	
-} 
-public org.rascalmpl.ast.Symbol getHead() { throw new UnsupportedOperationException(); }
-	public java.util.List<org.rascalmpl.ast.Symbol> getTail() { throw new UnsupportedOperationException(); }
-public boolean hasHead() { return false; }
-	public boolean hasTail() { return false; }
-public boolean isSequence() { return false; }
-static public class Sequence extends Symbol {
-/** "(" head:Symbol tail:Symbol+ ")" -> Symbol {cons("Sequence")} */
-	protected Sequence(INode node, org.rascalmpl.ast.Symbol head, java.util.List<org.rascalmpl.ast.Symbol> tail) {
-		this.node = node;
-		this.head = head;
-		this.tail = tail;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolSequence(this);
-	}
+  public org.rascalmpl.ast.SingleQuotedStrCon getSingelQuotedString() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isSequence() { return true; }
+  public boolean hasString() {
+    return false;
+  }
 
-	public boolean hasHead() { return true; }
-	public boolean hasTail() { return true; }
+  public org.rascalmpl.ast.StrCon getString() {
+    throw new UnsupportedOperationException();
+  }
 
-private final org.rascalmpl.ast.Symbol head;
-	public org.rascalmpl.ast.Symbol getHead() { return head; }
-	private final java.util.List<org.rascalmpl.ast.Symbol> tail;
-	public java.util.List<org.rascalmpl.ast.Symbol> getTail() { return tail; }	
-} public org.rascalmpl.ast.StrCon getSep() { throw new UnsupportedOperationException(); } public boolean hasSep() { return false; } public boolean isIterSep() { return false; }
-static public class IterSep extends Symbol {
-/** "{" symbol:Symbol sep:StrCon "}" "+" -> Symbol {cons("IterSep")} */
-	protected IterSep(INode node, org.rascalmpl.ast.Symbol symbol, org.rascalmpl.ast.StrCon sep) {
-		this.node = node;
-		this.symbol = symbol;
-		this.sep = sep;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolIterSep(this);
-	}
+  public boolean hasName() {
+    return false;
+  }
 
-	public boolean isIterSep() { return true; }
+  public org.rascalmpl.ast.QualifiedName getName() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasSymbol() { return true; }
-	public boolean hasSep() { return true; }
+  public boolean hasTail() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.Symbol symbol;
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }
-	private final org.rascalmpl.ast.StrCon sep;
-	public org.rascalmpl.ast.StrCon getSep() { return sep; }	
-} public boolean isIterStarSep() { return false; }
-static public class IterStarSep extends Symbol {
-/** "{" symbol:Symbol sep:StrCon "}" "*" -> Symbol {cons("IterStarSep")} */
-	protected IterStarSep(INode node, org.rascalmpl.ast.Symbol symbol, org.rascalmpl.ast.StrCon sep) {
-		this.node = node;
-		this.symbol = symbol;
-		this.sep = sep;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolIterStarSep(this);
-	}
+  public java.util.List<org.rascalmpl.ast.Symbol> getTail() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isIterStarSep() { return true; }
+  public boolean hasSymbol() {
+    return false;
+  }
 
-	public boolean hasSymbol() { return true; }
-	public boolean hasSep() { return true; }
+  public org.rascalmpl.ast.Symbol getSymbol() {
+    throw new UnsupportedOperationException();
+  }
 
-private final org.rascalmpl.ast.Symbol symbol;
-	public org.rascalmpl.ast.Symbol getSymbol() { return symbol; }
-	private final org.rascalmpl.ast.StrCon sep;
-	public org.rascalmpl.ast.StrCon getSep() { return sep; }	
-} public org.rascalmpl.ast.Symbol getLhs() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Symbol getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isAlternative() { return false; } static public class Alternative extends Symbol {
-/** lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")} */
-	protected Alternative(INode node, org.rascalmpl.ast.Symbol lhs, org.rascalmpl.ast.Symbol rhs) {
-		this.node = node;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolAlternative(this);
-	}
+  public boolean hasCharClass() {
+    return false;
+  }
 
-	public boolean isAlternative() { return true; }
+  public org.rascalmpl.ast.CharClass getCharClass() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
+  public boolean hasHead() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.Symbol lhs;
-	public org.rascalmpl.ast.Symbol getLhs() { return lhs; }
-	private final org.rascalmpl.ast.Symbol rhs;
-	public org.rascalmpl.ast.Symbol getRhs() { return rhs; }	
-} public org.rascalmpl.ast.CharClass getCharClass() { throw new UnsupportedOperationException(); }
-public boolean hasCharClass() { return false; }
-public boolean isCharacterClass() { return false; }
-static public class CharacterClass extends Symbol {
-/** charClass:CharClass -> Symbol {cons("CharacterClass")} */
-	protected CharacterClass(INode node, org.rascalmpl.ast.CharClass charClass) {
-		this.node = node;
-		this.charClass = charClass;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolCharacterClass(this);
-	}
+  public org.rascalmpl.ast.Symbol getHead() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isCharacterClass() { return true; }
 
-	public boolean hasCharClass() { return true; }
+static public class Ambiguity extends Symbol {
+  private final java.util.List<org.rascalmpl.ast.Symbol> alternatives;
 
-private final org.rascalmpl.ast.CharClass charClass;
-	public org.rascalmpl.ast.CharClass getCharClass() { return charClass; }	
-} 
-public org.rascalmpl.ast.StrCon getString() { throw new UnsupportedOperationException(); }
-public boolean hasString() { return false; }
-public boolean isLiteral() { return false; }
-static public class Literal extends Symbol {
-/** string:StrCon -> Symbol {cons("Literal")} */
-	protected Literal(INode node, org.rascalmpl.ast.StrCon string) {
-		this.node = node;
-		this.string = string;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolLiteral(this);
-	}
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Symbol> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
 
-	public boolean isLiteral() { return true; }
+  public java.util.List<org.rascalmpl.ast.Symbol> getAlternatives() {
+   return alternatives;
+  }
 
-	public boolean hasString() { return true; }
-
-private final org.rascalmpl.ast.StrCon string;
-	public org.rascalmpl.ast.StrCon getString() { return string; }	
-} 
-public org.rascalmpl.ast.SingleQuotedStrCon getSingelQuotedString() { throw new UnsupportedOperationException(); }
-public boolean hasSingelQuotedString() { return false; }
-public boolean isCaseInsensitiveLiteral() { return false; }
-static public class CaseInsensitiveLiteral extends Symbol {
-/** singelQuotedString:SingleQuotedStrCon -> Symbol {cons("CaseInsensitiveLiteral")} */
-	protected CaseInsensitiveLiteral(INode node, org.rascalmpl.ast.SingleQuotedStrCon singelQuotedString) {
-		this.node = node;
-		this.singelQuotedString = singelQuotedString;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolCaseInsensitiveLiteral(this);
-	}
-
-	public boolean isCaseInsensitiveLiteral() { return true; }
-
-	public boolean hasSingelQuotedString() { return true; }
-
-private final org.rascalmpl.ast.SingleQuotedStrCon singelQuotedString;
-	public org.rascalmpl.ast.SingleQuotedStrCon getSingelQuotedString() { return singelQuotedString; }	
-} 
-public org.rascalmpl.ast.QualifiedName getName() { throw new UnsupportedOperationException(); }
-public boolean hasName() { return false; }
-public boolean isSort() { return false; }
-static public class Sort extends Symbol {
-/** name:QualifiedName -> Symbol {cons("Sort")} */
-	protected Sort(INode node, org.rascalmpl.ast.QualifiedName name) {
-		this.node = node;
-		this.name = name;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolSort(this);
-	}
-
-	public boolean isSort() { return true; }
-
-	public boolean hasName() { return true; }
-
-private final org.rascalmpl.ast.QualifiedName name;
-	public org.rascalmpl.ast.QualifiedName getName() { return name; }	
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitSymbolAmbiguity(this);
+  }
 }
+
+
+
+
+
+  public boolean isSort() {
+    return false;
+  }
+  
+static public class Sort extends Symbol {
+  // Production: sig("Sort",[arg("org.rascalmpl.ast.QualifiedName","name")])
+
+  
+     private final org.rascalmpl.ast.QualifiedName name;
+  
+
+  
+public Sort(INode node , org.rascalmpl.ast.QualifiedName name) {
+  super(node);
+  
+    this.name = name;
+  
+}
+
+
+  @Override
+  public boolean isSort() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolSort(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.QualifiedName getName() {
+        return this.name;
+     }
+     
+     @Override
+     public boolean hasName() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isIter() {
+    return false;
+  }
+  
+static public class Iter extends Symbol {
+  // Production: sig("Iter",[arg("org.rascalmpl.ast.Symbol","symbol")])
+
+  
+     private final org.rascalmpl.ast.Symbol symbol;
+  
+
+  
+public Iter(INode node , org.rascalmpl.ast.Symbol symbol) {
+  super(node);
+  
+    this.symbol = symbol;
+  
+}
+
+
+  @Override
+  public boolean isIter() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolIter(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getSymbol() {
+        return this.symbol;
+     }
+     
+     @Override
+     public boolean hasSymbol() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isEmpty() {
+    return false;
+  }
+  
+static public class Empty extends Symbol {
+  // Production: sig("Empty",[])
+
+  
+
+  
+public Empty(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isEmpty() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolEmpty(this);
+  }
+  
+  	
+}
+
+
+  public boolean isSequence() {
+    return false;
+  }
+  
+static public class Sequence extends Symbol {
+  // Production: sig("Sequence",[arg("org.rascalmpl.ast.Symbol","head"),arg("java.util.List\<org.rascalmpl.ast.Symbol\>","tail")])
+
+  
+     private final org.rascalmpl.ast.Symbol head;
+  
+     private final java.util.List<org.rascalmpl.ast.Symbol> tail;
+  
+
+  
+public Sequence(INode node , org.rascalmpl.ast.Symbol head,  java.util.List<org.rascalmpl.ast.Symbol> tail) {
+  super(node);
+  
+    this.head = head;
+  
+    this.tail = tail;
+  
+}
+
+
+  @Override
+  public boolean isSequence() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolSequence(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getHead() {
+        return this.head;
+     }
+     
+     @Override
+     public boolean hasHead() {
+        return true;
+     }
+  
+     @Override
+     public java.util.List<org.rascalmpl.ast.Symbol> getTail() {
+        return this.tail;
+     }
+     
+     @Override
+     public boolean hasTail() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isIterStar() {
+    return false;
+  }
+  
+static public class IterStar extends Symbol {
+  // Production: sig("IterStar",[arg("org.rascalmpl.ast.Symbol","symbol")])
+
+  
+     private final org.rascalmpl.ast.Symbol symbol;
+  
+
+  
+public IterStar(INode node , org.rascalmpl.ast.Symbol symbol) {
+  super(node);
+  
+    this.symbol = symbol;
+  
+}
+
+
+  @Override
+  public boolean isIterStar() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolIterStar(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getSymbol() {
+        return this.symbol;
+     }
+     
+     @Override
+     public boolean hasSymbol() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isLiteral() {
+    return false;
+  }
+  
+static public class Literal extends Symbol {
+  // Production: sig("Literal",[arg("org.rascalmpl.ast.StrCon","string")])
+
+  
+     private final org.rascalmpl.ast.StrCon string;
+  
+
+  
+public Literal(INode node , org.rascalmpl.ast.StrCon string) {
+  super(node);
+  
+    this.string = string;
+  
+}
+
+
+  @Override
+  public boolean isLiteral() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolLiteral(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.StrCon getString() {
+        return this.string;
+     }
+     
+     @Override
+     public boolean hasString() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isIterStarSep() {
+    return false;
+  }
+  
+static public class IterStarSep extends Symbol {
+  // Production: sig("IterStarSep",[arg("org.rascalmpl.ast.Symbol","symbol"),arg("org.rascalmpl.ast.StrCon","sep")])
+
+  
+     private final org.rascalmpl.ast.Symbol symbol;
+  
+     private final org.rascalmpl.ast.StrCon sep;
+  
+
+  
+public IterStarSep(INode node , org.rascalmpl.ast.Symbol symbol,  org.rascalmpl.ast.StrCon sep) {
+  super(node);
+  
+    this.symbol = symbol;
+  
+    this.sep = sep;
+  
+}
+
+
+  @Override
+  public boolean isIterStarSep() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolIterStarSep(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getSymbol() {
+        return this.symbol;
+     }
+     
+     @Override
+     public boolean hasSymbol() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.StrCon getSep() {
+        return this.sep;
+     }
+     
+     @Override
+     public boolean hasSep() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isAlternative() {
+    return false;
+  }
+  
+static public class Alternative extends Symbol {
+  // Production: sig("Alternative",[arg("org.rascalmpl.ast.Symbol","lhs"),arg("org.rascalmpl.ast.Symbol","rhs")])
+
+  
+     private final org.rascalmpl.ast.Symbol lhs;
+  
+     private final org.rascalmpl.ast.Symbol rhs;
+  
+
+  
+public Alternative(INode node , org.rascalmpl.ast.Symbol lhs,  org.rascalmpl.ast.Symbol rhs) {
+  super(node);
+  
+    this.lhs = lhs;
+  
+    this.rhs = rhs;
+  
+}
+
+
+  @Override
+  public boolean isAlternative() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolAlternative(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getLhs() {
+        return this.lhs;
+     }
+     
+     @Override
+     public boolean hasLhs() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getRhs() {
+        return this.rhs;
+     }
+     
+     @Override
+     public boolean hasRhs() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isCaseInsensitiveLiteral() {
+    return false;
+  }
+  
+static public class CaseInsensitiveLiteral extends Symbol {
+  // Production: sig("CaseInsensitiveLiteral",[arg("org.rascalmpl.ast.SingleQuotedStrCon","singelQuotedString")])
+
+  
+     private final org.rascalmpl.ast.SingleQuotedStrCon singelQuotedString;
+  
+
+  
+public CaseInsensitiveLiteral(INode node , org.rascalmpl.ast.SingleQuotedStrCon singelQuotedString) {
+  super(node);
+  
+    this.singelQuotedString = singelQuotedString;
+  
+}
+
+
+  @Override
+  public boolean isCaseInsensitiveLiteral() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolCaseInsensitiveLiteral(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.SingleQuotedStrCon getSingelQuotedString() {
+        return this.singelQuotedString;
+     }
+     
+     @Override
+     public boolean hasSingelQuotedString() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isIterSep() {
+    return false;
+  }
+  
+static public class IterSep extends Symbol {
+  // Production: sig("IterSep",[arg("org.rascalmpl.ast.Symbol","symbol"),arg("org.rascalmpl.ast.StrCon","sep")])
+
+  
+     private final org.rascalmpl.ast.Symbol symbol;
+  
+     private final org.rascalmpl.ast.StrCon sep;
+  
+
+  
+public IterSep(INode node , org.rascalmpl.ast.Symbol symbol,  org.rascalmpl.ast.StrCon sep) {
+  super(node);
+  
+    this.symbol = symbol;
+  
+    this.sep = sep;
+  
+}
+
+
+  @Override
+  public boolean isIterSep() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolIterSep(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getSymbol() {
+        return this.symbol;
+     }
+     
+     @Override
+     public boolean hasSymbol() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.StrCon getSep() {
+        return this.sep;
+     }
+     
+     @Override
+     public boolean hasSep() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isOptional() {
+    return false;
+  }
+  
+static public class Optional extends Symbol {
+  // Production: sig("Optional",[arg("org.rascalmpl.ast.Symbol","symbol")])
+
+  
+     private final org.rascalmpl.ast.Symbol symbol;
+  
+
+  
+public Optional(INode node , org.rascalmpl.ast.Symbol symbol) {
+  super(node);
+  
+    this.symbol = symbol;
+  
+}
+
+
+  @Override
+  public boolean isOptional() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolOptional(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Symbol getSymbol() {
+        return this.symbol;
+     }
+     
+     @Override
+     public boolean hasSymbol() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isCharacterClass() {
+    return false;
+  }
+  
+static public class CharacterClass extends Symbol {
+  // Production: sig("CharacterClass",[arg("org.rascalmpl.ast.CharClass","charClass")])
+
+  
+     private final org.rascalmpl.ast.CharClass charClass;
+  
+
+  
+public CharacterClass(INode node , org.rascalmpl.ast.CharClass charClass) {
+  super(node);
+  
+    this.charClass = charClass;
+  
+}
+
+
+  @Override
+  public boolean isCharacterClass() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSymbolCharacterClass(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.CharClass getCharClass() {
+        return this.charClass;
+     }
+     
+     @Override
+     public boolean hasCharClass() {
+        return true;
+     }
+  	
+}
+
+
+
 }

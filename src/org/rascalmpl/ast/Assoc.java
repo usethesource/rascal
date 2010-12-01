@@ -1,65 +1,157 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Assoc extends AbstractAST { 
-  public boolean isLeft() { return false; }
-static public class Left extends Assoc {
-/** "left" -> Assoc {cons("Left")} */
-	protected Left(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitAssocLeft(this);
-	}
 
-	public boolean isLeft() { return true; }	
-}
-static public class Ambiguity extends Assoc {
-  private final java.util.List<org.rascalmpl.ast.Assoc> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assoc> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Assoc> getAlternatives() {
-	return alternatives;
+package org.rascalmpl.ast;
+
+
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Assoc extends AbstractAST {
+  public Assoc(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitAssocAmbiguity(this);
+
+
+static public class Ambiguity extends Assoc {
+  private final java.util.List<org.rascalmpl.ast.Assoc> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assoc> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-} 
-public boolean isRight() { return false; }
-static public class Right extends Assoc {
-/** "right" -> Assoc {cons("Right")} */
-	protected Right(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitAssocRight(this);
-	}
 
-	public boolean isRight() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNonAssociative() { return false; }
-static public class NonAssociative extends Assoc {
-/** "non-assoc" -> Assoc {cons("NonAssociative")} */
-	protected NonAssociative(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitAssocNonAssociative(this);
-	}
+  public java.util.List<org.rascalmpl.ast.Assoc> getAlternatives() {
+   return alternatives;
+  }
 
-	public boolean isNonAssociative() { return true; }	
-} 
-public boolean isAssociative() { return false; }
-static public class Associative extends Assoc {
-/** "assoc" -> Assoc {cons("Associative")} */
-	protected Associative(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitAssocAssociative(this);
-	}
-
-	public boolean isAssociative() { return true; }	
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitAssocAmbiguity(this);
+  }
 }
+
+
+
+
+
+  public boolean isRight() {
+    return false;
+  }
+  
+static public class Right extends Assoc {
+  // Production: sig("Right",[])
+
+  
+
+  
+public Right(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isRight() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitAssocRight(this);
+  }
+  
+  	
+}
+
+
+  public boolean isNonAssociative() {
+    return false;
+  }
+  
+static public class NonAssociative extends Assoc {
+  // Production: sig("NonAssociative",[])
+
+  
+
+  
+public NonAssociative(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isNonAssociative() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitAssocNonAssociative(this);
+  }
+  
+  	
+}
+
+
+  public boolean isLeft() {
+    return false;
+  }
+  
+static public class Left extends Assoc {
+  // Production: sig("Left",[])
+
+  
+
+  
+public Left(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isLeft() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitAssocLeft(this);
+  }
+  
+  	
+}
+
+
+  public boolean isAssociative() {
+    return false;
+  }
+  
+static public class Associative extends Assoc {
+  // Production: sig("Associative",[])
+
+  
+
+  
+public Associative(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isAssociative() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitAssocAssociative(this);
+  }
+  
+  	
+}
+
+
+
 }

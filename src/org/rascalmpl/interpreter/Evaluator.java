@@ -112,7 +112,6 @@ import org.rascalmpl.ast.Expression.It;
 import org.rascalmpl.ast.Expression.Join;
 import org.rascalmpl.ast.Expression.LessThan;
 import org.rascalmpl.ast.Expression.LessThanOrEq;
-import org.rascalmpl.ast.Expression.Lexical;
 import org.rascalmpl.ast.Expression.List;
 import org.rascalmpl.ast.Expression.Literal;
 import org.rascalmpl.ast.Expression.Match;
@@ -248,7 +247,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Utils;
 import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
-import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IActionExecutor;
 import org.rascalmpl.parser.IParserInfo;
@@ -2531,13 +2529,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionMap(
 			org.rascalmpl.ast.Expression.Map x) {
 
-		java.util.List<org.rascalmpl.ast.Mapping> mappings = x
+		java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings = x
 		.getMappings();
 		Map<IValue,IValue> result = new HashMap<IValue,IValue>();
 		Type keyType = tf.voidType();
 		Type valueType = tf.voidType();
 
-		for (org.rascalmpl.ast.Mapping mapping : mappings) {
+		for (org.rascalmpl.ast.Mapping_Expression mapping : mappings) {
 			Result<IValue> keyResult = mapping.getFrom().accept(this);
 			Result<IValue> valueResult = mapping.getTo().accept(this);
 			
@@ -2915,11 +2913,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitExpressionVisit(Expression.Visit x) {
 		return x.getVisit().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionLexical(Lexical x) {
-		throw new NotYetImplemented(x);// TODO
 	}
 
 	@Override

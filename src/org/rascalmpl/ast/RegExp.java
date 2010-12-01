@@ -1,31 +1,53 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class RegExp extends AbstractAST { 
-  static public class Lexical extends RegExp {
-	private final String string;
-         protected Lexical(INode node, String string) {
-		this.node = node;
-		this.string = string;
-	}
-	public String getString() {
-		return string;
-	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
-     		return v.visitRegExpLexical(this);
-  	}
-} static public class Ambiguity extends RegExp {
-  private final java.util.List<org.rascalmpl.ast.RegExp> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RegExp> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.RegExp> getAlternatives() {
-	return alternatives;
+package org.rascalmpl.ast;
+
+
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class RegExp extends AbstractAST {
+  public RegExp(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitRegExpAmbiguity(this);
+
+
+static public class Ambiguity extends RegExp {
+  private final java.util.List<org.rascalmpl.ast.RegExp> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RegExp> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-} public abstract <T> T accept(IASTVisitor<T> visitor);
+
+  public java.util.List<org.rascalmpl.ast.RegExp> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitRegExpAmbiguity(this);
+  }
+}
+
+
+
+ 
+static public class Lexical extends RegExp {
+  private final java.lang.String string;
+  public Lexical(INode node, java.lang.String string) {
+    super(node);
+    this.string = string;
+  }
+  public java.lang.String getString() {
+    return string;
+  }
+  public <T> T accept(IASTVisitor<T> v) {
+    return v.visitRegExpLexical(this);
+  }
+}
+
+
+
+
+
 }

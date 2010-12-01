@@ -1,88 +1,265 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class StringTail extends AbstractAST { 
-  public org.rascalmpl.ast.MidStringChars getMid() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public org.rascalmpl.ast.StringTail getTail() { throw new UnsupportedOperationException(); } public boolean hasMid() { return false; } public boolean hasExpression() { return false; } public boolean hasTail() { return false; } public boolean isMidInterpolated() { return false; }
-static public class MidInterpolated extends StringTail {
-/** mid:MidStringChars expression:Expression tail:StringTail -> StringTail {cons("MidInterpolated")} */
-	protected MidInterpolated(INode node, org.rascalmpl.ast.MidStringChars mid, org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.StringTail tail) {
-		this.node = node;
-		this.mid = mid;
-		this.expression = expression;
-		this.tail = tail;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStringTailMidInterpolated(this);
-	}
 
-	public boolean isMidInterpolated() { return true; }
+package org.rascalmpl.ast;
 
-	public boolean hasMid() { return true; }
-	public boolean hasExpression() { return true; }
-	public boolean hasTail() { return true; }
 
-private final org.rascalmpl.ast.MidStringChars mid;
-	public org.rascalmpl.ast.MidStringChars getMid() { return mid; }
-	private final org.rascalmpl.ast.Expression expression;
-	public org.rascalmpl.ast.Expression getExpression() { return expression; }
-	private final org.rascalmpl.ast.StringTail tail;
-	public org.rascalmpl.ast.StringTail getTail() { return tail; }	
-}
-static public class Ambiguity extends StringTail {
-  private final java.util.List<org.rascalmpl.ast.StringTail> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTail> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.StringTail> getAlternatives() {
-	return alternatives;
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class StringTail extends AbstractAST {
+  public StringTail(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitStringTailAmbiguity(this);
+
+  public boolean hasExpression() {
+    return false;
   }
-} public org.rascalmpl.ast.StringTemplate getTemplate() { throw new UnsupportedOperationException(); } public boolean hasTemplate() { return false; } public boolean isMidTemplate() { return false; }
-static public class MidTemplate extends StringTail {
-/** mid:MidStringChars template:StringTemplate tail:StringTail -> StringTail {cons("MidTemplate")} */
-	protected MidTemplate(INode node, org.rascalmpl.ast.MidStringChars mid, org.rascalmpl.ast.StringTemplate template, org.rascalmpl.ast.StringTail tail) {
-		this.node = node;
-		this.mid = mid;
-		this.template = template;
-		this.tail = tail;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStringTailMidTemplate(this);
-	}
 
-	public boolean isMidTemplate() { return true; }
+  public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean hasMid() { return true; }
-	public boolean hasTemplate() { return true; }
-	public boolean hasTail() { return true; }
+  public boolean hasMid() {
+    return false;
+  }
 
-private final org.rascalmpl.ast.MidStringChars mid;
-	public org.rascalmpl.ast.MidStringChars getMid() { return mid; }
-	private final org.rascalmpl.ast.StringTemplate template;
-	public org.rascalmpl.ast.StringTemplate getTemplate() { return template; }
-	private final org.rascalmpl.ast.StringTail tail;
-	public org.rascalmpl.ast.StringTail getTail() { return tail; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.rascalmpl.ast.PostStringChars getPost() { throw new UnsupportedOperationException(); }
-public boolean hasPost() { return false; }
-public boolean isPost() { return false; }
-static public class Post extends StringTail {
-/** post:PostStringChars -> StringTail {cons("Post")} */
-	protected Post(INode node, org.rascalmpl.ast.PostStringChars post) {
-		this.node = node;
-		this.post = post;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStringTailPost(this);
-	}
+  public org.rascalmpl.ast.MidStringChars getMid() {
+    throw new UnsupportedOperationException();
+  }
 
-	public boolean isPost() { return true; }
+  public boolean hasTail() {
+    return false;
+  }
 
-	public boolean hasPost() { return true; }
+  public org.rascalmpl.ast.StringTail getTail() {
+    throw new UnsupportedOperationException();
+  }
 
-private final org.rascalmpl.ast.PostStringChars post;
-	public org.rascalmpl.ast.PostStringChars getPost() { return post; }	
+  public boolean hasTemplate() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.StringTemplate getTemplate() {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean hasPost() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.PostStringChars getPost() {
+    throw new UnsupportedOperationException();
+  }
+
+
+static public class Ambiguity extends StringTail {
+  private final java.util.List<org.rascalmpl.ast.StringTail> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTail> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+
+  public java.util.List<org.rascalmpl.ast.StringTail> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitStringTailAmbiguity(this);
+  }
 }
+
+
+
+
+
+  public boolean isMidTemplate() {
+    return false;
+  }
+  
+static public class MidTemplate extends StringTail {
+  // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")])
+
+  
+     private final org.rascalmpl.ast.MidStringChars mid;
+  
+     private final org.rascalmpl.ast.StringTemplate template;
+  
+     private final org.rascalmpl.ast.StringTail tail;
+  
+
+  
+public MidTemplate(INode node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+  super(node);
+  
+    this.mid = mid;
+  
+    this.template = template;
+  
+    this.tail = tail;
+  
+}
+
+
+  @Override
+  public boolean isMidTemplate() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStringTailMidTemplate(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.MidStringChars getMid() {
+        return this.mid;
+     }
+     
+     @Override
+     public boolean hasMid() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.StringTemplate getTemplate() {
+        return this.template;
+     }
+     
+     @Override
+     public boolean hasTemplate() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.StringTail getTail() {
+        return this.tail;
+     }
+     
+     @Override
+     public boolean hasTail() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isMidInterpolated() {
+    return false;
+  }
+  
+static public class MidInterpolated extends StringTail {
+  // Production: sig("MidInterpolated",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")])
+
+  
+     private final org.rascalmpl.ast.MidStringChars mid;
+  
+     private final org.rascalmpl.ast.Expression expression;
+  
+     private final org.rascalmpl.ast.StringTail tail;
+  
+
+  
+public MidInterpolated(INode node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+  super(node);
+  
+    this.mid = mid;
+  
+    this.expression = expression;
+  
+    this.tail = tail;
+  
+}
+
+
+  @Override
+  public boolean isMidInterpolated() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStringTailMidInterpolated(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.MidStringChars getMid() {
+        return this.mid;
+     }
+     
+     @Override
+     public boolean hasMid() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Expression getExpression() {
+        return this.expression;
+     }
+     
+     @Override
+     public boolean hasExpression() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.StringTail getTail() {
+        return this.tail;
+     }
+     
+     @Override
+     public boolean hasTail() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isPost() {
+    return false;
+  }
+  
+static public class Post extends StringTail {
+  // Production: sig("Post",[arg("org.rascalmpl.ast.PostStringChars","post")])
+
+  
+     private final org.rascalmpl.ast.PostStringChars post;
+  
+
+  
+public Post(INode node , org.rascalmpl.ast.PostStringChars post) {
+  super(node);
+  
+    this.post = post;
+  
+}
+
+
+  @Override
+  public boolean isPost() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStringTailPost(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.PostStringChars getPost() {
+        return this.post;
+     }
+     
+     @Override
+     public boolean hasPost() {
+        return true;
+     }
+  	
+}
+
+
+
 }

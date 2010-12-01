@@ -7,13 +7,13 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
-	protected INode node;
+	protected final INode node;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	
-//	AbstractAST(INode node) {
-//		this.node = node;
-//	}
+	AbstractAST(INode node) {
+		this.node = node;
+	}
 	
 	public Type _getType() {
 	  return _type;

@@ -1,89 +1,217 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class Strategy extends AbstractAST { 
-  public boolean isTopDown() { return false; }
-static public class TopDown extends Strategy {
-/** "top-down" -> Strategy {cons("TopDown")} */
-	protected TopDown(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStrategyTopDown(this);
-	}
 
-	public boolean isTopDown() { return true; }	
-}
-static public class Ambiguity extends Strategy {
-  private final java.util.List<org.rascalmpl.ast.Strategy> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.Strategy> getAlternatives() {
-	return alternatives;
+package org.rascalmpl.ast;
+
+
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class Strategy extends AbstractAST {
+  public Strategy(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitStrategyAmbiguity(this);
+
+
+static public class Ambiguity extends Strategy {
+  private final java.util.List<org.rascalmpl.ast.Strategy> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-} 
-public boolean isTopDownBreak() { return false; }
-static public class TopDownBreak extends Strategy {
-/** "top-down-break" -> Strategy {cons("TopDownBreak")} */
-	protected TopDownBreak(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStrategyTopDownBreak(this);
-	}
 
-	public boolean isTopDownBreak() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBottomUp() { return false; }
-static public class BottomUp extends Strategy {
-/** "bottom-up" -> Strategy {cons("BottomUp")} */
-	protected BottomUp(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStrategyBottomUp(this);
-	}
+  public java.util.List<org.rascalmpl.ast.Strategy> getAlternatives() {
+   return alternatives;
+  }
 
-	public boolean isBottomUp() { return true; }	
-} 
-public boolean isBottomUpBreak() { return false; }
-static public class BottomUpBreak extends Strategy {
-/** "bottom-up-break" -> Strategy {cons("BottomUpBreak")} */
-	protected BottomUpBreak(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStrategyBottomUpBreak(this);
-	}
-
-	public boolean isBottomUpBreak() { return true; }	
-} 
-public boolean isOutermost() { return false; }
-static public class Outermost extends Strategy {
-/** "outermost" -> Strategy {cons("Outermost")} */
-	protected Outermost(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStrategyOutermost(this);
-	}
-
-	public boolean isOutermost() { return true; }	
-} 
-public boolean isInnermost() { return false; }
-static public class Innermost extends Strategy {
-/** "innermost" -> Strategy {cons("Innermost")} */
-	protected Innermost(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitStrategyInnermost(this);
-	}
-
-	public boolean isInnermost() { return true; }	
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitStrategyAmbiguity(this);
+  }
 }
+
+
+
+
+
+  public boolean isOutermost() {
+    return false;
+  }
+  
+static public class Outermost extends Strategy {
+  // Production: sig("Outermost",[])
+
+  
+
+  
+public Outermost(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isOutermost() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStrategyOutermost(this);
+  }
+  
+  	
+}
+
+
+  public boolean isTopDownBreak() {
+    return false;
+  }
+  
+static public class TopDownBreak extends Strategy {
+  // Production: sig("TopDownBreak",[])
+
+  
+
+  
+public TopDownBreak(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isTopDownBreak() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStrategyTopDownBreak(this);
+  }
+  
+  	
+}
+
+
+  public boolean isInnermost() {
+    return false;
+  }
+  
+static public class Innermost extends Strategy {
+  // Production: sig("Innermost",[])
+
+  
+
+  
+public Innermost(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isInnermost() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStrategyInnermost(this);
+  }
+  
+  	
+}
+
+
+  public boolean isBottomUpBreak() {
+    return false;
+  }
+  
+static public class BottomUpBreak extends Strategy {
+  // Production: sig("BottomUpBreak",[])
+
+  
+
+  
+public BottomUpBreak(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isBottomUpBreak() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStrategyBottomUpBreak(this);
+  }
+  
+  	
+}
+
+
+  public boolean isBottomUp() {
+    return false;
+  }
+  
+static public class BottomUp extends Strategy {
+  // Production: sig("BottomUp",[])
+
+  
+
+  
+public BottomUp(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isBottomUp() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStrategyBottomUp(this);
+  }
+  
+  	
+}
+
+
+  public boolean isTopDown() {
+    return false;
+  }
+  
+static public class TopDown extends Strategy {
+  // Production: sig("TopDown",[])
+
+  
+
+  
+public TopDown(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isTopDown() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitStrategyTopDown(this);
+  }
+  
+  	
+}
+
+
+
 }

@@ -1,31 +1,53 @@
-package org.rascalmpl.ast; 
-import org.eclipse.imp.pdb.facts.INode; 
-public abstract class DecimalLongLiteral extends AbstractAST { 
-  static public class Lexical extends DecimalLongLiteral {
-	private final String string;
-         protected Lexical(INode node, String string) {
-		this.node = node;
-		this.string = string;
-	}
-	public String getString() {
-		return string;
-	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
-     		return v.visitDecimalLongLiteralLexical(this);
-  	}
-} static public class Ambiguity extends DecimalLongLiteral {
-  private final java.util.List<org.rascalmpl.ast.DecimalLongLiteral> alternatives;
-  protected Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DecimalLongLiteral> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.rascalmpl.ast.DecimalLongLiteral> getAlternatives() {
-	return alternatives;
+package org.rascalmpl.ast;
+
+
+import org.eclipse.imp.pdb.facts.INode;
+
+
+public abstract class DecimalLongLiteral extends AbstractAST {
+  public DecimalLongLiteral(INode node) {
+    super(node);
   }
   
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitDecimalLongLiteralAmbiguity(this);
+
+
+static public class Ambiguity extends DecimalLongLiteral {
+  private final java.util.List<org.rascalmpl.ast.DecimalLongLiteral> alternatives;
+
+  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DecimalLongLiteral> alternatives) {
+    super(node);
+    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-} public abstract <T> T accept(IASTVisitor<T> visitor);
+
+  public java.util.List<org.rascalmpl.ast.DecimalLongLiteral> getAlternatives() {
+   return alternatives;
+  }
+
+  public <T> T accept(IASTVisitor<T> v) {
+	return v.visitDecimalLongLiteralAmbiguity(this);
+  }
+}
+
+
+
+ 
+static public class Lexical extends DecimalLongLiteral {
+  private final java.lang.String string;
+  public Lexical(INode node, java.lang.String string) {
+    super(node);
+    this.string = string;
+  }
+  public java.lang.String getString() {
+    return string;
+  }
+  public <T> T accept(IASTVisitor<T> v) {
+    return v.visitDecimalLongLiteralLexical(this);
+  }
+}
+
+
+
+
+
 }
