@@ -21,9 +21,13 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitStructuredTypeDefault(StructuredType.Default x) { return null; }
   
-      public T visitOptCharRangesAbsent(OptCharRanges.Absent x) { return null; }
+      public T visitProdModifierAssociativity(ProdModifier.Associativity x) { return null; }
   
-      public T visitOptCharRangesPresent(OptCharRanges.Present x) { return null; }
+      public T visitProdModifierTag(ProdModifier.Tag x) { return null; }
+  
+      public T visitProdModifierBracket(ProdModifier.Bracket x) { return null; }
+  
+      public T visitProdModifierLexical(ProdModifier.Lexical x) { return null; }
   
       public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x) { return null; }
   
@@ -71,27 +75,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x) { return null; }
   
-      public T visitLabelEmpty(Label.Empty x) { return null; }
-  
-      public T visitLabelDefault(Label.Default x) { return null; }
-  
-      public T visitCharClassComplement(CharClass.Complement x) { return null; }
-  
-      public T visitCharClassIntersection(CharClass.Intersection x) { return null; }
-  
-      public T visitCharClassBracket(CharClass.Bracket x) { return null; }
-  
-      public T visitCharClassDifference(CharClass.Difference x) { return null; }
-  
-      public T visitCharClassSimpleCharclass(CharClass.SimpleCharclass x) { return null; }
-  
-      public T visitCharClassUnion(CharClass.Union x) { return null; }
-  
       public T visitTypeBasic(Type.Basic x) { return null; }
   
       public T visitTypeFunction(Type.Function x) { return null; }
-  
-      public T visitTypeSymbol(Type.Symbol x) { return null; }
   
       public T visitTypeStructured(Type.Structured x) { return null; }
   
@@ -101,7 +87,13 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitTypeSelector(Type.Selector x) { return null; }
   
+      public T visitTypeSymbol(Type.Symbol x) { return null; }
+  
       public T visitTypeUser(Type.User x) { return null; }
+  
+      public T visitLabelEmpty(Label.Empty x) { return null; }
+  
+      public T visitLabelDefault(Label.Default x) { return null; }
   
       public T visitModuleParametersDefault(ModuleParameters.Default x) { return null; }
   
@@ -397,16 +389,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitTargetLabeled(Target.Labeled x) { return null; }
   
-      public T visitCharacterEOF(Character.EOF x) { return null; }
-  
-      public T visitCharacterShort(Character.Short x) { return null; }
-  
-      public T visitCharacterBottom(Character.Bottom x) { return null; }
-  
-      public T visitCharacterNumeric(Character.Numeric x) { return null; }
-  
-      public T visitCharacterTop(Character.Top x) { return null; }
-  
       public T visitStringTemplateIfThen(StringTemplate.IfThen x) { return null; }
   
       public T visitStringTemplateIfThenElse(StringTemplate.IfThenElse x) { return null; }
@@ -450,30 +432,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitKindAll(Kind.All x) { return null; }
   
       public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x) { return null; }
-  
-      public T visitSymbolSort(Symbol.Sort x) { return null; }
-  
-      public T visitSymbolIter(Symbol.Iter x) { return null; }
-  
-      public T visitSymbolEmpty(Symbol.Empty x) { return null; }
-  
-      public T visitSymbolSequence(Symbol.Sequence x) { return null; }
-  
-      public T visitSymbolIterStar(Symbol.IterStar x) { return null; }
-  
-      public T visitSymbolLiteral(Symbol.Literal x) { return null; }
-  
-      public T visitSymbolIterStarSep(Symbol.IterStarSep x) { return null; }
-  
-      public T visitSymbolAlternative(Symbol.Alternative x) { return null; }
-  
-      public T visitSymbolCaseInsensitiveLiteral(Symbol.CaseInsensitiveLiteral x) { return null; }
-  
-      public T visitSymbolIterSep(Symbol.IterSep x) { return null; }
-  
-      public T visitSymbolOptional(Symbol.Optional x) { return null; }
-  
-      public T visitSymbolCharacterClass(Symbol.CharacterClass x) { return null; }
   
       public T visitProdAll(Prod.All x) { return null; }
   
@@ -553,12 +511,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitQualifiedNameDefault(QualifiedName.Default x) { return null; }
   
-      public T visitProdModifierAssociativity(ProdModifier.Associativity x) { return null; }
-  
-      public T visitProdModifierBracket(ProdModifier.Bracket x) { return null; }
-  
-      public T visitProdModifierLexical(ProdModifier.Lexical x) { return null; }
-  
       public T visitStartAbsent(Start.Absent x) { return null; }
   
       public T visitStartPresent(Start.Present x) { return null; }
@@ -568,12 +520,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitParametersDefault(Parameters.Default x) { return null; }
   
       public T visitMapping_ExpressionDefault(Mapping_Expression.Default x) { return null; }
-  
-      public T visitCharRangesRange(CharRanges.Range x) { return null; }
-  
-      public T visitCharRangesBracket(CharRanges.Bracket x) { return null; }
-  
-      public T visitCharRangesConcatenate(CharRanges.Concatenate x) { return null; }
   
       public T visitReplacementUnconditional(Replacement.Unconditional x) { return null; }
   
@@ -727,10 +673,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitStatementContinue(Statement.Continue x) { return null; }
   
-      public T visitCharRangeRange(CharRange.Range x) { return null; }
-  
-      public T visitCharRangeCharacter(CharRange.Character x) { return null; }
-  
       public T visitAssignableTuple(Assignable.Tuple x) { return null; }
   
       public T visitAssignableVariable(Assignable.Variable x) { return null; }
@@ -756,9 +698,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitOctalEscapeSequenceLexical(OctalEscapeSequence.Lexical x) { return null; }
   
-      public T visitHexIntegerLiteralLexical(HexIntegerLiteral.Lexical x) { return null; }
-  
       public T visitPostStringCharsLexical(PostStringChars.Lexical x) { return null; }
+  
+      public T visitHexIntegerLiteralLexical(HexIntegerLiteral.Lexical x) { return null; }
   
       public T visitOctalLongLiteralLexical(OctalLongLiteral.Lexical x) { return null; }
   
@@ -856,9 +798,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitOctalIntegerLiteralLexical(OctalIntegerLiteral.Lexical x) { return null; }
   
-      public T visitPathCharsLexical(PathChars.Lexical x) { return null; }
-  
       public T visitHexLongLiteralLexical(HexLongLiteral.Lexical x) { return null; }
+  
+      public T visitPathCharsLexical(PathChars.Lexical x) { return null; }
   
   
       public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x) { return null; }
@@ -873,9 +815,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitOctalEscapeSequenceAmbiguity(OctalEscapeSequence.Ambiguity x) { return null; }
   
-      public T visitHexIntegerLiteralAmbiguity(HexIntegerLiteral.Ambiguity x) { return null; }
-  
       public T visitPostStringCharsAmbiguity(PostStringChars.Ambiguity x) { return null; }
+  
+      public T visitHexIntegerLiteralAmbiguity(HexIntegerLiteral.Ambiguity x) { return null; }
   
       public T visitUserTypeAmbiguity(UserType.Ambiguity x) { return null; }
   
@@ -889,7 +831,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitStructuredTypeAmbiguity(StructuredType.Ambiguity x) { return null; }
   
-      public T visitOptCharRangesAmbiguity(OptCharRanges.Ambiguity x) { return null; }
+      public T visitProdModifierAmbiguity(ProdModifier.Ambiguity x) { return null; }
   
       public T visitMidPathCharsAmbiguity(MidPathChars.Ambiguity x) { return null; }
   
@@ -923,11 +865,9 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitToplevelAmbiguity(Toplevel.Ambiguity x) { return null; }
   
-      public T visitLabelAmbiguity(Label.Ambiguity x) { return null; }
-  
-      public T visitCharClassAmbiguity(CharClass.Ambiguity x) { return null; }
-  
       public T visitTypeAmbiguity(Type.Ambiguity x) { return null; }
+  
+      public T visitLabelAmbiguity(Label.Ambiguity x) { return null; }
   
       public T visitModuleParametersAmbiguity(ModuleParameters.Ambiguity x) { return null; }
   
@@ -1015,8 +955,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitTargetAmbiguity(Target.Ambiguity x) { return null; }
   
-      public T visitCharacterAmbiguity(Character.Ambiguity x) { return null; }
-  
       public T visitStringConstantAmbiguity(StringConstant.Ambiguity x) { return null; }
   
       public T visitStringTemplateAmbiguity(StringTemplate.Ambiguity x) { return null; }
@@ -1039,8 +977,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitFunctionTypeAmbiguity(FunctionType.Ambiguity x) { return null; }
   
-      public T visitSymbolAmbiguity(Symbol.Ambiguity x) { return null; }
-  
       public T visitProdAmbiguity(Prod.Ambiguity x) { return null; }
   
       public T visitURLCharsAmbiguity(URLChars.Ambiguity x) { return null; }
@@ -1056,8 +992,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitProtocolTailAmbiguity(ProtocolTail.Ambiguity x) { return null; }
   
       public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x) { return null; }
-  
-      public T visitProdModifierAmbiguity(ProdModifier.Ambiguity x) { return null; }
   
       public T visitBackslashAmbiguity(Backslash.Ambiguity x) { return null; }
   
@@ -1080,8 +1014,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitJustDateAmbiguity(JustDate.Ambiguity x) { return null; }
   
       public T visitPostPathCharsAmbiguity(PostPathChars.Ambiguity x) { return null; }
-  
-      public T visitCharRangesAmbiguity(CharRanges.Ambiguity x) { return null; }
   
       public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x) { return null; }
   
@@ -1139,12 +1071,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitOctalIntegerLiteralAmbiguity(OctalIntegerLiteral.Ambiguity x) { return null; }
   
-      public T visitCharRangeAmbiguity(CharRange.Ambiguity x) { return null; }
-  
       public T visitAssignableAmbiguity(Assignable.Ambiguity x) { return null; }
   
-      public T visitPathCharsAmbiguity(PathChars.Ambiguity x) { return null; }
-  
       public T visitHexLongLiteralAmbiguity(HexLongLiteral.Ambiguity x) { return null; }
+  
+      public T visitPathCharsAmbiguity(PathChars.Ambiguity x) { return null; }
   
 }

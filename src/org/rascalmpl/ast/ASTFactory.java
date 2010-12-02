@@ -40,12 +40,20 @@ public class ASTFactory {
          return new StructuredType.Default(node , basicType, arguments);
       }
 
-      public OptCharRanges.Absent makeOptCharRangesAbsent(INode node ) {
-         return new OptCharRanges.Absent(node );
+      public ProdModifier.Associativity makeProdModifierAssociativity(INode node , org.rascalmpl.ast.Assoc associativity) {
+         return new ProdModifier.Associativity(node , associativity);
       }
 
-      public OptCharRanges.Present makeOptCharRangesPresent(INode node , org.rascalmpl.ast.CharRanges ranges) {
-         return new OptCharRanges.Present(node , ranges);
+      public ProdModifier.Tag makeProdModifierTag(INode node , org.rascalmpl.ast.Tag tag) {
+         return new ProdModifier.Tag(node , tag);
+      }
+
+      public ProdModifier.Bracket makeProdModifierBracket(INode node ) {
+         return new ProdModifier.Bracket(node );
+      }
+
+      public ProdModifier.Lexical makeProdModifierLexical(INode node ) {
+         return new ProdModifier.Lexical(node );
       }
 
       public DataTypeSelector.Selector makeDataTypeSelectorSelector(INode node , org.rascalmpl.ast.QualifiedName sort,  org.rascalmpl.ast.Name production) {
@@ -140,48 +148,12 @@ public class ASTFactory {
          return new Toplevel.GivenVisibility(node , declaration);
       }
 
-      public Label.Empty makeLabelEmpty(INode node ) {
-         return new Label.Empty(node );
-      }
-
-      public Label.Default makeLabelDefault(INode node , org.rascalmpl.ast.Name name) {
-         return new Label.Default(node , name);
-      }
-
-      public CharClass.Complement makeCharClassComplement(INode node , org.rascalmpl.ast.CharClass charClass) {
-         return new CharClass.Complement(node , charClass);
-      }
-
-      public CharClass.Intersection makeCharClassIntersection(INode node , org.rascalmpl.ast.CharClass lhs,  org.rascalmpl.ast.CharClass rhs) {
-         return new CharClass.Intersection(node , lhs, rhs);
-      }
-
-      public CharClass.Bracket makeCharClassBracket(INode node , org.rascalmpl.ast.CharClass charClass) {
-         return new CharClass.Bracket(node , charClass);
-      }
-
-      public CharClass.Difference makeCharClassDifference(INode node , org.rascalmpl.ast.CharClass lhs,  org.rascalmpl.ast.CharClass rhs) {
-         return new CharClass.Difference(node , lhs, rhs);
-      }
-
-      public CharClass.SimpleCharclass makeCharClassSimpleCharclass(INode node , org.rascalmpl.ast.OptCharRanges optionalCharRanges) {
-         return new CharClass.SimpleCharclass(node , optionalCharRanges);
-      }
-
-      public CharClass.Union makeCharClassUnion(INode node , org.rascalmpl.ast.CharClass lhs,  org.rascalmpl.ast.CharClass rhs) {
-         return new CharClass.Union(node , lhs, rhs);
-      }
-
       public Type.Basic makeTypeBasic(INode node , org.rascalmpl.ast.BasicType basic) {
          return new Type.Basic(node , basic);
       }
 
       public Type.Function makeTypeFunction(INode node , org.rascalmpl.ast.FunctionType function) {
          return new Type.Function(node , function);
-      }
-
-      public Type.Symbol makeTypeSymbol(INode node , org.rascalmpl.ast.Symbol symbol) {
-         return new Type.Symbol(node , symbol);
       }
 
       public Type.Structured makeTypeStructured(INode node , org.rascalmpl.ast.StructuredType structured) {
@@ -200,8 +172,20 @@ public class ASTFactory {
          return new Type.Selector(node , selector);
       }
 
+      public Type.Symbol makeTypeSymbol(INode node , org.rascalmpl.ast.Sym symbol) {
+         return new Type.Symbol(node , symbol);
+      }
+
       public Type.User makeTypeUser(INode node , org.rascalmpl.ast.UserType user) {
          return new Type.User(node , user);
+      }
+
+      public Label.Empty makeLabelEmpty(INode node ) {
+         return new Label.Empty(node );
+      }
+
+      public Label.Default makeLabelDefault(INode node , org.rascalmpl.ast.Name name) {
+         return new Label.Default(node , name);
       }
 
       public ModuleParameters.Default makeModuleParametersDefault(INode node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
@@ -792,26 +776,6 @@ public class ASTFactory {
          return new Target.Labeled(node , name);
       }
 
-      public Character.EOF makeCharacterEOF(INode node ) {
-         return new Character.EOF(node );
-      }
-
-      public Character.Short makeCharacterShort(INode node , org.rascalmpl.ast.ShortChar shortChar) {
-         return new Character.Short(node , shortChar);
-      }
-
-      public Character.Bottom makeCharacterBottom(INode node ) {
-         return new Character.Bottom(node );
-      }
-
-      public Character.Numeric makeCharacterNumeric(INode node , org.rascalmpl.ast.NumChar numChar) {
-         return new Character.Numeric(node , numChar);
-      }
-
-      public Character.Top makeCharacterTop(INode node ) {
-         return new Character.Top(node );
-      }
-
       public StringTemplate.IfThen makeStringTemplateIfThen(INode node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
          return new StringTemplate.IfThen(node , conditions, preStats, body, postStats);
       }
@@ -898,54 +862,6 @@ public class ASTFactory {
 
       public FunctionType.TypeArguments makeFunctionTypeTypeArguments(INode node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
          return new FunctionType.TypeArguments(node , type, arguments);
-      }
-
-      public Symbol.Sort makeSymbolSort(INode node , org.rascalmpl.ast.QualifiedName name) {
-         return new Symbol.Sort(node , name);
-      }
-
-      public Symbol.Iter makeSymbolIter(INode node , org.rascalmpl.ast.Symbol symbol) {
-         return new Symbol.Iter(node , symbol);
-      }
-
-      public Symbol.Empty makeSymbolEmpty(INode node ) {
-         return new Symbol.Empty(node );
-      }
-
-      public Symbol.Sequence makeSymbolSequence(INode node , org.rascalmpl.ast.Symbol head,  java.util.List<org.rascalmpl.ast.Symbol> tail) {
-         return new Symbol.Sequence(node , head, tail);
-      }
-
-      public Symbol.IterStar makeSymbolIterStar(INode node , org.rascalmpl.ast.Symbol symbol) {
-         return new Symbol.IterStar(node , symbol);
-      }
-
-      public Symbol.Literal makeSymbolLiteral(INode node , org.rascalmpl.ast.StrCon string) {
-         return new Symbol.Literal(node , string);
-      }
-
-      public Symbol.IterStarSep makeSymbolIterStarSep(INode node , org.rascalmpl.ast.Symbol symbol,  org.rascalmpl.ast.StrCon sep) {
-         return new Symbol.IterStarSep(node , symbol, sep);
-      }
-
-      public Symbol.Alternative makeSymbolAlternative(INode node , org.rascalmpl.ast.Symbol lhs,  org.rascalmpl.ast.Symbol rhs) {
-         return new Symbol.Alternative(node , lhs, rhs);
-      }
-
-      public Symbol.CaseInsensitiveLiteral makeSymbolCaseInsensitiveLiteral(INode node , org.rascalmpl.ast.SingleQuotedStrCon singelQuotedString) {
-         return new Symbol.CaseInsensitiveLiteral(node , singelQuotedString);
-      }
-
-      public Symbol.IterSep makeSymbolIterSep(INode node , org.rascalmpl.ast.Symbol symbol,  org.rascalmpl.ast.StrCon sep) {
-         return new Symbol.IterSep(node , symbol, sep);
-      }
-
-      public Symbol.Optional makeSymbolOptional(INode node , org.rascalmpl.ast.Symbol symbol) {
-         return new Symbol.Optional(node , symbol);
-      }
-
-      public Symbol.CharacterClass makeSymbolCharacterClass(INode node , org.rascalmpl.ast.CharClass charClass) {
-         return new Symbol.CharacterClass(node , charClass);
       }
 
       public Prod.All makeProdAll(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
@@ -1104,18 +1020,6 @@ public class ASTFactory {
          return new QualifiedName.Default(node , names);
       }
 
-      public ProdModifier.Associativity makeProdModifierAssociativity(INode node , org.rascalmpl.ast.Assoc associativity) {
-         return new ProdModifier.Associativity(node , associativity);
-      }
-
-      public ProdModifier.Bracket makeProdModifierBracket(INode node ) {
-         return new ProdModifier.Bracket(node );
-      }
-
-      public ProdModifier.Lexical makeProdModifierLexical(INode node ) {
-         return new ProdModifier.Lexical(node );
-      }
-
       public Start.Absent makeStartAbsent(INode node ) {
          return new Start.Absent(node );
       }
@@ -1134,18 +1038,6 @@ public class ASTFactory {
 
       public Mapping_Expression.Default makeMapping_ExpressionDefault(INode node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
          return new Mapping_Expression.Default(node , from, to);
-      }
-
-      public CharRanges.Range makeCharRangesRange(INode node , org.rascalmpl.ast.CharRange range) {
-         return new CharRanges.Range(node , range);
-      }
-
-      public CharRanges.Bracket makeCharRangesBracket(INode node , org.rascalmpl.ast.CharRanges ranges) {
-         return new CharRanges.Bracket(node , ranges);
-      }
-
-      public CharRanges.Concatenate makeCharRangesConcatenate(INode node , org.rascalmpl.ast.CharRanges lhs,  org.rascalmpl.ast.CharRanges rhs) {
-         return new CharRanges.Concatenate(node , lhs, rhs);
       }
 
       public Replacement.Unconditional makeReplacementUnconditional(INode node , org.rascalmpl.ast.Expression replacementExpression) {
@@ -1452,14 +1344,6 @@ public class ASTFactory {
          return new Statement.Continue(node , target);
       }
 
-      public CharRange.Range makeCharRangeRange(INode node , org.rascalmpl.ast.Character start,  org.rascalmpl.ast.Character end) {
-         return new CharRange.Range(node , start, end);
-      }
-
-      public CharRange.Character makeCharRangeCharacter(INode node , org.rascalmpl.ast.Character character) {
-         return new CharRange.Character(node , character);
-      }
-
       public Assignable.Tuple makeAssignableTuple(INode node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
          return new Assignable.Tuple(node , elements);
       }
@@ -1510,12 +1394,12 @@ public class ASTFactory {
     return new OctalEscapeSequence.Lexical(node, string); 
   }
 
-  public HexIntegerLiteral.Lexical makeHexIntegerLiteralLexical(INode node, String string) {
-    return new HexIntegerLiteral.Lexical(node, string); 
-  }
-
   public PostStringChars.Lexical makePostStringCharsLexical(INode node, String string) {
     return new PostStringChars.Lexical(node, string); 
+  }
+
+  public HexIntegerLiteral.Lexical makeHexIntegerLiteralLexical(INode node, String string) {
+    return new HexIntegerLiteral.Lexical(node, string); 
   }
 
   public OctalLongLiteral.Lexical makeOctalLongLiteralLexical(INode node, String string) {
@@ -1710,12 +1594,12 @@ public class ASTFactory {
     return new OctalIntegerLiteral.Lexical(node, string); 
   }
 
-  public PathChars.Lexical makePathCharsLexical(INode node, String string) {
-    return new PathChars.Lexical(node, string); 
-  }
-
   public HexLongLiteral.Lexical makeHexLongLiteralLexical(INode node, String string) {
     return new HexLongLiteral.Lexical(node, string); 
+  }
+
+  public PathChars.Lexical makePathCharsLexical(INode node, String string) {
+    return new PathChars.Lexical(node, string); 
   }
 
 
@@ -1744,12 +1628,12 @@ public class ASTFactory {
     return new OctalEscapeSequence.Ambiguity(node, alternatives);
   }
 
-  public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity(INode node, java.util.List<HexIntegerLiteral> alternatives) {
-    return new HexIntegerLiteral.Ambiguity(node, alternatives);
-  }
-
   public PostStringChars.Ambiguity makePostStringCharsAmbiguity(INode node, java.util.List<PostStringChars> alternatives) {
     return new PostStringChars.Ambiguity(node, alternatives);
+  }
+
+  public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity(INode node, java.util.List<HexIntegerLiteral> alternatives) {
+    return new HexIntegerLiteral.Ambiguity(node, alternatives);
   }
 
   public UserType.Ambiguity makeUserTypeAmbiguity(INode node, java.util.List<UserType> alternatives) {
@@ -1776,8 +1660,8 @@ public class ASTFactory {
     return new StructuredType.Ambiguity(node, alternatives);
   }
 
-  public OptCharRanges.Ambiguity makeOptCharRangesAmbiguity(INode node, java.util.List<OptCharRanges> alternatives) {
-    return new OptCharRanges.Ambiguity(node, alternatives);
+  public ProdModifier.Ambiguity makeProdModifierAmbiguity(INode node, java.util.List<ProdModifier> alternatives) {
+    return new ProdModifier.Ambiguity(node, alternatives);
   }
 
   public MidPathChars.Ambiguity makeMidPathCharsAmbiguity(INode node, java.util.List<MidPathChars> alternatives) {
@@ -1844,16 +1728,12 @@ public class ASTFactory {
     return new Toplevel.Ambiguity(node, alternatives);
   }
 
-  public Label.Ambiguity makeLabelAmbiguity(INode node, java.util.List<Label> alternatives) {
-    return new Label.Ambiguity(node, alternatives);
-  }
-
-  public CharClass.Ambiguity makeCharClassAmbiguity(INode node, java.util.List<CharClass> alternatives) {
-    return new CharClass.Ambiguity(node, alternatives);
-  }
-
   public Type.Ambiguity makeTypeAmbiguity(INode node, java.util.List<Type> alternatives) {
     return new Type.Ambiguity(node, alternatives);
+  }
+
+  public Label.Ambiguity makeLabelAmbiguity(INode node, java.util.List<Label> alternatives) {
+    return new Label.Ambiguity(node, alternatives);
   }
 
   public ModuleParameters.Ambiguity makeModuleParametersAmbiguity(INode node, java.util.List<ModuleParameters> alternatives) {
@@ -2028,10 +1908,6 @@ public class ASTFactory {
     return new Target.Ambiguity(node, alternatives);
   }
 
-  public Character.Ambiguity makeCharacterAmbiguity(INode node, java.util.List<Character> alternatives) {
-    return new Character.Ambiguity(node, alternatives);
-  }
-
   public StringConstant.Ambiguity makeStringConstantAmbiguity(INode node, java.util.List<StringConstant> alternatives) {
     return new StringConstant.Ambiguity(node, alternatives);
   }
@@ -2076,10 +1952,6 @@ public class ASTFactory {
     return new FunctionType.Ambiguity(node, alternatives);
   }
 
-  public Symbol.Ambiguity makeSymbolAmbiguity(INode node, java.util.List<Symbol> alternatives) {
-    return new Symbol.Ambiguity(node, alternatives);
-  }
-
   public Prod.Ambiguity makeProdAmbiguity(INode node, java.util.List<Prod> alternatives) {
     return new Prod.Ambiguity(node, alternatives);
   }
@@ -2110,10 +1982,6 @@ public class ASTFactory {
 
   public QualifiedName.Ambiguity makeQualifiedNameAmbiguity(INode node, java.util.List<QualifiedName> alternatives) {
     return new QualifiedName.Ambiguity(node, alternatives);
-  }
-
-  public ProdModifier.Ambiguity makeProdModifierAmbiguity(INode node, java.util.List<ProdModifier> alternatives) {
-    return new ProdModifier.Ambiguity(node, alternatives);
   }
 
   public Backslash.Ambiguity makeBackslashAmbiguity(INode node, java.util.List<Backslash> alternatives) {
@@ -2158,10 +2026,6 @@ public class ASTFactory {
 
   public PostPathChars.Ambiguity makePostPathCharsAmbiguity(INode node, java.util.List<PostPathChars> alternatives) {
     return new PostPathChars.Ambiguity(node, alternatives);
-  }
-
-  public CharRanges.Ambiguity makeCharRangesAmbiguity(INode node, java.util.List<CharRanges> alternatives) {
-    return new CharRanges.Ambiguity(node, alternatives);
   }
 
   public TimePartNoTZ.Ambiguity makeTimePartNoTZAmbiguity(INode node, java.util.List<TimePartNoTZ> alternatives) {
@@ -2276,20 +2140,16 @@ public class ASTFactory {
     return new OctalIntegerLiteral.Ambiguity(node, alternatives);
   }
 
-  public CharRange.Ambiguity makeCharRangeAmbiguity(INode node, java.util.List<CharRange> alternatives) {
-    return new CharRange.Ambiguity(node, alternatives);
-  }
-
   public Assignable.Ambiguity makeAssignableAmbiguity(INode node, java.util.List<Assignable> alternatives) {
     return new Assignable.Ambiguity(node, alternatives);
   }
 
-  public PathChars.Ambiguity makePathCharsAmbiguity(INode node, java.util.List<PathChars> alternatives) {
-    return new PathChars.Ambiguity(node, alternatives);
-  }
-
   public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity(INode node, java.util.List<HexLongLiteral> alternatives) {
     return new HexLongLiteral.Ambiguity(node, alternatives);
+  }
+
+  public PathChars.Ambiguity makePathCharsAmbiguity(INode node, java.util.List<PathChars> alternatives) {
+    return new PathChars.Ambiguity(node, alternatives);
   }
 
 }

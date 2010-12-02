@@ -14,7 +14,7 @@ import ValueIO;
 
 private str package = "org.rascalmpl.library.rascal.syntax";
 private loc inputFolder = |rascal:///rascal/syntax|;
-private loc outputFolder = |boot:///src/rascal/syntax|;
+private loc outputFolder = |boot:///src/org/rascalmpl/library/rascal/syntax|;
 private loc astFolder = |boot:///src/org/rascalmpl/ast|;
 private str grammarName = "RascalRascal";
 private str rootName = "RascalRascal";
@@ -69,6 +69,7 @@ public void bootObjectParser(Grammar gr) {
 public void bootMetaParser(Grammar gr) {
   println("generating assimilated rascal for rascal parser");
   gr.rules[sort("RascalReservedKeywords")] = {};
+  gr.rules -= (sort("RascalReservedKeywords"): {});
   source = generateMetaParser(package, metaName, objectName, gr);
   println("writing assimilated parser");
   writeFile(outputFolder + "/<metaName>.java", source);

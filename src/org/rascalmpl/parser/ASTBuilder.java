@@ -25,7 +25,9 @@ import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
@@ -303,6 +305,13 @@ public class ASTBuilder {
 			i++;
 		}
 
+		// TODO throw away code!
+//		if (sort.equals("Type") && cons.equals("Symbol")) {
+//			if (actuals.length == 2 && (actuals[1] instanceof Sym.Nonterminal || actuals[1] instanceof Sym.Labeled || actuals[1] instanceof Sym.Parameter)) {
+//				return null; // filtered
+//			}
+//		}
+		
 		AbstractAST ast = callMakerMethod(sort, cons, formals, actuals);
 		
 		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should

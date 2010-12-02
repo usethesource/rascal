@@ -11,6 +11,14 @@ public abstract class Type extends AbstractAST {
   }
   
 
+  public boolean hasSymbol() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Sym getSymbol() {
+    throw new UnsupportedOperationException();
+  }
+
   public boolean hasFunction() {
     return false;
   }
@@ -56,14 +64,6 @@ public abstract class Type extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasSymbol() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Symbol getSymbol() {
     throw new UnsupportedOperationException();
   }
 
@@ -179,50 +179,6 @@ public Function(INode node , org.rascalmpl.ast.FunctionType function) {
      
      @Override
      public boolean hasFunction() {
-        return true;
-     }
-  	
-}
-
-
-  public boolean isSymbol() {
-    return false;
-  }
-  
-static public class Symbol extends Type {
-  // Production: sig("Symbol",[arg("org.rascalmpl.ast.Symbol","symbol")])
-
-  
-     private final org.rascalmpl.ast.Symbol symbol;
-  
-
-  
-public Symbol(INode node , org.rascalmpl.ast.Symbol symbol) {
-  super(node);
-  
-    this.symbol = symbol;
-  
-}
-
-
-  @Override
-  public boolean isSymbol() { 
-    return true; 
-  }
-
-  @Override
-  public <T> T accept(IASTVisitor<T> visitor) {
-    return visitor.visitTypeSymbol(this);
-  }
-  
-  
-     @Override
-     public org.rascalmpl.ast.Symbol getSymbol() {
-        return this.symbol;
-     }
-     
-     @Override
-     public boolean hasSymbol() {
         return true;
      }
   	
@@ -399,6 +355,50 @@ public Selector(INode node , org.rascalmpl.ast.DataTypeSelector selector) {
      
      @Override
      public boolean hasSelector() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isSymbol() {
+    return false;
+  }
+  
+static public class Symbol extends Type {
+  // Production: sig("Symbol",[arg("org.rascalmpl.ast.Sym","symbol")])
+
+  
+     private final org.rascalmpl.ast.Sym symbol;
+  
+
+  
+public Symbol(INode node , org.rascalmpl.ast.Sym symbol) {
+  super(node);
+  
+    this.symbol = symbol;
+  
+}
+
+
+  @Override
+  public boolean isSymbol() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitTypeSymbol(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Sym getSymbol() {
+        return this.symbol;
+     }
+     
+     @Override
+     public boolean hasSymbol() {
         return true;
      }
   	

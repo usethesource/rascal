@@ -121,15 +121,6 @@ syntax DecimalLongLiteral
 	| lex [1-9] [0-9]* [L l] 
 	# [0-9 A-Z _ a-z] ;
 
-// TODO remove this deprecated syntax
-syntax CharClass
-	= bracket /*avoid()*/ Bracket: "(" CharClass charClass ")" 
-	| SimpleCharclass: "[" OptCharRanges optionalCharRanges "]" 
-	| Complement: "~" CharClass charClass 
-	> left Difference  :  CharClass lhs "/" CharClass rhs 
-	> left Intersection: CharClass lhs "/\\" CharClass rhs 
-	> left Union       : CharClass lhs "\\/" CharClass rhs ;
-
 syntax SingleQuotedStrCon
 	= lex [\'] SingleQuotedStrChar* chars [\'] ;
 
@@ -181,28 +172,8 @@ syntax IntegerLiteral
 	| /*prefer()*/ HexIntegerLiteral: HexIntegerLiteral hex 
 	| /*prefer()*/ OctalIntegerLiteral: OctalIntegerLiteral octal ;
 
-syntax OptCharRanges
-	= Present: CharRanges ranges 
-	| Absent: ;
-
 syntax FunctionBody
 	= Default: "{" Statement* statements "}" ;
-
-// TODO remove deprecated definitions
-syntax Symbol
-	= IterSep: "{" Symbol symbol StrCon sep "}" "+"
-	| IterStarSep: "{" Symbol symbol StrCon sep "}" "*" 
-	| Sequence: "(" Symbol head Symbol+ tail ")" 
-	| Empty: "(" ")" 
-	| CaseInsensitiveLiteral: SingleQuotedStrCon singelQuotedString 
-	| Literal: StrCon string
-	| CharacterClass: CharClass charClass 
-	| Optional: Symbol symbol "?" 
-	| Iter: Symbol symbol "+" 
-	| IterStar: Symbol symbol "*"
-	| Sort: QualifiedName name 
-	> right Alternative: Symbol lhs "|" Symbol rhs
-    ;
     
 syntax Expression
 	= NonEmptyBlock  : "{" Statement+ statements "}" 
@@ -309,13 +280,11 @@ syntax StringTemplate
 	| DoWhile: "do" "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
 	| While: "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
 
-// TODO @category="Constant"
 syntax PreStringChars
-	= lex [\"] StringCharacter* [\<] ;
+	= @category="Constant" lex [\"] StringCharacter* [\<] ;
 
-// TODO @category="Constant"
 syntax CaseInsensitiveStringConstant
-	= lex "\'" StringCharacter* "\'" ;
+	= @category="Constant" lex "\'" StringCharacter* "\'" ;
 
 syntax Backslash
 	= lex [\\] 
@@ -364,11 +333,6 @@ syntax DatePart
 syntax FunctionModifier
 	= Java: "java" ;
 
-syntax CharRanges
-	= right /*memo()*/ Concatenate: CharRanges lhs CharRanges rhs 
-	| Range: CharRange range 
-	| bracket Bracket: "(" CharRanges ranges ")" ;
-
 syntax Assignment
 	= IfDefined: "?=" 
 	| Division: "/=" 
@@ -388,9 +352,8 @@ syntax Assignable
 	| Tuple             : "\<" {Assignable ","}+ elements "\>" 
 	| Annotation        : Assignable receiver "@" Name annotation  ;
 
-// TODO @category="Constant"
 syntax StringConstant
-	= lex "\"" StringCharacter* "\"" ;
+	= @category="Constant" lex "\"" StringCharacter* "\"" ;
 
 syntax Assoc
 	= Associative: "assoc" 
@@ -431,9 +394,8 @@ syntax StrChar
 	| lex ![\000-\031 \" \\] 
 	| lex "\\\\" ;
 
-// TODO @category="Constant"
 syntax MidStringChars
-	= lex [\>] StringCharacter* [\<] ;
+	= @category="Constant" lex [\>] StringCharacter* [\<] ;
 
 syntax ProtocolChars
 	= lex [|] URLChars "://" ;
@@ -451,13 +413,6 @@ syntax Formal
 syntax Parameters
 	= Default: "(" Formals formals ")" 
 	| VarArgs: "(" Formals formals "..." ")" ;
-
-syntax Character
-	= Numeric: NumChar numChar 
-	| EOF: "\\EOF" 
-	| Short: ShortChar shortChar 
-	| Bottom: "\\BOT" 
-	| Top: "\\TOP" ;
 
 syntax RegExp
 	= lex ![/ \< \> \\] 
@@ -593,14 +548,12 @@ syntax StringLiteral
 	| Interpolated: PreStringChars pre Expression expression StringTail tail 
 	| NonInterpolated: StringConstant constant ;
 
-// TODO @category="Comment"
 syntax Comment
-	= lex "/*" CommentChar* "*/" 
-	| lex "//" ![\n]* [\n] ;
+	= @category="Comment" lex "/*" CommentChar* "*/" 
+	| @category="Comment" lex "//" ![\n]* [\n] ;
 
-// TODO @category="MetaVariable"
 syntax RegExp
-	= lex [\<]  Expression  [\>] ;
+	= @category="MetaVariable" lex [\<]  Expression  [\>] ;
 
 syntax Renamings
 	= Default: "renaming" {Renaming ","}+ renamings ;
@@ -760,9 +713,10 @@ syntax Type
 	| Basic: BasicType basic 
 	| Selector: DataTypeSelector selector 
 	| Variable: TypeVar typeVar 
-	| Symbol: Symbol symbol {
-	   if (appl(prod(_,sort("Symbol"),attrs([_*,term(cons("Sort")),_*])),_) := symbol
-	     ||appl(prod(_,sort("Symbol"),attrs([_*,term(cons("Alternative")),_*])),_) := symbol) {
+	| Symbol: Sym symbol {
+	   if (appl(prod(_,_,attrs([_*,term(cons("Nonterminal")),_*])),_) := symbol
+	     ||appl(prod(_,_,attrs([_*,term(cons("Labeled")),_*])),_) := symbol
+	     ||appl(prod(_,_,attrs([_*,term(cons("Parameter")),_*])),_) := symbol) {
 	    fail;
 	   }
 	} 
@@ -792,10 +746,6 @@ syntax Class
 syntax RegExpLiteral
 	= lex "/" RegExp* "/" RegExpModifier ;
 
-syntax CharRange
-	= Character: Character character 
-	| Range: Character start "-" Character end ;
-
 syntax FunctionModifiers
 	= List: FunctionModifier* modifiers ;
 
@@ -823,14 +773,14 @@ syntax NamedRegExp
 syntax ProdModifier
 	= Associativity: Assoc associativity 
 	| Bracket: "bracket" 
-	| Lexical: "lex" ;
+	| Lexical: "lex" 
+	| Tag: Tag tag;
 
 syntax Toplevel
 	= GivenVisibility: Declaration declaration ;
 
-// TODO @category="Constant"
 syntax PostStringChars
-	= lex [\>] StringCharacter* [\"] ;
+	= @category="Constant" lex [\>] StringCharacter* [\"] ;
 
 syntax HexIntegerLiteral
 	= lex [0] [X x] [0-9 A-F a-f]+ 
@@ -876,12 +826,11 @@ syntax BasicType
 	| ReifiedAdt: "adt" 
 	| Lex: "lex" ;
 
-// @category="Constant"
 syntax Char
-	= lex "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
-	| lex ![\  \" \' \- \< \> \[ \\ \]] 
-	| lex UnicodeEscape 
-	| lex OctalEscapeSequence ;
+	= @category="Constant" lex "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
+	| @category="Constant" lex ![\  \" \' \- \< \> \[ \\ \]] 
+	| @category="Constant" lex UnicodeEscape 
+	| @category="Constant" lex OctalEscapeSequence ;
 
 syntax Prod
 	= Reference: ":" Name referenced 
@@ -938,11 +887,10 @@ syntax Pattern
 	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
     ;
     
-// TODO @category="Comment"    
 syntax Tag
-	= Default   : "@" Name name TagString contents 
-	| Empty     : "@" Name name 
-	| Expression: "@" Name name "=" Expression expression ;
+	= @category="Comment" Default   : "@" Name name TagString contents 
+	| @category="Comment" Empty     : "@" Name name 
+	| @category="Comment" Expression: "@" Name name "=" Expression expression ;
 
 syntax ModuleActuals
 	= Default: "[" {Type ","}+ types "]" ;
