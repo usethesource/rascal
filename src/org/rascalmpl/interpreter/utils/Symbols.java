@@ -7,19 +7,14 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.ast.CharClass;
-import org.rascalmpl.ast.CharRange;
-import org.rascalmpl.ast.CharRanges;
-import org.rascalmpl.ast.Character;
-import org.rascalmpl.ast.NumChar;
-import org.rascalmpl.ast.OptCharRanges;
-import org.rascalmpl.ast.ShortChar;
-import org.rascalmpl.ast.SingleQuotedStrCon;
-import org.rascalmpl.ast.StrCon;
-import org.rascalmpl.ast.Symbol;
+import org.rascalmpl.ast.CaseInsensitiveStringConstant;
+import org.rascalmpl.ast.Char;
+import org.rascalmpl.ast.Class;
+import org.rascalmpl.ast.Nonterminal;
+import org.rascalmpl.ast.Range;
+import org.rascalmpl.ast.StringConstant;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
-import org.rascalmpl.ast.NumChar.Lexical;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -39,22 +34,16 @@ public class Symbols {
 		return null;
 	}
 
-	private static IValue symbolAST2SymbolConstructor(Symbol symbol) {
+	private static IValue symbolAST2SymbolConstructor(Sym symbol) {
 		// TODO: this has to become a parameter
 		String layout = "LAYOUTLIST";
 		
-		if (symbol.isAlternative()) {
-			return Factory.Symbol_Alt.make(factory, symbolAST2SymbolConstructor(symbol.getLhs()), symbolAST2SymbolConstructor(symbol.getRhs()));
-		}
 		if (symbol.isCaseInsensitiveLiteral()) {
-			return Factory.Symbol_CiLit.make(factory, ciliteral2Symbol(symbol.getSingelQuotedString()));
+			return Factory.Symbol_CiLit.make(factory, ciliteral2Symbol(symbol.getCistring()));
 		}
 		if (symbol.isCharacterClass()) {
-			CharClass cc = symbol.getCharClass();
+			Class cc = symbol.getCharClass();
 			return charclass2Symbol(cc);
-		}
-		if (symbol.isEmpty()) {
-			return Factory.Symbol_Empty.make(factory);
 		}
 		if (symbol.isIter()) {
 			return Factory.Symbol_IterPlus.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
@@ -82,32 +71,19 @@ public class Symbols {
 		if (symbol.isOptional()) {
 			return Factory.Symbol_Opt.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
 		}
-		if (symbol.isSequence()) {
-			return Factory.Symbol_Seq.make(factory, symbols2Symbols(symbol.getHead(), symbol.getTail()));
-		}
-		if (symbol.isSort()) {
-			IString name = factory.string(Names.typeName(symbol.getName()));
+		if (symbol.isNonterminal()) {
+			IString name = factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString());
 			return Factory.Symbol_Sort.make(factory, name);
 		}
 		
 		return null;
 	}
 
-	private static IValue symbols2Symbols(Symbol head, List<Symbol> tail) {
-		IListWriter result = factory.listWriter(Factory.Symbol);
-		result.insert(symbolAST2SymbolConstructor(head));
-		
-		for (Symbol elem : tail) {
-			result.append(symbolAST2SymbolConstructor(elem));
-		}
-		
-		return result.done();
-	}
-
-	private static IValue literal2Symbol(StrCon sep) {
-		String lit = ((StrCon.Lexical) sep).getString();
+	private static IValue literal2Symbol(StringConstant sep) {
+		String lit = ((StringConstant.Lexical) sep).getString();
 		StringBuilder builder = new StringBuilder();
 		
+		// TODO: did we deal with all escapes here? probably not!
 		for (int i = 1; i < lit.length() - 1; i++) {
 			if (lit.charAt(i) == '\\') {
 				i++;
@@ -142,8 +118,8 @@ public class Symbols {
 		return Factory.Symbol_Lit.make(factory, factory.string(builder.toString()));
 	}
 	
-	private static IValue ciliteral2Symbol(SingleQuotedStrCon sep) {
-		String lit = ((SingleQuotedStrCon.Lexical) sep).getString();
+	private static IValue ciliteral2Symbol(CaseInsensitiveStringConstant constant) {
+		String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
 		StringBuilder builder = new StringBuilder();
 		
 		for (int i = 1; i < lit.length() - 1; i++) {
@@ -180,70 +156,57 @@ public class Symbols {
 		return Factory.Symbol_Lit.make(factory, factory.string(builder.toString()));
 	}
 
-	private static IValue charclass2Symbol(CharClass cc) {
+	private static IValue charclass2Symbol(Class cc) {
 		if (cc.isSimpleCharclass()) {
-			OptCharRanges ranges = cc.getOptionalCharRanges();
-			
-			if (ranges.isAbsent()) {
-				return Factory.Symbol_CharClass.make(factory, factory.list());
-			}
-			return Factory.Symbol_CharClass.make(factory, ranges2Ranges(ranges.getRanges()));
+			return Factory.Symbol_CharClass.make(factory, ranges2Ranges(cc.getRanges()));
 		}
 		throw new NotYetImplemented(cc);
 	}
 	
-	private static IList ranges2Ranges(CharRanges ranges) {
-		if (ranges.isBracket()) {
-			return ranges2Ranges(ranges.getRanges());
-		}
-		if (ranges.isConcatenate()) {
-			return ranges2Ranges(ranges.getLhs()).concat(ranges2Ranges(ranges.getRhs()));
-		}
-		if (ranges.isRange()) {
-			CharRange range = ranges.getRange();
-			
+	private static IList ranges2Ranges(List<Range> ranges) {
+		IListWriter result = Factory.CharRanges.writer(factory);
+		
+		for (Range range : ranges) {
 			if (range.isCharacter()) {
 				IValue ch = char2int(range.getCharacter());
-				return factory.list(Factory.CharRange_Single.make(factory, ch));
+				result.append(Factory.CharRange_Single.make(factory, ch));
 			}
-			else if (range.isRange()) {
+			else if (range.isFromTo()) {
 				IValue from = char2int(range.getStart());
 				IValue to = char2int(range.getEnd());
-				return factory.list(Factory.CharRange_Range.make(factory, from, to));
+				result.append(Factory.CharRange_Range.make(factory, from, to));
 			}
 		}
 		
-		throw new ImplementationError("Unexpected type of ranges: " + ranges);
+		return result.done();
 	}
 
-	private static IValue char2int(Character character) {
-		if (character.isBottom()) {
-			return factory.integer(0);
-		}
-		if (character.isEOF()) {
-			return factory.integer(256);
-		}
-		if (character.isNumeric()) {
-			NumChar.Lexical num = (Lexical) character.getNumChar();
-			Integer i = Integer.parseInt(num.getString().substring(1));
-			return factory.integer(i);
-		}
-		if (character.isShort()) {
-			ShortChar.Lexical ch = (org.rascalmpl.ast.ShortChar.Lexical) character.getShortChar();
-			String s = ch.getString();
-			if (s.startsWith("\\")) {
-				char cha = s.charAt(1);
-				switch (cha) {
-				case 't': return factory.integer(9);
-				case 'n': return factory.integer(10);
-				case 'r': return factory.integer(13);
-				}
-				s = s.substring(1);
+	private static IValue char2int(Char character) {
+		String s = ((Char.Lexical) character).getString();
+		if (s.startsWith("\\")) {
+			if (s.length() > 1 && java.lang.Character.isDigit(s.charAt(1))) { // octal escape
+				// TODO
+				throw new NotYetImplemented("octal escape sequence in character class types");
 			}
-			char cha = s.charAt(0);
-			return factory.integer(cha);
+			if (s.length() > 1 && s.charAt(1) == 'u') { // octal escape
+				// TODO
+				throw new NotYetImplemented("unicode escape sequence in character class types");
+			}
+			char cha = s.charAt(1);
+			switch (cha) {
+			case 't': return factory.integer('\t');
+			case 'n': return factory.integer('\n');
+			case 'r': return factory.integer('\r');
+			case '\"' : return factory.integer('\"');
+			case '\'' : return factory.integer('\'');
+			case '-' : return factory.integer('-');
+			case '<' : return factory.integer('<');
+			case '>' : return factory.integer('>');
+			case '\\' : return factory.integer('\\');
+			}
+			s = s.substring(1);
 		}
-		
-		throw new NotYetImplemented(character);
+		char cha = s.charAt(0);
+		return factory.integer(cha);
 	}
 }

@@ -261,6 +261,10 @@ private Attr mod2attr(ProdModifier m) {
     case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
     case (ProdModifier) `assoc`: return \assoc(\assoc());
     case (ProdModifier) `bracket`: return \bracket();
+    case (ProdModifier) `@ <Name n> = <StringConstant s>` : return \term("<n>"(unescape(s)));
+    case (ProdModifier) `@ <Name n> = <Literal l>` : return \term("<n>"("<l>"));
+    case (ProdModifier) `@ <Name n>` : return \term("<n>"());
+    case (ProdModifier) `@ <Name n> <TagString s>` : return \term("<n>"("<s>"));
     default: throw "missed a case <m>";
   }
 }

@@ -1918,6 +1918,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> receiver = x.getReceiver().accept(this);
 		String label = Names.name(x.getField());
 
+		if (receiver == null) {
+			throw new UndeclaredVariableError(x.getReceiver().toString(), x.getReceiver());
+		}
+		
 		Type receiverType = receiver.getType();
 		if (receiverType.isTupleType()) {
 			// the run-time tuple may not have labels, the static type can have labels,

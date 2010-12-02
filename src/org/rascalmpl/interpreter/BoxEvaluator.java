@@ -65,19 +65,6 @@ import org.rascalmpl.ast.Body.Toplevels;
 import org.rascalmpl.ast.Bound.Empty;
 import org.rascalmpl.ast.Case.PatternWithAction;
 import org.rascalmpl.ast.Catch.Binding;
-import org.rascalmpl.ast.CharClass.Bracket;
-import org.rascalmpl.ast.CharClass.Complement;
-import org.rascalmpl.ast.CharClass.Difference;
-import org.rascalmpl.ast.CharClass.SimpleCharclass;
-import org.rascalmpl.ast.CharClass.Union;
-import org.rascalmpl.ast.CharRange.Character;
-import org.rascalmpl.ast.CharRange.Range;
-import org.rascalmpl.ast.CharRanges.Concatenate;
-import org.rascalmpl.ast.Character.Bottom;
-import org.rascalmpl.ast.Character.EOF;
-import org.rascalmpl.ast.Character.Numeric;
-import org.rascalmpl.ast.Character.Short;
-import org.rascalmpl.ast.Character.Top;
 import org.rascalmpl.ast.Command.Declaration;
 import org.rascalmpl.ast.Command.Shell;
 import org.rascalmpl.ast.Command.Statement;
@@ -170,8 +157,6 @@ import org.rascalmpl.ast.LocalVariableDeclaration.Dynamic;
 import org.rascalmpl.ast.LongLiteral.DecimalLongLiteral;
 import org.rascalmpl.ast.LongLiteral.HexLongLiteral;
 import org.rascalmpl.ast.LongLiteral.OctalLongLiteral;
-import org.rascalmpl.ast.OptCharRanges.Absent;
-import org.rascalmpl.ast.OptCharRanges.Present;
 import org.rascalmpl.ast.Parameters.VarArgs;
 import org.rascalmpl.ast.PathPart.Interpolated;
 import org.rascalmpl.ast.PathPart.NonInterpolated;
@@ -237,16 +222,6 @@ import org.rascalmpl.ast.Sym.Nonterminal;
 import org.rascalmpl.ast.Sym.Parameter;
 import org.rascalmpl.ast.Sym.Parametrized;
 import org.rascalmpl.ast.Sym.StartOfLine;
-import org.rascalmpl.ast.Symbol.Alternative;
-import org.rascalmpl.ast.Symbol.CaseInsensitiveLiteral;
-import org.rascalmpl.ast.Symbol.CharacterClass;
-import org.rascalmpl.ast.Symbol.Iter;
-import org.rascalmpl.ast.Symbol.IterSep;
-import org.rascalmpl.ast.Symbol.IterStar;
-import org.rascalmpl.ast.Symbol.IterStarSep;
-import org.rascalmpl.ast.Symbol.Optional;
-import org.rascalmpl.ast.Symbol.Sequence;
-import org.rascalmpl.ast.Symbol.Sort;
 import org.rascalmpl.ast.SyntaxDefinition.Language;
 import org.rascalmpl.ast.SyntaxDefinition.Layout;
 import org.rascalmpl.ast.Test.Unlabeled;
@@ -593,93 +568,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return cStat("catch", BoxADT.COLON, null, null, eX(x.getBody()));
 	}
 
-	public IValue visitCharClassAmbiguity(
-			org.rascalmpl.ast.CharClass.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCharClassBracket(Bracket x) {
-		return x.getCharClass().accept(this);
-	}
-
-	public IValue visitCharClassComplement(Complement x) {
-		return H(BoxADT.CONGR, x.getCharClass().accept(this));
-	}
-
-	public IValue visitCharClassDifference(Difference x) {
-		return H(x.getLhs().accept(this), BoxADT.DIVIDE, x.getRhs()
-				.accept(this));
-	}
-
-	public IValue visitCharClassIntersection(
-			org.rascalmpl.ast.CharClass.Intersection x) {
-
-		return H(x.getLhs().accept(this), L("/\\"), x.getRhs().accept(this));
-	}
-
-	public IValue visitCharClassSimpleCharclass(SimpleCharclass x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCharClassUnion(Union x) {
-		return H(x.getLhs().accept(this), L("\\/"), x.getRhs().accept(this));
-	}
-
-	public IValue visitCharRangeAmbiguity(
-			org.rascalmpl.ast.CharRange.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCharRangeCharacter(Character x) {
-		return x.accept(this);
-	}
-
-	public IValue visitCharRangeRange(Range x) {
-		return H(0, x.getStart().accept(this), BoxADT.MINUS, x.getEnd().accept(
-				this));
-	}
-
-	public IValue visitCharRangesAmbiguity(
-			org.rascalmpl.ast.CharRanges.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCharRangesBracket(org.rascalmpl.ast.CharRanges.Bracket x) {
-		return H(BoxADT.LPAR, x.getRanges().accept(this), BoxADT.RPAR);
-	}
-
-	public IValue visitCharRangesConcatenate(Concatenate x) {
-		return H(x.getLhs().accept(this), x.getRhs().accept(this));
-	}
-
-	public IValue visitCharRangesRange(org.rascalmpl.ast.CharRanges.Range x) {
-		return x.accept(this);
-	}
-
-	public IValue visitCharacterAmbiguity(
-			org.rascalmpl.ast.Character.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCharacterBottom(Bottom x) {
-		return L("\\BOT");
-	}
-
-	public IValue visitCharacterEOF(EOF x) {
-		return L("\\EOF");
-	}
-
-	public IValue visitCharacterNumeric(Numeric x) {
-		return x.getNumChar().accept(this);
-	}
-
-	public IValue visitCharacterShort(Short x) {
-		return x.getShortChar().accept(this);
-	}
-
-	public IValue visitCharacterTop(Top x) {
-		return L("\\TOP");
-	}
 
 	public IValue visitCommandAmbiguity(org.rascalmpl.ast.Command.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -1688,18 +1576,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitOptCharRangesAbsent(Absent x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitOptCharRangesAmbiguity(
-			org.rascalmpl.ast.OptCharRanges.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitOptCharRangesPresent(Present x) {
-		return L(x.getClass().toString());
-	}
 
 	public IValue visitParametersAmbiguity(
 			org.rascalmpl.ast.Parameters.Ambiguity x) {
@@ -2391,58 +2267,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			org.rascalmpl.ast.StructuredType.Default x) {
 		return H(0, eX(x.getBasicType()), eXs(x.getArguments(), BoxADT.LBRACK,
 				BoxADT.RBRACK));
-	}
-
-	public IValue visitSymbolAlternative(Alternative x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolAmbiguity(org.rascalmpl.ast.Symbol.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolCaseInsensitiveLiteral(CaseInsensitiveLiteral x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolCharacterClass(CharacterClass x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolEmpty(org.rascalmpl.ast.Symbol.Empty x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolIter(Iter x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolIterSep(IterSep x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolIterStar(IterStar x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolIterStarSep(IterStarSep x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolLiteral(org.rascalmpl.ast.Symbol.Literal x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolOptional(Optional x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolSequence(Sequence x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSymbolSort(Sort x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitTagAmbiguity(org.rascalmpl.ast.Tag.Ambiguity x) {
@@ -3637,6 +3461,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitWordLexical(org.rascalmpl.ast.Word.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IValue visitProdModifierTag(org.rascalmpl.ast.ProdModifier.Tag x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

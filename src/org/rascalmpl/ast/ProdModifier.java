@@ -11,6 +11,14 @@ public abstract class ProdModifier extends AbstractAST {
   }
   
 
+  public boolean hasTag() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Tag getTag() {
+    throw new UnsupportedOperationException();
+  }
+
   public boolean hasAssociativity() {
     return false;
   }
@@ -79,6 +87,50 @@ public Associativity(INode node , org.rascalmpl.ast.Assoc associativity) {
      
      @Override
      public boolean hasAssociativity() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isTag() {
+    return false;
+  }
+  
+static public class Tag extends ProdModifier {
+  // Production: sig("Tag",[arg("org.rascalmpl.ast.Tag","tag")])
+
+  
+     private final org.rascalmpl.ast.Tag tag;
+  
+
+  
+public Tag(INode node , org.rascalmpl.ast.Tag tag) {
+  super(node);
+  
+    this.tag = tag;
+  
+}
+
+
+  @Override
+  public boolean isTag() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitProdModifierTag(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Tag getTag() {
+        return this.tag;
+     }
+     
+     @Override
+     public boolean hasTag() {
         return true;
      }
   	
