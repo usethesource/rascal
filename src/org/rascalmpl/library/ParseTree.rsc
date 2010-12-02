@@ -146,11 +146,13 @@ reified ADT and the parse tree. Meanwhile, an AST is constructed as follows:
   Can be imploded into:
     data Exp = add(Exp, Exp);
   
-- Lexicals are imploded to str, int, real, bool depending on the expected type in
+- Unlabeled lexicals are imploded to str, int, real, bool depending on the expected type in
   the ADT. To implode lexical into types other than str, the standard Java parse
   functions Integer.parseInt and Double.parseDouble are used. Boolean lexicals should match
   "true" or "false". NB: lexicals are imploded this way, even if they are ambiguous.
-  
+
+- If a lexical tree has a cons label, the tree imploded to a constructor with that name
+  and a single string-valued argument containing the tree's yield.
 
 IllegalArgument is thrown if during implosion a tree is encountered that cannot be
 imploded to the expected type in the ADT. As explained above, this routine assumes the

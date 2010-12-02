@@ -67,7 +67,17 @@ public class ParseTree {
 		}
 		
 		if (TreeAdapter.isLexical(tree)) {
+			java.lang.String constructorName = TreeAdapter.getConstructorName(tree);
 			java.lang.String yield = TreeAdapter.yield(tree);
+			if (type.isAbstractDataType() && constructorName != null) {
+				// make a single argument constructor  with yield as argument
+				Type cons = findConstructor(type, constructorName, 1, store);
+				if (cons != null) {
+					ISourceLocation loc = TreeAdapter.getLocation(tree);
+					IConstructor ast = values.constructor(cons, values.string(yield));
+					return ast.setAnnotation("location", loc);
+				}
+			}
 			if (type.isIntegerType()) {
 				return values.integer(yield);
 			}
@@ -177,14 +187,11 @@ public class ParseTree {
 				throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
 			}
 
-			for (Type candidate: store.lookupConstructor(type, constructorName)) {
-				// It finds the first with suitable arity, so this is inaccurate
-				// if there are overloaded constructors with the same arity
-				if (length == candidate.getArity()) {
-					ISourceLocation loc = TreeAdapter.getLocation(tree);
-					IConstructor ast = values.constructor(candidate, implodeArgs(store, candidate, args));
-					return ast.setAnnotation("location", loc);
-				}
+			Type cons = findConstructor(type, constructorName, length, store);
+			if (cons != null) {
+				ISourceLocation loc = TreeAdapter.getLocation(tree);
+				IConstructor ast = values.constructor(cons, implodeArgs(store, cons, args));
+				return ast.setAnnotation("location", loc);
 			}
 			
 		}
@@ -192,6 +199,17 @@ public class ParseTree {
 		throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
 	}
 	
+	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
+		for (Type candidate: store.lookupConstructor(type, constructorName)) {
+			// It finds the first with suitable arity, so this is inaccurate
+			// if there are overloaded constructors with the same arity
+			if (arity == candidate.getArity()) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
 	private IValue[] implodeArgs(TypeStore store, Type type, IList args) {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
