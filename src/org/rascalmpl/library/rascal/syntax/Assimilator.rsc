@@ -12,6 +12,7 @@ import rascal::syntax::Grammar;
 import rascal::syntax::Definition;
 import rascal::syntax::Normalization;
 import rascal::syntax::Escape;
+import rascal::syntax::Reject;
 
 public data Symbol = meta(Symbol wrapped);
 
@@ -40,18 +41,22 @@ private Symbol rl = layouts("$QUOTES");
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] fromRascal(Grammar object) {
+  rejects = rejectedSymbols(object);
+  
   return  { prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         { prod(str2syms(L),l,attrs([term("literal"())])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
-      | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
+      | Symbol nont <- object.rules, isNonterminal(nont), nont notin rejects, symLits := symbolLiterals(nont) };
 }
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] toRascal(Grammar object) {
+  rejects = rejectedSymbols(object);
+  
   return  { prod([lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
-          | Symbol nont <- object.rules, isNonterminal(nont) };
+          | Symbol nont <- object.rules, isNonterminal(nont), nont notin rejects};
 }
 
 private list[Symbol] symbolLiterals(Symbol sym) {

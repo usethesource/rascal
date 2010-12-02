@@ -55,6 +55,8 @@ public str generateMetaParser(str package, str name, str super, Grammar gr) {
   int uniqueItem = 1; // we use the odd numbers here
   int newItem() { uniqueItem += 2; return uniqueItem; };
   
+  gr = expandParameterizedSymbols(gr);
+  
   fr = grammar({}, fromRascal(gr));
   tr = grammar({}, toRascal(gr));
   q = grammar({}, quotes()); // TODO parametrize quotes to use quote definitions
