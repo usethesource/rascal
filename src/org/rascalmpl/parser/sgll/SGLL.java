@@ -321,13 +321,9 @@ public abstract class SGLL implements IGLL{
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.setRejected();
 							
-							stacksWithNonTerminalsToReduce.put(edge, resultStore);
-							
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
 					}
-				}else{
-					stacksWithNonTerminalsToReduce.put(edge, resultStore);
 				}
 			}
 		}
@@ -335,10 +331,12 @@ public abstract class SGLL implements IGLL{
 	
 	private void move(AbstractStackNode node, AbstractNode result){
 		if(node.isEndNode()){
-			if(!node.isReject()){
-				updateEdges(node, result);
-			}else if(node.isMatchable() || !result.isRejected()){
-				updateRejects(node);
+			if(!result.isRejected()){
+				if(!node.isReject()){
+					updateEdges(node, result);
+				}else{
+					updateRejects(node);
+				}
 			}
 		}
 
