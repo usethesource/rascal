@@ -88,9 +88,9 @@ public class Rascalify {
 		boolean first = true;
 		for (FieldNode fn : (List<FieldNode>)cn.fields) {
 			if (first) { first = false; } else { writer.write(", "); }
-			writer.write("field(" + fn.access + ", \"" + escape(fn.name) + "\", \"" + escape(fn.desc) + "\", " + checkNull(fn.signature) + getValue(fn.value) + ")");
+			writer.write("\n\t\t\tfield(" + fn.access + ", \"" + escape(fn.name) + "\", \"" + escape(fn.desc) + "\", " + checkNull(fn.signature) + getValue(fn.value) + ")");
 		}
-		writer.write("]");
+		writer.write("\n\t\t]");
 	}
 
 	private static String getValue(Object value) {
@@ -119,7 +119,7 @@ public class Rascalify {
 			if (first) { first = false; } else { writer.write(",\n"); }
 			writer.write("\t\t\tmethod(" + mn.access + ", " + "\"" + escape(mn.name) + "\", " + "\"" + escape(mn.desc) + "\", " + checkNull(mn.signature) + ", ");
 			writeStrings(writer, (List<String>)mn.exceptions);
-			writer.write(",\n\t\t\t\t");
+			writer.write(",\n\t\t\t");
 			writeInstructions(writer, mn);
 			writer.write(",\n\t\t\t");
 			writeTryCatchBlocks(writer, mn);
@@ -127,7 +127,7 @@ public class Rascalify {
 			writeLocalVariables(writer, mn);
 			writer.write(")");
 		}
-		writer.write("\t\t]");
+		writer.write("\n\t\t]");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -150,47 +150,47 @@ public class Rascalify {
 		writer.write("[");
 		boolean first = true;
 		for (AbstractInsnNode ai : (AbstractInsnNode[])mn.instructions.toArray()) {
-			if (first) { first = false; } else { writer.write(", "); }
+			if (first) { first = false; } else { writer.write(","); }
 			if (ai instanceof FieldInsnNode) {
 				FieldInsnNode n = ((FieldInsnNode)ai);
-				writer.write("fieldRef(" + n.getOpcode() + ", \"" + escape(n.owner) + "\", \"" + escape(n.name) + "\", \"" + escape(n.desc) + "\")");
+				writer.write("\n\t\t\t\tfieldRef(" + n.getOpcode() + ", \"" + escape(n.owner) + "\", \"" + escape(n.name) + "\", \"" + escape(n.desc) + "\")");
 			} else if (ai instanceof IincInsnNode) {
 				IincInsnNode n = ((IincInsnNode)ai);
-				writer.write("increment(" + n.var + ", " + n.incr + ")");
+				writer.write("\n\t\t\t\tincrement(" + n.var + ", " + n.incr + ")");
 			} else if (ai instanceof InsnNode) {
 				InsnNode n = ((InsnNode)ai);
-				writer.write("instruction(" + n.getOpcode() + ")");
+				writer.write("\n\t\t\t\tinstruction(" + n.getOpcode() + ")");
 			} else if (ai instanceof IntInsnNode) {
 				IntInsnNode n = ((IntInsnNode)ai);
-				writer.write("integer(" + n.getOpcode() + ", " + n.operand + ")");
+				writer.write("\n\t\t\t\tinteger(" + n.getOpcode() + ", " + n.operand + ")");
 			} else if (ai instanceof JumpInsnNode) {
 				JumpInsnNode n = ((JumpInsnNode)ai);
-				writer.write("jump(" + n.getOpcode() + ", " + getLabelIndex(n.label) + ")");
+				writer.write("\n\t\t\t\tjump(" + n.getOpcode() + ", " + getLabelIndex(n.label) + ")");
 			} else if (ai instanceof LabelNode) {
 				LabelNode n = ((LabelNode)ai);
-				writer.write("label(" + getLabelIndex(n) + ")");
+				writer.write("\n\t\t\t\tlabel(" + getLabelIndex(n) + ")");
 			} else if (ai instanceof LineNumberNode) {
 				LineNumberNode n = ((LineNumberNode)ai);
-				writer.write("lineNumber(" + n.line + ", " + getLabelIndex(n.start) + ")");
+				writer.write("\n\t\t\t\tlineNumber(" + n.line + ", " + getLabelIndex(n.start) + ")");
 			} else if (ai instanceof VarInsnNode) {
 				VarInsnNode n = ((VarInsnNode)ai);
-				writer.write("localVariable(" + n.getOpcode() + ", " + n.var + ")");
+				writer.write("\n\t\t\t\tlocalVariable(" + n.getOpcode() + ", " + n.var + ")");
 			} else if (ai instanceof LdcInsnNode) {
 				LdcInsnNode n = ((LdcInsnNode)ai);
 				if (n.cst instanceof String) {
-					writer.write("loadConstantString(\"" + escape((String)n.cst) + "\")");
+					writer.write("\n\t\t\t\tloadConstantString(\"" + escape((String)n.cst) + "\")");
 				} else if (n.cst instanceof Integer) {
-					writer.write("loadConstantInteger(" + n.cst + ")");
+					writer.write("\n\t\t\t\tloadConstantInteger(" + n.cst + ")");
 				} else if (n.cst instanceof Long) {
-					writer.write("loadConstantLong(" + n.cst + ")");
+					writer.write("\n\t\t\t\tloadConstantLong(" + n.cst + ")");
 				} else if (n.cst instanceof Float) {
-					writer.write("loadConstantFloat(" + n.cst + ")");
+					writer.write("\n\t\t\t\tloadConstantFloat(" + n.cst + ")");
 				} else if (n.cst instanceof Double) {
-					writer.write("loadConstantDouble(" + n.cst + ")");
+					writer.write("\n\t\t\t\tloadConstantDouble(" + n.cst + ")");
 				}
 			} else if (ai instanceof LookupSwitchInsnNode) {
 				LookupSwitchInsnNode n = ((LookupSwitchInsnNode)ai);
-				writer.write("lookupSwitch(" + getLabelIndex(n.dflt) + ", [");
+				writer.write("\n\t\t\t\tlookupSwitch(" + getLabelIndex(n.dflt) + ", [");
 				boolean firstKey = true;
 				for (Integer k : (List<Integer>)n.keys) {
 					if (firstKey) { firstKey = false; } else { writer.write(", "); }
@@ -205,13 +205,13 @@ public class Rascalify {
 				writer.write("])");
 			} else if (ai instanceof MethodInsnNode) {
 				MethodInsnNode n = ((MethodInsnNode)ai);
-				writer.write("method(" + n.getOpcode() + ", \"" + escape(n.owner) + "\", \"" + escape(n.name) + "\", \"" + escape(n.desc) + "\")");
+				writer.write("\n\t\t\t\tmethod(" + n.getOpcode() + ", \"" + escape(n.owner) + "\", \"" + escape(n.name) + "\", \"" + escape(n.desc) + "\")");
 			} else if (ai instanceof MultiANewArrayInsnNode) {
 				MultiANewArrayInsnNode n = ((MultiANewArrayInsnNode)ai);
-				writer.write("multiANewArray(\"" + escape(n.desc) + "\", " + n.dims + ")");
+				writer.write("\n\t\t\t\tmultiANewArray(\"" + escape(n.desc) + "\", " + n.dims + ")");
 			} else if (ai instanceof TableSwitchInsnNode) {
 				TableSwitchInsnNode n = ((TableSwitchInsnNode)ai);
-				writer.write("tableSwitch(" + n.min + ", " + n.max + ", " + getLabelIndex(n.dflt) + ", [");
+				writer.write("\n\t\t\t\ttableSwitch(" + n.min + ", " + n.max + ", " + getLabelIndex(n.dflt) + ", [");
 				boolean firstCase = true;
 				for (LabelNode l : (List<LabelNode>)n.labels) {
 					if (firstCase) { firstCase = false; } else { writer.write(", "); }
@@ -220,7 +220,7 @@ public class Rascalify {
 				writer.write("])");
 			} else if (ai instanceof TypeInsnNode) {
 				TypeInsnNode n = ((TypeInsnNode)ai);
-				writer.write("\\type(" + n.getOpcode() + ", \"" + escape(n.desc) + "\")");
+				writer.write("\n\t\t\t\t\\type(" + n.getOpcode() + ", \"" + escape(n.desc) + "\")");
 			} else {
 				if (!(ai instanceof FrameNode)) {
 					throw new RuntimeException("Error: Unsupported instruction encountered (" + ai.getClass() + ").");
@@ -228,7 +228,7 @@ public class Rascalify {
 				first = true;
 			}
 		}
-		writer.write("]");
+		writer.write("\n\t\t\t]");
 	}
 
 	private static void writeStrings(OutputStreamWriter writer, List<String> sl)
@@ -245,13 +245,13 @@ public class Rascalify {
 	@SuppressWarnings("unchecked")
 	private static void writeLocalVariables(OutputStreamWriter writer, MethodNode mn)
 			throws IOException {
-		writer.write("[\n");
+		writer.write("[");
 		boolean first = true;
 		for (LocalVariableNode vn : (List<LocalVariableNode>)mn.localVariables) {
-			if (first) { first = false; } else { writer.write(",\n"); }
-			writer.write("\t\t\tlocalVariable(\"" + escape(vn.name) + "\", \"" + escape(vn.desc) + "\", " + checkNull(vn.signature) + ", " + getLabelIndex(vn.start) + ", " + getLabelIndex(vn.end) + ", " + vn.index + ")");
+			if (first) { first = false; } else { writer.write(","); }
+			writer.write("\n\t\t\t\tlocalVariable(\"" + escape(vn.name) + "\", \"" + escape(vn.desc) + "\", " + checkNull(vn.signature) + ", " + getLabelIndex(vn.start) + ", " + getLabelIndex(vn.end) + ", " + vn.index + ")");
 		}
-		writer.write("]");
+		writer.write("\n\t\t\t]");
 	}
 	
 	private static String checkNull(String s) {
