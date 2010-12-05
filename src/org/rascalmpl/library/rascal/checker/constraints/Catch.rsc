@@ -3,31 +3,29 @@ module rascal::checker::constraints::Catch
 
 import List;
 import ParseTree;
-import rascal::checker::Types;
-import rascal::checker::SymbolTable;
+import rascal::types::Types;
+import rascal::scoping::SymbolTable;
 import rascal::checker::constraints::Constraints;
 import rascal::syntax::RascalRascal;
 
 //
-// Check catch clauses in exception handlers
+// Gather constraints for catch clauses in exception handlers.
 //
-public RType checkCatch(Catch c) {
+public ConstraintBase gatherCatchConstraints(SymbolTable symbolTable, ConstraintBase constraintBase, Catch c) {
     switch(c) {
-        case `catch : <Statement b>` : {
-            return b@rtype;
-        }
+        // For a catch with a body but no binding to the thrown value, we don't need to generate any
+        // constraints. We do provide an empty body so we don't trigger the default below.
+        case `catch : <Statement b>` :
+            ; 
         
-        // TODO: Pull out into own function for consistency
-        case `catch <Pattern p> : <Statement b>` : {
-            
-            if (checkForFail({ p@rtype, getInternalStatementType(b@rtype) }))
-                return makeStatementType(collapseFailTypes({ p@rtype, getInternalStatementType(b@rtype) }));
-            else {
-                RType boundType = bindInferredTypesToPattern(p@rtype, p);
-                if (isFailType(boundType)) return makeStatementType(boundType);
-                return b@rtype;
-            }
-        }
+        // For a catch that does bind the throw value, the only constraint needed is to ensure that
+        // the pattern provided matches RuntimeException, since we cannot catch arbitrary values.
+        case `catch <Pattern p> : <Statement b>` :
+            constraintBase.constraints = constraintBase.constraints + BindsRuntimeException(p,p@\loc);    
+        
+        default: throw "Unhandled catch syntax in gatherCatchConstraints: <c>";
     }
+    
+    return constraintBase;
 }
 

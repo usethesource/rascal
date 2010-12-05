@@ -1,7 +1,7 @@
 module rascal::checker::constraints::Fields
 
-import rascal::checker::Types;
-import rascal::checker::SymbolTable;
+import rascal::types::Types;
+import rascal::scoping::SymbolTable;
 
 // TODO: Guessing at type of children in loc, not implemented yet
 private map[RType,map[str,RType]] fieldMap =
@@ -52,6 +52,36 @@ public bool typeHasField(RType rt, RName fn, SymbolTable symbolTable) {
     throw "Type <prettyPrintType(rt)> does not allow fields.";
 }
 
+public bool typeHasField(RType rt, int fn, SymbolTable symbolTable) {
+    if (isTupleType(rt)) return tupleHasField(rt, fn);
+    if (isRelType(rt)) return relHasField(rt, fn);
+    if (isMapType(rt)) return mapHasField(rt, fn);
+
+    throw "Type <prettyPrintType(rt)> does not allow integer-indexed fields.";
+}
+
+public bool typeHasFieldNames(RType rt, SymbolTable symbolTable) {
+    if (isTupleType(rt)) return tupleHasFieldNames(rt);
+    if (isRelType(rt)) return tupleHasFieldNames(getRelElementType(rt));
+    if (isMapType(rt)) return mapHasFieldNames(rt);
+
+    // TODO: May want to include other types, but this is currently only used when
+    // we are using integer-indexed fields, which are only used with the above three
+    // types currently.
+    throw "Type <prettyPrintType(rt)> does not allow integer-indexed fields.";
+}
+
+public bool getFieldName(RType rt, int idx, SymbolTable symbolTable) {
+    if (isTupleType(rt)) return getTupleFieldName(rt,idx);
+    if (isRelType(rt)) return getRelFieldName(rt,idx);
+    if (isMapType(rt)) return getMapFieldName(rt,idx);
+
+    // TODO: May want to include other types, but this is currently only used when
+    // we are using integer-indexed fields, which are only used with the above three
+    // types currently.
+    throw "Type <prettyPrintType(rt)> does not allow integer-indexed fields.";
+}
+
 public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
     if (isADTType(rt) && typeHasField(rt,fn,symbolTable)) return getADTFieldType(rt, fn, symbolTable);
     if (isADTType(rt)) return makeFailType("ADT <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
@@ -74,6 +104,19 @@ public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
     return makeFailType("Type <prettyType(rt)> does not have fields", l);
 }
 
+public RType getFieldType(RType rt, int fn, SymbolTable symbolTable, loc l) {
+    if (isTupleType(rt) && typeHasField(rt,fn,symbolTable)) return getTupleFieldType(rt, fn);
+    if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define a field at index <fn>", l);
+
+    if (isRelType(rt) && typeHasField(rt,fn,symbolTable)) return getRelFieldType(rt, fn);
+    if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define a field at index <fn>", l);
+
+    if (isMapType(rt) && typeHasField(rt,fn,symbolTable)) return getMapFieldType(rt, fn);
+    if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define a field at index <fn>", l);
+
+    return makeFailType("Type <prettyType(rt)> does not have integer-indexed fields", l);
+}
+
 @doc{Check to see if a relation defines a field.}
 public bool relHasField(RType t, RName fn) {
     if (isRelType(t)) {
@@ -86,7 +129,16 @@ public bool relHasField(RType t, RName fn) {
     throw "Cannot check for relation field on type <prettyPrintType(t)>";   
 }
 
-@doc{Return the type of a field defined on a relation.}
+@doc{Check to see if a relation defines a field (by index).}
+public bool relHasField(RType t, int fn) {
+    if (isRelType(t)) {
+        list[RNamedType] tas = getTupleFieldsWithNames(getRelElementType(t));
+        return (0 <= fn) && (fn < size(tas));
+    }
+    throw "Cannot check for relation field on type <prettyPrintType(t)>";   
+}
+
+@doc{Return the type of a field defined on a relation (by name).}
 public RType getRelFieldType(RType t, RName fn) {
     if (isRelType(t)) {
         list[RNamedType] tas = getTupleFieldsWithNames(getRelElementType(t));
@@ -94,6 +146,16 @@ public RType getRelFieldType(RType t, RName fn) {
             if (RNamedType(ft,fn) := ta) return ft; 
         }
         throw "Relation <prettyPrintType(t)> does not have field <prettyPrintName(fn)>";
+    }
+    throw "Cannot get relation field type from type <prettyPrintType(t)>";  
+}
+
+@doc{Return the type of a field defined on a relation (by index).}
+public RType getRelFieldType(RType t, int fn) {
+    if (isRelType(t)) {
+        list[RNamedType] tas = getTupleFieldsWithNames(getRelElementType(t));
+        if (0 <= fn && fn < size(tas)) return getElementType(tas[fn]);
+        throw "Relation <prettyPrintType(t)> does not have a field at index <fn>";
     }
     throw "Cannot get relation field type from type <prettyPrintType(t)>";  
 }
@@ -106,6 +168,17 @@ public list[RType] getRelFields(RType t) {
 public list[RNamedType] getRelFieldsWithNames(RType t) {
     if (isRelType(t)) return getTupleFieldsWithNames(getRelElementType(t));
     throw "Cannot get relation fields from type <prettyPrintType(t)>";  
+}
+
+public list[RName] getRelFieldNames(RType t) {
+    if (isRelType(t)) return getTupleFieldNames(getRelElementType(t));
+    throw "Cannot get relation fields from type <prettyPrintType(t)>";  
+}
+
+public RName getRelFieldName(RType t, int idx) {
+    list[RName] names = getRelFieldNames(t);
+    if (0 <= idx && idx < size(names)) return names[idx];
+    throw "getRelFieldName given index out of bounds <idx>";
 }
 
 @doc{Check to see if an ADT defines a field.}

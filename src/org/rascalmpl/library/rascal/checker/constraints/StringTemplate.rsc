@@ -3,96 +3,57 @@ module rascal::checker::constraints::StringTemplate
 
 import List;
 import ParseTree;
-import rascal::checker::Types;
-import rascal::checker::SymbolTable;
+import rascal::types::Types;
+import rascal::scoping::SymbolTable;
 import rascal::checker::constraints::Constraints;
 import rascal::syntax::RascalRascal;
 
 //
-// Handle string templates
+// Gather constraints for string templates, used inside string interpolation
+// expressions and/or patterns.
 //
-public RType checkStringTemplate(StringTemplate s) {
+// TODO: Need to see how to best use these inside patterns. We don't currently
+// gather constraints on patterns, but instead bind them top-down once we have
+// a candidate subject type or we have enough information to identify the
+// constructor at the top.
+//
+public ConstraintBase gatherStringTemplateConstraints(SymbolTable symbolTable, ConstraintBase constraintBase, StringTemplate s) {
+    // For all the different types of string templates, we only need to constrain the overall type
+    // and the type of any generators, conditions, etc. The body is made up of either string
+    // templates or expressions, and these are either constrained elsewhere (string templates)
+    // or can be any type, meaning they are unconstrained, so we leave the type to be whatever
+    // it is determined as from expression constraint generation.
     switch(s) {
         case `for (<{Expression ","}+ gens>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
-            set[RType] res = { e@rtype | e <- gens } + { getInternalStatementType(st@rtype) | st <- pre } + { getInternalStatementType(st@rtype) | st <- post };
-                list[Tree] ipl = prodFilter(body, 
-                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
-            for (ipe <- ipl) {
-                    if (`<Expression ipee>` := ipe)
-                            res = res + ipee@rtype;
-                else if (`<StringTemplate ipet>` := ipe)
-                        res = res + ipet@rtype;
-            }
-            if (checkForFail(res)) return collapseFailTypes(res);
-            return makeStrType();
+            for (gen <- gens) 
+                constraintBase.constraints = constraintBase.constraints + TreeIsType(gen,gen@\loc,makeBoolType());
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
         }
 
         case `if (<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
-            set[RType] res = { e@rtype | e <- conds } + { getInternalStatementType(st@rtype) | st <- pre } + { getInternalStatementType(st@rtype) | st <- post };
-                list[Tree] ipl = prodFilter(body, 
-                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
-            for (ipe <- ipl) {
-                    if (`<Expression ipee>` := ipe)
-                            res = res + ipee@rtype;
-                else if (`<StringTemplate ipet>` := ipe)
-                        res = res + ipet@rtype;
-            }
-            if (checkForFail(res)) return collapseFailTypes(res);
-            return makeStrType();
+            for (cond <- conds)
+                constraintBase.constraints = constraintBase.constraints + TreeIsType(conds,cond@\loc,makeBoolType());
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
         }
 
         case `if (<{Expression ","}+ conds>) { <Statement* preThen> <StringMiddle bodyThen> <Statement* postThen> } else { <Statement* preElse> <StringMiddle bodyElse> <Statement* postElse> }` : {
-            set[RType] res = { e@rtype | e <- conds } + { getInternalStatementType(st@rtype) | st <- preThen } + 
-                                         { getInternalStatementType(st@rtype) | st <- postThen } +
-                                         { getInternalStatementType(st@rtype) | st <- preElse } + { getInternalStatementType(st@rtype) | st <- postElse };
-                list[Tree] ipl = prodFilter(bodyThen, 
-                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
-            for (ipe <- ipl) {
-                    if (`<Expression ipee>` := ipe)
-                            res = res + ipee@rtype;
-                else if (`<StringTemplate ipet>` := ipe)
-                        res = res + ipet@rtype;
-            }
-                ipl = prodFilter(bodyElse, 
-                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
-            for (ipe <- ipl) {
-                    if (`<Expression ipee>` := ipe)
-                            res = res + ipee@rtype;
-                else if (`<StringTemplate ipet>` := ipe)
-                        res = res + ipet@rtype;
-            }
-            if (checkForFail(res)) return collapseFailTypes(res);
-            return makeStrType();
+            for (cond <- conds)
+                constraintBase.constraints = constraintBase.constraints + TreeIsType(conds,cond@\loc,makeBoolType());
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
         }
 
         case `while (<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
-            set[RType] res = { getInternalStatementType(st@rtype) | st <- pre } + { getInternalStatementType(st@rtype) | st <- post } + cond@rtype;
-                list[Tree] ipl = prodFilter(body, 
-                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
-            for (ipe <- ipl) {
-                    if (`<Expression ipee>` := ipe)
-                            res = res + ipee@rtype;
-                else if (`<StringTemplate ipet>` := ipe)
-                        res = res + ipet@rtype;
-            }
-            if (checkForFail(res)) return collapseFailTypes(res);
-            return makeStrType();
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(cond,cond@\loc,makeBoolType());
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
         }
 
         case `do { <Statement* pre> <StringMiddle body> <Statement* post> } while (<Expression cond>)` : {
-            set[RType] res = { getInternalStatementType(st@rtype) | st <- pre } + { getInternalStatementType(st@rtype) | st <- post } + cond@rtype;
-                list[Tree] ipl = prodFilter(body, 
-                                bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
-            for (ipe <- ipl) {
-                    if (`<Expression ipee>` := ipe)
-                            res = res + ipee@rtype;
-                else if (`<StringTemplate ipet>` := ipe)
-                        res = res + ipet@rtype;
-            }
-            if (checkForFail(res)) return collapseFailTypes(res);
-            return makeStrType();
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(cond,cond@\loc,makeBoolType());
+            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
         }
+        
+        default : throw "Unexpected string template syntax at location <s@\loc>, no match"; 
     }
 
-    throw "Unexpected string template syntax at location <s@\loc>, no match";
+    return constraintBase;
 }

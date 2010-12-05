@@ -3,44 +3,36 @@ module rascal::checker::constraints::Case
 
 import List;
 import ParseTree;
-import rascal::checker::Types;
-import rascal::checker::SymbolTable;
+import rascal::types::Types;
+import rascal::scoping::SymbolTable;
 import rascal::checker::constraints::Constraints;
 import rascal::syntax::RascalRascal;
 
 //
-// Check individual cases
+// Gather constraints over individual cases.
 //
-public RType checkCase(Case c) {
+// TODO: Add type rules!
+//
+public ConstraintBase gatherCaseConstraints(SymbolTable st, ConstraintBase cs, Case c) {
     switch(c) {
         case `case <PatternWithAction p>` : {
+            <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
+            Constraint c1 = TreeIsType(p,p@\loc,t1);
+            Constraint c2 = PWAResultType(t1,t2,p@\loc);
+            Constraint c3 = TreeIsType(c,c@\loc,CaseType(t1,t2));
+            cs.constraints = cs.constraints + { c1, c2, c3 };
+        }
             
-            // If insert is used anywhere in this case pattern, find the type being inserted and
-            // check to see if it is correct.
-            // TODO: This will only check the first insert. Need to modify logic to handle all
-            // insert statements that are in this visit, but NOT in a nested visit. It may be
-            // easiest to mark visit boundaries during the symbol table construction, since that
-            // is done in a top-down manner.
-            RType caseType = getCasePatternType(c);
-            set[RType] failures = { };
-            top-down-break visit(p) {
-                case (Expression) `<Label l> <Visit v>` : 0; // no-op
-                
-                case (Statement) `<Label l> <Visit v>` : 0; // no-op
-                
-                case Statement ins : `insert <DataTarget dt> <Statement s>` : {
-                    RType stmtType = getInternalStatementType(s@rtype);
-                    if (! subtypeOf(stmtType, caseType)) {
-                        failures += makeFailType("Type of insert, <prettyPrintType(stmtType)>, does not match type of case, <prettyPrintType(caseType)>", s@\loc);
-                    }
-                } 
-            }
-            RType retType = (size(failures) == 0) ? p@rtype : collapseFailTypes(failures);
-            return retType;
+        case `default : <Statement b>` : {
+            <cs,t1> = makeFreshType(cs);
+            Constraint c1 = TreeIsType(b,b@\loc,makeStatementType(t1));
+            Constraint c2 = TreeIsType(c,c@\loc,DefaultCaseType(t1));
+            cs.constraints = cs.constraints + { c1, c2 };
         }
         
-        case `default : <Statement b>` : {
-            return getInternalStatementType(b@rtype);
-        }
+        default :
+            throw "Unexpected case syntax <c>";
     }
+    
+    return cs;
 }
