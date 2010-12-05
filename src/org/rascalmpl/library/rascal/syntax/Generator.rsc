@@ -126,7 +126,7 @@ import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.parser.sgll.util.IntegerMap;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
@@ -211,7 +211,7 @@ public class <name> extends <super> implements IParserInfo {
     
     protected static java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _initLanguageActions() {
       java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> result = <if (!isRoot) {><super>._initLanguageActions()<} else {>new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>()<}>;
-      ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+      ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
       IMap tmp = (IMap) _read(_concat(<split("<actions>")>), _tf.mapType(Factory.Production, Factory.Tree));
       for (IValue key : tmp) {
         result.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));

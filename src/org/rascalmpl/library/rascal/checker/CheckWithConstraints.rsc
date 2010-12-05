@@ -10,6 +10,7 @@ import Relation;
 import ParseTree;
 import Reflective;
 import String;
+import DateTime;
 
 import rascal::checker::ListUtils;
 import rascal::types::Types;
@@ -24,8 +25,14 @@ import constraints::Constraint;
 import rascal::checker::constraints::Constraints;
 import rascal::checker::constraints::Statement;
 import rascal::checker::constraints::Expression;
+import rascal::checker::constraints::Variable;
 import rascal::checker::constraints::BuiltIns;
 import rascal::checker::constraints::Fields;
+import rascal::checker::constraints::PatternWithAction;
+import rascal::checker::constraints::Visit;
+import rascal::checker::constraints::Case;
+import rascal::checker::constraints::StringTemplate;
+import rascal::checker::constraints::Catch;
 
 import rascal::syntax::RascalRascal;
 
@@ -75,14 +82,103 @@ import rascal::syntax::RascalRascal;
 //    construct to get the type information we need to check it correctly.
 //
 
+public str getTopLevelItemDesc(Toplevel t) {
+    switch(t) {
+        // Variable declaration
+        case (Toplevel) `<Tags tgs> <Visibility v> <Type typ> <{Variable ","}+ vs> ;` : { 
+            return "Variable (location <t@\loc>)";
+        }
+
+        // Abstract (i.e., without a body) function declaration
+        case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> ;` : { 
+            return "Abstract Function (location <t@\loc>)";
+        }
+ 
+        // Concrete (i.e., with a body) function declaration
+        case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` : {
+            return "Function (location <t@\loc>)";
+        }
+            
+        // Annotation declaration
+        case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` : {
+            return "Annotation (location <t@\loc>)";
+        }
+                                
+        // Tag declaration
+        case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
+            return "Tag (location <t@\loc>)";
+        }
+            
+        // Rule declaration
+        case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
+            return "Rule (location <t@\loc>)";
+        }
+            
+        // Test
+        case (Toplevel) `<Test tst> ;` : {
+            return "Test (location <t@\loc>)";
+        }
+                            
+        // ADT without variants
+        case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
+            return "Abstract ADT (location <t@\loc>)";
+        }
+            
+        // ADT with variants
+        case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
+            return "ADT (location <t@\loc>)";
+        }
+
+        // Alias
+        case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
+            return "Alias (location <t@\loc>)";
+        }
+                            
+        // View
+        case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
+            return "View (location <t@\loc>)";
+        }
+    }
+    throw "checkToplevel: Unhandled toplevel item <t>";
+}
+
 public ConstraintBase gatherConstraints(SymbolTable st, Tree t) {
     ConstraintBase cb = makeNewConstraintBase();
+    map[loc,Constraints] constraintsByLoc = ( );
     
     visit(t) {
         case `<Statement stmt>` : cb = gatherStatementConstraints(st,cb,stmt);
         
         case `<Expression exp>` : cb = gatherExpressionConstraints(st,cb,exp);
+        
+        case `<Variable v>` : cb = gatherVariableConstraints(st,cb,v);
+        
+        case `<PatternWithAction pwa>` : cb = gatherPatternWithActionConstraints(st,cb,pwa);
+        
+        case `<Visit v>` : cb = gatherVisitConstraints(st,cb,v);
+        
+        case `<Case c>` : cb = gatherCaseConstraints(st,cb,c);
+        
+        case `<StringTemplate s>` : cb = gatherStringTemplateConstraints(st,cb,s);
+        
+        case `<Catch c>` : cb = gatherCatchConstraints(st,cb,c);
+        
+        case `<Toplevel t>` : {
+            if (size(cb.constraints) > 0) {
+                println("Encountered top level item <getTopLevelItemDesc(t)>, partially reducing constraints, current set size <size(cb.constraints)>");
+                ConstraintBase cbp = multiStepReduction(st,cb);
+                println("Finished reducing constraints, new constraint set has size <size(cbp.constraints)>");
+                constraintsByLoc[t@\loc] = cbp.constraints;
+                cbp.constraints = { };
+                cb = cbp;
+            }
+        }  
     }
+    
+    // Now, take out all the sets from the constraint set map and put them into the resulting constraint base
+    Constraints res = { };
+    for (l <- domain(constraintsByLoc)) res += constraintsByLoc[l];
+    cb.constraints = res;
     
     return cb;
 }
@@ -372,82 +468,243 @@ public tuple[ConstraintBase,bool] oneStepReduce(SymbolTable st, ConstraintBase c
     
     <cbp, b> = unifyTreeIsType(st,cb); if (b) return <cbp,b>;
 
+    <cbp, b> = unifyTreeIsTypeWithFailures(st,cb); if (b) return <cbp,b>;
+
+    <cbp, b> = unifyLocIsType(st,cb); if (b) return <cbp,b>;
+
+    <cbp, b> = unifyLocIsTypeWithFailures(st,cb); if (b) return <cbp,b>;
+
     <cbp, b> = unifyBuiltInAppliable(st,cb); if (b) return <cbp,b>;
     
+
+    <cbp, b> = unifyLubOf(st,cb); if (b) return <cbp, b>;
+
     <cbp, b> = unifyLubOfSet(st,cb); if (b) return <cbp, b>;
     
     <cbp, b> = unifyLubOfList(st,cb); if (b) return <cbp, b>;
-    
+
     <cbp, b> = unifySubtypeOf(st,cb); if (b) return <cbp, b>;
     
+    <cbp, b> = unifyComparable(st,cb); if (b) return <cbp, b>;
+        
+
+    <cbp, b> = unifyReturnable(st,cb); if (b) return <cbp, b>;
+    
+
+    <cbp, b> = unifyAssignable(st,cb); if (b) return <cbp, b>;
+    
+
+    <cbp, b> = unifyCallOrTree(st,cb); if (b) return <cbp, b>;
+    
+    <cbp, b> = unifyFieldOf(st,cb); if (b) return <cbp, b>;
+
+    <cbp, b> = unifyNamedFieldOf(st,cb); if (b) return <cbp, b>;
+
+    <cbp, b> = unifyIndexedFieldOf(st,cb); if (b) return <cbp, b>;
+
+    <cbp, b> = unifyFieldProjection(st,cb); if (b) return <cbp, b>;
+
+    <cbp, b> = unifySubscriptOf(st,cb); if (b) return <cbp, b>;
+
+
     return <cb, false>;
 }
 
+//
+// START OF CONSTRAINT SOLVING ROUTINES
+//
+
+//
+// CONSTRAINT: TreeIsType(Tree t, loc at, RType treeType)
+//
+// TreeIsType constraints are gathered during the constraint gathering phase,
+// associating each tree / location with either a concrete or an inferred
+// type. Two functions are given below for TreeIsType constraints. In the
+// first, we have two constraints over the same tree, which introduces a
+// type equality constraint: if T1 : t1 and T1 : t2, then t1 = t2. The
+// second function is used for error propagation, and isn't constraint
+// solving per se, it just provides a nice method to propagate errors.
+// This says that if T1 : t1 and T1 : t2, and either t1 and t2 (or both)
+// are fail types, then T1 : t3, there t3 is the merged failure information
+// from t1 and t2.
+//
 public tuple[ConstraintBase,bool] unifyTreeIsType(SymbolTable st, ConstraintBase cb) {
-    if ({_*,ti1:TreeIsType(t1,l1,rt1),ti2:TreeIsType(t1,l1,rt2)} := cb.constraints) {
-        <cbp,b> = unifyTypes(cb,rt1,rt2);
-        if (b) {
-            println("Unified constraints <prettyPrintConstraint(ti1)>, <prettyPrintConstraint(ti2)>");
-            cbp.constraints = cbp.constraints - (standardType(rt1) ? ti2 : ti1);
-            return <cbp,true>;
+    if ({_*,ti1:TreeIsType(_,l1,rt1),ti2:TreeIsType(_,l1,rt2)} := cb.constraints, !isFailType(rt1), !isFailType(rt2), <cbp,b> := unifyTypes(cb,rt1,rt2,l1), b) {
+        cbp.constraints = cbp.constraints - ti1;
+        return <cbp,true>;
+    } 
+
+    return <cb, false>;
+}
+
+public tuple[ConstraintBase,bool] unifyTreeIsTypeWithFailures(SymbolTable st, ConstraintBase cb) {
+    if ({_*,ti1:TreeIsType(_,l1,rt1),ti2:TreeIsType(_,l1,rt2)} := cb.constraints, isFailType(rt1) || isFailType(rt2)) {
+        if (isFailType(rt1) && isFailType(rt2)) {
+            cb.constraints = cb.constraints - ti1 - ti2 + TreeIsType(t1,l1,collapseFailTypes({rt1,rt2}));
+        } else if (isFailType(rt1)) {
+            cb.constraints = cb.constraints - ti2;
+        } else if (isFailType(rt2)) {
+            cb.constraints = cb.constraints - ti1;
+        } else {
+            throw "Something odd is going on, at least one of the types must be a fail type to get here!";
         }
+        
+        return <cb,true>;
     } 
 
     return <cb, false>;
 }
 
 //
+// CONSTRAINT: LocIsType(loc at, RType treeType)
+//
+// LocIsType constraints are like TreeIsType constraints but do not include
+// an actual tree.
+//
+// TODO: It may make sense to remove the TreeIsType constraints, if we do not
+// ever use the trees.
+//
+public tuple[ConstraintBase,bool] unifyLocIsType(SymbolTable st, ConstraintBase cb) {
+    if ({_*,ti1:LocIsType(l1,rt1),ti2:LocIsType(l1,rt2)} := cb.constraints, !isFailType(rt1), !isFailType(rt2), <cbp,b> := unifyTypes(cb,rt1,rt2,l1), b) {
+        cbp.constraints = cbp.constraints - ti1;
+        return <cbp,true>;
+    } 
+
+    return <cb, false>;
+}
+
+public tuple[ConstraintBase,bool] unifyLocIsTypeWithFailures(SymbolTable st, ConstraintBase cb) {
+    if ({_*,ti1:LocIsType(l1,rt1),ti2:LocIsType(l1,rt2)} := cb.constraints, isFailType(rt1) || isFailType(rt2)) {
+        if (isFailType(rt1) && isFailType(rt2)) {
+            cb.constraints = cb.constraints - ti1 - ti2 + LocIsType(l1,collapseFailTypes({rt1,rt2}));
+        } else if (isFailType(rt1)) {
+            cb.constraints = cb.constraints - ti2;
+        } else if (isFailType(rt2)) {
+            cb.constraints = cb.constraints - ti1;
+        } else {
+            throw "Something odd is going on, at least one of the types must be a fail type to get here!";
+        }
+        
+        return <cb,true>;
+    } 
+
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: TypesAreEqual(RType left, RType right, loc at)
+//
+// TypesAreEqual constraints indicate that two types, t1 and t2, are equal.
+// We handle three cases here. In the first two cases, we have a direct assignment
+// from an inference var to a concrete type, e.g., t0 = int, or bool = t1.
+// In this case we add this equality information to the inference var map
+// unless it conflicts with information already present. The third case unifies
+// both types, which may each have type variables. This creates new TypesAreEqual
+// constraints. If we can unify the types.
+//
 // TODO: We will have trouble here if we have circular constraints, i.e., t(1) = list[t(1)], where
 // we would have an infinite expansion. We need to add a check to avoid this case.
 //
+// TODO: I think we handle type inference vars, generated during the name resolution
+// phase, elsewhere, but we may need handling here as well.
+//
 public tuple[ConstraintBase,bool] unifyTypesAreEqual(SymbolTable st, ConstraintBase cb) {
-    //
-    // The first two checks are for top-level assignments to inference vars, i.e., t(1) = list[t(2)],
-    // or map[int] = t(3). The third is where we have two types that are equated that contain nested
-    // variables, i.e., list[t(1)] = list[int], or map[int,t(1)] = map[t(2),bool].
-    //
-    if ({_*,ti1:TypesAreEqual(rt1:InferenceVar(_),rt2)} := cb.constraints) {
-        println("Replacing type <rt1> with type <rt2>");
-        cb.constraints = replaceTypes(cb.constraints - ti1, rt1, rt2);
-        return <cb,true>;
-    } else if ({_*,ti1:TypesAreEqual(rt1,rt2:InferenceVar(_))} := cb.constraints) {
-        println("Replacing type <rt2> with type <rt1>");
-        cb.constraints = replaceTypes(cb.constraints - ti1, rt2, rt1);
-        return <cb,true>;
-    } else if ({_*,til:TypesAreEqual(rt1,rt2)} := cb.constraints) {
-        println("Expanding equality constraint <prettyPrintConstraint(til)> to account for nested constraints");
-        <cbp,b> = unifyTypes(cb,rt1,rt2);
-        if (b) {
-            cbp.constraints = cbp.constraints - til;
-            return <cbp,true>;
+    if ({_*,ti1:TypesAreEqual(rt1:InferenceVar(n),rt2,at)} := cb.constraints, isConcreteType(st,cb,rt2)) {
+        if (n in cb.inferenceVarMap) {
+            if (!isFailType(cb.inferenceVarMap[n])) {
+                if (!equivalent(rt2,cb.inferenceVarMap[n])) {
+                    cb.inferenceVarMap[n] = makeFailType("Attempt to constrain type to <prettyPrintType(cb.inferenceVarMap[n])> and <prettyPrintType(rt2)>",at);
+                }
+            }
+        } else {
+            cb.inferenceVarMap[n] = instantiateAllInferenceVars(st,cb,rt2);
         }
-    }
-    
-    return <cb, false>;
-}
-
-//
-// Add constraints for built-in operations. Note that we will always add a constraint if we call addConstraintsForBuiltIn,
-// but this may constraint a type to be fail in a case where the operands are not compatible with the operation being
-// used. If we return false, that means we did not have any built in appliable constraints that we could use.
-//
-public tuple[ConstraintBase,bool] unifyBuiltInAppliable(SymbolTable st, ConstraintBase cb) {
-    // The operands are required to be concrete, since we aren't using the operator signatures to derive anything
-    // except for equality constraints. In other words, if we see t(1) + t(2), we do not constrain t(1) to be a type
-    // that can be on the left of a +, t(2) to be a type that can be on the right.
-    if ({c*,biac:BuiltInAppliable(op,d,r,at)} := cb.constraints, RTupleType(_) := d, concreteType(getTupleFields(d)), inferenceType(r)) {
-        println("Adding constraints for BuiltInAppliable <prettyPrintConstraint(biac)>");
-        cb.constraints = addConstraintsForBuiltIn(c,op,d,r,at);    
+        cb.constraints = cb.constraints - ti1;
         return <cb,true>;
+    } else if ({_*,ti1:TypesAreEqual(rt1,rt2:InferenceVar(n),at)} := cb.constraints, isConcreteType(st,cb,rt1)) {
+        if (n in cb.inferenceVarMap) {
+            if (!isFailType(cb.inferenceVarMap[n])) {
+                if (!equivalent(rt1,cb.inferenceVarMap[n])) {
+                    cb.inferenceVarMap[n] = makeFailType("Attempt to constrain type to <prettyPrintType(cb.inferenceVarMap[n])> and <prettyPrintType(rt1)>",at);
+                }
+            }
+        } else {
+            cb.inferenceVarMap[n] = instantiateAllInferenceVars(st,cb,rt1);
+        }
+        cb.constraints = cb.constraints - ti1;
+        return <cb,true>;
+    } else if ({_*,til:TypesAreEqual(rt1,rt2,at)} := cb.constraints, <cbp,b> := unifyTypes(cb,rt1,rt2,at), b) {
+        cbp.constraints = cbp.constraints - til;
+        return <cbp,true>;
     }
     
     return <cb, false>;
 }
 
-public tuple[ConstraintBase,bool] unifyLubOfSet(SymbolTable st, ConstraintBase cb) {
-    if ({_*,los:LubOfSet(lubs,r)} := cb.constraints, concreteType(lubs), inferenceType(r)) {
+//
+// CONSTRAINT: LubOf(list[RType] typesToLub, RType lubResult, loc at)
+//
+// Constrains lubResult to be the lub of typesToLub. Only fires when all the types
+// in typesToLub are concrete types.
+//
+public tuple[ConstraintBase,bool] unifyLubOf(SymbolTable st, ConstraintBase cb) {
+    if ({_*,los:LubOf(lubs,r,at)} := cb.constraints, isConcreteType(st,cb,lubs), isInferenceType(st,cb,r)) {
         lubs2 =
             for (rt <- lubs) { 
+                append(instantiateAllInferenceVars(st,cb,rt));
+            };
+        cb.constraints = cb.constraints + TypesAreEqual(r,lubList(lubs2),at) - los;
+        return <cb,true>;
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: LubOfList(list[RType] typesToLub, RType lubResult, loc at)
+//
+// Constrains lubResult to be the lub of typesToLub. Only fires when all the types
+// in typesToLub are concrete types. This includes special handling for list splicing,
+// which occurs when we have a variable of list type in a list, such as a = [1,2,3],
+// l = [0,a,4], which is expected to yield l = [0,1,2,3,4]. If we have a splicable
+// element that is a list, treat it instead as the list element type.
+//
+public tuple[ConstraintBase,bool] unifyLubOfList(SymbolTable st, ConstraintBase cb) {
+    if ({_*,los:LubOfList(lubs,r,at)} := cb.constraints, isConcreteType(st,cb,lubs), isInferenceType(st,cb,r)) {
+        lubs2 =
+            for (rt <- lubs) {
+               rt = instantiateAllInferenceVars(st,cb,rt);
+                if (SpliceableElement(sty) := rt) {
+                    if (isListType(sty)) {
+                        append(getListElementType(sty));
+                    } else {
+                        append(sty);
+                    } 
+                } else { 
+                    append(rt);
+                } 
+            };
+        cb.constraints = cb.constraints + TypesAreEqual(r,lubList(lubs2),at) - los;
+        return <cb,true>;
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: LubOfSet(list[RType] typesToLub, RType lubResult, loc at)
+//
+// Constrains lubResult to be the lub of typesToLub. Only fires when all the types
+// in typesToLub are concrete types. This includes special handling for set splicing,
+// which occurs when we have a variable of set type in a set, such as a = {1,2,3},
+// s = {0,a,4}, which is expected to yield s = {0,1,2,3,4}. If we have a splicable
+// element that is a set, treat it instead as the set element type.
+//
+public tuple[ConstraintBase,bool] unifyLubOfSet(SymbolTable st, ConstraintBase cb) {
+    if ({c*,los:LubOfSet(lubs,r,at)} := cb.constraints, isConcreteType(st,cb,lubs), isInferenceType(st,cb,r)) {
+        lubs2 =
+            for (rt <- lubs) { 
+                rt = instantiateAllInferenceVars(st,cb,rt);
                 if (SpliceableElement(sty) := rt) { 
                     if (isSetType(sty)) {
                         append(getSetElementType(sty));
@@ -458,36 +715,554 @@ public tuple[ConstraintBase,bool] unifyLubOfSet(SymbolTable st, ConstraintBase c
                     append(rt);
                 } 
             };
-        cb.constraints = cb.constraints + TypesAreEqual(r,lubList(lubs2)) - los;
+        cb.constraints = cb.constraints + TypesAreEqual(r,lubList(lubs2),at) - los;
         return <cb,true>;
     }
     
     return <cb, false>;
 }
 
-public tuple[ConstraintBase,bool] unifyLubOfList(SymbolTable st, ConstraintBase cb) {
-    if ({_*,los:LubOfList(lubs,r)} := cb.constraints, concreteType(lubs), inferenceType(r)) {
-        lubs2 =
-            for (rt <- lubs) { 
-                if (SpliceableElement(sty) := rt) { 
-                    if (isListType(sty)) {
-                        append(getListElementType(sty));
+//
+// CONSTRAINT: BindableToCase(RType subject, RType caseType, loc at)
+//
+public tuple[ConstraintBase,bool] unifyBindableToCase(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Assignable(Tree parent, loc at, Tree lhs, Tree rhs, RType rvalue, RType lvalue, RType result)
+//
+public tuple[ConstraintBase,bool] unifyAssignable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Assignable(Tree parent, loc at, Tree lhs, Tree rhs, RType rvalue, RType lvalue)
+//
+// TODO: This code is not yet complete.
+//
+public tuple[ConstraintBase,bool] unifyAssignableWithValue(SymbolTable st, ConstraintBase cb) {
+    if ({_*,abl:Assignable(tp,at,lhs,rhs,rv,lv)} := cb.constraints, isConcreteType(st,cb,lv), isConcreteType(st,cb,rv)) {
+        cb.constraints = cb.constraints - abl;
+        
+        while (InferenceVar(n) := lv) lv = cb.inferenceVarMap[n];
+        while (InferenceVar(n) := rv) rv = cb.inferenceVarMap[n];
+        
+        if (!subtypeOf(rv,lv))
+            cb.constraints = cb.constraints + TreeIsType(tp,tp@\loc,makeFailType("Cannot assign <rhs>, of type <prettyPrintType(rv)>, to <lhs>, which expects type <prettyPrintType(lv)>",tp@\loc));
+        return <cb, true>;
+    }
+    
+    return < cb, false>;
+}
+ 
+//
+// CONSTRAINT: IsNameAssignable(RType assignableType, RType resultType, loc at)
+//
+public tuple[ConstraintBase,bool] unifyIsNameAssignable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Returnable(Tree parent, loc at, Tree returned, RType given, RType expected)
+//
+public tuple[ConstraintBase,bool] unifyReturnable(SymbolTable st, ConstraintBase cb) {
+    if ({_*,rtb:Returnable(tp,at,r,gt,et)} := cb.constraints, isConcreteType(st,cb,gt), isConcreteType(st,cb,et)) {
+        cb.constraints = cb.constraints - rtb;
+        gt = instantiateAllInferenceVars(st,cb,gt);
+        et = instantiateAllInferenceVars(st,cb,et);
+        if (!subtypeOf(gt,et))
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Cannot return value of type <prettyPrintType(gt)>, type <prettyPrintType(et)> was expected",at));
+        return <cb, true>;
+    }
+    
+    return <cb, false>;
+}
+
+
+//
+// CONSTRAINT: IsRuntimeException(RType expType, loc at)
+//
+public tuple[ConstraintBase,bool] unifyIsRuntimeException(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: BindsRuntimeException(Tree pat, loc at)
+//
+public tuple[ConstraintBase,bool] unifyBindsRuntimeException(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: CaseIsReachable(RType caseType, RType expType, loc at)
+//
+public tuple[ConstraintBase,bool] unifyCaseIsReachable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: SubtypeOf(RType left, RType right, loc at)
+//
+public tuple[ConstraintBase,bool] unifySubtypeOf(SymbolTable st, ConstraintBase cb) {
+    if ({_*,sof:SubtypeOf(lt,rt,at)} := cb.constraints, isConcreteType(st,cb,lt), isConcreteType(st,cb,rt)) {
+        cb.constraints = cb.constraints - sof;
+        lt = instantiateAllInferenceVars(st,cb,lt);
+        rt = instantiateAllInferenceVars(st,cb,rt);
+        if (!subtypeOf(lt,rt))
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Type <prettyPrintType(lt)> is not a subtype of <prettyPrintType(rt)>",at));
+        return <cb, true>;
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: PWAResultType(RType left, RType right, loc at)
+//
+public tuple[ConstraintBase,bool] unifyPWAResultType(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: IsReifiedType(RType outer, list[RType] params, loc at, RType result)
+//
+public tuple[ConstraintBase,bool] unifyIsReifiedType(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: CallOrTree(RType source, list[RType] params, RType result, loc at)
+//
+//
+// TODO: Is there anything in particular we need to do for type variables here? The
+// call will instantiate them, so we need to use them to determine the return type,
+// but beyond that it doesn't seem like we need to do anything with them.
+//
+// TODO: Make sure type variables are distinct. This should be handled by the scope
+// rules, but verify that (for instance) two &T vars won't get tangled.
+//
+public tuple[ConstraintBase,bool] unifyCallOrTree(SymbolTable st, ConstraintBase cb) {
+    if ({_*,cot:CallOrTree(source,params,result,at)} := cb.constraints, isConcreteType(st,cb,source), isConcreteType(st,cb,params)) {
+
+        set[RType] failures = { }; list[RType] matches = [ ];
+
+        // Initialize the set of alternatives. Then, check each one, trying to find a match.
+        set[ROverloadedType] alternatives = isOverloadedType(source) ? getOverloadOptions(source) : { ( (source@at)? ) ? ROverloadedTypeWithLoc(source,source@at) :  ROverloadedType(source) };
+        for (a <- alternatives) {
+            bool typeHasLoc = ROverloadedTypeWithLoc(_,_) := a;
+            RType fcType = typeHasLoc ? a.overloadType[@at=a.overloadLoc] : a.overloadType;
+    
+            if (isFunctionType(fcType)) {
+                list[RType] formalTypes = getFunctionArgumentTypes(fcType);
+                list[RType] actualTypes = params;
+    
+                if ( (isVarArgsFun(fcType) && size(formalTypes) <= size(actualTypes)) || (!isVarArgsFun(fcType) && size(formalTypes) == size(actualTypes)) ) {
+                    bool matched = true;
+                    if (size(actualTypes) > 0) {
+                        for (n <- [0..size(actualTypes)-1] && matched) {
+                            RType formalType = (n < size(formalTypes)) ? formalTypes[n] : formalTypes[size(formalTypes)-1];
+                            RType actualType = actualTypes[n];
+                            if (! subtypeOf(actualType, formalType)) {
+                                failures = failures + makeFailType("Could not use alternative <prettyPrintType(fcType)><typeHasLoc ? " defined at <fcType@at>" : "">: type of argument <n>(<actuals[n]>), <prettyPrintType(actualType)>, must be a subtype of <prettyPrintType(formalType)>",at);
+                                matched = false;
+                            }                  
+                        }
+                    }
+    
+                    // If we have matched so far, try to find mappings for any type variables
+                    if (matched && typeContainsTypeVars(fcType)) {
+                        // First, create a tuple type holding the actual function call parameters. We can use this
+                        // to get the mappings. Note that we don't use a function here, since we are trying to find
+                        // the bindings, and the return type (if it is parameterized) will be based on this mapping,
+                        // but cannot contribute to it.
+                        RType funcType = makeVoidType();
+                        if (isVarArgsFun(fcType)) {
+                            // Calculate the var args type based on the lub's of the elements passed in
+                            RType vat = makeVarArgsType(lubList(tail(actualTypes,size(actualTypes)-size(formalTypes)+1)));
+                            // Create the function type using the formal return type and the actuals + the varargs
+                            funcType = makeTupleType(head(actualTypes,size(formalTypes)-1) + vat);
+                        } else {
+                            funcType = makeTupleType(actualTypes);
+                        }
+    
+                        // Now, find the bindings
+                        // TODO: Need to find embedded failures in the map
+                        map[RName varName, RType varType] varMapping = getTVBindings(makeTupleType(getFunctionArgumentTypes(fcType)), funcType, ( ), at);
+                        fcType = instantiateVars(varMapping, fcType);
+                    }
+    
+                    if (matched) matches = matches + fcType;
+                } else {
+                    str orMore = isVarArgsFun(fcType) ? "or more " : "";
+                    failures = failures + makeFailType("Could not use alternative <prettyPrintType(fcType)><typeHasLoc ? " defined at <fcType@at>" : "">: function accepts <size(formalTypes)> <orMore>arguments but was given <size(actuals)>", at);
+                }
+            } else if (isConstructorType(fcType)) {
+                list[RType] formalTypes = getConstructorArgumentTypes(fcType);
+                list[RType] actualTypes = params;
+                if (size(formalTypes) == size(actuals)) {
+                    bool matched = true;
+                    for (n <- domain(actuals) && matched) {
+                        RType formalType = formalTypes[n];
+                        RType actualType = actualTypes[n];
+                        if (! subtypeOf(actualType, formalType)) {
+                            failures = failures + makeFailType("Could not use alternative <prettyPrintType(fcType)><typeHasLoc ? " defined at <fcType@at>" : "">: type of argument <n>(<actuals[n]>), <prettyPrintType(actualType)>, must be a subtype of <prettyPrintType(formalType)>",at);
+                            matched = false;
+                        }
+                    }
+                    // If we have matched so far, try to find mappings for any type variables
+                    if (matched && typeContainsTypeVars(fcType)) {
+                        // First, we "mock up" the actual constructor type, based on the types of the actual parameters
+                        RType consType = makeTupleType([RUnnamedType(acty) | acty <- actualTypes]);
+                        // Now, find the bindings
+                        map[RName varName, RType varType] varMapping = getTVBindings(getConstructorArgumentTypes(fcType), consType, ( ), at);
+                        fcType = instantiateVars(varMapping, fcType);
+                    }
+                    if (matched) matches = matches + fcType;
+                } else {
+                    failures = failures + makeFailType("Could not use alternative <prettyPrintType(fcType)><typeHasLoc ? " defined at <fcType@at>" : "">: constructor accepts <size(formalTypes)> arguments but was given <size(actuals)>", at);
+                }
+            } else {
+                failures = failures + makeFailType("Type <prettyPrintType(fcType)> is not a function or constructor type.",at);
+            }
+        }
+        
+        cb.constraints = cb.constraints - cot;
+        if (size(matches) == 1) {
+            cb.constraints = cb.constraints + TypesAreEqual(result,getOneFrom(matches),at);
+        } else if (size(matches) > 1) {
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("There are multiple possible matches for this function or constructor expression. Please add additional type information. Matches: <prettyPrintTypeListWLoc(matches)>",at));
+        } else {
+            cb.constraints = cb.constraints + LocIsType(at,collapseFailTypes(failures));        
+        }
+        
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: FieldOf(Tree t, RType inType, RType fieldType, loc at)
+//
+public tuple[ConstraintBase,bool] unifyFieldOf(SymbolTable st, ConstraintBase cb) {
+    if ({_*,fof:FieldOf(t,inType,fieldType,at)} := cb.constraints, isConcreteType(st,cb,inType)) {
+        inType = instantiateAllInferenceVars(st,cb,inType);
+        if (`<Name n>` := t) {
+            RType resType = getFieldType(inType,convertName(n),st,at);
+            if (isFailType(resType)) {
+                cb.constraints = cb.constraints + LocIsType(at,resType);
+            } else {
+                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at);
+            }
+            return <cb, true>;                                    
+        } else {
+            throw "Error, FieldOf tree component should be a name (location <at>)";
+        }    
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: NamedFieldOf(Tree t, RType inType, RType fieldType, loc at)
+//
+// Constrain the fieldType to be the result of projecting field t out of inType.
+//
+public tuple[ConstraintBase,bool] unifyNamedFieldOf(SymbolTable st, ConstraintBase cb) {
+    if ({_*,fof:NamedFieldOf(t,inType,fieldType,at)} := cb.constraints, isConcreteType(st,cb,inType)) {
+        inType = instantiateAllInferenceVars(st,cb,inType);
+        if ((Field)`<Name n>` := t) {
+            RType resType = getFieldType(inType,convertName(n),st,at);
+            if (!isFailType(resType)) {
+                resType = TypeWithName(RNamedType(resType,convertName(n)));
+                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at) - fof;
+            } else {
+                cb.constraints = cb.constraints + LocIsType(at,resType) - fof;
+            }
+            return <cb, true>;                                    
+        } else {
+            throw "Error, FieldOf tree component should be a name (location <at>)";
+        }    
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: IndexedFieldOf(Tree t, RType inType, RType fieldType, loc at)
+//
+// Constrain the fieldType to be the result of projecting field t out of inType.
+//
+public tuple[ConstraintBase,bool] unifyIndexedFieldOf(SymbolTable st, ConstraintBase cb) {
+    if ({_*,iof:IndexedFieldOf(t,inType,fieldType,at)} := cb.constraints, isConcreteType(st,cb,inType)) {
+        inType = instantiateAllInferenceVars(st,cb,inType);
+        if ((Field)`<IntegerLiteral il>` := t) {
+            int ilval = toInt("<il>"); 
+            RType resType = getFieldType(inType,ilval,st,at);            
+            if (!isFailType(resType)) {
+                if (typeHasFieldNames(inType))
+                    resType = TypeWithName(RNamedType(resType,getTypeFieldName(inType,ilval)));
+                else
+                    resType = TypeWithName(RUnnamedType(resType));
+                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at) - iof;
+            } else {
+                cb.constraints = cb.constraints + LocIsType(at,resType) - iof;
+            }
+            return <cb, true>;                                    
+        } else {
+            throw "Error, FieldOf tree component should be a name (location <at>)";
+        }    
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: FieldProjection(RType inType, list[RType] fieldTypes, RType result, loc at)
+//
+// Constrains the resulting type to be the result of projecting the fields out of a tuple,
+// map, or relation. Note that we need to maintain field names if possible. This is done by
+// a simple check below: we create a set of the field names, and if we are projecting the same
+// number of fields as are in the set then we know that we are not duplicating field names.
+// This also handles the case where we have no field names.
+//
+public tuple[ConstraintBase,bool] unifyFieldProjection(SymbolTable st, ConstraintBase cb) {
+    if ({_*,fpr:FieldProjection(inType,fieldTypes,result,at)} := cb.constraints, isConcreteType(st,cb,inType), isConcreteType(st,cb,fieldTypes)) {
+        // NOTE: We expect all the fieldTypes to be of type TypeWithName
+        list[RNamedType] ftl = [ t | TypeWithName(t) <- fieldTypes];
+        list[RType] ftlnn = [ getElementType(t) | t <- ftl];
+        set[RName] fieldNames = { n | RNamedType(_,n) <- ftl };
+        cb.constraints = cb.constraints - fpr;
+        
+        if (size(ftl) != size(fieldTypes)) throw "Error, fieldTypes contains invalid types: <fieldTypes>";
+        
+        if (isMapType(inType) || isRelType(inType)) {
+            if (size(ftl) == 1)
+                cb.constraints = cb.constraints + TypesAreEqual(result, makeSetType(getElementType(ftl[0])), at);
+            else {
+                if (size(ftl) == size(fieldNames))
+                    cb.constraints = cb.constraints + TypesAreEqual(result, makeRelTypeFromTuple(makeTupleTypeWithNames(ftl)), at);
+                else
+                    cb.constraints = cb.constraints + TypesAreEqual(result, makeRelType(ftlnn), at);
+            }
+            return <cb, true>;
+        }
+    
+        if (isTupleType(inType)) {
+            if (size(ftl) == 1)
+                cb.constraints = cb.constraints + TypesAreEqual(result, getElementType(ftl[0]), at);
+            else {
+                if (size(ftl) == size(fieldNames))
+                    cb.constraints = cb.constraints + TypesAreEqual(result, makeTupleTypeWithNames(ftl), at);
+                else
+                    cb.constraints = cb.constraints + TypesAreEqual(result, makeTupleType(ftlnn), at);
+            }
+            return <cb, true>;
+        } 
+        
+        cb.constraints = cb.constraints + LocIsType(at, makeFailType("Cannot use field projection on type <prettyPrintType(inType)>", at));
+        return <cb, true>;
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Subscript(RType inType, list[Tree] indices, list[RType] indexTypes, RType result, loc at)
+//
+public tuple[ConstraintBase,bool] unifySubscript(SymbolTable st, ConstraintBase cb) {
+    if ({_*,s:Subscript(inType,indices,indexTypes,result,at)} := cb.constraints, isConcreteType(st,cb,inType), isConcreteType(st,cb,indexTypes)) {
+        cb.constraints = cb.constraints - s;
+        if (isTupleType(inType)) {
+            if (size(indexTypes) != 1) 
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on tuples must contain exactly one element", at));
+            else {
+                // A bit of "peephole analysis" -- if we can determine the index, use that info here, but if we
+                // cannot do so, just take the lub of all the tuple elements
+                if (`<IntegerLiteral il>` := indices[0]) {
+                    int ilval = toInt("<il>"); 
+                    cb.constraints = cb.constraints + TypesAreEqual(result, getTupleFieldType(inType, ilval), at);                 
+                } else {
+                    if (isIntType(indexTypes[0])) {
+                        cb.constraints = cb.constraints + TypesAreEqual(result, lubList(getTupleFields(inType)), at);
                     } else {
-                        append(sty);
-                    } 
-                } else { 
-                    append(rt);
-                } 
-            };
-        cb.constraints = cb.constraints + TypesAreEqual(r,lubList(lubs2)) - los;
+                        cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on tuples must be of type int, not type <prettyPrintType(indexTypes[0])>",at));
+                    }
+                }                
+            }
+            return <cb, true>;
+        } else if (isRelType(inType)) {
+            list[RType] relTypes = getRelFields(inType);
+            if (size(indexTypes) >= size (relTypes))
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on relations must have an arity less than that of the relation",at));
+            else {
+                bool canFormSub = true;
+                for (n <- [0..size(indices)-1]) {
+                    if ((Expression)`_` !:= indices[n]) {
+                        RType indexType = indexTypes[n];
+                        if (isSetType(indexType)) indexType = getSetElementType(indexType);
+                        if (!comparable(indexType,relTypes[n])) {
+                            cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscript <n>, with type <prettyPrintType(indexType)>, is not comparable to relation type <n>, <prettyPrintType(relTypes[n])>",at));
+                            canFormSub = false;
+                        }
+                    }
+                }
+                if (canFormSub) {
+                    list[RType] subTypes = slice(relTypes,size(indexTypes),size(relTypes)-size(indexTypes));
+                    if (subTypes == 1)
+                        cb.constraints = cb.constraints + TypesAreEqual(result, makeSetType(subTypes[0]), at);
+                    else
+                        cb.constraints = cb.constraints + TypesAreEqual(result, makeRelType(subTypes), at);
+                }
+            }
+            return <cb, true>;     
+        } else if (isMapType(inType)) {
+            if (size(indexTypes) != 1) 
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on maps must contain exactly one element", at));
+            else {
+                if (!comparable(getMapDomainType(inType),indexTypes[0])) {
+                    cb.constraints = cb.constraints + LocIsType(at, makeFailType("The subscript type <prettyPrintType(indexTypes[0])> must be comparable to the map domain type <prettyPrintType(getMapDomainType(inType))>", at));
+                } else {
+                    cb.constraints = cb.constraints + TypesAreEqual(result, getMapRangeType(inType), at);
+                }                 
+            }
+            return <cb, true>;
+        }  else if (isNodeType(inType)) {
+            if (size(indexTypes) != 1) 
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on nodes must contain exactly one element", at));
+            else {
+                if (isIntType(indexTypes[0])) {
+                    cb.constraints = cb.constraints + TypesAreEqual(result, makeValueType(), at);                 
+                } else {
+                    cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on nodes must be of type int, not type <prettyPrintType(indexTypes[0])>",at));
+                }
+            }
+            return <cb, true>;
+        } else if (isListType(inType)) {
+            if (size(indexTypes) != 1) 
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on lists must contain exactly one element", at));
+            else {
+                if (isIntType(indexTypes[0])) {
+                    cb.constraints = cb.constraints + TypesAreEqual(result, getListElementType(inType), at);                 
+                } else {
+                    cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscripts on lists must be of type int, not type <prettyPrintType(indexTypes[0])>",at));
+                }
+            }
+            return <cb, true>;
+        } else {
+            cb.constraints = cb.constraints + LocIsType(at, makeFailType("Subscript not supported on type <prettyPrintType(inType)>", at));
+            return <cb, true>;
+        }
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Comparable(RType left, RType right, loc at)
+//
+public tuple[ConstraintBase,bool] unifyComparable(SymbolTable st, ConstraintBase cb) {
+    if ({_*,cmp:Comparable(lt,rt,at)} := cb.constraints, isConcreteType(st,cb,lt), isConcreteType(st,cb,rt)) {
+        cb.constraints = cb.constraints - sof;
+        lt = instantiateAllInferenceVars(st,cb,lt);
+        rt = instantiateAllInferenceVars(st,cb,rt);
+        if (!comparable(lt,rt))
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Type <prettyPrintType(lt)> is not comparable with <prettyPrintType(rt)>",at));
+        return <cb, true>;
+    }
+    
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: AnnotationAssignable(Tree parent, loc at, Tree lhs, Tree ann, Tree rhs, RType rvalue, RType lvalue)
+//
+public tuple[ConstraintBase,bool] unifyAnnotationAssignable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: AnnotationOf(Tree t, RType inType, RType annType, loc at)
+//
+public tuple[ConstraintBase,bool] unifyAnnotationOf(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Composable(RType left, RType right, RType result, loc at)
+//
+public tuple[ConstraintBase,bool] unifyComposable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: BuiltInAppliable(RBuiltInOp op, RType domain, RType range, loc at)
+//
+// If we have a built-in operation, such as + : int real -> t0, this will derive the type
+// for t0, adding a constraint saying t0 is equal to the result type (for instance, here
+// the constraint t0 = real will be added). This will always add a constraint if the
+// condition matches, although it may be a failure, for those cases where an operation 
+// is not defined.
+//
+public tuple[ConstraintBase,bool] unifyBuiltInAppliable(SymbolTable st, ConstraintBase cb) {
+    if ({c*,biac:BuiltInAppliable(op,d,r,at)} := cb.constraints, RTupleType(_) := d, isConcreteType(st,cb,d), isInferenceType(st,cb,r)) {
+        cb.constraints = addConstraintsForBuiltIn(c,op,instantiateAllInferenceVars(st,cb,d),r,at);    
         return <cb,true>;
     }
     
     return <cb, false>;
 }
 
+//
+// CONSTRAINT: Bindable(Tree pattern, RType subject, loc at)
+//
+public tuple[ConstraintBase,bool] unifyBindable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Enumerable(Tree pattern, RType subject, loc at)
+//
+public tuple[ConstraintBase,bool] unifyEnumerable(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: StepItType(Tree reducer, loc at, RType inType, RType outType, RType result)
+//
+public tuple[ConstraintBase,bool] unifyStepItType(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: Failure(Tree t, loc at, RType failureType)
+//
+public tuple[ConstraintBase,bool] unifyFailure(SymbolTable st, ConstraintBase cb) {
+    return <cb, false>;
+}
+
+//
+// CONSTRAINT: DefinedBy(RType lvalue, set[STItemId] definingIds, loc at)
+//
+// The DefinedBy constraint provides the link between the constraint solver
+// and the symbol table. Saying that t1 is defined by a set of IDs constrains
+// t1 to be the type of one of the items that the IDs define. If there are multiple
+// matching types, an overloaded type, with location information (if possible),
+// is returned instead. This is then used for overloading for functions and
+// constructors, and also needs to be taken account of during (for instance)
+// function calls, since an overlaoded function can be passed to another function.
+//
+// TODO: Make sure the subtype rules are set up to properly handle
+// overloaded types, the rule should be that ot1 <: t2 when at least one
+// of the overloads in ot1 <: t2.
+//
+// TODO: Also need to make sure other functions handle overloaded types. Should
+// just look at these again and make sure we handle them consistently. Note that
+// there is no restriction here that these all be function or constructor types, 
+// but in practice that is what will happen, since other cases are scope errors.
+//
 public tuple[ConstraintBase,bool] unifyDefinedBy(SymbolTable st, ConstraintBase cb) {
-    if ({_*,db:DefinedBy(rt,itemIds)} := cb.constraints, inferenceType(rt)) {
+    if ({_*,db:DefinedBy(rt,itemIds,at)} := cb.constraints, isInferenceType(st,cb,rt)) {
         if (size(itemIds) > 1) {
             set[ROverloadedType] overloads = { };
             for (itemId <- itemIds) {
@@ -497,11 +1272,11 @@ public tuple[ConstraintBase,bool] unifyDefinedBy(SymbolTable st, ConstraintBase 
                 else
                     overloads = ROverloadedType(getTypeForItem(st, itemId));
             }
-            cb.constraints = cb.constraints + TypesAreEqual(rt,ROverloadedType(overloads)) - db;
+            cb.constraints = cb.constraints + TypesAreEqual(rt,ROverloadedType(overloads),at) - db;
             return <cb, true>;
         } else if (size(itemIds) == 1) {
             RType itemType = getTypeForItem(st, getOneFrom(itemIds));
-            cb.constraints = cb.constraints + TypesAreEqual(rt,itemType) - db;
+            cb.constraints = cb.constraints + TypesAreEqual(rt,itemType,at) - db;
             return <cb, true>;
         } else {
             throw "We should not have a defined by with no items!";
@@ -511,69 +1286,91 @@ public tuple[ConstraintBase,bool] unifyDefinedBy(SymbolTable st, ConstraintBase 
     return <cb, false>;
 }
 
-public tuple[ConstraintBase,bool] unifySubtypeOf(SymbolTable st, ConstraintBase cb) {
-    if ({_*,sof:SubtypeOf(lt,rt)} := cb.constraints, concreteType(lt), concreteType(rt), subtypeOf(lt,rt)) {
-        cb.constraints = cb.constraints - sof;
-        return <cb, true>;
-    }
-    
-    return <cb, false>;
-}
+
+
+
+
+
+
+
+
+
+
 
 public Constraints replaceTypes(Constraints cs, RType t1, RType t2) {
-    return visit(cs) {
-        case t1 => t2
-    };
+    return { instantiateInferenceVar(c,t1,t2) | c <- cs };
 }
 
 public ConstraintBase multiStepReduction(SymbolTable st, ConstraintBase cb) {
     bool keepReducing = false;
+    dt1 = now();
+    int steps = 0;
     do {
         <cb,keepReducing> = oneStepReduce(st,cb);
-    } while (keepReducing == true);
+        steps += 1;
+    } while (keepReducing);
+    dt2 = now();
+    dur = createDuration(dt1,dt2);
+    println("Reduced <steps> steps in time <dur>");
     return cb;
 }
 
-public bool inferenceType(RType rt) {
-    return /InferenceVar(_) := rt;
+//
+// The type is concrete IF it does not contain an inference var OR
+// IF it only contains inference vars that are in the inference
+// var map, which maps inference vars to conrete types.
+//
+public bool concreteType(SymbolTable st, ConstraintBase cb, RType rt) {
+    if (/InferenceVar(n) := rt, n notin cb.inferenceVarMap) return false;
+    return true;
 }
 
-public bool concreteType(RType rt) {
-    return !inferenceType(rt);
+public bool concreteType(SymbolTable st, ConstraintBase cb, list[RType] rts) {
+    return size([rt | rt <- rts, concreteType(st,cb,rt)]) == size(rts);
 }
 
-public bool inferenceType(list[RType] rts) {
-    return size([rt | rt <- rts, inferenceType(rt)]) > 0;
+//
+// The type is an inference type IF it is not concrete.
+//
+public bool inferenceType(SymbolTable st, ConstraintBase cb, RType rt) {
+    return !concreteType(st,cb,rt);
 }
 
-public bool concreteType(list[RType] rts) {
-    return !inferenceType(rts);
+public bool inferenceType(SymbolTable st, ConstraintBase cb, list[RType] rts) {
+    return !concreteType(st,cb,rts);
 }
 
-public bool standardType(RType rt) {
+//
+// The type is a standard type if it is not one of the types added
+// for the inferencer.
+//
+public bool standardType(RType rt) {    
     return ! (/InferenceVar(_) := rt || /SpliceableElement(_) := rt);
 }
 
-public tuple[ConstraintBase,bool] unifyTypes(ConstraintBase cb, RType t1, RType t2) {
+public tuple[ConstraintBase,bool] unifyTypes(ConstraintBase cb, RType t1, RType t2, loc at) {
     // First, if we have aliases or type vars, unroll them so we can try to unify actual types
-    if (isAliasType(t1)) return unifyTypes(cb,getAliasedType(t1),t2);
-    if (isAliasType(t2)) return unifyTypes(cb,t1,getAliasedType(t2));
-    if (isTypeVar(t1)) return unifyTypes(cb,getTypeVarBound(t1),t2);
-    if (isTypeVar(t2)) return unifyTypes(cb,t1,getTypeVarBound(t2));
+    if (isAliasType(t1)) return unifyTypes(cb,getAliasedType(t1),t2,at);
+    if (isAliasType(t2)) return unifyTypes(cb,t1,getAliasedType(t2),at);
+    if (isTypeVar(t1)) return unifyTypes(cb,getTypeVarBound(t1),t2,at);
+    if (isTypeVar(t2)) return unifyTypes(cb,t1,getTypeVarBound(t2),at);
     
-    if (SpliceableElement(se1) := t1) return unifyTypes(cb,se1,t2);
-    if (SpliceableElement(se2) := t2) return unifyTypes(cb,t1,se2);
+    if (SpliceableElement(se1) := t1) return unifyTypes(cb,se1,t2,at);
+    if (SpliceableElement(se2) := t2) return unifyTypes(cb,t1,se2,at);
+    
+    if (InferenceVar(n) := t1 && n in cb.inferenceVarMap) return unifyTypes(cb,cb.inferenceVarMap[n],t2,at);
+    if (InferenceVar(n) := t2 && n in cb.inferenceVarMap) return unifyTypes(cb,t1,cb.inferenceVarMap[n],at);
 
-    if (RStatementType(st1) := t1 && RStatementType(st2) := t2) return unifyTypes(cb,st1,st2);
+    if (RStatementType(st1) := t1 && RStatementType(st2) := t2) return unifyTypes(cb,st1,st2,at);
         
     // Now, start going through the types on a case by case basis. First we see if one is
     // an inference var -- if so, the other is a match by default, and we can unify them.
     if (InferenceVar(_) := t1) {
-        cb.constraints = cb.constraints + TypesAreEqual(t1,t2);
+        cb.constraints = cb.constraints + TypesAreEqual(t1,t2,at);
         return <cb,true>;
     }
     if (InferenceVar(_) := t2) {
-        cb.constraints = cb.constraints + TypesAreEqual(t2,t1);
+        cb.constraints = cb.constraints + TypesAreEqual(t2,t1,at);
         return <cb,true>;
     }
     
@@ -591,15 +1388,15 @@ public tuple[ConstraintBase,bool] unifyTypes(ConstraintBase cb, RType t1, RType 
     
     // Next, check containers. We need to check both at the top level of the
     // container and descend inside.
-    if (RSetType(et1) := t1 && RSetType(et2) := t2) return unifyTypes(cb,et1,et2);
-    if (RSetType(et1) := t1 && RRelType(_) := t2) return unifyTypes(cb,et1,getRelElementType(t2));
-    if (RRelType(_) := t1 && RSetType(et2) := t2) return unifyTypes(cb,getRelElementType(t1),et2);
-    if (RRelType(_) := t1 && RRelType(_) := t2) return unifyTypes(cb,getRelElementType(t1),getRelElementType(t2));
-    if (RListType(et1) := t1 && RListType(et2) := t2) return unifyTypes(cb,et1,et2);
-    if (RBagType(et1) := t1 && RBagType(et2) := t2) return unifyTypes(cb,et1,et2);
+    if (RSetType(et1) := t1 && RSetType(et2) := t2) return unifyTypes(cb,et1,et2,at);
+    if (RSetType(et1) := t1 && RRelType(_) := t2) return unifyTypes(cb,et1,getRelElementType(t2),at);
+    if (RRelType(_) := t1 && RSetType(et2) := t2) return unifyTypes(cb,getRelElementType(t1),et2,at);
+    if (RRelType(_) := t1 && RRelType(_) := t2) return unifyTypes(cb,getRelElementType(t1),getRelElementType(t2),at);
+    if (RListType(et1) := t1 && RListType(et2) := t2) return unifyTypes(cb,et1,et2,at);
+    if (RBagType(et1) := t1 && RBagType(et2) := t2) return unifyTypes(cb,et1,et2,at);
     if (RMapType(_,_) := t1 && RMapType(_,_) := t2) {
-        <cb,b> = unifyTypes(cb,getMapDomainType(t1),getMapDomainType(t2));
-        return b ? unifyTypes(cb,getMapRangeType(t1),getMapRangeType(t2)) : <cb,b>;
+        <cb,b> = unifyTypes(cb,getMapDomainType(t1),getMapDomainType(t2),at);
+        return b ? unifyTypes(cb,getMapRangeType(t1),getMapRangeType(t2),at) : <cb,b>;
     }
                                                            
     // To check a tuple, we need to check the arity and all the elements
@@ -609,7 +1406,7 @@ public tuple[ConstraintBase,bool] unifyTypes(ConstraintBase cb, RType t1, RType 
         if (size(tf1) != size(tf2)) return <cb,false>;
         if (size(tf1) == 0) return <cb,true>;
         for (n <- [0..size(tf1)-1]) {
-            <cb, b> = unifyTypes(tf1[n],tf2[n]);
+            <cb, b> = unifyTypes(cb,tf1[n],tf2[n],at);
             if (!b) return <cb,b>;
         }
         return <cb,true>;
@@ -627,12 +1424,12 @@ public tuple[ConstraintBase,bool] unifyTypes(ConstraintBase cb, RType t1, RType 
         if (cn1 != cn2) return <cb,false>; // TODO: Is this a problem with qualified names?
         
         // Unify the ADTs
-        <cb,b> = unifyTypes(cb,ct1,ct2);
+        <cb,b> = unifyTypes(cb,ct1,ct2,at);
         if (!b) return <cb,b>;
         
         // Unify the fields
         for (n <- [0..size(cf1)-1]) {
-            <cb, b> = unifyTypes(cf1[n],cf2[n]);
+            <cb, b> = unifyTypes(cf1[n],cf2[n],at);
             if (!b) return <cb,b>;
         }
         return <cb,true>;
@@ -641,4 +1438,373 @@ public tuple[ConstraintBase,bool] unifyTypes(ConstraintBase cb, RType t1, RType 
     // TODO: Add function types
     
     return <cb,false>;
+}
+
+//
+// Recursively instantiate inference var infv with concrete type conc, starting
+// at the constraint level and recursing down into the types.
+//
+public Constraint instantiateInferenceVar(Constraint c, RType infv, RType conc) {
+    switch(c) {
+        case TreeIsType(t,at,tt) : return TreeIsType(t,at,instantiateInferenceVar(tt,infv,conc));
+        case LocIsType(at,tt) : return LocIsType(at,instantiateInferenceVar(tt,infv,conc));
+        case TypesAreEqual(lt,rt,at) : return TypesAreEqual(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case LubOf(tl,tr,at) : return LubOf(instantiateInferenceVar(tl,infv,conc),instantiateInferenceVar(tr,infv,conc),at);
+        case LubOfList(tl,tr,at) : return LubOfList(instantiateInferenceVar(tl,infv,conc),instantiateInferenceVar(tr,infv,conc),at);
+        case LubOfSet(tl,tr,at) : return LubOfSet(instantiateInferenceVar(tl,infv,conc),instantiateInferenceVar(tr,infv,conc),at);
+        case BindableToCase(tl,tr,at) : return BindableToCase(instantiateInferenceVar(tl,infv,conc),instantiateInferenceVar(tr,infv,conc),at);
+        case Assignable(p,at,lhs,rhs,rv,lv,res) : return Assignable(p,at,lhs,rhs,instantiateInferenceVar(rv,infv,conc),instantiateInferenceVar(lv,infv,conc),instantiateInferenceVar(res,infv,conc));
+        case Assignable(p,at,lhs,rhs,rv,lv) : return Assignable(p,at,lhs,rhs,instantiateInferenceVar(rv,infv,conc),instantiateInferenceVar(lv,infv,conc));
+        case IsNameAssignable(lt,rt,at) : return IsNameAssignable(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case Returnable(t,at,r,gt,et) : return Returnable(t,at,r,instantiateInferenceVar(gt,infv,conc),instantiateInferenceVar(et,infv,conc));
+        case IsRuntimeException(et,at) : return IsRuntimeException(instantiateInferenceVar(et,infv,conc),at);
+        case BindsRuntimeException(_,_) : return c;
+        case CaseIsReachable(ct,et,at) : return CaseIsReachable(instantiateInferenceVar(ct,infv,conc),instantiateInferenceVar(et,infv,conc),at);
+        case SubtypeOf(lt,rt,at) : return SubtypeOf(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case PWAResultType(lt,rt,at) : return PWAResultType(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case IsReifiedType(rt,ptl,at,res) : return IsReifiedType(instantiateInferenceVar(rt,infv,conc),instantiateInferenceVar(ptl,infv,conc),at,instantiateInferenceVar(res,infv,conc));
+        case CallOrTree(lt,ptl,res,at) : return CallOrTree(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(ptl,infv,conc),instantiateInferenceVar(res,infv,conc),at);
+        case FieldOf(t,lt,rt,at) : return FieldOf(t,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case FieldAssignable(p,at,lt,ft,rt,rv,lv) : return FieldAssignable(p,at,lt,ft,rt,instantiateInferenceVar(rv,infv,conc),instantiateInferenceVar(lv,infv,conc));
+        case NamedFieldOf(t,lt,rt,at) : return NamedFieldOf(t,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case IndexedFieldOf(t,lt,rt,at) : return IndexedFieldOf(t,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case FieldProjection(lt,ftl,res,at) : return FieldProjection(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(ftl,infv,conc),instantiateInferenceVar(res,infv,conc),at);
+        case Subscript(lt,tl,rtl,res,at) :return Subscript(instantiateInferenceVar(lt,infv,conc),tl,instantiateInferenceVar(rtl,infv,conc),instantiateInferenceVar(res,infv,conc),at);        
+        case Comparable(lt,rt,at) : return Comparable(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case AnnotationAssignable(p,at,lt,ant,rt,rv,lv) : return AnnotationAssignable(p,at,lt,ant,rt,instantiateInferenceVar(rv,infv,conc),instantiateInferenceVar(lv,infv,conc));
+        case AnnotationOf(t,lt,rt,at) : return AnnotationOf(t,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
+        case Composable(lt,rt,res,at) : return Composable(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),instantiateInferenceVar(res,infv,conc),at);
+        case BuiltInAppliable(op,d,r,at) : return BuiltInAppliable(op,instantiateInferenceVar(d,infv,conc),instantiateInferenceVar(r,infv,conc),at);
+        case Bindable(p,st,at) : return Bindable(p,instantiateInferenceVar(st,infv,conc),at);
+        case Enumerable(p,st,at) : return Enumerable(p,instantiateInferenceVar(st,infv,conc),at);
+        case StepItType(p,at,lt,st,rt) : return Enumerable(p,at,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(st,infv,conc),instantiateInferenceVar(rt,infv,conc));
+        case Failure(t,at,ft) : return c;
+        case DefinedBy(lt,ids,at) : return DefinedBy(instantiateInferenceVar(lt,infv,conc),ids,at);
+    }
+}
+
+public RNamedType instantiateInferenceVar(RNamedType nt, RType infv, RType conc) {
+    if (RUnnamedType(t) := nt) 
+        return RUnnamedType(instantiateInferenceVar(t,infv,conc));
+    else if (RNamedType(t,tn) := nt)
+        return RNamedType(instantiateInferenceVar(t,infv,conc),tn);
+}        
+
+public ROverloadedType instantiateInferenceVar(ROverloadedType olt, RType infv, RType conc) {
+    if (ROverloadedType(ot) := olt)
+        return ROverloadedType(instantiateInferenceVar(ot,infv,conc));
+    else if (ROverloadedTypeWithLoc(ot,l) := olt)
+        return ROverloadedTypeWithLoc(instantiateInferenceVar(ot,infv,conc),l);
+}
+
+public RTypeVar instantiateInferenceVar(RTypeVar tv, RType infv, RType conc) {
+    if (RFreeTypeVar(vn) := tv)
+        return tv;
+    else if (RBoundTypeVar(vn,vb) := tv)
+        return RBoundTypeVar(vn,instantiateInferenceVar(vb,infv,conc));
+}
+
+public list[RNamedType] instantiateInferenceVar(list[RNamedType] ntl, RType infv, RType conc) {
+    return [ instantiateInferenceVar(nt,infv,conc) | nt <- ntl ];
+}
+
+public list[RType] instantiateInferenceVar(list[RType] tl, RType infv, RType conc) {
+    return [ instantiateInferenceVar(t,infv,conc) | t <- tl ];
+}
+
+public set[ROverloadedType] instantiateInferenceVar(set[ROverloadedType] ots, RType infv, RType conc) {
+    return { instantiateInferenceVar(ot,infv,conc) | ot <- ots };
+}
+    
+public RType instantiateInferenceVar(RType t1, RType infv, RType conc) {
+    switch(t1) {
+        case infv : return conc;
+        
+        case RBoolType() : return t1;
+        case RIntType() : return t1;
+        case RRealType() : return t1;
+        case RNumType() : return t1;
+        case RStrType() : return t1;
+        case RValueType() : return t1;
+        case RNodeType() : return t1;
+        case RVoidType() : return t1;
+        case RLocType() : return t1;
+        case RLexType() : return t1;
+        case RNonTerminalType : return t1;
+        case RDateTimeType : return t1;
+        case RListType(et) : return RListType(instantiateInferenceVar(et,infv,conc));
+        case RSetType(et) : return RSetType(instantiateInferenceVar(et,infv,conc));
+        case RListOrSetType(et) : return RListOrSetType(instantiateInferenceVar(et,infv,conc));
+        case RBagType(et) : return RBagType(instantiateInferenceVar(et,infv,conc));
+        case RMapType(dt,rt) : return RMapType(instantiateInferenceVar(dt,infv,conc),instantiateInferenceVar(rt,infv,conc));
+        case RRelType(lnt) : return RRelType(instantiateInferenceVar(lnt,infv,conc));         
+        case RTupleType(lnt) : return RTupleType(instantiateInferenceVar(lnt,infv,conc));
+        case RADTType(et) : return RADTType(instantiateInferenceVar(et,infv,conc));
+        case RConstructorType(cn,at,etl) : return RConstructorType(cn,instantiateInferenceVar(at,infv,conc),instantiateInferenceVar(etl,infv,conc));
+        case RFunctionType(rt,ptl) : return RFunctionType(instantiateInferenceVar(rt,infv,conc),instantiateInferenceVar(ptl,infv,conc));
+        case RReifiedType(et) : return RReifiedType(instantiateInferenceVar(et,infv,conc));
+        case RReifiedReifiedType(et) : return RReifiedReifiedType(instantiateInferenceVar(et,infv,conc));
+        case RFailType(_) : return t1;
+        case RInferredType(_) : return t1;
+        case ROverloadedType(ots) : return ROverloadedType(instantiateInferenceVar(ots,infv,conc));
+        case RVarArgsType(vt) : return RVarArgsType(instantiateInferenceVar(vt,infv,conc));
+        case RStatementType(st) : return RStatementType(instantiateInferenceVar(st,infv,conc));
+        case RAliasType(an,at) : return RAliasType(instantiateInferenceVar(an,infv,conc),instantiateInferenceVar(at,infv,conc));
+        case RUserType(_) : return t1;
+        case RParameterizedUserType(tn,tpl) : return RParameterizedUserType(tn,instantiateInferenceVar(tpl,infv,conc));
+        case RTypeVar(tv) : return RTypeVar(instantiateInferenceVar(tv,infv,conc));
+        case InferenceVar(_) : return t1;
+        case TupleProjection(atl) : return TupleProjection(instantiateInferenceVar(atl,infv,conc));
+        case SingleProjection(res) : return SingleProjection(instantiateInferenceVar(res,infv,conc));
+        case RelationProjection(atl) : return RelationProjection(instantiateInferenceVar(atl,infv,conc));
+        case SetProjection(res) : return SetProjection(instantiateInferenceVar(res,infv,conc));
+        case CaseType(rp,ct) : return CaseType(instantiateInferenceVar(rp,infv,conc),instantiateInferenceVar(ct,infv,conc));
+        case DefaultCaseType(ct) : return DefaultCaseType(instantiateInferenceVar(ct,infv,conc));
+        case AssignableType(_) : return t1;
+        case TypeWithName(nt) : return TypeWithName(instantiateInferenceVar(nt,infv,conc));
+        case SpliceableElement(et) : return SpliceableElement(instantiateInferenceVar(et,infv,conc));
+        case ReplacementType(p,rt) : return ReplacementType(p,instantiateInferenceVar(rt,infv,conc));
+        case NoReplacementType(p,rt) : return NoReplacementType(p,instantiateInferenceVar(rt,infv,conc));
+    }
+
+    throw "Unmatched type <t1>";    
+}
+
+//
+// Recursively determine if the given type is a concrete type. A type is concrete if
+// it does not contain any unresolved inference variables. The duals of these,
+// isInferenceType, are given for each isConcreteType function. The dual just
+// checks !isConcreteType.
+//
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, RNamedType nt) {
+    if (RUnnamedType(t) := nt) 
+        return isConcreteType(st, cb, t);
+    else if (RNamedType(t,tn) := nt)
+        return isConcreteType(st, cb, t);
+}        
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, RNamedType nt) {
+    return !isConcreteType(st, cb, nt);
+}
+    
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, ROverloadedType olt) {
+    if (ROverloadedType(ot) := olt)
+        return isConcreteType(st, cb, ot);
+    else if (ROverloadedTypeWithLoc(ot,l) := olt)
+        return isConcreteType(st, cb, ot);
+}
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, ROverloadedType olt) {
+    return !isConcreteType(st, cb, olt);
+}
+
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, RTypeVar tv) {
+    if (RFreeTypeVar(vn) := tv)
+        return true;
+    else if (RBoundTypeVar(vn,vb) := tv)
+        return isConcreteType(st, cb, vb);
+}
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, RTypeVar tv) {
+    return !isConcreteType(st,cb,tv);
+}
+
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, list[RNamedType] ntl) {
+    return size([ nt | nt <- ntl, !isConcreteType(st, cb, nt) ]) == 0;
+}
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, list[RNamedType] ntl) {
+    return !isConcreteType(st, cb, ntl);
+}
+
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, list[RType] tl) {
+    return size([ t | t <- tl, !isConcreteType(st, cb, t) ]) == 0;
+}
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, list[RType] tl) {
+    return !isConcreteType(st, cb, tl);
+}
+
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, set[ROverloadedType] ots) {
+    return size({ ot | ot <- ots, isConcreteType(st, cb, ot) }) == 0;
+}
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, set[ROverloadedType] ots) {
+    return !isConcreteType(st, cb, ots);
+}
+
+public bool isConcreteType(SymbolTable st, ConstraintBase cb, RType t1) {
+    switch(t1) {
+        case RBoolType() : return true;
+        case RIntType() : return true;
+        case RRealType() : return true;
+        case RNumType() : return true;
+        case RStrType() : return true;
+        case RValueType() : return true;
+        case RNodeType() : return true;
+        case RVoidType() : return true;
+        case RLocType() : return true;
+        case RLexType() : return true;
+        case RNonTerminalType : return true;
+        case RDateTimeType : return true;
+        case RListType(et) : return isConcreteType(st, cb, et);
+        case RSetType(et) : return isConcreteType(st, cb, et);
+        case RListOrSetType(et) : return isConcreteType(st, cb, et);
+        case RBagType(et) : return isConcreteType(st, cb, et);
+        case RMapType(dt,rt) : return isConcreteType(st, cb, dt) && isConcreteType(st, cb, rt);
+        case RRelType(lnt) : return isConcreteType(st, cb, lnt);         
+        case RTupleType(lnt) : return isConcreteType(st, cb, lnt);
+        case RADTType(et) : return isConcreteType(st, cb, et);
+        case RConstructorType(cn,at,etl) : return isConcreteType(st, cb, at) && isConcreteType(st, cb, etl);
+        case RFunctionType(rt,ptl) : return isConcreteType(st, cb, rt) && isConcreteType(st, cb, ptl);
+        case RReifiedType(et) : return isConcreteType(st, cb, et);
+        case RReifiedReifiedType(et) : return isConcreteType(st, cb, et);
+        case RFailType(_) : return false;
+        case RInferredType(_) : return false;
+        case ROverloadedType(ots) : return isConcreteType(st, cb, ots);
+        case RVarArgsType(vt) : return isConcreteType(st, cb, vt);
+        case RStatementType(st) : return isConcreteType(st, cb, st);
+        case RAliasType(an,at) : return isConcreteType(st, cb, an) && isConcreteType(st, cb, at);
+        case RUserType(_) : return true;
+        case RParameterizedUserType(tn,tpl) : return isConcreteType(st, cb, tpl);
+        case RTypeVar(tv) : return isConcreteType(st, cb, tv);
+        case InferenceVar(n) : if (n in cb.inferenceVarMap) return isConcreteType(st, cb, cb.inferenceVarMap[n]);
+        case SpliceableElement(se) : return isConcreteType(st, cb, se);
+        case TypeWithName(nt) : return isConcreteType(st, cb, nt);
+    }
+
+    return false;    
+}
+
+public bool isInferenceType(SymbolTable st, ConstraintBase cb, RType t1) {
+    return !isConcreteType(st,cb,t1);
+}
+
+//
+// Instantiate all inference variables, based on the current mapping given in the constraint
+// base. This starts at the level of a constraint, recursing down through the types.
+//
+public Constraint instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, Constraint c) {
+    switch(c) {
+        case TreeIsType(t,at,tt) : return TreeIsType(t,at,instantiateAllInferenceVars(st,cb,tt));
+        case LocIsType(at,tt) : return LocIsType(at,instantiateAllInferenceVars(st,cb,tt));
+        case TypesAreEqual(lt,rt,at) : return TypesAreEqual(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case LubOf(tl,tr,at) : return LubOf(instantiateAllInferenceVars(st,cb,tl),instantiateAllInferenceVars(st,cb,tr),at);
+        case LubOfList(tl,tr,at) : return LubOfList(instantiateAllInferenceVars(st,cb,tl),instantiateAllInferenceVars(st,cb,tr),at);
+        case LubOfSet(tl,tr,at) : return LubOfSet(instantiateAllInferenceVars(st,cb,tl),instantiateAllInferenceVars(st,cb,tr),at);
+        case BindableToCase(tl,tr,at) : return BindableToCase(instantiateAllInferenceVars(st,cb,tl),instantiateAllInferenceVars(st,cb,tr),at);
+        case Assignable(p,at,lhs,rhs,rv,lv,res) : return Assignable(p,at,lhs,rhs,instantiateAllInferenceVars(st,cb,rv),instantiateAllInferenceVars(st,cb,lv),instantiateAllInferenceVars(st,cb,res));
+        case Assignable(p,at,lhs,rhs,rv,lv) : return Assignable(p,at,lhs,rhs,instantiateAllInferenceVars(st,cb,rv),instantiateAllInferenceVars(st,cb,lv));
+        case IsNameAssignable(lt,rt,at) : return IsNameAssignable(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case Returnable(t,at,r,gt,et) : return Returnable(t,at,r,instantiateAllInferenceVars(st,cb,gt),instantiateAllInferenceVars(st,cb,et));
+        case IsRuntimeException(et,at) : return IsRuntimeException(instantiateAllInferenceVars(st,cb,et),at);
+        case BindsRuntimeException(_,_) : return c;
+        case CaseIsReachable(ct,et,at) : return CaseIsReachable(instantiateAllInferenceVars(st,cb,ct),instantiateAllInferenceVars(st,cb,et),at);
+        case SubtypeOf(lt,rt,at) : return SubtypeOf(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case PWAResultType(lt,rt,at) : return PWAResultType(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case IsReifiedType(rt,ptl,at,res) : return IsReifiedType(instantiateAllInferenceVars(st,cb,rt),instantiateAllInferenceVars(st,cb,ptl),at,instantiateAllInferenceVars(st,cb,res));
+        case CallOrTree(lt,ptl,res,at) : return CallOrTree(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,ptl),instantiateAllInferenceVars(st,cb,res),at);
+        case FieldOf(t,lt,rt,at) : return FieldOf(t,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case FieldAssignable(p,at,lt,ft,rt,rv,lv) : return FieldAssignable(p,at,lt,ft,rt,instantiateAllInferenceVars(st,cb,rv),instantiateAllInferenceVars(st,cb,lv));
+        case NamedFieldOf(t,lt,rt,at) : return NamedFieldOf(t,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case IndexedFieldOf(t,lt,rt,at) : return IndexedFieldOf(t,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case FieldProjection(lt,ftl,res,at) : return FieldProjection(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,ftl),instantiateAllInferenceVars(st,cb,res),at);
+        case Subscript(lt,tl,rtl,res,at) :return Subscript(instantiateAllInferenceVars(st,cb,lt),tl,instantiateAllInferenceVars(rtl,cb,lt),instantiateAllInferenceVars(st,cb,res),at);        
+        case Comparable(lt,rt,at) : return Comparable(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case AnnotationAssignable(p,at,lt,ant,rt,rv,lv) : return AnnotationAssignable(p,at,lt,ant,rt,instantiateAllInferenceVars(st,cb,rv),instantiateAllInferenceVars(st,cb,lv));
+        case AnnotationOf(t,lt,rt,at) : return AnnotationOf(t,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
+        case Composable(lt,rt,res,at) : return Composable(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),instantiateAllInferenceVars(st,cb,res),at);
+        case BuiltInAppliable(op,d,r,at) : return BuiltInAppliable(op,instantiateAllInferenceVars(st,cb,d),instantiateAllInferenceVars(st,cb,r),at);
+        case Bindable(p,stt,at) : return Bindable(p,instantiateAllInferenceVars(st,cb,stt),at);
+        case Enumerable(p,stt,at) : return Enumerable(p,instantiateAllInferenceVars(st,cb,stt),at);
+        case StepItType(p,at,lt,stt,rt) : return StepItType(p,at,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,stt),instantiateAllInferenceVars(st,cb,rt));
+        case Failure(t,at,ft) : return c;
+        case DefinedBy(lt,ids,at) : return DefinedBy(instantiateAllInferenceVars(st,cb,lt),ids,at);
+    }
+}
+
+public RNamedType instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, RNamedType nt) {
+    if (RUnnamedType(t) := nt) 
+        return RUnnamedType(instantiateAllInferenceVars(st,cb,t));
+    else if (RNamedType(t,tn) := nt)
+        return RNamedType(instantiateAllInferenceVars(st,cb,t),tn);
+}        
+
+public ROverloadedType instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, ROverloadedType olt) {
+    if (ROverloadedType(ot) := olt)
+        return ROverloadedType(instantiateAllInferenceVars(st,cb,ot));
+    else if (ROverloadedTypeWithLoc(ot,l) := olt)
+        return ROverloadedTypeWithLoc(instantiateAllInferenceVars(st,cb,ot),l);
+}
+
+public RTypeVar instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, RTypeVar tv) {
+    if (RFreeTypeVar(vn) := tv)
+        return tv;
+    else if (RBoundTypeVar(vn,vb) := tv)
+        return RBoundTypeVar(vn,instantiateAllInferenceVars(st,cb,vb));
+}
+
+public list[RNamedType] instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, list[RNamedType] ntl) {
+    return [ instantiateAllInferenceVars(st,cb,nt) | nt <- ntl ];
+}
+
+public list[RType] instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, list[RType] tl) {
+    return [ instantiateAllInferenceVars(st,cb,t) | t <- tl ];
+}
+
+public set[ROverloadedType] instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, set[ROverloadedType] ots) {
+    return { instantiateAllInferenceVars(st,cb,ot) | ot <- ots };
+}
+    
+public RType instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb, RType t1) {
+    switch(t1) {
+        case InferenceVar(vnum) : return (vnum in cb.inferenceVarMap ? instantiateAllInferenceVars(st,cb,cb.inferenceVarMap[vnum]) : t1);
+        
+        case RBoolType() : return t1;
+        case RIntType() : return t1;
+        case RRealType() : return t1;
+        case RNumType() : return t1;
+        case RStrType() : return t1;
+        case RValueType() : return t1;
+        case RNodeType() : return t1;
+        case RVoidType() : return t1;
+        case RLocType() : return t1;
+        case RLexType() : return t1;
+        case RNonTerminalType : return t1;
+        case RDateTimeType : return t1;
+        case RListType(et) : return RListType(instantiateAllInferenceVars(st,cb,et));
+        case RSetType(et) : return RSetType(instantiateAllInferenceVars(st,cb,et));
+        case RListOrSetType(et) : return RListOrSetType(instantiateAllInferenceVars(st,cb,et));
+        case RBagType(et) : return RBagType(instantiateAllInferenceVars(st,cb,et));
+        case RMapType(dt,rt) : return RMapType(instantiateAllInferenceVars(st,cb,dt),instantiateAllInferenceVars(st,cb,rt));
+        case RRelType(lnt) : return RRelType(instantiateAllInferenceVars(st,cb,lnt));         
+        case RTupleType(lnt) : return RTupleType(instantiateAllInferenceVars(st,cb,lnt));
+        case RADTType(et) : return RADTType(instantiateAllInferenceVars(st,cb,et));
+        case RConstructorType(cn,at,etl) : return RConstructorType(cn,instantiateAllInferenceVars(st,cb,at),instantiateAllInferenceVars(st,cb,etl));
+        case RFunctionType(rt,ptl) : return RFunctionType(instantiateAllInferenceVars(st,cb,rt),instantiateAllInferenceVars(st,cb,ptl));
+        case RReifiedType(et) : return RReifiedType(instantiateAllInferenceVars(st,cb,et));
+        case RReifiedReifiedType(et) : return RReifiedReifiedType(instantiateAllInferenceVars(st,cb,et));
+        case RFailType(_) : return t1;
+        case RInferredType(_) : return t1;
+        case ROverloadedType(ots) : return ROverloadedType(instantiateAllInferenceVars(st,cb,ots));
+        case RVarArgsType(vt) : return RVarArgsType(instantiateAllInferenceVars(st,cb,vt));
+        case RStatementType(st) : return RStatementType(instantiateAllInferenceVars(st,cb,st));
+        case RAliasType(an,at) : return RAliasType(instantiateAllInferenceVars(st,cb,an),instantiateAllInferenceVars(st,cb,at));
+        case RUserType(_) : return t1;
+        case RParameterizedUserType(tn,tpl) : return RParameterizedUserType(tn,instantiateAllInferenceVars(st,cb,tpl));
+        case RTypeVar(tv) : return RTypeVar(instantiateAllInferenceVars(st,cb,tv));
+        case TupleProjection(atl) : return TupleProjection(instantiateAllInferenceVars(st,cb,atl));
+        case SingleProjection(res) : return SingleProjection(instantiateAllInferenceVars(st,cb,res));
+        case RelationProjection(atl) : return RelationProjection(instantiateAllInferenceVars(st,cb,atl));
+        case SetProjection(res) : return SetProjection(instantiateAllInferenceVars(st,cb,res));
+        case CaseType(rp,ct) : return CaseType(instantiateAllInferenceVars(st,cb,rp),instantiateAllInferenceVars(st,cb,ct));
+        case DefaultCaseType(ct) : return DefaultCaseType(instantiateAllInferenceVars(st,cb,ct));
+        case AssignableType(_) : return t1;
+        case TypeWithName(nt) : return TypeWithName(instantiateAllInferenceVars(st,cb,nt));
+        case SpliceableElement(et) : return SpliceableElement(instantiateAllInferenceVars(st,cb,et));
+        case ReplacementType(p,rt) : return ReplacementType(p,instantiateAllInferenceVars(st,cb,rt));
+        case NoReplacementType(p,rt) : return NoReplacementType(p,instantiateAllInferenceVars(st,cb,rt));
+    }
+
+    throw "Unmatched type <t1>";    
 }

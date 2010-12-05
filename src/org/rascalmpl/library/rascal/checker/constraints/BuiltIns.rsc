@@ -4,12 +4,16 @@ import List;
 import Set;
 import Node;
 import Relation;
-import rascal::checker::Types;
-import rascal::checker::SubTypes;
+import rascal::types::Types;
+import rascal::scoping::SymbolTable;
 import constraints::Constraint;
 import rascal::checker::constraints::Constraints;
 
-alias TypingFun = RType (RType, RType, loc);
+alias UnaryTypingFun = RType (RType, loc);
+
+alias BinaryTypingFun = RType (RType, RType, loc);
+
+private set[RBuiltInOp] unaryOps = { Negative() };
 
 private set[RBuiltInOp] binaryOps = { Plus(), Minus(), NotIn(), In(), Lt(), LtEq(), Gt(), 
                                       GtEq(), Eq(), NEq(), Intersect(), Product(), Join(), 
@@ -18,8 +22,28 @@ private set[RBuiltInOp] binaryOps = { Plus(), Minus(), NotIn(), In(), Lt(), LtEq
 public Constraints addConstraintsForBuiltIn(Constraints cs, RBuiltInOp op, RType domain, RType range, loc at) {
     if (RTupleType(_) := domain) {
         list[RType] domainAsList = getTupleFields(domain);
-        if (op in binaryOps && size(domainAsList) == 2) {
-
+        if (op in unaryOps && size(domainAsList) == 1) {
+            // If the operand type is already a fail, we won't have a match in the relation. Since we don't want
+            // to inadvertently create a new error for this operation, just return the constraint set
+            // unmodified. This will leave the range type unresolved. Note that this means the constraint
+            // that led to this call should be removed by the caller from the constraint set, else this
+            // function will continue to be called.
+            if (isFailType(domainAsList[0]))
+                return cs;
+            
+            set[UnaryTypingFun] tfuns = typingRelUnaryOps[op,getName(domainAsList[0])];
+            if (size(tfuns) > 1) throw "Error, too many typing functions returned!";
+            if (size(tfuns) == 0) {
+                cs = cs + LocIsType(at,makeFailType("Error, <prettyPrintBuiltInOp(op)> is not defined for <prettyPrintType(domainAsList[0])>",at));            
+            } else {
+                UnaryTypingFun tfun = getOneFrom(tfuns); 
+                RType result = tfun(domainAsList[0],at);
+                if (isFailType(result))
+                    cs = cs + LocIsType(at,result);
+                else
+                    cs = cs + TypesAreEqual(range,result,at);
+            }
+        } else if (op in binaryOps && size(domainAsList) == 2) {
             // If either type is already a fail, we won't have a match in the relation. Since we don't want
             // to inadvertently create a new error for this operation, just return the constraint set
             // unmodified. This will leave the range type unresolved. Note that this means the constraint
@@ -28,24 +52,44 @@ public Constraints addConstraintsForBuiltIn(Constraints cs, RBuiltInOp op, RType
             if (isFailType(domainAsList[0]) || isFailType(domainAsList[1]))
                 return cs;
             
-            set[TypingFun] tfuns = typingRelBinOps[op,getName(domainAsList[0]),getName(domainAsList[1])];
+            set[BinaryTypingFun] tfuns = typingRelBinOps[op,getName(domainAsList[0]),getName(domainAsList[1])];
             if (size(tfuns) > 1) throw "Error, too many typing functions returned!";
             if (size(tfuns) == 0) {
-                RType result = makeFailType("Error, <prettyPrintBuiltInOp(op)> is not defined for <prettyPrintType(domainAsList[0])> and <prettyPrintType(domainAsList[1])>",at);
-                cs = cs + TypesAreEqual(range,result);            
+                cs = cs + LocIsType(at,makeFailType("Error, <prettyPrintBuiltInOp(op)> is not defined for <prettyPrintType(domainAsList[0])> and <prettyPrintType(domainAsList[1])>",at));            
             } else {
-                TypingFun tfun = getOneFrom(tfuns); 
+                BinaryTypingFun tfun = getOneFrom(tfuns); 
                 RType result = tfun(domainAsList[0],domainAsList[1],at);
-                cs = cs + TypesAreEqual(range,result);
+                if (isFailType(result))
+                    cs = cs + LocIsType(at,result);
+                else
+                    cs = cs + TypesAreEqual(range,result,at);
             }
         } else {
-            throw "Error, addConstraintsForBuiltIn does not handle non-binary operations yet";
+            throw "Error, addConstraintsForBuiltIn does not handle non-binary operations yet: <op>, <domain>";
         }
     } else {
         throw "Error, domain for addConstraintsForBuiltIn should be given as a tuple";
     }     
     return cs; 
 }
+
+public RType negateInt(RType left, loc at) {
+    return makeIntType();
+}
+
+public RType negateReal(RType left, loc at) {
+    return makeRealType();
+}
+
+public RType negateNum(RType left, loc at) {
+    return makeNumType();
+}
+
+public rel[RBuiltInOp op, str left, UnaryTypingFun tfun] typingRelUnaryOps = {
+    < Negative(), "RIntType", negateInt >,
+    < Negative(), "RNumType", negateNum >,
+    < Negative(), "RRealType", negateReal >
+};
 
 public RType itemPlusList(RType left, RType right, loc at) {
     return makeListType(lub(left,getListElementType(right)));
@@ -365,7 +409,7 @@ public RType setJoinSet(RType left, RType right, loc at) {
     return makeRelTypeFromTuple(makeTupleType([getSetElementType(left),getSetElementType(right)]));
 }
 
-public rel[RBuiltInOp op, str left, str right, TypingFun tfun] typingRelBinOps = {
+public rel[RBuiltInOp op, str left, str right, BinaryTypingFun tfun] typingRelBinOps = {
     < Plus(), "RBoolType", "RListType", itemPlusList >,
     < Plus(), "RBoolType", "RSetType", itemPlusSet >,
     < Plus(), "RBoolType", "RBagType", itemPlusBag >,

@@ -7,6 +7,17 @@ import IO;
 import rascal::types::Types;
 
 //
+// TODO: Support is provided for the RListOrSet type, but only for lub and subtype
+// calculations, not for type vars. Add these if needed, but we try to resolve
+// the RListOrSet type to either an RList or an RSet type as quickly as possible,
+// so hopefully we don't need code for this.
+//
+
+//
+// TODO: Add support for RReifiedReifiedType
+//
+
+//
 // Encode the subtyping relation t1 <: t2
 //
 // NOTE: For performance reasons we use matching to check the constructor used to
@@ -114,7 +125,16 @@ public bool subtypeOf(RType t1, RType t2) {
         // First check: t1 subtypeOf t2 if both are lists and the element type of t1 is a subtypeOf the element type of t2
         if (isListType(t2)) return subtypeOf(getListElementType(t1),getListElementType(t2));
 
+        // Similar check for ListOrSet
+        if (isListOrSetType(t2)) return subtypeOf(getListElementType(t1),getListOrSetElementType(t2));
+        
         // Second check: continue on up hierarchy to default checks  
+        return subtypeOfDefault(t1, t2);
+
+    } else if (RListOrSetType(_) := t1) {
+        if (isListType(t2)) return subtypeOf(getListOrSetElementType(t1),getListElementType(t2));
+        if (isSetType(t2)) return subtypeOf(getListOrSetElementType(t1),getSetElementType(t2));
+        if (isListOrSetType(t2)) return subtypeOf(getListOrSetElementType(t1),getListOrSetElementType(t2));
         return subtypeOfDefault(t1, t2);
 
     } else if (RMapType(_,_) := t1) {
@@ -145,6 +165,9 @@ public bool subtypeOf(RType t1, RType t2) {
         // First check: t1 subtypeOf t2 if the element types are also subtypes
         if (isSetType(t2)) return subtypeOf(getSetElementType(t1),getSetElementType(t2));
 
+        // Similar check for ListOrSet
+        if (isListOrSetType(t2)) return subtypeOf(getSetElementType(t1),getListOrSetElementType(t2));
+        
         // Second check: continue on up hierarchy to default checks  
         return subtypeOfDefault(t1, t2);
 
@@ -390,6 +413,16 @@ public RType lub(RType t1, RType t2) {
         // First check: if both types are lists, the lub is a list with element the lub of the two list elements
         if (isListType(t2)) return makeListType(lub(getListElementType(t1),getListElementType(t2)));
 
+        if (isListOrSetType(t2)) return makeListType(lub(getListElementType(t1),getListOrSetElementType(t2)));
+        
+        // Final check: just call default
+        return lubDefault(t1, t2);
+
+    } else if (RListOrSetType(_) := t1) {
+        if (isListType(t2)) return makeListType(lub(getListOrSetElementType(t1),getListElementType(t2)));
+        if (isSetType(t2)) return makeSetType(lub(getListOrSetElementType(t1),getSetElementType(t2)));
+        if (isListOrSetType(t2)) return makeListOrSetType(lub(getListOrSetElementType(t1),getListOrSetElementType(t2)));
+        
         // Final check: just call default
         return lubDefault(t1, t2);
 
@@ -440,6 +473,8 @@ public RType lub(RType t1, RType t2) {
             else
                 return RSetType(res);
         }
+
+        if (isListOrSetType(t2)) return makeSetType(lub(getSetElementType(t1),getListOrSetElementType(t2)));
 
         // Final check: just call default
         return lubDefault(t1, t2);
@@ -700,6 +735,8 @@ public map[RName varName, RType varType] getTVBindings(RType formal, RType actua
 
 //
 // Actually instantiate all type variables in the type
+//
+// TODO: Revisit this, this code will accidentally drop field names.
 //
 public RType instantiateVars(map[RName,RType] bindings, RType rt) {
     RType res = rt;

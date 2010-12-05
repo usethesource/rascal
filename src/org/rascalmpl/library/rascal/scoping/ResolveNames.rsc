@@ -1187,8 +1187,13 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 			symbolTable = handleExpName(convertName(qn),qn@\loc,symbolTable);
 
 		// ReifiedType
-		case (Expression)`<BasicType t> ( <{Expression ","}* el> )` :
+		case (Expression)`<BasicType t> ( <{Expression ","}* el> )` : {
+            // NOTE: We don't ensure t is well-formed here, because it need not be; for instance, to
+            // give the reified type form of list[int], we would specify list(int()), but this means
+            // that list, the basic type, is not a valid type, since it must take an element type if
+            // used for a variable type, function parameter type, etc.
 			for (ei <- el) symbolTable = handleExpression(ei, symbolTable);
+        }
 
 		// CallOrTree
 		case (Expression)`<Expression e1> ( <{Expression ","}* el> )` : {
@@ -1224,8 +1229,8 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
 			list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
 			symbolTable = paramsI.symbolTable;
 
-	                ConvertTuple ct = convertRascalType(symbolTable, t);
-	                RType retType = ct.rtype; symbolTable = ct.symbolTable;
+            ConvertTuple ct = convertRascalType(symbolTable, t);
+            RType retType = ct.rtype; symbolTable = ct.symbolTable;
 			ResultTuple rt = pushNewClosureScope(retType, params, exp@\loc, symbolTable);
 			symbolTable = justSymbolTable(addSTItemUses(rt,([<false,exp@\loc>, <false,exp@\loc>] + [<true,prm.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] prm <- params])));
 			for (s <- ss) symbolTable = handleStatement(s, symbolTable);
@@ -1948,6 +1953,22 @@ public SymbolTable addFreshAnonymousVariable(loc nloc, SymbolTable symbolTable) 
 	symbolTable.freshType = symbolTable.freshType + 1;
 	symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, symbolTable), [<true,nloc>]));
 	return symbolTable;
+}
+
+public SymbolTable addFreshContainerVariable(RName n, loc nloc, SymbolTable symbolTable) {
+    RType freshType = makeListOrSetType(makeInferredType(symbolTable.freshType));
+    symbolTable.inferredTypeMap[symbolTable.freshType] = getListOrSetElementType(freshType);
+    symbolTable.freshType = symbolTable.freshType + 1;
+    symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, freshType, false, nloc, symbolTable), [<true,nloc>]));
+    return symbolTable;
+}
+
+public SymbolTable addFreshAnonymousContainerVariable(loc nloc, SymbolTable symbolTable) {
+    RType freshType = makeListOrSetType(makeInferredType(symbolTable.freshType));
+    symbolTable.inferredTypeMap[symbolTable.freshType] = getListOrSetElementType(freshType);
+    symbolTable.freshType = symbolTable.freshType + 1;
+    symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(RSimpleName("_"), freshType, false, nloc, symbolTable), [<true,nloc>]));
+    return symbolTable;
 }
 
 public SymbolTable addFreshVariableWithType(RName n, loc nloc, RType rt, SymbolTable symbolTable) {

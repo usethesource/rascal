@@ -3,8 +3,8 @@ module rascal::checker::constraints::Assignable
 
 import List;
 import ParseTree;
-import rascal::checker::Types;
-import rascal::checker::SymbolTable;
+import rascal::types::Types;
+import rascal::scoping::SymbolTable;
 import rascal::checker::constraints::Constraints;
 import rascal::syntax::RascalRascal;
 

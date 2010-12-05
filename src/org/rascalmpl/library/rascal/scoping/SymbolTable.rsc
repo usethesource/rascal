@@ -19,6 +19,7 @@ data Namespace =
     | Labels()
     | FCVs() 
     | Types()
+    | TypeVars()
     | Annotations()
     | Rules()
     | Tags()
@@ -281,10 +282,13 @@ public STItemId getLayerAtLocation(loc l, SymbolTable symbolTable) {
 		set[STItemId] layers = { si | si <- symbolTable.itemLocations[l], isLayer(symbolTable.scopeItemMap[si]) };
 		if (size(layers) == 1)
 			return getOneFrom(layers);
-		else 
-			throw "getLayerAtLocation: Error, trying to retrieve layer item from location with either 0 or more than 1 associated layer.";	
+		else if (size(layers) == 0)
+            throw "getLayerAtLocation: Error, trying to retrieve layer item from location <l> with no associated layer.";  		
+		else {
+			throw "getLayerAtLocation: Error, trying to retrieve layer item from location <l> with more than 1 associated layer.";
+		}	
 	} else {
-		throw "getLayerAtLocation: Error, trying to retrieve item from unassociated location.";
+		throw "getLayerAtLocation: Error, trying to retrieve item from unassociated location <l>.";
 	}
 }
 
