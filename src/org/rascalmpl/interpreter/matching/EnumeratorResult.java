@@ -50,7 +50,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 	public boolean next() {
 		if (firstTime) {
 			firstTime = false;
-			Result<IValue> result = expression.accept(ctx.getEvaluator());
+			Result<IValue> result = expression.__evaluate(ctx.getEvaluator());
 			iterator = IteratorFactory.make(ctx, pat, result, true);
 		}
 		/*

@@ -75,419 +75,98 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.uri.URIResolverRegistry;
 
-public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult>{
-	private final IEvaluatorContext ctx;
-	private final TypeFactory tf = TypeFactory.getInstance();
-	private final PatternEvaluator pe;
+public class BooleanEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.interpreter.matching.IBooleanResult> implements org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.matching.IBooleanResult>{
+	private final org.rascalmpl.interpreter.IEvaluatorContext ctx;
+	private final org.eclipse.imp.pdb.facts.type.TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
+	private final org.rascalmpl.interpreter.PatternEvaluator pe;
 
-	public BooleanEvaluator(IEvaluatorContext ctx) {
+	public BooleanEvaluator(org.rascalmpl.interpreter.IEvaluatorContext ctx) {
 		this.ctx = ctx;
-		this.pe = new PatternEvaluator(ctx);
+		this.pe = new org.rascalmpl.interpreter.PatternEvaluator(ctx);
 	}
 
-	@Override
-	public IBooleanResult visitExpressionLiteral(Literal x) {
-		if (x.getLiteral().isBoolean()) {
-			return new BasicBooleanResult(ctx, x);
-		}
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(ctx.getEvaluator()).getType(), x);
+	public org.eclipse.imp.pdb.facts.type.TypeFactory __getTf() {
+		return tf;
 	}
 
-	@Override
-	public IBooleanResult visitExpressionCallOrTree(CallOrTree x) {
-		return new BasicBooleanResult(ctx, x);
+	public org.rascalmpl.interpreter.PatternEvaluator __getPe() {
+		return pe;
 	}
 
-	@Override
-	public IBooleanResult visitExpressionList(List x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
+	public org.rascalmpl.interpreter.IEvaluatorContext __getCtx() {
+		return ctx;
 	}
 
-	@Override
-	public IBooleanResult visitExpressionSet(Set x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
+	public org.rascalmpl.ast.AbstractAST getCurrentAST() {
+		return this.__getCtx().getCurrentAST();
 	}
 
-	@Override
-	public IBooleanResult visitExpressionTuple(Tuple x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
+	public org.rascalmpl.interpreter.env.Environment getCurrentEnvt() {
+		return this.__getCtx().getCurrentEnvt();
 	}
 
-	@Override
-	public IBooleanResult visitExpressionMap(Map x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
+	public org.rascalmpl.interpreter.Evaluator getEvaluator() {
+		return this.__getCtx().getEvaluator();
 	}
 
-	@Override
-	public IBooleanResult visitExpressionQualifiedName(QualifiedName x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionTypedVariable(TypedVariable x) {
-		throw new UninitializedVariableError(x.toString(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionTypedVariableBecomes(
-			TypedVariableBecomes x) {
-		throw new SyntaxError(x.toString(), x.getLocation());
-	}
-
-	@Override
-	public IMatchingResult visitExpressionVariableBecomes(VariableBecomes x) {
-		throw new SyntaxError(x.toString(), x.getLocation());
-	}
-
-	@Override
-	public IMatchingResult visitExpressionGuarded(Guarded x) {
-		throw new SyntaxError(x.toString(), x.getLocation());
-	}
-
-	@Override
-	public IMatchingResult visitExpressionAnti(Anti x) {
-		throw new SyntaxError(x.toString(), x.getLocation());
-	}
-
-	@Override
-	public IBooleanResult visitExpressionMultiVariable(MultiVariable x) {
-		throw new SyntaxError(x.toString(), x.getLocation());
-	}
-
-	@Override
-	public IMatchingResult visitExpressionDescendant(Descendant x) {
-		throw new SyntaxError(x.toString(), x.getLocation());
-	}
-
-	@Override
-	public IBooleanResult visitExpressionAddition(Addition x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionAll(All x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionAmbiguity(
-			org.rascalmpl.ast.Expression.Ambiguity x) {
-		throw new ImplementationError("Ambiguity in expression: " + x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionAnd(And x) {
-		return new AndResult(ctx, x.getLhs().accept(this), x.getRhs()
-				.accept(this));
-	}
-
-	@Override
-	public IBooleanResult visitExpressionAny(Any x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionBracket(Bracket x) {
-		return x.getExpression().accept(this);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionClosure(Closure x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionComposition(Composition x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionComprehension(Comprehension x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionDivision(
-			org.rascalmpl.ast.Expression.Division x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionEquals(Equals x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionEquivalence(Equivalence x) {
-		return new EquivalenceResult(ctx, x.getLhs().accept(this), x.getRhs().accept(this));
-	}
-
-	@Override
-	public IBooleanResult visitExpressionFieldAccess(
-			org.rascalmpl.ast.Expression.FieldAccess x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionFieldProject(FieldProject x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionFieldUpdate(FieldUpdate x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionGetAnnotation(GetAnnotation x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionGreaterThan(GreaterThan x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionIfThenElse(IfThenElse x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionImplication(Implication x) {
-		return new OrResult(ctx, new NotResult(ctx, x.getLhs().accept(
-				this)), x.getRhs().accept(this));
-	}
-
-	@Override
-	public IBooleanResult visitExpressionIn(In x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionIntersection(
-			org.rascalmpl.ast.Expression.Intersection x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionLessThan(LessThan x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionLessThanOrEq(LessThanOrEq x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionMatch(Match x) {
-		return new MatchResult(ctx, x.getPattern(), true, x.getExpression());
-	}
-
-	@Override
-	public IBooleanResult visitExpressionModulo(Modulo x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionNegation(Negation x) {
-		return new NotResult(ctx, x.getArgument().accept(this));
-	}
-
-	@Override
-	public IBooleanResult visitExpressionIsDefined(IsDefined x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionNegative(Negative x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionNoMatch(NoMatch x) {
-		return new MatchResult(ctx, x.getPattern(), false, x.getExpression());
-	}
-
-//	@Override
-//	public IBooleanResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-//		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-//				ctx.getEvaluator()).getType(), x);
-//	}
-
-	@Override
-	public IBooleanResult visitExpressionNonEquals(NonEquals x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionNotIn(NotIn x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionOr(Or x) {
-		return new OrResult(ctx, x.getLhs().accept(this), x.getRhs()
-				.accept(this));
-	}
-
-	@Override
-	public IBooleanResult visitExpressionProduct(
-			org.rascalmpl.ast.Expression.Product x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionRange(Range x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionSetAnnotation(SetAnnotation x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionStepRange(StepRange x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionSubscript(
-			org.rascalmpl.ast.Expression.Subscript x) {
-		return new BasicBooleanResult(ctx, x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionSubtraction(
-			org.rascalmpl.ast.Expression.Subtraction x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionTransitiveClosure(TransitiveClosure x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);}
-
-	@Override
-	public IBooleanResult visitExpressionTransitiveReflexiveClosure(
-			TransitiveReflexiveClosure x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	@Override
-	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
-		return new EnumeratorResult(ctx, x.getPattern().accept(pe), x.getExpression());
-	}
-
-	
-//	@Override
-//	public IBooleanResult visitExpressionVisit(Visit x) {
-//		return new BasicBooleanResult(ctx, x);
-//	}
-
-	@Override
-	public IBooleanResult visitExpressionVoidClosure(VoidClosure x) {
-		throw new UnexpectedTypeError(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType(), x);
-	}
-
-	public AbstractAST getCurrentAST() {
-		return ctx.getCurrentAST();
-	}
-
-	public Environment getCurrentEnvt() {
-		return ctx.getCurrentEnvt();
-	}
-
-	public Evaluator getEvaluator() {
-		return ctx.getEvaluator();
-	}
-
-	public GlobalEnvironment getHeap() {
-		return ctx.getHeap();
+	public org.rascalmpl.interpreter.env.GlobalEnvironment getHeap() {
+		return this.__getCtx().getHeap();
 	}
 
 	public java.lang.String getStackTrace() {
-		return ctx.getStackTrace();
+		return this.__getCtx().getStackTrace();
 	}
 
 	public void pushEnv() {
-		ctx.pushEnv();		
+		this.__getCtx().pushEnv();		
 	}
 
 	public boolean runTests() {
-		return ctx.runTests();
+		return this.__getCtx().runTests();
 	}
 
-	public void setCurrentEnvt(Environment environment) {
-		ctx.setCurrentEnvt(environment);
+	public void setCurrentEnvt(org.rascalmpl.interpreter.env.Environment environment) {
+		this.__getCtx().setCurrentEnvt(environment);
 	}
 
-	public void unwind(Environment old) {
-		ctx.unwind(old);
+	public void unwind(org.rascalmpl.interpreter.env.Environment old) {
+		this.__getCtx().unwind(old);
 	}
 
-	public void setCurrentAST(AbstractAST ast) {
-		ctx.setCurrentAST(ast);		
+	public void setCurrentAST(org.rascalmpl.ast.AbstractAST ast) {
+		this.__getCtx().setCurrentAST(ast);		
 	}
 
-	public IValueFactory getValueFactory() {
-		return ctx.getValueFactory();
+	public org.eclipse.imp.pdb.facts.IValueFactory getValueFactory() {
+		return this.__getCtx().getValueFactory();
 	}
 
-	public IStrategyContext getStrategyContext() {
-		return ctx.getStrategyContext();
+	public org.rascalmpl.interpreter.strategy.IStrategyContext getStrategyContext() {
+		return this.__getCtx().getStrategyContext();
 	}
 
-	public void pushStrategyContext(IStrategyContext strategyContext) {
-		ctx.pushStrategyContext(strategyContext);
+	public void pushStrategyContext(org.rascalmpl.interpreter.strategy.IStrategyContext strategyContext) {
+		this.__getCtx().pushStrategyContext(strategyContext);
 	}
 
 	public void popStrategyContext() {
-		ctx.popStrategyContext();
+		this.__getCtx().popStrategyContext();
 	}
 
-	public Stack<Accumulator> getAccumulators() {
-		return ctx.getAccumulators();
+	public java.util.Stack<org.rascalmpl.interpreter.Accumulator> getAccumulators() {
+		return this.__getCtx().getAccumulators();
 	}
 
-	public void setAccumulators(Stack<Accumulator> accumulators) {
-		ctx.setAccumulators(accumulators);
+	public void setAccumulators(java.util.Stack<org.rascalmpl.interpreter.Accumulator> accumulators) {
+		this.__getCtx().setAccumulators(accumulators);
 	}
 
-	public IValue call(String name, IValue... args) {
-		throw new ImplementationError("should not call call");
+	public org.eclipse.imp.pdb.facts.IValue call(java.lang.String name, org.eclipse.imp.pdb.facts.IValue... args) {
+		throw new org.rascalmpl.interpreter.asserts.ImplementationError("should not call call");
 	}
 
-	public URIResolverRegistry getResolverRegistry() {
-		return ctx.getResolverRegistry();
+	public org.rascalmpl.uri.URIResolverRegistry getResolverRegistry() {
+		return this.__getCtx().getResolverRegistry();
 	}
 
 	public void interrupt() {
