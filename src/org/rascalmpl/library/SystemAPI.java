@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.parser.sgll.util.ArrayList;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public class SystemAPI {
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
