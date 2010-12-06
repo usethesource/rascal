@@ -17,7 +17,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.parser.sgll.IGLL;
+import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParserGenerator {
@@ -44,7 +44,7 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
-	public Class<IGLL> getParser(ISourceLocation loc, String name, ISet imports) {
+	public Class<IGTD> getParser(ISourceLocation loc, String name, ISet imports) {
 		try {
 			// TODO: add caching
 			System.err.println("Importing and normalizing grammar");
@@ -69,7 +69,7 @@ public class ParserGenerator {
 	 * Note that this method works under the assumption that a normal parser was generated before!
 	 * The class that this parser generates will inherit from that previously generated parser.
 	 */
-	public Class<IGLL> getRascalParser(ISourceLocation loc, String name, ISet imports, IGLL objectParser) {
+	public Class<IGTD> getRascalParser(ISourceLocation loc, String name, ISet imports, IGTD objectParser) {
 		try {
 			System.err.println("Importing and normalizing grammar");
 			IConstructor grammar = getGrammar(imports);
