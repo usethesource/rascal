@@ -6,12 +6,12 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.sgll.SGLL;
-import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
-import org.rascalmpl.parser.sgll.stack.EpsilonStackNode;
-import org.rascalmpl.parser.sgll.stack.ListStackNode;
-import org.rascalmpl.parser.sgll.stack.LiteralStackNode;
-import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.SBFGTD;
+import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
+import org.rascalmpl.parser.gtd.stack.ListStackNode;
+import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -19,7 +19,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A+
 A ::= a | epsilon
 */
-public class AmbiguousEpsilonList extends SGLL implements IParserTest{
+public class AmbiguousEpsilonList extends SBFGTD implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
