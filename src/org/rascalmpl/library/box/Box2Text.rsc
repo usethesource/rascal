@@ -288,7 +288,7 @@ text font(text t, str tg) {
    return r;
   }
 
-text QQ(Box b, Box c, options o, int m) {
+text QQ(Box b, Box c, options o, foptions f, int m) {
       switch(b) {
          case L(str s): {return LL(s);}
          case  H(list[Box] bl): {return HH(bl, c, o, m); }
@@ -299,6 +299,7 @@ text QQ(Box b, Box c, options o, int m) {
          case  HV(list[Box] bl):{return  HVHV(bl, c, o, m);}
          case  SPACE(int n):{return  hskip(n);}
          case  A(list[Box] bl):{return AA(bl, c, o, f, m);}
+         case  R(list[Box] bl):{return RR(bl, c, o, f, m);}
          case KW(Box a):{return decorated?font(O(a, c, o, m),"KW"):O(a,c,o,m);}
          case VAR(Box a):{return  decorated?font(O( a, c, o, m),"VR"):O( a, c, o, m);}
          case NM(Box a):{return decorated?font(O( a, c, o, m),"NM"):O( a, c, o, m);}
@@ -320,7 +321,7 @@ text O(Box b, Box c, options o, int m) {
      if ((b@is)?) {o["i"] = b@is;}
      foptions f =();
      if ((b@format)?) {f["f"] = b@format;}
-     text t = QQ(b, c, o, m);
+     text t = QQ(b, c, o, f, m);
      o["h"]=h;
      o["v"]=v;
      o["i"]=i;
@@ -339,7 +340,7 @@ Box boxSize(Box b, Box c, options o, int m) {
 
 list[list[Box]] RR(list[Box] bl, Box c, options o, int m) {
      list[list[Box]] g = [[b]|R(list[Box]  b)<-bl];
-     println(g);
+     // println(g);
      return [[[boxSize(z, c, o, m)|Box z<-[b]] ]|list[Box] b<- g];
 }
 
@@ -348,6 +349,7 @@ int maxWidth(list[Box] b) {
      }
 
 list[int] Awidth(list[list[Box]] a) {
+     if (isEmpty(a)) return [];
      int m = size(head(a));  // Rows have the same length
      list[int] r = [];
      for (int k<-[0..m-1]) {
@@ -357,10 +359,10 @@ list[int] Awidth(list[list[Box]] a) {
      }
 
 text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
-     println(bl);
-     list[list[Box]]  r=RR(expand(bl), c, o, m);
+     // println(bl);
+     list[list[Box]]  r=RR(bl, c, o, m);
      list[int] mw0 = Awidth(r);
-     list[str] format0 = f["f"];
+     list[str] format0 = ((f["f"]?)?f["f"]:[]);
      list[Box] vargs = [];
      for (list[Box] bl <- r) {
          list[int]  mw = mw0;
@@ -368,8 +370,8 @@ text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
          list[Box] hargs = [];
          for (Box b<- bl) {
                 int width = b@width;
-                str f = head(format);
-                format = tail(format);
+                str f = !isEmpty(format)?head(format):"l";
+                if (!isEmpty(format)) format = tail(format);
                 max_width = head(mw);
                 mw=tail(mw);
                 int h= o["h"];
@@ -377,7 +379,7 @@ text AA(list[Box] bl, Box c ,options o, foptions f, int m) {
                     case "l": {
                      // b@hs=max_width - width+h; /*left alignment */  
                          hargs+=b;
-                         if (!isEmpty(format)) hargs += SPACE(max_width - width);
+                         hargs += SPACE(max_width - width);
                          }
                     case "r": {
                      // b@hs=max_width - width+h; /*left alignment */
