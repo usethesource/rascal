@@ -268,163 +268,236 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
-	private IValueFactory vf;
-	private static final TypeFactory tf = TypeFactory.getInstance();
-	protected Environment currentEnvt;
-	private StrategyContextStack strategyContextStack;
+public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> implements org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> {
+	private org.eclipse.imp.pdb.facts.IValueFactory vf;
+	private static final org.eclipse.imp.pdb.facts.type.TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
+	protected org.rascalmpl.interpreter.env.Environment currentEnvt;
+	private org.rascalmpl.interpreter.strategy.StrategyContextStack strategyContextStack;
 
-	protected final GlobalEnvironment heap;
+	private final org.rascalmpl.interpreter.env.GlobalEnvironment heap;
 	private boolean interrupt = false;
 
-	private final JavaBridge javaBridge;
+	private final org.rascalmpl.interpreter.utils.JavaBridge javaBridge;
 
-	private AbstractAST currentAST; 	// used in runtime errormessages
+	private org.rascalmpl.ast.AbstractAST currentAST; 	// used in runtime errormessages
 
 	private static boolean doProfiling = false;
-	private Profiler profiler;
+	private org.rascalmpl.interpreter.utils.Profiler profiler;
 	
-	private final TypeDeclarationEvaluator typeDeclarator;
-	protected IEvaluator<IMatchingResult> patternEvaluator;
+	private final org.rascalmpl.interpreter.TypeDeclarationEvaluator typeDeclarator;
+	private org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.matching.IMatchingResult> patternEvaluator;
 
-	private final java.util.List<ClassLoader> classLoaders;
-	protected final ModuleEnvironment rootScope;
+	private final java.util.List<java.lang.ClassLoader> classLoaders;
+	private final org.rascalmpl.interpreter.env.ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
-	private final Parser parser;
+	private final org.rascalmpl.parser.Parser parser;
 
-	private PrintWriter stderr;
-	private PrintWriter stdout;
+	private java.io.PrintWriter stderr;
+	private java.io.PrintWriter stdout;
 
-	private ITestResultListener testReporter;
-	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
-	private final RascalURIResolver rascalPathResolver;
-	private final ASTBuilder builder;
+	private org.rascalmpl.interpreter.ITestResultListener testReporter;
+	private java.util.Stack<org.rascalmpl.interpreter.Accumulator> accumulators = new java.util.Stack<org.rascalmpl.interpreter.Accumulator>();
+	private final org.rascalmpl.interpreter.load.RascalURIResolver rascalPathResolver;
+	private final org.rascalmpl.parser.ASTBuilder builder;
 	
-	private final URIResolverRegistry resolverRegistry;
+	private final org.rascalmpl.uri.URIResolverRegistry resolverRegistry;
 
-	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-		this.vf = f;
-		this.patternEvaluator = new PatternEvaluator(this);
-		this.strategyContextStack = new StrategyContextStack();
+	public Evaluator(org.eclipse.imp.pdb.facts.IValueFactory f, java.io.PrintWriter stderr, java.io.PrintWriter stdout, org.rascalmpl.interpreter.env.ModuleEnvironment scope, org.rascalmpl.interpreter.env.GlobalEnvironment heap) {
+		this.__setVf(f);
+		this.__setPatternEvaluator(new org.rascalmpl.interpreter.PatternEvaluator(this));
+		this.strategyContextStack = new org.rascalmpl.interpreter.strategy.StrategyContextStack();
 		this.heap = heap;
-		this.typeDeclarator = new TypeDeclarationEvaluator(this);
+		this.typeDeclarator = new org.rascalmpl.interpreter.TypeDeclarationEvaluator(this);
 		this.currentEnvt = scope;
 		this.rootScope = scope;
-		this.heap.addModule(scope);
-		this.classLoaders = new ArrayList<ClassLoader>();
-		this.javaBridge = new JavaBridge(classLoaders, vf);
-		this.rascalPathResolver = new RascalURIResolver(this);
-		this.parser = new Parser();
+		this.__getHeap().addModule(scope);
+		this.classLoaders = new java.util.ArrayList<java.lang.ClassLoader>();
+		this.javaBridge = new org.rascalmpl.interpreter.utils.JavaBridge(this.classLoaders, this.__getVf());
+		this.rascalPathResolver = new org.rascalmpl.interpreter.load.RascalURIResolver(this);
+		this.parser = new org.rascalmpl.parser.Parser();
 		this.stderr = stderr;
-		this.stdout = stdout;
-		this.builder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
-		this.resolverRegistry = new URIResolverRegistry();
+		this.__setStdout(stdout);
+		this.builder = new org.rascalmpl.parser.ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
+		this.resolverRegistry = new org.rascalmpl.uri.URIResolverRegistry();
 
-		updateProperties();
+		this.updateProperties();
 		
 		if (stderr == null) {
-			throw new NullPointerException();
+			throw new java.lang.NullPointerException();
 		}
 		if (stdout == null) {
-			throw new NullPointerException();
+			throw new java.lang.NullPointerException();
 		}
 
-		rascalPathResolver.addPathContributor(new IRascalSearchPathContributor() {
-			public void contributePaths(java.util.List<URI> l) {
-				l.add(URI.create("cwd:///"));
-				l.add(URI.create("std:///"));
-				l.add(URI.create("testdata:///"));
+		this.rascalPathResolver.addPathContributor(new org.rascalmpl.interpreter.load.IRascalSearchPathContributor() {
+			public void contributePaths(java.util.List<java.net.URI> l) {
+				l.add(java.net.URI.create("cwd:///"));
+				l.add(java.net.URI.create("std:///"));
+				l.add(java.net.URI.create("testdata:///"));
 
-				String property = System.getProperty("rascal.path");
+				java.lang.String property = java.lang.System.getProperty("rascal.path");
 
 				if (property != null) {
-					for (String path : property.split(":")) {
-						l.add(new File(path).toURI());
+					for (java.lang.String path : property.split(":")) {
+						l.add(new java.io.File(path).toURI());
 					}
 				}
 			}
 			@Override
-			public String toString() {
+			public java.lang.String toString() {
 				return "[current wd and stdlib]";
 			}
 		});
 
 		// load Java classes from the current jar (for the standard library)
-		classLoaders.add(getClass().getClassLoader());
+		this.classLoaders.add(this.getClass().getClassLoader());
 
 		// register some schemes
-		FileURIResolver files = new FileURIResolver(); 
-		resolverRegistry.registerInputOutput(files);
+		org.rascalmpl.uri.FileURIResolver files = new org.rascalmpl.uri.FileURIResolver(); 
+		this.resolverRegistry.registerInputOutput(files);
 
-		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http);
+		org.rascalmpl.uri.HttpURIResolver http = new org.rascalmpl.uri.HttpURIResolver();
+		this.resolverRegistry.registerInput(http);
 		
-		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerInputOutput(cwd);
+		org.rascalmpl.uri.CWDURIResolver cwd = new org.rascalmpl.uri.CWDURIResolver();
+		this.resolverRegistry.registerInputOutput(cwd);
 		
-		ClassResourceInputOutput library = new ClassResourceInputOutput(resolverRegistry, "std", this.getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInputOutput(library);
+		org.rascalmpl.uri.ClassResourceInputOutput library = new org.rascalmpl.uri.ClassResourceInputOutput(this.resolverRegistry, "std", this.getClass(), "/org/rascalmpl/library");
+		this.resolverRegistry.registerInputOutput(library);
 		
-		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "testdata", this.getClass(), "/org/rascalmpl/test/data");
-		resolverRegistry.registerInput(testdata);
+		org.rascalmpl.uri.ClassResourceInputOutput testdata = new org.rascalmpl.uri.ClassResourceInputOutput(this.resolverRegistry, "testdata", this.getClass(), "/org/rascalmpl/test/data");
+		this.resolverRegistry.registerInput(testdata);
 		
-		resolverRegistry.registerInput(new JarURIResolver(this.getClass()));
+		this.resolverRegistry.registerInput(new org.rascalmpl.uri.JarURIResolver(this.getClass()));
 		
-		resolverRegistry.registerInputOutput(rascalPathResolver);
+		this.resolverRegistry.registerInputOutput(this.rascalPathResolver);
 		
-		HomeURIResolver home = new HomeURIResolver();
-		resolverRegistry.registerInputOutput(home);
+		org.rascalmpl.uri.HomeURIResolver home = new org.rascalmpl.uri.HomeURIResolver();
+		this.resolverRegistry.registerInputOutput(home);
 	}  
 	
-	public void interrupt() {
-		this.interrupt = true;
+	public org.rascalmpl.parser.Parser __getParser() {
+		return parser;
 	}
-	
-	public boolean isInterrupted() {
-		return interrupt;
+
+	public org.rascalmpl.interpreter.env.ModuleEnvironment __getRootScope() {
+		return rootScope;
 	}
-	
-	public PrintWriter getStdOut() {
+
+	public void __setStdout(java.io.PrintWriter stdout) {
+		this.stdout = stdout;
+	}
+
+	public java.io.PrintWriter __getStdout() {
 		return stdout;
 	}
-	
-	public PrintWriter getStdErr() {
-		return stderr;
+
+	public org.rascalmpl.interpreter.TypeDeclarationEvaluator __getTypeDeclarator() {
+		return typeDeclarator;
 	}
-	
-	public void setTestResultListener(ITestResultListener l) {
-		this.testReporter = l;
+
+	public org.rascalmpl.interpreter.env.GlobalEnvironment __getHeap() {
+		return heap;
 	}
-	
-	public JavaBridge getJavaBridge(){
+
+	public void __setConcreteListsShouldBeSpliced(
+			boolean concreteListsShouldBeSpliced) {
+		this.concreteListsShouldBeSpliced = concreteListsShouldBeSpliced;
+	}
+
+	public boolean __getConcreteListsShouldBeSpliced() {
+		return concreteListsShouldBeSpliced;
+	}
+
+	public void __setInterrupt(boolean interrupt) {
+		this.interrupt = interrupt;
+	}
+
+	public boolean __getInterrupt() {
+		return interrupt;
+	}
+
+	public void __setAccumulators(java.util.Stack<org.rascalmpl.interpreter.Accumulator> accumulators) {
+		this.accumulators = accumulators;
+	}
+
+	public java.util.Stack<org.rascalmpl.interpreter.Accumulator> __getAccumulators() {
+		return accumulators;
+	}
+
+	public void __setPatternEvaluator(org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.matching.IMatchingResult> patternEvaluator) {
+		this.patternEvaluator = patternEvaluator;
+	}
+
+	public org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.matching.IMatchingResult> __getPatternEvaluator() {
+		return patternEvaluator;
+	}
+
+	public void __setVf(org.eclipse.imp.pdb.facts.IValueFactory vf) {
+		this.vf = vf;
+	}
+
+	public org.eclipse.imp.pdb.facts.IValueFactory __getVf() {
+		return vf;
+	}
+
+	public static org.eclipse.imp.pdb.facts.type.TypeFactory __getTf() {
+		return tf;
+	}
+
+	public org.rascalmpl.interpreter.utils.JavaBridge __getJavaBridge() {
 		return javaBridge;
 	}
 
-	public URIResolverRegistry getResolverRegistry() {
-		return resolverRegistry;
+	public void interrupt() {
+		this.__setInterrupt(true);
 	}
 	
-	public RascalURIResolver getRascalResolver() {
-		return rascalPathResolver;
+	public boolean isInterrupted() {
+		return this.__getInterrupt();
+	}
+	
+	public java.io.PrintWriter getStdOut() {
+		return this.__getStdout();
+	}
+	
+	public java.io.PrintWriter getStdErr() {
+		return this.stderr;
+	}
+	
+	public void setTestResultListener(org.rascalmpl.interpreter.ITestResultListener l) {
+		this.testReporter = l;
+	}
+	
+	public org.rascalmpl.interpreter.utils.JavaBridge getJavaBridge(){
+		return this.__getJavaBridge();
+	}
+
+	public org.rascalmpl.uri.URIResolverRegistry getResolverRegistry() {
+		return this.resolverRegistry;
+	}
+	
+	public org.rascalmpl.interpreter.load.RascalURIResolver getRascalResolver() {
+		return this.rascalPathResolver;
 	}
 	
 	/**
 	 * Call a Rascal function with a number of arguments
 	 * @return either null if its a void function, or the return value of the function.
 	 */
-	public IValue call(String name, IValue...args) {
-		QualifiedName qualifiedName = Names.toQualifiedName(name);
-		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);
+	public org.eclipse.imp.pdb.facts.IValue call(java.lang.String name, org.eclipse.imp.pdb.facts.IValue...args) {
+		org.rascalmpl.ast.QualifiedName qualifiedName = org.rascalmpl.interpreter.utils.Names.toQualifiedName(name);
+		org.rascalmpl.interpreter.result.OverloadedFunctionResult func = (org.rascalmpl.interpreter.result.OverloadedFunctionResult) this.getCurrentEnvt().getVariable(qualifiedName);
 		
 		
-		Type[] types = new Type[args.length];
+		org.eclipse.imp.pdb.facts.type.Type[] types = new org.eclipse.imp.pdb.facts.type.Type[args.length];
 		
 		if (func == null) {
-			throw new ImplementationError("Function " + name + " is unknown");
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError("Function " + name + " is unknown");
 		}
 		
 		int i = 0;
-		for (IValue v : args) {
+		for (org.eclipse.imp.pdb.facts.IValue v : args) {
 			types[i++] = v.getType();
 		}
 		
@@ -434,60 +507,60 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	/**
 	 * Parse an object string using the imported SDF modules from the current context.
 	 */
-	public IConstructor parseObject(IConstructor startSort, URI input) {
+	public org.eclipse.imp.pdb.facts.IConstructor parseObject(org.eclipse.imp.pdb.facts.IConstructor startSort, java.net.URI input) {
 		try {
 			System.err.println("Generating a parser");
-			IGLL parser = getObjectParser(vf.sourceLocation(input));
-			String name = "";
-			if (SymbolAdapter.isStart(startSort)) {
+			org.rascalmpl.parser.sgll.IGLL parser = this.getObjectParser(this.__getVf().sourceLocation(input));
+			java.lang.String name = "";
+			if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
 				name = "start__";
-				startSort = SymbolAdapter.getStart(startSort);
+				startSort = org.rascalmpl.values.uptr.SymbolAdapter.getStart(startSort);
 			}
-			if (SymbolAdapter.isSort(startSort)) {
-				name += SymbolAdapter.getName(startSort);
+			if (org.rascalmpl.values.uptr.SymbolAdapter.isSort(startSort)) {
+				name += org.rascalmpl.values.uptr.SymbolAdapter.getName(startSort);
 			}
 			System.err.println("Calling the parser");
 
-			interrupt = false;
-			IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
-			return parser.parse(name, input, resolverRegistry.getInputStream(input), exec);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getCurrentAST(), getStackTrace());
+			this.__setInterrupt(false);
+			org.rascalmpl.parser.IActionExecutor exec = new org.rascalmpl.parser.RascalActionExecutor(this, (org.rascalmpl.parser.IParserInfo) parser);
+			return parser.parse(name, input, this.resolverRegistry.getInputStream(input), exec);
+		} catch (java.io.IOException e) {
+			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.io(this.__getVf().string(e.getMessage()), this.getCurrentAST(), this.getStackTrace());
 		}
 	}
 	
-	public IConstructor parseObject(IConstructor startSort, java.lang.String input) {
-		URI inputURI = URI.create("file://-");
-		IGLL parser = getObjectParser(vf.sourceLocation(inputURI));
-		String name = "";
-		if (SymbolAdapter.isStart(startSort)) {
+	public org.eclipse.imp.pdb.facts.IConstructor parseObject(org.eclipse.imp.pdb.facts.IConstructor startSort, java.lang.String input) {
+		java.net.URI inputURI = java.net.URI.create("file://-");
+		org.rascalmpl.parser.sgll.IGLL parser = this.getObjectParser(this.__getVf().sourceLocation(inputURI));
+		java.lang.String name = "";
+		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
 			name = "start__";
-			startSort = SymbolAdapter.getStart(startSort);
+			startSort = org.rascalmpl.values.uptr.SymbolAdapter.getStart(startSort);
 		}
-		if (SymbolAdapter.isSort(startSort)) {
-			name += SymbolAdapter.getName(startSort);
+		if (org.rascalmpl.values.uptr.SymbolAdapter.isSort(startSort)) {
+			name += org.rascalmpl.values.uptr.SymbolAdapter.getName(startSort);
 		}
 		System.err.println("Calling the parser");
-		interrupt = false;
-		IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
+		this.__setInterrupt(false);
+		org.rascalmpl.parser.IActionExecutor exec = new org.rascalmpl.parser.RascalActionExecutor(this, (org.rascalmpl.parser.IParserInfo) parser);
 		return parser.parse(name, inputURI, input, exec);
 	}
 	
-	private IGLL getObjectParser(ISourceLocation loc) {
-		return getObjectParser( (ModuleEnvironment) getCurrentEnvt().getRoot(), loc);
+	private org.rascalmpl.parser.sgll.IGLL getObjectParser(org.eclipse.imp.pdb.facts.ISourceLocation loc) {
+		return this.getObjectParser( (org.rascalmpl.interpreter.env.ModuleEnvironment) this.getCurrentEnvt().getRoot(), loc);
 	}
 	
-	private IGLL getObjectParser(ModuleEnvironment currentModule, ISourceLocation loc) {
+	private org.rascalmpl.parser.sgll.IGLL getObjectParser(org.rascalmpl.interpreter.env.ModuleEnvironment currentModule, org.eclipse.imp.pdb.facts.ISourceLocation loc) {
 		if (currentModule.getBootstrap()) {
-			return new ObjectRascalRascal();
+			return new org.rascalmpl.library.rascal.syntax.ObjectRascalRascal();
 		}
-		ParserGenerator pg = getParserGenerator();
-		ISet productions = currentModule.getProductions();
-		Class<IGLL> parser = getHeap().getObjectParser(currentModule.getName(), productions);
+		org.rascalmpl.parser.ParserGenerator pg = this.getParserGenerator();
+		org.eclipse.imp.pdb.facts.ISet productions = currentModule.getProductions();
+		java.lang.Class<org.rascalmpl.parser.sgll.IGLL> parser = this.getHeap().getObjectParser(currentModule.getName(), productions);
 
 		if (parser == null) {
-			String parserName;
-			if (rootScope == currentModule) {
+			java.lang.String parserName;
+			if (this.__getRootScope() == currentModule) {
 				parserName = "__Shell__";
 			}
 			else {
@@ -495,28 +568,28 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 
 			parser = pg.getParser(loc, parserName, productions);
-			getHeap().storeObjectParser(currentModule.getName(), productions, parser);
+			this.getHeap().storeObjectParser(currentModule.getName(), productions, parser);
 		}
 	
 		try {
 			return parser.newInstance();
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
+		} catch (java.lang.InstantiationException e) {
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError(e.getMessage(), e);
+		} catch (java.lang.IllegalAccessException e) {
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError(e.getMessage(), e);
 		}
 	}
 	
-	private IGLL getRascalParser(ModuleEnvironment env, URI input) {
-		ParserGenerator pg = getParserGenerator();
-		ISourceLocation loc = vf.sourceLocation(input);
-		IGLL objectParser = getObjectParser(env, loc);
-		ISet productions = env.getProductions();
-		Class<IGLL> parser = getHeap().getRascalParser(env.getName(), productions);
+	private org.rascalmpl.parser.sgll.IGLL getRascalParser(org.rascalmpl.interpreter.env.ModuleEnvironment env, java.net.URI input) {
+		org.rascalmpl.parser.ParserGenerator pg = this.getParserGenerator();
+		org.eclipse.imp.pdb.facts.ISourceLocation loc = this.__getVf().sourceLocation(input);
+		org.rascalmpl.parser.sgll.IGLL objectParser = this.getObjectParser(env, loc);
+		org.eclipse.imp.pdb.facts.ISet productions = env.getProductions();
+		java.lang.Class<org.rascalmpl.parser.sgll.IGLL> parser = this.getHeap().getRascalParser(env.getName(), productions);
 
 		if (parser == null) {
-			String parserName;
-			if (rootScope == env) {
+			java.lang.String parserName;
+			if (this.__getRootScope() == env) {
 				parserName = "__Shell__";
 			}
 			else {
@@ -524,75 +597,75 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			
 			parser = pg.getRascalParser(loc, parserName, productions, objectParser);
-			getHeap().storeRascalParser(env.getName(), productions, parser);
+			this.getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
 			
 		try {
 			return parser.newInstance();
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
+		} catch (java.lang.InstantiationException e) {
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError(e.getMessage(), e);
+		} catch (java.lang.IllegalAccessException e) {
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError(e.getMessage(), e);
 		}
 	}
 	
-	private ParserGenerator getParserGenerator() {
-		if (parserGenerator == null) {
-			parserGenerator = new ParserGenerator(stdout, classLoaders, getValueFactory());
+	private org.rascalmpl.parser.ParserGenerator getParserGenerator() {
+		if (this.parserGenerator == null) {
+			this.parserGenerator = new org.rascalmpl.parser.ParserGenerator(this.__getStdout(), this.classLoaders, this.getValueFactory());
 		}
-		return parserGenerator;
+		return this.parserGenerator;
 	}
 	
-	private void checkPoint(Environment env) {
+	private void checkPoint(org.rascalmpl.interpreter.env.Environment env) {
 		env.checkPoint();
 	}
 
-	private void rollback(Environment env) {
+	private void rollback(org.rascalmpl.interpreter.env.Environment env) {
 		env.rollback();
 	}
 
-	private void commit(Environment env) {
+	private void commit(org.rascalmpl.interpreter.env.Environment env) {
 		env.commit();
 	}
 
-	public void setCurrentAST(AbstractAST currentAST) {
+	public void setCurrentAST(org.rascalmpl.ast.AbstractAST currentAST) {
 		this.currentAST = currentAST;
 	}
 
-	public AbstractAST getCurrentAST() {
-		return currentAST;
+	public org.rascalmpl.ast.AbstractAST getCurrentAST() {
+		return this.currentAST;
 	}
 
-	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
-		rascalPathResolver.addPathContributor(contrib);
+	public void addRascalSearchPathContributor(org.rascalmpl.interpreter.load.IRascalSearchPathContributor contrib) {
+		this.rascalPathResolver.addPathContributor(contrib);
 	}
 	
-	public void addRascalSearchPath(final URI uri) {
-		rascalPathResolver.addPathContributor(new IRascalSearchPathContributor() {
-			public void contributePaths(java.util.List<URI> path) {
+	public void addRascalSearchPath(final java.net.URI uri) {
+		this.rascalPathResolver.addPathContributor(new org.rascalmpl.interpreter.load.IRascalSearchPathContributor() {
+			public void contributePaths(java.util.List<java.net.URI> path) {
 				path.add(0, uri);
 			}
 			
 			@Override
-			public String toString() {
+			public java.lang.String toString() {
 				return uri.toString();
 			}
 		});
 	}
 	
-	public void addClassLoader(ClassLoader loader) {
+	public void addClassLoader(java.lang.ClassLoader loader) {
 		// later loaders have precedence
-		classLoaders.add(0, loader);
+		this.classLoaders.add(0, loader);
 	}
 
-	public String getStackTrace() {
-		StringBuilder b = new StringBuilder();
-		Environment env = currentEnvt;
+	public java.lang.String getStackTrace() {
+		java.lang.StringBuilder b = new java.lang.StringBuilder();
+		org.rascalmpl.interpreter.env.Environment env = this.currentEnvt;
 		while (env != null) {
-			ISourceLocation loc = env.getLocation();
-			String name = env.getName();
+			org.eclipse.imp.pdb.facts.ISourceLocation loc = env.getLocation();
+			java.lang.String name = env.getName();
 			if (name != null && loc != null) {
-				URI uri = loc.getURI();
+				java.net.URI uri = loc.getURI();
 				b.append('\t');
 				b.append(uri.getRawPath()+ ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
 				b.append('\n');
@@ -611,35 +684,35 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param stat
 	 * @return
 	 */
-	public Result<IValue> eval(Statement stat) {
-		interrupt = false;
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> eval(org.rascalmpl.ast.Statement stat) {
+		this.__setInterrupt(false);
 		try {
-			if(doProfiling){
-				profiler = new Profiler(this);
-				profiler.start();
+			if(Evaluator.doProfiling){
+				this.profiler = new org.rascalmpl.interpreter.utils.Profiler(this);
+				this.profiler.start();
 
 			}
-			currentAST = stat;
+			this.currentAST = stat;
 			try {
-				return stat.accept(this);
+				return stat.__evaluate(this);
 			}
 			finally {
-				if(doProfiling) {
-					if (profiler != null) {
-						profiler.pleaseStop();
-						profiler.report();
+				if(Evaluator.doProfiling) {
+					if (this.profiler != null) {
+						this.profiler.pleaseStop();
+						this.profiler.report();
 					}
 				}
 			}
 		} 
-		catch (Return e){
-			throw new UnguardedReturnError(stat);
+		catch (org.rascalmpl.interpreter.control_exceptions.Return e){
+			throw new org.rascalmpl.interpreter.staticErrors.UnguardedReturnError(stat);
 		}
-		catch (Failure e){
-			throw new UnguardedFailError(stat);
+		catch (org.rascalmpl.interpreter.control_exceptions.Failure e){
+			throw new org.rascalmpl.interpreter.staticErrors.UnguardedFailError(stat);
 		}
 		catch (org.rascalmpl.interpreter.control_exceptions.Insert e){
-			throw new UnguardedInsertError(stat);
+			throw new org.rascalmpl.interpreter.staticErrors.UnguardedInsertError(stat);
 		}
 	}
 
@@ -648,30 +721,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param expr
 	 * @return
 	 */
-	public Result<IValue> eval(Expression expr) {
-		interrupt = false;
-		currentAST = expr;
-		if(doProfiling){
-			profiler = new Profiler(this);
-			profiler.start();
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> eval(org.rascalmpl.ast.Expression expr) {
+		this.__setInterrupt(false);
+		this.currentAST = expr;
+		if(Evaluator.doProfiling){
+			this.profiler = new org.rascalmpl.interpreter.utils.Profiler(this);
+			this.profiler.start();
 
 		}
 		try {
-			Result<IValue> r = expr.accept(this);
+			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = expr.__evaluate(this);
 			if(r != null){
 				return r;
 			}
 		}
 		finally {
-			if(doProfiling){
-				if (profiler != null) {
-					profiler.pleaseStop();
-					profiler.report();
+			if(Evaluator.doProfiling){
+				if (this.profiler != null) {
+					this.profiler.pleaseStop();
+					this.profiler.report();
 				}
 			}
 		}
 
-		throw new NotYetImplemented(expr.toString());
+		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented(expr.toString());
 	}
 
 	/**
@@ -679,54 +752,54 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param command
 	 * @return
 	 */
-	public Result<IValue> eval(String command, URI location){
-		interrupt = false;
-		IConstructor tree;
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> eval(java.lang.String command, java.net.URI location){
+		this.__setInterrupt(false);
+		org.eclipse.imp.pdb.facts.IConstructor tree;
 		
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
+		org.rascalmpl.parser.IActionExecutor actionExecutor = new org.rascalmpl.parser.RascalActionExecutor(this, this.__getParser().getInfo());
 		
 		if(!command.contains("`")){
-			tree = parser.parseCommand(location, command, actionExecutor);
+			tree = this.__getParser().parseCommand(location, command, actionExecutor);
 		}else{
-			IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
+			org.rascalmpl.parser.sgll.IGLL rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 			tree = rp.parse("start__$Command", location, command, actionExecutor);
 		}
 		
-		Command stat = builder.buildCommand(tree);
+		org.rascalmpl.ast.Command stat = this.builder.buildCommand(tree);
 		if(stat == null){
-			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError("Disambiguation failed: it removed all alternatives");
 		}
 		
-		return eval(stat);
+		return this.eval(stat);
 	}
 	
-	public IConstructor parseCommand(String command, URI location) {
-		interrupt = false;
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
+	public org.eclipse.imp.pdb.facts.IConstructor parseCommand(java.lang.String command, java.net.URI location) {
+		this.__setInterrupt(false);
+		org.rascalmpl.parser.IActionExecutor actionExecutor = new org.rascalmpl.parser.RascalActionExecutor(this, this.__getParser().getInfo());
 		
 		if(!command.contains("`")){
-			return parser.parseCommand(location, command, actionExecutor);
+			return this.__getParser().parseCommand(location, command, actionExecutor);
 		}
 		
-		IGLL rp = getRascalParser(getCurrentModuleEnvironment(), location);
+		org.rascalmpl.parser.sgll.IGLL rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 		return rp.parse("start__$Command", location, command, actionExecutor);
 	}
 
-	public Result<IValue> eval(Command command) {
-		interrupt = false;
-		if (doProfiling){
-			profiler = new Profiler(this);
-			profiler.start();
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> eval(org.rascalmpl.ast.Command command) {
+		this.__setInterrupt(false);
+		if (Evaluator.doProfiling){
+			this.profiler = new org.rascalmpl.interpreter.utils.Profiler(this);
+			this.profiler.start();
 
 		}
 		try {
-			return command.accept(this);
+			return command.__evaluate(this);
 		}
 		finally {
-			if(doProfiling){
-				if (profiler != null) {
-					profiler.pleaseStop();
-					profiler.report();
+			if(Evaluator.doProfiling){
+				if (this.profiler != null) {
+					this.profiler.pleaseStop();
+					this.profiler.report();
 				}
 			}
 		}
@@ -737,15 +810,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param declaration
 	 * @return
 	 */
-	public Result<IValue> eval(Declaration declaration) {
-		interrupt = false;
-		currentAST = declaration;
-		Result<IValue> r = declaration.accept(this);
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> eval(org.rascalmpl.ast.Declaration declaration) {
+		this.__setInterrupt(false);
+		this.currentAST = declaration;
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = declaration.__evaluate(this);
 		if(r != null){
 			return r;
 		}
 
-		throw new NotYetImplemented(declaration.toString());
+		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented(declaration.toString());
 	}
 
 	/**
@@ -753,54 +826,54 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param imp
 	 * @return
 	 */
-	public Result<IValue> eval(org.rascalmpl.ast.Import imp) {
-		interrupt = false;
-		currentAST = imp;
-		Result<IValue> r = imp.accept(this);
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> eval(org.rascalmpl.ast.Import imp) {
+		this.__setInterrupt(false);
+		this.currentAST = imp;
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = imp.__evaluate(this);
 		if(r != null){
 			return r;
 		}
 
-		throw new ImplementationError("Not yet implemented: " + imp.getTree());
+		throw new org.rascalmpl.interpreter.asserts.ImplementationError("Not yet implemented: " + imp.getTree());
 	}
 	
-	public void doImport(String string) {
-		eval("import " + string + ";", URI.create("import:///"));
+	public void doImport(java.lang.String string) {
+		this.eval("import " + string + ";", java.net.URI.create("import:///"));
 	}
 
 
-	public void reloadModule(String name, URI errorLocation) {
-		if (!heap.existsModule(name)) {
+	public void reloadModule(java.lang.String name, java.net.URI errorLocation) {
+		if (!this.__getHeap().existsModule(name)) {
 			return;
 		}
 		
-		heap.removeModule(heap.getModule(name));
-		ModuleEnvironment env =  new ModuleEnvironment(name);
-		heap.addModule(env);
+		this.__getHeap().removeModule(this.__getHeap().getModule(name));
+		org.rascalmpl.interpreter.env.ModuleEnvironment env =  new org.rascalmpl.interpreter.env.ModuleEnvironment(name);
+		this.__getHeap().addModule(env);
 
 		try {
-			Module module = loadModule(name, env);
+			org.rascalmpl.ast.Module module = this.loadModule(name, env);
 	
 			if (module != null) {
-				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, vf.sourceLocation(errorLocation));
+				if (!this.getModuleName(module).equals(name)) {
+					throw new org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError(this.getModuleName(module), name, this.__getVf().sourceLocation(errorLocation));
 				}
-				heap.setModuleURI(name, module.getLocation().getURI());
+				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
-				module.accept(this);
+				module.__evaluate(this);
 			}
 		}
-		catch (StaticError e) {
-			heap.removeModule(env);
+		catch (org.rascalmpl.interpreter.staticErrors.StaticError e) {
+			this.__getHeap().removeModule(env);
 			throw e;
 		}
 		catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
-			heap.removeModule(env);
+			this.__getHeap().removeModule(env);
 			throw e;
 		} 
-		catch (IOException e) {
-			heap.removeModule(env);
-			throw new ModuleLoadError(name, e.getMessage(), vf.sourceLocation(errorLocation));
+		catch (java.io.IOException e) {
+			this.__getHeap().removeModule(env);
+			throw new org.rascalmpl.interpreter.staticErrors.ModuleLoadError(name, e.getMessage(), this.__getVf().sourceLocation(errorLocation));
 		}
 	}
 	
@@ -811,9 +884,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * i.e., all potential rules have already been applied to it.
 	 */
 
-	Result<IValue> normalizedResult(Type t, IValue v){
-		Map<Type, Type> bindings = getCurrentEnvt().getTypeBindings();
-		Type instance;
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> normalizedResult(org.eclipse.imp.pdb.facts.type.Type t, org.eclipse.imp.pdb.facts.IValue v){
+		java.util.Map<org.eclipse.imp.pdb.facts.type.Type, org.eclipse.imp.pdb.facts.type.Type> bindings = this.getCurrentEnvt().getTypeBindings();
+		org.eclipse.imp.pdb.facts.type.Type instance;
 
 		if (bindings.size() > 0) {
 			instance = t.instantiate(bindings);
@@ -823,46 +896,46 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		if (v != null) {
-			checkType(v.getType(), instance);
+			this.checkType(v.getType(), instance);
 		}
-		return makeResult(instance, v, this);
+		return org.rascalmpl.interpreter.result.ResultFactory.makeResult(instance, v, this);
 	}
 
-	public void unwind(Environment old) {
+	public void unwind(org.rascalmpl.interpreter.env.Environment old) {
 		// TODO why not just replace the current env with the old one??
-		while (getCurrentEnvt() != old) {
-			setCurrentEnvt(getCurrentEnvt().getParent());
-			getCurrentEnvt();
+		while (this.getCurrentEnvt() != old) {
+			this.setCurrentEnvt(this.getCurrentEnvt().getParent());
+			this.getCurrentEnvt();
 		}
 	}
 
 	public void pushEnv() {
-		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
-		setCurrentEnvt(env);
+		org.rascalmpl.interpreter.env.Environment env = new org.rascalmpl.interpreter.env.Environment(this.getCurrentEnvt(), this.getCurrentEnvt().getName());
+		this.setCurrentEnvt(env);
 	}
 
-	Environment pushEnv(Statement s) {
+	public org.rascalmpl.interpreter.env.Environment pushEnv(org.rascalmpl.ast.Statement s) {
 		/* use the same name as the current envt */
-		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), getCurrentEnvt().getName());
-		setCurrentEnvt(env);
+		org.rascalmpl.interpreter.env.Environment env = new org.rascalmpl.interpreter.env.Environment(this.getCurrentEnvt(), s.getLocation(), this.getCurrentEnvt().getName());
+		this.setCurrentEnvt(env);
 		return env;
 	}
 
 
-	private void checkType(Type given, Type expected) {
-		if (expected instanceof FunctionType) {
+	private void checkType(org.eclipse.imp.pdb.facts.type.Type given, org.eclipse.imp.pdb.facts.type.Type expected) {
+		if (expected instanceof org.rascalmpl.interpreter.types.FunctionType) {
 			return;
 		}
 		if (!given.isSubtypeOf(expected)){
-			throw new UnexpectedTypeError(expected, given, getCurrentAST());
+			throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(expected, given, this.getCurrentAST());
 		}
 	}
 
-	public boolean mayOccurIn(Type small, Type large) {
-		return mayOccurIn(small, large, new HashSet<Type>());
+	public boolean mayOccurIn(org.eclipse.imp.pdb.facts.type.Type small, org.eclipse.imp.pdb.facts.type.Type large) {
+		return this.mayOccurIn(small, large, new java.util.HashSet<org.eclipse.imp.pdb.facts.type.Type>());
 	}
 
-	boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
+	boolean mayOccurIn(org.eclipse.imp.pdb.facts.type.Type small, org.eclipse.imp.pdb.facts.type.Type large, java.util.Set<org.eclipse.imp.pdb.facts.type.Type> seen){
 		// TODO: this should probably be a visitor as well
 
 		if(small.isVoidType())
@@ -874,19 +947,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if(small.isSubtypeOf(large))
 			return true;
 		if(large.isListType() || large.isSetType())
-			return mayOccurIn(small,large.getElementType(), seen);
+			return this.mayOccurIn(small,large.getElementType(), seen);
 		if(large.isMapType())
-			return mayOccurIn(small, large.getKeyType(), seen) ||
-			mayOccurIn(small, large.getValueType(), seen);
+			return this.mayOccurIn(small, large.getKeyType(), seen) ||
+			this.mayOccurIn(small, large.getValueType(), seen);
 		if(large.isTupleType()){
 			for(int i = 0; i < large.getArity(); i++){
-				if(mayOccurIn(small, large.getFieldType(i), seen))
+				if(this.mayOccurIn(small, large.getFieldType(i), seen))
 					return true;
 			}
 			return false;
 		}
 
-		if(large instanceof NonTerminalType && small instanceof NonTerminalType){
+		if(large instanceof org.rascalmpl.interpreter.types.NonTerminalType && small instanceof org.rascalmpl.interpreter.types.NonTerminalType){
 			//TODO: Until we have more precise info about the types in the concrete syntax
 			// we just return true here.
 			return true;
@@ -895,7 +968,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if(large.isConstructorType()){
 
 			for(int i = 0; i < large.getArity(); i++){
-				if(mayOccurIn(small, large.getFieldType(i), seen))
+				if(this.mayOccurIn(small, large.getFieldType(i), seen))
 					return true;
 			}
 			return false;
@@ -906,15 +979,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if(small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType()))
 				return true;
 			seen.add(large);
-			for(Type alt : getCurrentEnvt().lookupAlternatives(large)){				
+			for(org.eclipse.imp.pdb.facts.type.Type alt : this.getCurrentEnvt().lookupAlternatives(large)){				
 				if(alt.isConstructorType()){
 					for(int i = 0; i < alt.getArity(); i++){
-						Type fType = alt.getFieldType(i);
-						if(seen.add(fType) && mayOccurIn(small, fType, seen))
+						org.eclipse.imp.pdb.facts.type.Type fType = alt.getFieldType(i);
+						if(seen.add(fType) && this.mayOccurIn(small, fType, seen))
 							return true;
 					}
 				} else
-					throw new ImplementationError("ADT");
+					throw new org.rascalmpl.interpreter.asserts.ImplementationError("ADT");
 
 			}
 			return false;
@@ -927,77 +1000,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	// Ambiguity ...................................................
 
-	@Override
-	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
-		throw new Ambiguous((IConstructor) x.getTree());
-	}
-
-	@Override
-	public Result<IValue> visitStatementAmbiguity(
-			org.rascalmpl.ast.Statement.Ambiguity x) {
-		throw new Ambiguous((IConstructor) x.getTree());
-	}
-
-	// Commands 
-	@Override
-	public Result<IValue> visitCommandShell(Shell x) {
-		setCurrentAST(x);
-		return x.getCommand().accept(this);
-	}
-	
-	@Override
-	public Result<IValue> visitCommandAmbiguity(
-			org.rascalmpl.ast.Command.Ambiguity x) {
-		throw new Ambiguous((IConstructor) x.getTree());
-	}
-	
-	@Override
-	public Result<IValue> visitCommandDeclaration(org.rascalmpl.ast.Command.Declaration x) {
-		setCurrentAST(x);
-		return x.getDeclaration().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitCommandStatement(
-			org.rascalmpl.ast.Command.Statement x) {
-		setCurrentAST(x.getStatement());
-		return eval(x.getStatement());
-	}
-	
-	@Override
-	public Result<IValue> visitCommandExpression(org.rascalmpl.ast.Command.Expression x) {
-		Environment old = getCurrentEnvt();
-
-		try {
-			pushEnv();
-			setCurrentAST(x.getExpression());
-			return x.getExpression().accept(this);
-		}
-		finally {
-			unwind(old);
-		}
-	}
-	
-	@Override
-	public Result<IValue> visitCommandImport(org.rascalmpl.ast.Command.Import x) {
-		setCurrentAST(x);
-		return x.getImported().accept(this);
-	}
-	
-	@Override
-	public Result<IValue> visitShellCommandHelp(Help x) {
-		setCurrentAST(x);
-		printHelpMessage(stdout);
-		return ResultFactory.nothing();
-	}
-	
-	@Override
-	public Result<IValue> visitShellCommandUnimport(Unimport x) {
-		((ModuleEnvironment) getCurrentEnvt().getRoot()).unImport(x.getName().toString());
-		return ResultFactory.nothing();
-	}
-
-	protected void printHelpMessage(PrintWriter out) {
+	public void printHelpMessage(java.io.PrintWriter out) {
 		out.println("Welcome to the Rascal command shell.");
 		out.println();
 		out.println("Shell commands:");
@@ -1026,32 +1029,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		out.flush();
 	}
 
-	@Override
-	public Result<IValue> visitShellCommandQuit(Quit x) {
-		throw new QuitException();
-	}
-
-	@Override
-	public Result<IValue> visitShellCommandEdit(Edit x) {
-		return ResultFactory.nothing();
-	}
-
-	@Override
-	public Result<IValue> visitShellCommandTest(ShellCommand.Test x) {
-		return ResultFactory.bool(runTests(), this);
-	}
-
-	@Override
-	public Result<IValue> visitShellCommandListDeclarations(ListDeclarations x) {
-		printVisibleDeclaredObjects(stdout);
-		return ResultFactory.nothing();
-	}
-
-	protected void printVisibleDeclaredObjects(PrintWriter out) {
-		java.util.List<Entry<String, OverloadedFunctionResult>> functions = getCurrentEnvt().getAllFunctions();
-		Collections.sort(functions, new Comparator<Entry<String, OverloadedFunctionResult>>() {
-			public int compare(Entry<String, OverloadedFunctionResult> o1,
-					Entry<String, OverloadedFunctionResult> o2) {
+	public void printVisibleDeclaredObjects(java.io.PrintWriter out) {
+		java.util.List<java.util.Map.Entry<java.lang.String, org.rascalmpl.interpreter.result.OverloadedFunctionResult>> functions = this.getCurrentEnvt().getAllFunctions();
+		java.util.Collections.sort(functions, new java.util.Comparator<java.util.Map.Entry<java.lang.String, org.rascalmpl.interpreter.result.OverloadedFunctionResult>>() {
+			public int compare(java.util.Map.Entry<java.lang.String, org.rascalmpl.interpreter.result.OverloadedFunctionResult> o1,
+					java.util.Map.Entry<java.lang.String, org.rascalmpl.interpreter.result.OverloadedFunctionResult> o2) {
 				return o1.getKey().compareTo(o2.getKey());
 			}
 		});
@@ -1059,8 +1041,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (functions.size() != 0) {
 			out.println("Functions:");
 
-			for (Entry<String, OverloadedFunctionResult> cand : functions) {
-				for (AbstractFunction func : cand.getValue().iterable()) {
+			for (java.util.Map.Entry<java.lang.String, org.rascalmpl.interpreter.result.OverloadedFunctionResult> cand : functions) {
+				for (org.rascalmpl.interpreter.result.AbstractFunction func : cand.getValue().iterable()) {
 					out.print('\t');
 					out.println(func.getHeader());
 				}
@@ -1068,21 +1050,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 
-		java.util.List<RewriteRule> rules = getHeap().getRules();
+		java.util.List<org.rascalmpl.interpreter.env.RewriteRule> rules = this.getHeap().getRules();
 		if (rules.size() != 0) {
 			out.println("Rules:");
-			for (RewriteRule rule : rules) {
+			for (org.rascalmpl.interpreter.env.RewriteRule rule : rules) {
 				out.print('\t');
 				out.println(rule.getRule().getPattern().toString());
 			}
 		}
 		
-		Map<String, Result<IValue>> variables = getCurrentEnvt().getVariables();
+		java.util.Map<java.lang.String, org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> variables = this.getCurrentEnvt().getVariables();
 		if (variables.size() != 0) {
 			out.println("Variables:");
-			for (String name : variables.keySet()) {
+			for (java.lang.String name : variables.keySet()) {
 				out.print('\t');
-				Result<IValue> value = variables.get(name);
+				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> value = variables.get(name);
 				out.println(value.getType() + " " + name + " = " + value.getValue());
 			}
 		}
@@ -1092,68 +1074,34 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	// Modules -------------------------------------------------------------
 
-	@Override
-	public Result<IValue> visitImportDefault(
-			org.rascalmpl.ast.Import.Default x) {
-		// TODO support for full complexity of import declarations
-		String name = getUnescapedModuleName(x);
-
-		if (!heap.existsModule(name)) {
-			// deal with a fresh module that needs initialization
-			heap.addModule(new ModuleEnvironment(name));
-			evalRascalModule(x, name);
-			addImportToCurrentModule(x, name);
-		}
-		else if (getCurrentEnvt() == rootScope) {
-			// in the root scope we treat an import as a "reload"
-			heap.resetModule(name);
-			evalRascalModule(x, name);
-			addImportToCurrentModule(x, name);
-		}
-		else {
-			// otherwise simply add the current imported name to the imports of the current module
-			addImportToCurrentModule(x, name);
-		}
-		
-		return nothing();
-	}
-	
-	@Override
-	public Result<IValue> visitImportSyntax(Syntax x) {
-		typeDeclarator.declareSyntaxType(x.getSyntax().getDefined(), getCurrentEnvt());
-		getCurrentEnvt().declareProduction(x);
-		loadParseTreeModule(x);
-		return nothing();
-	}
-
-	private void addImportToCurrentModule(
-			AbstractAST x, String name) {
-		ModuleEnvironment module = heap.getModule(name);
+	public void addImportToCurrentModule(
+			org.rascalmpl.ast.AbstractAST x, java.lang.String name) {
+		org.rascalmpl.interpreter.env.ModuleEnvironment module = this.__getHeap().getModule(name);
 		if (module == null) {
-			throw new UndeclaredModuleError(name, x);
+			throw new org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError(name, x);
 		}
-		getCurrentModuleEnvironment().addImport(name, module);
+		this.getCurrentModuleEnvironment().addImport(name, module);
 	}
 
-	private ModuleEnvironment getCurrentModuleEnvironment() {
-		if (!(currentEnvt instanceof ModuleEnvironment)) {
-			throw new ImplementationError("Current env should be a module environment");
+	public org.rascalmpl.interpreter.env.ModuleEnvironment getCurrentModuleEnvironment() {
+		if (!(this.currentEnvt instanceof org.rascalmpl.interpreter.env.ModuleEnvironment)) {
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError("Current env should be a module environment");
 		}
-		return ((ModuleEnvironment) currentEnvt);
+		return ((org.rascalmpl.interpreter.env.ModuleEnvironment) this.currentEnvt);
 	}
 
-	private String getUnescapedModuleName(
+	public java.lang.String getUnescapedModuleName(
 			org.rascalmpl.ast.Import.Default x) {
-		return Names.fullName(x.getModule().getName());
+		return org.rascalmpl.interpreter.utils.Names.fullName(x.getModule().getName());
 	}
 
-	private void loadParseTreeModule(
-			AbstractAST x) {
-		String parseTreeModName = "ParseTree";
-		if (!heap.existsModule(parseTreeModName)) {
-			evalRascalModule(x, parseTreeModName);
+	public void loadParseTreeModule(
+			org.rascalmpl.ast.AbstractAST x) {
+		java.lang.String parseTreeModName = "ParseTree";
+		if (!this.__getHeap().existsModule(parseTreeModName)) {
+			this.evalRascalModule(x, parseTreeModName);
 		}
-		addImportToCurrentModule(x, parseTreeModName);
+		this.addImportToCurrentModule(x, parseTreeModName);
 	}
 
 	
@@ -1161,13 +1109,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * Parse a module. Practical for implementing IDE features or features that use Rascal to implement Rascal.
 	 * Parsing a module currently has the side effect of declaring non-terminal types in the given environment.
 	 */
-	public IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException {
+	public org.eclipse.imp.pdb.facts.IConstructor parseModule(java.net.URI location, org.rascalmpl.interpreter.env.ModuleEnvironment env) throws IOException {
 		char[] data;
 		
-		InputStream inputStream = null;
+		java.io.InputStream inputStream = null;
 		try {
-			inputStream = resolverRegistry.getInputStream(location);
-			data = readModule(inputStream);
+			inputStream = this.resolverRegistry.getInputStream(location);
+			data = this.readModule(inputStream);
 		}
 		finally{
 			if(inputStream != null){
@@ -1175,40 +1123,40 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 
-		URI resolved = rascalPathResolver.resolve(location);
+		java.net.URI resolved = this.rascalPathResolver.resolve(location);
 		if (resolved != null) {
 			location = resolved;
 		}
 		
-		return parseModule(data, location, env);
+		return this.parseModule(data, location, env);
 	}
 	
-	public IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
-		interrupt = false;
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
+	public org.eclipse.imp.pdb.facts.IConstructor parseModule(char[] data, java.net.URI location, org.rascalmpl.interpreter.env.ModuleEnvironment env) {
+		this.__setInterrupt(false);
+		org.rascalmpl.parser.IActionExecutor actionExecutor = new org.rascalmpl.parser.RascalActionExecutor(this, this.__getParser().getInfo());
 		
-		IConstructor prefix = parser.preParseModule(location, data, actionExecutor);
-		Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
+		org.eclipse.imp.pdb.facts.IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
+		org.rascalmpl.ast.Module preModule = this.builder.buildModule((org.eclipse.imp.pdb.facts.IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 
 		// take care of imports and declare syntax
-		Result<IValue> name = preModule.accept(this);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> name = preModule.__evaluate(this);
 		
 		if (env == null) {
-			env = heap.getModule(((IString) name.getValue()).getValue());
+			env = this.__getHeap().getModule(((org.eclipse.imp.pdb.facts.IString) name.getValue()).getValue());
 		}
 
-		ISet prods = env.getProductions();
-		if (prods.isEmpty() || !new String(data).contains("`")) {
-			return parser.parseModule(location, data, actionExecutor);
+		org.eclipse.imp.pdb.facts.ISet prods = env.getProductions();
+		if (prods.isEmpty() || !new java.lang.String(data).contains("`")) {
+			return this.__getParser().parseModule(location, data, actionExecutor);
 		}
 		
-		IGLL mp = needBootstrapParser(preModule) ? new MetaRascalRascal() : getRascalParser(env, location);
+		org.rascalmpl.parser.sgll.IGLL mp = this.needBootstrapParser(preModule) ? new org.rascalmpl.library.rascal.syntax.MetaRascalRascal() : this.getRascalParser(env, location);
 		return mp.parse(Parser.START_MODULE, location, data, actionExecutor);
 	}
 	
-	private boolean needBootstrapParser(Module preModule) {
+	public boolean needBootstrapParser(org.rascalmpl.ast.Module preModule) {
 		for (org.rascalmpl.ast.Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
+			if (((org.rascalmpl.ast.Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
 				return true;
 			}
 		}
@@ -1216,10 +1164,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return false;
 	}
 		
-	private char[] readModule(InputStream inputStream) throws IOException{
+	private char[] readModule(java.io.InputStream inputStream) throws IOException{
 		char[] buffer = new char[8192];
-		CharArrayWriter writer = new CharArrayWriter();
-		InputStreamReader reader = new InputStreamReader(inputStream);
+		java.io.CharArrayWriter writer = new java.io.CharArrayWriter();
+		java.io.InputStreamReader reader = new java.io.InputStreamReader(inputStream);
 
 		int bytesRead;
 		while((bytesRead = reader.read(buffer)) != -1){
@@ -1229,392 +1177,94 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return writer.toCharArray();
 	}
 	
-	protected SyntaxError parseError(IConstructor tree, URI location){
-		SummaryAdapter summary = new SummaryAdapter(tree);
-		SubjectAdapter subject = summary.getInitialSubject();
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	protected org.rascalmpl.interpreter.staticErrors.SyntaxError parseError(org.eclipse.imp.pdb.facts.IConstructor tree, java.net.URI location){
+		org.rascalmpl.values.errors.SummaryAdapter summary = new org.rascalmpl.values.errors.SummaryAdapter(tree);
+		org.rascalmpl.values.errors.SubjectAdapter subject = summary.getInitialSubject();
+		org.eclipse.imp.pdb.facts.IValueFactory vf = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
 		
 		if (subject != null) {
-			ISourceLocation loc = vf.sourceLocation(location, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
-			return new SyntaxError(subject.getDescription(), loc);
+			org.eclipse.imp.pdb.facts.ISourceLocation loc = vf.sourceLocation(location, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
+			return new org.rascalmpl.interpreter.staticErrors.SyntaxError(subject.getDescription(), loc);
 		}
 		
-		return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(location, 0,1,1,1,0,1));
+		return new org.rascalmpl.interpreter.staticErrors.SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(location, 0,1,1,1,0,1));
 	}
 	
 	
 	
-	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
+	private org.rascalmpl.ast.Module loadModule(java.lang.String name, org.rascalmpl.interpreter.env.ModuleEnvironment env) throws IOException {
 		try{
-			IConstructor tree = parseModule(URI.create("rascal:///" + name), env);
-			ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
-			Module moduleAst = astBuilder.buildModule(tree);
+			org.eclipse.imp.pdb.facts.IConstructor tree = this.parseModule(java.net.URI.create("rascal:///" + name), env);
+			org.rascalmpl.parser.ASTBuilder astBuilder = new org.rascalmpl.parser.ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
+			org.rascalmpl.ast.Module moduleAst = astBuilder.buildModule(tree);
 			
 			if (moduleAst == null) {
-				throw new ImplementationError("After this, all ambiguous ast's have been filtered in " + name, astBuilder.getLastSuccessLocation());
+				throw new org.rascalmpl.interpreter.asserts.ImplementationError("After this, all ambiguous ast's have been filtered in " + name, astBuilder.getLastSuccessLocation());
 			}
 			return moduleAst;
-		}catch (FactTypeUseException e){
-			throw new ImplementationError("Unexpected PDB typecheck exception", e);
+		}catch (org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException e){
+			throw new org.rascalmpl.interpreter.asserts.ImplementationError("Unexpected PDB typecheck exception", e);
 		}
 	}
 	
-	protected Module evalRascalModule(AbstractAST x, String name) {
-		ModuleEnvironment env = heap.getModule(name);
+	public org.rascalmpl.ast.Module evalRascalModule(org.rascalmpl.ast.AbstractAST x, java.lang.String name) {
+		org.rascalmpl.interpreter.env.ModuleEnvironment env = this.__getHeap().getModule(name);
 		if (env == null) {
-			env = new ModuleEnvironment(name);
-			heap.addModule(env);
+			env = new org.rascalmpl.interpreter.env.ModuleEnvironment(name);
+			this.__getHeap().addModule(env);
 		}
 		try {
-			Module module = loadModule(name, env);
+			org.rascalmpl.ast.Module module = this.loadModule(name, env);
 	
 			if (module != null) {
-				if (!getModuleName(module).equals(name)) {
-					throw new ModuleNameMismatchError(getModuleName(module), name, x);
+				if (!this.getModuleName(module).equals(name)) {
+					throw new org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError(this.getModuleName(module), name, x);
 				}
-				heap.setModuleURI(name, module.getLocation().getURI());
+				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
-				module.accept(this);
+				module.__evaluate(this);
 				return module;
 			}
 		}
-		catch (StaticError e) {
-			heap.removeModule(env);
+		catch (org.rascalmpl.interpreter.staticErrors.StaticError e) {
+			this.__getHeap().removeModule(env);
 			throw e;
 		}
 		catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
-			heap.removeModule(env);
+			this.__getHeap().removeModule(env);
 			throw e;
 		} 
-		catch (IOException e) {
-			heap.removeModule(env);
-			throw new ModuleLoadError(name, e.getMessage(), x);
+		catch (java.io.IOException e) {
+			this.__getHeap().removeModule(env);
+			throw new org.rascalmpl.interpreter.staticErrors.ModuleLoadError(name, e.getMessage(), x);
 		}
 
-		heap.removeModule(env);
-		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
+		this.__getHeap().removeModule(env);
+		throw new org.rascalmpl.interpreter.asserts.ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
 
-	@Override 
-	public Result<IValue> visitModuleDefault(
-			org.rascalmpl.ast.Module.Default x) {
-		String name = getModuleName(x);
-
-		ModuleEnvironment env = heap.getModule(name);
-
-		if (env == null) {
-			env = new ModuleEnvironment(name);
-			heap.addModule(env);
-		}
-		
-		env.setBootstrap(needBootstrapParser(x));
-
-		if (!env.isInitialized()) {
-			Environment oldEnv = getCurrentEnvt();
-			setCurrentEnvt(env); // such that declarations end up in the module scope
-			try {
-				x.getHeader().accept(this);
-
-				java.util.List<Toplevel> decls = x.getBody().getToplevels();
-				typeDeclarator.evaluateSyntaxDefinitions(x.getHeader().getImports(), getCurrentEnvt());
-				typeDeclarator.evaluateDeclarations(decls, getCurrentEnvt());
-
-				for (Toplevel l : decls) {
-					l.accept(this);
-				}
-
-				// only after everything was successful mark the module initialized
-				env.setInitialized();
-			}
-			finally {
-				setCurrentEnvt(oldEnv);
-			}
-		}
-		
-		return ResultFactory.makeResult(tf.stringType(), vf.string(name), this);
-	}
-
-	protected String getModuleName(
-			Module module) {
-		String name = module.getHeader().getName().toString();
+	public java.lang.String getModuleName(
+			org.rascalmpl.ast.Module module) {
+		java.lang.String name = module.getHeader().getName().toString();
 		if (name.startsWith("\\")) {
 			name = name.substring(1);
 		}
 		return name;
 	}
 
-	@Override
-	public Result<IValue> visitHeaderDefault(
-			org.rascalmpl.ast.Header.Default x) {
-		visitImports(x.getImports());
-		return ResultFactory.nothing();
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationAlias(Alias x) {
-		typeDeclarator.declareAlias(x, getCurrentEnvt());
-		return ResultFactory.nothing();
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationData(Data x) {
-		typeDeclarator.declareConstructor(x, getCurrentEnvt());
-		return nothing();
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationDataAbstract(DataAbstract x) {
-		typeDeclarator.declareAbstractADT(x, getCurrentEnvt());
-		return nothing();
-	}
-
-	private void visitImports(java.util.List<Import> imports) {
-		for (Import i : imports) {
-			i.accept(this);
+	public void visitImports(java.util.List<org.rascalmpl.ast.Import> imports) {
+		for (org.rascalmpl.ast.Import i : imports) {
+			i.__evaluate(this);
 		}
 	}
 
-	@Override
-	public Result<IValue> visitHeaderParameters(Parameters x) {
-		visitImports(x.getImports());
-		return ResultFactory.nothing();
+	public org.eclipse.imp.pdb.facts.type.Type evalType(org.rascalmpl.ast.Type type) {
+		return new org.rascalmpl.interpreter.TypeEvaluator(this.getCurrentEnvt(), this.__getHeap()).eval(type);
 	}
 
-	@Override
-	public Result<IValue> visitToplevelGivenVisibility(GivenVisibility x) {
-		return x.getDeclaration().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationFunction(Function x) {
-		return x.getFunctionDeclaration().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationVariable(Variable x) {
-		Result<IValue> r = nothing();
-		setCurrentAST(x);
-
-		for (org.rascalmpl.ast.Variable var : x.getVariables()) {
-			Type declaredType = new TypeEvaluator(getCurrentModuleEnvironment(), heap).eval(x.getType());
-
-			if (var.isInitialized()) {  
-				Result<IValue> v = var.getInitial().accept(this);
-
-				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-					throw new RedeclaredVariableError(Names.name(var.getName()), var);
-				}
-
-				if(v.getType().isSubtypeOf(declaredType)){
-					// TODO: do we actually want to instantiate the locally bound type parameters?
-					Map<Type,Type> bindings = new HashMap<Type,Type>();
-					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(bindings);
-					r = makeResult(declaredType, v.getValue(), this);
-					getCurrentModuleEnvironment().storeVariable(var.getName(), r);
-				} else {
-					throw new UnexpectedTypeError(declaredType, v.getType(), var);
-				}
-			}
-			else {
-				throw new UninitializedVariableError(Names.name(var.getName()), var);
-			}
-		}
-
-		r.setPublic(x.getVisibility().isPublic());
-		return r;
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationAnnotation(Annotation x) {
-		Type annoType = new TypeEvaluator(getCurrentModuleEnvironment(), heap).eval(x.getAnnoType());
-		String name = Names.name(x.getName());
-
-		Type onType = new TypeEvaluator(getCurrentModuleEnvironment(), heap).eval(x.getOnType());
-		getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);	
-
-		return ResultFactory.nothing();
-	}
-
-
-	private Type evalType(org.rascalmpl.ast.Type type) {
-		return new TypeEvaluator(getCurrentEnvt(), heap).eval(type);
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationView(View x) {
-		// TODO implement
-		throw new NotYetImplemented("Views");
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationRule(Rule x) {
-		return x.getPatternAction().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
-		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
-		
-		Type pt = pv.getType(getCurrentEnvt());
-		
-		if (pv instanceof NodePattern) {
-			pt = ((NodePattern) pv).getConstructorType(getCurrentEnvt());
-		}
-		
-		// TODO store rules for concrete syntax on production rule and
-		// create Lambda's for production rules to speed up matching and
-		// rewrite rule look up
-		if (pt instanceof NonTerminalType) {
-			pt = Factory.Tree_Appl;
-		}
-		
-		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
-			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		
-		heap.storeRule(pt, x, getCurrentModuleEnvironment());
-		return ResultFactory.nothing();
-	}
-
-	@Override
-	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
-		IMatchingResult pv = x.getPattern().accept(patternEvaluator);
-		Type pt = pv.getType(getCurrentEnvt());
-
-		if (pv instanceof NodePattern) {
-			pt = ((NodePattern) pv).getConstructorType(getCurrentEnvt());
-		}
-		
-		if (pt instanceof NonTerminalType) {
-			pt = Factory.Tree_Appl;
-		}
-
-		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
-			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		
-		heap.storeRule(pt, x, getCurrentModuleEnvironment());
-		return ResultFactory.nothing();
-	}
-
-
-	@Override
-	public Result<IValue> visitDeclarationTest(Test x) {
-		return x.getTest().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitTestLabeled(Labeled x) {
-		getCurrentModuleEnvironment().addTest(x);
-		return nothing();
-	}
-
-	@Override
-	public Result<IValue> visitTestUnlabeled(Unlabeled x) {
-		getCurrentModuleEnvironment().addTest(x);
-		return nothing();
-	}
-
-	@Override
-	public Result<IValue> visitDeclarationTag(Tag x) {
-		throw new NotYetImplemented("tags");
-	}
-
-	// Variable Declarations -----------------------------------------------
-
-	@Override
-	public Result<IValue> visitLocalVariableDeclarationDefault(Default x) {
-		// TODO deal with dynamic variables
-		return x.getDeclarator().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDeclaratorDefault(
-			org.rascalmpl.ast.Declarator.Default x) {
-		Result<IValue> r = ResultFactory.nothing();
-
-		for (org.rascalmpl.ast.Variable var : x.getVariables()) {
-			String varAsString = Names.name(var.getName());
-
-			if (var.isInitialized()) {  // variable declaration without initialization
-				// first evaluate the initialization, in case the left hand side will shadow something
-				// that is used on the right hand side.
-				Result<IValue> v = var.getInitial().accept(this);
-
-				Type declaredType = evalType(x.getType());
-
-				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-					throw new RedeclaredVariableError(varAsString, var);
-				}
-
-				if(v.getType().isSubtypeOf(declaredType)){
-					// TODO: do we actually want to instantiate the locally bound type parameters?
-					Map<Type,Type> bindings = new HashMap<Type,Type>();
-					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(bindings);
-					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
-					r = makeResult(declaredType, v.getValue(), this);
-					getCurrentEnvt().storeVariable(var.getName(), r);
-				} else {
-					throw new UnexpectedTypeError(declaredType, v.getType(), var);
-				}
-			}
-			else {
-				Type declaredType = evalType(x.getType());
-
-				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-					throw new RedeclaredVariableError(varAsString, var);
-				}
-			}
-		}
-
-		return r;
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionCallOrTree(CallOrTree x){
-		if (interrupt) throw new InterruptException(getStackTrace());
-		
-		setCurrentAST(x);
-
-		Result<IValue> function = x.getExpression().accept(this);
-		
-		java.util.List<Expression> args = x.getArguments();
-
-		IValue[] actuals = new IValue[args.size()];
-		Type[] types = new Type[args.size()];
-
-		for(int i = 0; i < args.size(); i++){
-			Result<IValue> resultElem = args.get(i).accept(this);
-			types[i] = resultElem.getType();
-			actuals[i] = resultElem.getValue();
-		}
-		
-		Result<IValue> res = function.call(types, actuals);
-		
-		// we need to update the strategy context when the function is of type Strategy
-		IStrategyContext strategyContext = getStrategyContext();
-		if(strategyContext != null){
-			if(function.getValue() instanceof AbstractFunction){
-				AbstractFunction f = (AbstractFunction) function.getValue();
-				if(f.isTypePreserving()){
-					strategyContext.update(actuals[0], res.getValue());
-				}
-			}else if(function.getValue() instanceof OverloadedFunctionResult){
-				OverloadedFunctionResult fun = (OverloadedFunctionResult) function.getValue();
-				
-				for(AbstractFunction f: fun.iterable()){
-					if(f.isTypePreserving()){
-						strategyContext.update(actuals[0], res.getValue());
-					}
-				}
-			}
-		}
-		return res;
-	}
-
-	private boolean hasJavaModifier(FunctionDeclaration func) {
-		java.util.List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
-		for (FunctionModifier m : mods) {
+	public boolean hasJavaModifier(org.rascalmpl.ast.FunctionDeclaration func) {
+		java.util.List<org.rascalmpl.ast.FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
+		for (org.rascalmpl.ast.FunctionModifier m : mods) {
 			if (m.isJava()) {
 				return true;
 			}
@@ -1623,240 +1273,26 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return false;
 	}
 
-	@Override
-	public Result<IValue> visitFunctionBodyDefault(
-			org.rascalmpl.ast.FunctionBody.Default x) {
-		Result<IValue> result = nothing();
-
-		for (Statement statement : x.getStatements()) {
-			setCurrentAST(statement);
-			result = statement.accept(this);
-		}
-
-		return result;
-	}
-
-	// Statements ---------------------------------------------------------
-
-	@Override
-	public Result<IValue> visitStatementAssert(Assert x) {
-		Result<IValue> r = x.getExpression().accept(this);
-		if (!r.getType().equals(tf.boolType())) {
-			throw new UnexpectedTypeError(tf.boolType(), r.getType(), x);	
-		}
-
-		if(r.getValue().isEqual(vf.bool(false))) {
-			throw RuntimeExceptionFactory.assertionFailed(x, getStackTrace());
-		}
-		return r;	
-	}
-
-	@Override
-	public Result<IValue> visitStatementAssertWithMessage(AssertWithMessage x) {
-		Result<IValue> r = x.getExpression().accept(this);
-		if (!r.getType().equals(tf.boolType())) {
-			throw new UnexpectedTypeError(tf.boolType(),r.getType(), x);	
-		}
-		if(r.getValue().isEqual(vf.bool(false))){
-			Result<IValue> msgValue = x.getMessage().accept(this);
-			IString msg = vf.string(unescape(msgValue.getValue().toString(), x, getCurrentEnvt()));
-			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentAST(), getStackTrace());
-		}
-		return r;	
-	}
-
-	@Override
-	public Result<IValue> visitStatementVariableDeclaration(VariableDeclaration x) {
-		return x.getDeclaration().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitStatementExpression(Statement.Expression x) {
-		Environment old = getCurrentEnvt();
-
-		try {
-			pushEnv();
-			return x.getExpression().accept(this);
-		}
-		finally {
-			unwind(old);
-		}
-	}
-
-	@Override
-	public Result<IValue> visitStatementFunctionDeclaration(
-			org.rascalmpl.ast.Statement.FunctionDeclaration x) {
-		return x.getFunctionDeclaration().accept(this);
-	}
-
-
-	@Override
-	public Result<IValue> visitExpressionSubscript(Subscript x) {		
-		Result<IValue> expr = x.getExpression().accept(this);
-		int nSubs = x.getSubscripts().size();
-		Result<?> subscripts[] = new Result<?>[nSubs];
-		for (int i = 0; i < nSubs; i++) {
-			Expression subsExpr = x.getSubscripts().get(i);
-			subscripts[i] = isWildCard(subsExpr.toString()) ? null : subsExpr.accept(this);
-		}
-		return expr.subscript(subscripts);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionFieldAccess(
-			org.rascalmpl.ast.Expression.FieldAccess x) {
-		Result<IValue> expr = x.getExpression().accept(this);
-		String field = Names.name(x.getField());
-
-
-		return expr.fieldAccess(field, getCurrentEnvt().getStore());
-	}
-
-	private boolean isWildCard(String fieldName){
+	public boolean isWildCard(java.lang.String fieldName){
 		return fieldName.equals("_");
 	}
 
-	@Override
-	public Result<IValue> visitExpressionFieldProject(FieldProject x) {
-		// TODO: move to result classes
-		Result<IValue>  base = x.getExpression().accept(this);
-
-		Type baseType = base.getType();
-		if (!baseType.isTupleType() && !baseType.isRelationType() && !baseType.isMapType()) {
-			throw new UnsupportedOperationError("projection", baseType, x);
-		}
-
-		java.util.List<Field> fields = x.getFields();
-		int nFields = fields.size();
-		int selectedFields[] = new int[nFields];
-
-		for(int i = 0 ; i < nFields; i++){
-			Field f = fields.get(i);
-			if (f.isIndex()) {
-				selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).intValue();
-			} 
-			else {
-				String fieldName = Names.name(f.getFieldName());
-				try {
-					selectedFields[i] = baseType.getFieldIndex(fieldName);
-				} catch (UndeclaredFieldException e){
-					throw new UndeclaredFieldError(fieldName, baseType, x);
-				}
-			}
-
-			if (!baseType.isMapType() && !baseType.getElementType().isVoidType()) {
-				if (selectedFields[i] < 0 || selectedFields[i] > baseType.getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
-				}
-			}
-			else if (baseType.isMapType() && selectedFields[i] < 0 || selectedFields[i] > 1) {
-				throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
-			}
-		}
-
-		return base.fieldSelect(selectedFields);
-	}
-
-	@Override
-	public Result<IValue> visitStatementEmptyStatement(EmptyStatement x) {
-		return ResultFactory.nothing();
-	}
-
-
-	@Override
-	public Result<IValue> visitStatementFail(Fail x) {
-		if (!x.getTarget().isEmpty()) {
-			throw new Failure(x.getTarget().getName().toString());
-		}
-
-		throw new Failure();
-	}
-
-	@Override
-	public Result<IValue> visitStatementReturn(
-			org.rascalmpl.ast.Statement.Return x) {
-		throw new Return(x.getStatement().accept(this), x.getStatement().getLocation());
-	}
-
-	@Override
-	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		ASTFactory factory = ASTFactoryFactory.getASTFactory();
-		return factory.makeStatementNonEmptyBlock(x.getTree(), factory.makeLabelEmpty(x.getTree()), x.getStatements()).accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitStatementAppend(Append x) {
-		Accumulator target = null;
-		if (accumulators.empty()) {
-			throw new AppendWithoutLoop(x);
-		}
-		if (!x.getDataTarget().isEmpty()) {
-			String label = Names.name(x.getDataTarget().getLabel());
-			for (Accumulator accu: accumulators) {
-				if (accu.hasLabel(label)) {
-					target = accu;
-					break;
-				}
-			}
-			if (target == null) {
-				throw new AppendWithoutLoop(x); // TODO: better error message
-			}
-		}
-		else {
-			target = accumulators.peek();
-		}
-		Result<IValue> result = x.getStatement().accept(this);
-		target.append(result);
-		return result;
-	}
-
-	@Override
-	public Result<IValue> visitStatementBreak(Break x) {
-		throw new NotYetImplemented(x.toString()); // TODO
-	}
-
-
-	@Override
-	public Result<IValue> visitStatementContinue(Continue x) {
-		throw new NotYetImplemented(x.toString()); // TODO
-	}
-
-	@Override
-	public Result<IValue> visitStatementGlobalDirective(GlobalDirective x) {
-		throw new NotYetImplemented(x.toString()); // TODO
-	}
-
-	@Override
-	public Result<IValue> visitStatementThrow(Throw x) {
-		throw new org.rascalmpl.interpreter.control_exceptions.Throw(x.getStatement().accept(this).getValue(), getCurrentAST(), getStackTrace());
-	}
-
-	@Override
-	public Result<IValue> visitStatementTry(Try x) {
-		return evalStatementTry(x.getBody(), x.getHandlers(), null);
-	}
-
-	@Override
-	public Result<IValue> visitStatementTryFinally(TryFinally x) {
-		return evalStatementTry(x.getBody(), x.getHandlers(), x.getFinallyBody());
-	}
-
-	private Result<IValue> evalStatementTry(Statement body, java.util.List<Catch> handlers, Statement finallyBody){
-		Result<IValue> res = nothing();
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> evalStatementTry(org.rascalmpl.ast.Statement body, java.util.List<org.rascalmpl.ast.Catch> handlers, org.rascalmpl.ast.Statement finallyBody){
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> res = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		try {
-			res = body.accept(this);
+			res = body.__evaluate(this);
 		} catch (org.rascalmpl.interpreter.control_exceptions.Throw e){
-			IValue eValue = e.getException();
+			org.eclipse.imp.pdb.facts.IValue eValue = e.getException();
 
-			for (Catch c : handlers){
+			for (org.rascalmpl.ast.Catch c : handlers){
 				if(c.isDefault()){
-					res = c.getBody().accept(this);
+					res = c.getBody().__evaluate(this);
 					break;
 				} 
 
 				// TODO: Throw should contain Result<IValue> instead of IValue
-				if(matchAndEval(makeResult(eValue.getType(), eValue, this), c.getPattern(), c.getBody())){
+				if(this.matchAndEval(org.rascalmpl.interpreter.result.ResultFactory.makeResult(eValue.getType(), eValue, this), c.getPattern(), c.getBody())){
 					break;
 				}
 			}
@@ -1865,1229 +1301,120 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		finally {
 			if (finallyBody != null) {
-				finallyBody.accept(this);
+				finallyBody.__evaluate(this);
 			}
 		}
 		return res;
 	}
 
-	@Override
-	public Result<IValue> visitStatementVisit(
-			org.rascalmpl.ast.Statement.Visit x) {
-		return x.getVisit().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitStatementInsert(Insert x) {
-		throw new org.rascalmpl.interpreter.control_exceptions.Insert(x.getStatement().accept(this));
-	}
-
-	@Override
-	public Result<IValue> visitStatementAssignment(Assignment x) {
-		Result<IValue> right = x.getStatement().accept(this);
-		return x.getAssignable().accept(new AssignableEvaluator(getCurrentEnvt(), x.getOperator(), right, this));
-	}
-
-	@Override
-	public Result<IValue> visitStatementNonEmptyBlock(
-			org.rascalmpl.ast.Statement.NonEmptyBlock x) {
-		Result<IValue> r = nothing();
-		Environment old = getCurrentEnvt();
-
-		pushEnv(x);
-		try {
-			for (Statement stat : x.getStatements()) {
-				setCurrentAST(stat);
-				r = stat.accept(this);
-			}
-		}
-		finally {
-			unwind(old);
-		}
-		return r;
-	}
-
-	@Override
-	public Result<IValue> visitAssignableVariable(
-			org.rascalmpl.ast.Assignable.Variable x) {
-		return getCurrentEnvt().getVariable(x.getQualifiedName());
-	}
-
-	@Override
-	public Result<IValue> visitAssignableFieldAccess(FieldAccess x) {
-		Result<IValue> receiver = x.getReceiver().accept(this);
-		String label = Names.name(x.getField());
-
-		if (receiver == null) {
-			throw new UndeclaredVariableError(x.getReceiver().toString(), x.getReceiver());
-		}
-		
-		Type receiverType = receiver.getType();
-		if (receiverType.isTupleType()) {
-			// the run-time tuple may not have labels, the static type can have labels,
-			// so we use the static type here. 
-			int index = receiverType.getFieldIndex(label);
-			IValue result = ((ITuple) receiver.getValue()).get(index);
-			Type type = receiverType.getFieldType(index);
-			return makeResult(type, result, this);
-		}
-		else if (receiverType.isConstructorType() || receiverType.isAbstractDataType()) {
-			IConstructor cons = (IConstructor) receiver.getValue();
-			Type node = cons.getConstructorType();
-
-			if (!receiverType.hasField(label, getCurrentEnvt().getStore())) {
-				throw new UndeclaredFieldError(label, receiverType, x);
-			}
-
-			if (!node.hasField(label)) {
-				throw RuntimeExceptionFactory.noSuchField(label, x,getStackTrace());
-			}
-
-			int index = node.getFieldIndex(label);
-			return makeResult(node.getFieldType(index), cons.get(index), this);
-		}
-		else if (receiverType.isSourceLocationType()) {
-			return receiver.fieldAccess(label, new TypeStore());
-		}
-		else {
-			throw new UndeclaredFieldError(label, receiverType, x);
-		}
-	}
-
-	@Override
-	public Result<IValue> visitAssignableAnnotation(
-			org.rascalmpl.ast.Assignable.Annotation x) {
-		Result<IValue> receiver = x.getReceiver().accept(this);
-		String label = x.getAnnotation().toString();
-
-		if (!getCurrentEnvt().declaresAnnotation(receiver.getType(), label)) {
-			throw new UndeclaredAnnotationError(label, receiver.getType(), x);
-		}
-
-		Type type = getCurrentEnvt().getAnnotationType(receiver.getType(), label);
-		IValue value = ((IConstructor) receiver.getValue()).getAnnotation(label);
-
-		return makeResult(type, value, this);
-	}
-
-	@Override
-	public Result<IValue> visitAssignableConstructor(Constructor x) {
-		throw new ImplementationError("Constructor assignable does not represent a value");
-	}
-
-	@Override
-	public Result<IValue> visitAssignableIfDefinedOrDefault(
-			org.rascalmpl.ast.Assignable.IfDefinedOrDefault x) {
-		throw new ImplementationError("ifdefined assignable does not represent a value");
-	}
-
-	@Override
-	public Result<IValue> visitAssignableSubscript(
-			org.rascalmpl.ast.Assignable.Subscript x) {
-		Result<IValue> receiver = x.getReceiver().accept(this);
-		Result<IValue> subscript = x.getSubscript().accept(this);
-
-		if (receiver.getType().isListType()) {
-			if (subscript.getType().isIntegerType()) {
-				IList list = (IList) receiver.getValue();
-				IValue result = list.get(((IInteger) subscript.getValue()).intValue());
-				Type type = receiver.getType().getElementType();
-				return normalizedResult(type, result);
-			}
-
-			throw new UnexpectedTypeError(tf.integerType(), subscript.getType(), x);
-		}
-		else if (receiver.getType().isMapType()) {
-			Type keyType = receiver.getType().getKeyType();
-
-			if (receiver.hasInferredType() || subscript.getType().isSubtypeOf(keyType)) {
-				IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
-				
-				if (result == null) {
-					throw RuntimeExceptionFactory.noSuchKey(subscript.getValue(), x, getStackTrace());
-				}
-				Type type = receiver.getType().getValueType();
-				return makeResult(type, result, this);
-			}
-
-			throw new UnexpectedTypeError(keyType, subscript.getType(), x.getSubscript());
-		}
-		// TODO implement other subscripts
-		throw new UnsupportedOperationError("subscript", receiver.getType(), x);
-	}
-
-	@Override
-	public Result<IValue> visitAssignableTuple(
-			org.rascalmpl.ast.Assignable.Tuple x) {
-		throw new ImplementationError("Tuple in assignable does not represent a value:" + x);
-	}
-
-	@Override
-	public Result<IValue> visitAssignableAmbiguity(
-			org.rascalmpl.ast.Assignable.Ambiguity x) {
-		throw new Ambiguous((IConstructor) x.getTree());
-	}
-
-	@Override
-	public Result<IValue> visitFunctionDeclarationDefault(
-			org.rascalmpl.ast.FunctionDeclaration.Default x) {
-		AbstractFunction lambda;
-		boolean varArgs = x.getSignature().getParameters().isVarArgs();
-
-		if (hasJavaModifier(x)) {
-			throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null,  x);
-		}
-		
-		if (!x.getBody().isDefault()) {
-			throw new MissingModifierError("java", x);
-		}
-
-		lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt(), accumulators);
-
-		getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-		getCurrentEnvt().markNameFinal(lambda.getName());
-		getCurrentEnvt().markNameOverloadable(lambda.getName());
-
-		lambda.setPublic(x.getVisibility().isPublic());
-		return lambda;
-	}
-
-	@Override
-	public Result<IValue> visitFunctionDeclarationAbstract(Abstract x) {
-		boolean varArgs = x.getSignature().getParameters().isVarArgs();
-
-		if (!hasJavaModifier(x)) {
-			throw new MissingModifierError("java", x);
-		}
-
-		AbstractFunction lambda = new JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
-		String name = Names.name(x.getSignature().getName());
-		getCurrentEnvt().storeFunction(name, lambda);
-		getCurrentEnvt().markNameFinal(lambda.getName());
-		getCurrentEnvt().markNameOverloadable(lambda.getName());
-
-		lambda.setPublic(x.getVisibility().isPublic());
-		return lambda;
-	}
-
-	@Override
-	public Result<IValue> visitStatementIfThenElse(IfThenElse x) {
-		Statement body = x.getThenStatement();
-		java.util.List<Expression> generators = x.getConditions();
-		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = getCurrentEnvt();
-
-		int i = 0;
-		try {
-			gens[0] = makeBooleanResult(generators.get(0));
-			gens[0].init();
-			olds[0] = getCurrentEnvt();
-			pushEnv();
-			while(i >= 0 && i < size) {		
-				if (interrupt) throw new InterruptException(getStackTrace());
-				if(gens[i].hasNext() && gens[i].next()){
-					if(i == size - 1){
-						setCurrentAST(body);
-						return body.accept(this);
-					}
-
-					i++;
-					gens[i] = makeBooleanResult(generators.get(i));
-					gens[i].init();
-					olds[i] = getCurrentEnvt();
-					pushEnv();
-				} else {
-					unwind(olds[i]);
-					pushEnv();
-					i--;
-				}
-			}
-		} finally {
-			unwind(old);
-		}
-
-		Statement elsePart = x.getElseStatement();
-		setCurrentAST(elsePart);
-		return elsePart.accept(this);
-	}
-
-
-
-
-	@Override
-	public Result<IValue> visitStatementIfThen(IfThen x) {
-		Statement body = x.getThenStatement();
-		java.util.List<Expression> generators = x.getConditions();
-		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = getCurrentEnvt();
-
-		int i = 0;
-		try {
-			gens[0] = makeBooleanResult(generators.get(0));
-			gens[0].init();
-			olds[0] = getCurrentEnvt();
-			pushEnv();
-
-			while(i >= 0 && i < size) {	
-				if (interrupt) throw new InterruptException(getStackTrace());
-				if(gens[i].hasNext() && gens[i].next()){
-					if(i == size - 1){
-						setCurrentAST(body);
-						return body.accept(this);
-					}
-
-					i++;
-					gens[i] = makeBooleanResult(generators.get(i));
-					gens[i].init();
-					olds[i] = getCurrentEnvt();
-					pushEnv();
-				} else {
-					unwind(olds[i]);
-					pushEnv();
-					i--;
-				}
-			}
-		} finally {
-			unwind(old);
-		}
-		return nothing();
-	}
-
-	@Override
-	public Result<IValue> visitStatementWhile(While x) {
-		Statement body = x.getBody();
-		java.util.List<Expression> generators = x.getConditions();
-		
-		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = getCurrentEnvt();
-
-		String label = null;
-		if (!x.getLabel().isEmpty()) {
-			label = Names.name(x.getLabel().getName());
-		}
-		accumulators.push(new Accumulator(vf, label));
-
-		// a while statement is different from a for statement, the body of the while can influence the
-		// variables that are used to test the condition of the loop
-		// while does not iterate over all possible matches, rather it produces every time the first match
-		// that makes the condition true
-		
-		loop: while (true) {
-			int i = 0;
-			try {
-				gens[0] = makeBooleanResult(generators.get(0));
-				gens[0].init();
-				olds[0] = getCurrentEnvt();
-				pushEnv();
-
-				while(i >= 0 && i < size) {		
-					if (interrupt) throw new InterruptException(getStackTrace());
-					if(gens[i].hasNext() && gens[i].next()){
-						if(i == size - 1){
-							body.accept(this);
-							continue loop;
-						}
-
-						i++;
-						gens[i] = makeBooleanResult(generators.get(i));
-						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						pushEnv();
-					} else {
-						unwind(olds[i]);
-						pushEnv();
-						i--;
-					}
-				}
-			} finally {
-				unwind(old);
-			}
-			IValue value = accumulators.pop().done();
-			return makeResult(value.getType(), value, this);
-		}
-	}
-
-	@Override
-	public Result<IValue> visitStatementDoWhile(DoWhile x) {
-		Statement body = x.getBody();
-		Expression generator = x.getCondition();
-		IBooleanResult gen;
-		Environment old = getCurrentEnvt();
-		String label = null;
-		if (!x.getLabel().isEmpty()) {
-			label = Names.name(x.getLabel().getName());
-		}
-		accumulators.push(new Accumulator(vf, label));
-
-		
-		while (true) {
-			try {
-				body.accept(this);
-
-				gen = makeBooleanResult(generator);
-				gen.init();
-				if (interrupt) throw new InterruptException(getStackTrace());
-				if(!(gen.hasNext() && gen.next())) {
-					IValue value = accumulators.pop().done();
-					return makeResult(value.getType(), value, this);
-				}
-			} finally {
-				unwind(old);
-			}
-		}
-	}
-
-	@Override
-	public Result<IValue> visitExpressionMatch(Match x) {
-		return evalBooleanExpression(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionNoMatch(NoMatch x) {
-		return evalBooleanExpression(x);
-	}
-
-	// ----- General method for matching --------------------------------------------------
-
-	public IBooleanResult makeBooleanResult(org.rascalmpl.ast.Expression pat){
-		if (pat instanceof Expression.Ambiguity) {
+	public org.rascalmpl.interpreter.matching.IBooleanResult makeBooleanResult(org.rascalmpl.ast.Expression pat){
+		if (pat instanceof org.rascalmpl.ast.Expression.Ambiguity) {
 			// TODO: wrong exception here.
-			throw new Ambiguous((IConstructor) pat.getTree());
+			throw new org.rascalmpl.interpreter.asserts.Ambiguous((org.eclipse.imp.pdb.facts.IConstructor) pat.getTree());
 		}
 
-		BooleanEvaluator pe = new BooleanEvaluator(this);
-		return pat.accept(pe);
+		org.rascalmpl.interpreter.BooleanEvaluator pe = new org.rascalmpl.interpreter.BooleanEvaluator(this);
+		return pat.__evaluate(pe);
 	}
 
 	// Expressions -----------------------------------------------------------
 
-	@Override
-	public Result<IValue> visitExpressionReifiedType(ReifiedType x) {
-		BasicType basic = x.getBasicType();
-		java.util.List<Expression> args = x.getArguments();
-		Type[] fieldTypes = new Type[args.size()];
-		IValue[] fieldValues = new IValue[args.size()];
-
-		int i = 0;
-		boolean valued = false;
-		for (Expression a : args) {
-			Result<IValue> argResult = a.accept(this);
-			Type argType = argResult.getType();
-
-			if (argType instanceof org.rascalmpl.interpreter.types.ReifiedType) {
-				fieldTypes[i] = argType.getTypeParameters().getFieldType(0);
-				i++;
-			}
-			else {
-				valued = true;
-				fieldValues[i] = argResult.getValue();
-				i++;
-			}
-		}
-
-		Type type = basic.accept(new BasicTypeEvaluator(getCurrentEnvt(), valued ? null : tf.tupleType(fieldTypes), valued ? fieldValues : null));
-
-		return type.accept(new TypeReifier(this, vf));
-	}
-
-	@Override
-	public Result<IValue> visitExpressionLiteral(Literal x) {
-		return x.getLiteral().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitLiteralRegExp(RegExp x) {
-		throw new SyntaxError("regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).", x.getLocation());
-	}
-	
-	@Override
-	public Result<IValue> visitLiteralInteger(Integer x) {
-		return x.getIntegerLiteral().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitIntegerLiteralOctalIntegerLiteral(
-			OctalIntegerLiteral x) {
-		return x.getOctal().accept(this);
-	}
-	
-	@Override
-	public Result<IValue> visitIntegerLiteralHexIntegerLiteral(
-			HexIntegerLiteral x) {
-		return x.getHex().accept(this);
-	}
-	
-	@Override
-	public Result<IValue> visitOctalIntegerLiteralLexical(
-			org.rascalmpl.ast.OctalIntegerLiteral.Lexical x) {
-		return makeResult(tf.integerType(), vf.integer(new BigInteger(x.getString(), 8).toString()), this);
-	}
-
-	@Override
-	public Result<IValue> visitHexIntegerLiteralLexical(
-			org.rascalmpl.ast.HexIntegerLiteral.Lexical x) {
-		String chars = x.getString();
-		String hex = chars.substring(2, chars.length());
-		return makeResult(tf.integerType(), vf.integer(new BigInteger(hex, 16).toString()), this);
-	}
-	
-	@Override
-	public Result<IValue> visitLiteralReal(Real x) {
-		String str = x.getRealLiteral().toString();
-		if (str.toLowerCase().endsWith("d")) {
-			str = str.substring(0, str.length() - 1);
-		}
-		return makeResult(tf.realType(), vf.real(str), this);
-	}
-
-	@Override
-	public Result<IValue> visitLiteralBoolean(Boolean x) {
-		String str = x.getBooleanLiteral().toString();
-		return makeResult(tf.boolType(), vf.bool(str.equals("true")), this);
-	}
-
-	@Override
-	public Result<IValue> visitLiteralString(
-			org.rascalmpl.ast.Literal.String x) {
-		StringLiteral lit = x.getStringLiteral();
-
-		StringBuilder result = new StringBuilder();
-
-		// To prevent infinite recursion detect non-interpolated strings
-		// first. TODO: design flaw?
-		if (lit.isNonInterpolated()) {
-			String str = Utils.unescape(((StringConstant.Lexical)lit.getConstant()).getString());
-			result.append(str);
-		}
-		else {
-			Statement stat = StringTemplateConverter.convert(lit);
-			Result<IValue> value = stat.accept(this);
-			if (!value.getType().isListType()) {
-				throw new ImplementationError("template eval returns non-list");
-			}
-			IList list = (IList)value.getValue();
-			for (IValue elt: list) {
-				appendToString(elt, result);
-			}
-		}
-
-		return makeResult(tf.stringType(), vf.string(result.toString()), this);
-	}
-
-	@Override
-	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
-			DecimalIntegerLiteral x) {
-		String str = ((org.rascalmpl.ast.DecimalIntegerLiteral.Lexical) x.getDecimal()).getString();
-		return makeResult(tf.integerType(), vf.integer(str), this);
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionQualifiedName(
-			org.rascalmpl.ast.Expression.QualifiedName x) {
-		QualifiedName name = x.getQualifiedName();
-		Result<IValue> variable = getCurrentEnvt().getVariable(name);
-
-		if (variable == null) {
-			throw new UndeclaredVariableError(Names.fullName(name), name);
-		}
-
-		if (variable.getValue() == null) {
-			throw new UninitializedVariableError(Names.fullName(name), name);
-		}
-
-		return variable;
-	}
-
-	@Override
-	public Result<IValue> visitExpressionList(List x) {
-		java.util.List<org.rascalmpl.ast.Expression> elements = x
-		.getElements();
-
-		Type elementType =  tf.voidType();
-		java.util.List<IValue> results = new ArrayList<IValue>();
-
-		// Splicing is true for the complete list; a terrible, terrible hack.
-		boolean splicing = concreteListsShouldBeSpliced;
-		boolean first = true;
-		int skip = 0;
-
-		for (org.rascalmpl.ast.Expression expr : elements) {
-			Result<IValue> resultElem = expr.accept(this);
-			
-			if(resultElem.getType().isVoidType())
-				throw new NonVoidTypeRequired(expr);
-
-			if (skip > 0) {
-				skip--;
-				continue;
-			}
-
-			Type resultType = resultElem.getType();
-			if (splicing && resultType instanceof NonTerminalType) {
-				IConstructor sym = ((NonTerminalType)resultType).getSymbol();
-
-				if (SymbolAdapter.isAnyList(sym)) {
-					IConstructor appl = ((IConstructor)resultElem.getValue());
-					IList listElems = TreeAdapter.getArgs(appl);
-					// Splice elements in list if element types permit this
-
-					if (!listElems.isEmpty()) {
-						for(IValue val : listElems){
-							elementType = elementType.lub(val.getType());
-							results.add(val);
-						}
-					}
-					else {
-						// make sure to remove surrounding sep
-						if (!first) {
-							if (SymbolAdapter.isIterStarSeps(sym)) {
-								for (@SuppressWarnings("unused") IValue sep : SymbolAdapter.getSeparators(sym)) {
-									results.remove(results.size() - 1);
-								}
-							}
-						}
-						else {
-							if (SymbolAdapter.isIterStarSeps(sym)) {
-								skip = SymbolAdapter.getSeparators(sym).length();
-							}
-						}
-					}
-				}
-				else {
-					// Just add it.
-					elementType = elementType.lub(resultElem.getType());
-					results.add(results.size(), resultElem.getValue());
-				}
-			}
-			else {
-				/* = no concrete syntax */ 
-				if(resultElem.getType().isListType() &&
-						!expr.isList() &&
-						elementType.isSubtypeOf(resultElem.getType().getElementType())
-				){
-					/*
-					 * Splice elements in list if element types permit this
-					 */
-					for(IValue val : ((IList) resultElem.getValue())){
-						elementType = elementType.lub(val.getType());
-						results.add(val);
-					}
-				} else {
-					elementType = elementType.lub(resultElem.getType());
-
-					results.add(results.size(), resultElem.getValue());
-				}
-			}
-
-
-			first = false;
-		}
-		Type resultType = tf.listType(elementType);
-		IListWriter w = resultType.writer(vf);
-		w.appendAll(results);
-		// Was: return makeResult(resultType, applyRules(w.done()));
-		return makeResult(resultType, w.done(), this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionSet(Set x) {
-		java.util.List<org.rascalmpl.ast.Expression> elements = x
-		.getElements();
-
-		Type elementType = tf.voidType();
-		java.util.List<IValue> results = new ArrayList<IValue>();
-
-		for (org.rascalmpl.ast.Expression expr : elements) {
-			Result<IValue> resultElem = expr.accept(this);
-			if(resultElem.getType().isVoidType())
-				throw new NonVoidTypeRequired(expr);
-		
-			if(resultElem.getType().isSetType() && !expr.isSet() &&
-					elementType.isSubtypeOf(resultElem.getType().getElementType())){
-				/*
-				 * Splice the elements in the set if element types permit this.
-				 */
-				for(IValue val : ((ISet) resultElem.getValue())){
-					elementType = elementType.lub(val.getType());
-					results.add(val);
-				}
-			} else {
-				elementType = elementType.lub(resultElem.getType());
-				results.add(results.size(), resultElem.getValue());
-			}
-		}
-		Type resultType = tf.setType(elementType);
-		ISetWriter w = resultType.writer(vf);
-		w.insertAll(results);
-		//Was: return makeResult(resultType, applyRules(w.done()));
-		return makeResult(resultType, w.done(), this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionMap(
-			org.rascalmpl.ast.Expression.Map x) {
-
-		java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings = x
-		.getMappings();
-		Map<IValue,IValue> result = new HashMap<IValue,IValue>();
-		Type keyType = tf.voidType();
-		Type valueType = tf.voidType();
-
-		for (org.rascalmpl.ast.Mapping_Expression mapping : mappings) {
-			Result<IValue> keyResult = mapping.getFrom().accept(this);
-			Result<IValue> valueResult = mapping.getTo().accept(this);
-			
-			if(keyResult.getType().isVoidType())
-				throw new NonVoidTypeRequired(mapping.getFrom());
-			
-			if(valueResult.getType().isVoidType())
-				throw new NonVoidTypeRequired(mapping.getTo());
-
-			keyType = keyType.lub(keyResult.getType());
-			valueType = valueType.lub(valueResult.getType());
-			
-			IValue keyValue = result.get(keyResult.getValue());
-			if(keyValue != null){
-				throw RuntimeExceptionFactory.MultipleKey(keyValue, mapping.getFrom(), getStackTrace());
-			}
-
-			result.put(keyResult.getValue(), valueResult.getValue());
-		}
-
-		Type type = tf.mapType(keyType, valueType);
-		IMapWriter w = type.writer(vf);
-		w.putAll(result);
-
-		return makeResult(type, w.done(), this);
-	}
-
-	//	@Override
-	//	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-	//		return new org.meta_environment.rascal.interpreter.result.RascalFunction(x, this, (FunctionType) RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleEmpty()), false, x.getStatements(), getCurrentEnvt());
-	//	}
-
-	@Override
-	public Result<IValue> visitExpressionTuple(Tuple x) {
-		java.util.List<org.rascalmpl.ast.Expression> elements = x
-		.getElements();
-
-		IValue[] values = new IValue[elements.size()];
-		Type[] types = new Type[elements.size()];
-
-		for (int i = 0; i < elements.size(); i++) {
-			Result<IValue> resultElem = elements.get(i).accept(this);
-			types[i] = resultElem.getType();
-			values[i] = resultElem.getValue();
-		}
-
-		//return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
-		return makeResult(tf.tupleType(types), vf.tuple(values), this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionGetAnnotation(
-			org.rascalmpl.ast.Expression.GetAnnotation x) {
-		Result<IValue> base = x.getExpression().accept(this);
-		String annoName = Names.name(x.getName());
-		return base.getAnnotation(annoName, getCurrentEnvt());
-	}
-
-	@Override
-	public Result<IValue> visitExpressionSetAnnotation(
-			org.rascalmpl.ast.Expression.SetAnnotation x) {
-		Result<IValue> base = x.getExpression().accept(this);
-		String annoName = Names.name(x.getName());
-		Result<IValue> anno = x.getValue().accept(this);
-		return base.setAnnotation(annoName, anno, getCurrentEnvt());
-	}
-
-	@Override
-	public Result<IValue> visitExpressionAddition(Addition x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.add(right);
-
-	}
-
-	@Override
-	public Result<IValue> visitExpressionSubtraction(Subtraction x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.subtract(right);
-
-	}
-
-	@Override
-	public Result<IValue> visitExpressionNegative(Negative x) {
-		Result<IValue> arg = x.getArgument().accept(this);
-		return arg.negative();
-	}
-
-	@Override
-	public Result<IValue> visitExpressionProduct(Product x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.multiply(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionJoin(Join x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.join(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionDivision(Division x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.divide(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionModulo(Modulo x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.modulo(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionBracket(Bracket x) {
-		return x.getExpression().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionIntersection(Intersection x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.intersect(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionOr(Or x) {
-		return evalBooleanExpression(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionAnd(And x) {
-		return evalBooleanExpression(x);
-	}
-
-	private Result<IValue> evalBooleanExpression(Expression x) {
-		IBooleanResult mp = makeBooleanResult(x);
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> evalBooleanExpression(org.rascalmpl.ast.Expression x) {
+		org.rascalmpl.interpreter.matching.IBooleanResult mp = this.makeBooleanResult(x);
 		mp.init();
 		while(mp.hasNext()){
-			if (interrupt) throw new InterruptException(getStackTrace());
+			if (this.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(this.getStackTrace());
 			if(mp.next()) {
-				return ResultFactory.bool(true, this);
+				return org.rascalmpl.interpreter.result.ResultFactory.bool(true, this);
 			}
 		}
-		return ResultFactory.bool(false, this);
+		return org.rascalmpl.interpreter.result.ResultFactory.bool(false, this);
 	}
 
-	@Override
-	public Result<IValue> visitExpressionNegation(Negation x) {
-		return evalBooleanExpression(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionImplication(Implication x) {
-		return evalBooleanExpression(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionEquivalence(Equivalence x) {
-		return evalBooleanExpression(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionEquals(
-			org.rascalmpl.ast.Expression.Equals x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.equals(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionGuarded(Guarded x) {
-		Result<IValue> result = x.getPattern().accept(this);
-		Type expected = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getType());
-
-		// TODO: clean up this hack
-		if (expected instanceof NonTerminalType && result.getType().isSubtypeOf(tf.stringType())) {
-			String command = '(' + expected.toString() + ')' + '`' + ((IString) result.getValue()).getValue() + '`';
-			interrupt = false;
-			IConstructor tree = parser.parseCommand(x.getLocation().getURI(), command, new RascalActionExecutor(this, parser.getInfo()));
-
-			tree = (IConstructor) TreeAdapter.getArgs(tree).get(1); // top command expression
-			tree = (IConstructor) TreeAdapter.getArgs(tree).get(0); // typed quoted embedded fragment
-			tree = (IConstructor) TreeAdapter.getArgs(tree).get(8); // wrapped string between `...`
-			return makeResult(expected, tree, this);
-		}
-		if (!result.getType().isSubtypeOf(expected)) {
-			throw new UnexpectedTypeError(expected, result.getType(), x.getPattern());
-		}
-
-		return makeResult(expected, result.getValue(), this);
-	}
-
-	@Override
-	public Result<IValue> visitLiteralLocation(Location x) {
-		return x.getLocationLiteral().accept(this);
-	}
-
-	public org.rascalmpl.interpreter.result.Result<IValue> visitLocationLiteralDefault(org.rascalmpl.ast.LocationLiteral.Default x) {
-		Result<IValue> protocolPart = x.getProtocolPart().accept(this);
-		Result<IValue> pathPart = x.getPathPart().accept(this);
-
-		String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
-
-		try {
-			URI url = new URI(uri);
-			ISourceLocation r = vf.sourceLocation(url);
-			return makeResult(tf.sourceLocationType(), r, this);
-		} catch (URISyntaxException e) {
-			throw RuntimeExceptionFactory.malformedURI(uri, x, getStackTrace());
-		}
-	}
-
-	@Override
-	public Result<IValue> visitProtocolPartNonInterpolated(NonInterpolated x) {
-		return x.getProtocolChars().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitProtocolCharsLexical(
-			org.rascalmpl.ast.ProtocolChars.Lexical x) {
-		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 3)), this);
-	}
-
-	@Override
-	public Result<IValue> visitProtocolPartInterpolated(Interpolated x) {
-		Result<IValue> pre = x.getPre().accept(this);
-		Result<IValue> expr = x.getExpression().accept(this);
-		Result<IValue> tail = x.getTail().accept(this);
-		StringBuilder result = new StringBuilder();
-
-		result.append(((IString) pre.getValue()).getValue());
-		appendToString(expr.getValue(), result);
-		result.append(((IString) tail.getValue()).getValue());
-
-		return makeResult(tf.stringType(), vf.string(result.toString()), this);
-	}
-
-	@Override
-	public Result<IValue> visitProtocolTailMid(
-			org.rascalmpl.ast.ProtocolTail.Mid x) {
-		Result<IValue> pre = x.getMid().accept(this);
-		Result<IValue> expr = x.getExpression().accept(this);
-		Result<IValue> tail = x.getTail().accept(this);
-		StringBuilder result = new StringBuilder();
-
-		result.append(((IString) pre.getValue()).getValue());
-		appendToString(expr.getValue(), result);
-		result.append(((IString) tail.getValue()).getValue());
-
-		return makeResult(tf.stringType(), vf.string(result.toString()), this);
-	}
-
-	@Override
-	public Result<IValue> visitProtocolTailPost(Post x) {
-		return x.getPost().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitPathPartInterpolated(
-			org.rascalmpl.ast.PathPart.Interpolated x) {
-		Result<IValue> pre = x.getPre().accept(this);
-		Result<IValue> expr = x.getExpression().accept(this);
-		Result<IValue> tail = x.getTail().accept(this);
-		StringBuilder result = new StringBuilder();
-
-		result.append(((IString) pre.getValue()).getValue());
-		appendToString(expr.getValue(), result);
-		result.append(((IString) tail.getValue()).getValue());
-
-		return makeResult(tf.stringType(), vf.string(result.toString()), this);
-	}
-
-	@Override
-	public Result<IValue> visitPrePathCharsLexical(
-			org.rascalmpl.ast.PrePathChars.Lexical x) {
-		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(0, str.length() - 1)), this);
-	}
-
-	@Override
-	public Result<IValue> visitPostPathCharsLexical(
-			org.rascalmpl.ast.PostPathChars.Lexical x) {
-		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 1)), this);
-	}
-
-	@Override
-	public Result<IValue> visitPathTailPost(
-			org.rascalmpl.ast.PathTail.Post x) {
-		return x.getPost().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitMidPathCharsLexical(
-			org.rascalmpl.ast.MidPathChars.Lexical x) {
-		String s = x.getString();
-		s = s.substring(1, s.length() - 1);
-		return makeResult(tf.stringType(), vf.string(s), this);
-	}
-	
-	
-	@Override
-	public Result<IValue> visitPathTailMid(Mid x) {
-		Result<IValue> mid = x.getMid().accept(this);
-		Result<IValue> expr = x.getExpression().accept(this);
-		Result<IValue> tail = x.getTail().accept(this);
-		StringBuilder result = new StringBuilder();
-
-		result.append(((IString) mid.getValue()).getValue());
-		appendToString(expr.getValue(), result);
-		result.append(((IString) tail.getValue()).getValue());
-
-		return makeResult(tf.stringType(), vf.string(result.toString()), this);
-	}
-
-	@Override
-	public Result<IValue> visitPathPartNonInterpolated(
-			org.rascalmpl.ast.PathPart.NonInterpolated x) {
-		return x.getPathChars().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitPreProtocolCharsLexical(
-			org.rascalmpl.ast.PreProtocolChars.Lexical x) {
-		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 1)), this);
-	}
-
-	@Override
-	public Result<IValue> visitPostProtocolCharsLexical(
-			org.rascalmpl.ast.PostProtocolChars.Lexical x) {
-		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(1, str.length() - 3)), this);
-	}
-
-	@Override
-	public Result<IValue> visitPathCharsLexical(
-			org.rascalmpl.ast.PathChars.Lexical x) {
-		String str = x.getString();
-		return makeResult(tf.stringType(), vf.string(str.substring(0, str.length() - 1)), this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionClosure(Closure x) {
-		Type formals = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getParameters());
-		Type returnType = evalType(x.getType());
-		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-		return new org.rascalmpl.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(returnType, formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
-					accumulators);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
-		Type formals = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getParameters());
-		RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-		return new org.rascalmpl.interpreter.result.RascalFunction(x, this, (FunctionType) RTF.functionType(tf.voidType(), formals), x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt(),
-					accumulators);
-
-	}
-
-	@Override
-	public Result<IValue> visitExpressionFieldUpdate(FieldUpdate x) {
-		Result<IValue> expr = x.getExpression().accept(this);
-		Result<IValue> repl = x.getReplacement().accept(this);
-		String name = Names.name(x.getKey());
-		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore());
-	}
-
-	@Override
-	public Result<IValue> visitExpressionVisit(Expression.Visit x) {
-		return x.getVisit().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionReifyType(ReifyType x) {
-		Type t = new TypeEvaluator(getCurrentEnvt(), heap).eval(x.getType());
-		return t.accept(new TypeReifier(this, vf));
-	}
-
-	@Override
-	public Result<IValue> visitExpressionRange(Range x) {
-		//IListWriter w = vf.listWriter(tf.integerType());
-		Result<IValue> from = x.getFirst().accept(this);
-		Result<IValue> to = x.getLast().accept(this);
-		return from.makeRange(to);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionStepRange(StepRange x) {
-		Result<IValue> from = x.getFirst().accept(this);
-		Result<IValue> to = x.getLast().accept(this);
-		Result<IValue> second = x.getSecond().accept(this);
-		return from.makeStepRange(to, second);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionTypedVariable(TypedVariable x) {
-		// TODO: should allow qualified names in TypeVariables?!?
-		Result<IValue> result = getCurrentEnvt().getVariable(Names.name(x.getName()));
-
-		if (result != null && result.getValue() != null) {
-			return result;
-		}
-
-		throw new UninitializedVariableError(Names.name(x.getName()), x);
-	}
-	
-	
-	@Override
-	public Result<IValue> visitLiteralDateTime(
-			org.rascalmpl.ast.Literal.DateTime x) {
-		return x.getDateTimeLiteral().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDateTimeLiteralDateAndTimeLiteral(
-			DateAndTimeLiteral x) {
-		return x.getDateAndTime().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDateTimeLiteralDateLiteral(DateLiteral x) {
-		return x.getDate().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDateTimeLiteralTimeLiteral(TimeLiteral x) {
-		return x.getTime().accept(this);
-	}
-
-	@Override
-	public Result<IValue> visitDateAndTimeLexical(
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> createVisitedDateTime(java.lang.String datePart, java.lang.String timePart,
 			org.rascalmpl.ast.DateAndTime.Lexical x) {
-		// Split into date and time components; of the form $<date>T<time>
-		String dtPart = x.getString().substring(1); 
-		String datePart = dtPart.substring(0,dtPart.indexOf("T"));
-		String timePart = dtPart.substring(dtPart.indexOf("T")+1);
-		
-		return createVisitedDateTime(datePart, timePart, x);
-		
-	}
-
-	private Result<IValue> createVisitedDateTime(String datePart, String timePart,
-			org.rascalmpl.ast.DateAndTime.Lexical x) {
-		String isoDate = datePart;
+		java.lang.String isoDate = datePart;
 		if (-1 == datePart.indexOf("-")) {
 			isoDate = datePart.substring(0,4) + "-" + datePart.substring(4,6) + "-" + 
 			          datePart.substring(6);
 		}
-		String isoTime = timePart;
+		java.lang.String isoTime = timePart;
 		if (-1 == timePart.indexOf(":")) {			
 			isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2,4) + ":" +
 					  timePart.substring(4);
 		}
-		String isoDateTime = isoDate + "T" + isoTime;
+		java.lang.String isoDateTime = isoDate + "T" + isoTime;
 		try {
-			DateTime dateAndTime = ISODateTimeFormat.dateTimeParser().parseDateTime(isoDateTime);
+			org.joda.time.DateTime dateAndTime = org.joda.time.format.ISODateTimeFormat.dateTimeParser().parseDateTime(isoDateTime);
 			int hourOffset = dateAndTime.getZone().getOffset(dateAndTime.getMillis())/3600000;
 			int minuteOffset = (dateAndTime.getZone().getOffset(dateAndTime.getMillis())/60000) % 60;		
-			return ResultFactory.makeResult(tf.dateTimeType(),
-					vf.datetime(dateAndTime.getYear(), dateAndTime.getMonthOfYear(), 
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().dateTimeType(),
+					this.__getVf().datetime(dateAndTime.getYear(), dateAndTime.getMonthOfYear(), 
 							dateAndTime.getDayOfMonth(), dateAndTime.getHourOfDay(), 
 							dateAndTime.getMinuteOfHour(), dateAndTime.getSecondOfMinute(),
 							dateAndTime.getMillisOfSecond(), hourOffset, minuteOffset), this);
-		} catch (IllegalArgumentException iae) {
-			throw new DateTimeParseError("$" + datePart + "T" + timePart, x.getLocation());
+		} catch (java.lang.IllegalArgumentException iae) {
+			throw new org.rascalmpl.interpreter.staticErrors.DateTimeParseError("$" + datePart + "T" + timePart, x.getLocation());
 		}
 	}
 
-	@Override
-	public Result<IValue> visitJustDateLexical(
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> createVisitedDate(java.lang.String datePart,
 			org.rascalmpl.ast.JustDate.Lexical x) {
-		// Date is of the form $<date>
-		String datePart = x.getString().substring(1); 
-		return createVisitedDate(datePart,x); 
-	}
-
-	private Result<IValue> createVisitedDate(String datePart,
-			org.rascalmpl.ast.JustDate.Lexical x) {
-		String isoDate = datePart;
+		java.lang.String isoDate = datePart;
 		if (-1 == datePart.indexOf("-")) {
 			isoDate = datePart.substring(0,4) + "-" + datePart.substring(4,6) + "-" + 
 			          datePart.substring(6);
 		}
 		try {
-			DateTime justDate = ISODateTimeFormat.dateParser().parseDateTime(isoDate);
-			return ResultFactory.makeResult(tf.dateTimeType(),
-					vf.date(justDate.getYear(), justDate.getMonthOfYear(), 
+			org.joda.time.DateTime justDate = org.joda.time.format.ISODateTimeFormat.dateParser().parseDateTime(isoDate);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().dateTimeType(),
+					this.__getVf().date(justDate.getYear(), justDate.getMonthOfYear(), 
 							justDate.getDayOfMonth()), this);
-		} catch (IllegalArgumentException iae) {
-			throw new DateTimeParseError("$" + datePart, x.getLocation());
+		} catch (java.lang.IllegalArgumentException iae) {
+			throw new org.rascalmpl.interpreter.staticErrors.DateTimeParseError("$" + datePart, x.getLocation());
 		}			
 	}
 
-	@Override
-	public Result<IValue> visitJustTimeLexical(
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> createVisitedTime(java.lang.String timePart,
 			org.rascalmpl.ast.JustTime.Lexical x) {
-		// Time is of the form $T<time>
-		String timePart = x.getString().substring(2); 
-		return createVisitedTime(timePart,x);
-	}
-
-	private Result<IValue> createVisitedTime(String timePart,
-			org.rascalmpl.ast.JustTime.Lexical x) {
-		String isoTime = timePart;
+		java.lang.String isoTime = timePart;
 		if (-1 == timePart.indexOf(":")) {			
 			isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2,4) + ":" +
 					  timePart.substring(4);
 		}
 		try {
-			DateTime justTime = ISODateTimeFormat.timeParser().parseDateTime(isoTime);
+			org.joda.time.DateTime justTime = org.joda.time.format.ISODateTimeFormat.timeParser().parseDateTime(isoTime);
 			int hourOffset = justTime.getZone().getOffset(justTime.getMillis())/3600000;
 			int minuteOffset = (justTime.getZone().getOffset(justTime.getMillis())/60000) % 60;		
-			return ResultFactory.makeResult(tf.dateTimeType(),
-					vf.time(justTime.getHourOfDay(), justTime.getMinuteOfHour(), justTime.getSecondOfMinute(),
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().dateTimeType(),
+					this.__getVf().time(justTime.getHourOfDay(), justTime.getMinuteOfHour(), justTime.getSecondOfMinute(),
 							justTime.getMillisOfSecond(), hourOffset, minuteOffset), this);
-		} catch (IllegalArgumentException iae) {
-			throw new DateTimeParseError("$T" + timePart, x.getLocation());
+		} catch (java.lang.IllegalArgumentException iae) {
+			throw new org.rascalmpl.interpreter.staticErrors.DateTimeParseError("$T" + timePart, x.getLocation());
 		}						
 	}
 
 
-	boolean matchAndEval(Result<IValue> subject, org.rascalmpl.ast.Expression pat, Statement stat){
+	public boolean matchAndEval(org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject, org.rascalmpl.ast.Expression pat, org.rascalmpl.ast.Statement stat){
 		boolean debug = false;
-		Environment old = getCurrentEnvt();
-		pushEnv();
+		org.rascalmpl.interpreter.env.Environment old = this.getCurrentEnvt();
+		this.pushEnv();
 
 		try {
-			IMatchingResult mp = pat.accept(patternEvaluator);
+			org.rascalmpl.interpreter.matching.IMatchingResult mp = pat.__evaluate((org.rascalmpl.interpreter.PatternEvaluator)this.__getPatternEvaluator());
 			mp.initMatch(subject);
 			if(debug)System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
-				pushEnv();
-				if (interrupt) throw new InterruptException(getStackTrace());
+				this.pushEnv();
+				if (this.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(this.getStackTrace());
 				if(debug)System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
 					if(debug)System.err.println("matchAndEval: mp.next()==true");
 					try {
-						checkPoint(getCurrentEnvt());
+						this.checkPoint(this.getCurrentEnvt());
 						if(debug)System.err.println(stat.toString());
 						try {
-							stat.accept(this);
+							stat.__evaluate(this);
 						} catch (org.rascalmpl.interpreter.control_exceptions.Insert e){
 							// Make sure that the match pattern is set
 							if(e.getMatchPattern() == null) {
@@ -3095,613 +1422,322 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							}
 							throw e;
 						}
-						commit(getCurrentEnvt());
+						this.commit(this.getCurrentEnvt());
 						return true;
-					} catch (Failure e){
+					} catch (org.rascalmpl.interpreter.control_exceptions.Failure e){
 						if(debug) System.err.println("failure occurred");
-						rollback(getCurrentEnvt());
+						this.rollback(this.getCurrentEnvt());
 //						 unwind(old); // can not clean up because you don't know how far to roll back
 					}
 				}
 			}
 		} finally {
 			if(debug)System.err.println("Unwind to old env");
-			unwind(old);
+			this.unwind(old);
 		}
 		return false;
 	}
 
-	boolean matchEvalAndReplace(Result<IValue> subject, 
+	boolean matchEvalAndReplace(org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject, 
 			org.rascalmpl.ast.Expression pat, 
-			java.util.List<Expression> conditions,
-			Expression replacementExpr){
-		Environment old = getCurrentEnvt();
+			java.util.List<org.rascalmpl.ast.Expression> conditions,
+			org.rascalmpl.ast.Expression replacementExpr){
+		org.rascalmpl.interpreter.env.Environment old = this.getCurrentEnvt();
 		try {
-			IMatchingResult mp = pat.accept(patternEvaluator);
+			org.rascalmpl.interpreter.matching.IMatchingResult mp = pat.__evaluate((org.rascalmpl.interpreter.PatternEvaluator)this.__getPatternEvaluator());
 			mp.initMatch(subject);
 
 			while (mp.hasNext()){
-				if (interrupt) throw new InterruptException(getStackTrace());
+				if (this.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(this.getStackTrace());
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
-						for(Expression cond : conditions){
-							if(!cond.accept(this).isTrue()){
+						for(org.rascalmpl.ast.Expression cond : conditions){
+							if(!cond.__evaluate(this).isTrue()){
 								trueConditions = false;
 								break;
 							}
 						}
 						if(trueConditions){
-							throw new org.rascalmpl.interpreter.control_exceptions.Insert(replacementExpr.accept(this), mp);		
+							throw new org.rascalmpl.interpreter.control_exceptions.Insert(replacementExpr.__evaluate(this), mp);		
 						}
-					} catch (Failure e){
+					} catch (org.rascalmpl.interpreter.control_exceptions.Failure e){
 						System.err.println("failure occurred");
 					}
 				}
 			}
 		} finally {
-			unwind(old);
+			this.unwind(old);
 		}
 		return false;
 	}
 
-	@Override
-	public Result<IValue> visitStatementSwitch(Switch x) {
-		Result<IValue> subject = x.getExpression().accept(this);
-
-		for(Case cs : x.getCases()){
-			if(cs.isDefault()){
-				// TODO: what if the default statement uses a fail statement?
-				return cs.getStatement().accept(this);
-			}
-			org.rascalmpl.ast.PatternWithAction rule = cs.getPatternWithAction();
-			if(rule.isArbitrary() && matchAndEval(subject, rule.getPattern(), rule.getStatement())){
-				return ResultFactory.nothing();
-				/*
-			} else if(rule.isGuarded())	{
-				org.meta_environment.rascal.ast.Type tp = rule.getType();
-				Type t = evalType(tp);
-				if(subject.getType().isSubtypeOf(t) && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
-					return ResultFactory.nothing();
-				}
-				 */
-			} else if(rule.isReplacing()){
-				throw new NotYetImplemented(rule);
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public Result<IValue> visitVisitDefaultStrategy(DefaultStrategy x) {
-
-		Result<IValue> subject = x.getSubject().accept(this);
-		java.util.List<Case> cases = x.getCases();
-		TraversalEvaluator te = new TraversalEvaluator(this);
-
-		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), 
-				DIRECTION.BottomUp,
-				PROGRESS.Continuing,
-				FIXEDPOINT.No);
-		Type t = tr.value.getType();
-		IValue val = tr.value;
-		TraverseResultFactory.freeTraverseResult(tr);
-		return makeResult(t, val, this);
-	}
-
-	@Override
-	public Result<IValue> visitVisitGivenStrategy(GivenStrategy x) {
-		Result<IValue> subject = x.getSubject().accept(this);
-
-		// TODO: warning switched to static type here, but not sure if that's correct...
-		Type subjectType = subject.getType();
-
-		if(subjectType.isConstructorType()){
-			subjectType = subjectType.getAbstractDataType();
-		}
-
-		java.util.List<Case> cases = x.getCases();
-		Strategy s = x.getStrategy();
-
-		DIRECTION direction = DIRECTION.BottomUp;
-		PROGRESS progress = PROGRESS.Continuing;
-		FIXEDPOINT fixedpoint = FIXEDPOINT.No;
-
-		if(s.isBottomUp()){
-			direction = DIRECTION.BottomUp;
-		} else if(s.isBottomUpBreak()){
-			direction = DIRECTION.BottomUp;
-			progress = PROGRESS.Breaking;
-		} else if(s.isInnermost()){
-			direction = DIRECTION.BottomUp;
-			fixedpoint = FIXEDPOINT.Yes;
-		} else if(s.isTopDown()){
-			direction = DIRECTION.TopDown;
-		} else if(s.isTopDownBreak()){
-			direction = DIRECTION.TopDown;
-			progress = PROGRESS.Breaking;
-		} else if(s.isOutermost()){
-			direction = DIRECTION.TopDown;
-			fixedpoint = FIXEDPOINT.Yes;
-		} else {
-			throw new ImplementationError("Unknown strategy " + s);
-		}
-
-		TraversalEvaluator te = new TraversalEvaluator(this);
-		TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), direction, progress, fixedpoint);
-		Type t = tr.value.getType();
-		IValue val = tr.value;
-		TraverseResultFactory.freeTraverseResult(tr);
-		return makeResult(t, val, this);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionNonEquals(
-			org.rascalmpl.ast.Expression.NonEquals x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.nonEquals(right);
-	}
-
-
-	@Override
-	public Result<IValue> visitExpressionLessThan(LessThan x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.lessThan(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionLessThanOrEq(LessThanOrEq x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.lessThanOrEqual(right);
-	}
-	@Override
-	public Result<IValue> visitExpressionGreaterThan(GreaterThan x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.greaterThan(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.greaterThanOrEqual(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionIfThenElse(
-			org.rascalmpl.ast.Expression.IfThenElse x) {
-		
-		Environment old = getCurrentEnvt();
-		pushEnv();
-
-		try {
-			Result<IValue> cval = x.getCondition().accept(this);
-	
-			if (!cval.getType().isBoolType()) {
-				throw new UnexpectedTypeError(tf.boolType(), cval.getType(), x);
-			}
-	
-			if (cval.isTrue()) {
-				return x.getThenExp().accept(this);
-			}
-	
-			return x.getElseExp().accept(this);	
-		} finally {
-			unwind(old);
-		}
-	}
-
-
-	@Override
-	public Result<IValue> visitExpressionIfDefinedOtherwise(IfDefinedOtherwise x) {
-		try {
-			return x.getLhs().accept(this);
-		}
-		catch (UninitializedVariableError e){
-			return x.getRhs().accept(this);
-		}
-		catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
-			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
-			return x.getRhs().accept(this);
-		}
-	}
-
-
-	@Override
-	public Result<IValue> visitExpressionIsDefined(IsDefined x) {
-		try {
-			x.getArgument().accept(this); // wait for exception
-			return makeResult(tf.boolType(), vf.bool(true), this);
-
-		} catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
-			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
-			return makeResult(tf.boolType(), vf.bool(false), this);
-		}
-	}
-
-
-	@Override
-	public Result<IValue> visitExpressionIn(In x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return right.in(left);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionNotIn(NotIn x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return right.notIn(left);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionComposition(Composition x) {
-		Result<IValue> left = x.getLhs().accept(this);
-		Result<IValue> right = x.getRhs().accept(this);
-		return left.compose(right);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionTransitiveClosure(TransitiveClosure x) {
-		return x.getArgument().accept(this).transitiveClosure();
-	}
-
-	@Override
-	public Result<IValue> visitExpressionTransitiveReflexiveClosure(TransitiveReflexiveClosure x) {
-		return x.getArgument().accept(this).transitiveReflexiveClosure();
-	}
-
-	@Override
-	public Result<IValue> visitExpressionMultiVariable(MultiVariable x) {
-		Name name = x.getName();
-		Result<IValue> variable = getCurrentEnvt().getVariable(name);
-
-		if (variable == null) {
-			throw new UndeclaredVariableError(Names.name(name), name);
-		}
-
-		if (variable.getValue() == null) {
-			throw new UninitializedVariableError(Names.name(name), name);
-		}
-
-		return variable;
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionAnti(Anti x) {
-		// TODO: what would be the value of an anti expression???
-		return ResultFactory.nothing();
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionDescendant(Descendant x) {
-		// TODO: what would be the value of a descendant pattern???
-		return ResultFactory.nothing();
-
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionTypedVariableBecomes(
-			TypedVariableBecomes x) {
-		return x.getPattern().accept(this);
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionVariableBecomes(VariableBecomes x) {
-		return x.getPattern().accept(this);
-	}
-	
-	// Comprehensions ----------------------------------------------------
-
-	@Override
-	public Result<IValue> visitExpressionComprehension(Comprehension x) {
-		return x.getComprehension().accept(this);	
-	}
-
-	@Override
-	public Result<IValue> visitExpressionEnumerator(
-			org.rascalmpl.ast.Expression.Enumerator x) {
-		Environment old = getCurrentEnvt();
-		try {
-			IBooleanResult gen = makeBooleanResult(x);
-			gen.init();
-			pushEnv();
-			if(gen.hasNext() && gen.next()) {
-				return bool(true, this);
-			}
-			return bool(false, this);
-		} finally {
-			unwind(old);
-		}
-	}
-
-	/*
-	 * ComprehensionWriter provides a uniform framework for writing elements
-	 * to a list/set/map during the evaluation of a list/set/map comprehension.
-	 */
-
 	private abstract class ComprehensionWriter {
-		protected Type elementType1;
-		protected Type elementType2;
-		protected Type resultType;
+		protected org.eclipse.imp.pdb.facts.type.Type elementType1;
+		protected org.eclipse.imp.pdb.facts.type.Type elementType2;
+		protected org.eclipse.imp.pdb.facts.type.Type resultType;
 		protected java.util.List<org.rascalmpl.ast.Expression> resultExprs;
-		protected IWriter writer;
-		protected Evaluator ev;
+		protected org.eclipse.imp.pdb.facts.IWriter writer;
+		protected org.rascalmpl.interpreter.Evaluator ev;
 
 		ComprehensionWriter(
 				java.util.List<org.rascalmpl.ast.Expression> resultExprs,
-				Evaluator ev){
+				org.rascalmpl.interpreter.Evaluator ev){
 			this.ev = ev;
 			this.resultExprs = resultExprs;
 			this.writer = null;
 		}
 
-		public void check(Result<IValue> r, Type t, String kind, org.rascalmpl.ast.Expression expr){
+		public void check(org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r, org.eclipse.imp.pdb.facts.type.Type t, java.lang.String kind, org.rascalmpl.ast.Expression expr){
 			if(!r.getType().isSubtypeOf(t)){
-				throw new UnexpectedTypeError(t, r.getType() ,
+				throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(t, r.getType() ,
 						expr);
 			}
 		}
 
-		public IEvaluatorContext getContext(AbstractAST ast) {
-			setCurrentAST(ast);
+		public org.rascalmpl.interpreter.IEvaluatorContext getContext(org.rascalmpl.ast.AbstractAST ast) {
+			Evaluator.this.setCurrentAST(ast);
 			return Evaluator.this;
 		}
 
 		public abstract void append();
 
 
-		public abstract Result<IValue> done();
+		public abstract org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> done();
 	}
 
-	private class ListComprehensionWriter extends
-	ComprehensionWriter {
+	public class ListComprehensionWriter extends
+	org.rascalmpl.interpreter.Evaluator.ComprehensionWriter {
 
 		private boolean splicing[];
-		private Result<IValue> rawElements[];
+		private org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> rawElements[];
 		
 		@SuppressWarnings("unchecked")
+		public
 		ListComprehensionWriter(
 				java.util.List<org.rascalmpl.ast.Expression> resultExprs,
-				Evaluator ev) {
+				org.rascalmpl.interpreter.Evaluator ev) {
 			super(resultExprs, ev);
-			splicing = new boolean[resultExprs.size()];
-			rawElements = new Result[resultExprs.size()];
+			this.splicing = new boolean[resultExprs.size()];
+			this.rawElements = new org.rascalmpl.interpreter.result.Result[resultExprs.size()];
 		}
 
 		@Override
 		public void append() {
 			// the first time we need to find out the type of the elements first, and whether or not to splice them, and evaluate them
-			if(writer == null) {
+			if(this.writer == null) {
 				int k = 0;
-				elementType1 = tf.voidType();
+				this.elementType1 = org.rascalmpl.interpreter.Evaluator.__getTf().voidType();
 				
-				for(Expression resExpr : resultExprs){
-					rawElements[k] = resExpr.accept(ev);
-					Type elementType = rawElements[k].getType();
+				for(org.rascalmpl.ast.Expression resExpr : this.resultExprs){
+					this.rawElements[k] = resExpr.__evaluate(this.ev);
+					org.eclipse.imp.pdb.facts.type.Type elementType = this.rawElements[k].getType();
 					
 					if (elementType.isListType() && !resExpr.isList()){
 						elementType = elementType.getElementType();
-						splicing[k] = true;
+						this.splicing[k] = true;
 					} 
 					else {
-						splicing[k] = false;
+						this.splicing[k] = false;
 					}
-					elementType1 = elementType1.lub(elementType);
+					this.elementType1 = this.elementType1.lub(elementType);
 					k++;
 				}
 				
-				resultType = tf.listType(elementType1);		
-				writer = resultType.writer(vf);
+				this.resultType = org.rascalmpl.interpreter.Evaluator.__getTf().listType(this.elementType1);		
+				this.writer = this.resultType.writer(Evaluator.this.__getVf());
 			}
 			// the second time we only need to evaluate and add the elements
 			else {
 				int k = 0;
-				for (Expression resExpr : resultExprs) {
-					rawElements[k++] = resExpr.accept(ev);
+				for (org.rascalmpl.ast.Expression resExpr : this.resultExprs) {
+					this.rawElements[k++] = resExpr.__evaluate(this.ev);
 				}
 			}
 			
 			// here we finally add the elements
 			int k = 0;
-			for (Expression resExpr : resultExprs) {
-				if(splicing[k]){
+			for (org.rascalmpl.ast.Expression resExpr : this.resultExprs) {
+				if(this.splicing[k]){
 					/*
 					 * Splice elements of the value of the result expression in the result list
 					 */
-					if (!rawElements[k].getType().getElementType().isSubtypeOf(elementType1)) {
-						throw new UnexpectedTypeError(elementType1, rawElements[k].getType().getElementType(), resExpr);
+					if (!this.rawElements[k].getType().getElementType().isSubtypeOf(this.elementType1)) {
+						throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(this.elementType1, this.rawElements[k].getType().getElementType(), resExpr);
 					}
 					
-					for(IValue val : ((IList) rawElements[k].getValue())){
-						((IListWriter) writer).append(val);
+					for(org.eclipse.imp.pdb.facts.IValue val : ((org.eclipse.imp.pdb.facts.IList) this.rawElements[k].getValue())){
+						((org.eclipse.imp.pdb.facts.IListWriter) this.writer).append(val);
 					}
 				} else {
-					check(rawElements[k], elementType1, "list", resExpr);
-					((IListWriter) writer).append(rawElements[k].getValue());
+					this.check(this.rawElements[k], this.elementType1, "list", resExpr);
+					((org.eclipse.imp.pdb.facts.IListWriter) this.writer).append(this.rawElements[k].getValue());
 				}
 				k++;
 			}
 		}
 
 		@Override
-		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.listType(tf.voidType()), vf.list(), getContext(resultExprs.get(0))) : 
-				makeResult(tf.listType(elementType1), writer.done(), getContext(resultExprs.get(0)));
+		public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> done() {
+			return (this.writer == null) ? org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().listType(org.rascalmpl.interpreter.Evaluator.__getTf().voidType()), Evaluator.this.__getVf().list(), this.getContext(this.resultExprs.get(0))) : 
+				org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().listType(this.elementType1), this.writer.done(), this.getContext(this.resultExprs.get(0)));
 		}
 	}
 
-	private class SetComprehensionWriter extends
-	ComprehensionWriter {
+	public class SetComprehensionWriter extends
+	org.rascalmpl.interpreter.Evaluator.ComprehensionWriter {
 		private boolean splicing[];
-		private Result<IValue> rawElements[];
+		private org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> rawElements[];
 		
 		@SuppressWarnings("unchecked")
+		public
 		SetComprehensionWriter(
 				java.util.List<org.rascalmpl.ast.Expression> resultExprs,
-				Evaluator ev) {
+				org.rascalmpl.interpreter.Evaluator ev) {
 			super(resultExprs, ev);
-			splicing = new boolean[resultExprs.size()];
-			rawElements = new Result[resultExprs.size()];
+			this.splicing = new boolean[resultExprs.size()];
+			this.rawElements = new org.rascalmpl.interpreter.result.Result[resultExprs.size()];
 		}
 
 		@Override
 		public void append() {
 			// the first time we need to find out the type of the elements first, and whether or not to splice them, and evaluate them
-			if(writer == null) {
+			if(this.writer == null) {
 				int k = 0;
-				elementType1 = tf.voidType();
+				this.elementType1 = org.rascalmpl.interpreter.Evaluator.__getTf().voidType();
 				
-				for(Expression resExpr : resultExprs){
-					rawElements[k] = resExpr.accept(ev);
-					Type elementType = rawElements[k].getType();
+				for(org.rascalmpl.ast.Expression resExpr : this.resultExprs){
+					this.rawElements[k] = resExpr.__evaluate(this.ev);
+					org.eclipse.imp.pdb.facts.type.Type elementType = this.rawElements[k].getType();
 				
 					if (elementType.isSetType() && !resExpr.isSet()){
 						elementType = elementType.getElementType();
-						splicing[k] = true;
+						this.splicing[k] = true;
 					} 
 					else {
-						splicing[k] = false;
+						this.splicing[k] = false;
 					}
-					elementType1 = elementType1.lub(elementType);
+					this.elementType1 = this.elementType1.lub(elementType);
 					k++;
 				}
 				
-				resultType = tf.setType(elementType1);		
-				writer = resultType.writer(vf);
+				this.resultType = org.rascalmpl.interpreter.Evaluator.__getTf().setType(this.elementType1);		
+				this.writer = this.resultType.writer(Evaluator.this.__getVf());
 			}
 			// the second time we only need to evaluate and add the elements
 			else {
 				int k = 0;
-				for (Expression resExpr : resultExprs) {
-					rawElements[k++] = resExpr.accept(ev);
+				for (org.rascalmpl.ast.Expression resExpr : this.resultExprs) {
+					this.rawElements[k++] = resExpr.__evaluate(this.ev);
 				}
 			}
 			
 			// here we finally add the elements
 			int k = 0;
-			for (Expression resExpr : resultExprs) {
-				if(splicing[k]){
+			for (org.rascalmpl.ast.Expression resExpr : this.resultExprs) {
+				if(this.splicing[k]){
 					/*
 					 * Splice elements of the value of the result expression in the result list
 					 */
-					if (!rawElements[k].getType().getElementType().isSubtypeOf(elementType1)) {
-						throw new UnexpectedTypeError(elementType1, rawElements[k].getType().getElementType(), resExpr);
+					if (!this.rawElements[k].getType().getElementType().isSubtypeOf(this.elementType1)) {
+						throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(this.elementType1, this.rawElements[k].getType().getElementType(), resExpr);
 					}
 					
-					for(IValue val : ((ISet) rawElements[k].getValue())){
-						((ISetWriter) writer).insert(val);
+					for(org.eclipse.imp.pdb.facts.IValue val : ((org.eclipse.imp.pdb.facts.ISet) this.rawElements[k].getValue())){
+						((org.eclipse.imp.pdb.facts.ISetWriter) this.writer).insert(val);
 					}
 				} else {
-					check(rawElements[k], elementType1, "list", resExpr);
-					((ISetWriter) writer).insert(rawElements[k].getValue());
+					this.check(this.rawElements[k], this.elementType1, "list", resExpr);
+					((org.eclipse.imp.pdb.facts.ISetWriter) this.writer).insert(this.rawElements[k].getValue());
 				}
 				k++;
 			}
 		}
 
 		@Override
-		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set(), getContext(resultExprs.get(0))) : 
-				makeResult(tf.setType(elementType1), writer.done(), getContext(resultExprs.get(0)));
+		public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> done() {
+			return (this.writer == null) ? org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().setType(org.rascalmpl.interpreter.Evaluator.__getTf().voidType()), Evaluator.this.__getVf().set(), this.getContext(this.resultExprs.get(0))) : 
+				org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().setType(this.elementType1), this.writer.done(), this.getContext(this.resultExprs.get(0)));
 		}
 	}
 
-	private class MapComprehensionWriter extends
-	ComprehensionWriter {
+	public class MapComprehensionWriter extends
+	org.rascalmpl.interpreter.Evaluator.ComprehensionWriter {
 
-		MapComprehensionWriter(
+		public MapComprehensionWriter(
 				java.util.List<org.rascalmpl.ast.Expression> resultExprs,
-				Evaluator ev) {
+				org.rascalmpl.interpreter.Evaluator ev) {
 			super(resultExprs, ev);
 			if(resultExprs.size() != 2)
-				throw new ImplementationError("Map comprehensions needs two result expressions");
+				throw new org.rascalmpl.interpreter.asserts.ImplementationError("Map comprehensions needs two result expressions");
 		}
 
 		@Override
 		public void append() {
-			Result<IValue> r1 = resultExprs.get(0).accept(ev);
-			Result<IValue> r2 = resultExprs.get(1).accept(ev);
-			if (writer == null) {
-				elementType1 = r1.getType();
-				elementType2 = r2.getType();
-				resultType = tf.mapType(elementType1, elementType2);
-				writer = resultType.writer(vf);
+			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r1 = this.resultExprs.get(0).__evaluate(this.ev);
+			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r2 = this.resultExprs.get(1).__evaluate(this.ev);
+			if (this.writer == null) {
+				this.elementType1 = r1.getType();
+				this.elementType2 = r2.getType();
+				this.resultType = org.rascalmpl.interpreter.Evaluator.__getTf().mapType(this.elementType1, this.elementType2);
+				this.writer = this.resultType.writer(Evaluator.this.__getVf());
 			}
-			check(r1, elementType1, "map", resultExprs.get(0));
-			check(r2, elementType2, "map", resultExprs.get(1));
-			((IMapWriter) writer).put(r1.getValue(), r2.getValue());
+			this.check(r1, this.elementType1, "map", this.resultExprs.get(0));
+			this.check(r2, this.elementType2, "map", this.resultExprs.get(1));
+			((org.eclipse.imp.pdb.facts.IMapWriter) this.writer).put(r1.getValue(), r2.getValue());
 		}
 
 		@Override
-		public Result<IValue> done() {
-			return (writer == null) ? 
-					makeResult(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(), tf.voidType()), getContext(resultExprs.get(0)))
-					: makeResult(tf.mapType(elementType1, elementType2), writer.done(), getContext(resultExprs.get(0)));
+		public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> done() {
+			return (this.writer == null) ? 
+					org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().mapType(org.rascalmpl.interpreter.Evaluator.__getTf().voidType(), org.rascalmpl.interpreter.Evaluator.__getTf().voidType()), Evaluator.this.__getVf().map(org.rascalmpl.interpreter.Evaluator.__getTf().voidType(), org.rascalmpl.interpreter.Evaluator.__getTf().voidType()), this.getContext(this.resultExprs.get(0)))
+					: org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().mapType(this.elementType1, this.elementType2), this.writer.done(), this.getContext(this.resultExprs.get(0)));
 		}
 	}
 
 
-	public static final Name IT = ASTFactoryFactory.getASTFactory().makeNameLexical(null, "<it>");
-	private ParserGenerator parserGenerator;
+	public static final org.rascalmpl.ast.Name IT = org.rascalmpl.ast.ASTFactoryFactory.getASTFactory().makeNameLexical(null, "<it>");
+	private org.rascalmpl.parser.ParserGenerator parserGenerator;
 	
-	@Override
-	public Result<IValue> visitExpressionIt(It x) {
-		Result<IValue> v = getCurrentEnvt().getVariable(IT);
-		if (v == null) {
-			throw new ItOutsideOfReducer(x);
-		}
-		return v;
-	}
-	
-	@Override
-	public Result<IValue> visitExpressionReducer(Reducer x) {
-		return evalReducer(x.getInit(), x.getResult(), x.getGenerators());
-	}
-	
-	public Result<IValue> evalReducer(Expression init, Expression result, java.util.List<Expression> generators) {
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> evalReducer(org.rascalmpl.ast.Expression init, org.rascalmpl.ast.Expression result, java.util.List<org.rascalmpl.ast.Expression> generators) {
 		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = getCurrentEnvt();
+		org.rascalmpl.interpreter.matching.IBooleanResult[] gens = new org.rascalmpl.interpreter.matching.IBooleanResult[size];
+		org.rascalmpl.interpreter.env.Environment[] olds = new org.rascalmpl.interpreter.env.Environment[size];
+		org.rascalmpl.interpreter.env.Environment old = this.getCurrentEnvt();
 		int i = 0;
 		
-		Result<IValue> it = init.accept(this);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> it = init.__evaluate(this);
 
 		try {
-			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0] = this.makeBooleanResult(generators.get(0));
 			gens[0].init();
-			olds[0] = getCurrentEnvt();
-			pushEnv();
+			olds[0] = this.getCurrentEnvt();
+			this.pushEnv();
 
 			while (i >= 0 && i < size) {
-				if (interrupt) throw new InterruptException(getStackTrace());
+				if (this.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(this.getStackTrace());
 				if (gens[i].hasNext() && gens[i].next()) {
 					if(i == size - 1){
-						getCurrentEnvt().storeVariable(IT, it);
-						it = result.accept(this);
-						unwind(olds[i]);
-						pushEnv();
+						this.getCurrentEnvt().storeVariable(Evaluator.IT, it);
+						it = result.__evaluate(this);
+						this.unwind(olds[i]);
+						this.pushEnv();
 					} 
 					else {
 						i++;
-						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i] = this.makeBooleanResult(generators.get(i));
 						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						pushEnv();
+						olds[i] = this.getCurrentEnvt();
+						this.pushEnv();
 					}
 				} else {
-					unwind(olds[i]);
+					this.unwind(olds[i]);
 					i--;
 				}
 			}
 		}
 		finally {
-			unwind(old);
+			this.unwind(old);
 		}
 		return it;
 	
@@ -3711,296 +1747,56 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * The common comprehension evaluator
 	 */
 
-	private Result<IValue> evalComprehension(java.util.List<Expression> generators, 
-			ComprehensionWriter w){
+	public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> evalComprehension(java.util.List<org.rascalmpl.ast.Expression> generators, 
+			org.rascalmpl.interpreter.Evaluator.ComprehensionWriter w){
 		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = getCurrentEnvt();
+		org.rascalmpl.interpreter.matching.IBooleanResult[] gens = new org.rascalmpl.interpreter.matching.IBooleanResult[size];
+		org.rascalmpl.interpreter.env.Environment[] olds = new org.rascalmpl.interpreter.env.Environment[size];
+		org.rascalmpl.interpreter.env.Environment old = this.getCurrentEnvt();
 		int i = 0;
 
 		try {
-			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0] = this.makeBooleanResult(generators.get(0));
 			gens[0].init();
-			olds[0] = getCurrentEnvt();
-			pushEnv();
+			olds[0] = this.getCurrentEnvt();
+			this.pushEnv();
 
 			while (i >= 0 && i < size) {
-				if (interrupt) throw new InterruptException(getStackTrace());
+				if (this.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(this.getStackTrace());
 				if (gens[i].hasNext() && gens[i].next()) {
 					if(i == size - 1){
 						w.append();
-						unwind(olds[i]);
-						pushEnv();
+						this.unwind(olds[i]);
+						this.pushEnv();
 					} 
 					else {
 						i++;
-						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i] = this.makeBooleanResult(generators.get(i));
 						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						pushEnv();
+						olds[i] = this.getCurrentEnvt();
+						this.pushEnv();
 					}
 				} else {
-					unwind(olds[i]);
+					this.unwind(olds[i]);
 					i--;
 				}
 			}
 		}
 		finally {
-			unwind(old);
+			this.unwind(old);
 		}
 		return w.done();
 	}
 
-	@Override
-	public Result<IValue> visitComprehensionList(org.rascalmpl.ast.Comprehension.List x) {
-		return evalComprehension(
-				x.getGenerators(),
-				new ListComprehensionWriter(x.getResults(), this));
+	public void updateProperties(){
+		Evaluator.doProfiling = org.rascalmpl.interpreter.Configuration.getProfilingProperty();
+
+		org.rascalmpl.interpreter.result.AbstractFunction.setCallTracing(org.rascalmpl.interpreter.Configuration.getTracingProperty());
 	}
 
-	@Override
-	public Result<IValue> visitComprehensionSet(
-			org.rascalmpl.ast.Comprehension.Set x) {
-		return evalComprehension(
-				x.getGenerators(),
-				new SetComprehensionWriter(x.getResults(), this));
-	}
-
-	@Override
-	public Result<IValue> visitComprehensionMap(
-			org.rascalmpl.ast.Comprehension.Map x) {
-		java.util.List<Expression> resultExprs = new ArrayList<Expression>();
-		resultExprs.add(x.getFrom());
-		resultExprs.add(x.getTo());
-		return evalComprehension(
-				x.getGenerators(),
-				new MapComprehensionWriter(resultExprs, this));
-	}
-
-	@Override
-	public Result<IValue> visitStatementFor(For x) {
-		Statement body = x.getBody();
-		java.util.List<Expression> generators = x.getGenerators();
-		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment old = getCurrentEnvt();
-		Environment[] olds = new Environment[size];
-
-		Result<IValue> result = makeResult(tf.voidType(), vf.list(), this);
-
-		String label = null;
-		if (!x.getLabel().isEmpty()) {
-			label = Names.name(x.getLabel().getName());
-		}
-		accumulators.push(new Accumulator(vf, label));
-
-
-		// TODO: does this prohibit that the body influences the behavior of the generators??
-
-		int i = 0;
-		boolean normalCflow = false;
-		try {
-			gens[0] = makeBooleanResult(generators.get(0));
-			gens[0].init();
-			olds[0] = getCurrentEnvt();
-			pushEnv();
-
-			while(i >= 0 && i < size) {	
-				if (interrupt) throw new InterruptException(getStackTrace());
-				if(gens[i].hasNext() && gens[i].next()){
-					if(i == size - 1){
-						// NB: no result handling here.
-						body.accept(this);
-					} else {
-						i++;
-						gens[i] = makeBooleanResult(generators.get(i));
-						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						pushEnv();
-					}
-				} else {
-					unwind(olds[i]);
-					i--;
-					pushEnv();
-				}
-			}
-			// TODO: this is not enough, we must also detect
-			// break and return a list result then.
-			normalCflow = true;
-		} finally {
-			IValue value = accumulators.pop().done();
-			if (normalCflow) {
-				result = makeResult(value.getType(), value, this);
-			}
-			unwind(old);
-		}
-		return result;
-	}
-
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Result visitExpressionAny(Any x) {
-		java.util.List<Expression> generators = x.getGenerators();
-		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-
-		int i = 0;
-		gens[0] = makeBooleanResult(generators.get(0));
-		gens[0].init();
-		while (i >= 0 && i < size) {
-			if (interrupt) throw new InterruptException(getStackTrace());
-			if (gens[i].hasNext() && gens[i].next()) {
-				if (i == size - 1) {
-					return new BoolResult(tf.boolType(), vf.bool(true), this);
-				}
-
-				i++;
-				gens[i] = makeBooleanResult(generators.get(i));
-				gens[i].init();
-			} else {
-				i--;
-			}
-		}
-		return new BoolResult(tf.boolType(), vf.bool(false), this);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Result visitExpressionAll(All x) {
-		java.util.List<Expression> producers = x.getGenerators();
-		int size = producers.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = getCurrentEnvt();
-		int i = 0;
-
-		try {
-			gens[0] = makeBooleanResult(producers.get(0));
-			gens[0].init();
-			olds[0] = getCurrentEnvt();
-			pushEnv();
-
-			while (i >= 0 && i < size) {
-				if (interrupt) throw new InterruptException(getStackTrace());
-				if (gens[i].hasNext()) {
-					if (!gens[i].next()) {
-						return new BoolResult(tf.boolType(), vf.bool(false), this);
-					}
-					
-					if(i == size - 1){
-						unwind(olds[i]);
-						pushEnv();
-					} 
-					else {
-						i++;
-						gens[i] = makeBooleanResult(producers.get(i));
-						gens[i].init();
-						olds[i] = getCurrentEnvt();
-						pushEnv();
-					}
-				} else {
-					unwind(olds[i]);
-					i--;
-				}
-			}
-		}
-		finally {
-			unwind(old);
-		}
-		
-		return new BoolResult(tf.boolType(), vf.bool(true), this);
-	}
-
-	// ------------ solve -----------------------------------------
-
-	@Override
-	public Result<IValue> visitStatementSolve(Solve x) {
-		int size = x.getVariables().size();
-		QualifiedName vars[] = new QualifiedName[size];
-		IValue currentValue[] = new IValue[size];
-
-		Environment old = getCurrentEnvt();
-
-		try {
-			java.util.List<QualifiedName> varList = x.getVariables();
-
-			for (int i = 0; i < size; i++) {
-				QualifiedName var = varList.get(i);
-				vars[i] = var;
-				if (getCurrentEnvt().getVariable(var) == null) {
-					throw new UndeclaredVariableError(var.toString(), var);
-				}
-				if (getCurrentEnvt().getVariable(var).getValue() == null) {
-					throw new UninitializedVariableError(var.toString(), var);
-				}
-				currentValue[i] = getCurrentEnvt().getVariable(var).getValue();
-			}
-
-			pushEnv();
-			Statement body = x.getBody();
-
-			int max = -1;
-
-			Bound bound= x.getBound();
-			if(bound.isDefault()){
-				Result<IValue> res = bound.getExpression().accept(this);
-				if(!res.getType().isIntegerType()){
-					throw new UnexpectedTypeError(tf.integerType(),res.getType(), x);
-				}
-				max = ((IInteger)res.getValue()).intValue();
-				if(max <= 0){
-					throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentAST(), getStackTrace());
-				}
-			}
-
-			Result<IValue> bodyResult = null;
-
-			boolean change = true;
-			int iterations = 0;
-
-			while (change && (max == -1 || iterations < max)){
-				change = false;
-				iterations++;
-				if (interrupt) throw new InterruptException(getStackTrace());
-				bodyResult = body.accept(this);
-				for(int i = 0; i < size; i++){
-					QualifiedName var = vars[i];
-					Result<IValue> v = getCurrentEnvt().getVariable(var);
-					if(currentValue[i] == null || !v.getValue().isEqual(currentValue[i])){
-						change = true;
-						currentValue[i] = v.getValue();
-					}
-				}
-			}
-			return bodyResult;
-		}
-		finally {
-			unwind(old);
-		}
-	}
-
-	public Result<IValue> visitShellCommandSetOption(ShellCommand.SetOption x){
-		String name = "rascal.config."+x.getName().toString();
-		String value = x.getExpression().accept(this).getValue().toString();
-
-		System.setProperty(name, value);
-
-		updateProperties();
-
-		return ResultFactory.nothing();
-	}
-
-	private void updateProperties(){
-		doProfiling = Configuration.getProfilingProperty();
-
-		AbstractFunction.setCallTracing(Configuration.getTracingProperty());
-	}
-
-	public Stack<Environment> getCallStack() {
-		Stack<Environment> stack = new Stack<Environment>();
-		Environment env = currentEnvt;
+	public java.util.Stack<org.rascalmpl.interpreter.env.Environment> getCallStack() {
+		java.util.Stack<org.rascalmpl.interpreter.env.Environment> stack = new java.util.Stack<org.rascalmpl.interpreter.env.Environment>();
+		org.rascalmpl.interpreter.env.Environment env = this.currentEnvt;
 		while (env != null) {
 			stack.add(0, env);
 			env = env.getCallerScope();
@@ -4008,33 +1804,33 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return stack;
 	}
 
-	public Environment getCurrentEnvt() {
-		return currentEnvt;
+	public org.rascalmpl.interpreter.env.Environment getCurrentEnvt() {
+		return this.currentEnvt;
 	}
 
-	public void setCurrentEnvt(Environment env) {
-		currentEnvt = env;
+	public void setCurrentEnvt(org.rascalmpl.interpreter.env.Environment env) {
+		this.currentEnvt = env;
 	}
 
-	public Evaluator getEvaluator() {
+	public org.rascalmpl.interpreter.Evaluator getEvaluator() {
 		return this;
 	}
 
-	public GlobalEnvironment getHeap() {
-		return heap;
+	public org.rascalmpl.interpreter.env.GlobalEnvironment getHeap() {
+		return this.__getHeap();
 	}
 
 	public boolean runTests(){
 		final boolean[] allOk = new boolean[] { true };
-		final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(stdout);
+		final org.rascalmpl.interpreter.ITestResultListener l = this.testReporter != null ? this.testReporter : new org.rascalmpl.interpreter.DefaultTestResultListener(this.__getStdout());
 		
-		new TestEvaluator(this, new ITestResultListener() {
-			public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
+		new org.rascalmpl.interpreter.TestEvaluator(this, new org.rascalmpl.interpreter.ITestResultListener() {
+			public void report(boolean successful, java.lang.String test, org.eclipse.imp.pdb.facts.ISourceLocation loc, java.lang.Throwable t) {
 				if (!successful) allOk[0] = false;
 				l.report(successful, test, loc, t);
 			}
 			
-			public void report(boolean successful, String test, ISourceLocation loc) {
+			public void report(boolean successful, java.lang.String test, org.eclipse.imp.pdb.facts.ISourceLocation loc) {
 				if (!successful) allOk[0] = false;
 				l.report(successful, test, loc);
 			}
@@ -4045,54 +1841,54 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return allOk[0];
 	}
 
-	public IValueFactory getValueFactory() {
-		return vf;
+	public org.eclipse.imp.pdb.facts.IValueFactory getValueFactory() {
+		return this.__getVf();
 	}
 
 	public void setIValueFactory(
-			IValueFactory factory) {
-		vf = factory;
+			org.eclipse.imp.pdb.facts.IValueFactory factory) {
+		this.__setVf(factory);
 	}
 
-	public IStrategyContext getStrategyContext(){
-		return strategyContextStack.getCurrentContext();
+	public org.rascalmpl.interpreter.strategy.IStrategyContext getStrategyContext(){
+		return this.strategyContextStack.getCurrentContext();
 	}
 
-	public void pushStrategyContext(IStrategyContext strategyContext){
-		strategyContextStack.pushContext(strategyContext);
+	public void pushStrategyContext(org.rascalmpl.interpreter.strategy.IStrategyContext strategyContext){
+		this.strategyContextStack.pushContext(strategyContext);
 	}
 
 	public void popStrategyContext(){
-		strategyContextStack.popContext();
+		this.strategyContextStack.popContext();
 	}
 
-	public void setStdErr(PrintWriter printWriter) {
-		stderr = printWriter;
+	public void setStdErr(java.io.PrintWriter printWriter) {
+		this.stderr = printWriter;
 	}  
 	
-	public void setStdOut(PrintWriter printWriter) {
-		stdout = printWriter;
+	public void setStdOut(java.io.PrintWriter printWriter) {
+		this.__setStdout(printWriter);
 	}
 
-	public void setAccumulators(Accumulator accu) {
-		accumulators.push(accu);
+	public void setAccumulators(org.rascalmpl.interpreter.Accumulator accu) {
+		this.__getAccumulators().push(accu);
 	}
 
-	public Stack<Accumulator> getAccumulators() {
-		return accumulators;
+	public java.util.Stack<org.rascalmpl.interpreter.Accumulator> getAccumulators() {
+		return this.__getAccumulators();
 	}
 
-	public void setAccumulators(Stack<Accumulator> accumulators) {
-		this.accumulators = accumulators;
+	public void setAccumulators(java.util.Stack<org.rascalmpl.interpreter.Accumulator> accumulators) {
+		this.__setAccumulators(accumulators);
 	}
 	
-	private void appendToString(IValue value, StringBuilder b)
+	public void appendToString(org.eclipse.imp.pdb.facts.IValue value, java.lang.StringBuilder b)
 	{
 		if (value.getType() == Factory.Tree) {
-			b.append(TreeAdapter.yield((IConstructor) value));
+			b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((org.eclipse.imp.pdb.facts.IConstructor) value));
 		}
 		else if (value.getType().isStringType()) {
-			b.append(((IString) value).getValue());
+			b.append(((org.eclipse.imp.pdb.facts.IString) value).getValue());
 		}
 		else {
 			b.append(value.toString());

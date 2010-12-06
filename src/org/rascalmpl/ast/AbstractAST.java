@@ -3,7 +3,15 @@ package org.rascalmpl.ast;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.AssignableEvaluator;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
@@ -30,7 +38,12 @@ public abstract class AbstractAST implements IVisitable {
 		this._type = nonterminalType;
 	}
 	
-	abstract public <T> T accept(IASTVisitor<T> v);
+//	abstract public <T> T accept(IASTVisitor<T> v);
+	public <T> T accept(IASTVisitor<T> v) {
+		int x = 3;
+		x = x + 1;
+		return null;
+	}
 
 	public ISourceLocation getLocation() {
 		return TreeAdapter.getLocation((IConstructor) node);
@@ -78,4 +91,40 @@ public abstract class AbstractAST implements IVisitable {
 	public String toString() {
 		return TreeAdapter.yield((IConstructor) node);
 	}
+
+	public <T> T __evaluate(NullASTVisitor<T> eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Result<IValue> __evaluate(Evaluator eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Result<IValue> __evaluate(AssignableEvaluator eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Type __evaluate(org.rascalmpl.interpreter.TypeEvaluator.Visitor eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Type __evaluate(org.rascalmpl.interpreter.BasicTypeEvaluator eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IMatchingResult __evaluate(PatternEvaluator eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IBooleanResult __evaluate(BooleanEvaluator eval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

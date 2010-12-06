@@ -20,6 +20,7 @@ import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.parser.sgll.util.IntegerMap;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
@@ -84,7 +85,7 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
     
     protected static java.util.HashMap<IConstructor, org.rascalmpl.ast.LanguageAction> _initLanguageActions() {
       java.util.HashMap<IConstructor, org.rascalmpl.ast.LanguageAction> result = ObjectRascalRascal._initLanguageActions();
-      ASTBuilder astBuilder = new ASTBuilder(new ASTFactory());
+      ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
       IMap tmp = (IMap) _read(_concat("()"), _tf.mapType(Factory.Production, Factory.Tree));
       for (IValue key : tmp) {
         result.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));

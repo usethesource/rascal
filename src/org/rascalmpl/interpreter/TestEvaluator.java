@@ -95,7 +95,7 @@ public class TestEvaluator {
 //			System.err.println("visitTestLabeled: " + x);
 			
 			try{
-				result = x.getExpression().accept(eval);
+				result = x.getExpression().__evaluate(eval);
 			}catch(Throw e){
 				testResultListener.report(false, x.toString(), x.getLocation(), e);
 			}catch(Throwable e){
@@ -112,7 +112,7 @@ public class TestEvaluator {
 //			System.err.println("visitTestUnlabeled: " + x);
 			
 			try{
-				result = x.getExpression().accept(eval);
+				result = x.getExpression().__evaluate(eval);
 			}
 			catch(StaticError e) {
 				testResultListener.report(false, x.toString(), x.getLocation(), e);
