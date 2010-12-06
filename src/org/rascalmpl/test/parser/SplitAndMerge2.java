@@ -6,10 +6,10 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.sgll.SGLL;
-import org.rascalmpl.parser.sgll.stack.AbstractStackNode;
-import org.rascalmpl.parser.sgll.stack.LiteralStackNode;
-import org.rascalmpl.parser.sgll.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.SBFGTD;
+import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -20,7 +20,7 @@ C ::= Baa | Ba
 B ::= A
 A ::= a
 */
-public class SplitAndMerge2 extends SGLL implements IParserTest{
+public class SplitAndMerge2 extends SBFGTD implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));
