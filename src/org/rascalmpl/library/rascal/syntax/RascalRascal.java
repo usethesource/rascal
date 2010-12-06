@@ -14,16 +14,16 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.sgll.stack.*;
-import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.sgll.util.IntegerList;
-import org.rascalmpl.parser.sgll.util.IntegerMap;
+import org.rascalmpl.parser.gtd.stack.*;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.IntegerList;
+import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
-public class RascalRascal extends org.rascalmpl.parser.sgll.SGLL implements IParserInfo {
+public class RascalRascal extends org.rascalmpl.parser.gtd.SBFGTD implements IParserInfo {
     
 	protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
 		try{
