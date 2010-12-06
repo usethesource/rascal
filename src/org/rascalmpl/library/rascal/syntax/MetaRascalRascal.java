@@ -1,10 +1,6 @@
 
 package org.rascalmpl.library.rascal.syntax;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -12,19 +8,15 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.sgll.stack.*;
 import org.rascalmpl.parser.sgll.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.sgll.util.IntegerList;
 import org.rascalmpl.parser.sgll.util.IntegerMap;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.IParserInfo;
 
-public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo {
+public class MetaRascalRascal extends ObjectRascalRascal {
     
 
     private static final IntegerMap _resultStoreIdMappings;

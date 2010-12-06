@@ -716,6 +716,7 @@ syntax Type
 	| Symbol: Sym symbol {
 	   if (appl(prod(_,_,attrs([_*,term(cons("Nonterminal")),_*])),_) := symbol
 	     ||appl(prod(_,_,attrs([_*,term(cons("Labeled")),_*])),_) := symbol
+	     ||appl(prod(_,_,attrs([_*,term(cons("Parametrized")),_*])),_) := symbol
 	     ||appl(prod(_,_,attrs([_*,term(cons("Parameter")),_*])),_) := symbol) {
 	    fail;
 	   }

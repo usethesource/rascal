@@ -14,6 +14,8 @@ import ValueIO;
 
 private str package = "org.rascalmpl.library.rascal.syntax";
 private loc inputFolder = |rascal:///rascal/syntax|;
+//private loc outputFolder = |project://RascalLibrary/src/rascal/syntax|;
+//private loc astFolder = |project://RascalLibrary/src/org/rascalmpl/ast|;
 private loc outputFolder = |boot:///src/org/rascalmpl/library/rascal/syntax|;
 private loc astFolder = |boot:///src/org/rascalmpl/ast|;
 private str grammarName = "RascalRascal";
