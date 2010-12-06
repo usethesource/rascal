@@ -1,272 +1,9 @@
 package org.rascalmpl.interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.bool;
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-import static org.rascalmpl.interpreter.result.ResultFactory.nothing;
-import static org.rascalmpl.interpreter.utils.Utils.unescape;
-
-import java.io.CharArrayWriter;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Stack;
-import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWriter;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import org.rascalmpl.ast.ASTFactory;
-import org.rascalmpl.ast.ASTFactoryFactory;
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.BasicType;
-import org.rascalmpl.ast.Bound;
-import org.rascalmpl.ast.Case;
-import org.rascalmpl.ast.Catch;
-import org.rascalmpl.ast.Command;
-import org.rascalmpl.ast.Declaration;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Field;
-import org.rascalmpl.ast.FunctionDeclaration;
-import org.rascalmpl.ast.FunctionModifier;
-import org.rascalmpl.ast.Import;
-import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.ShellCommand;
-import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.Strategy;
-import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.ast.StringLiteral;
-import org.rascalmpl.ast.Toplevel;
-import org.rascalmpl.ast.Assignable.Constructor;
-import org.rascalmpl.ast.Assignable.FieldAccess;
-import org.rascalmpl.ast.Command.Shell;
-import org.rascalmpl.ast.DateTimeLiteral.DateAndTimeLiteral;
-import org.rascalmpl.ast.DateTimeLiteral.DateLiteral;
-import org.rascalmpl.ast.DateTimeLiteral.TimeLiteral;
-import org.rascalmpl.ast.Declaration.Alias;
-import org.rascalmpl.ast.Declaration.Annotation;
-import org.rascalmpl.ast.Declaration.Data;
-import org.rascalmpl.ast.Declaration.DataAbstract;
-import org.rascalmpl.ast.Declaration.Function;
-import org.rascalmpl.ast.Declaration.Rule;
-import org.rascalmpl.ast.Declaration.Tag;
-import org.rascalmpl.ast.Declaration.Test;
-import org.rascalmpl.ast.Declaration.Variable;
-import org.rascalmpl.ast.Declaration.View;
-import org.rascalmpl.ast.Expression.Addition;
-import org.rascalmpl.ast.Expression.All;
-import org.rascalmpl.ast.Expression.Ambiguity;
-import org.rascalmpl.ast.Expression.And;
-import org.rascalmpl.ast.Expression.Anti;
-import org.rascalmpl.ast.Expression.Any;
-import org.rascalmpl.ast.Expression.Bracket;
-import org.rascalmpl.ast.Expression.CallOrTree;
-import org.rascalmpl.ast.Expression.Closure;
-import org.rascalmpl.ast.Expression.Composition;
-import org.rascalmpl.ast.Expression.Comprehension;
-import org.rascalmpl.ast.Expression.Descendant;
-import org.rascalmpl.ast.Expression.Division;
-import org.rascalmpl.ast.Expression.Equivalence;
-import org.rascalmpl.ast.Expression.FieldProject;
-import org.rascalmpl.ast.Expression.FieldUpdate;
-import org.rascalmpl.ast.Expression.GreaterThan;
-import org.rascalmpl.ast.Expression.GreaterThanOrEq;
-import org.rascalmpl.ast.Expression.Guarded;
-import org.rascalmpl.ast.Expression.IfDefinedOtherwise;
-import org.rascalmpl.ast.Expression.Implication;
-import org.rascalmpl.ast.Expression.In;
-import org.rascalmpl.ast.Expression.Intersection;
-import org.rascalmpl.ast.Expression.IsDefined;
-import org.rascalmpl.ast.Expression.It;
-import org.rascalmpl.ast.Expression.Join;
-import org.rascalmpl.ast.Expression.LessThan;
-import org.rascalmpl.ast.Expression.LessThanOrEq;
-import org.rascalmpl.ast.Expression.List;
-import org.rascalmpl.ast.Expression.Literal;
-import org.rascalmpl.ast.Expression.Match;
-import org.rascalmpl.ast.Expression.Modulo;
-import org.rascalmpl.ast.Expression.MultiVariable;
-import org.rascalmpl.ast.Expression.Negation;
-import org.rascalmpl.ast.Expression.Negative;
-import org.rascalmpl.ast.Expression.NoMatch;
-import org.rascalmpl.ast.Expression.NonEmptyBlock;
-import org.rascalmpl.ast.Expression.NotIn;
-import org.rascalmpl.ast.Expression.Or;
-import org.rascalmpl.ast.Expression.Product;
-import org.rascalmpl.ast.Expression.Range;
-import org.rascalmpl.ast.Expression.Reducer;
-import org.rascalmpl.ast.Expression.ReifiedType;
-import org.rascalmpl.ast.Expression.ReifyType;
-import org.rascalmpl.ast.Expression.Set;
-import org.rascalmpl.ast.Expression.StepRange;
-import org.rascalmpl.ast.Expression.Subscript;
-import org.rascalmpl.ast.Expression.Subtraction;
-import org.rascalmpl.ast.Expression.TransitiveClosure;
-import org.rascalmpl.ast.Expression.TransitiveReflexiveClosure;
-import org.rascalmpl.ast.Expression.Tuple;
-import org.rascalmpl.ast.Expression.TypedVariable;
-import org.rascalmpl.ast.Expression.TypedVariableBecomes;
-import org.rascalmpl.ast.Expression.VariableBecomes;
-import org.rascalmpl.ast.Expression.VoidClosure;
-import org.rascalmpl.ast.FunctionDeclaration.Abstract;
-import org.rascalmpl.ast.Header.Parameters;
-import org.rascalmpl.ast.Import.Syntax;
-import org.rascalmpl.ast.IntegerLiteral.DecimalIntegerLiteral;
-import org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral;
-import org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral;
-import org.rascalmpl.ast.Literal.Boolean;
-import org.rascalmpl.ast.Literal.Integer;
-import org.rascalmpl.ast.Literal.Location;
-import org.rascalmpl.ast.Literal.Real;
-import org.rascalmpl.ast.Literal.RegExp;
-import org.rascalmpl.ast.LocalVariableDeclaration.Default;
-import org.rascalmpl.ast.PathTail.Mid;
-import org.rascalmpl.ast.PatternWithAction.Arbitrary;
-import org.rascalmpl.ast.PatternWithAction.Replacing;
-import org.rascalmpl.ast.ProtocolPart.Interpolated;
-import org.rascalmpl.ast.ProtocolPart.NonInterpolated;
-import org.rascalmpl.ast.ProtocolTail.Post;
-import org.rascalmpl.ast.ShellCommand.Edit;
-import org.rascalmpl.ast.ShellCommand.Help;
-import org.rascalmpl.ast.ShellCommand.ListDeclarations;
-import org.rascalmpl.ast.ShellCommand.Quit;
-import org.rascalmpl.ast.ShellCommand.Unimport;
-import org.rascalmpl.ast.Statement.Append;
-import org.rascalmpl.ast.Statement.Assert;
-import org.rascalmpl.ast.Statement.AssertWithMessage;
-import org.rascalmpl.ast.Statement.Assignment;
-import org.rascalmpl.ast.Statement.Break;
-import org.rascalmpl.ast.Statement.Continue;
-import org.rascalmpl.ast.Statement.DoWhile;
-import org.rascalmpl.ast.Statement.EmptyStatement;
-import org.rascalmpl.ast.Statement.Fail;
-import org.rascalmpl.ast.Statement.For;
-import org.rascalmpl.ast.Statement.GlobalDirective;
-import org.rascalmpl.ast.Statement.IfThen;
-import org.rascalmpl.ast.Statement.IfThenElse;
-import org.rascalmpl.ast.Statement.Insert;
-import org.rascalmpl.ast.Statement.Solve;
-import org.rascalmpl.ast.Statement.Switch;
-import org.rascalmpl.ast.Statement.Throw;
-import org.rascalmpl.ast.Statement.Try;
-import org.rascalmpl.ast.Statement.TryFinally;
-import org.rascalmpl.ast.Statement.VariableDeclaration;
-import org.rascalmpl.ast.Statement.While;
-import org.rascalmpl.ast.Test.Labeled;
-import org.rascalmpl.ast.Test.Unlabeled;
-import org.rascalmpl.ast.Toplevel.GivenVisibility;
-import org.rascalmpl.ast.Visit.DefaultStrategy;
-import org.rascalmpl.ast.Visit.GivenStrategy;
-import org.rascalmpl.interpreter.TraversalEvaluator.DIRECTION;
-import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
-import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.control_exceptions.Failure;
-import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.control_exceptions.QuitException;
-import org.rascalmpl.interpreter.control_exceptions.Return;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.env.RewriteRule;
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
-import org.rascalmpl.interpreter.matching.IBooleanResult;
-import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.matching.NodePattern;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.BoolResult;
-import org.rascalmpl.interpreter.result.JavaMethod;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
-import org.rascalmpl.interpreter.result.RascalFunction;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
-import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
-import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
-import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
-import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
-import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedReturnError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
-import org.rascalmpl.interpreter.strategy.StrategyContextStack;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.Profiler;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.utils.Utils;
-import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
-import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
-import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.IActionExecutor;
-import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.RascalActionExecutor;
-import org.rascalmpl.parser.sgll.IGLL;
-import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInputOutput;
-import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.HomeURIResolver;
-import org.rascalmpl.uri.HttpURIResolver;
-import org.rascalmpl.uri.JarURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.errors.SubjectAdapter;
-import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> implements org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> {
 	private org.eclipse.imp.pdb.facts.IValueFactory vf;
@@ -510,7 +247,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	public org.eclipse.imp.pdb.facts.IConstructor parseObject(org.eclipse.imp.pdb.facts.IConstructor startSort, java.net.URI input) {
 		try {
 			System.err.println("Generating a parser");
-			org.rascalmpl.parser.sgll.IGLL parser = this.getObjectParser(this.__getVf().sourceLocation(input));
+			org.rascalmpl.parser.gtd.IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(input));
 			java.lang.String name = "";
 			if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
 				name = "start__";
@@ -531,7 +268,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	
 	public org.eclipse.imp.pdb.facts.IConstructor parseObject(org.eclipse.imp.pdb.facts.IConstructor startSort, java.lang.String input) {
 		java.net.URI inputURI = java.net.URI.create("file://-");
-		org.rascalmpl.parser.sgll.IGLL parser = this.getObjectParser(this.__getVf().sourceLocation(inputURI));
+		org.rascalmpl.parser.gtd.IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(inputURI));
 		java.lang.String name = "";
 		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
 			name = "start__";
@@ -546,17 +283,17 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		return parser.parse(name, inputURI, input, exec);
 	}
 	
-	private org.rascalmpl.parser.sgll.IGLL getObjectParser(org.eclipse.imp.pdb.facts.ISourceLocation loc) {
+	private org.rascalmpl.parser.gtd.IGTD getObjectParser(org.eclipse.imp.pdb.facts.ISourceLocation loc) {
 		return this.getObjectParser( (org.rascalmpl.interpreter.env.ModuleEnvironment) this.getCurrentEnvt().getRoot(), loc);
 	}
 	
-	private org.rascalmpl.parser.sgll.IGLL getObjectParser(org.rascalmpl.interpreter.env.ModuleEnvironment currentModule, org.eclipse.imp.pdb.facts.ISourceLocation loc) {
+	private org.rascalmpl.parser.gtd.IGTD getObjectParser(org.rascalmpl.interpreter.env.ModuleEnvironment currentModule, org.eclipse.imp.pdb.facts.ISourceLocation loc) {
 		if (currentModule.getBootstrap()) {
 			return new org.rascalmpl.library.rascal.syntax.ObjectRascalRascal();
 		}
 		org.rascalmpl.parser.ParserGenerator pg = this.getParserGenerator();
 		org.eclipse.imp.pdb.facts.ISet productions = currentModule.getProductions();
-		java.lang.Class<org.rascalmpl.parser.sgll.IGLL> parser = this.getHeap().getObjectParser(currentModule.getName(), productions);
+		java.lang.Class<org.rascalmpl.parser.gtd.IGTD> parser = this.getHeap().getObjectParser(currentModule.getName(), productions);
 
 		if (parser == null) {
 			java.lang.String parserName;
@@ -580,12 +317,12 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		}
 	}
 	
-	private org.rascalmpl.parser.sgll.IGLL getRascalParser(org.rascalmpl.interpreter.env.ModuleEnvironment env, java.net.URI input) {
+	private org.rascalmpl.parser.gtd.IGTD getRascalParser(org.rascalmpl.interpreter.env.ModuleEnvironment env, java.net.URI input) {
 		org.rascalmpl.parser.ParserGenerator pg = this.getParserGenerator();
 		org.eclipse.imp.pdb.facts.ISourceLocation loc = this.__getVf().sourceLocation(input);
-		org.rascalmpl.parser.sgll.IGLL objectParser = this.getObjectParser(env, loc);
+		org.rascalmpl.parser.gtd.IGTD objectParser = this.getObjectParser(env, loc);
 		org.eclipse.imp.pdb.facts.ISet productions = env.getProductions();
-		java.lang.Class<org.rascalmpl.parser.sgll.IGLL> parser = this.getHeap().getRascalParser(env.getName(), productions);
+		java.lang.Class<org.rascalmpl.parser.gtd.IGTD> parser = this.getHeap().getRascalParser(env.getName(), productions);
 
 		if (parser == null) {
 			java.lang.String parserName;
@@ -761,7 +498,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		if(!command.contains("`")){
 			tree = this.__getParser().parseCommand(location, command, actionExecutor);
 		}else{
-			org.rascalmpl.parser.sgll.IGLL rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
+			org.rascalmpl.parser.gtd.IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 			tree = rp.parse("start__$Command", location, command, actionExecutor);
 		}
 		
@@ -781,7 +518,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 			return this.__getParser().parseCommand(location, command, actionExecutor);
 		}
 		
-		org.rascalmpl.parser.sgll.IGLL rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
+		org.rascalmpl.parser.gtd.IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 		return rp.parse("start__$Command", location, command, actionExecutor);
 	}
 
@@ -1150,7 +887,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 			return this.__getParser().parseModule(location, data, actionExecutor);
 		}
 		
-		org.rascalmpl.parser.sgll.IGLL mp = this.needBootstrapParser(preModule) ? new org.rascalmpl.library.rascal.syntax.MetaRascalRascal() : this.getRascalParser(env, location);
+		org.rascalmpl.parser.gtd.IGTD mp = this.needBootstrapParser(preModule) ? new org.rascalmpl.library.rascal.syntax.MetaRascalRascal() : this.getRascalParser(env, location);
 		return mp.parse(Parser.START_MODULE, location, data, actionExecutor);
 	}
 	
