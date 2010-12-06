@@ -15,7 +15,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.parser.sgll.IGLL;
+import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.uptr.Factory;
 
 
@@ -153,11 +153,11 @@ public class GlobalEnvironment {
 		return locationModules.get(location);
 	}
 	
-	public Class<IGLL> getObjectParser(String module, ISet productions) {
+	public Class<IGTD> getObjectParser(String module, ISet productions) {
 		return getParser(objectParsersForModules, module, productions);
 	}
 	
-	public Class<IGLL> getRascalParser(String module, ISet productions) {
+	public Class<IGTD> getRascalParser(String module, ISet productions) {
 		return getParser(rascalParsersForModules, module, productions);
 	}
 	
@@ -168,7 +168,7 @@ public class GlobalEnvironment {
 	 * @param module
 	 * @param productions
 	 */
-	private Class<IGLL> getParser(Map<String,ParserTuple> store, String module, ISet productions) {
+	private Class<IGTD> getParser(Map<String,ParserTuple> store, String module, ISet productions) {
 		ParserTuple parser = store.get(module);
 		if (parser == null) {
 			for (ParserTuple g : store.values()) {
@@ -191,11 +191,11 @@ public class GlobalEnvironment {
 		return parser.getParser();
 	}
 	
-	public void storeObjectParser(String module, ISet productions, Class<IGLL> parser) {
+	public void storeObjectParser(String module, ISet productions, Class<IGTD> parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
 	}
 	
-	private void storeParser(Map<String,ParserTuple> store, String module, ISet productions, Class<IGLL> parser) {
+	private void storeParser(Map<String,ParserTuple> store, String module, ISet productions, Class<IGTD> parser) {
 		ParserTuple newT = new ParserTuple(productions, parser);
 		ParserTuple old = store.get(module);
 		
@@ -215,15 +215,15 @@ public class GlobalEnvironment {
 		}
 	}
 	
-	public void storeRascalParser(String module, ISet productions, Class<IGLL> parser) {
+	public void storeRascalParser(String module, ISet productions, Class<IGTD> parser) {
 		storeParser(rascalParsersForModules, module, productions, parser);
 	}
 	
 	private class ParserTuple {
 		private ISet production;
-		private Class<IGLL> parser;
+		private Class<IGTD> parser;
 
-		public ParserTuple(ISet productions, Class<IGLL> parser) {
+		public ParserTuple(ISet productions, Class<IGTD> parser) {
 			this.production = productions;
 			this.parser = parser;
 		}
@@ -232,7 +232,7 @@ public class GlobalEnvironment {
 			return production;
 		}
 		
-		public Class<IGLL> getParser() {
+		public Class<IGTD> getParser() {
 			return parser;
 		}
 	}
