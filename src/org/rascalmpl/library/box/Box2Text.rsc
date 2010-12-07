@@ -21,13 +21,13 @@ import box::Box;
 import box::Latex;
 int maxWidth = 80;
 int hv2h_crit = 70;
-bool decorated = false;
 
 
 alias options = map [str, int];
 alias   foptions = map[str, list[str]];
 options  oDefault = ("h":1,"v":0, "i":5);
-map[int, str] toBlank =  ();
+
+map[Box, text] box2textmap=();
 
 
 anno list[str] Box@format;
@@ -39,11 +39,6 @@ text vv(text a, text b) {
 return a+b;}
 
 str blank(str a) {
-       /* int n = width(a);
-        if (n notin toBlank)  {
-          toBlank[n] = right("", n);
-         }
-       return toBlank[n]; */
        return right("", width(a));
        }
 
@@ -132,13 +127,6 @@ text vv_(text a, text b) {
 
 
 text LL(str s ) { 
-   // println(s);
-   /*
-   if (startsWith(s,"\"<backquote>") && endsWith(s,"<backquote>\"")) {
-       s = substring(s, 1, size(s)-1);
-       s = replaceAll(s, "\\\\\"", "\"");
-       }
-   */
    return [s];
    }
 
@@ -289,6 +277,7 @@ text font(text t, str tg) {
   }
 
 text QQ(Box b, Box c, options o, foptions f, int m) {
+      // println("QQ:<getName(b)> <o>");
       switch(b) {
          case L(str s): {return LL(s);}
          case  H(list[Box] bl): {return HH(bl, c, o, m); }
@@ -300,13 +289,13 @@ text QQ(Box b, Box c, options o, foptions f, int m) {
          case  SPACE(int n):{return  hskip(n);}
          case  A(list[Box] bl):{return AA(bl, c, o, f, m);}
          case  R(list[Box] bl):{return RR(bl, c, o, f, m);}
-         case KW(Box a):{return decorated?font(O(a, c, o, m),"KW"):O(a,c,o,m);}
-         case VAR(Box a):{return  decorated?font(O( a, c, o, m),"VR"):O( a, c, o, m);}
-         case NM(Box a):{return decorated?font(O( a, c, o, m),"NM"):O( a, c, o, m);}
-         case STRING(Box a):{return decorated?font(O( a, c, o, m),"SG"):O( a, c, o, m);}
-         case COMM(Box a):{return decorated?font(O( a, c, o, m),"CT"):O( a, c, o, m);}
-         case MATH(Box a):{return decorated?font(O( a, c, o, m),"MT"):O( a, c, o, m);}
-         case ESC(Box a):{return decorated?font(O( a, c, o, m),"SC"):O( a, c, o, m);}
+         case KW(Box a):{return font(O(a, c, o, m),"KW");}
+         case VAR(Box a):{return  font(O( a, c, o, m),"VR");}
+         case NM(Box a):{return font(O( a, c, o, m),"NM");}
+         case STRING(Box a):{return font(O( a, c, o, m),"SG");}
+         case COMM(Box a):{return font(O( a, c, o, m),"CT");}
+         case MATH(Box a):{return font(O( a, c, o, m),"MT");}
+         case ESC(Box a):{return font(O( a, c, o, m),"SC");}
      }
 return [];
 }
@@ -315,7 +304,7 @@ text O(Box b, Box c, options o, int m) {
     int h = o["h"];
     int v = o["v"];
     int i = o["i"];
-     // println("Start:<getName(b)> <h>");
+    // if ((b@vs)?) println("Start:<getName(b)> <b@vs>");
      if ((b@hs)?) {o["h"] = b@hs;}
      if ((b@vs)?) {o["v"] = b@vs;}
      if ((b@is)?) {o["i"] = b@is;}
@@ -463,6 +452,7 @@ public void fprintln(Box b) {
 }
 
 public str format(Box b) {
+  box2textmap=();
   text t = box2text(b);
   return "<for (l <- t) {><l>\n<}>";
 }
@@ -575,16 +565,15 @@ text text2txt(text t) {
     return [text2txt(s)|s<-t];
     } 
        
-map[Box, text] aux=();
+
      
 public text box2latex(Box b) {
     // println("Start box2latex");
-    decorated =  true;
     text q = [];
-    if (aux[b]?) q = aux[b];
+    if (box2textmap[b]?) q = box2textmap[b];
     else {
         q = box2data(b);
-        aux+=(b:q);
+        box2textmap+=(b:q);
         }
     text t = readFileLines(|std:///box/Start.tex|)+text2latex(q)+readFileLines(|std:///box/End.tex|);    
     // println("End box2latex");
@@ -593,12 +582,11 @@ public text box2latex(Box b) {
     
 public text box2html(Box b) {
     println("Start box2html");
-    decorated =  true;
     text q = [];
-    if (aux[b]?) q = aux[b];
+    if (box2textmap[b]?) q = box2textmap[b];
     else {
         q = box2data(b);
-        aux+=(b:q);
+        box2textmap+=(b:q);
         }
     text t = readFileLines(|std:///box/Start.html|)+text2html(q)+readFileLines(|std:///box/End.html|);    
     println("End box2html");
@@ -606,12 +594,11 @@ public text box2html(Box b) {
     }
     
  public text box2text(Box b) {
-    decorated =  true;
     text q = [];
-    if (aux[b]?) q = aux[b];
+    if (box2textmap[b]?) q = box2textmap[b];
     else {
         q = box2data(b);
-        aux+=(b:q);
+        box2textmap+=(b:q);
         }
     text t = text2txt(q);
     return t;
@@ -622,7 +609,6 @@ public value toList(Box b) {
   b = removeHV(b);
   b = removeHOV(b);
   // println("Reduce finished");
-  decorated =  true;
   text t = O(b, V([]), oDefault, maxWidth);
   return t;
 }
