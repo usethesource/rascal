@@ -883,12 +883,19 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		}
 
 		org.eclipse.imp.pdb.facts.ISet prods = env.getProductions();
-		if (prods.isEmpty() || !new java.lang.String(data).contains("`")) {
+		if (prods.isEmpty() || !containsBackTick(data)) {
 			return this.__getParser().parseModule(location, data, actionExecutor);
 		}
 		
 		org.rascalmpl.parser.gtd.IGTD mp = this.needBootstrapParser(preModule) ? new org.rascalmpl.library.rascal.syntax.MetaRascalRascal() : this.getRascalParser(env, location);
 		return mp.parse(Parser.START_MODULE, location, data, actionExecutor);
+	}
+	
+	public static boolean containsBackTick(char[] data){
+		for(int i = data.length - 1; i >= 0; --i){
+			if(data[i] == '`') return true;
+		}
+		return false;
 	}
 	
 	public boolean needBootstrapParser(org.rascalmpl.ast.Module preModule) {
