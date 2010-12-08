@@ -39,7 +39,7 @@ import org.rascalmpl.parser.gtd.util.RotatingQueue;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public abstract class SBFGTD implements IGTD{
+public abstract class SGTDBF implements IGTD{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
@@ -74,7 +74,7 @@ public abstract class SBFGTD implements IGTD{
 	
 	private final HashMap<String, Method> methodCache;
 	
-	public SBFGTD(){
+	public SGTDBF(){
 		super();
 		
 		positionStore = new PositionStore();

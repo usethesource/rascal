@@ -23,7 +23,7 @@ import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 
-public class RascalRascal extends org.rascalmpl.parser.gtd.SBFGTD implements IParserInfo {
+public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF implements IParserInfo {
     
 	protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
 		try{

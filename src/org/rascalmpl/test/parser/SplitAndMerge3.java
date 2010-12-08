@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.SBFGTD;
+import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
@@ -19,7 +19,7 @@ A ::= Ba | a
 B ::= Aa | a
 C ::= B
 */
-public class SplitAndMerge3 extends SBFGTD implements IParserTest{
+public class SplitAndMerge3 extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_B = vf.constructor(Factory.Symbol_Sort, vf.string("B"));

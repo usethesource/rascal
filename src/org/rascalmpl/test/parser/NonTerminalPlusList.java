@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.SBFGTD;
+import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= A+
 A ::= a
 */
-public class NonTerminalPlusList extends SBFGTD implements IParserTest{
+public class NonTerminalPlusList extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
 	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
