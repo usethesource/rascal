@@ -26,11 +26,11 @@ public anno str Symbol@prefix;
 public str generateRootParser(str package, str name, Grammar gr) {
   // we annotate the grammar to generate identifiers that are different from object grammar identifiers
   gr = visit (gr) { case s:sort(_) => meta(s) case s:layouts(_) => meta(s) }
-  int uniqueItem = -3; // -1 and -2 are reserved by the SBFGTD implementation
+  int uniqueItem = -3; // -1 and -2 are reserved by the SGTDBF implementation
   int newItem() { uniqueItem -= 1; return uniqueItem; };
   // make sure the ` sign is expected for expressions and every non-terminal which' first set is governed by Pattern or Expression, even though ` not in the language yet
   rel[Symbol,Symbol] quotes = { <x, \char-class([range(40,40),range(96,96)])> | x <- [meta(sort("Expression")),meta(sort("Pattern")),meta(sort("Command")),meta(sort("Statement")),meta(layouts("LAYOUTLIST"))]}; 
-  return generate(package, name, "org.rascalmpl.parser.gtd.SBFGTD", newItem, false, true, quotes, gr);
+  return generate(package, name, "org.rascalmpl.parser.gtd.SGTDBF", newItem, false, true, quotes, gr);
 }
 
 @doc{Used to generate parser that parse object language only}

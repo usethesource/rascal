@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.SBFGTD;
+import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
@@ -18,7 +18,7 @@ S ::= SSS | SS | a
 
 NOTE: This test, tests prefix sharing.
 */
-public class AmbiguousRecursivePrefixShared extends SBFGTD implements IParserTest{
+public class AmbiguousRecursivePrefixShared extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));

@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.SBFGTD;
+import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
@@ -18,7 +18,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= aO?
 O ::= a
 */
-public class Optional2 extends SBFGTD implements IParserTest{
+public class Optional2 extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
 	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Sort, vf.string("O"));
 	private final static IConstructor SYMBOL_OPTIONAL_O = vf.constructor(Factory.Symbol_Opt, SYMBOL_O);
