@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -35,6 +36,17 @@ public class MakeBox {
 
 	private final String varName = "boxData";
 	private final String moduleName = "moduleName";
+	
+    private final IValueFactory values;
+	
+	public MakeBox(IValueFactory values){
+		super();
+		this.values = values;
+	}
+	
+	public MakeBox(){
+		this.values = null;
+	};
 
 	class Data extends ByteArrayOutputStream {
 		ByteArrayInputStream get() {
@@ -175,8 +187,12 @@ public class MakeBox {
 		IValue r = fetch(resultName);
 		return r;
 	}
+	
+	public  IValue makeBox(ISourceLocation loc, org.rascalmpl.interpreter.IEvaluatorContext c) {
+		return computeBox(loc.getURI());
+	}
 
-	private IValue computeBox(URI uri) {
+	public IConstructor computeBox(URI uri) {
 		try {
 			// System.err.println("computeBox: start parsing");
 			IConstructor moduleTree = commandEvaluator.parseModule(uri,
@@ -187,7 +203,7 @@ public class MakeBox {
 			// System.err.println("computeBox: build");
 			commandEvaluator.getHeap().clear();
 			if (moduleAst != null)
-				return eval.evalRascalModule(moduleAst);	
+				return (IConstructor) eval.evalRascalModule(moduleAst);	
 			// System.err.println("computeBox: evalled");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -230,6 +246,7 @@ public class MakeBox {
 		return launchConcreteProgram("toLatex", uri, s);
 	}
 	*/
+	
 
 	public IValue toSrc(URI uri) {
 		start();
