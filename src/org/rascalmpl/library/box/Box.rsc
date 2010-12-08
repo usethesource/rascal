@@ -30,3 +30,9 @@ anno int Box@vs;
 anno int Box@is;
 anno int Box@width;
 anno int Box@height;
+
+@doc{Compute a box from a rascal file.}
+@javaClass{org.rascalmpl.library.box.MakeBox}
+@reflect{Uses URI Resolver Registry}
+
+public Box java makeBox(loc file);
