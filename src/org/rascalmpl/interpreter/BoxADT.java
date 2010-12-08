@@ -62,45 +62,45 @@ public class BoxADT {
 	}
 
 	static final IConstructor EMPTY = TAG.L.create("");
-	static final IValue PLUS = TAG.L.create("+");
-	static final IValue MINUS = TAG.L.create("-");
-	static final IValue MULT = TAG.L.create("*");
-	static final IValue DIVIDE = TAG.L.create("/");
-	static final IValue MODULO = TAG.L.create("%");
-	static final IValue MOD = TAG.L.create("/");
-	static final IValue EQUALS = TAG.L.create("==");
-	static final IValue EQUIVALENCE = TAG.L.create("<==>");
-	static final IValue NOTEQUALS = TAG.L.create("!=");
-	static final IValue NEGATION = TAG.L.create("!");
-	static final IValue LT = TAG.L.create("< ");
-	static final IValue LE = TAG.L.create("<=");
-	static final IValue GT = TAG.L.create(" >");
-	static final IValue GE = TAG.L.create(">=");
-	static final IValue OR = TAG.L.create("||");
-	static final IValue AMPERSAND = TAG.L.create("&");
-	static final IValue AND = TAG.L.create("&&");
-	static final IValue NOT = TAG.L.create("!");
-	static final IValue LPAR = TAG.L.create("(");
-	static final IValue RPAR = TAG.L.create(")");
-	static final IValue LBRACK = TAG.L.create("[");
-	static final IValue RBRACK = TAG.L.create("]");
-	static final IValue LBLOCK = TAG.L.create("{");
-	static final IValue RBLOCK = TAG.L.create("}");
-	static final IValue ASSIGN = TAG.L.create("=");
-	static final IValue COMMA = TAG.L.create(",");
-	static final IValue SEMICOLON = TAG.L.create(";");
-	static final IValue DOT = TAG.L.create(".");
-	static final IValue AT = TAG.L.create("@");
-	static final IValue HASH = TAG.L.create("#");
-	static final IValue QUESTIONMARK = TAG.L.create("?");
-	static final IValue COLON = TAG.L.create(":");
-	static final IValue COLONCOLON = TAG.L.create("::");
-	static final IValue VBAR = TAG.L.create("|");
-	static final IValue ELOF = TAG.L.create("<-");
-	static final IValue INTERSECTION = TAG.L.create("&");
-	static final IValue RANGE = TAG.L.create("..");
-	static final IValue CONGR = TAG.L.create("~");
-	static final IValue SPACE = TAG.L.create(" ");
+	static final IConstructor PLUS = TAG.L.create("+");
+	static final IConstructor MINUS = TAG.L.create("-");
+	static final IConstructor MULT = TAG.L.create("*");
+	static final IConstructor DIVIDE = TAG.L.create("/");
+	static final IConstructor MODULO = TAG.L.create("%");
+	static final IConstructor MOD = TAG.L.create("/");
+	static final IConstructor EQUALS = TAG.L.create("==");
+	static final IConstructor EQUIVALENCE = TAG.L.create("<==>");
+	static final IConstructor NOTEQUALS = TAG.L.create("!=");
+	static final IConstructor NEGATION = TAG.L.create("!");
+	static final IConstructor LT = TAG.L.create("< ");
+	static final IConstructor LE = TAG.L.create("<=");
+	static final IConstructor GT = TAG.L.create(" >");
+	static final IConstructor GE = TAG.L.create(">=");
+	static final IConstructor OR = TAG.L.create("||");
+	static final IConstructor AMPERSAND = TAG.L.create("&");
+	static final IConstructor AND = TAG.L.create("&&");
+	static final IConstructor NOT = TAG.L.create("!");
+	static final IConstructor LPAR = TAG.L.create("(");
+	static final IConstructor RPAR = TAG.L.create(")");
+	static final IConstructor LBRACK = TAG.L.create("[");
+	static final IConstructor RBRACK = TAG.L.create("]");
+	static final IConstructor LBLOCK = TAG.L.create("{");
+	static final IConstructor RBLOCK = TAG.L.create("}");
+	static final IConstructor ASSIGN = TAG.L.create("=");
+	static final IConstructor COMMA = TAG.L.create(",");
+	static final IConstructor SEMICOLON = TAG.L.create(";");
+	static final IConstructor DOT = TAG.L.create(".");
+	static final IConstructor AT = TAG.L.create("@");
+	static final IConstructor HASH = TAG.L.create("#");
+	static final IConstructor QUESTIONMARK = TAG.L.create("?");
+	static final IConstructor COLON = TAG.L.create(":");
+	static final IConstructor COLONCOLON = TAG.L.create("::");
+	static final IConstructor VBAR = TAG.L.create("|");
+	static final IConstructor ELOF = TAG.L.create("<-");
+	static final IConstructor INTERSECTION = TAG.L.create("&");
+	static final IConstructor RANGE = TAG.L.create("..");
+	static final IConstructor CONGR = TAG.L.create("~");
+	static final IConstructor SPACE = TAG.L.create(" ");
 
 	// Type tagar[] = new Type[TAG.values().length];
 	//
@@ -116,8 +116,8 @@ public class BoxADT {
 	// }
 	// }
 	//
-	// IValue createLabel(String s) {
-	// IValue r = vf.constructor(label, vf.string(s));
+	// IConstructor createLabel(String s) {
+	// IConstructor r = vf.constructor(label, vf.string(s));
 	// return r;
 	// }
 	//
@@ -125,8 +125,8 @@ public class BoxADT {
 	// return tagar[tag.ordinal()];
 	// }
 	//
-	// IValue create(TAG tag, IValue t) {
-	// IValue r = vf.constructor(getType(tag), t);
+	// IConstructor create(TAG tag, IConstructor t) {
+	// IConstructor r = vf.constructor(getType(tag), t);
 	// return r;
 	// };
 
@@ -142,11 +142,11 @@ public class BoxADT {
 		return ts.lookupConstructor(box, "L", tf.stringType());
 	}
 
-	static IValue comma() {
+	static IConstructor comma() {
 		return BoxADT.TAG.L.create(",");
 	}
 
-	static IValue semicolumn() {
+	static IConstructor semicolumn() {
 		return BoxADT.TAG.L.create(";");
 	}
 
@@ -167,31 +167,31 @@ public class BoxADT {
 		return q;
 	}
 
-	static IValue KW(String s) {
+	static IConstructor KW(String s) {
 		return BoxADT.TAG.KW.create(BoxADT.TAG.L.create(s));
 	}
 
-	static IValue NM(String s) {
+	static IConstructor NM(String s) {
 		return BoxADT.TAG.NM.create(BoxADT.TAG.L.create(s));
 	}
 	
-	static IValue STRING(String s) {
+	static IConstructor STRING(String s) {
 		return BoxADT.TAG.NM.create(BoxADT.TAG.L.create(s));
 	}
 
-	static IValue VAR(String s) {
+	static IConstructor VAR(String s) {
 		return BoxADT.TAG.VAR.create(BoxADT.TAG.L.create(s));
 	}
 
-	static IValue L(String s) {
+	static IConstructor L(String s) {
 		return BoxADT.TAG.L.create(s);
 	}
 
-	static IValue H(IValue... t) {
+	static IConstructor H(IValue... t) {
 		return H(-1, t);
 	}
 
-	static IValue H(int hspace, IValue... t) {
+	static IConstructor H(int hspace, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
@@ -207,28 +207,27 @@ public class BoxADT {
 		return r;
 	}
 
-	static IValue V(IValue... t) {
+	static IConstructor V(IValue... t) {
 		return V(-1, t);
 	}
 
-	static IValue V(boolean indent, IValue... t) {
+	static IConstructor V(boolean indent, IValue... t) {
 		return V(-1, indent, t);
 	}
 
-	static IValue V(int vspace, IValue... t) {
+	static IConstructor V(int vspace, IValue... t) {
 		return V(vspace, false, t);
 	}
 
 	static IList makeIndent(IList a, boolean first) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue b : a) {
-			q = q.append(first && q.isEmpty() ? b : I(b));
-		}
-		
+			q = q.append(first && q.isEmpty() ? b : I((IConstructor) b));
+		}	
 		return q;
 	}
 
-	static IValue V(int vspace, boolean indent, IValue... t) {
+	static IConstructor V(int vspace, boolean indent, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
@@ -251,32 +250,32 @@ public class BoxADT {
 		return r;
 	}
 
-	static IValue I(IValue... t) {
+	static IConstructor I(IValue... t) {
 		return BoxADT.TAG.I.create(t);
 	}
 
-	static IValue HV(IValue... t) {
+	static IConstructor HV(IValue... t) {
 		return HV(-1, t);
 	}
 
-	static IValue HV(int hspace, IValue... t) {
+	static IConstructor HV(int hspace, IValue... t) {
 		return HV(hspace, false , t);
 		
 	}
 
-	static IValue HOV(IValue... t) {
+	static IConstructor HOV(IValue... t) {
 		return HOV(-1, t);
 	}
 
-	static IValue HOV(boolean indent, IValue... t) {
+	static IConstructor HOV(boolean indent, IValue... t) {
 		return HOV(-1, indent, t);
 	}
 
-	static IValue HOV(int hspace, IValue... t) {
+	static IConstructor HOV(int hspace, IValue... t) {
 		return HOV(hspace, false, t);
 	}
 
-	static IValue HOV(int hspace, boolean indent, IValue... t) {
+	static IConstructor HOV(int hspace, boolean indent, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
@@ -294,7 +293,7 @@ public class BoxADT {
 		return r;
 	}
 
-	static IValue HV(int hspace, boolean indent, IValue... t) {
+	static IConstructor HV(int hspace, boolean indent, IValue... t) {
 		IList q = BoxADT.getEmptyList();
 		for (IValue a : t) {
 			if (a == null)
