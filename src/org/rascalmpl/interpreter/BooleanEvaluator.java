@@ -1,5 +1,6 @@
 package org.rascalmpl.interpreter;
 
+import java.io.PrintWriter;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -80,6 +81,7 @@ public class BooleanEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 	private final org.eclipse.imp.pdb.facts.type.TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
 	private final org.rascalmpl.interpreter.PatternEvaluator pe;
 
+	
 	public BooleanEvaluator(org.rascalmpl.interpreter.IEvaluatorContext ctx) {
 		this.ctx = ctx;
 		this.pe = new org.rascalmpl.interpreter.PatternEvaluator(ctx);
@@ -176,6 +178,14 @@ public class BooleanEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 
 	public boolean isInterrupted() {
 		return false;
+	}
+
+	public PrintWriter getStdErr() {
+		return new PrintWriter(System.err);
+	}
+
+	public PrintWriter getStdOut() {
+		return new PrintWriter(System.out);
 	}
 
 }

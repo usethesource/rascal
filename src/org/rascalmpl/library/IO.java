@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -28,21 +28,14 @@ public class IO {
 	private static final TypeFactory types = TypeFactory.getInstance();	
 
 	private final IValueFactory values;
-	private volatile PrintStream out;
 	
 	public IO(IValueFactory values){
 		super();
-		
 		this.values = values;
-		out = System.out;
 	}
 	
-	public void setOutputStream(PrintStream out){
-		this.out = out;
-	}
-	
-	public void println(IValue arg){
-		PrintStream currentOutStream = out;
+	public void println(IValue arg, IEvaluatorContext eval){
+		PrintWriter currentOutStream = eval.getStdOut();
 		
 		synchronized(currentOutStream){
 			try{
@@ -60,8 +53,8 @@ public class IO {
 		}
 	}
 	
-	public void rawPrintln(IValue arg){
-		PrintStream currentOutStream = out;
+	public void rawPrintln(IValue arg, IEvaluatorContext eval){
+		PrintWriter currentOutStream = eval.getStdOut();
 		
 		synchronized(currentOutStream){
 			try{

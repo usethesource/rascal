@@ -1,5 +1,6 @@
 package org.rascalmpl.interpreter.debug;
 
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Stack;
 
@@ -838,6 +839,14 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 	public boolean isInterrupted() {
 		return evaluator.isInterrupted();
+	}
+
+	public PrintWriter getStdErr() {
+		return null;
+	}
+
+	public PrintWriter getStdOut() {
+		return null;
 	}
 
 }
