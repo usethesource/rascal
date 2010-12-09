@@ -547,9 +547,11 @@ str text2html(str t) {
        }
     }
     
-str text2txt(str t) {
+public str text2txt(str t) {
     return visit(t) {
-       case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "<key>"
+       // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "<key>"
+       case /^\r\{../ => ""
+       case /^\r\}../ => ""
        }
     }
     
