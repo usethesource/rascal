@@ -483,4 +483,57 @@ public class TreeAdapter {
 		}
 		return false;
 	}
+
+	public static IConstructor locateDeepestContextFreeNode(IConstructor tree, int offset) {
+		ISourceLocation l = TreeAdapter.getLocation(tree);
+	
+		if (l == null) {
+			throw new IllegalArgumentException(
+					"locate assumes position information on the tree");
+		}
+	
+		if (TreeAdapter.isLexical(tree)) {
+			if (l.getOffset() <= offset
+					&& offset < l.getOffset() + l.getLength()) {
+				return tree;
+			}
+	
+			return null;
+		}
+	
+		if (TreeAdapter.isAmb(tree)) {
+			return null;
+		}
+	
+		if (TreeAdapter.isAppl(tree)) {
+			IList children = TreeAdapter.getASTArgs(tree);
+	
+			for (IValue child : children) {
+				ISourceLocation childLoc = TreeAdapter
+						.getLocation((IConstructor) child);
+	
+				if (childLoc == null) {
+					continue;
+				}
+	
+				if (childLoc.getOffset() <= offset
+						&& offset < childLoc.getOffset() + childLoc.getLength()) {
+					IConstructor result = locateDeepestContextFreeNode((IConstructor) child,
+							offset);
+	
+					if (result != null) {
+						return result;
+					}
+					break;
+				}
+			}
+	
+			if (l.getOffset() <= offset
+					&& l.getOffset() + l.getLength() >= offset) {
+				return tree;
+			}
+		}
+	
+		return null;
+	}
 }
