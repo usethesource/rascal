@@ -25,9 +25,7 @@ import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
@@ -812,7 +810,14 @@ public class ASTBuilder {
 		CallOrTree prod = (CallOrTree) ast.getArguments().get(0);
 		name = Names.name(Names.lastName(prod.getExpression().getQualifiedName()));
 		
-		return name.equals("list");
+		if (!name.equals("regular")) {
+			return false;
+		}
+		
+		CallOrTree sum = (CallOrTree) prod.getArguments().get(0);
+		name = Names.name(Names.lastName(sum.getExpression().getQualifiedName()));
+		
+		return name.startsWith("iter");
 	}
 
 	private Expression liftVariable(IConstructor tree) {

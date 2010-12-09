@@ -293,6 +293,11 @@ public org.rascalmpl.interpreter.matching.IMatchingResult __evaluate(org.rascalm
 			return new org.rascalmpl.interpreter.matching.ConcreteListPattern(__eval.__getCtx(), this,
 					__eval.visitElements(args.getElements()));
 		}
+		if(__eval.isConcreteSyntaxOptional(this)) {
+			org.rascalmpl.ast.Expression.List args = (org.rascalmpl.ast.Expression.List)this.getArguments().get(1);
+			return new org.rascalmpl.interpreter.matching.ConcreteOptPattern(__eval.__getCtx(), this,
+					__eval.visitElements(args.getElements()));
+		}
 		if(__eval.isConcreteSyntaxAppl(this)){
 			if (org.rascalmpl.values.uptr.TreeAdapter.isLexical((org.eclipse.imp.pdb.facts.IConstructor) this.getTree())) {
 				return new org.rascalmpl.interpreter.matching.ConcreteApplicationPattern(__eval.__getCtx(), this, __eval.visitConcreteLexicalArguments(this));

@@ -131,7 +131,7 @@ public class ProductionAdapter {
 	}
 	
 	public static boolean hasLexAttribute(IConstructor tree) {
-		return hasAttribute(tree, Factory.Attribute_Lex);
+		return hasAttribute(tree, Factory.Attribute_Lex) || hasAttribute(tree, Factory.Attribute_LexX) /* TODO: remove the first assmit */;
 	}
 
 	public static boolean shouldFlatten(IConstructor surrounding, IConstructor nested) {

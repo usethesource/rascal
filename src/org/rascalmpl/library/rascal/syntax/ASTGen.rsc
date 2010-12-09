@@ -301,7 +301,7 @@ public set[Production] astProductions(Grammar g) {
   }
 
   result = { p | p <- result,  (sort(_) := p.rhs || \parameterized-sort(_, _) := p.rhs),  
-            p.attributes != \no-attrs() ==> term("literal"()) notin p.attributes.attrs }; 
+            p.attributes != \no-attrs() ==> \literal() notin p.attributes.attrs }; 
 
   
   for (p <- result) {

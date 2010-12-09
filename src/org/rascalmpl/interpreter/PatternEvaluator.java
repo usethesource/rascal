@@ -1,115 +1,9 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.ASTFactoryFactory;
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.ast.Expression.Addition;
-import org.rascalmpl.ast.Expression.All;
-import org.rascalmpl.ast.Expression.And;
-import org.rascalmpl.ast.Expression.Anti;
-import org.rascalmpl.ast.Expression.Any;
-import org.rascalmpl.ast.Expression.Bracket;
-import org.rascalmpl.ast.Expression.CallOrTree;
-import org.rascalmpl.ast.Expression.Closure;
-import org.rascalmpl.ast.Expression.Composition;
-import org.rascalmpl.ast.Expression.Comprehension;
-import org.rascalmpl.ast.Expression.Descendant;
-import org.rascalmpl.ast.Expression.Equals;
-import org.rascalmpl.ast.Expression.Equivalence;
-import org.rascalmpl.ast.Expression.FieldProject;
-import org.rascalmpl.ast.Expression.FieldUpdate;
-import org.rascalmpl.ast.Expression.GetAnnotation;
-import org.rascalmpl.ast.Expression.GreaterThan;
-import org.rascalmpl.ast.Expression.GreaterThanOrEq;
-import org.rascalmpl.ast.Expression.Guarded;
-import org.rascalmpl.ast.Expression.IfThenElse;
-import org.rascalmpl.ast.Expression.Implication;
-import org.rascalmpl.ast.Expression.In;
-import org.rascalmpl.ast.Expression.LessThan;
-import org.rascalmpl.ast.Expression.LessThanOrEq;
-import org.rascalmpl.ast.Expression.List;
-import org.rascalmpl.ast.Expression.Literal;
-import org.rascalmpl.ast.Expression.Map;
-import org.rascalmpl.ast.Expression.Match;
-import org.rascalmpl.ast.Expression.Modulo;
-import org.rascalmpl.ast.Expression.MultiVariable;
-import org.rascalmpl.ast.Expression.Negation;
-import org.rascalmpl.ast.Expression.Negative;
-import org.rascalmpl.ast.Expression.NoMatch;
-import org.rascalmpl.ast.Expression.NonEquals;
-import org.rascalmpl.ast.Expression.NotIn;
-import org.rascalmpl.ast.Expression.Or;
-import org.rascalmpl.ast.Expression.QualifiedName;
-import org.rascalmpl.ast.Expression.Range;
-import org.rascalmpl.ast.Expression.ReifiedType;
-import org.rascalmpl.ast.Expression.Set;
-import org.rascalmpl.ast.Expression.SetAnnotation;
-import org.rascalmpl.ast.Expression.StepRange;
-import org.rascalmpl.ast.Expression.TransitiveClosure;
-import org.rascalmpl.ast.Expression.TransitiveReflexiveClosure;
-import org.rascalmpl.ast.Expression.Tuple;
-import org.rascalmpl.ast.Expression.TypedVariable;
-import org.rascalmpl.ast.Expression.TypedVariableBecomes;
-import org.rascalmpl.ast.Expression.VariableBecomes;
-import org.rascalmpl.ast.Expression.VoidClosure;
-import org.rascalmpl.ast.Literal.Boolean;
-import org.rascalmpl.ast.Literal.Integer;
-import org.rascalmpl.ast.Literal.Real;
-import org.rascalmpl.ast.Literal.RegExp;
-import org.rascalmpl.ast.Literal.String;
-import org.rascalmpl.ast.RegExp.Lexical;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.matching.AntiPattern;
-import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
-import org.rascalmpl.interpreter.matching.ConcreteListPattern;
-import org.rascalmpl.interpreter.matching.ConcreteListVariablePattern;
-import org.rascalmpl.interpreter.matching.DescendantPattern;
-import org.rascalmpl.interpreter.matching.GuardedPattern;
-import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.matching.ListPattern;
-import org.rascalmpl.interpreter.matching.LiteralPattern;
-import org.rascalmpl.interpreter.matching.MultiVariablePattern;
-import org.rascalmpl.interpreter.matching.NodePattern;
-import org.rascalmpl.interpreter.matching.NotPattern;
-import org.rascalmpl.interpreter.matching.QualifiedNamePattern;
-import org.rascalmpl.interpreter.matching.RegExpPatternValue;
-import org.rascalmpl.interpreter.matching.ReifiedTypePattern;
-import org.rascalmpl.interpreter.matching.SetPattern;
-import org.rascalmpl.interpreter.matching.TuplePattern;
-import org.rascalmpl.interpreter.matching.TypedVariablePattern;
-import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.interpreter.matching.IMatchingResult> implements org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.matching.IMatchingResult> {
 	private final org.rascalmpl.interpreter.IEvaluatorContext ctx;
@@ -189,6 +83,10 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 	public boolean isConcreteSyntaxList(org.rascalmpl.ast.Expression.CallOrTree tree){
 		return this.isConcreteSyntaxAppl(tree) && this.isConcreteListProd((org.rascalmpl.ast.Expression.CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof org.rascalmpl.interpreter.types.NonTerminalType;
 	}
+	
+	public boolean isConcreteSyntaxOptional(org.rascalmpl.ast.Expression.CallOrTree tree){
+		return this.isConcreteSyntaxAppl(tree) && this.isConcreteOptionalProd((org.rascalmpl.ast.Expression.CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof org.rascalmpl.interpreter.types.NonTerminalType;
+	}
 
 	private boolean isConcreteListProd(org.rascalmpl.ast.Expression.CallOrTree prod){
 		if (!prod.getExpression().isQualifiedName()) {
@@ -199,6 +97,22 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 		if (name.equals("regular")) {
 			Expression sym = prod.getArguments().get(0);
 			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).startsWith("iter")) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean isConcreteOptionalProd(org.rascalmpl.ast.Expression.CallOrTree prod){
+		if (!prod.getExpression().isQualifiedName()) {
+			return false;
+		}
+		java.lang.String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
+		// TODO: note how this code breaks if we start using regular for other things besides lists...
+		if (name.equals("regular")) {
+			Expression sym = prod.getArguments().get(0);
+			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).equals("opt")) {
 				return true;
 			}
 		}

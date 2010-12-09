@@ -64,15 +64,15 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   return grammar(starts, \layouts(prods, layoutName) 
                        + {layoutProd, prod([],layouts("EMPTY_LAYOUT"),\no-attrs())}  
                        + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(top) <- starts} 
-                       + {prod(str2syms(s),lit(s),attrs([term("literal"())])) | /lit(s) <- (prods+{layoutProd})}
-                       + {prod(cistr2syms(s),cilit(s),attrs([term("ciliteral"())])) | /cilit(s) <- (prods+{layoutProd})}
+                       + {prod(str2syms(s),lit(s),attrs([\literal()])) | /lit(s) <- (prods+{layoutProd})}
+                       + {prod(cistr2syms(s),cilit(s),attrs([\ciliteral()])) | /cilit(s) <- (prods+{layoutProd})}
                 );
 } 
    
 public set[Production] \layouts(set[Production] prods, str layoutName) {
   return top-down-break visit (prods) {
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs, layoutName),rhs,attrs(as)) 
-      when restricted(_) !:= rhs, start(_) !:= rhs, term("lex"()) notin as  
+      when restricted(_) !:= rhs, start(_) !:= rhs, \lex() notin as  
     case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs, layoutName),rhs,\no-attrs()) 
       when restricted(_) !:= rhs, start(_) !:= rhs
   }
@@ -255,7 +255,7 @@ private Attributes mods2attrs(ProdModifier* mods) {
  
 private Attr mod2attr(ProdModifier m) {
   switch (m) {
-    case (ProdModifier) `lex`: return term("lex"());
+    case (ProdModifier) `lex`: return \lex();
     case (ProdModifier) `left`: return \assoc(\left());
     case (ProdModifier) `right`: return \assoc(\right());
     case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());

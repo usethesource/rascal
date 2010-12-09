@@ -249,7 +249,6 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 			if (org.rascalmpl.values.uptr.SymbolAdapter.isSort(startSort)) {
 				name += org.rascalmpl.values.uptr.SymbolAdapter.getName(startSort);
 			}
-			System.err.println("Calling the parser");
 
 			this.__setInterrupt(false);
 			org.rascalmpl.parser.IActionExecutor exec = new org.rascalmpl.parser.RascalActionExecutor(this, (org.rascalmpl.parser.IParserInfo) parser);
@@ -270,7 +269,6 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		if (org.rascalmpl.values.uptr.SymbolAdapter.isSort(startSort)) {
 			name += org.rascalmpl.values.uptr.SymbolAdapter.getName(startSort);
 		}
-		System.err.println("Calling the parser");
 		this.__setInterrupt(false);
 		org.rascalmpl.parser.IActionExecutor exec = new org.rascalmpl.parser.RascalActionExecutor(this, (org.rascalmpl.parser.IParserInfo) parser);
 		return parser.parse(name, inputURI, input, exec);

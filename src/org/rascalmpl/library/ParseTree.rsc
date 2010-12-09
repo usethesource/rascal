@@ -14,12 +14,13 @@ data Production =
 
 data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
 
-data Term = \lex() | \literal() | \cons(value \constructor);
+// data Term = \lex() | \literal() | \cons(value \constructor);
 
 data Attr =
      \assoc(Associativity \assoc) | 
      \term(value \term) |  
-     \bracket() | \reject();
+     \bracket() | \reject() |
+     \lex() | \literal() | \ciliteral();
 
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
