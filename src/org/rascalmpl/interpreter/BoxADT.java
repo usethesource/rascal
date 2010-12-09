@@ -4,10 +4,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BoxADT {
 	static final boolean DEBUG = false;
@@ -23,7 +23,7 @@ public class BoxADT {
 	static private IValueFactory vf;
 	static {
 		tf = TypeFactory.getInstance();
-		vf = ValueFactory.getInstance();
+		vf = ValueFactoryFactory.getValueFactory();
 		ts = new TypeStore();
 		box = tf.abstractDataType(ts, "Box");
 		ts.declareAbstractDataType(box);
