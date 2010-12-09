@@ -30,15 +30,15 @@ public class Factory {
 	public static final Type Associativity = tf.abstractDataType(uptr, "Associativity");
 	public static final Type Symbol = tf.abstractDataType(uptr, "Symbol");
 	public static final Type CharRange = tf.abstractDataType(uptr, "CharRange");
-	public static final Type Constructor = tf.abstractDataType(uptr, "Constructor");
+//	public static final Type Constructor = tf.abstractDataType(uptr, "Constructor");
 	public static final Type Args = tf.listType(Tree);
 	public static final Type Attrs = tf.listType(Attr);
 	public static final Type Symbols = tf.listType(Symbol);
 	public static final Type CharRanges = tf.listType(CharRange);
 	public static final Type Alternatives = tf.setType(Tree);
 	
-	public static final Type Constructor_Name = tf.constructor(uptr, Constructor, "cons", tf.stringType(), "name");
-	public static final Type Constructor_Category = tf.constructor(uptr, Constructor, "category", tf.stringType(), "name");
+//	public static final Type Constructor_Name = tf.constructor(uptr, Constructor, "cons", tf.stringType(), "name");
+//	public static final Type Constructor_Category = tf.constructor(uptr, Constructor, "category", tf.stringType(), "name");
 	
 	public static final Type Tree_Appl = tf.constructor(uptr, Tree, "appl", Production, "prod", tf.listType(Tree), "args");
 	public static final Type Tree_Cycle = tf.constructor(uptr, Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycleLength");
@@ -56,6 +56,9 @@ public class Factory {
 	public static final Type Attr_Id = tf.constructor(uptr, Attr, "id", tf.stringType(), "moduleName");
 	public static final Type Attr_Bracket = tf.constructor(uptr, Attr, "bracket");
 	public static final Type Attr_Reject = tf.constructor(uptr, Attr, "reject");
+	public static final Type Attr_LiteralX = tf.constructor(uptr, Attr, "literal");
+	public static final Type Attr_CiLiteralX = tf.constructor(uptr, Attr, "ciliteral");
+	public static final Type Attr_LexX = tf.constructor(uptr, Attr, "lex");
 	
 	public static final Type Associativity_Left = tf.constructor(uptr, Associativity, "left");
 	public static final Type Associativity_Right = tf.constructor(uptr, Associativity, "right");
@@ -94,7 +97,10 @@ public class Factory {
 
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	public static final IValue Attribute_Lex = Attr_Term.make(vf, vf.node("lex"));
+	public static final IValue Attribute_LexX = Attr_LexX.make(vf);
 	public static final IValue Attribute_Literal = Attr_Term.make(vf, vf.node("literal"));
+	public static final IValue Attribute_LiteralX = Attr_LiteralX.make(vf);
+	public static final IValue Attribute_CiLiteralX = Attr_CiLiteralX.make(vf);
 	public static final IValue Attribute_Assoc_Left = Attr_Assoc.make(vf, Associativity_Left.make(vf));
 	public static final IValue Attribute_Assoc_Right = Attr_Assoc.make(vf, Associativity_Right.make(vf));
 	public static final IValue Attribute_Assoc_Non_Assoc = Attr_Assoc.make(vf, Associativity_NonAssoc.make(vf));

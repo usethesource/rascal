@@ -30,7 +30,7 @@ bool isNonterminal(Symbol x) {
 }
 
 public set[Production] quotes() {
-  return {prod(str2syms(q),lit(q),\attrs([term("literal"())])) | q <- ["`","(",")","\<","\>"] };
+  return {prod(str2syms(q),lit(q),\attrs([\literal()])) | q <- ["`","(",")","\<","\>"] };
 }
 
 public set[Production] layoutProductions(Grammar object) {
@@ -47,7 +47,7 @@ public set[Production] fromRascal(Grammar object) {
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
-        { prod(str2syms(L),l,attrs([term("literal"())])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
+        { prod(str2syms(L),l,attrs([\literal()])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
       | Symbol nont <- object.rules, isNonterminal(nont), nont notin rejects, symLits := symbolLiterals(nont) };
 }
 
