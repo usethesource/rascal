@@ -853,11 +853,12 @@ public class ASTBuilder {
 				return true;
 			}
 			
-			if (SymbolAdapter.isAnyList((IConstructor) type)) {
+			if (SymbolAdapter.isAnyList((IConstructor) type) || SymbolAdapter.isOpt((IConstructor) type)) {
 				
 				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) type);
 				return elem.equals(expected);
 			}
+
 			return false;
 		}
 		else if (exp.isGuarded()) {
@@ -882,9 +883,9 @@ public class ASTBuilder {
 			return (IConstructor) getASTArgs(tree).get(0);
 		}
 		
-		if (cons.equals("ConcreteUnquoted")) {
-			return (IConstructor) getASTArgs(tree).get(0);
-		}
+//		if (cons.equals("ConcreteUnquoted")) {
+//			return (IConstructor) getASTArgs(tree).get(0);
+//		}
 		
 		if (cons.equals("ConcreteTypedQuoted")) {
 			 return (IConstructor) TreeAdapter.getArgs(tree).get(8);
@@ -953,7 +954,7 @@ public class ASTBuilder {
 	private boolean isEmbedding(IConstructor tree) {
 		String name = TreeAdapter.getConstructorName(tree);
 		return name.equals("ConcreteQuoted") 
-		|| name.equals("ConcreteUnquoted") 
+//		|| name.equals("ConcreteUnquoted") 
 		|| name.equals("ConcreteTypedQuoted");
 	}
 

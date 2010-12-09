@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.library.IO;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -57,8 +56,6 @@ public class RascalShell {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
-		Object ioInstance = evaluator.getJavaBridge().getJavaClassInstance(IO.class);
-		((IO) ioInstance).setOutputStream(new WriterPrintStream(stdout));
 		running = true;
 	}
 	

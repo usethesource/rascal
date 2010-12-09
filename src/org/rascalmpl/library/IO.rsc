@@ -4,9 +4,11 @@ import Exception;
 
 @doc{Print a list of values on the output stream.}
 @javaClass{org.rascalmpl.library.IO}
+@reflect{for getting IO streams}
 public void java println(value arg);
 
 @doc{Print and return true, for debugging complex expressions}
+@reflect{for getting IO streams}
 public bool print(value arg) 
 {
   println(V);
@@ -15,6 +17,7 @@ public bool print(value arg)
     
 @doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
+@reflect{for getting IO streams}
 public void java rawPrintln(value arg);
 
 @doc{Read a named file as list of strings.}

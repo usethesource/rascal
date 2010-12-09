@@ -1,5 +1,6 @@
 package org.rascalmpl.interpreter;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -195,7 +196,14 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 		}
 		java.lang.String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
 		// TODO: note how this code breaks if we start using regular for other things besides lists...
-		return name.equals("list") || name.equals("regular"); 
+		if (name.equals("regular")) {
+			Expression sym = prod.getArguments().get(0);
+			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).startsWith("iter")) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	public java.util.List<org.rascalmpl.interpreter.matching.IMatchingResult> visitArguments(org.rascalmpl.ast.Expression.CallOrTree x){
@@ -314,6 +322,14 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 
 	public boolean isInterrupted() {
 		return false;
+	}
+
+	public PrintWriter getStdErr() {
+		return null;
+	}
+
+	public PrintWriter getStdOut() {
+		return null;
 	}
 
 

@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.values.uptr.Factory;
@@ -29,8 +30,8 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	private boolean concreteListsShouldBeSpliced;
 	private final org.rascalmpl.parser.Parser parser;
 
-	private java.io.PrintWriter stderr;
-	private java.io.PrintWriter stdout;
+	private final java.io.PrintWriter stderr;
+	private final java.io.PrintWriter stdout;
 
 	private org.rascalmpl.interpreter.ITestResultListener testReporter;
 	private java.util.Stack<org.rascalmpl.interpreter.Accumulator> accumulators = new java.util.Stack<org.rascalmpl.interpreter.Accumulator>();
@@ -53,7 +54,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		this.rascalPathResolver = new org.rascalmpl.interpreter.load.RascalURIResolver(this);
 		this.parser = new org.rascalmpl.parser.Parser();
 		this.stderr = stderr;
-		this.__setStdout(stdout);
+		this.stdout = stdout;
 		this.builder = new org.rascalmpl.parser.ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
 		this.resolverRegistry = new org.rascalmpl.uri.URIResolverRegistry();
 
@@ -121,11 +122,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		return rootScope;
 	}
 
-	public void __setStdout(java.io.PrintWriter stdout) {
-		this.stdout = stdout;
-	}
-
-	public java.io.PrintWriter __getStdout() {
+	public java.io.PrintWriter getStdOut() {
 		return stdout;
 	}
 
@@ -192,10 +189,6 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	
 	public boolean isInterrupted() {
 		return this.__getInterrupt();
-	}
-	
-	public java.io.PrintWriter getStdOut() {
-		return this.__getStdout();
 	}
 	
 	public java.io.PrintWriter getStdErr() {
@@ -348,7 +341,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	
 	private org.rascalmpl.parser.ParserGenerator getParserGenerator() {
 		if (this.parserGenerator == null) {
-			this.parserGenerator = new org.rascalmpl.parser.ParserGenerator(this.__getStdout(), this.classLoaders, this.getValueFactory());
+			this.parserGenerator = new org.rascalmpl.parser.ParserGenerator(this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
 		return this.parserGenerator;
 	}
@@ -1566,7 +1559,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 
 	public boolean runTests(){
 		final boolean[] allOk = new boolean[] { true };
-		final org.rascalmpl.interpreter.ITestResultListener l = this.testReporter != null ? this.testReporter : new org.rascalmpl.interpreter.DefaultTestResultListener(this.__getStdout());
+		final org.rascalmpl.interpreter.ITestResultListener l = this.testReporter != null ? this.testReporter : new org.rascalmpl.interpreter.DefaultTestResultListener(this.getStdOut());
 		
 		new org.rascalmpl.interpreter.TestEvaluator(this, new org.rascalmpl.interpreter.ITestResultListener() {
 			public void report(boolean successful, java.lang.String test, org.eclipse.imp.pdb.facts.ISourceLocation loc, java.lang.Throwable t) {
@@ -1606,14 +1599,6 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		this.strategyContextStack.popContext();
 	}
 
-	public void setStdErr(java.io.PrintWriter printWriter) {
-		this.stderr = printWriter;
-	}  
-	
-	public void setStdOut(java.io.PrintWriter printWriter) {
-		this.__setStdout(printWriter);
-	}
-
 	public void setAccumulators(org.rascalmpl.interpreter.Accumulator accu) {
 		this.__getAccumulators().push(accu);
 	}
@@ -1639,7 +1624,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		}
 	}
 
-
+	
 	
 
 	

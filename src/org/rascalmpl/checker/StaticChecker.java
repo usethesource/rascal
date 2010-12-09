@@ -27,11 +27,9 @@ public class StaticChecker {
 	private boolean initialized;
 	private boolean loaded;
 	
-	public StaticChecker() {
+	public StaticChecker(PrintWriter stderr, PrintWriter stdout) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***static-checker***"));
-		PrintWriter stderr = new PrintWriter(System.err);
-		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		checkerEnabled = false;
 		initialized = false;
@@ -63,7 +61,7 @@ public class StaticChecker {
 	private IConstructor resolveImports(IConstructor moduleParseTree) {
 		ISet imports = (ISet) eval.call("importedModules", moduleParseTree);
 		
-		System.err.println("imports: " + imports);
+		eval.getStdErr().println("imports: " + imports);
 		
 		IMapWriter mw = VF.mapWriter(TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType());
 		
@@ -72,7 +70,7 @@ public class StaticChecker {
 			mw.put(i, VF.sourceLocation(uri));
 		}
 		
-		System.err.println("locations: " + mw.done());
+		eval.getStdErr().println("locations: " + mw.done());
 		
 		return (IConstructor) eval.call("linkImportedModules", moduleParseTree, mw.done());
 	}

@@ -1,5 +1,6 @@
 package org.rascalmpl.interpreter;
 
+import java.io.PrintWriter;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -17,6 +18,10 @@ public interface IEvaluatorContext {
 	public AbstractAST getCurrentAST();
 	public void setCurrentAST(AbstractAST ast);
 	public String getStackTrace();
+	
+	/** for standard IO */
+	public PrintWriter getStdOut();
+	public PrintWriter getStdErr();
 	
 	/** for "internal use" */
 	public Evaluator getEvaluator();

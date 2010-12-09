@@ -58,7 +58,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 @Override
 public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		__eval.printVisibleDeclaredObjects(__eval.__getStdout());
+		__eval.printVisibleDeclaredObjects(__eval.getStdOut());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	
 }
@@ -74,7 +74,7 @@ public Help (org.eclipse.imp.pdb.facts.INode __param1) {
 public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.setCurrentAST(this);
-		__eval.printHelpMessage(__eval.__getStdout());
+		__eval.printHelpMessage(__eval.getStdOut());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	
 }

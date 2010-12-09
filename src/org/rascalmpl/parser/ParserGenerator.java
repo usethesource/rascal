@@ -24,18 +24,20 @@ public class ParserGenerator {
 	private final Evaluator evaluator;
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
+	private PrintWriter out;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 
 	public ParserGenerator(PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
 		this.bridge = new JavaBridge(loaders, factory);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parsergenerator***"), new GlobalEnvironment());
 		this.vf = factory;
+		this.out = out;
 		evaluator.doImport("rascal::syntax::Generator");
 		evaluator.doImport("rascal::syntax::Normalization");
 		evaluator.doImport("rascal::syntax::Definition");
 		evaluator.doImport("rascal::syntax::Assimilator");
 	}
-
+	
 	/**
 	 * Generate a parser from a Rascal syntax definition (a set of production rules).
 	 * 
@@ -47,13 +49,13 @@ public class ParserGenerator {
 	public Class<IGTD> getParser(ISourceLocation loc, String name, ISet imports) {
 		try {
 			// TODO: add caching
-			System.err.println("Importing and normalizing grammar");
+			out.println("Importing and normalizing grammar");
 			IConstructor grammar = getGrammar(imports);
 			String normName = name.replaceAll("\\.", "_");
-			System.err.println("Generating java source code for parser");
+			out.println("Generating java source code for parser");
 			IString classString = (IString) evaluator.call("generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString, "/tmp/parser.java");
-			System.err.println("compiling generated java code");
+			out.println("compiling generated java code");
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
@@ -71,13 +73,13 @@ public class ParserGenerator {
 	 */
 	public Class<IGTD> getRascalParser(ISourceLocation loc, String name, ISet imports, IGTD objectParser) {
 		try {
-			System.err.println("Importing and normalizing grammar");
+			out.println("Importing and normalizing grammar");
 			IConstructor grammar = getGrammar(imports);
 			String normName = name.replaceAll("\\.", "_");
-			System.err.println("Generating java source code for Rascal parser");
+			out.println("Generating java source code for Rascal parser");
 			IString classString = (IString) evaluator.call("generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
 			debugOutput(classString, "/tmp/metaParser.java");
-			System.err.println("compiling generated java code");
+			out.println("compiling generated java code");
 			return bridge.compileJava(loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
 		}  catch (ClassCastException e) {
 			throw new ImplementationError("meta parser generator:" + e.getMessage(), e);

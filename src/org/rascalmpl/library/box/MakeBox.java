@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -27,7 +26,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -72,13 +70,6 @@ public class MakeBox {
 	private TypeStore ts = BoxEvaluator.getTypeStore();
 	private Type adt = BoxEvaluator.getType();
 	
-	public void setPrintStream(PrintStream p) {
-		Object ioInstance = commandEvaluator.getJavaBridge()
-		.getJavaClassInstance(IO.class);
-// Set output collector.
-       ((IO) ioInstance).setOutputStream(p);		
-	}
-
 	void store(IValue v, String varName) {
 		Result<IValue> r = makeResult(v.getType(), v, commandEvaluator);
 		root.storeVariable(varName, r);
