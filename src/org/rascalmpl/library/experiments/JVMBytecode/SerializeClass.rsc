@@ -193,18 +193,44 @@ data Instruction = getStatic(str owner, str name, str description)
 				 | ifNonNull(int label)
 
 				 | label(int index)
+
 				 | lineNumber(int line, int labelIndex)
+
 				 | localVariable(int opcode, int index)
-				 | loadConstantString(str stringValue)
-				 | loadConstantInteger(int integerValue)
-				 | loadConstantLong(int longValue)
-				 | loadConstantFloat(real floatValue)
-				 | loadConstantDouble(real doubleValue)
-				 | lookupSwitch(int defaultLabelIndex, list[int] keys, list[int] cases)
-				 | method(int opcode, str owner, str name, str description)
+				 | iLoad(int index)
+				 | lLoad(int index)
+				 | fLoad(int index)
+				 | dLoad(int index)
+				 | aLoad(int index)
+				 | iStore(int index)
+				 | lStore(int index)
+				 | fStore(int index)
+				 | dStore(int index)
+				 | aStore(int index)
+				 | ret(int index)
+
+				 | ldcString(str string)
+				 | ldcInt(int \int)
+				 | ldcLong(int long)
+				 | ldcFloat(real float)
+				 | ldcDouble(real double)
+
+				 | lookupSwitch(int defaultLabel, list[int] keys, list[int] cases)
+
+				 | invokeVirtual(str owner, str name, str description)
+				 | invokeSpecial(str owner, str name, str description)
+				 | invokeStatic(str owner, str name, str description)
+				 | invokeInterface(str owner, str name, str description)
+				 | invokeDynamic(str owner, str name, str description)
+
 				 | multiANewArray(str description, int dimensions)
-				 | tableSwitch(int minIndex, int maxIndex, int defaultLabelIndex, list[int] cases)
-				 | \type(int opcode, str description);
+
+				 | tableSwitch(int min, int max, int defaultLabel, list[int] cases)
+				 
+				 | new(str internalName)
+				 | aNewArray(str internalName)
+				 | checkCast(str internalName)
+				 | instanceOf(str internalName);
 
 data TryCatchBlock = tryCatchBlock(int startLabelIndex, int endLabelIndex, int handlerLabelIndex, str \type)
 				   | finallyBlock(int startLabelIndex, int endLabelIndex, int handlerLabelIndex);
