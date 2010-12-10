@@ -655,22 +655,24 @@ public abstract class SGTDBF implements IGTD{
 			}while(!stacksWithNonTerminalsToReduce.isEmpty());
 		}while(findStacksToReduce());
 		
-		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
-		if(levelResultStoreMap != null){
-			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
-			if(result != null){
-				FilteringTracker filteringTracker = new FilteringTracker();
-				IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
-				if(resultTree != null){
-					return resultTree; // Success.
+		if(location == input.length){
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
+			if(levelResultStoreMap != null){
+				AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
+				if(result != null){
+					FilteringTracker filteringTracker = new FilteringTracker();
+					IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
+					if(resultTree != null){
+						return resultTree; // Success.
+					}
+					
+					// Filtering error.
+					int line = positionStore.findLine(filteringTracker.offset);
+					int column = positionStore.getColumn(filteringTracker.offset, line);
+					int endLine = positionStore.findLine(filteringTracker.endOffset);
+					int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
+					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, filteringTracker.offset, (filteringTracker.endOffset - filteringTracker.offset), line + 1, endLine + 1, column, endColumn));
 				}
-				
-				// Filtering error.
-				int line = positionStore.findLine(filteringTracker.offset);
-				int column = positionStore.getColumn(filteringTracker.offset, line);
-				int endLine = positionStore.findLine(filteringTracker.endOffset);
-				int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-				throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, filteringTracker.offset, (filteringTracker.endOffset - filteringTracker.offset), line + 1, endLine + 1, column, endColumn));
 			}
 		}
 		
