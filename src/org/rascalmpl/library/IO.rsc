@@ -11,7 +11,7 @@ public void java println(value arg);
 @reflect{for getting IO streams}
 public bool print(value arg) 
 {
-  println(V);
+  println(arg);
   return true;
 }
     
