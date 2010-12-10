@@ -1211,7 +1211,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitFunctionModifiersList(
+	public IList visitFunctionModifiersList(
 			org.rascalmpl.ast.FunctionModifiers.List x) {
 		return eXs0(x.getModifiers());
 	}
@@ -1235,9 +1235,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitHeaderDefault(org.rascalmpl.ast.Header.Default x) {
+		/* "tags", "name","params", "imports" */
 		IList l = getTreeList(x, 6);
 		return V(getComment(x, 1), H(KW("module"), H(0, eX(x.getName()))),
-				getComment(x, 5), eXs0(x.getImports(), l));
+				getComment(x, 5), V(0, eXs0(x.getImports(), l)));
 	}
 
 	public IValue visitHeaderParameters(Parameters x) {
@@ -2033,7 +2034,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitStatementNonEmptyBlock(
 			org.rascalmpl.ast.Statement.NonEmptyBlock x) {
 		/** label:Label "{" statements:Statement+ "}" */
-		return list(BoxADT.LBLOCK, eXs0(x.getStatements()), BoxADT.RBLOCK);
+		IList l = getTreeList(x, 4);
+		return list(BoxADT.LBLOCK, eXs0(x.getStatements(), l), BoxADT.RBLOCK);
 	}
 
 	public IValue visitStatementReturn(Return x) {
@@ -2529,7 +2531,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitVisibilityDefault(org.rascalmpl.ast.Visibility.Default x) {
-		return L(x.getClass().toString());
+		return null;
 	}
 
 	public IValue visitVisibilityPrivate(Private x) {
@@ -2828,7 +2830,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private IValue eXs0(java.util.List conditions) {
+	private IList eXs0(java.util.List conditions) {
 		IList s = BoxADT.getEmptyList();
 		// System.err.println("eXs0:"+conditions.size());
 		for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
@@ -2941,6 +2943,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	private IList getComment(IList z, int ind) {
+		// System.err.println("getComment:"+z.get(ind));
 		IList c = TreeAdapter.searchCategory((IConstructor) z.get(ind),
 				"Comment");
 		IList r = list();
@@ -3101,12 +3104,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitAssocLeft(Left x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return KW("left");
 	}
 
 	public IValue visitAssocRight(Right x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return KW("right");
 	}
 
 	public IValue visitCharAmbiguity(org.rascalmpl.ast.Char.Ambiguity x) {
@@ -3192,13 +3195,13 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitNonterminalLabelLexical(
 			org.rascalmpl.ast.NonterminalLabel.Lexical x) {
 		// TODO Auto-generated method stub
-		return STRING(x.getString());
+		return L(x.getString());
 	}
 
 	public IValue visitNonterminalLexical(
 			org.rascalmpl.ast.Nonterminal.Lexical x) {
 		// TODO Auto-generated method stub
-		return STRING(x.getString());
+		return ESC(x.getString());
 	}
 
 	public IValue visitProdAction(org.rascalmpl.ast.Prod.Action x) {
@@ -3208,14 +3211,19 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdAll(org.rascalmpl.ast.Prod.All x) {
 		// TODO Auto-generated method stub
+		IList ms = null;
+		if (x.hasModifiers()) {
+			ms = eXs0(x.getModifiers());
+		}
 		IValue v = eX(x.getRhs());
 		if (v.getType().isListType()) {
 			IList vs = (IList) v;
-			if (vs.length()>0) 
-			return list(eX(x.getLhs()), H(1, BoxADT.VBAR, vs.get(0)), vs.delete(0));
-			
+			if (vs.length() > 0)
+				return list(ms, eX(x.getLhs()), H(1, BoxADT.VBAR, vs.get(0)),
+						vs.delete(0));
+
 		}
-		return list(eX(x.getLhs()), H(1, BoxADT.VBAR, v));
+		return list(ms, eX(x.getLhs()), H(1, BoxADT.VBAR, v));
 	}
 
 	public IValue visitProdAmbiguity(org.rascalmpl.ast.Prod.Ambiguity x) {
@@ -3225,24 +3233,49 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdAssociativityGroup(AssociativityGroup x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		IList ms = null;
+		if (x.hasModifiers()) {
+			ms = eXs0(x.getModifiers());
+		}
+		IValue v = eX(x.getGroup());
+		if (v.getType().isListType()) {
+			IList vs = (IList) v;
+			if (vs.length() > 0)
+				return list(ms,
+						H(1, eX(x.getAssociativity()), BoxADT.LPAR, vs.get(0)),
+						vs.delete(0), BoxADT.RPAR);
+
+		}
+		return H(1, ms, eX(x.getAssociativity()), v);
 	}
 
 	public IValue visitProdFirst(First x) {
+		IList ms = null;
+		if (x.hasModifiers()) {
+			ms = eXs0(x.getModifiers());
+		}
 		IValue v = eX(x.getRhs());
 		if (v.getType().isListType()) {
 			IList vs = (IList) v;
-			if (vs.length()>0) 
-			return list(eX(x.getLhs()), H(1, L("<"), vs.get(0)), vs.delete(0));
-			
+
+			if (vs.length() > 0)
+				return list(ms, eX(x.getLhs()), H(1, L(">"), vs.get(0)),
+						vs.delete(0));
+
 		}
-		return list(eX(x.getLhs()), H(1, L("<"), v));
-		
+		return list(ms, eX(x.getLhs()), H(1, L(">"), v));
+
 	}
 
 	public IValue visitProdLabeled(org.rascalmpl.ast.Prod.Labeled x) {
-		// TODO Auto-generated method stub
-		return H(1, H(0, eX(x.getName()), BoxADT.COLON), eXs0(x.getArgs()));
+		/* "modifiers", "name", "args" */
+		IList ms = null;
+		if (x.hasModifiers()) {
+			ms = eXs0(x.getModifiers());
+		}
+		IList l = getTreeList(x, 4);
+		return H(1, ms, H(0, eX(x.getName()), BoxADT.COLON),
+				eXs0(x.getArgs(), l));
 	}
 
 	public IValue visitProdModifierAmbiguity(
@@ -3253,19 +3286,19 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdModifierAssociativity(Associativity x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return eX(x.getAssociativity());
 	}
 
 	public IValue visitProdModifierBracket(
 			org.rascalmpl.ast.ProdModifier.Bracket x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return KW("bracket");
 	}
 
 	public IValue visitProdModifierLexical(
 			org.rascalmpl.ast.ProdModifier.Lexical x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return KW("lex");
 	}
 
 	public IValue visitProdOthers(Others x) {
@@ -3285,7 +3318,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdUnlabeled(org.rascalmpl.ast.Prod.Unlabeled x) {
 		// TODO Auto-generated method stub
-		return H(1, eXs0(x.getArgs()));
+		IList ms = null;
+		if (x.hasModifiers()) {
+			ms = eXs0(x.getModifiers());
+		}
+		IList l = getTreeList(x, 2);
+		return H(1, ms, eXs0(x.getArgs(), l));
 	}
 
 	public IValue visitRangeAmbiguity(org.rascalmpl.ast.Range.Ambiguity x) {
@@ -3316,7 +3354,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitSymCharacterClass(org.rascalmpl.ast.Sym.CharacterClass x) {
 		// TODO Auto-generated method stub
-		return H(0, BoxADT.LBRACK, eX(x.getCharClass()),BoxADT.RBRACK);
+		return H(0, BoxADT.LBRACK, eX(x.getCharClass()), BoxADT.RBRACK);
 	}
 
 	public IValue visitSymColumn(Column x) {
@@ -3396,33 +3434,66 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			IList vs = (IList) w;
 			if (vs.length() > 0) {
 				if (x.getProduction().isFollow())
-					return H(1,  eX(x.getStart()), KW("syntax"), eX(x.getDefined()),
-							V(BoxADT.ASSIGN, vs));
+					return V(
+							0,
+							H(1, eX(x.getStart()), KW("syntax"),
+									eX(x.getDefined()), V(BoxADT.ASSIGN, vs)));
 				else {
 					IValue v = H(1, BoxADT.ASSIGN, vs.get(0));
 					vs = vs.delete(0);
-					return H(0, H(1,  eX(x.getStart()), KW("syntax"), eX(x.getDefined())),
-							V(v, vs, BoxADT.SEMICOLON));
+					return V(
+							0,
+							H(0,
+									H(1, eX(x.getStart()), KW("syntax"),
+											eX(x.getDefined())),
+									V(v, vs, BoxADT.SEMICOLON)));
 				}
 			}
 		}
-		return H(1,  eX(x.getStart()), KW("syntax"), eX(x.getDefined()), BoxADT.ASSIGN, w,
-				BoxADT.SEMICOLON);
+		return V(
+				0,
+				H(1, eX(x.getStart()), KW("syntax"), eX(x.getDefined()),
+						BoxADT.ASSIGN, w, BoxADT.SEMICOLON), BoxADT.SPACE);
 	}
 
 	public IValue visitSyntaxDefinitionLayout(Layout x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		if (!x.hasProduction())
+			return L(x.getClass().toString());
+		IValue w = eX(x.getProduction());
+		if (w.getType().isListType()) {
+			IList vs = (IList) w;
+			if (vs.length() > 0) {
+				if (x.getProduction().isFollow())
+					return V(
+							0,
+							H(1, KW("layout"), eX(x.getDefined()),
+									V(BoxADT.ASSIGN, vs)));
+				else {
+					IValue v = H(1, BoxADT.ASSIGN, vs.get(0));
+					vs = vs.delete(0);
+					return V(
+							0,
+							H(0, H(1, KW("layout"), eX(x.getDefined())),
+									V(v, vs, BoxADT.SEMICOLON)));
+				}
+			}
+		}
+		return V(
+				0,
+				H(1, KW("layout"), eX(x.getDefined()), BoxADT.ASSIGN, w,
+						BoxADT.SEMICOLON));
+
 	}
 
 	public IValue visitAssocAssociative(Associative x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return KW("assoc");
 	}
 
 	public IValue visitAssocNonAssociative(NonAssociative x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return KW("non-assoc");
 	}
 
 	public IValue visitCaseInsensitiveStringConstantAmbiguity(
@@ -3444,7 +3515,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitStartAbsent(org.rascalmpl.ast.Start.Absent x) {
 		// TODO Auto-generated method stub
-		return L("");
+		return null;
 	}
 
 	public IValue visitStartPresent(org.rascalmpl.ast.Start.Present x) {
@@ -3458,13 +3529,17 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitProdFollow(Follow x) {
+		IList ms = null;
+		if (x.hasModifiers()) {
+			ms = eXs0(x.getModifiers());
+		}
 		// TODO Auto-generated method stub
-		return list(eX(x.getLhs()), H(0, BoxADT.HASH, eX(x.getRhs())));
+		return list(ms, eX(x.getLhs()), H(0, BoxADT.HASH, eX(x.getRhs())));
 	}
 
 	public IValue visitProdReject(Reject x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return H(1, eX(x.getLhs()), BoxADT.MINUS,eX(x.getRhs()));
 	}
 
 	public IValue visitOctalEscapeSequenceAmbiguity(
@@ -3540,7 +3615,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdModifierTag(org.rascalmpl.ast.ProdModifier.Tag x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return eX(x.getTag());
 	}
 
 }
