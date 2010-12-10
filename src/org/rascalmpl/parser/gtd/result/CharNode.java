@@ -59,6 +59,6 @@ public class CharNode extends AbstractNode{
 	}
 	
 	public static int getNumericCharValue(char character){
-		return (character > 127) ? Character.getNumericValue(character) : ((int) character); // Just ignore the Unicode garbage when possible.
+		return (character < 128) ? character : Character.getNumericValue(character); // Just ignore the Unicode garbage when possible.
 	}
 }
