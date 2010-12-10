@@ -1,5 +1,5 @@
 @bootstrapParser // Stop generating because we have a "`" in here!!!!
-module Sdf2
+module sdf2::syntax::Sdf2
 
 syntax Sort = lex OneChar: [A-Z] |
               lex MoreChars: [A-Z] [A-Za-z0-9]* [A-Za-z0-9]
@@ -88,8 +88,8 @@ syntax Attributes = Attrs: "{" {Attribute ","}* "}" |
                     NoAttrs: 
                     ;
 
-syntax Production = Prod: "-\>" Symbol Attributes |
-                    PrefixFun: "(" {Symbol ","}* ")" Attributes // Avoid
+syntax Production = Prod: Symbols "-\>" Symbol Attributes |
+                    PrefixFun: FunctionName "(" {Symbol ","}* ")" Attributes // Avoid
                     ;
 
 syntax Productions = Production*
