@@ -267,7 +267,7 @@ syntax Lookaheads = Single: Lookahead |
 syntax Restriction = Follow: Symbols "-/-" Lookaheads
                      ;
 
-syntax Restrictions = Restriction
+syntax Restrictions = Restriction*
                       ;
 
 syntax Associativity = Left: "left" |
