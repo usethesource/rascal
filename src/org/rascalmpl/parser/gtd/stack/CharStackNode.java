@@ -72,20 +72,24 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return result;
 	}
 	
+	public static int getNumericCharValue(char character){
+		return (character < 128) ? character : Character.getNumericValue(character); // Just ignore the Unicode garbage when possible.
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append('[');
 		char[] range = ranges[0];
-		sb.append(Character.getNumericValue(range[0]));
+		sb.append(getNumericCharValue(range[0]));
 		sb.append('-');
-		sb.append(Character.getNumericValue(range[1]));
+		sb.append(getNumericCharValue(range[1]));
 		for(int i = ranges.length - 2; i >= 0; --i){
 			sb.append(',');
 			range = ranges[i];
-			sb.append(Character.getNumericValue(range[0]));
+			sb.append(getNumericCharValue(range[0]));
 			sb.append('-');
-			sb.append(Character.getNumericValue(range[1]));
+			sb.append(getNumericCharValue(range[1]));
 		}
 		sb.append(']');
 		
