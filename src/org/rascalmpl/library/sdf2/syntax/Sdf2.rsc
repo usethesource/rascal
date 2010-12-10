@@ -67,6 +67,7 @@ syntax OptCharRanges = Absent: |
                        ;
 
 syntax Attribute = Id: "id" "(" ModuleName ")" |
+                   Term: ATermAttribute |
                    Reject: "reject" |
                    Prefer: "prefer" |
                    Avoid: "avoid" |
@@ -74,8 +75,7 @@ syntax Attribute = Id: "id" "(" ModuleName ")" |
                    Assoc: Associativity
                    ;
 
-syntax ATermAttribute = Default: ATerm |
-                        Term: Attribute
+syntax ATermAttribute = Default: ATerm
                         - Associativity |
                           "reject" |
                           "prefer" |
@@ -164,10 +164,10 @@ syntax Alias = Alias: Symbol "-\>" Symbol
 syntax Aliases = Alias*
                  ;
 
-syntax StrChar = lex NewLine: "\\n" |
-                 lex Tab: "\\t" |
-                 lex Quote: "\\\"" |
-                 lex Backslash: "\\\\" |
+syntax StrChar = lex NewLine: "\n" |
+                 lex Tab: "\t" |
+                 lex Quote: "\"" |
+                 lex Backslash: "\\" |
                  lex Decimal: "\\" [0-9] [0-9] [0-9] |
                  lex Normal: ![\0-\31\n\t\"\\]
                  ;
@@ -183,12 +183,12 @@ syntax SingleQuotedStrCon = lex Default: [\'] SingleQuotedStrChar [\']
                             ;
 
 syntax SingleQuotedStrChar = lex NewLine: "\\n" |
-                              lex Tab: "\\t" |
-                              lex Quote: "\\\'" |
-                              lex Backslash: "\\\\" |
-                              lex Decimal: "\\" [0-9] [0-9] [0-9] |
-                              lex Normal: ![\0-\31\n\t\'\\]
-                              ;
+                             lex Tab: "\\t" |
+                             lex Quote: "\\\'" |
+                             lex Backslash: "\\\\" |
+                             lex Decimal: "\\" [0-9] [0-9] [0-9] |
+                             lex Normal: ![\0-\31\n\t\'\\]
+                             ;
 
 syntax RealCon = RealCon: IntCon "." NatCon OptExp
                  ;
