@@ -8,6 +8,10 @@ Synopsis:
 
 Description:
 
+<screen>
+import JDT;
+</screen>
+
 Before you study more complicated examples, it is useful to discuss some general problem solving 
 strategies that are relevant in Rascal's application domain.
 

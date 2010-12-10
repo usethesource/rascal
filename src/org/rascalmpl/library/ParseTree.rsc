@@ -180,5 +180,8 @@ public anno set[Message] Tree@messages;
 @doc{provides a documentation string for this parse tree node}
 anno str Tree@doc;
 
+@doc{provides a documentation string for certain locations}
+anno map[loc,str] Tree@docs;
+
 @doc{provides the target of a link}
 anno loc Tree@link;

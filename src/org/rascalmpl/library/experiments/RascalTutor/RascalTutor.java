@@ -16,15 +16,15 @@ public class RascalTutor {
 	private final Evaluator eval;
 
 	public RascalTutor() {
-		this.eval = getRascalEvaluator();
-	}
-	
-	public org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("*** TUTOR ***"));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
-		return new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+	}
+	
+	public org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
+		return eval;
 	}
 	
 	final static String BASE = "std:///experiments/RascalTutor/";

@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.RascalShell;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -34,20 +35,20 @@ public class Scripting {
 		duration = values.integer(1000); // default duration for eval and shell
 	}
 
-	public IValue shell(IList lines, IInteger duration) {
+	public IValue shell(IList lines, IInteger duration, IEvaluatorContext ctx) {
 		StringBuffer sb = new StringBuffer();
 		for(IValue line : lines){
 			sb.append(((IString)line).getValue());
 			sb.append("\n");
 		}
-		return shell(values.string(sb.toString()), duration);
+		return shell(values.string(sb.toString()), duration, ctx);
 	}
 	
-	public IValue shell(IList lines) {
-		return shell(lines, duration);
+	public IValue shell(IList lines, IEvaluatorContext ctx) {
+		return shell(lines, duration, ctx);
 	}
 	
-	public IValue shell(IString input, IInteger duration) {
+	public IValue shell(IString input, IInteger duration, IEvaluatorContext ctx) {
 	
 		java.lang.String is = input.getValue();
 		
@@ -63,7 +64,7 @@ public class Scripting {
 		PrintWriter err = new PrintWriter(es);
 		
 		try {
-			RascalShell shell = new RascalShell(in, err, out);
+			RascalShell shell = new RascalShell(in, err, out, ((Evaluator) ctx).getClassLoaders(), ((Evaluator) ctx).getRascalResolver());
 			Timer timer = new ShellTimer(shell, duration.intValue());
 			timer.start();
 			shell.run();
@@ -93,52 +94,54 @@ public class Scripting {
 		} 
 	}
 	
-	public IValue shell(IString input) {
-		return shell(input, duration);
+	public IValue shell(IString input, IEvaluatorContext ctx) {
+		return shell(input, duration, ctx);
 	}
 
-	public IValue eval (IString input, IInteger duration) {
-		return doEval(ValueFactoryFactory.getValueFactory().list(input), duration).getValue();
+	public IValue eval (IString input, IInteger duration, IEvaluatorContext ctx) {
+		return doEval(ValueFactoryFactory.getValueFactory().list(input), duration, ctx).getValue();
 	}
 	
-	public IValue eval (IString input) {
-		return eval(input, duration);
+	public IValue eval (IString input, IEvaluatorContext ctx) {
+		return eval(input, duration, ctx);
 	}
 
-	public IValue eval (IList commands, IInteger duration) {
-		return doEval(commands, duration).getValue();
+	public IValue eval (IList commands, IInteger duration, IEvaluatorContext ctx) {
+		return doEval(commands, duration, ctx).getValue();
 	}
 	
-	public IValue eval (IList commands) {
-		return eval(commands, duration);
+	public IValue eval (IList commands, IEvaluatorContext ctx) {
+		return eval(commands, duration, ctx);
 	}
 	
-	public IValue evalType (IString input, IInteger duration) {
-		Result<IValue> result =  doEval(values.list(input), duration);
+	public IValue evalType (IString input, IInteger duration, IEvaluatorContext ctx) {
+		Result<IValue> result =  doEval(values.list(input), duration, ctx);
 		// Make sure redundant spaces are removed from the type.
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
-	public IValue evalType (IString input) {
-		return evalType(input, duration);
+	public IValue evalType (IString input, IEvaluatorContext ctx) {
+		return evalType(input, duration, ctx);
 	}
 	
-	public IValue evalType (IList commands, IInteger duration) {
-		Result<IValue> result = doEval(commands, duration);
+	public IValue evalType (IList commands, IInteger duration, IEvaluatorContext ctx) {
+		Result<IValue> result = doEval(commands, duration, ctx);
 		return values.string(result.getType().toString());
 	}
 	
-	public IValue evalType (IList commands) {
-		return evalType(commands, duration);
+	public IValue evalType (IList commands, IEvaluatorContext ctx) {
+		return evalType(commands, duration, ctx);
 	}
 	
-	private Result<IValue> doEval (IList commands, IInteger duration) {
-		PrintWriter err = new PrintWriter(System.err);
+	private Result<IValue> doEval (IList commands, IInteger duration, IEvaluatorContext ctx) {
+		PrintWriter err = new PrintWriter(System.err); // TODO ?
 		PrintWriter out = new PrintWriter(System.out);
 		
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***scripting***"));
-		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, root, heap);
+		Evaluator eval = (Evaluator) ctx;
+
+		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, root, heap, eval.getClassLoaders(), eval.getRascalResolver());
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 		timer.start();
 		
