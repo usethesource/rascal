@@ -42,7 +42,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class SGTDBF implements IGTD{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
-	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
+	private final static int DEFAULT_TODOLIST_CAPACITY = 128;
 	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
