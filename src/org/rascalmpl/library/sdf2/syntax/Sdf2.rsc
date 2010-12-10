@@ -15,7 +15,7 @@ syntax NatCon = lex Digits: [0-9]+
                 # [0-9]
                 ;
 
-syntax NumChar = lex Digits: [0-9]+
+syntax NumChar = lex Digits: [\\] [0-9]+
                  # [0-9]
                  ;
 
@@ -31,7 +31,7 @@ syntax Character = Numeric: NumChar |
                    ;
 
 syntax ShortChar = lex Regular: [a-zA-Z0-9] |
-                   lex Escaped: [\\] [\0-\31A-Za-mo-qsu-z0-9]
+                   lex Escaped: [\\] ![\0-\31A-Za-mo-qsu-z0-9]
                    ;
 
 syntax Renaming = Symbol: Symbol "=\>" Symbol |
