@@ -490,7 +490,7 @@ public str convert2latex(str s) {
 str text2latex(str t) {
     t = convert2latex(t);
     return visit(t) {
-       case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<key>}"
+       // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<text2latex(key)>}"
        case /^\r\{<tg:..><key:[^\r]*>/ => "\\<tg>{<key>"
        case /^\r\}<tg:..>/ => "}"
        }
@@ -541,7 +541,7 @@ public str convert2html(str s) {
 str text2html(str t) {
     t = convert2html(t);
     return visit(t) {
-       case /^\r\{<tg:..><key:[^\r]*>\r\}../ => selectTag(tg, key)
+       // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => selectTag(tg, text2htlm(key))
        case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
        case /^\r\}<tg:..>/ => selectEndTag(tg)
        }
