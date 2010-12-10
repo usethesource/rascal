@@ -2,8 +2,13 @@ package org.rascalmpl.interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.List;
 
+import org.rascalmpl.bridge.Rascal;
+import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.parser.Parser;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 
 public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> implements org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>> {
@@ -11,7 +16,7 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	private static final org.eclipse.imp.pdb.facts.type.TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
 	protected org.rascalmpl.interpreter.env.Environment currentEnvt;
 	private org.rascalmpl.interpreter.strategy.StrategyContextStack strategyContextStack;
-
+  
 	private final org.rascalmpl.interpreter.env.GlobalEnvironment heap;
 	private boolean interrupt = false;
 
@@ -41,6 +46,10 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 	private final org.rascalmpl.uri.URIResolverRegistry resolverRegistry;
 
 	public Evaluator(org.eclipse.imp.pdb.facts.IValueFactory f, java.io.PrintWriter stderr, java.io.PrintWriter stdout, org.rascalmpl.interpreter.env.ModuleEnvironment scope, org.rascalmpl.interpreter.env.GlobalEnvironment heap) {
+		this(f,stderr,stdout,scope,heap, new java.util.ArrayList<java.lang.ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new org.rascalmpl.interpreter.load.RascalURIResolver(new URIResolverRegistry()));	
+	}
+	
+	public Evaluator(org.eclipse.imp.pdb.facts.IValueFactory f, java.io.PrintWriter stderr, java.io.PrintWriter stdout, org.rascalmpl.interpreter.env.ModuleEnvironment scope, org.rascalmpl.interpreter.env.GlobalEnvironment heap, java.util.List<java.lang.ClassLoader> classLoaders, RascalURIResolver rascalURIResolver) {
 		this.__setVf(f);
 		this.__setPatternEvaluator(new org.rascalmpl.interpreter.PatternEvaluator(this));
 		this.strategyContextStack = new org.rascalmpl.interpreter.strategy.StrategyContextStack();
@@ -49,14 +58,14 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		this.currentEnvt = scope;
 		this.rootScope = scope;
 		this.__getHeap().addModule(scope);
-		this.classLoaders = new java.util.ArrayList<java.lang.ClassLoader>();
+		this.classLoaders = classLoaders;
 		this.javaBridge = new org.rascalmpl.interpreter.utils.JavaBridge(this.classLoaders, this.__getVf());
-		this.rascalPathResolver = new org.rascalmpl.interpreter.load.RascalURIResolver(this);
+		this.rascalPathResolver = rascalURIResolver;
 		this.parser = new org.rascalmpl.parser.Parser();
 		this.stderr = stderr;
 		this.stdout = stdout;
 		this.builder = new org.rascalmpl.parser.ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
-		this.resolverRegistry = new org.rascalmpl.uri.URIResolverRegistry();
+		this.resolverRegistry = rascalPathResolver.getRegistry();
 
 		this.updateProperties();
 		
@@ -87,9 +96,6 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 			}
 		});
 
-		// load Java classes from the current jar (for the standard library)
-		this.classLoaders.add(this.getClass().getClassLoader());
-
 		// register some schemes
 		org.rascalmpl.uri.FileURIResolver files = new org.rascalmpl.uri.FileURIResolver(); 
 		this.resolverRegistry.registerInputOutput(files);
@@ -113,6 +119,10 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		org.rascalmpl.uri.HomeURIResolver home = new org.rascalmpl.uri.HomeURIResolver();
 		this.resolverRegistry.registerInputOutput(home);
 	}  
+	
+	public List<ClassLoader> getClassLoaders() {
+		return Collections.unmodifiableList(classLoaders); 
+	}
 	
 	public org.rascalmpl.parser.Parser __getParser() {
 		return parser;

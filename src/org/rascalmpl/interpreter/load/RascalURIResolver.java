@@ -10,9 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputOutputResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.UnsupportedSchemeException;
 
 /**
@@ -21,11 +21,11 @@ import org.rascalmpl.uri.UnsupportedSchemeException;
  */
 public class RascalURIResolver implements IURIInputOutputResolver {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
-	private final IEvaluatorContext ctx;
+	private final URIResolverRegistry reg;
 	
-	public RascalURIResolver(IEvaluatorContext ctx) {
+	public RascalURIResolver(URIResolverRegistry ctx) {
 		this.contributors = new ArrayList<IRascalSearchPathContributor>();
-		this.ctx = ctx;
+		this.reg = ctx;
 	}
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {
@@ -39,7 +39,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		try {
 			for (URI dir : collect()) {
 				URI full = getFullURI(getPath(uri), dir);
-				if (ctx.getResolverRegistry().exists(full)) {
+				if (reg.exists(full)) {
 					return full;
 				}
 			}
@@ -57,7 +57,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
+					if (reg.exists(full)) {
 						return true;
 					}
 				}
@@ -119,8 +119,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
-						return ctx.getResolverRegistry().getInputStream(full);
+					if (reg.exists(full)) {
+						return reg.getInputStream(full);
 					}
 				}
 			}
@@ -143,8 +143,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
-						return ctx.getResolverRegistry().getOutputStream(full, append);
+					if (reg.exists(full)) {
+						return reg.getOutputStream(full, append);
 					}
 				}
 			}
@@ -164,8 +164,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
 					System.err.println("full = " + full.getPath());
-					if (ctx.getResolverRegistry().exists(full) &&
-						ctx.getResolverRegistry().isDirectory(full)) {
+					if (reg.exists(full) &&
+						reg.isDirectory(full)) {
 						return true;
 					}
 				}
@@ -184,8 +184,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full) &&
-					    ctx.getResolverRegistry().isFile(full)) {
+					if (reg.exists(full) &&
+					    reg.isFile(full)) {
 						return true;
 					}
 				}
@@ -204,8 +204,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
-						return ctx.getResolverRegistry().lastModified(full);
+					if (reg.exists(full)) {
+						return reg.lastModified(full);
 					}
 				}
 			}
@@ -223,8 +223,8 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					if (ctx.getResolverRegistry().exists(full)) {
-						return ctx.getResolverRegistry().listEntries(full);
+					if (reg.exists(full)) {
+						return reg.listEntries(full);
 					}
 				}
 			}
@@ -242,7 +242,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-						return ctx.getResolverRegistry().mkDirectory(full);
+						return reg.mkDirectory(full);
 				}
 			}
 			return false;
@@ -254,12 +254,16 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 
 	public URI getResourceURI(URI uri) {
 		try {
-			return ctx.getResolverRegistry().getResourceURI(uri);
+			return reg.getResourceURI(uri);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public URIResolverRegistry getRegistry() {
+		return reg;
 	}
 
 }
