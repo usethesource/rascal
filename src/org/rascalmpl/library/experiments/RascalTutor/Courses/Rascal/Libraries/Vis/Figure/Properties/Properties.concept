@@ -58,9 +58,6 @@ data FProperty =
    
 /* interaction properties */  
    | mouseOver(Figure fig)         // add figure when mouse is over current figure
-**   | contentsHidden()              // contents of container is hidden
-**   | contentsVisible()             // contents of container is visible
-**   | pinned()                      // position pinned-down, cannot be dragged
    | doi(int d)                    // limit degree-of-interest to nesting level d
    
 /* other properties */

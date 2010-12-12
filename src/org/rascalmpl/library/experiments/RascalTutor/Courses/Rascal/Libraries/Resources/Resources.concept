@@ -52,6 +52,11 @@ namely the first 10 characters on the first line:
 |project://myProject/src/Main.java|(0,10,1,0,1,10) 
 </listing>
 
+<screen>
+import Resources;
+getProject(|project://org.eclipse.imp.pdb.values|);
+</screen>
+
 Benefits:
 
 Pitfalls:

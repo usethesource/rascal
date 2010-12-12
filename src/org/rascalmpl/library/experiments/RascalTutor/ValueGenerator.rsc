@@ -19,12 +19,13 @@ private int minInt = -20;
 private int maxReal = maxInt;
 private int minReal = -maxReal;
 
-private list[RascalType] baseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \num(minInt,maxInt), \str(), \loc(), \dateTime()];
+private list[RascalType] baseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \num(minInt,maxInt), \str(), \loc(), \datetime()];
 private list[RascalType] reducedBaseTypes = [\bool(), \int(minInt,maxInt), \real(minReal,maxReal), \str()];
 
 
 public RascalType parseType(str txt){
-   //("parseType: <txt>");
+   txt = replaceAll(txt, "[ \\n]", "");
+   println("parseType: \'<txt>\'");
    switch(txt){
      case /^bool$/:		return \bool();
      case /^int$/: 		return \int(minInt, maxInt);
@@ -47,7 +48,7 @@ public RascalType parseType(str txt){
      					return \num(toInt(f), toInt(t));
      case /^str$/: 		return \str();
      case /^loc$/: 		return \loc();
-     case /^dateTime$/: return \dateTime();
+     case /^datetime$/: return \datetime();
      case /^list\[<et:.+>\]/:
      					return \list(parseType(et));
      case /^set\[<et:.+>\]$/:
@@ -90,17 +91,20 @@ public RascalType parseType(str txt){
 }
 
 public list[RascalType] parseTypeList(str txt){
+println("parseTypeList: \'<txt>\'");
   str prefix = "";
   return
     for(/<et:[^,]+>($|,)/ := txt){
       try {
+         println("entering try: prefix = <prefix>");
          if(prefix != "")
          	prefix += ",";
          pt = parseType(prefix + et);
          append pt;
          prefix = "";
-      } catch: {
+      } catch str s: {
         prefix += et;
+        println("parseTypeList, catch: prefix = \'<prefix>\'");
       }
     }
 }
@@ -111,7 +115,7 @@ test parseType("real") == \real(minReal,maxReal);
 test parseType("num") == \num(minInt,maxInt);
 test parseType("str") == \str();
 test parseType("loc") == \loc();
-test parseType("dateTime") == \dateTime();
+test parseType("datetime") == \datetime();
 test parseType("list[int]") == \list(\int(minInt,maxInt));
 test parseType("list[list[int]]") == \list(\list(\int(minInt,maxInt)));
 test parseType("set[int]") == \set(\int(minInt,maxInt));
@@ -122,8 +126,8 @@ test parseType("tuple[int,str]") == \tuple([\int(minInt,maxInt), \str()]);
 test parseType("tuple[int,tuple[real,str]]") == \tuple([\int(minInt,maxInt), \tuple([\real(minReal,maxReal),\str()])]);
 test parseType("rel[int,str]") == \set(\tuple([\int(minInt,maxInt), \str()]));
 test parseType("rel[int,tuple[real,str]]") == \set(\tuple([\int(minInt,maxInt), \tuple([\real(minReal,maxReal),\str()])]));
-test parseType("arb[0]") == \arb(0, [\bool(),\int(minInt,maxInt),\real(minReal,maxReal),\num(minInt,maxInt),\str(),\loc(),\dateTime()]);
-test parseType("set[arb]") == \set(\arb(0,[\bool(),\int(minInt,maxInt),\real(minReal,maxReal),\num(minInt,maxInt),\str(),\loc(),\dateTime()]));
+test parseType("arb[0]") == \arb(0, [\bool(),\int(minInt,maxInt),\real(minReal,maxReal),\num(minInt,maxInt),\str(),\loc(),\datetime()]);
+test parseType("set[arb]") == \set(\arb(0,[\bool(),\int(minInt,maxInt),\real(minReal,maxReal),\num(minInt,maxInt),\str(),\loc(),\datetime()]));
 
 test parseType("value") == \value();
 test parseType("set[value]") == \set(\value());
@@ -213,7 +217,7 @@ test generateType(\int(minInt,maxInt), ()) == \int(minInt,maxInt);
 test generateType(\real(minReal,maxReal), ()) == \real(minReal,maxReal);
 test generateType(\num(minInt,maxInt), ()) == \num(minInt,maxInt);
 test generateType(\loc(), ()) == \loc();
-test generateType(\dateTime(), ()) == \dateTime();
+test generateType(\datetime(), ()) == \datetime();
 test generateType(\list(\int(minInt,maxInt)), ()) == \list(\int(minInt,maxInt));
 test generateType(\set(\int(minInt,maxInt)), ()) == \set(\int(minInt,maxInt));
 test generateType(\map(\str(), \int(minInt,maxInt)), ()) == \map(\str(), \int(minInt,maxInt));
@@ -257,7 +261,7 @@ public str generateValue(RascalType t, VarEnv env){
        						return generateNumber(f, t);
        case \str(): 		return generateString();
        case \loc():			return generateLoc();
-       case \dateTime():	return generateDateTime();
+       case \datetime():	return generateDateTime();
        case \list(et): 		return generateList(et, env);
        case \set(et):		return generateSet(et, env);
        case \map(kt, vt):	return generateMap(kt, vt, env);
@@ -394,7 +398,9 @@ public str generateSet(RascalType et, VarEnv env){
 }
 
 public str generateMap(RascalType kt, RascalType vt, VarEnv env){
-   return "(<for(int i <- [0 .. arbInt(5)]){><(i==0)?"":", "><generateValue(kt, env)> : <generateValue(vt, env)><}>)";
+   keys = { generateValue(kt, env) | int i <- [0 .. arbInt(5)] }; // ensures unique keys
+   keyList = toList(keys);
+   return "(<for(i <- index(keyList)){><(i==0)?"":", "><keyList[i]>: <generateValue(vt, env)><}>)";
 }
 
 public str generateTuple(list[RascalType] ets, VarEnv env){

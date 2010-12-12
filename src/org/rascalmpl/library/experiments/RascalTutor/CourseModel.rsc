@@ -87,7 +87,7 @@ data RascalType =
      | \num(int from, int to)
      | \str()
      | \loc()
-     | \dateTime()
+     | \datetime()
      | \list(RascalType tp)
      | \set(RascalType tp)
      | \map(RascalType key, RascalType val)

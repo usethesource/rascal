@@ -6,14 +6,14 @@ TODO List for RascalTutor
 - Fix too long lines in exercises [Easy]
 - Add more question types [Unclear]
 - General code cleanup [Some work, is going on]
-- Start page for RascalTutor that lists the available courses.
-- Include output of visualization in course pages [hard]
 - Add a Tutor for the Tutor itself
 
 and ...
 - Convert Rascal manual :-)
 
 Completed:
+- Include output of visualization in course pages [hard]
+- Start page for RascalTutor that lists the available courses.
 - Rename exercises Type, Value, etc to something like QType, QValue, etc. [Trivial]
 - Fix column alignment in tables.
 - Fix screen/listing inside list [Moderate]

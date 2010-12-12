@@ -8,20 +8,24 @@ Syntax:
 
 Types:
 
-Function: `void println(value V...)`
+Function: `void println(value V)`
 
 Synopsis:
 
-Description: Print a list of values on the output stream.
+Description: Print a value on the output stream.
 
 Examples:
 <screen>
 import IO;
 println("Hello World");
-// Introduce to variable and print their values:
+// Introduce variable S and print it:
 S = "Hello World";
+println(S);
+// Introduce variable L and print it:
 L = ["a", "b", "c"];
-println(S, L);
+println(L);
+// Use a string template to print several values:
+println("<S>: <L>");
 </screen>
 
 Benefits:
