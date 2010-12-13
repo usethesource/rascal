@@ -1,57 +1,66 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.Name;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.TagString;
+
 public abstract class Tag extends org.rascalmpl.ast.Tag {
 
+	public Tag(INode __param1) {
+		super(__param1);
+	}
 
-public Tag (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Default extends org.rascalmpl.ast.Tag.Default {
+	static public class Default extends org.rascalmpl.ast.Tag.Default {
 
+		public Default(INode __param1, Name __param2, TagString __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-public Default (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Name __param2,org.rascalmpl.ast.TagString __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Empty extends org.rascalmpl.ast.Tag.Empty {
+	}
 
+	static public class Empty extends org.rascalmpl.ast.Tag.Empty {
 
-public Empty (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Name __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Empty(INode __param1, Name __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Tag.Ambiguity {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Tag> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Ambiguity extends org.rascalmpl.ast.Tag.Ambiguity {
 
-}
-static public class Expression extends org.rascalmpl.ast.Tag.Expression {
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Tag> __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Expression (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Name __param2,org.rascalmpl.ast.Expression __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
+	static public class Expression extends org.rascalmpl.ast.Tag.Expression {
+
+		public Expression(INode __param1, Name __param2, org.rascalmpl.ast.Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

@@ -1,45 +1,52 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Statement;
+
 public abstract class Case extends org.rascalmpl.ast.Case {
 
+	public Case(INode __param1) {
+		super(__param1);
+	}
 
-public Case (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Default extends org.rascalmpl.ast.Case.Default {
+	static public class Default extends org.rascalmpl.ast.Case.Default {
 
+		public Default(INode __param1, Statement __param2) {
+			super(__param1, __param2);
+		}
 
-public Default (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Statement __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Case.Ambiguity {
+	}
 
+	static public class Ambiguity extends org.rascalmpl.ast.Case.Ambiguity {
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Case> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Case> __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class PatternWithAction extends org.rascalmpl.ast.Case.PatternWithAction {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public PatternWithAction (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.PatternWithAction __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class PatternWithAction extends org.rascalmpl.ast.Case.PatternWithAction {
 
-}
+		public PatternWithAction(INode __param1, org.rascalmpl.ast.PatternWithAction __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

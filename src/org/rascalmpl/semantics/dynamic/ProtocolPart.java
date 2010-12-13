@@ -1,68 +1,83 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.StringBuilder;
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.PreProtocolChars;
+import org.rascalmpl.ast.ProtocolChars;
+import org.rascalmpl.ast.ProtocolTail;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.result.Result;
+
 public abstract class ProtocolPart extends org.rascalmpl.ast.ProtocolPart {
 
+	public ProtocolPart(INode __param1) {
+		super(__param1);
+	}
 
-public ProtocolPart (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class NonInterpolated extends org.rascalmpl.ast.ProtocolPart.NonInterpolated {
+	static public class NonInterpolated extends org.rascalmpl.ast.ProtocolPart.NonInterpolated {
 
+		public NonInterpolated(INode __param1, ProtocolChars __param2) {
+			super(__param1, __param2);
+		}
 
-public NonInterpolated (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.ProtocolChars __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		return this.getProtocolChars().__evaluate(__eval);
-	
-}
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
-}
-static public class Interpolated extends org.rascalmpl.ast.ProtocolPart.Interpolated {
+			return this.getProtocolChars().__evaluate(__eval);
 
+		}
 
-public Interpolated (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.PreProtocolChars __param2,org.rascalmpl.ast.Expression __param3,org.rascalmpl.ast.ProtocolTail __param4) {
-	super(__param1,__param2,__param3,__param4);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> pre = this.getPre().__evaluate(__eval);
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> expr = this.getExpression().__evaluate(__eval);
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> tail = this.getTail().__evaluate(__eval);
-		java.lang.StringBuilder result = new java.lang.StringBuilder();
+	static public class Interpolated extends org.rascalmpl.ast.ProtocolPart.Interpolated {
 
-		result.append(((org.eclipse.imp.pdb.facts.IString) pre.getValue()).getValue());
-		__eval.appendToString(expr.getValue(), result);
-		result.append(((org.eclipse.imp.pdb.facts.IString) tail.getValue()).getValue());
+		public Interpolated(INode __param1, PreProtocolChars __param2, Expression __param3, ProtocolTail __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
 
-		return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(result.toString()), __eval);
-	
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.ProtocolPart.Ambiguity {
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
+			Result<IValue> pre = this.getPre().__evaluate(__eval);
+			Result<IValue> expr = this.getExpression().__evaluate(__eval);
+			Result<IValue> tail = this.getTail().__evaluate(__eval);
+			StringBuilder result = new StringBuilder();
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.ProtocolPart> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+			result.append(((IString) pre.getValue()).getValue());
+			__eval.appendToString(expr.getValue(), result);
+			result.append(((IString) tail.getValue()).getValue());
 
-}
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(result.toString()), __eval);
+
+		}
+
+	}
+
+	static public class Ambiguity extends org.rascalmpl.ast.ProtocolPart.Ambiguity {
+
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.ProtocolPart> __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

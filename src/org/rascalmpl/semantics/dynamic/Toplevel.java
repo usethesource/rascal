@@ -1,40 +1,49 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.ast.Declaration;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.result.Result;
+
 public abstract class Toplevel extends org.rascalmpl.ast.Toplevel {
 
+	public Toplevel(INode __param1) {
+		super(__param1);
+	}
 
-public Toplevel (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.Toplevel.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.Toplevel.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Toplevel> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Toplevel> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class GivenVisibility extends org.rascalmpl.ast.Toplevel.GivenVisibility {
+	}
 
+	static public class GivenVisibility extends org.rascalmpl.ast.Toplevel.GivenVisibility {
 
-public GivenVisibility (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Declaration __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public GivenVisibility(INode __param1, Declaration __param2) {
+			super(__param1, __param2);
+		}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		return this.getDeclaration().__evaluate(__eval);
-	
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
+
+			return this.getDeclaration().__evaluate(__eval);
+
+		}
+
+	}
 }

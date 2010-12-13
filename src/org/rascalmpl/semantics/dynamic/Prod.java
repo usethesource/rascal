@@ -1,141 +1,160 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.Assoc;
+import org.rascalmpl.ast.LanguageAction;
+import org.rascalmpl.ast.Name;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.ProdModifier;
+import org.rascalmpl.ast.Sym;
+
 public abstract class Prod extends org.rascalmpl.ast.Prod {
 
+	public Prod(INode __param1) {
+		super(__param1);
+	}
 
-public Prod (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.Prod.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.Prod.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Prod> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Prod> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Reject extends org.rascalmpl.ast.Prod.Reject {
+	}
 
+	static public class Reject extends org.rascalmpl.ast.Prod.Reject {
 
-public Reject (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Prod __param2,org.rascalmpl.ast.Prod __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Reject(INode __param1, org.rascalmpl.ast.Prod __param2, org.rascalmpl.ast.Prod __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-}
-static public class Reference extends org.rascalmpl.ast.Prod.Reference {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Reference (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Name __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Reference extends org.rascalmpl.ast.Prod.Reference {
 
-}
-static public class Unlabeled extends org.rascalmpl.ast.Prod.Unlabeled {
+		public Reference(INode __param1, Name __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Unlabeled (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.ProdModifier> __param2,java.util.List<org.rascalmpl.ast.Sym> __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class AssociativityGroup extends org.rascalmpl.ast.Prod.AssociativityGroup {
+	static public class Unlabeled extends org.rascalmpl.ast.Prod.Unlabeled {
 
+		public Unlabeled(INode __param1, List<ProdModifier> __param2, List<Sym> __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-public AssociativityGroup (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Assoc __param2,org.rascalmpl.ast.Prod __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Action extends org.rascalmpl.ast.Prod.Action {
+	}
 
+	static public class AssociativityGroup extends org.rascalmpl.ast.Prod.AssociativityGroup {
 
-public Action (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Prod __param2,org.rascalmpl.ast.LanguageAction __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public AssociativityGroup(INode __param1, Assoc __param2, org.rascalmpl.ast.Prod __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-}
-static public class Follow extends org.rascalmpl.ast.Prod.Follow {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Follow (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Prod __param2,org.rascalmpl.ast.Prod __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Action extends org.rascalmpl.ast.Prod.Action {
 
-}
-static public class All extends org.rascalmpl.ast.Prod.All {
+		public Action(INode __param1, org.rascalmpl.ast.Prod __param2, LanguageAction __param3) {
+			super(__param1, __param2, __param3);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public All (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Prod __param2,org.rascalmpl.ast.Prod __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class First extends org.rascalmpl.ast.Prod.First {
+	static public class Follow extends org.rascalmpl.ast.Prod.Follow {
 
+		public Follow(INode __param1, org.rascalmpl.ast.Prod __param2, org.rascalmpl.ast.Prod __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-public First (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Prod __param2,org.rascalmpl.ast.Prod __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Labeled extends org.rascalmpl.ast.Prod.Labeled {
+	}
 
+	static public class All extends org.rascalmpl.ast.Prod.All {
 
-public Labeled (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.ProdModifier> __param2,org.rascalmpl.ast.Name __param3,java.util.List<org.rascalmpl.ast.Sym> __param4) {
-	super(__param1,__param2,__param3,__param4);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public All(INode __param1, org.rascalmpl.ast.Prod __param2, org.rascalmpl.ast.Prod __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-}
-static public class Others extends org.rascalmpl.ast.Prod.Others {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Others (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class First extends org.rascalmpl.ast.Prod.First {
 
-}
+		public First(INode __param1, org.rascalmpl.ast.Prod __param2, org.rascalmpl.ast.Prod __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Labeled extends org.rascalmpl.ast.Prod.Labeled {
+
+		public Labeled(INode __param1, List<ProdModifier> __param2, Name __param3, List<Sym> __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Others extends org.rascalmpl.ast.Prod.Others {
+
+		public Others(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

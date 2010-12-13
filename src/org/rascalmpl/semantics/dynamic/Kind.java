@@ -1,141 +1,155 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class Kind extends org.rascalmpl.ast.Kind {
 
+	public Kind(INode __param1) {
+		super(__param1);
+	}
 
-public Kind (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Data extends org.rascalmpl.ast.Kind.Data {
+	static public class Data extends org.rascalmpl.ast.Kind.Data {
 
+		public Data(INode __param1) {
+			super(__param1);
+		}
 
-public Data (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Tag extends org.rascalmpl.ast.Kind.Tag {
+	}
 
+	static public class Tag extends org.rascalmpl.ast.Kind.Tag {
 
-public Tag (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Tag(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class Function extends org.rascalmpl.ast.Kind.Function {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Function (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Function extends org.rascalmpl.ast.Kind.Function {
 
-}
-static public class Anno extends org.rascalmpl.ast.Kind.Anno {
+		public Function(INode __param1) {
+			super(__param1);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Anno (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Kind.Ambiguity {
+	static public class Anno extends org.rascalmpl.ast.Kind.Anno {
 
+		public Anno(INode __param1) {
+			super(__param1);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Kind> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Variable extends org.rascalmpl.ast.Kind.Variable {
+	}
 
+	static public class Ambiguity extends org.rascalmpl.ast.Kind.Ambiguity {
 
-public Variable (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Kind> __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class Module extends org.rascalmpl.ast.Kind.Module {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Module (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Variable extends org.rascalmpl.ast.Kind.Variable {
 
-}
-static public class Rule extends org.rascalmpl.ast.Kind.Rule {
+		public Variable(INode __param1) {
+			super(__param1);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Rule (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class All extends org.rascalmpl.ast.Kind.All {
+	static public class Module extends org.rascalmpl.ast.Kind.Module {
 
+		public Module(INode __param1) {
+			super(__param1);
+		}
 
-public All (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Alias extends org.rascalmpl.ast.Kind.Alias {
+	}
 
+	static public class Rule extends org.rascalmpl.ast.Kind.Rule {
 
-public Alias (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Rule(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class View extends org.rascalmpl.ast.Kind.View {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public View (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class All extends org.rascalmpl.ast.Kind.All {
 
-}
+		public All(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Alias extends org.rascalmpl.ast.Kind.Alias {
+
+		public Alias(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class View extends org.rascalmpl.ast.Kind.View {
+
+		public View(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

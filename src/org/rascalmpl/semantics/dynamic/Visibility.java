@@ -1,57 +1,64 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class Visibility extends org.rascalmpl.ast.Visibility {
 
+	public Visibility(INode __param1) {
+		super(__param1);
+	}
 
-public Visibility (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Private extends org.rascalmpl.ast.Visibility.Private {
+	static public class Private extends org.rascalmpl.ast.Visibility.Private {
 
+		public Private(INode __param1) {
+			super(__param1);
+		}
 
-public Private (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Default extends org.rascalmpl.ast.Visibility.Default {
+	}
 
+	static public class Default extends org.rascalmpl.ast.Visibility.Default {
 
-public Default (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Default(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Visibility.Ambiguity {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Visibility> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Ambiguity extends org.rascalmpl.ast.Visibility.Ambiguity {
 
-}
-static public class Public extends org.rascalmpl.ast.Visibility.Public {
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Visibility> __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Public (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
+	static public class Public extends org.rascalmpl.ast.Visibility.Public {
+
+		public Public(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

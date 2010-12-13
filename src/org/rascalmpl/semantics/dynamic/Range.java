@@ -1,45 +1,52 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.Char;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class Range extends org.rascalmpl.ast.Range {
 
+	public Range(INode __param1) {
+		super(__param1);
+	}
 
-public Range (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Character extends org.rascalmpl.ast.Range.Character {
+	static public class Character extends org.rascalmpl.ast.Range.Character {
 
+		public Character(INode __param1, Char __param2) {
+			super(__param1, __param2);
+		}
 
-public Character (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Char __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Range.Ambiguity {
+	}
 
+	static public class Ambiguity extends org.rascalmpl.ast.Range.Ambiguity {
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Range> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Range> __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class FromTo extends org.rascalmpl.ast.Range.FromTo {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public FromTo (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Char __param2,org.rascalmpl.ast.Char __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class FromTo extends org.rascalmpl.ast.Range.FromTo {
 
-}
+		public FromTo(INode __param1, Char __param2, Char __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

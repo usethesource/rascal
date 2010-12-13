@@ -1,93 +1,103 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class Strategy extends org.rascalmpl.ast.Strategy {
 
+	public Strategy(INode __param1) {
+		super(__param1);
+	}
 
-public Strategy (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class TopDown extends org.rascalmpl.ast.Strategy.TopDown {
+	static public class TopDown extends org.rascalmpl.ast.Strategy.TopDown {
 
+		public TopDown(INode __param1) {
+			super(__param1);
+		}
 
-public TopDown (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class BottomUp extends org.rascalmpl.ast.Strategy.BottomUp {
+	}
 
+	static public class BottomUp extends org.rascalmpl.ast.Strategy.BottomUp {
 
-public BottomUp (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public BottomUp(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Strategy.Ambiguity {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Strategy> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Ambiguity extends org.rascalmpl.ast.Strategy.Ambiguity {
 
-}
-static public class Outermost extends org.rascalmpl.ast.Strategy.Outermost {
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Strategy> __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Outermost (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class BottomUpBreak extends org.rascalmpl.ast.Strategy.BottomUpBreak {
+	static public class Outermost extends org.rascalmpl.ast.Strategy.Outermost {
 
+		public Outermost(INode __param1) {
+			super(__param1);
+		}
 
-public BottomUpBreak (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Innermost extends org.rascalmpl.ast.Strategy.Innermost {
+	}
 
+	static public class BottomUpBreak extends org.rascalmpl.ast.Strategy.BottomUpBreak {
 
-public Innermost (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public BottomUpBreak(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class TopDownBreak extends org.rascalmpl.ast.Strategy.TopDownBreak {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public TopDownBreak (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Innermost extends org.rascalmpl.ast.Strategy.Innermost {
 
-}
+		public Innermost(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class TopDownBreak extends org.rascalmpl.ast.Strategy.TopDownBreak {
+
+		public TopDownBreak(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

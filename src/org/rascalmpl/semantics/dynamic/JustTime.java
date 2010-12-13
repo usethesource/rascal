@@ -1,42 +1,51 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.String;
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.result.Result;
+
 public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 
+	public JustTime(INode __param1) {
+		super(__param1);
+	}
 
-public JustTime (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Lexical extends org.rascalmpl.ast.JustTime.Lexical {
+	static public class Lexical extends org.rascalmpl.ast.JustTime.Lexical {
 
+		public Lexical(INode __param1, String __param2) {
+			super(__param1, __param2);
+		}
 
-public Lexical (org.eclipse.imp.pdb.facts.INode __param1,java.lang.String __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		// Time is of the form $T<time>
-		java.lang.String timePart = this.getString().substring(2); 
-		return __eval.createVisitedTime(timePart,this);
-	
-}
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.JustTime.Ambiguity {
+			// Time is of the form $T<time>
+			String timePart = this.getString().substring(2);
+			return __eval.createVisitedTime(timePart, this);
 
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.JustTime> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
+	static public class Ambiguity extends org.rascalmpl.ast.JustTime.Ambiguity {
+
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.JustTime> __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

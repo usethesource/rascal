@@ -1,33 +1,39 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.String;
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class Asterisk extends org.rascalmpl.ast.Asterisk {
 
+	public Asterisk(INode __param1) {
+		super(__param1);
+	}
 
-public Asterisk (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Lexical extends org.rascalmpl.ast.Asterisk.Lexical {
+	static public class Lexical extends org.rascalmpl.ast.Asterisk.Lexical {
 
+		public Lexical(INode __param1, String __param2) {
+			super(__param1, __param2);
+		}
 
-public Lexical (org.eclipse.imp.pdb.facts.INode __param1,java.lang.String __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.Asterisk.Ambiguity {
+	}
 
+	static public class Ambiguity extends org.rascalmpl.ast.Asterisk.Ambiguity {
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Asterisk> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Asterisk> __param2) {
+			super(__param1, __param2);
+		}
 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

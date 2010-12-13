@@ -1,45 +1,53 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Statement;
+
 public abstract class LanguageAction extends org.rascalmpl.ast.LanguageAction {
 
+	public LanguageAction(INode __param1) {
+		super(__param1);
+	}
 
-public LanguageAction (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Build extends org.rascalmpl.ast.LanguageAction.Build {
+	static public class Build extends org.rascalmpl.ast.LanguageAction.Build {
 
+		public Build(INode __param1, Expression __param2) {
+			super(__param1, __param2);
+		}
 
-public Build (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Expression __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.LanguageAction.Ambiguity {
+	}
 
+	static public class Ambiguity extends org.rascalmpl.ast.LanguageAction.Ambiguity {
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.LanguageAction> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.LanguageAction> __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class Action extends org.rascalmpl.ast.LanguageAction.Action {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Action (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Statement> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Action extends org.rascalmpl.ast.LanguageAction.Action {
 
-}
+		public Action(INode __param1, List<Statement> __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

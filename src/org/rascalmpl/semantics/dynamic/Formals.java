@@ -1,54 +1,64 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.Object;
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Formal;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+
 public abstract class Formals extends org.rascalmpl.ast.Formals {
 
+	public Formals(INode __param1) {
+		super(__param1);
+	}
 
-public Formals (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.Formals.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.Formals.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Formals> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Formals> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Default extends org.rascalmpl.ast.Formals.Default {
+	}
 
+	static public class Default extends org.rascalmpl.ast.Formals.Default {
 
-public Default (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Formal> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Default(INode __param1, List<Formal> __param2) {
+			super(__param1, __param2);
+		}
 
-@Override
-public org.eclipse.imp.pdb.facts.type.Type __evaluate(org.rascalmpl.interpreter.TypeEvaluator.Visitor __eval) {
-	
-			java.util.List<org.rascalmpl.ast.Formal> list = this.getFormals();
-			java.lang.Object[] typesAndNames = new java.lang.Object[list.size() * 2];
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+		@Override
+		public Type __evaluate(Visitor __eval) {
+
+			List<Formal> list = this.getFormals();
+			Object[] typesAndNames = new Object[list.size() * 2];
 
 			for (int formal = 0, index = 0; formal < list.size(); formal++, index++) {
-				org.rascalmpl.ast.Formal f = list.get(formal);
-				org.eclipse.imp.pdb.facts.type.Type type = f.__evaluate(__eval);
-				
+				Formal f = list.get(formal);
+				Type type = f.__evaluate(__eval);
+
 				if (type == null) {
-					throw new org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError(f.getType().toString(), f);
+					throw new UndeclaredTypeError(f.getType().toString(), f);
 				}
 				typesAndNames[index++] = type;
 				typesAndNames[index] = org.rascalmpl.interpreter.utils.Names.name(f.getName());
 			}
 
 			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().tupleType(typesAndNames);
-		
-}
 
-}
+		}
+
+	}
 }
