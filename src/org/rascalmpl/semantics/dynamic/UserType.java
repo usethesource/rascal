@@ -1,77 +1,91 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.String;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
+
 public abstract class UserType extends org.rascalmpl.ast.UserType {
 
+	public UserType(INode __param1) {
+		super(__param1);
+	}
 
-public UserType (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Name extends org.rascalmpl.ast.UserType.Name {
+	static public class Name extends org.rascalmpl.ast.UserType.Name {
 
+		public Name(INode __param1, QualifiedName __param2) {
+			super(__param1, __param2);
+		}
 
-public Name (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.QualifiedName __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-@Override
-public org.eclipse.imp.pdb.facts.type.Type __evaluate(org.rascalmpl.interpreter.TypeEvaluator.Visitor __eval) {
-	
-			org.rascalmpl.interpreter.env.Environment theEnv = __eval.getEnvironmentForName(this.getName());
-			java.lang.String name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
+		@Override
+		public Type __evaluate(Visitor __eval) {
+
+			Environment theEnv = __eval.getEnvironmentForName(this.getName());
+			String name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
 
 			if (theEnv != null) {
-				org.eclipse.imp.pdb.facts.type.Type type = theEnv.lookupAlias(name);
+				Type type = theEnv.lookupAlias(name);
 
 				if (type != null) {
 					return type;
 				}
-				
-				org.eclipse.imp.pdb.facts.type.Type tree = theEnv.lookupAbstractDataType(name);
+
+				Type tree = theEnv.lookupAbstractDataType(name);
 
 				if (tree != null) {
 					return tree;
 				}
-				
-				org.eclipse.imp.pdb.facts.type.Type symbol = theEnv.lookupConcreteSyntaxType(name);
-				
+
+				Type symbol = theEnv.lookupConcreteSyntaxType(name);
+
 				if (symbol != null) {
 					return symbol;
 				}
 			}
-			
-			throw new org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError(name, this);
-		
-}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.UserType.Ambiguity {
+			throw new UndeclaredTypeError(name, this);
 
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.UserType> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class Parametric extends org.rascalmpl.ast.UserType.Parametric {
+	static public class Ambiguity extends org.rascalmpl.ast.UserType.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.UserType> __param2) {
+			super(__param1, __param2);
+		}
 
-public Parametric (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.QualifiedName __param2,java.util.List<org.rascalmpl.ast.Type> __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public org.eclipse.imp.pdb.facts.type.Type __evaluate(org.rascalmpl.interpreter.TypeEvaluator.Visitor __eval) {
-	
-			java.lang.String name;
-			org.eclipse.imp.pdb.facts.type.Type type = null;
-			org.rascalmpl.interpreter.env.Environment theEnv = __eval.getEnvironmentForName(this.getName());
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Parametric extends org.rascalmpl.ast.UserType.Parametric {
+
+		public Parametric(INode __param1, QualifiedName __param2, List<org.rascalmpl.ast.Type> __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public Type __evaluate(Visitor __eval) {
+
+			String name;
+			Type type = null;
+			Environment theEnv = __eval.getEnvironmentForName(this.getName());
 
 			name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
 
@@ -84,8 +98,8 @@ public org.eclipse.imp.pdb.facts.type.Type __evaluate(org.rascalmpl.interpreter.
 			}
 
 			if (type != null) {
-				java.util.Map<org.eclipse.imp.pdb.facts.type.Type, org.eclipse.imp.pdb.facts.type.Type> bindings = new java.util.HashMap<org.eclipse.imp.pdb.facts.type.Type,org.eclipse.imp.pdb.facts.type.Type>();
-				org.eclipse.imp.pdb.facts.type.Type[] params = new org.eclipse.imp.pdb.facts.type.Type[this.getParameters().size()];
+				Map<Type, Type> bindings = new HashMap<Type, Type>();
+				Type[] params = new Type[this.getParameters().size()];
 
 				int i = 0;
 				for (org.rascalmpl.ast.Type param : this.getParameters()) {
@@ -94,20 +108,21 @@ public org.eclipse.imp.pdb.facts.type.Type __evaluate(org.rascalmpl.interpreter.
 
 				// __eval has side-effects that we might need?
 				type.getTypeParameters().match(org.rascalmpl.interpreter.TypeEvaluator.__getTf().tupleType(params), bindings);
-				
-				// Note that instantiation use type variables from the current context, not the declaring context
-				org.eclipse.imp.pdb.facts.type.Type outerInstance = type.instantiate(__eval.__getEnv().getTypeBindings());
+
+				// Note that instantiation use type variables from the current
+				// context, not the declaring context
+				Type outerInstance = type.instantiate(__eval.__getEnv().getTypeBindings());
 				return outerInstance.instantiate(bindings);
 			}
-			
-			throw new org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError(name, this);
-		
-}
 
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+			throw new UndeclaredTypeError(name, this);
 
-}
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

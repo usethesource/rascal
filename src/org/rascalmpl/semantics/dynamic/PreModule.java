@@ -1,33 +1,39 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.Header;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class PreModule extends org.rascalmpl.ast.PreModule {
 
+	public PreModule(INode __param1) {
+		super(__param1);
+	}
 
-public PreModule (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.PreModule.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.PreModule.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.PreModule> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.PreModule> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Default extends org.rascalmpl.ast.PreModule.Default {
+	}
 
+	static public class Default extends org.rascalmpl.ast.PreModule.Default {
 
-public Default (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Header __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Default(INode __param1, Header __param2) {
+			super(__param1, __param2);
+		}
 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

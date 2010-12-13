@@ -1,45 +1,54 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Prod;
+import org.rascalmpl.ast.Start;
+import org.rascalmpl.ast.Sym;
+
 public abstract class SyntaxDefinition extends org.rascalmpl.ast.SyntaxDefinition {
 
+	public SyntaxDefinition(INode __param1) {
+		super(__param1);
+	}
 
-public SyntaxDefinition (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.SyntaxDefinition.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.SyntaxDefinition.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.SyntaxDefinition> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.SyntaxDefinition> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Layout extends org.rascalmpl.ast.SyntaxDefinition.Layout {
+	}
 
+	static public class Layout extends org.rascalmpl.ast.SyntaxDefinition.Layout {
 
-public Layout (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2,org.rascalmpl.ast.Prod __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Layout(INode __param1, Sym __param2, Prod __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-}
-static public class Language extends org.rascalmpl.ast.SyntaxDefinition.Language {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Language (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Start __param2,org.rascalmpl.ast.Sym __param3,org.rascalmpl.ast.Prod __param4) {
-	super(__param1,__param2,__param3,__param4);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Language extends org.rascalmpl.ast.SyntaxDefinition.Language {
 
-}
+		public Language(INode __param1, Start __param2, Sym __param3, Prod __param4) {
+			super(__param1, __param2, __param3, __param4);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

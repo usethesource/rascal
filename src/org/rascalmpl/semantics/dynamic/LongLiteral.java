@@ -1,57 +1,64 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class LongLiteral extends org.rascalmpl.ast.LongLiteral {
 
+	public LongLiteral(INode __param1) {
+		super(__param1);
+	}
 
-public LongLiteral (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class DecimalLongLiteral extends org.rascalmpl.ast.LongLiteral.DecimalLongLiteral {
+	static public class DecimalLongLiteral extends org.rascalmpl.ast.LongLiteral.DecimalLongLiteral {
 
+		public DecimalLongLiteral(INode __param1, org.rascalmpl.ast.DecimalLongLiteral __param2) {
+			super(__param1, __param2);
+		}
 
-public DecimalLongLiteral (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.DecimalLongLiteral __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.LongLiteral.Ambiguity {
+	}
 
+	static public class Ambiguity extends org.rascalmpl.ast.LongLiteral.Ambiguity {
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.LongLiteral> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.LongLiteral> __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class HexLongLiteral extends org.rascalmpl.ast.LongLiteral.HexLongLiteral {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public HexLongLiteral (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.HexLongLiteral __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class HexLongLiteral extends org.rascalmpl.ast.LongLiteral.HexLongLiteral {
 
-}
-static public class OctalLongLiteral extends org.rascalmpl.ast.LongLiteral.OctalLongLiteral {
+		public HexLongLiteral(INode __param1, org.rascalmpl.ast.HexLongLiteral __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public OctalLongLiteral (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.OctalLongLiteral __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
+	static public class OctalLongLiteral extends org.rascalmpl.ast.LongLiteral.OctalLongLiteral {
+
+		public OctalLongLiteral(INode __param1, org.rascalmpl.ast.OctalLongLiteral __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

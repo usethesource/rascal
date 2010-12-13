@@ -1,201 +1,226 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.CaseInsensitiveStringConstant;
+import org.rascalmpl.ast.Class;
+import org.rascalmpl.ast.IntegerLiteral;
+import org.rascalmpl.ast.NonterminalLabel;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.ParameterizedNonterminal;
+import org.rascalmpl.ast.StringConstant;
+
 public abstract class Sym extends org.rascalmpl.ast.Sym {
 
+	public Sym(INode __param1) {
+		super(__param1);
+	}
 
-public Sym (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.Sym.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.Sym.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Sym> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Sym> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class StartOfLine extends org.rascalmpl.ast.Sym.StartOfLine {
+	}
 
+	static public class StartOfLine extends org.rascalmpl.ast.Sym.StartOfLine {
 
-public StartOfLine (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public StartOfLine(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class CharacterClass extends org.rascalmpl.ast.Sym.CharacterClass {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public CharacterClass (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Class __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class CharacterClass extends org.rascalmpl.ast.Sym.CharacterClass {
 
-}
-static public class Literal extends org.rascalmpl.ast.Sym.Literal {
+		public CharacterClass(INode __param1, Class __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Literal (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.StringConstant __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class CaseInsensitiveLiteral extends org.rascalmpl.ast.Sym.CaseInsensitiveLiteral {
+	static public class Literal extends org.rascalmpl.ast.Sym.Literal {
 
+		public Literal(INode __param1, StringConstant __param2) {
+			super(__param1, __param2);
+		}
 
-public CaseInsensitiveLiteral (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.CaseInsensitiveStringConstant __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Parameter extends org.rascalmpl.ast.Sym.Parameter {
+	}
 
+	static public class CaseInsensitiveLiteral extends org.rascalmpl.ast.Sym.CaseInsensitiveLiteral {
 
-public Parameter (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Nonterminal __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public CaseInsensitiveLiteral(INode __param1, CaseInsensitiveStringConstant __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class Nonterminal extends org.rascalmpl.ast.Sym.Nonterminal {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Nonterminal (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Nonterminal __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Parameter extends org.rascalmpl.ast.Sym.Parameter {
 
-}
-static public class Iter extends org.rascalmpl.ast.Sym.Iter {
+		public Parameter(INode __param1, org.rascalmpl.ast.Nonterminal __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Iter (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class IterStar extends org.rascalmpl.ast.Sym.IterStar {
+	static public class Nonterminal extends org.rascalmpl.ast.Sym.Nonterminal {
 
+		public Nonterminal(INode __param1, org.rascalmpl.ast.Nonterminal __param2) {
+			super(__param1, __param2);
+		}
 
-public IterStar (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class IterStarSep extends org.rascalmpl.ast.Sym.IterStarSep {
+	}
 
+	static public class Iter extends org.rascalmpl.ast.Sym.Iter {
 
-public IterStarSep (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2,org.rascalmpl.ast.StringConstant __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Iter(INode __param1, org.rascalmpl.ast.Sym __param2) {
+			super(__param1, __param2);
+		}
 
-}
-static public class EndOfLine extends org.rascalmpl.ast.Sym.EndOfLine {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public EndOfLine (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class IterStar extends org.rascalmpl.ast.Sym.IterStar {
 
-}
-static public class Column extends org.rascalmpl.ast.Sym.Column {
+		public IterStar(INode __param1, org.rascalmpl.ast.Sym __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Column (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.IntegerLiteral __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class Parametrized extends org.rascalmpl.ast.Sym.Parametrized {
+	static public class IterStarSep extends org.rascalmpl.ast.Sym.IterStarSep {
 
+		public IterStarSep(INode __param1, org.rascalmpl.ast.Sym __param2, StringConstant __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-public Parametrized (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.ParameterizedNonterminal __param2,java.util.List<org.rascalmpl.ast.Sym> __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class IterSep extends org.rascalmpl.ast.Sym.IterSep {
+	}
 
+	static public class EndOfLine extends org.rascalmpl.ast.Sym.EndOfLine {
 
-public IterSep (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2,org.rascalmpl.ast.StringConstant __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public EndOfLine(INode __param1) {
+			super(__param1);
+		}
 
-}
-static public class Optional extends org.rascalmpl.ast.Sym.Optional {
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
+	}
 
-public Optional (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	static public class Column extends org.rascalmpl.ast.Sym.Column {
 
-}
-static public class Labeled extends org.rascalmpl.ast.Sym.Labeled {
+		public Column(INode __param1, IntegerLiteral __param2) {
+			super(__param1, __param2);
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Labeled (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Sym __param2,org.rascalmpl.ast.NonterminalLabel __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
+	static public class Parametrized extends org.rascalmpl.ast.Sym.Parametrized {
+
+		public Parametrized(INode __param1, ParameterizedNonterminal __param2, List<org.rascalmpl.ast.Sym> __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class IterSep extends org.rascalmpl.ast.Sym.IterSep {
+
+		public IterSep(INode __param1, org.rascalmpl.ast.Sym __param2, StringConstant __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Optional extends org.rascalmpl.ast.Sym.Optional {
+
+		public Optional(INode __param1, org.rascalmpl.ast.Sym __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Labeled extends org.rascalmpl.ast.Sym.Labeled {
+
+		public Labeled(INode __param1, org.rascalmpl.ast.Sym __param2, NonterminalLabel __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

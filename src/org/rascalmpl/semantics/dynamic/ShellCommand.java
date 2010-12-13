@@ -1,201 +1,223 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.String;
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.QuitException;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.Result;
+
 public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
+	public ShellCommand(INode __param1) {
+		super(__param1);
+	}
 
-public ShellCommand (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class History extends org.rascalmpl.ast.ShellCommand.History {
+	static public class History extends org.rascalmpl.ast.ShellCommand.History {
 
+		public History(INode __param1) {
+			super(__param1);
+		}
 
-public History (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class SetOption extends org.rascalmpl.ast.ShellCommand.SetOption {
+	}
 
+	static public class SetOption extends org.rascalmpl.ast.ShellCommand.SetOption {
 
-public SetOption (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.QualifiedName __param2,org.rascalmpl.ast.Expression __param3) {
-	super(__param1,__param2,__param3);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public SetOption(INode __param1, QualifiedName __param2, Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		java.lang.String name = "rascal.config."+this.getName().toString();
-		java.lang.String value = this.getExpression().__evaluate(__eval).getValue().toString();
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-		java.lang.System.setProperty(name, value);
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
-		__eval.updateProperties();
+			String name = "rascal.config." + this.getName().toString();
+			String value = this.getExpression().__evaluate(__eval).getValue().toString();
 
-		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-	
-}
+			java.lang.System.setProperty(name, value);
 
-}
-static public class ListDeclarations extends org.rascalmpl.ast.ShellCommand.ListDeclarations {
+			__eval.updateProperties();
 
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
-public ListDeclarations (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		__eval.printVisibleDeclaredObjects(__eval.getStdOut());
-		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-	
-}
+	}
 
-}
-static public class Help extends org.rascalmpl.ast.ShellCommand.Help {
+	static public class ListDeclarations extends org.rascalmpl.ast.ShellCommand.ListDeclarations {
 
+		public ListDeclarations(INode __param1) {
+			super(__param1);
+		}
 
-public Help (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		__eval.setCurrentAST(this);
-		__eval.printHelpMessage(__eval.getStdOut());
-		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-	
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
-}
-static public class Undeclare extends org.rascalmpl.ast.ShellCommand.Undeclare {
+			__eval.printVisibleDeclaredObjects(__eval.getStdOut());
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
+		}
 
-public Undeclare (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.QualifiedName __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class Test extends org.rascalmpl.ast.ShellCommand.Test {
+	static public class Help extends org.rascalmpl.ast.ShellCommand.Help {
 
+		public Help(INode __param1) {
+			super(__param1);
+		}
 
-public Test (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(), __eval);
-	
-}
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+			__eval.setCurrentAST(this);
+			__eval.printHelpMessage(__eval.getStdOut());
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.ShellCommand.Ambiguity {
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.ShellCommand> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class Quit extends org.rascalmpl.ast.ShellCommand.Quit {
+	static public class Undeclare extends org.rascalmpl.ast.ShellCommand.Undeclare {
 
+		public Undeclare(INode __param1, QualifiedName __param2) {
+			super(__param1, __param2);
+		}
 
-public Quit (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		throw new org.rascalmpl.interpreter.control_exceptions.QuitException();
-	
-}
+	}
 
-}
-static public class Unimport extends org.rascalmpl.ast.ShellCommand.Unimport {
+	static public class Test extends org.rascalmpl.ast.ShellCommand.Test {
 
+		public Test(INode __param1) {
+			super(__param1);
+		}
 
-public Unimport (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.QualifiedName __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		((org.rascalmpl.interpreter.env.ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unImport(this.getName().toString());
-		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-	
-}
+			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(), __eval);
 
-}
-static public class ListModules extends org.rascalmpl.ast.ShellCommand.ListModules {
+		}
 
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-public ListModules (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
-static public class Edit extends org.rascalmpl.ast.ShellCommand.Edit {
+	static public class Ambiguity extends org.rascalmpl.ast.ShellCommand.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.ShellCommand> __param2) {
+			super(__param1, __param2);
+		}
 
-public Edit (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.QualifiedName __param2) {
-	super(__param1,__param2);
-}
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-	
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+	}
 
-}
+	static public class Quit extends org.rascalmpl.ast.ShellCommand.Quit {
+
+		public Quit(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
+
+			throw new QuitException();
+
+		}
+
+	}
+
+	static public class Unimport extends org.rascalmpl.ast.ShellCommand.Unimport {
+
+		public Unimport(INode __param1, QualifiedName __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
+
+			((ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unImport(this.getName().toString());
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+
+		}
+
+	}
+
+	static public class ListModules extends org.rascalmpl.ast.ShellCommand.ListModules {
+
+		public ListModules(INode __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
+
+	static public class Edit extends org.rascalmpl.ast.ShellCommand.Edit {
+
+		public Edit(INode __param1, QualifiedName __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
+
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

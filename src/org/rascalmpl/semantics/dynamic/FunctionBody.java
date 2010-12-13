@@ -1,47 +1,56 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Statement;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.result.Result;
+
 public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
 
+	public FunctionBody(INode __param1) {
+		super(__param1);
+	}
 
-public FunctionBody (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Default extends org.rascalmpl.ast.FunctionBody.Default {
+	static public class Default extends org.rascalmpl.ast.FunctionBody.Default {
 
-
-public Default (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.Statement> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
-
-@Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
-	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result = org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
-		for (org.rascalmpl.ast.Statement statement : this.getStatements()) {
-			__eval.setCurrentAST(statement);
-			result = statement.__evaluate(__eval);
+		public Default(INode __param1, List<Statement> __param2) {
+			super(__param1, __param2);
 		}
 
-		return result;
-	
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Ambiguity extends org.rascalmpl.ast.FunctionBody.Ambiguity {
+		@Override
+		public Result<IValue> __evaluate(Evaluator __eval) {
 
+			Result<IValue> result = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.FunctionBody> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+			for (Statement statement : this.getStatements()) {
+				__eval.setCurrentAST(statement);
+				result = statement.__evaluate(__eval);
+			}
 
-}
+			return result;
+
+		}
+
+	}
+
+	static public class Ambiguity extends org.rascalmpl.ast.FunctionBody.Ambiguity {
+
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.FunctionBody> __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }

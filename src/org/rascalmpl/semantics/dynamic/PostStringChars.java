@@ -1,33 +1,39 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.lang.String;
+import java.util.List;
+import org.eclipse.imp.pdb.facts.INode;
+import org.rascalmpl.ast.NullASTVisitor;
+
 public abstract class PostStringChars extends org.rascalmpl.ast.PostStringChars {
 
+	public PostStringChars(INode __param1) {
+		super(__param1);
+	}
 
-public PostStringChars (org.eclipse.imp.pdb.facts.INode __param1) {
-	super(__param1);
-}
-static public class Ambiguity extends org.rascalmpl.ast.PostStringChars.Ambiguity {
+	static public class Ambiguity extends org.rascalmpl.ast.PostStringChars.Ambiguity {
 
+		public Ambiguity(INode __param1, List<org.rascalmpl.ast.PostStringChars> __param2) {
+			super(__param1, __param2);
+		}
 
-public Ambiguity (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascalmpl.ast.PostStringChars> __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
 
-}
-static public class Lexical extends org.rascalmpl.ast.PostStringChars.Lexical {
+	}
 
+	static public class Lexical extends org.rascalmpl.ast.PostStringChars.Lexical {
 
-public Lexical (org.eclipse.imp.pdb.facts.INode __param1,java.lang.String __param2) {
-	super(__param1,__param2);
-}
-@Override
-public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
-	 return null; 
-}
+		public Lexical(INode __param1, String __param2) {
+			super(__param1, __param2);
+		}
 
-}
+		@Override
+		public <T> T __evaluate(NullASTVisitor<T> __eval) {
+			return null;
+		}
+
+	}
 }
