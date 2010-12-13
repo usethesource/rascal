@@ -34,12 +34,12 @@ public class Shape extends Compose {
 	void bbox(){
 		leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 
-		for (Figure ve : figures){
-			ve.bbox();
-			leftAnchor = max(leftAnchor, ve.leftAnchor());
-			rightAnchor = max(rightAnchor, ve.rightAnchor());
-			topAnchor = max(topAnchor, ve.topAnchor());
-			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
+		for (Figure fig : figures){
+			fig.bbox();
+			leftAnchor = max(leftAnchor, fig.leftAnchor());
+			rightAnchor = max(rightAnchor, fig.rightAnchor());
+			topAnchor = max(topAnchor, fig.topAnchor());
+			bottomAnchor = max(bottomAnchor, fig.bottomAnchor());
 		}
 		width = leftAnchor + rightAnchor;
 		height = topAnchor + bottomAnchor;
@@ -82,8 +82,8 @@ public class Shape extends Compose {
 		if(connected && curved)
 			fpa.curveVertex(nextLeft, nextTop);
 		
-		for(Figure ve : figures){
-			next = (Vertex)ve;
+		for(Figure fig : figures){
+			next = (Vertex)fig;
 			nextLeft = left + leftAnchor + next.deltax;
 			nextTop = bottom - next.deltay;
 			if(debug)System.err.printf("vertex(%f,%f)\n", nextLeft, nextTop);
@@ -109,8 +109,8 @@ public class Shape extends Compose {
 				fpa.endShape();
 		}
 		
-		for(Figure ve : figures){
-			Vertex p = (Vertex) ve;
+		for(Figure fig : figures){
+			Vertex p = (Vertex) fig;
 			p.draw(left + leftAnchor + p.deltax, bottom - p.deltay);
 		}
 	}

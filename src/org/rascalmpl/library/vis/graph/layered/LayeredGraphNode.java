@@ -23,6 +23,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 //	private static boolean debug = false;
 	int  label = -1;
 	int layer = -1;
+	public float layerHeight;
 	
 	LayeredGraphNode(String name, Figure fig){
 		this.name = name;

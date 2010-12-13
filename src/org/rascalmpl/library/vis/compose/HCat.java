@@ -53,9 +53,9 @@ public class HCat extends Compose {
 		applyProperties();
 
 		// Draw from left to right
-		for(Figure ve : figures){
-			ve.draw(left, top + topAnchor - ve.topAnchor());
-			left += ve.width + hgap;
+		for(Figure fig : figures){
+			fig.draw(left, top + topAnchor - fig.topAnchor());
+			left += fig.width + hgap;
 		}
 	}
 	

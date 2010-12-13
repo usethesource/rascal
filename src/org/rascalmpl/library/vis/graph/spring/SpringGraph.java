@@ -183,11 +183,13 @@ public class SpringGraph extends Figure {
 		this.top = top;
 
 		applyProperties();
+		
 		for (SpringGraphEdge e : edges)
 			e.draw(left, top);
-		for (SpringGraphNode n : nodes) {
+		
+		for (SpringGraphNode n : nodes)
 			n.draw(left, top);
-		}
+		
 	}
 
 	@Override

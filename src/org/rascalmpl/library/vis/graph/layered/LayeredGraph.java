@@ -145,6 +145,9 @@ public class LayeredGraph extends Figure {
 				wlayer[l] += g.width() + hgap;
 				hlayer[l] = max(hlayer[l], g.height());
 			}
+			for(LayeredGraphNode g : layer){
+				g.layerHeight = hlayer[l];
+			}
 			hlayer[l] += vgap;
 			l++;
 		}
@@ -152,13 +155,26 @@ public class LayeredGraph extends Figure {
 		float y = 0;
 		for(LinkedList<LayeredGraphNode> layer : layers){
 			
-			float deltax = (width - wlayer[l])/(layer.size() + 1);
+			int rsize = 0;
+			for(LayeredGraphNode g : layer)
+				if(!g.isVirtual())
+					rsize++;
+			float deltax = (width - wlayer[l])/(rsize + 1);
 			//float deltax = 50;
 			float x = deltax;
-			for(LayeredGraphNode g : layer){
-				g.x = x + g.width()/2;
-				g.y = y + hlayer[l]/2;
-				x += g.width() + deltax;
+			for(int i = 0; i < layer.size(); i++){
+				LayeredGraphNode g = layer.get(i);
+				if(!g.isVirtual()){
+					g.x = x + g.width()/2;
+					g.y = y + hlayer[l]/2;
+					x += g.width() + deltax;
+				} else {
+					if(i > 0 && !layer.get(i-1).isVirtual())
+						x -= deltax;
+					g.x = x + hgap;
+					g.y =  y + hlayer[l]/2;
+					x += hgap;
+				}
 			}
 			y += hlayer[l];
 			l++;
@@ -170,9 +186,7 @@ public class LayeredGraph extends Figure {
 	@Override
 	public
 	void bbox() {
-		
 	 initialPlacement();
-		
 
 		// Now scale (back or up) to the desired width x height frame
 		float minx = Float.MAX_VALUE;
@@ -213,11 +227,14 @@ public class LayeredGraph extends Figure {
 		this.top = top;
 
 		applyProperties();
+		
 		for (LayeredGraphEdge e : edges)
 			e.draw(left, top);
+		
 		for (LayeredGraphNode n : nodes) {
 			n.draw(left, top);
 		}
+		
 	}
 
 	@Override
@@ -359,23 +376,27 @@ public class LayeredGraph extends Figure {
 				from.out.set(from.out.indexOf(to), v);
 				to.in.set(to.in.indexOf(from), v);
 			
+				LayeredGraphEdge old = null;
+				for(LayeredGraphEdge e : edges){
+					//System.err.println("Consider edge " + e.getFrom().name + " -> " + e.getTo().name);
+					if(e.getFrom() == from && e.getTo() == to){
+						old = e;
+						
+						System.err.println("Removing old edge " + from.name + " -> " + to.name);
+						break;
+					}
+				}
+				
 			
 			IString vfGname = vf.string(from.name);
 			IString vfOname = vf.string(to.name);
-			LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, properties, vfGname, vfVname, ctx);
-			LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, properties, vfVname, vfOname, ctx);
+			LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, properties, vfGname, vfVname, old.toArrow, old.fromArrow, ctx);
+			LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, properties, vfVname, vfOname, old.toArrow, old.fromArrow,ctx);
+			
+			edges.remove(old);
 			edges.add(e1);
 			edges.add(e2);
-			LayeredGraphEdge old = null;
-			for(LayeredGraphEdge e : edges){
-				//System.err.println("Consider edge " + e.getFrom().name + " -> " + e.getTo().name);
-				if(e.getFrom() == from && e.getTo() == to){
-					old = e;
-					System.err.println("Removing old edge " + from.name + " -> " + to.name);
-					break;
-				}
-			}
-			edges.remove(old);
+			
 			layers.get(from.layer+1).addFirst(v);
 		}
 	}

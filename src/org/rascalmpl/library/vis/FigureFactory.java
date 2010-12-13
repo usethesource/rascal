@@ -112,14 +112,12 @@ public class FigureFactory {
 		case ELLIPSE:
 			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 		
-		case GRAPH:		
-			if(properties.hint.contains("spring"))
-				return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
-
+		case GRAPH:
 			if(properties.hint.contains("lattice"))
 				return new LatticeGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
-
-			return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			if(properties.hint.contains("layered"))
+				return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case GRID: 
 			return new Grid(fpa, properties, (IList) c.get(0), ctx);
@@ -180,17 +178,27 @@ public class FigureFactory {
 	
 	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, FigurePApplet fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
-		return new SpringGraphEdge(G, fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
+		IString from = (IString)c.get(0);
+		IString to = (IString)c.get(1);
+		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
+		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
+		return new SpringGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow,ctx);
 	}
 	
 	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
-		return new LayeredGraphEdge(G, fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
+		IString from = (IString)c.get(0);
+		IString to = (IString)c.get(1);
+		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
+		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
+		return new LayeredGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow, ctx);
 	}
 	
 	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
-		return new LatticeGraphEdge(G, fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
+		IString from = (IString)c.get(0);
+		IString to = (IString)c.get(1);
+		return new LatticeGraphEdge(G, fpa, properties, from, to,  ctx);
 	}
 
 }

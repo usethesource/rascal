@@ -4,6 +4,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import processing.core.PApplet;
+
 /**
  * Visual elements are the foundation of Rascal visualization. They are based on a bounding box + anchor model. 
  * The bounding box defines the maximal dimensions of the element. The anchor defines its alignment properties.
@@ -272,6 +274,122 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	
 	public abstract void draw(float left, float top);
+	
+	/**
+	 * Return the connection point from an external position (fromX, fromY) to 
+	 * the center (X,Y) of the current figure.
+	 * 
+	 * @param X			X of center of current figure
+	 * @param Y			Y of center of current figure
+	 * @param fromX		X of center of figure from which connection is to be drawn
+	 * @param fromY		Y of center of figure from which connection is to be drawn
+	 */
+//	public ArrowConnectionPoint connectionPoint(float X, float Y, float fromX, float fromY, Figure toArrow){
+//		if(fromX == X)
+//			fromX += 0.00001;
+//        float s = (fromY - Y) / (fromX - X);
+//        float theta = PApplet.atan(s);
+//		if(theta < 0){
+//			if(fromX < X )
+//				theta += PApplet.PI;
+//		} else {
+//			if(fromX < X )
+//				theta += PApplet.PI;
+//		}
+//        float IX;
+//        float IY;
+//        float IX2;
+//        float IY2;
+//        
+//        float h2 = height/2;
+//        float w2 = width/2;
+//     
+//        if((- h2 <= s * w2) && (s * w2 <= h2)){
+//        	if(fromX > X){ // right
+//        		IX = X + w2; IY = Y + s*w2;
+//        		IX2 = IX + toArrow.height * PApplet.sin(theta);
+//            	IY2 = IY + toArrow.width * PApplet.cos(theta);
+//        	} else  {      // left
+//        		IX = X - w2; IY = Y - s*w2;
+//        	}
+//        } else {
+//        	if(fromY > Y){ // bottom
+//        		IX = X + h2/s; IY = Y + h2;
+//        		IX2 = IX + toArrow.height * PApplet.cos(theta);
+//            	IY2 = IY + toArrow.width * PApplet.sin(theta);
+//        	} else {      // top
+//        		IX = X - h2/s; IY = Y - h2;
+//        	}
+//        }
+//        if(toArrow != null){
+//        	toArrow.bbox();
+//        	IX2 = IX + toArrow.height * PApplet.cos(PApplet.radians(165) + theta);
+//        	IY2 = IY + toArrow.width * PApplet.sin(PApplet.radians(165) + theta);
+//        	float s2 = (IY2 -IY)/(IX2 - IX);
+//        	System.err.printf("(IY2 -IY)/(IX2 - IX) = %f (%f deg), s = %s (%f deg)\n", 
+//        			s2, PApplet.degrees(PApplet.atan(s2)),
+//        			s, PApplet.degrees(PApplet.atan(s)));
+//        	return new ArrowConnectionPoint(IX, IY, IX2, IY2, theta);
+//        } else 
+//        	return new ArrowConnectionPoint(IX, IY, theta);
+//	}
+	
+	/**
+	 * Draw a connection from an external position (fromX, fromY) to the center (X,Y) of the current figure.
+	 * At the intersection with the border of the current figure, place an arrow that is appropriately rotated.
+	 * @param left		X of left corner
+	 * @param top		Y of left corner
+	 * @param X			X of center of current figure
+	 * @param Y			Y of center of current figure
+	 * @param fromX		X of center of figure from which connection is to be drawn
+	 * @param fromY		Y of center of figure from which connection is to be drawn
+	 * @param toArrow	the figure to be used as arrow
+	 */
+	public void connectFrom(float left, float top, float X, float Y, float fromX, float fromY,
+			Figure toArrow){
+		if(fromX == X)
+			fromX += 0.00001;
+        float s = (fromY - Y) / (fromX - X);
+  
+        float theta = PApplet.atan(s);
+		if(theta < 0){
+			if(fromX < X )
+				theta += PApplet.PI;
+		} else {
+			if(fromX < X )
+				theta += PApplet.PI;
+		}
+        float IX;
+        float IY;
+          
+        float h2 = height/2;
+        float w2 = width/2;
+     
+        if((- h2 <= s * w2) && (s * w2 <= h2)){
+        	if(fromX > X){ // right
+        		IX = X + w2; IY = Y + s*w2;
+        	} else  {      // left
+        		IX = X - w2; IY = Y - s*w2;
+        	}
+        } else {
+        	if(fromY > Y){ // bottom
+        		IX = X + h2/s; IY = Y + h2;
+        	} else {      // top
+        		IX = X - h2/s; IY = Y - h2;
+        	}
+        }
+       
+        fpa.line(left + fromX, top + fromY, left + IX, top + IY);
+        
+        if(toArrow != null){
+        	toArrow.bbox();
+        	fpa.pushMatrix();
+        	fpa.translate(left + IX , top + IY);
+        	fpa.rotate(PApplet.radians(-90) + theta);
+        	toArrow.draw(-toArrow.width/2, 0);
+        	fpa.popMatrix();
+        }
+	}
 	
 	/**
 	 * Draw focus around this figure
