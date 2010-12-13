@@ -1,20 +1,46 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
-
+import java.lang.String;
+import java.lang.StringBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Expression.CallOrTree;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.interpreter.Accumulator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIResolverRegistry;
 
-public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.interpreter.matching.IMatchingResult> implements org.rascalmpl.interpreter.IEvaluator<org.rascalmpl.interpreter.matching.IMatchingResult> {
-	private final org.rascalmpl.interpreter.IEvaluatorContext ctx;
+public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements IEvaluator<IMatchingResult> {
+	private final IEvaluatorContext ctx;
 	private boolean debug = false;
-	private static final org.eclipse.imp.pdb.facts.type.TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
-	
-	public PatternEvaluator(org.rascalmpl.interpreter.IEvaluatorContext ctx){
+	private static final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
+
+	public PatternEvaluator(IEvaluatorContext ctx) {
 		this.ctx = ctx;
 	}
 
-	public static org.eclipse.imp.pdb.facts.type.TypeFactory __getTf() {
+	public static TypeFactory __getTf() {
 		return tf;
 	}
 
@@ -26,191 +52,196 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 		return debug;
 	}
 
-	public org.rascalmpl.interpreter.IEvaluatorContext __getCtx() {
+	public IEvaluatorContext __getCtx() {
 		return ctx;
 	}
 
-	public org.eclipse.imp.pdb.facts.IValue call(java.lang.String name, org.eclipse.imp.pdb.facts.IValue... args) {
-		throw new org.rascalmpl.interpreter.asserts.ImplementationError("should not call call");
+	public IValue call(String name, IValue... args) {
+		throw new ImplementationError("should not call call");
 	}
-	
-	public java.lang.String getValueAsString(java.lang.String varName){
-		org.rascalmpl.interpreter.env.Environment env = this.__getCtx().getCurrentEnvt();
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> res = env.getVariable(varName);
-		if(res != null && res.getValue() != null){
-			if(res.getType().isStringType()) return ((org.eclipse.imp.pdb.facts.IString)res.getValue()).getValue(); 
-			
-			return res.getValue().toString();	
+
+	public String getValueAsString(String varName) {
+		Environment env = this.__getCtx().getCurrentEnvt();
+		Result<IValue> res = env.getVariable(varName);
+		if (res != null && res.getValue() != null) {
+			if (res.getType().isStringType())
+				return ((IString) res.getValue()).getValue();
+
+			return res.getValue().toString();
 		}
-		
-		throw new org.rascalmpl.interpreter.staticErrors.UninitializedVariableError(varName, this.__getCtx().getCurrentAST());  
+
+		throw new UninitializedVariableError(varName, this.__getCtx().getCurrentAST());
 	}
 
 	/*
 	 * Interpolate all occurrences of <X> by the value of X
 	 */
-	public java.lang.String interpolate(java.lang.String re){
-		java.util.regex.Pattern replacePat = java.util.regex.Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)>");
-		java.util.regex.Matcher m = replacePat.matcher(re);
-		java.lang.StringBuffer result = new java.lang.StringBuffer();
+	public String interpolate(String re) {
+		Pattern replacePat = java.util.regex.Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)>");
+		Matcher m = replacePat.matcher(re);
+		StringBuffer result = new StringBuffer();
 		int start = 0;
-		while(m.find()){
-			result.append(re.substring(start, m.start(0))).
-			append(this.getValueAsString(m.group(1))); // TODO: escape special chars?
+		while (m.find()) {
+			result.append(re.substring(start, m.start(0))).append(this.getValueAsString(m.group(1))); // TODO:
+																										// escape
+																										// special
+																										// chars?
 			start = m.end(0);
 		}
-		result.append(re.substring(start,re.length()));
+		result.append(re.substring(start, re.length()));
 
-		if(this.__getDebug())System.err.println("interpolate: " + re + " -> " + result);
+		if (this.__getDebug())
+			System.err.println("interpolate: " + re + " -> " + result);
 		return result.toString();
 	}
 
-	public boolean isConcreteSyntaxAppl(org.rascalmpl.ast.Expression.CallOrTree tree){
+	public boolean isConcreteSyntaxAppl(CallOrTree tree) {
 		if (!tree.getExpression().isQualifiedName()) {
 			return false;
 		}
-		return org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(tree.getExpression().getQualifiedName())).equals("appl") && tree._getType() instanceof org.rascalmpl.interpreter.types.NonTerminalType;
+		return org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(tree.getExpression().getQualifiedName())).equals("appl")
+				&& tree._getType() instanceof NonTerminalType;
 	}
 
-	public boolean isConcreteSyntaxAmb(org.rascalmpl.ast.Expression.CallOrTree tree){
+	public boolean isConcreteSyntaxAmb(CallOrTree tree) {
 		if (!tree.getExpression().isQualifiedName()) {
 			return false;
 		}
-		return org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(tree.getExpression().getQualifiedName())).equals("amb") && tree._getType() instanceof org.rascalmpl.interpreter.types.NonTerminalType;
-	}
-	
-
-	public boolean isConcreteSyntaxList(org.rascalmpl.ast.Expression.CallOrTree tree){
-		return this.isConcreteSyntaxAppl(tree) && this.isConcreteListProd((org.rascalmpl.ast.Expression.CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof org.rascalmpl.interpreter.types.NonTerminalType;
-	}
-	
-	public boolean isConcreteSyntaxOptional(org.rascalmpl.ast.Expression.CallOrTree tree){
-		return this.isConcreteSyntaxAppl(tree) && this.isConcreteOptionalProd((org.rascalmpl.ast.Expression.CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof org.rascalmpl.interpreter.types.NonTerminalType;
+		return org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(tree.getExpression().getQualifiedName())).equals("amb")
+				&& tree._getType() instanceof NonTerminalType;
 	}
 
-	private boolean isConcreteListProd(org.rascalmpl.ast.Expression.CallOrTree prod){
+	public boolean isConcreteSyntaxList(CallOrTree tree) {
+		return this.isConcreteSyntaxAppl(tree) && this.isConcreteListProd((CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof NonTerminalType;
+	}
+
+	public boolean isConcreteSyntaxOptional(CallOrTree tree) {
+		return this.isConcreteSyntaxAppl(tree) && this.isConcreteOptionalProd((CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof NonTerminalType;
+	}
+
+	private boolean isConcreteListProd(CallOrTree prod) {
 		if (!prod.getExpression().isQualifiedName()) {
 			return false;
 		}
-		java.lang.String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
-		// TODO: note how this code breaks if we start using regular for other things besides lists...
+		String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
+		// TODO: note how this code breaks if we start using regular for other
+		// things besides lists...
 		if (name.equals("regular")) {
 			Expression sym = prod.getArguments().get(0);
 			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).startsWith("iter")) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
-	private boolean isConcreteOptionalProd(org.rascalmpl.ast.Expression.CallOrTree prod){
+
+	private boolean isConcreteOptionalProd(CallOrTree prod) {
 		if (!prod.getExpression().isQualifiedName()) {
 			return false;
 		}
-		java.lang.String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
-		// TODO: note how this code breaks if we start using regular for other things besides lists...
+		String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
+		// TODO: note how this code breaks if we start using regular for other
+		// things besides lists...
 		if (name.equals("regular")) {
 			Expression sym = prod.getArguments().get(0);
 			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).equals("opt")) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
-	public java.util.List<org.rascalmpl.interpreter.matching.IMatchingResult> visitArguments(org.rascalmpl.ast.Expression.CallOrTree x){
-		java.util.List<org.rascalmpl.ast.Expression> elements = x.getArguments();
+	public List<IMatchingResult> visitArguments(CallOrTree x) {
+		List<Expression> elements = x.getArguments();
 		return this.visitElements(elements);
 	}
 
-	public java.util.List<org.rascalmpl.interpreter.matching.IMatchingResult> visitConcreteLexicalArguments(org.rascalmpl.ast.Expression.CallOrTree x){
-        org.rascalmpl.ast.Expression args = x.getArguments().get(1);
-        
-		java.util.List<org.rascalmpl.ast.Expression> elements = args.getElements();
+	public List<IMatchingResult> visitConcreteLexicalArguments(CallOrTree x) {
+		Expression args = x.getArguments().get(1);
+
+		List<Expression> elements = args.getElements();
 		return this.visitElements(elements);
 	}
 
-	
-	public java.util.List<org.rascalmpl.interpreter.matching.IMatchingResult> visitConcreteArguments(org.rascalmpl.ast.Expression.CallOrTree x){
-        org.rascalmpl.ast.Expression args = x.getArguments().get(1);
-        
-		java.util.List<org.rascalmpl.ast.Expression> elements = args.getElements();
+	public List<IMatchingResult> visitConcreteArguments(CallOrTree x) {
+		Expression args = x.getArguments().get(1);
+
+		List<Expression> elements = args.getElements();
 		return this.visitConcreteElements(elements);
 	}
-	
-	private java.util.List<org.rascalmpl.interpreter.matching.IMatchingResult> visitConcreteElements(java.util.List<org.rascalmpl.ast.Expression> elements){
+
+	private List<IMatchingResult> visitConcreteElements(List<Expression> elements) {
 		int n = elements.size();
-		java.util.ArrayList<org.rascalmpl.interpreter.matching.IMatchingResult> args = new java.util.ArrayList<org.rascalmpl.interpreter.matching.IMatchingResult>((n + 1) / 2);
+		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>((n + 1) / 2);
 
 		for (int i = 0; i < n; i += 2) { // skip layout elements
-			org.rascalmpl.ast.Expression e = elements.get(i);
+			Expression e = elements.get(i);
 			args.add(e.__evaluate(this));
 		}
 		return args;
 	}
 
-
-	public java.util.List<org.rascalmpl.interpreter.matching.IMatchingResult> visitElements(java.util.List<org.rascalmpl.ast.Expression> elements){
-		java.util.ArrayList<org.rascalmpl.interpreter.matching.IMatchingResult> args = new java.util.ArrayList<org.rascalmpl.interpreter.matching.IMatchingResult>(elements.size());
+	public List<IMatchingResult> visitElements(List<Expression> elements) {
+		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>(elements.size());
 
 		int i = 0;
-		for(org.rascalmpl.ast.Expression e : elements){
+		for (Expression e : elements) {
 			args.add(i++, e.__evaluate(this));
 		}
 		return args;
 	}
 
-	public org.rascalmpl.ast.AbstractAST getCurrentAST() {
+	public AbstractAST getCurrentAST() {
 		return this.__getCtx().getCurrentAST();
 	}
 
-	public org.rascalmpl.interpreter.env.Environment getCurrentEnvt() {
+	public Environment getCurrentEnvt() {
 		return this.__getCtx().getCurrentEnvt();
 	}
 
-	public org.rascalmpl.interpreter.Evaluator getEvaluator() {
+	public Evaluator getEvaluator() {
 		return this.__getCtx().getEvaluator();
 	}
 
-	public org.rascalmpl.interpreter.env.GlobalEnvironment getHeap() {
+	public GlobalEnvironment getHeap() {
 		return this.__getCtx().getHeap();
 	}
 
-	public java.lang.String getStackTrace() {
+	public String getStackTrace() {
 		return this.__getCtx().getStackTrace();
 	}
 
 	public void pushEnv() {
-		this.__getCtx().pushEnv();		
+		this.__getCtx().pushEnv();
 	}
 
 	public boolean runTests() {
 		return this.__getCtx().runTests();
 	}
 
-	public void setCurrentEnvt(org.rascalmpl.interpreter.env.Environment environment) {
+	public void setCurrentEnvt(Environment environment) {
 		this.__getCtx().setCurrentEnvt(environment);
 	}
 
-	public void unwind(org.rascalmpl.interpreter.env.Environment old) {
+	public void unwind(Environment old) {
 		this.__getCtx().unwind(old);
 	}
 
-	public void setCurrentAST(org.rascalmpl.ast.AbstractAST ast) {
+	public void setCurrentAST(AbstractAST ast) {
 		this.__getCtx().setCurrentAST(ast);
 	}
 
-	public org.eclipse.imp.pdb.facts.IValueFactory getValueFactory() {
+	public IValueFactory getValueFactory() {
 		return this.__getCtx().getValueFactory();
 	}
 
-	public org.rascalmpl.interpreter.strategy.IStrategyContext getStrategyContext() {
+	public IStrategyContext getStrategyContext() {
 		return this.__getCtx().getStrategyContext();
 	}
 
-	public void pushStrategyContext(org.rascalmpl.interpreter.strategy.IStrategyContext strategyContext) {
+	public void pushStrategyContext(IStrategyContext strategyContext) {
 		this.__getCtx().pushStrategyContext(strategyContext);
 	}
 
@@ -218,20 +249,20 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 		this.__getCtx().popStrategyContext();
 	}
 
-	public java.util.Stack<org.rascalmpl.interpreter.Accumulator> getAccumulators() {
+	public Stack<Accumulator> getAccumulators() {
 		return this.__getCtx().getAccumulators();
 	}
 
-	public void setAccumulators(java.util.Stack<org.rascalmpl.interpreter.Accumulator> accumulators) {
+	public void setAccumulators(Stack<Accumulator> accumulators) {
 		this.__getCtx().setAccumulators(accumulators);
 	}
 
-	public org.rascalmpl.uri.URIResolverRegistry getResolverRegistry() {
+	public URIResolverRegistry getResolverRegistry() {
 		return this.__getCtx().getResolverRegistry();
 	}
 
 	public void interrupt() {
-		
+
 	}
 
 	public boolean isInterrupted() {
@@ -245,6 +276,5 @@ public class PatternEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.rasca
 	public PrintWriter getStdOut() {
 		return null;
 	}
-
 
 }
