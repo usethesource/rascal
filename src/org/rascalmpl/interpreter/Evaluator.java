@@ -1030,19 +1030,24 @@ public class Evaluator extends org.rascalmpl.ast.NullASTVisitor<org.rascalmpl.in
 		} catch (org.rascalmpl.interpreter.control_exceptions.Throw e){
 			org.eclipse.imp.pdb.facts.IValue eValue = e.getException();
 
+			boolean handled = false;
+			
 			for (org.rascalmpl.ast.Catch c : handlers){
 				if(c.isDefault()){
 					res = c.getBody().__evaluate(this);
+					handled = true;
 					break;
 				} 
 
 				// TODO: Throw should contain Result<IValue> instead of IValue
 				if(this.matchAndEval(org.rascalmpl.interpreter.result.ResultFactory.makeResult(eValue.getType(), eValue, this), c.getPattern(), c.getBody())){
+					handled = true;
 					break;
 				}
 			}
 			
-			throw e;
+			if (!handled)
+				throw e;
 		}
 		finally {
 			if (finallyBody != null) {
