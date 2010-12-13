@@ -42,7 +42,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class SGTDBF implements IGTD{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
 	
-	private final static int DEFAULT_TODOLIST_CAPACITY = 128;
+	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
@@ -51,7 +51,7 @@ public abstract class SGTDBF implements IGTD{
 	private final PositionStore positionStore;
 	
 	private RotatingQueue<AbstractStackNode>[] todoLists;
-	private RotatingQueue<AbstractStackNode>[] todoListsTemporaryHolder;
+	private int queueIndex;
 	
 	private final ArrayList<AbstractStackNode> stacksToExpand;
 	private RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
@@ -425,7 +425,7 @@ public abstract class SGTDBF implements IGTD{
 				location += i;
 				shiftedLevel = (location != 0);
 				
-				System.arraycopy(todoLists, i, todoLists, 0, todoLists.length - i);
+				queueIndex = i;
 				
 				return true;
 			}
@@ -439,18 +439,16 @@ public abstract class SGTDBF implements IGTD{
 			return true;
 		}
 		
-		for(int i = 1; i < todoLists.length; ++i){
-			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[i];
+		int queueDepth = todoLists.length;
+		for(int i = 1; i < queueDepth; ++i){
+			queueIndex = (queueIndex + 1) % queueDepth;
+			
+			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[queueIndex];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
 				shiftedLevel = true;
 				location += i;
-				
-				// Cycle the queues.
-				System.arraycopy(todoLists, 0, todoListsTemporaryHolder, 0, i);
-				System.arraycopy(todoLists, i, todoLists, 0, todoLists.length - i);
-				System.arraycopy(todoListsTemporaryHolder, 0, todoLists, todoLists.length - i, i);
 				
 				return true;
 			}
@@ -530,17 +528,21 @@ public abstract class SGTDBF implements IGTD{
 				// Filtering
 				if(stack.isReductionFiltered(input, endLocation)) return;
 				
-				if(length >= todoLists.length){
+				int queueDepth = todoLists.length;
+				if(length >= queueDepth){
 					RotatingQueue<AbstractStackNode>[] oldTodoLists = todoLists;
 					todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[length + 1];
-					todoListsTemporaryHolder = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[length + 1];
-					System.arraycopy(oldTodoLists, 0, todoLists, 0, oldTodoLists.length);
+					System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
+					System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
+					queueDepth = length + 1;
+					queueIndex = 0;
 				}
 				
-				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[length];
+				int insertLocation = (queueIndex + length) % queueDepth;
+				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[insertLocation];
 				if(terminalsTodo == null){
 					terminalsTodo = new RotatingQueue<AbstractStackNode>();
-					todoLists[length] = terminalsTodo;
+					todoLists[insertLocation] = terminalsTodo;
 				}
 				terminalsTodo.put(stack);
 			}
@@ -630,7 +632,6 @@ public abstract class SGTDBF implements IGTD{
 		positionStore.index(input);
 		
 		todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[DEFAULT_TODOLIST_CAPACITY];
-		todoListsTemporaryHolder = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[DEFAULT_TODOLIST_CAPACITY];
 		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
