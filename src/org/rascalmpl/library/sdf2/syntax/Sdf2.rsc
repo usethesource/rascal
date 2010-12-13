@@ -19,9 +19,7 @@ syntax NumChar = lex Digits: [\\] [0-9]+
                  # [0-9]
                  ;
 
-syntax EMPTY = ;
-
-start syntax SDF = Definition: EMPTY "definition" Definition EMPTY
+start syntax SDF = Definition: "definition" Definition
                    ;
 
 syntax Character = Numeric: NumChar |
@@ -98,23 +96,23 @@ syntax Productions = Production*
                      ;
 
 syntax Grammar = Bracket: "(" Grammar ")" |
-                 Syntax: "syntax" Productions |
                  Aliases: "aliases" Aliases |
                  Sorts: "sorts" Symbols |
                  ImpSection: ImpSection |
+                 Syntax: "syntax" Productions |
+                 KernalStartSymbols: "start-symbols" Symbols |
+                 Variables: "variables" Productions |
+                 Priorities: "priorities" Priorities |
                  Restrictions: "restrictions" Restrictions |
                  LexicalSyntax: "lexical" "syntax" Productions |
-                 ContextFreeSyntax: "context-free" "syntax" Productions |
-                 Variables: "variables" Productions |
+                 LexicalStartSymbols: "lexical" "start-symbols" Symbols |
                  LexicalVariables: "lexical" "variables" Productions |
                  LexicalPriorities: "lexical" "priorities" Priorities |
-                 ContextFreePriorities: "context-free" "priorities" Priorities |
                  LexicalRestrictions: "lexical" "restrictions" Restrictions |
-                 ContextFreeRestrictions: "context-free" "restrictions" Restrictions |
-                 KernalStartSymbols: "start-symbols" Symbols |
-                 LexicalStartSymbols: "lexical" "start-symbols" Symbols |
+                 ContextFreeSyntax: "context-free" "syntax" Productions |
                  ContextFreeStartSymbols: "context-free" "start-symbols" Symbols |
-                 Priorities: "priorities" Priorities |
+                 ContextFreePriorities: "context-free" "priorities" Priorities |
+                 ContextFreeRestrictions: "context-free" "restrictions" Restrictions |
                  EmptyGrammar: "(/)" |
                  assoc ConcGrammars: Grammar Grammar
                  ;
@@ -124,29 +122,29 @@ syntax Label = Quoted: StrCon |
                - Associativity
                ;
 
-syntax Symbol = Bracket: "(" Symbol ")" |
-                Lifting: "`" Symbol "`" |
-                Sort: Sort |
+syntax Symbol = Sort: Sort |
                 Lit: StrCon |
                 CILit: SingleQuotedStrCon |
                 CharClass: CharClass |
-                CF: "\<" Symbol "-CF" "\>" |
-                Lex: "\<" Symbol "-LEX" "\>" |
-                Varsym: "\<" Symbol "-VAR" "\>" |
                 Layout: "LAYOUT" |
-                Start: "\<START\>" |
-                FileStart: "\<Start\>" |
-                ParameterizedSort: Sort "[[" {Symbol ","}+ "]]" |
+                Lifting: "`" Symbol "`" |
                 Empty: "(" ")" |
-                Seq: "(" Symbol Symbol+ ")" |
-                Tuple: "\<" Symbol "," {Symbol ","}+ "\>" |
-                Func: "(" Symbols "=\>" Symbol ")" |
+                Bracket: "(" Symbol ")" |
                 Strategy: "(" Symbol "-\>" Symbol ")" |
+                Func: "(" Symbols "=\>" Symbol ")" |
+                Seq: "(" Symbol Symbol+ ")" |
                 Opt: Symbol "?" |
                 Iter: Symbol "+" |
                 IterStar: Symbol "*" |
                 IterSep: "{" Symbol Symbol "}" "+" |
-                IterStarSep: "{" Symbol Symbol "}" "*" >
+                IterStarSep: "{" Symbol Symbol "}" "*" |
+                Start: "\<START\>" |
+                FileStart: "\<Start\>" |
+                CF: "\<" Symbol "-CF" "\>" |
+                Lex: "\<" Symbol "-LEX" "\>" |
+                Varsym: "\<" Symbol "-VAR" "\>" |
+                Tuple: "\<" Symbol "," {Symbol ","}+ "\>" |
+                ParameterizedSort: Sort "[[" {Symbol ","}+ "]]" >
                 right Alt: Symbol "|" Symbol >
                 Label ":" Symbol
                 ;
@@ -166,10 +164,10 @@ syntax Alias = Alias: Symbol "-\>" Symbol
 syntax Aliases = Alias*
                  ;
 
-syntax StrChar = lex NewLine: [\\][n] | // "\\n"
-                 lex Tab: [\\][t] | // "\\t"
-                 lex Quote: [\\][\"] | //  "\\\""
-                 lex Backslash: [\\][\\] | // "\\\\"
+syntax StrChar = lex NewLine: [\\] [n] | // "\\n"
+                 lex Tab: [\\] [t] | // "\\t"
+                 lex Quote: [\\] [\"] | //  "\\\""
+                 lex Backslash: [\\] [\\] | // "\\\\"
                  lex Decimal: [\\] [0-9] [0-9] [0-9] | // "\\" [0-9] [0-9] [0-9]
                  lex Normal: ![\n\t\"\\] // -\0-\31
                  ;
@@ -184,10 +182,10 @@ syntax FunctionName = UnquotedFun: IdCon |
 syntax SingleQuotedStrCon = lex Default: [\'] SingleQuotedStrChar [\']
                             ;
 
-syntax SingleQuotedStrChar = lex NewLine: [\\][n] | // "\\n"
-                             lex Tab: [\\][t] | // "\\t"
-                             lex Quote: [\\][\'] | //  "\\\'"
-                             lex Backslash: [\\][\\] | // "\\\\"
+syntax SingleQuotedStrChar = lex NewLine: [\\] [n] | // "\\n"
+                             lex Tab: [\\] [t] | // "\\t"
+                             lex Quote: [\\] [\'] | //  "\\\'"
+                             lex Backslash: [\\] [\\] | // "\\\\"
                              lex Decimal: [\\] [0-9] [0-9] [0-9] | // "\\" [0-9] [0-9] [0-9]
                              lex Normal: ![\n\t\'\\] // -\0-\31
                              ;
