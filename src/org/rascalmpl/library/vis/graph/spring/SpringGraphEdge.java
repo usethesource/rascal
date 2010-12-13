@@ -1,9 +1,11 @@
 package org.rascalmpl.library.vis.graph.spring;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.PropertyManager;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
@@ -19,10 +21,15 @@ import processing.core.PApplet;
 public class SpringGraphEdge extends Figure {
 	private SpringGraphNode from;
 	private SpringGraphNode to;
+	private Figure toArrow;
+	private Figure fromArrow;
 	private boolean inverted = false;
 	private static boolean debug = false;
 	
-	public SpringGraphEdge(SpringGraph G, FigurePApplet fpa, PropertyManager properties, IString fromName, IString toName, IEvaluatorContext ctx) {
+	public SpringGraphEdge(SpringGraph G, FigurePApplet fpa, PropertyManager properties, 
+						IString fromName, IString toName, 
+						IConstructor toArrowCons, IConstructor fromArrowCons,
+						IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		this.from = G.getRegistered(fromName.getValue());
 		
@@ -33,6 +40,12 @@ public class SpringGraphEdge extends Figure {
 		to = G.getRegistered(toName.getValue());
 		if(to == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		if(toArrowCons != null){
+			 toArrow = FigureFactory.make(fpa, toArrowCons, properties, ctx);
+		}
+		if(fromArrowCons != null){
+			 fromArrow = FigureFactory.make(fpa, fromArrowCons, properties, ctx);
 		}
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
@@ -82,8 +95,22 @@ public class SpringGraphEdge extends Figure {
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
 				to.name + ": " + to.x + "," + to.y + ")");
 
-		fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
-				left + getTo().figX(), top + getTo().figY());
+		if(toArrow != null){
+			getTo().figure.connectFrom(left, top, 
+					getTo().figX(), getTo().figY(), 
+					getFrom().figX(), getFrom().figY(),
+					toArrow
+			);
+
+			if(fromArrow != null)
+				getFrom().figure.connectFrom(left, top, 
+						getFrom().figX(), getFrom().figY(), 
+						getTo().figX(), getTo().figY(),
+						fromArrow
+				);
+		} else 
+			fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
+					left + getTo().figX(), top + getTo().figY());
 	}
 
 	@Override

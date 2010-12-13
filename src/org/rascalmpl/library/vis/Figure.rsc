@@ -192,13 +192,23 @@ public Vertex vertex(num x, num y, Figure marker, FProperty props ...){
 }
    
 data Edge =			 							// edge between between two elements in complex shapes like tree or graph
-     _edge(str from, str to, FProperties prop) 	
+     _edge(str from, str to, FProperties prop)
+   | _edge(str from, str to, Figure toArrow, FProperties prop)
+   | _edge(str from, str to, Figure toArrow, Figure fromArrow, FProperties prop)
    ;
    
 public alias Edges = list[Edge];
    
 public Edge edge(str from, str to, FProperty props ...){
   return _edge(from, to, props);
+}
+
+public Edge edge(str from, str to, Figure toArrow, FProperty props ...){
+  return _edge(from, to, toArrow, props);
+}
+
+public Edge edge(str from, str to, Figure toArrow, Figure fromArrow, FProperty props ...){
+  return _edge(from, to, toArrow, fromArrow, props);
 }
 
 /*
