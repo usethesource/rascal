@@ -19,7 +19,9 @@ syntax NumChar = lex Digits: [\\] [0-9]+
                  # [0-9]
                  ;
 
-start syntax SDF = Definition: "definition" Definition
+syntax EMPTY = ;
+
+start syntax SDF = Definition: EMPTY "definition" Definition EMPTY
                    ;
 
 syntax Character = Numeric: NumChar |
@@ -31,7 +33,7 @@ syntax Character = Numeric: NumChar |
                    ;
 
 syntax ShortChar = lex Regular: [a-zA-Z0-9] |
-                   lex Escaped: [\\] ![A-Za-mo-qsu-z0-9] // +\0-\31
+                   lex Escaped: [\\] ![A-Za-mo-qsu-z0-9] // -\0-\31
                    ;
 
 syntax Renaming = Symbol: Symbol "=\>" Symbol |
@@ -76,13 +78,13 @@ syntax Attribute = Id: "id" "(" ModuleName ")" |
                    ;
 
 syntax ATermAttribute = Default: ATerm
-                        - Associativity |
-                          "reject" |
-                          "prefer" |
-                          "avoid" |
-                          "bracket" |
-                          "id" "(" ModuleName ")"
-                         ;
+                        - Associativity
+                        - "reject"
+                        - "prefer"
+                        - "avoid"
+                        - "bracket"
+                        - "id" "(" ModuleName ")"
+                        ;
 
 syntax Attributes = Attrs: "{" {Attribute ","}* "}" |
                     NoAttrs: 
@@ -164,12 +166,12 @@ syntax Alias = Alias: Symbol "-\>" Symbol
 syntax Aliases = Alias*
                  ;
 
-syntax StrChar = lex NewLine: "\n" |
-                 lex Tab: "\t" |
-                 lex Quote: "\"" |
-                 lex Backslash: "\\" |
+syntax StrChar = lex NewLine: "\\n" |
+                 lex Tab: "\\t" |
+                 lex Quote: "\\\"" |
+                 lex Backslash: "\\\\" |
                  lex Decimal: "\\" [0-9] [0-9] [0-9] |
-                 lex Normal: ![\n\t\"\\] // +\0-\31
+                 lex Normal: ![\n\t\"\\] // -\0-\31
                  ;
 
 syntax StrCon = lex Default: [\"] StrChar* [\"]
@@ -187,7 +189,7 @@ syntax SingleQuotedStrChar = lex NewLine: "\\n" |
                              lex Quote: "\\\'" |
                              lex Backslash: "\\\\" |
                              lex Decimal: "\\" [0-9] [0-9] [0-9] |
-                             lex Normal: ![\n\t\'\\] // +\0-\31
+                             lex Normal: ![\n\t\'\\] // -\0-\31
                              ;
 
 syntax RealCon = RealCon: IntCon "." NatCon OptExp
