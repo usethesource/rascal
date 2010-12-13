@@ -1,32 +1,37 @@
 package org.rascalmpl.interpreter;
 
-import org.rascalmpl.values.uptr.Factory;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.interpreter.env.Environment;
 
-public class BasicTypeEvaluator extends org.rascalmpl.ast.NullASTVisitor<org.eclipse.imp.pdb.facts.type.Type> {
-	private final static org.eclipse.imp.pdb.facts.type.TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
-	private final org.eclipse.imp.pdb.facts.type.Type typeArgument;
-	private final org.eclipse.imp.pdb.facts.IValue[] valueArguments; // for adt, constructor and non-terminal representations
-	private final org.rascalmpl.interpreter.env.Environment env;
-	
-	public BasicTypeEvaluator(org.rascalmpl.interpreter.env.Environment env, org.eclipse.imp.pdb.facts.type.Type argumentTypes, org.eclipse.imp.pdb.facts.IValue[] valueArguments) {
+public class BasicTypeEvaluator extends NullASTVisitor<Type> {
+	private final static TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
+	private final Type typeArgument;
+	private final IValue[] valueArguments; // for adt, constructor and
+											// non-terminal representations
+	private final Environment env;
+
+	public BasicTypeEvaluator(Environment env, Type argumentTypes, IValue[] valueArguments) {
 		this.env = env;
 		this.typeArgument = argumentTypes;
 		this.valueArguments = valueArguments;
 	}
-	
-	public org.eclipse.imp.pdb.facts.type.Type __getTypeArgument() {
+
+	public Type __getTypeArgument() {
 		return typeArgument;
 	}
 
-	public static org.eclipse.imp.pdb.facts.type.TypeFactory __getTf() {
+	public static TypeFactory __getTf() {
 		return tf;
 	}
 
-	public org.rascalmpl.interpreter.env.Environment __getEnv() {
+	public Environment __getEnv() {
 		return env;
 	}
 
-	public org.eclipse.imp.pdb.facts.IValue[] __getValueArguments() {
+	public IValue[] __getValueArguments() {
 		return valueArguments;
 	}
 }
