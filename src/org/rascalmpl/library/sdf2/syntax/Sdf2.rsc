@@ -166,11 +166,11 @@ syntax Alias = Alias: Symbol "-\>" Symbol
 syntax Aliases = Alias*
                  ;
 
-syntax StrChar = lex NewLine: "\\n" |
-                 lex Tab: "\\t" |
-                 lex Quote: "\\\"" |
-                 lex Backslash: "\\\\" |
-                 lex Decimal: "\\" [0-9] [0-9] [0-9] |
+syntax StrChar = lex NewLine: [\\][n] | // "\\n"
+                 lex Tab: [\\][t] | // "\\t"
+                 lex Quote: [\\][\"] | //  "\\\""
+                 lex Backslash: [\\][\\] | // "\\\\"
+                 lex Decimal: [\\] [0-9] [0-9] [0-9] | // "\\" [0-9] [0-9] [0-9]
                  lex Normal: ![\n\t\"\\] // -\0-\31
                  ;
 
@@ -184,11 +184,11 @@ syntax FunctionName = UnquotedFun: IdCon |
 syntax SingleQuotedStrCon = lex Default: [\'] SingleQuotedStrChar [\']
                             ;
 
-syntax SingleQuotedStrChar = lex NewLine: "\\n" |
-                             lex Tab: "\\t" |
-                             lex Quote: "\\\'" |
-                             lex Backslash: "\\\\" |
-                             lex Decimal: "\\" [0-9] [0-9] [0-9] |
+syntax SingleQuotedStrChar = lex NewLine: [\\][n] | // "\\n"
+                             lex Tab: [\\][t] | // "\\t"
+                             lex Quote: [\\][\'] | //  "\\\'"
+                             lex Backslash: [\\][\\] | // "\\\\"
+                             lex Decimal: [\\] [0-9] [0-9] [0-9] | // "\\" [0-9] [0-9] [0-9]
                              lex Normal: ![\n\t\'\\] // -\0-\31
                              ;
 
