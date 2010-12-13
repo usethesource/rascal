@@ -2,7 +2,7 @@
 module sdf2::syntax::Sdf2
 
 syntax Sort = lex OneChar: [A-Z] |
-              lex MoreChars: [A-Z] [A-Za-z0-9]* [A-Za-z0-9]
+              lex MoreChars: [A-Z] [A-Za-z0-9\-]* [A-Za-z0-9]
               - "LAYOUT"
               # [A-Za-z0-9]
               ;
@@ -31,7 +31,7 @@ syntax Character = Numeric: NumChar |
                    ;
 
 syntax ShortChar = lex Regular: [a-zA-Z0-9] |
-                   lex Escaped: [\\] ![\0-\31A-Za-mo-qsu-z0-9]
+                   lex Escaped: [\\] ![A-Za-mo-qsu-z0-9] // +\0-\31
                    ;
 
 syntax Renaming = Symbol: Symbol "=\>" Symbol |
@@ -169,7 +169,7 @@ syntax StrChar = lex NewLine: "\n" |
                  lex Quote: "\"" |
                  lex Backslash: "\\" |
                  lex Decimal: "\\" [0-9] [0-9] [0-9] |
-                 lex Normal: ![\0-\31\n\t\"\\]
+                 lex Normal: ![\n\t\"\\] // +\0-\31
                  ;
 
 syntax StrCon = lex Default: [\"] StrChar* [\"]
@@ -187,7 +187,7 @@ syntax SingleQuotedStrChar = lex NewLine: "\\n" |
                              lex Quote: "\\\'" |
                              lex Backslash: "\\\\" |
                              lex Decimal: "\\" [0-9] [0-9] [0-9] |
-                             lex Normal: ![\0-\31\n\t\'\\]
+                             lex Normal: ![\n\t\'\\] // +\0-\31
                              ;
 
 syntax RealCon = RealCon: IntCon "." NatCon OptExp
