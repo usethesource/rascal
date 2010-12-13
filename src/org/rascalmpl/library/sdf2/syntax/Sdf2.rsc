@@ -60,7 +60,7 @@ syntax CharRange = Character |
                    ;
 
 syntax CharRanges = CharRange |
-                    Conc: CharRanges CharRanges |
+                    right Conc: CharRanges CharRanges |
                     Bracket: "(" CharRanges ")"
                     ;
 
