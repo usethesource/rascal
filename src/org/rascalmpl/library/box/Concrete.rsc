@@ -200,6 +200,7 @@ public Tree getLast(Tree q) {
      
 public Tree getFirst(Tree q) {
      list[Tree] a=getA(q);
+     if (size(a)==0) return amb({}); // Nothing
      return a[0];
      }
      
@@ -219,7 +220,8 @@ Box makeString(Symbol a, Tree t, Attributes att) {
       if (isString(a)) {
                b=STRING(L("<t>"));
                }
-      else if (/term(lex()):=att || /term(literal()):=att) {
+      // println("makeString:<att>");
+      else if (/lex():=att || /literal():=att) {
                     str s="<t>";
                     if (endsWith(s,"\n")) s=replaceLast(s,"\n","");
                     b=(isKeyword(a)?KW(L(s)):L(s));
