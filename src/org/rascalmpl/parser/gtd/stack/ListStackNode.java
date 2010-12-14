@@ -47,7 +47,7 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		AbstractStackNode listNode = child.getCleanCopy();
 		listNode.markAsEndNode();
 		listNode.setParentProduction(production);
-		listNode.setNext(new AbstractStackNode[]{listNode, listNode});
+		listNode.setProduction(new AbstractStackNode[]{listNode, listNode});
 		
 		if(isPlusList){
 			return new AbstractStackNode[]{listNode};

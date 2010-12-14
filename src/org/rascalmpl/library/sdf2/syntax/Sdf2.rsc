@@ -130,9 +130,9 @@ syntax Symbol = Sort: Sort |
                 Lifting: "`" Symbol "`" |
                 Empty: "(" ")" |
                 Bracket: "(" Symbol ")" |
+                Seq: "(" Symbol Symbol+ ")" |
                 Strategy: "(" Symbol "-\>" Symbol ")" |
                 Func: "(" Symbols "=\>" Symbol ")" |
-                Seq: "(" Symbol Symbol+ ")" |
                 Opt: Symbol "?" |
                 Iter: Symbol "+" |
                 IterStar: Symbol "*" |
