@@ -13,8 +13,8 @@ public abstract class AbstractStackNode{
 	public final static int START_SYMBOL_ID = -1;
 	protected final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
 	
-	protected AbstractStackNode[] next;
-	protected ArrayList<AbstractStackNode[]> alternateNexts;
+	protected AbstractStackNode[] production;
+	protected ArrayList<AbstractStackNode[]> alternateProductions;
 	protected LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap;
 	protected ArrayList<Link>[] prefixesMap;
 	
@@ -58,8 +58,8 @@ public abstract class AbstractStackNode{
 		id = original.id;
 		dot = original.dot;
 		
-		next = original.next;
-		alternateNexts = original.alternateNexts;
+		production = original.production;
+		alternateProductions = original.alternateProductions;
 		
 		startLocation = original.startLocation;
 		
@@ -172,31 +172,36 @@ public abstract class AbstractStackNode{
 		return dot;
 	}
 	
-	public void setNext(AbstractStackNode[] next){
-		this.next = next;
+	public void setProduction(AbstractStackNode[] production){
+		this.production = production;
 	}
 	
-	public void addNext(AbstractStackNode[] next){
-		if(this.next == null){
-			this.next = next;
+	public void addProduction(AbstractStackNode[] production){
+		if(this.production == null){
+			this.production = production;
 		}else{
-			if(alternateNexts == null){
-				alternateNexts = new ArrayList<AbstractStackNode[]>();
+			if(alternateProductions == null){
+				alternateProductions = new ArrayList<AbstractStackNode[]>();
 			}
-			alternateNexts.add(next);
+			if(production.length > this.production.length){
+				alternateProductions.add(this.production);
+				this.production = production;
+			}else{
+				alternateProductions.add(production);
+			}
 		}
 	}
 	
 	public boolean hasNext(){
-		return !((next == null) || (next.length == (dot + 1)));
+		return !((production == null) || ((dot + 1) == production.length));
 	}
 	
-	public AbstractStackNode[] getNext(){
-		return next;
+	public AbstractStackNode[] getProduction(){
+		return production;
 	}
 	
-	public ArrayList<AbstractStackNode[]> getAlternateNexts(){
-		return alternateNexts;
+	public ArrayList<AbstractStackNode[]> getAlternateProductions(){
+		return alternateProductions;
 	}
 	
 	public void initEdges(){

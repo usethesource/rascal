@@ -51,11 +51,11 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		int numberOfSeparators = separators.length;
 		AbstractStackNode[] prod = new AbstractStackNode[numberOfSeparators + 2];
 		
-		listNode.setNext(prod);
+		listNode.setProduction(prod);
 		prod[0] = listNode; // Start
 		for(int i = numberOfSeparators - 1; i >= 0; --i){
 			AbstractStackNode separator = separators[i];
-			separator.setNext(prod);
+			separator.setProduction(prod);
 			separator.markAsSeparator();
 			prod[i + 1] = separator;
 		}
