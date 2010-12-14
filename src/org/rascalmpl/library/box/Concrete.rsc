@@ -246,10 +246,10 @@ public Box evPt(Tree q,bool doIndent) {
                        return walkThroughSymbols(s, t,true,doIndent,-1);        
                     }
           case appl ( \regular(\iter-star-seps(Symbol s,list[Symbol] sep), Attributes att),list[Tree] t) : {
-                    return HV(0,getArgs(q));
+                    return HV(0,getArgsSep(q));
                     }
           case appl ( \regular(\iter-seps(Symbol s, list[Symbol] sep), Attributes att),list[Tree] t) : {
-                    return HV(0,getArgs(q));
+                    return HV(0,getArgsSep(q));
                     }
           case appl ( \regular(\iter-star(Symbol s), Attributes att),list[Tree] t) : {
                     // return HV(0,getArgs(q));
@@ -431,10 +431,26 @@ public void concrete(Tree a) {
 
 public list[Box] getArgs(Tree g) {
      list[Tree] tl=getA(g);
+     if (isEmpty(tl)) return [];
      list[Box] r=[evPt(t)|Tree t<-tl];
-     return [b|Box b<-r, b!=NULL()];
+     return [b|Box b<-r, COMM(_)!:=b]; 
      }
-
+     
+public list[Box] getArgsSep(Tree g) {
+     list[Tree] tl=getA(g);
+     if (isEmpty(tl)) return [];
+     list[Box] r=[evPt(t)|Tree t<-tl];
+     r = [b|Box b<-r, COMM(_)!:=b]; 
+     Box first = r[0];
+     r = delete(r, 0);
+     if (isEmpty(r)) return [first];
+     list[Box] q =[first];
+     for (int i<-[0,2..size(r)-1]) {
+          q += H(1, [r[i], r[i+1]]);
+          }
+     return q;
+     }
+     
 public Box getConstructor(Tree g,str h1,str h2) {
      list[Box] bs=getArgs(g);
      Box r=HV(0,[L(h1)]+bs+L(h2));
@@ -448,6 +464,7 @@ public Box cmd(str name,Tree expr,str sep) {
      }
 
 public Box HV(int space,list[Box] bs) {
+     if (isEmpty(bs)) return NULL();
      Box r=HV([b|Box b<-bs,b!=NULL()]);
      if (space>=0) r@hs=space;
      r@vs=0;
@@ -455,12 +472,14 @@ public Box HV(int space,list[Box] bs) {
      }
 
 public Box H(int space,list[Box] bs) {
+     if (isEmpty(bs)) return NULL();
      Box r=H([b|Box b<-bs,b!=NULL()]);
      if (space>=0) r@hs=space;
      return r;
      }
 
 public Box V(int space,list[Box] bs) {
+     if (isEmpty(bs)) return NULL();
      Box r=V([b|Box b<-bs,b!=NULL()]);
      if (space>=0) r@vs=space;
      return r;
