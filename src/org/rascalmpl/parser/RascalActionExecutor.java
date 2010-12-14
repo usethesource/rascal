@@ -105,9 +105,9 @@ public class RascalActionExecutor implements IActionExecutor{
 		for(int i = lhs.length() - 1; i >= 0; --i){
 			IConstructor sym = (IConstructor) lhs.get(i);
 			if(SymbolAdapter.isLabel(sym)){
-				Type argType = RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.getSymbol(sym));
+				Type argType = RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.getLabeledSymbol(sym));
 				Result<IValue> val = makeResult(argType, args.get(i), eval);
-				eval.getCurrentEnvt().storeVariable(SymbolAdapter.getName(sym), val);
+				eval.getCurrentEnvt().storeVariable(SymbolAdapter.getLabelName(sym), val);
 			}
 		}
 	}
