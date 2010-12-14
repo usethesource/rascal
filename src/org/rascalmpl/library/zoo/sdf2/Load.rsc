@@ -1,6 +1,6 @@
 module zoo::sdf2::Load
 
-import languages::sdf2::syntax::Sdf2;
+import sdf2::syntax::Sdf2;
 import IO;
 import Exception;
 import String;
