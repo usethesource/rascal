@@ -59,6 +59,7 @@ int width(str s) {
 
 /* Computes the maximum width of text t */
 int twidth(text t) {
+     if (isEmpty(t)) return 0;
      return max([width(r)|str r <-t]);
      }
 
@@ -639,6 +640,10 @@ void tst() {
   Box  b3 = R([L("ijkl"), L("m")]);
   Box b = A([b1, b2, b3]);
   b@format=["c","c"];
+  /*
+  Box b = V([L("a"), V([L("b"), L("c")])@vs=0)@vs=1;
+  fprintln(b);
+  */
 } 
 
 public str baseName(str input) {
