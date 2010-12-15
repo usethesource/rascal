@@ -90,7 +90,7 @@ public list[tuple[&K, &V]] java toList(map[&K, &V] M);
 @javaClass{org.rascalmpl.library.Map}
 public rel[&K, &V] java toRel(map[&K, &V] M);
   
-@doc{Convert a list to a string.}
+@doc{Convert a map to a string.}
 @javaClass{org.rascalmpl.library.Map}
 public str java toString(map[&K, &V] M);
 
