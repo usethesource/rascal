@@ -12,7 +12,7 @@ alias pairs = list[tuple[Symbol,Tree]] ;
 
 alias segment = tuple[int,int] ;
 
-// Userdefined
+// UserDefined
 
 Box defaultUserDefined(Tree t) {
      return NULL();
@@ -24,7 +24,7 @@ public void setUserDefined(Box ( Tree ) userDef) {
      userDefined=userDef;
      }
      
-//  startEnd Block
+//  startEndBlock
 tuple[str, str] defaultStartEndBlock = <"{", "}">;
 tuple[str, str] startEndBlock = defaultStartEndBlock;
 public void setStartEndBlock(str startSym, str endSym) {
@@ -128,7 +128,33 @@ bool isNonTerminal(Symbol s,str c) {
           }
      return false;
      }
+
+bool isComment(Attributes a) {
+     if (\attrs(list[Attr] attrs):=a) {
+         for (Attr attr<-attrs) {
+             if (term(category(str c)):=attr) {
+                  if (c=="Comment") return true;
+                  }
+         }
+      }
+     return false;
+     }
      
+str getComment(Tree t) {
+     if (appl(prod(_,_,Attributes a), list[Tree] ps):=t) {
+          if (isComment(a)) return "<t>"; 
+          else {
+            str r = "";
+             for (Tree p<-ps) {
+                str g = getComment(p);
+                r += g;
+                }
+            return r;
+          }
+        }
+     return "";
+     }
+        
 public bool isScheme(list[Symbol] q,list[str] b) {
      // println("<size(b)>==<(size(q)+1)/2>"); 
      list[Symbol] f = [p|Symbol p<-q, layouts(_)!:=p];
@@ -229,6 +255,32 @@ Box makeString(Symbol a, Tree t, Attributes att) {
       return b;
       }
 
+public Box C(Tree t, int idx) {
+      if (idx<0) return NULL();
+      Tree g = getA(t)[2*idx+1];
+      Box b = evLayout(getA(g)[0]);
+      if (COMM(Box d):=b) {
+           if (d!=NULL()) {
+             // println("C:<d>");
+             return b;
+             }
+           }
+      return NULL();
+      }     
+      
+public Box evLayout(Tree g) {
+      if (appl (\regular(\iter-star(Symbol s), Attributes att),list[Tree] t ):=g) {
+      str r = "";
+      for (Tree q<-t) {
+             r += getComment(q);
+             }
+       return (size(r)>0?COMM(L("<r>")):COMM(NULL()));
+       }
+       return COMM(NULL());
+      }
+      
+      
+
 public Box evPt(Tree q,bool doIndent) {
      Box b=userDefined(q);
      if (b!=NULL()) return b;
@@ -236,11 +288,10 @@ public Box evPt(Tree q,bool doIndent) {
      switch (q) {
           case appl ( prod(list[Symbol] s, Symbol r, Attributes att),list[Tree] t ) : {  
                        // println(q);
-                       if (layouts(_):=r) return COMM(L(""));
+                       if (layouts(_):=r) return evLayout(t[0]);          
                        // println("r=<r>");
                        Box b = makeString(r, q, att);
                        if (b!=NULL()) {
-                             // println("BINGO: <b>");
                              return b;
                              }
                        return walkThroughSymbols(s, t,true,doIndent,-1);        
@@ -259,10 +310,12 @@ public Box evPt(Tree q,bool doIndent) {
                     // return HV(0,getArgs(q));
                     return walkThroughSymbols([], t,false,doIndent,-1);
                     }
-          case appl (\regular(_, _),list[Tree] t) : {
+          case appl (\regular(Production p, _),list[Tree] t) : {
                     // return HV(0,getArgs(q));
+                    println("Exception"); println(p);
                     return walkThroughSymbols([], t,false,doIndent,-1);
                     }
+             
           }
      return NULL();
      }
@@ -293,10 +346,11 @@ Box defaultBox(Box b) {
                          else if (I(list[Box] c):=b) {
                                    if (size(c)>0) return b;
                                    }
-                              else
+                              else {
                               return b;
-     return NULL();  //Problem with counting LAYOUT must be added
-     }
+                              }
+     return NULL(); 
+     } 
 
 tuple[Box,Box] compactStyle(Box b) {
      if (V(list[Box] v):=b) {
@@ -329,7 +383,12 @@ Box walkThroughSymbols(list[Symbol] y, list[Tree] z,bool hv,bool doIndent,int sp
      int i = 0;
      for (Tree t <- z) {
           Box b=defaultBox(evPt(t,(i in block)));
-          if (COMM(_)!:=b) {
+          if (COMM(Box a):=b) {
+               if (a!=NULL()) {
+                   out+=a;
+                   }
+               }
+          else {
           if (i>=q[0]&&i<=q[1]) {
                compactList+=b;
                if (i==q[1]) {
@@ -428,19 +487,24 @@ public void concrete(Tree a) {
           }
      println(out);
      }
+     
 
 public list[Box] getArgs(Tree g) {
      list[Tree] tl=getA(g);
      if (isEmpty(tl)) return [];
      list[Box] r=[evPt(t)|Tree t<-tl];
-     return [b|Box b<-r, COMM(_)!:=b]; 
+     r = [b|Box b<-r, COMM(_)!:=b || (COMM(L(str s)):=b && (size(s)>0))];
+     /*
+     list[Box] aux = [b|Box b<-r, COMM(L(str s)):=b && (size(s)>0)];
+     println("getArgs:<aux>");
+     */
+     return r; 
      }
      
 public list[Box] getArgsSep(Tree g) {
-     list[Tree] tl=getA(g);
-     if (isEmpty(tl)) return [];
-     list[Box] r=[evPt(t)|Tree t<-tl];
+     list[Box] r = getArgs(g);
      r = [b|Box b<-r, COMM(_)!:=b]; 
+     if (isEmpty(r)) return r;
      Box first = r[0];
      r = delete(r, 0);
      if (isEmpty(r)) return [first];
