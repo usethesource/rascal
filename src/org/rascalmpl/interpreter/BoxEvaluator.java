@@ -490,21 +490,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitBodyToplevels(Toplevels x) {
-		IList listToplevels = getTreeList(x, 0);
-		// for (IValue q : z) {
-		// for (IValue b : listToplevels) {
-		// if (TreeAdapter.isCfOptLayout((IConstructor) b)) {
-		// IList c = TreeAdapter.searchCategory((IConstructor) b,
-		// "Comment");
-		// if (!c.isEmpty()) {
-		// System.err.println("QQ0:"+c);
-		// for (IValue d:c)
-		// System.err.println(TreeAdapter.yield((IConstructor) d));
-		// }
-		// }
-		// }
-		// }
-		return V(1, eXs0(x.getToplevels(), listToplevels));
+		IList l = getTreeList(x, 0);
+		return V(1, eXs0(x.getToplevels(), l));
 	}
 
 	public IValue visitBooleanLiteralAmbiguity(
@@ -1005,7 +992,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitExpressionNoMatch(NoMatch x) {
-		return L(x.getClass().toString());
+		IList r = list(eX(x.getPattern()), L("!:="), eX(x.getExpression()));
+		return width(r) < UNITLENGTH ? list(H(0, r)) : r;
 	}
 
 	public IValue visitExpressionNonEmptyBlock(NonEmptyBlock x) {
@@ -1153,17 +1141,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitFunctionBodyDefault(
 			org.rascalmpl.ast.FunctionBody.Default x) {
-		java.util.List<org.rascalmpl.ast.Statement> statements = x
-				.getStatements();
-		IList b = BoxADT.getEmptyList();
-		for (Iterator<org.rascalmpl.ast.Statement> iterator = statements
-				.iterator(); iterator.hasNext();) {
-			org.rascalmpl.ast.Statement statement = iterator.next();
-			IValue t = statement.accept(this);
-			if (t != null)
-				b = b.append(I(t));
-		}
-		return b;
+		IList l = getTreeList(x, 0);
+		return eXs0(x.getStatements(), l);
 	}
 
 	public IValue visitFunctionDeclarationAbstract(Abstract x) {
@@ -1189,12 +1168,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		/**
 		 * tags:Tags visibility:Visibility signature:Signature body:FunctionBody
 		 */
-		IValue r = eX(x.getSignature());
-		IList b = (IList) eX(x.getBody());
-		b = b.append(I(BoxADT.RBLOCK));
-		r = V(0, eX(x.getTags()),
-				H(0, H(1, eX(x.getVisibility()), r, BoxADT.LBLOCK)), V(b));
-		return r;
+		IList c1 = getComment(x, 5);
+		return cStat((c1.isEmpty()?eX(x.getSignature()):V(0,eX(x.getSignature()), c1)),  eX(x.getBody()));
 	}
 
 	public IValue visitFunctionModifierAmbiguity(
@@ -1386,7 +1361,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitLabelEmpty(org.rascalmpl.ast.Label.Empty x) {
-		return L(x.getClass().toString());
+		return null;
 	}
 
 	public IValue visitLiteralAmbiguity(org.rascalmpl.ast.Literal.Ambiguity x) {
@@ -1482,7 +1457,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitMidPathCharsLexical(
 			org.rascalmpl.ast.MidPathChars.Lexical x) {
-		return L(x.getClass().toString());
+		return split(x.toString());
 	}
 
 	public IValue visitMidProtocolCharsAmbiguity(
@@ -1492,7 +1467,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitMidProtocolCharsLexical(
 			org.rascalmpl.ast.MidProtocolChars.Lexical x) {
-		return L(x.getClass().toString());
+		return split(x.toString());
 	}
 
 	public IValue visitMidStringCharsAmbiguity(
@@ -1618,7 +1593,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitPathCharsLexical(org.rascalmpl.ast.PathChars.Lexical x) {
-		return L(x.getString());
+		return split(x.getString());
 	}
 
 	public IValue visitPathPartAmbiguity(org.rascalmpl.ast.PathPart.Ambiguity x) {
@@ -1626,7 +1601,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitPathPartInterpolated(Interpolated x) {
-		return L(x.getClass().toString());
+		return list(eX(x.getPre()), eX(x.getExpression()), eX(x.getTail()));
 	}
 
 	public IValue visitPathPartNonInterpolated(NonInterpolated x) {
@@ -1638,11 +1613,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitPathTailMid(Mid x) {
-		return L(x.getClass().toString());
+		return list(eX(x.getMid()), eX(x.getExpression()), eX(x.getTail()));
 	}
 
 	public IValue visitPathTailPost(Post x) {
-		return L(x.getClass().toString());
+		return eX(x.getPost());
 	}
 
 	public IValue visitPatternWithActionAmbiguity(
@@ -1670,7 +1645,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitPostPathCharsLexical(
 			org.rascalmpl.ast.PostPathChars.Lexical x) {
-		return L(x.getClass().toString());
+		return L(x.getString());
 	}
 
 	public IValue visitPostProtocolCharsAmbiguity(
@@ -1700,7 +1675,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitPrePathCharsLexical(
 			org.rascalmpl.ast.PrePathChars.Lexical x) {
-		return L(x.getClass().toString());
+		return split(x.getString());
 	}
 
 	public IValue visitPreProtocolCharsAmbiguity(
@@ -2180,7 +2155,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitStringLiteralTemplate(Template x) {
-		return L(x.getClass().toString());
+		return list(eX(x.getPre()), eX(x.getTemplate()), eX(x.getTail()));
 	}
 
 	public IValue visitStringMiddleAmbiguity(
@@ -2256,9 +2231,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitStringTemplateFor(org.rascalmpl.ast.StringTemplate.For x) {
-		return list(L("for"), BoxADT.LPAR, eXs(x.getGenerators(), null, null),
-				BoxADT.RPAR, BoxADT.LBLOCK, eXs0(x.getPreStats()),
-				eX(x.getBody()), eXs0(x.getPostStats()), BoxADT.RBLOCK);
+		return list(H(0, L("for"), BoxADT.LPAR, eXs(x.getGenerators(), null, null),
+				BoxADT.RPAR, BoxADT.LBLOCK,  eXs0(x.getPreStats())),
+				HV(0, eX(x.getBody()), eXs0(x.getPostStats()), BoxADT.RBLOCK));
 	}
 
 	public IValue visitStringTemplateIfThen(
@@ -3046,8 +3021,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				BoxADT.LPAR, exs, BoxADT.RPAR, body);
 	}
 
-	private IValue cStat(IValue hBox, IValue exs, IValue body) {
-		return cStat(hBox, BoxADT.LBLOCK, exs, BoxADT.RBLOCK, body);
+	private IValue cStat(IValue hBox, IValue body) {
+		return HOV(1, true, H(1, hBox, BoxADT.LBLOCK), body, BoxADT.RBLOCK);
 	}
 
 	private IValue cStat(String name, IValue left, IValue exs, IValue right,
@@ -3062,6 +3037,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				H(1, KW(name), t == null ? BoxADT.EMPTY : H(0, t),
 						head(body, false)), tail(body, false));
 	}
+	
 
 	private IValue cStat(IValue hBox, IValue left, IValue exs, IValue right,
 			IValue body) {
