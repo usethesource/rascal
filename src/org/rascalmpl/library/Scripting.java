@@ -62,9 +62,10 @@ public class Scripting {
 		
 		StringWriter es = new StringWriter();
 		PrintWriter err = new PrintWriter(es);
+		RascalShell shell = null;
 		
 		try {
-			RascalShell shell = new RascalShell(in, err, out, ((Evaluator) ctx).getClassLoaders(), ((Evaluator) ctx).getRascalResolver());
+			shell = new RascalShell(in, err, out, ((Evaluator) ctx).getClassLoaders(), ((Evaluator) ctx).getRascalResolver());
 			Timer timer = new ShellTimer(shell, duration.intValue());
 			timer.start();
 			shell.run();
@@ -80,7 +81,9 @@ public class Scripting {
 				System.err.println("Timeout");
 				// Remove stack trace due to killing the shell
 				int k = result.lastIndexOf("Unexpected exception");
-				result = result.substring(0, k);
+				if (k != -1) {
+					result = result.substring(0, k);
+				}
 			    result = result.concat("\n*** Rascal killed after timeout ***\n");
 			}
 			java.lang.String lines[] = result.split("[\r\n]+");
@@ -88,10 +91,18 @@ public class Scripting {
 			for(java.lang.String line : lines)
 				w.append(values.string(line));
 			return w.done();
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			System.err.println("unexpected error: " + e.getMessage());
+			if (shell != null) {
+				System.err.println(shell.getEvaluator().getStackTrace());
+			}
+			System.err.println("caused by:");
+			e.printStackTrace();
 			return values.string("unexpected error: " + e.getMessage());
-		} 
+		} finally {
+			out.close();
+			err.close();
+		}
 	}
 	
 	public IValue shell(IString input, IEvaluatorContext ctx) {

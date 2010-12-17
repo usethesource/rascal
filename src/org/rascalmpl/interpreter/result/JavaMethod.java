@@ -1,5 +1,7 @@
 package org.rascalmpl.interpreter.result;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -122,10 +124,15 @@ public class JavaMethod extends NamedFunction {
 				ImplementationError ex = (ImplementationError) targetException;
 			    throw ex;
 			}
+			else if (targetException instanceof OutOfMemoryError) {
+				throw new ImplementationError("out of memory", targetException);
+			}
 			
-			e.printStackTrace();
 			String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";
-			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), eval.getStackTrace());
+			ByteArrayOutputStream trace = new ByteArrayOutputStream();
+			e.printStackTrace(new PrintWriter(trace));
+			String traceStr = trace.toString() + "\n" + eval.getStackTrace();
+			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), traceStr);
 		}
 	}
 	

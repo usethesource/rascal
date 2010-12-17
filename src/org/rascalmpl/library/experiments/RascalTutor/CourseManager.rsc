@@ -81,6 +81,7 @@ public str start(str serverName, str name){
    reinitialize(courses[name], {});
    return showConcept(name);
  }
+// println(listEntries(courseRoot));
  if(name in listEntries(courseRoot)){
     c = compileCourse(name, name, courseRoot);
     courses[name] = c;

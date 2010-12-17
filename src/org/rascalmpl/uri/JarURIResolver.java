@@ -25,10 +25,14 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	
 	private String getPath(URI uri) {
 		String path = uri.toASCIIString();
-		return path.substring(path.indexOf('!') + 1);
+		path = path.substring(path.indexOf('!') + 1);
+		while (path.startsWith("/")) {
+			path = path.substring(1);
+		}
+		return path;
 	}
 	
-	public InputStream getInputStream(URI uri) throws IOException{
+	public InputStream getInputStream(URI uri) throws IOException {
 		InputStream resourceAsStream = clazz.getResourceAsStream(getPath(uri));
 		if (resourceAsStream != null) {
 			return resourceAsStream;
@@ -36,7 +40,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		throw new FileNotFoundException(uri.toString());
 	}
 	
-	public boolean exists(URI uri){
+	public boolean exists(URI uri) {
 		try {
 			String jar = getJar(uri);
 			String path = getPath(uri);
@@ -54,8 +58,14 @@ public class JarURIResolver implements IURIInputStreamResolver{
 			String jar = getJar(uri);
 			String path = getPath(uri);
 			
+			if (!path.endsWith("/")) {
+				path = path + "/";
+			}
+			
 			JarFile jarFile = new JarFile(jar);
 			JarEntry jarEntry = jarFile.getJarEntry(path);
+			
+			
 			return(jarEntry != null && jarEntry.isDirectory());
 		} catch (IOException e) {
 			return false;
@@ -81,28 +91,49 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		
 		JarFile jarFile = new JarFile(jar);
 		JarEntry jarEntry = jarFile.getJarEntry(path);
-		if(jarEntry == null) return -1;
+		
+		if (jarEntry == null) {
+			throw new FileNotFoundException(uri.toString());
+		}
 		
 		return jarEntry.getTime();
 	}
 	
-	public String[] listEntries(URI uri) throws IOException{
+	public String[] listEntries(URI uri) throws IOException {
+		if (!isDirectory(uri)) {
+			return new String[] { };
+		}
 		String jar = getJar(uri);
 		String path = getPath(uri);
-		if(path.startsWith("/")) path = path.substring(1);
+		
+		if (!path.endsWith("/")) {
+			path = path + "/";
+		}
 		
 		JarFile jarFile = new JarFile(jar);
 		
 		Enumeration<JarEntry> entries =  jarFile.entries();
 		ArrayList<String> matchedEntries = new ArrayList<String>();
-		while(entries.hasMoreElements()){
+		while (entries.hasMoreElements()) {
 			JarEntry je = entries.nextElement();
 			String name = je.getName();
-			if(name.startsWith(path)){
+			
+			if (name.equals(path)) {
+				continue;
+			}
+			int index = name.indexOf(path);
+			
+			if (index == 0) {
 				String result = name.substring(path.length());
-				if(result.endsWith("/")) result = result.substring(0, result.length() - 1);
 				
-				matchedEntries.add(result);
+				index = result.indexOf("/");
+				
+				if (index == -1) {
+					matchedEntries.add(result);
+				}
+				else if (index == result.length() - 1) {
+					matchedEntries.add(result.substring(0, result.length() - 1));	
+				}
 			}
 		}
 		
@@ -113,5 +144,4 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	public String scheme(){
 		return "jar";
 	}
-	
 }
