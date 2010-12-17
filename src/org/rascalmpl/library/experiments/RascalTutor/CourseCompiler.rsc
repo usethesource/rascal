@@ -140,7 +140,10 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	                       searchTerms, description, examples, benefits, pitfalls, questions);
 	   binFile = file[extension = compiledExtension];
 	   println("parseConcept: binFile = <binFile>, uri = <binFile.uri>");
-	   writeTextValueFile(binFile, C);
+	   try {
+	     writeTextValueFile(binFile, C);
+	   }
+	   catch e: println("can not save file <binFile>"); // do nothing
 	   return C;
 	} catch NoSuchKey(e):
 	    throw ConceptError("<fullName>: Missing section \"<e>\"");
@@ -423,7 +426,7 @@ public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
     
     coursePath = courseRoot.path;
     courseFiles = crawl(catenate(courseDir, rootConcept), suffix);
-    println(courseFiles);
+//    println(courseFiles);
     for(file <- courseFiles){
        cpt = parseConcept(file, coursePath);
        fullName = getFullConceptName(file.path, coursePath);
@@ -530,14 +533,16 @@ public loc catenate(loc basedir, str entry){
 }
 
 public list[loc] crawl(loc dir, str suffix){
-  //println("crawl: <dir>, <listEntries(dir)>");
+//  println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
   for( str entry <- listEntries(dir) ){
     loc sub = catenate(dir, entry);
-    if(endsWith(entry, suffix))
-      	res += [sub];
-    if(isDirectory(sub))
+    if(endsWith(entry, suffix)) { 
+      	res += [sub]; 
+    }
+    if(isDirectory(sub)) {
       	res += crawl(sub, suffix);
+    }
   };
   return res;
 }

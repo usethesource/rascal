@@ -167,8 +167,8 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
-		throw new ImplementationError("NYI: pdb has no remove on list");
-		//return new ListResult(list.remove(value.getValue())
+		IList list = (IList) getValue();
+		return makeResult(getType(), list.delete(value.getValue()), ctx);
 	}
 
 	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult) {

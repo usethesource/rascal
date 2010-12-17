@@ -133,6 +133,7 @@ public class RascalShell {
 			}
 			catch (Throwable e) {
 				console.printString("Unexpected exception (generic Throwable): " + e.getMessage() + "\n");
+				console.printString(evaluator.getStackTrace());
 				printStacktrace(console, e);
 			}
 		}
@@ -143,11 +144,18 @@ public class RascalShell {
 		evaluator.interrupt();
 	}
 	
+	public Evaluator getEvaluator() {
+		return evaluator;
+	}
+	
 	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
 		String message = e.getMessage();
 		console.printString("stacktrace: " + (message != null ? message : "" )+ "\n");
-		for (StackTraceElement elem : e.getStackTrace()) {
-			console.printString("\tat " + elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")\n");
+		StackTraceElement[] stackTrace = e.getStackTrace();
+		if (stackTrace != null) {
+			for (StackTraceElement elem : stackTrace) {
+				console.printString("\tat " + elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")\n");
+			}
 		}
 		Throwable cause = e.getCause();
 		if (cause != null) {

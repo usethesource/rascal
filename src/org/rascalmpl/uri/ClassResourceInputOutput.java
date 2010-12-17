@@ -31,15 +31,21 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		if (!prefix.startsWith("/")) {
 			prefix = "/" + prefix;
 		}
-		if (prefix.endsWith("/")) {
-			prefix = prefix.substring(0, prefix.length() - 1);
+		while (prefix.endsWith("/")) {
+			prefix = prefix.substring(0, prefix.length() - 2);
 		}
 		return prefix;
 	}
 	
 	private String getPath(URI uri) {
 		String path = uri.getPath();
-		return prefix + (path.startsWith("/") ? "" : "/") + path;
+		while (path.startsWith("/")) {
+			path = path.substring(1);
+		}
+		if (path.contains("//")) {
+			path = path.replaceAll("//","/");
+		}
+		return prefix + "/" + path;
 	}
 	
 	public boolean exists(URI uri) {
@@ -99,7 +105,7 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			throw new IOException(e.getMessage(), e);
 		}
 	}
-
+	
 	public URI getResourceURI(URI uri) throws IOException {
 		try {
 			URL res = clazz.getResource(getPath(uri));
@@ -140,7 +146,11 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			if(res == null)
 				throw new FileNotFoundException(parent);
 			URI parentUri = res.toURI();
-			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), parentUri.getPath() + child, parentUri.getQuery(), parentUri.getFragment());
+			String path = parentUri.getPath();
+			if (path == null) {
+				path = "/";
+			}
+			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), path + child, parentUri.getQuery(), parentUri.getFragment());
 			
 			return registry.getOutputStream(childUri, append);
 		} catch (URISyntaxException e) {
@@ -164,4 +174,6 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			throw new IOException(e.getMessage(), e);
 		}
 	}
+
+	
 }
