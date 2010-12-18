@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.PropertyManager;
 
@@ -19,6 +20,8 @@ import processing.core.PConstants;
  * - toAngle		end angle of wedge
  * 
  * @author paulk
+ * 
+ * TODO: specialize connectFrom
  *
  */
 
@@ -37,7 +40,6 @@ public class Wedge extends Container {
 	
 	private float IX;	// center of inner element, relative to (centerX, centerY)
 	private float IY;
-	private float WI;
 	
 	float Ax;	// start of outer arc (relative to center)
 	float Ay;
@@ -123,11 +125,25 @@ public class Wedge extends Container {
 		
 		float middleAngle = fromAngle + (toAngle-fromAngle)/2;
 		
-		float raux = innerRadius + 0.6f*(radius-innerRadius);
+		float raux = innerRadius + 0.5f*(radius-innerRadius);
+
+		switch(quadrant(middleAngle)){
+		case 1:	IX = raux * PApplet.cos(middleAngle);
+				IY = raux * PApplet.sin(middleAngle);
+				break;
+		case 2:
+				IX = -raux * PApplet.cos(PConstants.PI - middleAngle);
+				IY = raux * PApplet.sin(PConstants.PI - middleAngle);
+				break;
+		case 3:	IX = -raux * PApplet.cos(middleAngle - PConstants.PI);
+				IY = -raux * PApplet.sin(middleAngle - PConstants.PI);
+				break;
+		case 4:	IX = raux * PApplet.sin(2 *  PConstants.PI - middleAngle);
+				IY = -raux * PApplet.cos(2 *  PConstants.PI - middleAngle);
+				break;
+		}
 		
-		IX = raux * PApplet.cos(middleAngle);
-		IY = raux * PApplet.sin(middleAngle);
-		if(debug)System.err.printf("AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
+		if(true)System.err.printf("AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
 							        Ax,Ay,Bx,By,Cx,Cy,Dx, Dy,IX,IY);
 		
 		qFrom = quadrant(fromAngle);
@@ -257,15 +273,15 @@ public class Wedge extends Container {
 	@Override 
 	boolean insideFits(){
 		if(debug)System.err.printf("Wedge.insideFits\n");
-		return inner.height < radius - innerRadius && inner.width < WI;
+		return inner.height < radius - innerRadius && inner.width < width; //TODO was WI
 	}
 	
 	/**
-	 * If the inside  element fits, draw it.
+	 * If the inside  element fits or during a mouseOver, draw it.
 	 */
 	@Override
-	void insideDraw(){
-		inner.draw(centerX + IX - inner.width/2, centerY + IY -inner.height/2);
+	void innerDraw(){
+		inner.draw(centerX + IX - inner.width/2, centerY + IY - inner.height/2);
 	}
 	
 	@Override
@@ -290,7 +306,34 @@ public class Wedge extends Container {
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		return mousex > centerX - WI/2 && mousex < centerX + WI/2 &&
-				mousey > centerY - 10  && mousey < centerY + 10; //TODO replace 10
+		float dx = mousex - centerX;
+		float dy = mousey - centerY;
+		float dist = PApplet.sqrt(dx*dx + dy*dy);
+		float angle;
+		if(dx > 0 && dy > 0)
+			angle = PApplet.asin(dy/dist);
+		else if(dx < 0 && dy > 0)
+			angle = PConstants.PI  - PApplet.asin(dy/dist);
+		else if (dx < 0 && dy < 0)
+			angle = PConstants.PI + PApplet.asin(-dy/dist);
+		else 
+			angle = 2 * PConstants.PI - PApplet.asin(-dy/dist);
+		
+		return dist > innerRadius && dist <  radius &&
+		       angle > fromAngle && angle < toAngle;
 	}
+	
+	@Override
+	public void drawMouseOverFigure(){
+		if(isVisible()){
+			if(hasMouseOverFigure()){
+				Figure mo = getMouseOverFigure();
+				mo.bbox();
+				mo.draw(centerX + IX - mo.width/2, centerY + IY - mo.height/2);
+			} else if(inner != null){
+				innerDraw();
+			}
+		}
+	}
+	
 }
