@@ -75,7 +75,7 @@ public class Container extends Figure {
 				if(debug)System.err.printf("container.draw2: hgap=%f, vgap=%f, inside.width=%f\n", hgap, vgap, inner.width);
 				if(insideFits()){
 					fpa.incDepth();
-					insideDraw();
+					innerDraw();
 					fpa.decDepth();
 				}
 			}
@@ -92,7 +92,7 @@ public class Container extends Figure {
 	/**
 	 * If the inside  element fits, draw it.
 	 */
-	void insideDraw(){
+	void innerDraw(){
 		inner.draw(left + hgap + properties.hanchor*(width  - inner.width  - 2 * hgap),
 			    	top + vgap + properties.vanchor*(height - inner.height - 2 * vgap));
 	}
@@ -115,6 +115,19 @@ public class Container extends Figure {
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public void drawMouseOverFigure(){
+		if(isVisible()){
+			if(hasMouseOverFigure()){
+			Figure mo = getMouseOverFigure();
+			mo.bbox();
+			mo.draw(left + (width - mo.width)/2f, top + (height - mo.height)/2);
+		} else if(inner != null){
+			innerDraw();
+		}
+	}
 	}
 	
 	@Override
