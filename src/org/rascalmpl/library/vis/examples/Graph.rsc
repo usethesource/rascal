@@ -282,7 +282,7 @@ public void T44(){
     	  edge("E", "R"),   edge("E", "S"), edge("E", "T"), edge("E", "U")   	   
     	];
     	    
-    render(graph(nodes, edges, size(400), hint("lattice")));
+    render(graph(nodes, edges, size(400), hint("layered")));
 }
 
 // Graph
@@ -305,7 +305,7 @@ public void graphn(){
     edges = 
     	[ edge("A", "B"),
     	  edge("B", "C"),
-    	  edge("C", "D"),
+    	  edge("C", "D"),   	 
     	  edge("D", "E"),
     	  edge("E", "F"),
     	  edge("F", "G"),
@@ -319,5 +319,5 @@ public void graphn(){
     	  // edge("G", "K")  
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, hint("layered"), size(400)));
 }

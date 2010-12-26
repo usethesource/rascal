@@ -7,7 +7,8 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -23,7 +24,7 @@ public class LayeredGraphEdge extends Figure {
 	private boolean inverted = false;
 	private static boolean debug = true;
 	
-	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, PropertyManager properties, 
+	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName,
 			IConstructor toArrowCons, IConstructor fromArrowCons, 
 			IEvaluatorContext ctx) {
@@ -50,7 +51,7 @@ public class LayeredGraphEdge extends Figure {
 				", arrows (to/from): " + toArrow + " " + fromArrow);
 	}
 	
-	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, PropertyManager properties, 
+	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow, IEvaluatorContext ctx){
 		
 		super(fpa, properties, ctx);
@@ -104,9 +105,12 @@ public class LayeredGraphEdge extends Figure {
 		}
 		if(getTo().isVirtual()){
 			System.err.println("Drawing a shape");
-			LayeredGraphNode toNode = getTo();
-			float midX = getFrom().figX() + (toNode.figX() - getFrom().figX())/2;
-			float midY = getFrom().figY() + (toNode.figY() - toNode.layerHeight/2 - getFrom().figY())/2;
+			LayeredGraphNode currentNode = getTo();
+			
+			float dx = currentNode.figX() - getFrom().figX();
+			float dy = currentNode.figY() - currentNode.layerHeight/2 - getFrom().figY();
+			float midX = getFrom().figX() + dx/2;
+			float midY = getFrom().figY() + dy/2;
 			
 			if(getFromArrow() != null){
 				System.err.println("Drawing from arrow");
@@ -121,41 +125,55 @@ public class LayeredGraphEdge extends Figure {
 			
 			fpa.noFill();
 			fpa.beginShape();
-			
-			fpa.curveVertex(left + midX, top + midY);
-			fpa.curveVertex(left + midX, top + midY);
-			
-			LayeredGraphNode lastVnode = toNode;
-			while(toNode.isVirtual()){
-				System.err.println("Add vertex for " + toNode.name);
-				LayeredGraphNode next = toNode.out.get(0);
-				
-				if(next.isVirtual()){
-					fpa.curveVertex(left + toNode.figX(), top + toNode.figY());
-				} else {
-					fpa.curveVertex(left + toNode.figX(), top + toNode.figY() - toNode.layerHeight/2);
-					fpa.curveVertex(left + toNode.figX(), top + toNode.figY() + toNode.layerHeight/2);
-				}
-				lastVnode = toNode;
-				toNode = next;
+			fpa.vertex(left + midX, top + midY);
+			fpa.bezierVertex(left + getFrom().figX() + dx, top + getFrom().figY()  + dy,
+							 left + currentNode.figX(),    top + currentNode.figY(),
+							 left + currentNode.figX(),    top + currentNode.figY()
+					);
+            
+			LayeredGraphNode prevNode = currentNode;
+			currentNode =  currentNode.out.get(0);
+			while(currentNode.isVirtual()){
+				System.err.println("Add vertex for " + currentNode.name);
+				LayeredGraphNode nextNode = currentNode.out.get(0);
+				dx = currentNode.figX() - prevNode.figX();
+				dy = currentNode.figY() + currentNode.layerHeight/2 - prevNode.figY();
+				if(nextNode.isVirtual()){
+						fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY() - 100,
+								left + currentNode.figX(), top + currentNode.figY(),
+								left + currentNode.figX(), top + currentNode.figY()
+								);
+				}else{
+					fpa.bezierVertex(left + currentNode.figX(), top + currentNode.figY()  - 100,
+							left + nextNode.figX(), top + nextNode.figY() + 100,
+							left + currentNode.figX(), top + currentNode.figY()
+							);
+				}	
+				prevNode = currentNode;
+				currentNode = nextNode;
 			}
+			midX = prevNode.figX() + (currentNode.figX() - prevNode.figX())/2;
+			midY = prevNode.figY() + (currentNode.figY() - prevNode.figY())/2;
 			
 			if(getToArrow() != null){
-				midX = lastVnode.figX() + (toNode.figX() - lastVnode.figX())/2;
-				midY = lastVnode.figY() + (toNode.figY() + toNode.layerHeight/2 - lastVnode.figY())/2;
 				
-				fpa.curveVertex(left + midX, top + midY);
-				fpa.curveVertex(left + midX, top + midY);
+				//fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),
+				//				left + currentNode.figX(), top + currentNode.figY(),
+				//		        left + midX, top + midY
+				//		         );
 				fpa.endShape();
 				
 				System.err.println("Has a to arrow");
-				toNode.figure.connectFrom(left, top, 
-						toNode.figX(), toNode.figY(), 
-						midX, midY,
-						getToArrow());
+				//currentNode.figure.connectFrom(left, top, 
+				//		currentNode.figX(), currentNode.figY(), 
+				//		midX, midY,
+				//		getToArrow());
 			} else {
-				fpa.curveVertex(left + toNode.figX(), top + toNode.figY());
-				fpa.curveVertex(left + toNode.figX(), top + toNode.figY());
+				fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),
+						left + midX, top + -  midY,
+						left + currentNode.figX(), top + currentNode.figY()				
+				);
+				
 				fpa.endShape();
 			}
 			

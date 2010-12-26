@@ -119,6 +119,10 @@ public list[str] java fontNames();
    return anchor(0.5, 0.5);
  }
  
+ data intVar = intVar(int n);
+ 
+ data strVar = strVar(str s);
+ 
 public alias FProperties = list[FProperty];
 
 data FProperty =
@@ -221,6 +225,7 @@ data Figure =
 /* atomic primitives */
 
      _text(str s, FProperties props)		    // text label
+   | _text(strVar sv, FProperties props)
    
    												// file outline
    | _outline(map[int,Color] coloredLines, FProperties props)
@@ -274,11 +279,22 @@ data Figure =
    | _rotate(num angle, Figure fig, FProperties props)			    // Rotate element around its anchor point
    | _scale(num perc, Figure fig, FProperties props)	   		    // Scale element (same for h and v)
    | _scale(num xperc, num yperc, Figure fig, FProperties props)	// Scale element (different for h and v)
+
+/* interaction */
+
+   | _boolControl(str name, Figure figOn, Figure figOff, FProperties props)
+   | _controlOn(str name, Figure fig,  FProperties props)
+   | _controlOff(str name, Figure fig,  FProperties props)
+   | _strControl(str name, FProperties props)
    ;
 
 
 public Figure text(str s, FProperty props ...){
   return _text(s, props);
+}
+
+public Figure text(strVar sv, FProperty props ...){
+  return _text(sv, props);
 }
 
 public Figure outline (map[int,Color] coloredLines, FProperty props ...){
@@ -372,16 +388,32 @@ public Figure scale(num perc, Figure fig, FProperty props...){
 public Figure scale(num xperc, num yperc, Figure fig, FProperty props...){
   return _scale(xperc, yperc, fig, props);
 }
+
+public Figure boolControl(str name, Figure figOn, Figure figOff, FProperty props...){
+  return _boolControl(name, figOn, figOff, props);
+}
+
+public Figure controlOn(str name, Figure fig, FProperty props...){
+  return _controlOn(name, fig, props);
+}
+
+public Figure controlOff(str name, Figure fig, FProperty props...){
+  return _controlOff(name, fig, props);
+}
+
+public Figure strControl(str name, FProperty props...){
+  return _strControl(name, props);
+}
    
 /*
  * Wishlist:
- * - arrows
  * - textures
  * - boxes with round corners
+ * - drop shadows
  * - dashed/dotted lines
  * - ngons
  * - bitmap import and display
- * - svg/png/pdf export
  * - new layouts (circuar) treemap, icecle
+ * - interaction
  */
 

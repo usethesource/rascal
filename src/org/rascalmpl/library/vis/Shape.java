@@ -3,6 +3,7 @@ package org.rascalmpl.library.vis;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.compose.Compose;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PConstants;
 
@@ -25,7 +26,7 @@ public class Shape extends Compose {
 	float topAnchor;
 	float bottomAnchor;
 
-	Shape(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	Shape(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	

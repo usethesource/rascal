@@ -5,13 +5,14 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public class Scale extends Figure {
 	float xscale;
 	float yscale;
 	Figure figure;
 
-	public Scale(FigurePApplet fpa, PropertyManager inheritedProps, IValue xs,
+	public Scale(FigurePApplet fpa, IPropertyManager inheritedProps, IValue xs,
 			IValue ys, IConstructor c, IEvaluatorContext ctx) {
 		super(fpa, ctx);
 		xscale = xs.getType().isIntegerType() ? ((IInteger) xs).intValue()

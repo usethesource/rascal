@@ -7,7 +7,8 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * A TreeNode is created for each "node" constructor that occurs in a Tree.
@@ -25,7 +26,7 @@ public class TreeNode extends Figure {
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(FigurePApplet fpa, PropertyManager properties, Figure fig,
+	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig,
 			IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		rootFigure = fig;
@@ -33,9 +34,10 @@ public class TreeNode extends Figure {
 		edgeProperties = new ArrayList<PropertyManager>();
 	}
 	
-	public void addChild(PropertyManager inheritedProps, IList props,
+	public void addChild(IPropertyManager inheritedProps, IList props,
 			TreeNode toNode, IEvaluatorContext ctx) {
 		children.add(toNode);
+		//TODO
 		edgeProperties.add(new PropertyManager(null, inheritedProps, props, ctx));
 	}
 	

@@ -14,7 +14,8 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
@@ -38,7 +39,7 @@ public class LayeredGraph extends Figure {
 	IEvaluatorContext ctx;
 	
 //	private static boolean debug = false;
-	public LayeredGraph(FigurePApplet fpa, PropertyManager properties, IList nodes,
+	public LayeredGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		this.nodes = new ArrayList<LayeredGraphNode>();
@@ -124,64 +125,13 @@ public class LayeredGraph extends Figure {
 	}
 	
 	private void initialPlacement(){
-
 		int W = PApplet.round(1.5f * PApplet.sqrt(nodes.size()) + 1);
 		LinkedList<LinkedList<LayeredGraphNode>> layers = assignLayers(1000); print("assignLayers", layers);
 		layers = insertVirtualNodes(layers);print("insertVirtualNodes", layers);
 		layers = reduceCrossings(layers);print("reduceCrossings", layers);
-		
-		int n = layers.size();
-		float wlayer[] = new float[n];
-		float hlayer[] = new float[n];
-		
-		float hgap = getHGapProperty();
-		float vgap = getVGapProperty();
-		
-		int l = 0;
-		for(LinkedList<LayeredGraphNode> layer : layers){
-			wlayer[l] = hlayer[l] = 0;
-			for(LayeredGraphNode g : layer){
-				g.bbox();
-				wlayer[l] += g.width() + hgap;
-				hlayer[l] = max(hlayer[l], g.height());
-			}
-			for(LayeredGraphNode g : layer){
-				g.layerHeight = hlayer[l];
-			}
-			hlayer[l] += vgap;
-			l++;
-		}
-		l = 0;
-		float y = 0;
-		for(LinkedList<LayeredGraphNode> layer : layers){
-			
-			int rsize = 0;
-			for(LayeredGraphNode g : layer)
-				if(!g.isVirtual())
-					rsize++;
-			float deltax = (width - wlayer[l])/(rsize + 1);
-			//float deltax = 50;
-			float x = deltax;
-			for(int i = 0; i < layer.size(); i++){
-				LayeredGraphNode g = layer.get(i);
-				if(!g.isVirtual()){
-					g.x = x + g.width()/2;
-					g.y = y + hlayer[l]/2;
-					x += g.width() + deltax;
-				} else {
-					if(i > 0 && !layer.get(i-1).isVirtual())
-						x -= deltax;
-					g.x = x + hgap;
-					g.y =  y + hlayer[l]/2;
-					x += hgap;
-				}
-			}
-			y += hlayer[l];
-			l++;
-		}
-		
-
+		horizontalPlacement(layers);
 	}
+
 
 	@Override
 	public
@@ -228,12 +178,14 @@ public class LayeredGraph extends Figure {
 
 		applyProperties();
 		
-		for (LayeredGraphEdge e : edges)
-			e.draw(left, top);
-		
+
 		for (LayeredGraphNode n : nodes) {
 			n.draw(left, top);
 		}
+		
+		
+		for (LayeredGraphEdge e : edges)
+			e.draw(left, top);
 		
 	}
 
@@ -510,4 +462,150 @@ public class LayeredGraph extends Figure {
 		}
 		return layers;
 	}
+	
+	private LinkedList<LinkedList<LayeredGraphNode>>horizontalPlacement(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		int n = layers.size();
+		float wlayer[] = new float[n];
+		float hlayer[] = new float[n];
+		float maxWidth = 0;
+		
+		float hgap = getHGapProperty();
+		float vgap = getVGapProperty();
+		
+		// Pass 1: collect the size of then nodes in each layer
+		
+		int l = 0;
+		for(LinkedList<LayeredGraphNode> layer : layers){
+			wlayer[l] = hlayer[l] = 0;
+			for(LayeredGraphNode g : layer){
+				if(!g.isVirtual()){
+					g.bbox();
+					wlayer[l] += g.width() + hgap;
+					hlayer[l] = max(hlayer[l], g.height());
+				}
+			}
+			for(LayeredGraphNode g : layer){
+				g.layerHeight = hlayer[l];
+			}
+			hlayer[l] += vgap;
+			maxWidth = max(maxWidth, wlayer[l]);
+			l++;
+		}
+		
+		// Pass 2: Actual horizontal placement
+		
+		l = 0;
+		float y = 0;
+		for(LinkedList<LayeredGraphNode> layer : layers){
+			
+			int nVirtual = 0;
+			for(LayeredGraphNode g : layer)
+				if(g.isVirtual())
+					nVirtual++;
+			float deltax = (maxWidth - wlayer[l])/(1 + layer.size() - nVirtual);
+			float x = deltax;
+			
+			// Place all real nodes
+			for(int i = 0; i < layer.size(); i++){
+				LayeredGraphNode g = layer.get(i);
+				if(!g.isVirtual()){
+					g.x = x + g.width()/2;
+					g.y = y + hlayer[l]/2;
+					x += g.width() + deltax;
+				}
+			}
+			// Place all virtual nodes
+			x = deltax;
+			int i = 0;
+			int prevNonVirtual = -1;
+			while(i < layer.size()){
+				LayeredGraphNode g = layer.get(i);
+				if(!g.isVirtual()){
+					x += g.width() + deltax;
+					prevNonVirtual = i;
+					i++;
+				} else {
+					// Determine consecutive virtual nodes
+					int firstVirtual = i;
+					int lastVirtual = i;
+					while(i < layer.size() && layer.get(i).isVirtual()){
+						lastVirtual = i;
+						i++;
+					}
+					float startx = 0.7f * deltax;
+					if(prevNonVirtual > 0){
+						LayeredGraphNode h = layer.get(prevNonVirtual);
+						startx = h.x + h.width()/2 + hgap/2;
+					}
+					float endx = maxWidth;
+					if(lastVirtual < layer.size()-1){
+						LayeredGraphNode h = layer.get(lastVirtual+1);
+						endx = h.x - h.width()/2 - hgap/2;
+					}
+					float dx = (endx - startx)/(1 + lastVirtual - firstVirtual);
+					for(int j = firstVirtual; j <= lastVirtual; j++){
+						g = layer.get(j);
+						g.x = startx + (j - firstVirtual) *dx;
+						g.y =  y + hlayer[l]/2;
+					}
+				}
+			}
+			y += hlayer[l];
+			l++;
+		}
+	return layers;
+	}
+	
+//	private LinkedList<LinkedList<LayeredGraphNode>>horizontalPlacement(LinkedList<LinkedList<LayeredGraphNode>> layers){
+//		int n = layers.size();
+//		float wlayer[] = new float[n];
+//		float hlayer[] = new float[n];
+//		
+//		float hgap = getHGapProperty();
+//		float vgap = getVGapProperty();
+//		
+//		int l = 0;
+//		for(LinkedList<LayeredGraphNode> layer : layers){
+//			wlayer[l] = hlayer[l] = 0;
+//			for(LayeredGraphNode g : layer){
+//				g.bbox();
+//				wlayer[l] += g.width() + hgap;
+//				hlayer[l] = max(hlayer[l], g.height());
+//			}
+//			for(LayeredGraphNode g : layer){
+//				g.layerHeight = hlayer[l];
+//			}
+//			hlayer[l] += vgap;
+//			l++;
+//		}
+//		l = 0;
+//		float y = 0;
+//		for(LinkedList<LayeredGraphNode> layer : layers){
+//			
+//			int rsize = 0;
+//			for(LayeredGraphNode g : layer)
+//				if(!g.isVirtual())
+//					rsize++;
+//			float deltax = (width - wlayer[l])/(rsize + 1);
+//			//float deltax = 50;
+//			float x = deltax;
+//			for(int i = 0; i < layer.size(); i++){
+//				LayeredGraphNode g = layer.get(i);
+//				if(!g.isVirtual()){
+//					g.x = x + g.width()/2;
+//					g.y = y + hlayer[l]/2;
+//					x += g.width() + deltax;
+//				} else {
+//					if(i > 0 && !layer.get(i-1).isVirtual())
+//						x -= deltax;
+//					g.x = x + hgap;
+//					g.y =  y + hlayer[l]/2;
+//					x += hgap;
+//				}
+//			}
+//			y += hlayer[l];
+//			l++;
+//		}
+//	return layers;
+//	}
 }

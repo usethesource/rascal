@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * A TreeMapNode is created for each "node" constructor that occurs in the TreeMap.
@@ -24,7 +24,7 @@ public class TreeMapNode extends Figure {
 	private float[] childTop;
 	private static boolean debug = true;
 	
-	public TreeMapNode(FigurePApplet fpa, TreeMap treeMap, PropertyManager properties,
+	public TreeMapNode(FigurePApplet fpa, TreeMap treeMap, IPropertyManager properties,
 			Figure fig, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		this.treemap = treeMap;
@@ -32,7 +32,7 @@ public class TreeMapNode extends Figure {
 		children = new ArrayList<TreeMapNode>();
 	}
 	
-	public void addChild(PropertyManager inheritedProps, IList props,
+	public void addChild(IPropertyManager inheritedProps, IList props,
 			TreeMapNode toNode, IEvaluatorContext ctx) {
 		children.add(toNode);
 	}

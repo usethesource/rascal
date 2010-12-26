@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * Horizontal composition of elements, using their vertical anchor for alignment
@@ -19,7 +19,7 @@ public class HCat extends Compose {
 	float bottomAnchor = 0;
 	private static boolean debug = false;
 
-	public HCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public HCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	

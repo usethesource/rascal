@@ -1,7 +1,8 @@
 package org.rascalmpl.library.vis;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.IStringPropertyValue;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -14,14 +15,14 @@ import processing.core.PConstants;
  */
 public class Text extends Figure {
 
-	private String txt;
+	private IStringPropertyValue txt;
 	private static boolean debug = false;
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Text(FigurePApplet fpa, PropertyManager properties, IString text, IEvaluatorContext ctx) {
+	public Text(FigurePApplet fpa, IPropertyManager properties, IStringPropertyValue text, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
-		this.txt = text.getValue();
+		this.txt = text;
 		if(debug)System.err.printf("Text: %s\n", txt);
 	}
 	
@@ -33,7 +34,7 @@ public class Text extends Figure {
 		bottomAnchor = fpa.textDescent();
 		
 		height = topAnchor + bottomAnchor;
-		width = fpa.textWidth(txt);
+		width = fpa.textWidth(txt.getValue());
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
 			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt, width, height, getTextAngleProperty());
@@ -73,10 +74,10 @@ public class Text extends Figure {
 				fpa.pushMatrix();
 				fpa.translate(left + width/2, top + height/2);
 				fpa.rotate(PApplet.radians(angle));
-				fpa.text(txt, 0, 0);
+				fpa.text(txt.getValue(), 0, 0);
 				fpa.popMatrix();
 			} else {
-				fpa.text(txt, left + width/2, top + height/2);
+				fpa.text(txt.getValue(), left + width/2, top + height/2);
 //				vlp.rectMode(PConstants.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}

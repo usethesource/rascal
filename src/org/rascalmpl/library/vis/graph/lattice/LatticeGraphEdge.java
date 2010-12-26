@@ -5,7 +5,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -18,7 +18,7 @@ public class LatticeGraphEdge extends Figure {
 	private LatticeGraphNode to;
 	private static boolean debug = false;
 	
-	public LatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, PropertyManager properties, IString fromName, IString toName, IEvaluatorContext ctx) {
+	public LatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, IPropertyManager properties, IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		this.from = G.getRegistered(fromName.getValue());
 		
