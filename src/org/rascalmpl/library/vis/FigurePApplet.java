@@ -1,11 +1,15 @@
 package org.rascalmpl.library.vis;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -24,16 +28,19 @@ public class FigurePApplet extends PApplet {
 	 */
 	private static final long serialVersionUID = 6074377218243765483L;
 	
-	private int width = 1000;
-	private int height = 1000;
+	private int width = 2000;
+	private int height = 2000;
 	private Figure  figure;
 	private Figure rootFigure;
 	private Figure focus = null;
 	private boolean focusSelected = false;
 	private LinkedList<ZoomEntry> zoomStack = null;
 	private boolean zoomingIn = true;
+	
+	
+	private LinkedList<Figure> mouseOverStack = null;
 
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private boolean saveFigure = true;
 	private String file;
 	private float scale = 1.0f;
@@ -51,23 +58,35 @@ public class FigurePApplet extends PApplet {
 	private int focusLeft;
 
 	private int focusTop;
+	
+	private int lastMouseX = 0;
+	private int lastMouseY = 0;
+	
+	private HashSet<String> boolControls;
+	
+	
 
 	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
 		try {
 			this.file = ctx.getResolverRegistry().getResourceURI(sloc.getURI()).toASCIIString();
-			rootFigure = this.figure = FigureFactory.make(this, elem, null, ctx);
+			IPropertyManager def = new DefaultPropertyManager(this);
+			rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		boolControls = new HashSet<String>();
 	}
 	
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		saveFigure = false;
-		rootFigure = this.figure = FigureFactory.make(this, elem, null, ctx);
+		IPropertyManager def = new DefaultPropertyManager(this);
+		rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
 		zoomStack = new LinkedList<ZoomEntry>();
+		mouseOverStack = new LinkedList<Figure>();
 		//zoomStack.push(figure);
+		boolControls = new HashSet<String>();
 	}
 
 	@Override
@@ -158,6 +177,221 @@ public class FigurePApplet extends PApplet {
 				popMatrix();
 			}
 		}
+	}
+	
+	//-----------------------
+	
+	private void moveBy(int dx, int dy){
+		left += dx;
+		top += dy;
+		redraw();
+	}
+	
+	/*
+	 * Interaction: handle mouse and key events.
+	 */
+	
+	public void incDepth(){
+		depth += 1;
+	}
+	
+	public void decDepth(){
+		depth -= 1;
+	}
+	
+	public boolean isVisible(int d){
+		return depth <= d;
+	}
+	
+	public void registerFocus(Figure f){
+		focus = f;
+		mouseOverStack.push(f);
+		if (debug) System.err.println("registerFocus:" + f);
+	}
+	
+	public void unRegisterFocus(){
+		focus = null;
+		focusSelected = false;
+	}
+	
+	public boolean isRegisteredAsFocus(Figure f){
+		return focus == f;
+	}
+	
+	@Override
+	public void keyPressed(){
+		System.err.println("FPA, keyPressed: " + key);
+		
+		if(focus != null && focus.mouseInside(lastMouseX, lastMouseY) 
+						 && focus.keyPressed(key, keyCode)){
+			figure.bbox();
+			rootWidth = figure.width;
+			rootHeight = figure.height;
+			redraw();
+			return;
+		}
+		
+		if(key == CODED){
+			if(keyCode == UP)
+				moveBy(0, 20);
+			if(keyCode == DOWN)
+				moveBy(0, -20);
+			if(keyCode == LEFT)
+				moveBy(20, 0);
+			if(keyCode == RIGHT)
+				moveBy(-20, 0);
+			figure.keyPressed(key, keyCode);
+			return;
+		} 
+		if(key == '+' || key == '=')
+			scale += 0.1;
+		if(key == '-' || key == '_')
+			scale -= 0.1;
+		redraw();
+	}
+	
+	@Override
+	public void mouseReleased(){
+		focusSelected = false;
+	}
+	
+//	@Override
+//	public void mouseDragged(){
+//		
+//		if(debug)System.err.println("mouseDragged: " + mouseX + ", " + mouseY);
+//		if(keyPressed && key == SHIFT){
+//			cursor(HAND);
+//			left += mouseX - lastMouseX;
+//			top += mouseY - lastMouseY;
+//			lastMouseX = mouseX;
+//			lastMouseY = mouseY;
+//		}
+//		if(focus != null){
+//			if(debug) System.err.println("update current focus:" + focus);
+//			focusSelected = true;
+//			focus.drag(mouseX, mouseY);
+//			
+//		} else {
+//			if(debug) System.err.println("searching for new focus");
+//			if(figure.mouseDragged(mouseX, mouseY))
+//				focusSelected = true;
+//			else
+//				unRegisterFocus();
+//		}
+//		redraw();
+//		
+//	}
+	
+	@Override
+	public void mouseMoved(){
+		
+		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY+" "+figure.getClass());
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		if(focus != null && focusSelected)
+				focus.drag(mouseX/scale, mouseY/scale);
+		else if(figure.mouseOver(round(mouseX/scale), round(mouseY/scale))){
+			/* do nothing */
+		} else
+			unRegisterFocus();
+		redraw();
+	}
+	
+	@Override
+	public void mousePressed(){
+		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		if(figure.mousePressed(round(mouseX/scale), round(mouseY/scale))){
+			focusSelected = true;
+			if(keyPressed && key == CODED && keyCode == SHIFT){
+				if(mouseButton == LEFT){
+					if(debug)System.err.println("mousePressed: zoomin, focus=" + focus);
+					if(focus != figure){
+						zoomStack.push(new ZoomEntry(figure, figure.left, figure.top, scale));
+						figure = focus;
+						focusLeft = round(figure.left);
+						focusTop = round(figure.top);
+						scale += 0.5;	
+						zoomingIn = true;
+						}
+				} else if(mouseButton == RIGHT){
+					if(debug)System.err.println("mousePressed: zoomout");
+					if(!zoomStack.isEmpty()){
+						ZoomEntry ze = zoomStack.pop();
+						focus = figure = ze.figure;
+						focusLeft = round(ze.left);
+						focusTop = round(ze.top);
+						scale = ze.scale;
+						zoomingIn = false;
+					}
+				}
+			}
+		} else
+			unRegisterFocus();
+		
+		redraw(); 
+	}
+	
+	
+	// -------------------------------------------
+	//  Various controls
+	
+	// boolControl
+	
+	public boolean isBoolControl(String b){
+		return boolControls.contains(b);
+	}
+	
+	public void setBoolControl(String b, boolean on){
+		System.err.println("setBoolControl(" + b + ", " + on + ")");
+		if(on)
+			boolControls.add(b);
+		else
+			boolControls.remove(b);
+		
+		figure.bbox();
+		rootWidth = figure.width;
+		rootHeight = figure.height;
+	}
+	
+	//  intControl
+	
+	private Hashtable<String,Integer> intControls = new Hashtable<String,Integer>();
+	
+	public void setIntControl(String name, int val){
+		intControls.put(name, val);
+	}
+	
+	public int getIntControl(String name){
+		Integer val = intControls.get(name);
+		return val == null ? 0 : val.intValue();
+	}
+	
+	// realControl
+	
+	private Hashtable<String,Float> realControls = new Hashtable<String,Float>();
+	
+	public void setRealVar(String name, float val){
+		realControls.put(name, val);
+	}
+	
+	public float getRealControl(String name){
+		Float val = realControls.get(name);
+		return val == null ? 0 : val.floatValue();
+	}
+	
+	// strControl
+	
+	private Hashtable<String,String> strControls = new Hashtable<String,String>();
+	
+	public void setStrControl(String name, String txt){
+		strControls.put(name, txt);
+	}
+	
+	public String getStrControl(String name){
+		String txt = strControls.get(name);
+		return txt == null ? "" : txt;
 	}
 	
 	// ---------------------
@@ -413,144 +647,6 @@ public class FigurePApplet extends PApplet {
 			super.endShape(arg0);
 	}
 	
-	//-----------------------
-	
-	private void moveBy(int dx, int dy){
-		left += dx;
-		top += dy;
-		redraw();
-	}
-	
-	/*
-	 * Interaction: handle mouse and key events.
-	 */
-	
-	public void incDepth(){
-		depth += 1;
-	}
-	
-	public void decDepth(){
-		depth -= 1;
-	}
-	
-	public boolean isVisible(int d){
-		return depth <= d;
-	}
-	
-	public void registerFocus(Figure f){
-		focus = f;
-		if (debug) System.err.println("registerFocus:" + f);
-	}
-	
-	public void unRegisterFocus(){
-		focus = null;
-		focusSelected = false;
-	}
-	
-	public boolean isRegisteredAsFocus(Figure f){
-		return focus == f;
-	}
-	
-	@Override
-	public void keyPressed(){
-		if(key == CODED){
-			if(keyCode == UP)
-				moveBy(0, 20);
-			if(keyCode == DOWN)
-				moveBy(0, -20);
-			if(keyCode == LEFT)
-				moveBy(20, 0);
-			if(keyCode == RIGHT)
-				moveBy(-20, 0);
-			return;
-		} 
-		if(key == '+' || key == '=')
-			scale += 0.1;
-		if(key == '-' || key == '_')
-			scale -= 0.1;
-		redraw();
-	}
-	
-	@Override
-	public void mouseReleased(){
-		focusSelected = false;
-	}
-	
-//	@Override
-//	public void mouseDragged(){
-//		
-//		if(debug)System.err.println("mouseDragged: " + mouseX + ", " + mouseY);
-//		if(keyPressed && key == SHIFT){
-//			cursor(HAND);
-//			left += mouseX - lastMouseX;
-//			top += mouseY - lastMouseY;
-//			lastMouseX = mouseX;
-//			lastMouseY = mouseY;
-//		}
-//		if(focus != null){
-//			if(debug) System.err.println("update current focus:" + focus);
-//			focusSelected = true;
-//			focus.drag(mouseX, mouseY);
-//			
-//		} else {
-//			if(debug) System.err.println("searching for new focus");
-//			if(figure.mouseDragged(mouseX, mouseY))
-//				focusSelected = true;
-//			else
-//				unRegisterFocus();
-//		}
-//		redraw();
-//		
-//	}
-	
-	@Override
-	public void mouseMoved(){
-		
-		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY+" "+figure.getClass());
-		if(focus != null && focusSelected)
-				focus.drag(mouseX/scale, mouseY/scale);
-		else if(figure.mouseOver(round(mouseX/scale), round(mouseY/scale))){
-			/* do nothing */
-		} else
-			unRegisterFocus();
-		redraw();
-	}
-	
-	@Override
-	public void mousePressed(){
-		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-//		lastMouseX = mouseX;
-//		lastMouseY = mouseY;
-		if(figure.mousePressed(round(mouseX/scale), round(mouseY/scale))){
-			focusSelected = true;
-			if(keyPressed && key == CODED && keyCode == SHIFT){
-				if(mouseButton == LEFT){
-					if(debug)System.err.println("mousePressed: zoomin, focus=" + focus);
-					if(focus != figure){
-						zoomStack.push(new ZoomEntry(figure, figure.left, figure.top, scale));
-						figure = focus;
-						focusLeft = round(figure.left);
-						focusTop = round(figure.top);
-						scale += 0.5;	
-						zoomingIn = true;
-						}
-				} else if(mouseButton == RIGHT){
-					if(debug)System.err.println("mousePressed: zoomout");
-					if(!zoomStack.isEmpty()){
-						ZoomEntry ze = zoomStack.pop();
-						focus = figure = ze.figure;
-						focusLeft = round(ze.left);
-						focusTop = round(ze.top);
-						scale = ze.scale;
-						zoomingIn = false;
-					}
-				}
-			}
-		} else
-			unRegisterFocus();
-		
-		redraw();
-	}
 }
 
 class ZoomEntry {
@@ -565,4 +661,5 @@ class ZoomEntry {
 		top = t;
 		scale = s;
 	}
+
 }

@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * Vertex: a point that is part of a shape.
@@ -31,13 +32,13 @@ public class Vertex extends Figure {
 		return 0;
 		
 	}
-	public Vertex(FigurePApplet fpa, PropertyManager properties, IValue dx, IValue dy, IEvaluatorContext ctx) {
+	public Vertex(FigurePApplet fpa, IPropertyManager properties, IValue dx, IValue dy, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 	}
 	
-	public Vertex(FigurePApplet fpa, PropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
+	public Vertex(FigurePApplet fpa, IPropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);

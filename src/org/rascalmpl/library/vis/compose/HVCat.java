@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 
 /**
@@ -25,7 +25,7 @@ public class HVCat extends Compose {
 	int inRow[];
 	static boolean debug = false;
 
-	public HVCat(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public HVCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
@@ -90,8 +90,8 @@ public class HVCat extends Compose {
 			float hrow = rowHeight[inRow[i]];
 			float rfiller = width - rowWidth[inRow[i]];
 			
-			fig.draw(left + leftElem[i] + fig.properties.hanchor*rfiller,
-                    top + topRowElem[i] + fig.properties.vanchor *(hrow - fig.height));                  
+			fig.draw(left + leftElem[i] + fig.getHanchor()*rfiller,
+                    top + topRowElem[i] + fig.getVanchor() *(hrow - fig.height));                  
 		}
 	}
 }

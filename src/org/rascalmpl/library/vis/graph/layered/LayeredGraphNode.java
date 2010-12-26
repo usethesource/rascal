@@ -147,7 +147,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	public boolean mouseOver(int mousex, int mousey){
-		if(figure.mouseInside(mousex, mousey)){
+		if(figure != null && figure.mouseInside(mousex, mousey)){
 			figure.fpa.registerFocus(figure);
 			return true;
 		}
@@ -155,7 +155,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	public boolean mousePressed(int mousex, int mousey){
-		if(figure.mouseInside(mousex, mousey)){
+		if(figure != null && figure.mouseInside(mousex, mousey)){
 			figure.fpa.registerFocus(figure);
 			return true;
 		}

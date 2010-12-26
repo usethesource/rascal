@@ -44,7 +44,7 @@ public class FigureLibrary extends PApplet {
 		return vf.integer(figureColor(r,g,b));
 	}
 
-	static HashMap<String, IInteger> colorNames =
+	public static HashMap<String, IInteger> colorNames =
     	new HashMap<String, IInteger>() {
     	/**
 			 * 

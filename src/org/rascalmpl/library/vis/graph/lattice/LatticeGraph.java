@@ -12,7 +12,8 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * 
@@ -37,7 +38,7 @@ public class LatticeGraph extends Figure {
 	private LatticeGraphNode topNode = null, bottomNode = null;
 	private HashMap<LatticeGraphNode, LatticeGraphNode> visit = new HashMap<LatticeGraphNode, LatticeGraphNode>();
 
-	public LatticeGraph(FigurePApplet fpa, PropertyManager properties,
+	public LatticeGraph(FigurePApplet fpa, IPropertyManager properties,
 			IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		this.nodes = new ArrayList<LatticeGraphNode>();

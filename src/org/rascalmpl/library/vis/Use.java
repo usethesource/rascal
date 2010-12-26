@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * Use another element. Mostly used to override properties.
@@ -18,7 +19,7 @@ public class Use extends Figure {
 	private Figure inside;
 	private static boolean debug = false;
 
-	public Use(FigurePApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+	public Use(FigurePApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		if(inside != null){
 			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
@@ -43,8 +44,8 @@ public class Use extends Figure {
 		this.top = top;
 		applyProperties();
 		
-		inside.draw(left + properties.hanchor*(width - inside.width),
-					top  + properties.vanchor*(height - inside.height));
+		inside.draw(left + getHanchor()*(width - inside.width),
+					top  + getVanchor()*(height - inside.height));
 	}
 /*	
 	@Override

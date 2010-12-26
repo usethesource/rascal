@@ -25,9 +25,18 @@ import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
+import org.rascalmpl.library.vis.interaction.BoolControl;
+import org.rascalmpl.library.vis.interaction.BoolControlEffect;
+import org.rascalmpl.library.vis.interaction.StrControl;
+import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.IStringPropertyValue;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.Utils;
 import org.rascalmpl.library.vis.tree.Tree;
 import org.rascalmpl.library.vis.tree.TreeMap;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.library.vis.properties.Property;
 
 /**
  * 
@@ -43,6 +52,9 @@ public class FigureFactory {
 	
 	enum Primitives {
 		BOX, 
+		BOOLCONTROL,
+		CONTROLON,
+		CONTROLOFF,
 		EDGE, 
 		ELLIPSE, 
 		GRAPH, 
@@ -56,6 +68,7 @@ public class FigureFactory {
 		SCALE,
 		SHAPE,
 		SPACE,
+		STRCONTROL,
 		TEXT, 
 		TREE,
 		TREEMAP,
@@ -68,36 +81,40 @@ public class FigureFactory {
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
     	put("_box",			Primitives.BOX);
-    	put("_edge",			Primitives.EDGE);
+    	put("_boolControl",	Primitives.BOOLCONTROL);
+    	put("_controlOff",	Primitives.CONTROLOFF);
+    	put("_controlOn",	Primitives.CONTROLON);
+    	put("_edge",		Primitives.EDGE);
     	put("_ellipse",		Primitives.ELLIPSE);
     	put("_graph",		Primitives.GRAPH);
-    	put("_grid",			Primitives.GRID);
-    	put("_hcat",			Primitives.HCAT);
+    	put("_grid",		Primitives.GRID);
+    	put("_hcat",		Primitives.HCAT);
     	put("_hvcat",		Primitives.HVCAT);	
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
-    	put("_pack",			Primitives.PACK);	
-    	put("_rotate",       Primitives.ROTATE);
+    	put("_pack",		Primitives.PACK);	
+    	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
     	put("_shape",		Primitives.SHAPE);
     	put("_space",		Primitives.SPACE);
-    	put("_text",			Primitives.TEXT);	    		
-    	put("_tree",			Primitives.TREE);
+    	put("_strControl",	Primitives.STRCONTROL);
+    	put("_text",		Primitives.TEXT);	    		
+    	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
     	put("_use",			Primitives.USE);
-    	put("_vcat",			Primitives.VCAT);
+    	put("_vcat",		Primitives.VCAT);
     	put("_vertex",		Primitives.VERTEX);
     	put("_wedge",		Primitives.WEDGE);
     }};
 	
-	private static PropertyManager extendProperties(FigurePApplet fpa, IConstructor c, PropertyManager pm, IEvaluatorContext ctx){		
+	private static IPropertyManager extendProperties(FigurePApplet fpa, IConstructor c, IPropertyManager pm, IEvaluatorContext ctx){		
 		IList props = (IList) c.get(c.arity()-1);
-		return pm == null ? new PropertyManager(fpa, pm, props, ctx)
+		return pm == null ? new DefaultPropertyManager(fpa)
 		                  : ((props == null || props.equals(emptyList)) ? pm
 								                          : new PropertyManager(fpa, pm, props, ctx));
 	}
 	
-	public static Figure make(FigurePApplet fpa, IConstructor c, PropertyManager properties, IEvaluatorContext ctx){
+	public static Figure make(FigurePApplet fpa, IConstructor c, IPropertyManager properties, IEvaluatorContext ctx){
 		String ename = c.getName();
 		properties = extendProperties(fpa, c, properties, ctx);
 		
@@ -106,16 +123,25 @@ public class FigureFactory {
 		case BOX:
 			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 		
-//		case EDGE:			
+		case BOOLCONTROL:
+			return new BoolControl(fpa, properties, (IString)c.get(0), (IConstructor) c.get(1), (IConstructor) c.get(2), ctx);
+		
+		case CONTROLON:
+			return new BoolControlEffect(fpa,properties, (IString)c.get(0),  true, (IConstructor) c.get(1), ctx);
+
+		case CONTROLOFF:
+			return new BoolControlEffect(fpa,properties, (IString)c.get(0),  false, (IConstructor) c.get(1), ctx);
+			
+			//		case EDGE:			
 //			return new GraphEdge(null,fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
 		
 		case ELLIPSE:
 			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 		
 		case GRAPH:
-			if(properties.hint.contains("lattice"))
+			if(properties.getHint().contains("lattice"))
 				return new LatticeGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
-			if(properties.hint.contains("layered"))
+			if(properties.getHint().contains("layered"))
 				return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
@@ -138,9 +164,11 @@ public class FigureFactory {
 			return new Pack(fpa, properties, (IList) c.get(0), ctx);
 			
 		case ROTATE:
+			//TODO
 			return new Rotate(fpa, properties, c.get(0), (IConstructor) c.get(1), ctx);
 			
 		case SCALE:
+			//TODO
 			if(c.arity() == 3)
 				return new Scale(fpa, properties, c.get(0), c.get(0), (IConstructor) c.get(1), ctx);
 			
@@ -152,8 +180,13 @@ public class FigureFactory {
 		case SPACE:
 			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
+		case STRCONTROL:
+			return new StrControl(fpa, properties, (IString) c.get(0), ctx);
+			
 		case TEXT:
-			return new Text(fpa, properties,  (IString) c.get(0), ctx);
+			//return new Text(fpa, properties,  (IString) c.get(0), ctx);
+			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c.get(0), fpa, ctx);
+			return new Text(fpa, properties,  txt, ctx);
 			
 		case TREE: 			
 			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
@@ -177,7 +210,7 @@ public class FigureFactory {
 	}
 	
 	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, FigurePApplet fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+			IPropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
@@ -186,7 +219,7 @@ public class FigureFactory {
 	}
 	
 	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+			IPropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
@@ -195,7 +228,7 @@ public class FigureFactory {
 	}
 	
 	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+			IPropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		return new LatticeGraphEdge(G, fpa, properties, from, to,  ctx);

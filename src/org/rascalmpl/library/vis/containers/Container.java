@@ -5,7 +5,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 
 /**
@@ -22,19 +22,19 @@ import org.rascalmpl.library.vis.PropertyManager;
  * 
  */
 
-public class Container extends Figure {
+public abstract class Container extends Figure {
 
 	protected Figure inner;
 	private static boolean debug = false;
 	float hgap;
 	float vgap;
 
-	public Container(FigurePApplet fpa, PropertyManager properties, IConstructor inner, IEvaluatorContext ctx) {
+	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor inner, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		if(inner != null){
 			this.inner = FigureFactory.make(fpa, inner, this.properties, ctx);
 		}
-		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
+		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
 	}
 
 	@Override
@@ -54,8 +54,7 @@ public class Container extends Figure {
 		} 
 		width += 2*lw;
 		height += 2*lw;
-		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, properties.hanchor, properties.vanchor);
-
+		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
 	}
 
 	@Override
@@ -67,7 +66,7 @@ public class Container extends Figure {
 		this.top = top;
 	
 		applyProperties();
-		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, properties.hanchor, properties.vanchor);
+		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, getHanchor(), getVanchor());
 
 		if(height > 0 && width > 0){
 			drawContainer();
@@ -93,16 +92,17 @@ public class Container extends Figure {
 	 * If the inside  element fits, draw it.
 	 */
 	void innerDraw(){
-		inner.draw(left + hgap + properties.hanchor*(width  - inner.width  - 2 * hgap),
-			    	top + vgap + properties.vanchor*(height - inner.height - 2 * vgap));
+		inner.draw(left + hgap + getHanchor()*(width  - inner.width  - 2 * hgap),
+			    	top + vgap + getVanchor()*(height - inner.height - 2 * vgap));
 	}
 	
 	
 	/**
-	 * drawContainer: draws the graphics associated with the container (if any). It is overridden by subclasses.
+	 * drawContainer: draws the graphics associated with the container (if any). 
+	 * It is overridden by subclasses.
 	 */
-	void drawContainer(){
-	}
+	
+	abstract void drawContainer();
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey){
@@ -121,13 +121,13 @@ public class Container extends Figure {
 	public void drawMouseOverFigure(){
 		if(isVisible()){
 			if(hasMouseOverFigure()){
-			Figure mo = getMouseOverFigure();
-			mo.bbox();
-			mo.draw(left + (width - mo.width)/2f, top + (height - mo.height)/2);
-		} else if(inner != null){
-			innerDraw();
+				Figure mo = getMouseOverFigure();
+				mo.bbox();
+				mo.draw(left + (width - mo.width)/2f, top + (height - mo.height)/2);
+			} else if(inner != null){
+				innerDraw();
+			}
 		}
-	}
 	}
 	
 	@Override
@@ -141,6 +141,13 @@ public class Container extends Figure {
 			fpa.registerFocus(this);
 			return true;
 		}
+		return false;
+	}
+	
+	@Override 
+	public boolean keyPressed(int key, int keyCode){
+		if(inner != null)
+			return inner.keyPressed(key, keyCode);
 		return false;
 	}
 }

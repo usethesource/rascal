@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 
 /**
@@ -25,7 +25,7 @@ public class Grid extends Compose {
 	float extRight = 0;
 	private static boolean debug = false;
 
-	public Grid(FigurePApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public Grid(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		xElem = new float[elems.length()];
 		yElem = new float[elems.length()];

@@ -7,8 +7,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.rascalmpl.library.vis.PropertyManager;
-import org.rascalmpl.library.vis.graph.spring.SpringGraph;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
 
@@ -26,7 +25,7 @@ public class SpringGraphEdge extends Figure {
 	private boolean inverted = false;
 	private static boolean debug = false;
 	
-	public SpringGraphEdge(SpringGraph G, FigurePApplet fpa, PropertyManager properties, 
+	public SpringGraphEdge(SpringGraph G, FigurePApplet fpa, IPropertyManager properties, 
 						IString fromName, IString toName, 
 						IConstructor toArrowCons, IConstructor fromArrowCons,
 						IEvaluatorContext ctx) {

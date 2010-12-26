@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
@@ -19,56 +20,39 @@ import processing.core.PApplet;
 public abstract class Figure implements Comparable<Figure> {
 	
 	public FigurePApplet fpa;
-	protected IValueFactory vf;
+	protected static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	public PropertyManager properties;
+	public IPropertyManager properties;
 	
-	protected float left;         // coordinates of top left corner of
-	protected float top; 			// the element's bounding box
-	public float width;		// width of element
+	protected float left;		// coordinates of top left corner of
+	protected float top;		// the element's bounding box
+	public float width;			// width of element
 	public float height;		// height of element
+		
+	////Figure(FigurePApplet vlp, IEvaluatorContext ctx){
+	//	this(vlp, null,ctx);
+	//}
 	
-//	protected float leftDragged;  // deplacement of left due to dragging
-//	protected float topDragged;	// deplacement of top due to dragging
-	
-	Figure(FigurePApplet vlp, IEvaluatorContext ctx){
-		this(vlp, null,ctx);
-	}
-	
-	protected Figure(FigurePApplet vlp, PropertyManager properties, IEvaluatorContext ctx){
+	protected Figure(FigurePApplet vlp, IPropertyManager properties, IEvaluatorContext ctx){
 		this.fpa = vlp;
 		this.properties = properties;
-		vf = ValueFactoryFactory.getValueFactory();
-//		leftDragged = topDragged = 0;
 	}
 	
 	public int getDOI(){
-		return properties.doi;
+		return properties.getDOI();
 	}
 	
 	public float getLeft(){
 		return left;
 	}
 	
-//	public float getRealLeft(){
-//		return left + leftDragged;
-//	}
-	
 	public float getMiddle(){
 		return left + width/2;
 	}
-//	
-//	public float getRealMiddle(){
-//		return left + leftDragged + width/2;
-//	}
 	
 	public float getTop(){
 		return top;
 	}
-	
-//	public float getRealTop(){
-//		return top + topDragged;
-//	}
 	
 	public float max(float a, float b){
 		return a > b ? a : b;
@@ -82,161 +66,140 @@ public abstract class Figure implements Comparable<Figure> {
 		return a >= 0 ? a : -a;
 	}
 	
-//	public void applyProperties(){
-//		properties.applyProperties();
-//	}
-	
-	private PropertyManager getProperties(){
-//		if(vlp.isRegisteredAsFocus(this) && properties.mouseOverproperties != null)
-//			return properties.mouseOverproperties;
+	private IPropertyManager getProperties(){
 		return properties;
 	}
 	
 	public void applyProperties(){
-		PropertyManager pm = getProperties();
+		IPropertyManager pm = getProperties();
 		
-		fpa.fill(pm.fillColor);
-		fpa.stroke(pm.lineColor);
-		fpa.strokeWeight(pm.lineWidth);
-		fpa.textSize(pm.fontSize);
+		fpa.fill(pm.getFillColor());
+		fpa.stroke(pm.getLineColor());
+		fpa.strokeWeight(pm.getLineWidth());
+		fpa.textSize(pm.getFontSize());
 	}
 	
 	public void applyFontProperties(){
-		fpa.textFont(fpa.createFont(properties.font, properties.fontSize));
-		fpa.fill(properties.fontColor);
+		fpa.textFont(fpa.createFont(properties.getFont(), properties.getFontSize()));
+		fpa.fill(properties.getFontColor());
 	}
 	
 	protected float getHeightProperty(){
-		return properties.height;
+		return properties.getHeight();
 	}
 	
 	protected float getWidthProperty(){
-		return properties.width;
+		return properties.getWidth();
 	}
 	
 	protected float getHGapProperty(){
-		return properties.hgap;
+		return properties.getHGap();
 	}
 	
 	protected float getVGapProperty(){
-		return properties.vgap;
+		return properties.getVGap();
 	}
 	
 	protected int getFillColorProperty(){
-		return properties.fillColor;
+		return properties.getFillColor();
 	}
 	
 	protected int getLineColorProperty(){
-		return properties.lineColor;
+		return properties.getLineColor();
 	}
 	
 	protected float getLineWidthProperty(){
-		return properties.lineWidth;
+		return properties.getLineWidth();
 	}
 	
-	protected float hanchor(){
-		return properties.hanchor;
+	public float getHanchor(){
+		return properties.getHanchor();
 	}
 	
-	protected float vanchor(){
-		return properties.vanchor;
+	public float getVanchor(){
+		return properties.getVanchor();
 	}
 	
 	public float leftAnchor(){
-		return (properties.hanchor * width);
+		return (properties.getHanchor() * width);
 	}
 	
 	public float rightAnchor(){
-		return (width - properties.hanchor * width);
+		return (width - properties.getHanchor() * width);
 	}
 	
 	public float topAnchor(){
-		return (properties.vanchor * height);
+		return (properties.getVanchor() * height);
 	}
 	
 	public float bottomAnchor(){
-		return (height - properties.vanchor * height);
+		return (height - properties.getVanchor() * height);
 	}
 	
 	public boolean isClosed(){
-		return properties.shapeClosed;
+		return properties.isShapeClosed();
 	}
 	
 	protected boolean isConnected(){
-		return properties.shapeConnected;
+		return properties.isShapeConnected();
 	}
 	
 	protected boolean isCurved(){
-		return properties.shapeCurved;
+		return properties.isShapeCurved();
 	}
 	
 	protected float getFromAngleProperty(){
-		return properties.fromAngle;
+		return properties.getFromAngle();
 	}
 	
 	protected float getToAngleProperty(){
-		return properties.toAngle;
+		return properties.getToAngle();
 	}
 	
 	protected float getInnerRadiusProperty(){
-		return properties.innerRadius;
+		return properties.getInnerRadius();
 	}
 	
+	//TODO: irregular
 	protected boolean getHint(String txt){
-		return properties.hint.contains(txt);
+		return properties.getHint().contains(txt);
 	}
 	
 	public String getIdProperty(){
-		return properties.id;
+		return properties.getId();
 	}
 	
 	protected String getFontProperty(){
-		return properties.font;
+		return properties.getFont();
 	}
 	
 	protected int getFontSizeProperty(){
-		return properties.fontSize;
+		return properties.getFontSize();
 	}
 	
 	protected int getFontColorProperty(){
-		return properties.fontColor;
+		return properties.getFontColor();
 	}
 	
 	protected float getTextAngleProperty(){
-		return properties.textAngle;
+		return properties.getTextAngle();
 	}
 	
 	public boolean isVisible(){
-		return fpa.isVisible(properties.doi);
+		return fpa.isVisible(properties.getDOI());
 	}
 	
 	public boolean isNextVisible(){
-		return fpa.isVisible(properties.doi + 1);
-	}
-	
-	public boolean isContentsVisible(){
-		return properties.contentsVisible;
-	}
-	
-	public void setContentsVisible(boolean on){
-		properties.contentsVisible = on;
-	}
-	
-	public boolean isPinned(){
-		return properties.pinned;
+		return fpa.isVisible(properties.getDOI() + 1);
 	}
 	
 	public Figure getMouseOverFigure(){
-		return properties.mouseOverFigure;
+		return properties.getMouseOver();
 	}
 	
 	public boolean hasMouseOverFigure(){
-		return properties.mouseOverFigure != null;
+		return properties.getMouseOver() != null;
 	}
-	
-//	public boolean isDragged(){
-//		return leftDragged != 0 || topDragged != 0;
-//	}
 	
 	/* 
 	 * Compare two Figures according to their surface and aspect ratio
@@ -274,65 +237,6 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	
 	public abstract void draw(float left, float top);
-	
-	/**
-	 * Return the connection point from an external position (fromX, fromY) to 
-	 * the center (X,Y) of the current figure.
-	 * 
-	 * @param X			X of center of current figure
-	 * @param Y			Y of center of current figure
-	 * @param fromX		X of center of figure from which connection is to be drawn
-	 * @param fromY		Y of center of figure from which connection is to be drawn
-	 */
-//	public ArrowConnectionPoint connectionPoint(float X, float Y, float fromX, float fromY, Figure toArrow){
-//		if(fromX == X)
-//			fromX += 0.00001;
-//        float s = (fromY - Y) / (fromX - X);
-//        float theta = PApplet.atan(s);
-//		if(theta < 0){
-//			if(fromX < X )
-//				theta += PApplet.PI;
-//		} else {
-//			if(fromX < X )
-//				theta += PApplet.PI;
-//		}
-//        float IX;
-//        float IY;
-//        float IX2;
-//        float IY2;
-//        
-//        float h2 = height/2;
-//        float w2 = width/2;
-//     
-//        if((- h2 <= s * w2) && (s * w2 <= h2)){
-//        	if(fromX > X){ // right
-//        		IX = X + w2; IY = Y + s*w2;
-//        		IX2 = IX + toArrow.height * PApplet.sin(theta);
-//            	IY2 = IY + toArrow.width * PApplet.cos(theta);
-//        	} else  {      // left
-//        		IX = X - w2; IY = Y - s*w2;
-//        	}
-//        } else {
-//        	if(fromY > Y){ // bottom
-//        		IX = X + h2/s; IY = Y + h2;
-//        		IX2 = IX + toArrow.height * PApplet.cos(theta);
-//            	IY2 = IY + toArrow.width * PApplet.sin(theta);
-//        	} else {      // top
-//        		IX = X - h2/s; IY = Y - h2;
-//        	}
-//        }
-//        if(toArrow != null){
-//        	toArrow.bbox();
-//        	IX2 = IX + toArrow.height * PApplet.cos(PApplet.radians(165) + theta);
-//        	IY2 = IY + toArrow.width * PApplet.sin(PApplet.radians(165) + theta);
-//        	float s2 = (IY2 -IY)/(IX2 - IX);
-//        	System.err.printf("(IY2 -IY)/(IX2 - IX) = %f (%f deg), s = %s (%f deg)\n", 
-//        			s2, PApplet.degrees(PApplet.atan(s2)),
-//        			s, PApplet.degrees(PApplet.atan(s)));
-//        	return new ArrowConnectionPoint(IX, IY, IX2, IY2, theta);
-//        } else 
-//        	return new ArrowConnectionPoint(IX, IY, theta);
-//	}
 	
 	/**
 	 * Draw a connection from an external position (fromX, fromY) to the center (X,Y) of the current figure.
@@ -389,6 +293,63 @@ public abstract class Figure implements Comparable<Figure> {
         	toArrow.draw(-toArrow.width/2, 0);
         	fpa.popMatrix();
         }
+	}
+	
+	/**
+	 * Compute Y value for given X and line through (X1,Y1) and given slope
+	 * @param slope
+	 * @param X1
+	 * @param Y1
+	 * @param X
+	 * @return Y value
+	 */
+	private float yLine(float slope, float X1, float Y1, float X){
+		return slope * (X - X1) + Y1;
+	}
+	
+	/**
+	 * Compute X value for given Y and line through (X1,Y1) and given slope
+	 * @param slope
+	 * @param X1
+	 * @param Y1
+	 * @param Y
+	 * @return X value
+	 */
+	private float xLine(float slope, float X1, float Y1, float Y){
+		return X1 + (Y - Y1)/slope;
+	}
+	
+	/**
+	 * Intersects line (fromX,fromY) to (toX,toY) with this figure when placed at (X,Y)?
+	 * @param X
+	 * @param Y
+	 * @param fromX
+	 * @param fromY
+	 * @param toX
+	 * @param toY
+	 * @return true when line and figure intersect
+	 */
+	public boolean intersects(float X, float Y, float fromX, float fromY, float toX, float toY){
+		 float s = (fromY - toY) / (fromX - toX);
+		 float h2 = height/2;
+	     float w2 = width/2;
+	     
+	     float ly = yLine(s, fromX, fromY, X-w2);
+	     if(ly > Y - h2 && ly < Y + h2)
+	    	 return true;
+	     
+	     float ry = yLine(s, fromX, fromY, X+w2);
+	     if(ry > Y - h2 && ry < Y + h2)
+	    	 return true;
+	     
+	     float tx = xLine(s, fromX, fromY, Y - h2);
+	     if(tx > X - w2 && tx < X + w2)
+	    	 return true;
+	     
+	     float bx = xLine(s, fromX, fromY, Y + h2);
+	     if(bx > X - w2 && tx < X + w2)
+	    	 return true;
+	     return false;	  
 	}
 	
 	/**
@@ -463,4 +424,10 @@ public abstract class Figure implements Comparable<Figure> {
 //		}
 //		return false;
 //	}
+	
+	public boolean keyPressed(int key, int keyCode){
+		return false;
+	}
+	
+	
 }
