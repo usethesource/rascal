@@ -13,7 +13,6 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
-import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * 

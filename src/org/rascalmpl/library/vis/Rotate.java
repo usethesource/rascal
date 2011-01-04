@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
-import org.rascalmpl.library.vis.properties.PropertyManager;
 
 import processing.core.PApplet;
 
@@ -22,7 +21,7 @@ public class Rotate extends Figure {
 	private float cosa;
 	
 	Rotate(FigurePApplet fpa, IPropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
-		super(fpa, ctx);
+		super(fpa, inherited, ctx);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = PApplet.radians(a);

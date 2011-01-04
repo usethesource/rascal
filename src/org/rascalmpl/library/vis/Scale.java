@@ -14,7 +14,7 @@ public class Scale extends Figure {
 
 	public Scale(FigurePApplet fpa, IPropertyManager inheritedProps, IValue xs,
 			IValue ys, IConstructor c, IEvaluatorContext ctx) {
-		super(fpa, ctx);
+		super(fpa, inheritedProps, ctx);
 		xscale = xs.getType().isIntegerType() ? ((IInteger) xs).intValue()
 				                              : ((IReal) xs).floatValue();
 		

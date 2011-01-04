@@ -44,7 +44,7 @@ public class MakeBox {
 	
 	public MakeBox(){
 		this.values = null;
-	};
+	}
 
 	class Data extends ByteArrayOutputStream {
 		ByteArrayInputStream get() {

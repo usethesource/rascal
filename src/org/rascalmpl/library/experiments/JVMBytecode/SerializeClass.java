@@ -281,9 +281,9 @@ public class SerializeClass {
 	private static String emptyIsNull(String s) {
 		if (s.equals("")) {
 			return null;
-		} else {
-			return s;
 		}
+		
+		return s;
 	}
 
 }

@@ -13,9 +13,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -35,20 +35,20 @@ import org.joda.time.DateTime;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Command;
-import org.rascalmpl.ast.DateAndTime.Lexical;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Expression.Ambiguity;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Import;
-import org.rascalmpl.ast.Import.Default;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
+import org.rascalmpl.ast.DateAndTime.Lexical;
+import org.rascalmpl.ast.Expression.Ambiguity;
+import org.rascalmpl.ast.Import.Default;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -72,7 +72,6 @@ import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
@@ -100,8 +99,6 @@ import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.errors.SubjectAdapter;
-import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
@@ -998,19 +995,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		return writer.toCharArray();
-	}
-
-	protected SyntaxError parseError(IConstructor tree, URI location) {
-		SummaryAdapter summary = new SummaryAdapter(tree);
-		SubjectAdapter subject = summary.getInitialSubject();
-		IValueFactory vf = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
-
-		if (subject != null) {
-			ISourceLocation loc = vf.sourceLocation(location, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
-			return new SyntaxError(subject.getDescription(), loc);
-		}
-
-		return new SyntaxError("unknown location, maybe you used a keyword as an identifier)", vf.sourceLocation(location, 0, 1, 1, 1, 0, 1));
 	}
 
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
