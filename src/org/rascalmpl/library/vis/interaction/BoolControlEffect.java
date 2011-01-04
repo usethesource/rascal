@@ -24,8 +24,8 @@ public class BoolControlEffect extends Figure {
 	private boolean isEnabled(){
 		if(fpa.isBoolControl(name))
 			return kind;
-		else
-			return !kind;
+		
+		return !kind;
 	}
 	
 	@Override

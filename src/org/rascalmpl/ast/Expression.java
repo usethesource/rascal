@@ -3,10 +3,6 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Expression extends AbstractAST {

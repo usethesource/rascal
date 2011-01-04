@@ -257,9 +257,9 @@ public class Rascalify {
 	private static String checkNull(String s) {
 		if (s == null) {
 			return "\"\"";
-		} else {
-			return "\"" + escape(s) + "\"";
 		}
+		
+		return "\"" + escape(s) + "\"";
 	}
 	
 	private static String escape(String s) {

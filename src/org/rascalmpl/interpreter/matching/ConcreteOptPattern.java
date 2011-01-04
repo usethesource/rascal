@@ -21,7 +21,7 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteOptPattern extends AbstractMatchingResult {
-	private enum Opt { Exist, NotExist, MayExist };
+	private enum Opt { Exist, NotExist, MayExist }
 	private final Opt type;
 	private final IConstructor production;
 	private final IMatchingResult optArg;
@@ -89,10 +89,9 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 				hasNext = optArg.hasNext();
 				return;
 			}
-			else {
-				hasNext = false;
-				return;
-			}
+			
+			hasNext = false;
+			return;
 		case NotExist:
 			hasNext = args.length() == 0;
 			return;
@@ -142,8 +141,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		if (optArg != null) {
 			return optArg.getVariables();
 		}
-		else {
-			return Collections.emptyList();
-		}
+		
+		return Collections.emptyList();
 	}
 }

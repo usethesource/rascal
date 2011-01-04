@@ -27,8 +27,9 @@ public class ShellScriptWriter {
 	static final File box2textFile = new File(binDir, "box2text");
 
 	public static void copyFile(File in, PrintStream fos) throws IOException {
-		FileInputStream fis = new FileInputStream(in);
+		FileInputStream fis = null;
 		try {
+			fis = new FileInputStream(in);
 			byte[] buf = new byte[1024];
 			int i = 0;
 			while ((i = fis.read(buf)) != -1) {

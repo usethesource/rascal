@@ -72,9 +72,9 @@ public class BoundsIntegrator {
 	      //return (pointX - valueX) / valueW;
 	      float n = (pointX - valueX) / valueW;
 	      return start + n*span;
-	    } else {
-	      return Float.NaN;
 	    }
+	    
+	    return Float.NaN;
 	  }
 	    
 	  
@@ -83,9 +83,9 @@ public class BoundsIntegrator {
 	      //return (pointY - valueY) / valueH;
 	      float n = (pointY - valueY) / valueH;
 	      return start + n*span;
-	    } else {
-	      return Float.NaN;
 	    }
+	    
+	    return Float.NaN;
 	  }
 	  
 	  
