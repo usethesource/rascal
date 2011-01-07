@@ -3,11 +3,15 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class StringResult extends ElementResult<IString> {
@@ -129,5 +133,25 @@ public class StringResult extends ElementResult<IString> {
 			SourceLocationResult that) {
 		Result<IValue> path = that.fieldAccess("path", new TypeStore());
 		return that.fieldUpdate("path", path.add(this), new TypeStore());
-	}	
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
+		if (subscripts.length != 1) {
+			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
+		}
+		Result<IValue> key = (Result<IValue>) subscripts[0];
+		if (!key.getType().isIntegerType()) {
+			throw new UnexpectedTypeError(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+		}
+		if (getValue().getValue().length() == 0) {
+			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		IInteger index = ((IInteger)key.getValue());
+		if ( (index.intValue() >= getValue().getValue().length()) || (index.intValue() < 0) ) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		return makeResult(getType(), getValueFactory().string(getValue().getValue().substring(index.intValue(), index.intValue() + 1)), ctx);
+	}
 }
