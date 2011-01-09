@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.graph.layered;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -124,7 +125,8 @@ public class LayeredGraph extends Figure {
 	}
 	
 	private void initialPlacement(){
-		int W = PApplet.round(1.5f * PApplet.sqrt(nodes.size()) + 1);
+		@SuppressWarnings("unused")  // TODO: Use W as width
+		int W = PApplet.round(1.5f * PApplet.sqrt(nodes.size()) + 1); 
 		LinkedList<LinkedList<LayeredGraphNode>> layers = assignLayers(1000); print("assignLayers", layers);
 		layers = insertVirtualNodes(layers);print("insertVirtualNodes", layers);
 		layers = reduceCrossings(layers);print("reduceCrossings", layers);
@@ -189,21 +191,21 @@ public class LayeredGraph extends Figure {
 	}
 
 	@Override
-	public boolean mouseOver(int mousex, int mousey) {
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent) {
 		for (LayeredGraphNode n : nodes) {
-			if (n.mouseOver(mousex, mousey))
+			if (n.mouseOver(mousex, mousey,mouseInParent))
 				return true;
 		}
-		return super.mouseOver(mousex, mousey);
+		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
 	}
 
 	@Override
-	public boolean mousePressed(int mousex, int mousey) {
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
 		for (LayeredGraphNode n : nodes) {
 			if (n.mousePressed(mousex, mousey))
 				return true;
 		}
-		return super.mouseOver(mousex, mousey);
+		return super.mouseOver(mousex, mousey, false);
 	}
 	
 	// Methods for Layered layout

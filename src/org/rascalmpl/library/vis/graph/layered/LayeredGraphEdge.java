@@ -110,6 +110,9 @@ public class LayeredGraphEdge extends Figure {
 			float dy = currentNode.figY() - currentNode.layerHeight/2 - getFrom().figY();
 			float midX = getFrom().figX() + dx/2;
 			float midY = getFrom().figY() + dy/2;
+			System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
+					getFrom().figX(), getFrom().figY(),
+					currentNode.figX(), currentNode.figY(), midX, midY);
 			
 			if(getFromArrow() != null){
 				System.err.println("Drawing from arrow");
@@ -124,10 +127,10 @@ public class LayeredGraphEdge extends Figure {
 			
 			fpa.noFill();
 			fpa.beginShape();
-			fpa.vertex(left + midX, top + midY);
-			fpa.bezierVertex(left + getFrom().figX() + dx, top + getFrom().figY()  + dy,
-							 left + currentNode.figX(),    top + currentNode.figY(),
-							 left + currentNode.figX(),    top + currentNode.figY()
+			fpa.vertex(left + midX, top + midY);      										// V1
+			fpa.bezierVertex(left + getFrom().figX() + dx*1.05f, top + getFrom().figY()  + dy, 	// C1
+							 left + currentNode.figX(),    top + currentNode.figY(),      	// C2
+							 left + currentNode.figX(),    top + currentNode.figY()      	// V2
 					);
             
 			LayeredGraphNode prevNode = currentNode;
@@ -154,6 +157,10 @@ public class LayeredGraphEdge extends Figure {
 			midX = prevNode.figX() + (currentNode.figX() - prevNode.figX())/2;
 			midY = prevNode.figY() + (currentNode.figY() - prevNode.figY())/2;
 			
+			System.err.printf("after loop: (%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
+					prevNode.figX(), prevNode.figY(),
+					currentNode.figX(), currentNode.figY(), midX, midY);
+			
 			if(getToArrow() != null){
 				
 				//fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),
@@ -168,17 +175,26 @@ public class LayeredGraphEdge extends Figure {
 				//		midX, midY,
 				//		getToArrow());
 			} else {
-				fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),
-						left + midX, top + -  midY,
-						left + currentNode.figX(), top + currentNode.figY()				
+				dx = currentNode.figX() - prevNode.figX();
+				dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
+				midX = prevNode.figX() + dx/2;
+				midY = prevNode.figY() + dy/2;
+				
+				fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),   // C1
+								 left + currentNode.figX(), top + currentNode.figY(), // C2
+								 left + midX, top + midY	    // V	
 				);
+//				fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(), // C1
+//						left + midX, top +  midY,                              // C2
+//						left + currentNode.figX(), top + currentNode.figY()	    // V	
+//				);
 				
 				fpa.endShape();
 			}
 			
 		} else {
 			//System.err.println("Drawing a line");
-			if(getTo() == getFrom()){
+			if(getTo() == getFrom()){  // Drawing a self edge
 				LayeredGraphNode node = getTo();
 				float h = node.figure.height;
 				float w = node.figure.width;

@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.graph.spring;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -193,21 +194,21 @@ public class SpringGraph extends Figure {
 	}
 
 	@Override
-	public boolean mouseOver(int mousex, int mousey) {
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent) {
 		for (SpringGraphNode n : nodes) {
-			if (n.mouseOver(mousex, mousey))
+			if (n.mouseOver(mousex, mousey, mouseInParent))
 				return true;
 		}
-		return super.mouseOver(mousex, mousey);
+		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
 	}
 
 	@Override
-	public boolean mousePressed(int mousex, int mousey) {
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
 		for (SpringGraphNode n : nodes) {
-			if (n.mousePressed(mousex, mousey))
+			if (n.mousePressed(mousex, mousey, e))
 				return true;
 		}
-		return super.mouseOver(mousex, mousey);
+		return super.mouseOver(mousex, mousey, false);
 	}
 
 }

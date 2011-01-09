@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.graph.lattice;
 
+import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
@@ -61,20 +62,12 @@ public class LatticeGraphNode {
 		}
 	}
 	
-	public boolean mouseOver(int mousex, int mousey){
-		if(figure.mouseInside(mousex, mousey)){
-			figure.fpa.registerFocus(figure);
-			return true;
-		}
-		return false;
+	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent){
+		return figure.mouseOver(mousex, mousey, mouseInParent);
 	}
 	
-	public boolean mousePressed(int mousex, int mousey){
-		if(figure.mouseInside(mousex, mousey)){
-			figure.fpa.registerFocus(figure);
-			return true;
-		}
-		return false;
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+		return figure.mousePressed(mousex, mousey, e);
 	}
 
 	public void addIn(LatticeGraphNode n){

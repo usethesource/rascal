@@ -74,6 +74,25 @@ public void K33(){
     render(hcat([g1, g2], gap(20)));
 }
 
+public FProperty popup(str s){
+	return mouseOver(box(text(s), gap(1), fillColor("yellow")));
+}
+
+public void K3a(){
+     nodes =
+        [ box(text("A"), id("A"), size(20), fillColor("green"), popup("A")),
+     	  box(text("B"), id("B"), size(20), fillColor("red"),  popup("B")),
+     	  box(text("C"), id("C"), size(20), fillColor("blue"),  popup("C"))
+     	];
+    edges = 
+    	[ edge("A", "B"),
+    	  edge("B", "C"),
+    	  edge("A", "C")
+    	];
+    	    
+    render(graph(nodes, edges, hint("layered"), size(400)));
+}
+
 public void graph4(){
      nodes =
      	[ box(text("A"), id("A"), size(20), fillColor("green")),

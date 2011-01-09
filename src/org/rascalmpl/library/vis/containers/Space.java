@@ -21,4 +21,8 @@ public class Space extends Container {
 	void drawContainer() {
 		return;
 	}
+	
+	String containerName(){
+		return "space";
+	}
 }

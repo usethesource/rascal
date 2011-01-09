@@ -69,7 +69,7 @@ public class Use extends Figure {
 	}
 */	
 	@Override
-	public boolean mouseOver(int mousex, int mousey){
-		return inside.mouseOver(mousex, mousey);
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+		return inside.mouseOver(mousex, mousey, centerX, centerY, false);
 	}
 }

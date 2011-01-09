@@ -1,9 +1,7 @@
 package org.rascalmpl.library.vis;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -34,11 +32,9 @@ public class FigurePApplet extends PApplet {
 	private Figure rootFigure;
 	private Figure focus = null;
 	private boolean focusSelected = false;
-	private LinkedList<ZoomEntry> zoomStack = null;
-	private boolean zoomingIn = true;
 	
-	
-	private LinkedList<Figure> mouseOverStack = null;
+	private Figure mouseOver = null;
+	private boolean controlChanged = false;
 
 	private static boolean debug = false;
 	private boolean saveFigure = true;
@@ -55,16 +51,8 @@ public class FigurePApplet extends PApplet {
 	
 	private int depth = 0;
 
-	private int focusLeft;
-
-	private int focusTop;
-	
-	private int lastMouseX = 0;
-	private int lastMouseY = 0;
-	
-	private HashSet<String> boolControls;
-	
-	
+// int lastMouseX = 0;
+//	private int lastMouseY = 0;
 
 	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
@@ -76,17 +64,13 @@ public class FigurePApplet extends PApplet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		boolControls = new HashSet<String>();
+//		boolTriggers = new HashSet<String>();
 	}
 	
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		saveFigure = false;
 		IPropertyManager def = new DefaultPropertyManager(this);
 		rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
-		zoomStack = new LinkedList<ZoomEntry>();
-		mouseOverStack = new LinkedList<Figure>();
-		//zoomStack.push(figure);
-		boolControls = new HashSet<String>();
 	}
 
 	@Override
@@ -105,6 +89,7 @@ public class FigurePApplet extends PApplet {
 		}
 		noLoop();
 		figure.bbox();
+		controlChanged = false;
 		rootWidth = figure.width;
 		rootHeight = figure.height;
 	}
@@ -132,50 +117,19 @@ public class FigurePApplet extends PApplet {
 			smooth();
 			strokeJoin(MITER);
 			depth = 0;
-//			int deltah = 0;
-//			
-//			if(false){ // !zoomStack.isEmpty()){
-//				deltah = 20;
-//				fill(255);
-//				rect(left, top, left + rootWidth, top + deltah);
-//				textAlign(CENTER, CENTER);
-//				fill(0);
-//				text("Zoom level = " + zoomStack.size(), left + rootWidth/2, top + deltah/2);
-//			}
-			
-			if(!zoomStack.isEmpty()){
-				rootFigure.draw(left, top);
-				float alpha = 0.6f +  0.1f*zoomStack.size();
-				if(alpha > 0.9)
-					alpha = 0.9f;
-				
-				fill(FigureLibrary.figureColor(192,192,192,alpha));
-				stroke(192,192,192);
-				rect(left, top, rootWidth, rootHeight);
-			} else
-				rootFigure.draw(left,top);
-			if(!zoomStack.isEmpty()){
-				float rescale = (zoomingIn) ? (scale - 0.5f) / scale : scale / (scale - 0.5f) ;
-				float shift = zoomingIn ? 0.2f : 0.6f;
-				float l = max(left + focusLeft * rescale - shift *(scale - 1) *figure.width, 0);
-				float t = max(top + focusTop * rescale - shift * (scale - 1) *figure.height, 0);
 
-				System.err.printf("focusLeft=%d, focusTop=%d, scale=%f, l=%f, t=%f\n", 
-									focusLeft, focusTop, scale, l, t);
-				pushMatrix();
-				scale(scale);
-				figure.draw(l,t) ;
+			if(controlChanged){
+				rootFigure.bbox();
+				rootWidth = rootFigure.width;
+				rootHeight = rootFigure.height;
+				controlChanged = false;
 			}
-				
-			if(focus != null){
-				if(focusSelected)
-					focus.drawFocus();
-				else
-					focus.drawMouseOverFigure();
-			}	
-			if(!zoomStack.isEmpty()){
-				popMatrix();
-			}
+			rootFigure.draw(left,top);
+			if(mouseOver != null)
+				mouseOver.drawWithMouseOver(mouseOver.left, mouseOver.top);
+					
+			if(focus != null && focusSelected)
+				focus.drawFocus();
 		}
 	}
 	
@@ -203,30 +157,46 @@ public class FigurePApplet extends PApplet {
 		return depth <= d;
 	}
 	
+	// Focus handling: called during mousePressed
+	
 	public void registerFocus(Figure f){
 		focus = f;
-		mouseOverStack.push(f);
-		if (debug) System.err.println("registerFocus:" + f);
-	}
-	
-	public void unRegisterFocus(){
-		focus = null;
-		focusSelected = false;
+		if(debug)System.err.println("registerFocus:" + f);
 	}
 	
 	public boolean isRegisteredAsFocus(Figure f){
 		return focus == f;
 	}
 	
+	public void unRegisterFocus(Figure f){
+		if(debug)System.err.println("unRegisterFocus:" + f);
+		focus = null;
+		focusSelected = false;
+	}
+	
+	// MouseOver handling: called during mouseOver
+	
+	public void registerMouseOver(Figure f){
+		mouseOver = f;
+		//if(debug)System.err.println("registerMouseOver:" + f);
+	}
+	
+	public boolean isRegisteredAsMouseOver(Figure f){
+		return mouseOver == f;
+	}
+	
+	public void unRegisterMouseOver(Figure f){
+		if(debug)System.err.println("unRegisterMouseOver:" + f);
+		mouseOver = null;
+	}
+	
+	
 	@Override
 	public void keyPressed(){
-		System.err.println("FPA, keyPressed: " + key);
+		if(debug)System.err.println("FPA, keyPressed: " + key);
 		
-		if(focus != null && focus.mouseInside(lastMouseX, lastMouseY) 
+		if(focus != null //&& focus.mouseInside(lastMouseX, lastMouseY) 
 						 && focus.keyPressed(key, keyCode)){
-			figure.bbox();
-			rootWidth = figure.width;
-			rootHeight = figure.height;
 			redraw();
 			return;
 		}
@@ -250,10 +220,7 @@ public class FigurePApplet extends PApplet {
 		redraw();
 	}
 	
-	@Override
-	public void mouseReleased(){
-		focusSelected = false;
-	}
+	
 	
 //	@Override
 //	public void mouseDragged(){
@@ -283,115 +250,94 @@ public class FigurePApplet extends PApplet {
 //	}
 	
 	@Override
+	public void mouseReleased(){
+		//focusSelected = false;
+	}
+	
+	@Override
 	public void mouseMoved(){
+		//if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
 		
-		if(debug)System.err.println("mouseMoved: " + mouseX + ", " + mouseY+" "+figure.getClass());
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		if(focus != null && focusSelected)
-				focus.drag(mouseX/scale, mouseY/scale);
-		else if(figure.mouseOver(round(mouseX/scale), round(mouseY/scale))){
-			/* do nothing */
-		} else
-			unRegisterFocus();
+//		lastMouseX = mouseX;
+//		lastMouseY = mouseY;
+		
+		figure.mouseOver(mouseX, mouseY, false);
 		redraw();
 	}
+			
 	
 	@Override
 	public void mousePressed(){
 		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		if(figure.mousePressed(round(mouseX/scale), round(mouseY/scale))){
+//		lastMouseX = mouseX;
+//		lastMouseY = mouseY;
+		if(figure.mousePressed(mouseX, mouseY, mouseEvent)){
 			focusSelected = true;
-			if(keyPressed && key == CODED && keyCode == SHIFT){
-				if(mouseButton == LEFT){
-					if(debug)System.err.println("mousePressed: zoomin, focus=" + focus);
-					if(focus != figure){
-						zoomStack.push(new ZoomEntry(figure, figure.left, figure.top, scale));
-						figure = focus;
-						focusLeft = round(figure.left);
-						focusTop = round(figure.top);
-						scale += 0.5;	
-						zoomingIn = true;
-						}
-				} else if(mouseButton == RIGHT){
-					if(debug)System.err.println("mousePressed: zoomout");
-					if(!zoomStack.isEmpty()){
-						ZoomEntry ze = zoomStack.pop();
-						focus = figure = ze.figure;
-						focusLeft = round(ze.left);
-						focusTop = round(ze.top);
-						scale = ze.scale;
-						zoomingIn = false;
-					}
-				}
-			}
 		} else
-			unRegisterFocus();
-		
+			unRegisterFocus(focus);
+
 		redraw(); 
 	}
 	
+
+	
+	
 	
 	// -------------------------------------------
-	//  Various controls
+	//  Various triggers
 	
 	// boolControl
 	
-	public boolean isBoolControl(String b){
-		return boolControls.contains(b);
+//	private HashSet<String> boolTriggers = new HashSet<String>();
+//	
+//	
+//	public boolean isBoolTrigger(String b){
+//		return boolTriggers.contains(b);
+//	}
+//	
+//	public void setBoolTrigger(String b, boolean on){
+//		System.err.println("setBoolTrigger(" + b + ", " + on + ")");
+//		if(on)
+//			boolTriggers.add(b);
+//		else
+//			boolTriggers.remove(b);
+//		
+//		controlChanged = true;
+//	}
+//	
+//	// num Triggers
+//	
+//	private Hashtable<String,Float> numTriggers = new Hashtable<String,Float>();
+//
+//	
+//	public void setNumTrigger(String name, float val){
+//		System.err.printf("setNumTrigger(%s,%f)\n", name, val);
+//		numTriggers.put(name, new Float(val));
+//		controlChanged = true;
+//	}
+//	
+//	public float getNumTrigger(String name){
+//		Float val = numTriggers.get(name);
+//		float res =  val == null ? 0 : val.floatValue();
+//		System.err.printf("getNumTrigger(%s) => %f\n", name, res);
+//		return res;
+//	}
+	
+	// str Triggers
+	
+	private Hashtable<String,String> strTriggers = new Hashtable<String,String>();
+	
+	public void setStrTrigger(String name, String val){
+		//if(debug)System.err.printf("setStrTrigger(%s,%s)\n", name, val);
+		strTriggers.put(name, val);
+		controlChanged = true;
 	}
 	
-	public void setBoolControl(String b, boolean on){
-		System.err.println("setBoolControl(" + b + ", " + on + ")");
-		if(on)
-			boolControls.add(b);
-		else
-			boolControls.remove(b);
-		
-		figure.bbox();
-		rootWidth = figure.width;
-		rootHeight = figure.height;
-	}
-	
-	//  intControl
-	
-	private Hashtable<String,Integer> intControls = new Hashtable<String,Integer>();
-	
-	public void setIntControl(String name, int val){
-		intControls.put(name, val);
-	}
-	
-	public int getIntControl(String name){
-		Integer val = intControls.get(name);
-		return val == null ? 0 : val.intValue();
-	}
-	
-	// realControl
-	
-	private Hashtable<String,Float> realControls = new Hashtable<String,Float>();
-	
-	public void setRealVar(String name, float val){
-		realControls.put(name, val);
-	}
-	
-	public float getRealControl(String name){
-		Float val = realControls.get(name);
-		return val == null ? 0 : val.floatValue();
-	}
-	
-	// strControl
-	
-	private Hashtable<String,String> strControls = new Hashtable<String,String>();
-	
-	public void setStrControl(String name, String txt){
-		strControls.put(name, txt);
-	}
-	
-	public String getStrControl(String name){
-		String txt = strControls.get(name);
-		return txt == null ? "" : txt;
+	public String getStrTrigger(String name){
+		String val = strTriggers.get(name);
+		String res = val == null ? "" : val;
+		//if(debug)System.err.printf("getStrTrigger(%s) => %s\n", name, res);
+		return res;
 	}
 	
 	// ---------------------
@@ -649,17 +595,103 @@ public class FigurePApplet extends PApplet {
 	
 }
 
-class ZoomEntry {
-	Figure figure;
-	float left;
-	float top;
-	float scale;
+/***
+//class ZoomEntry {
+//	Figure figure;
+//	float left;
+//	float top;
+//	float scale;
+//
+//	ZoomEntry(Figure f,  float l,  float t,float s){
+//		figure = f;
+//		left = l;
+//		top = t;
+//		scale = s;
+//	}
+//
+//}
 
-	ZoomEntry(Figure f,  float l,  float t,float s){
-		figure = f;
-		left = l;
-		top = t;
-		scale = s;
-	}
+//int deltah = 0;
+//
+//if(false){ // !zoomStack.isEmpty()){
+//	deltah = 20;
+//	fill(255);
+//	rect(left, top, left + rootWidth, top + deltah);
+//	textAlign(CENTER, CENTER);
+//	fill(0);
+//	text("Zoom level = " + zoomStack.size(), left + rootWidth/2, top + deltah/2);
+//}
 
+//if(!zoomStack.isEmpty()){
+//	rootFigure.draw(left, top);
+//	float alpha = 0.6f +  0.1f*zoomStack.size();
+//	if(alpha > 0.9)
+//		alpha = 0.9f;
+//	
+//	fill(FigureLibrary.figureColor(192,192,192,alpha));
+//	stroke(192,192,192);
+//	rect(left, top, rootWidth, rootHeight);
+//} else
+
+if(controlChanged){
+	rootFigure.bbox();
+	rootWidth = rootFigure.width;
+	rootHeight = rootFigure.height;
+	controlChanged = false;
 }
+rootFigure.draw(left,top);
+//if(!zoomStack.isEmpty()){
+//	float rescale = (zoomingIn) ? (scale - 0.5f) / scale : scale / (scale - 0.5f) ;
+//	float shift = zoomingIn ? 0.2f : 0.6f;
+//	float l = max(left + focusLeft * rescale - shift *(scale - 1) *figure.width, 0);
+//	float t = max(top + focusTop * rescale - shift * (scale - 1) *figure.height, 0);
+//
+//	System.err.printf("focusLeft=%d, focusTop=%d, scale=%f, l=%f, t=%f\n", 
+//						focusLeft, focusTop, scale, l, t);
+//	pushMatrix();
+//	scale(scale);
+//	figure.draw(l,t) ;
+
+**/
+
+
+//if(!zoomStack.isEmpty()){
+//popMatrix();
+//}
+
+
+//@Override
+//public void mousePressed(){
+//	if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+//	lastMouseX = mouseX;
+//	lastMouseY = mouseY;
+//	if(figure.mousePressed(round(mouseX/scale), round(mouseY/scale))){
+//		focusSelected = true;
+//		if(keyPressed && key == CODED && keyCode == SHIFT){
+//			if(mouseButton == LEFT){
+//				if(debug)System.err.println("mousePressed: zoomin, focus=" + focus);
+//				if(focus != figure){
+//					zoomStack.push(new ZoomEntry(figure, figure.left, figure.top, scale));
+//					figure = focus;
+//					focusLeft = round(figure.left);
+//					focusTop = round(figure.top);
+//					scale += 0.5;	
+//					zoomingIn = true;
+//					}
+//			} else if(mouseButton == RIGHT){
+//				if(debug)System.err.println("mousePressed: zoomout");
+//				if(!zoomStack.isEmpty()){
+//					ZoomEntry ze = zoomStack.pop();
+//					focus = figure = ze.figure;
+//					focusLeft = round(ze.left);
+//					focusTop = round(ze.top);
+//					scale = ze.scale;
+//					zoomingIn = false;
+//				}
+//			}
+//		}
+//	} else
+//		unRegisterMouseOver(focus);
+//	
+//	redraw(); 
+//}

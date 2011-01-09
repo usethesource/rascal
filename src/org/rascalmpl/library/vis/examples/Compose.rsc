@@ -216,7 +216,7 @@ public void vert2(){
 			        box(size(150, 100), fillColor("blue")),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      left(), gap(2), hcenter()
+			      gap(2), hcenter()
 		));
 }
 

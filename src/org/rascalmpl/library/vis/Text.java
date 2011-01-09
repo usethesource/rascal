@@ -93,4 +93,14 @@ public class Text extends Figure {
 	public float bottomAnchor(){
 		return bottomAnchor;
 	}
+	
+	@Override
+	public
+	String toString(){
+		return new StringBuffer("text").append("(").append("\"").append(txt.getValue()).append("\"").
+		append(left).append(",").
+		append(top).append(",").
+		append(width).append(",").
+		append(height).append(")").toString();
+	}
 }
