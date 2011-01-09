@@ -2,7 +2,6 @@ package org.rascalmpl.library.vis.interaction;
 
 import java.awt.event.MouseEvent;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -31,8 +30,6 @@ public class EnterTrigger extends Figure {
 	private final String carret = "\u2038";
 
 	private boolean doubleClicked = false;
-
-	private IEvaluatorContext ctx;
 	IValueFactory vf;
 	protected Type[] argtypes = new Type[] {TypeFactory.getInstance().stringType()};
 	protected  IValue[] argvals = new IValue[1];
@@ -43,7 +40,7 @@ public class EnterTrigger extends Figure {
 		super(fpa, properties, ctx);
 		this.tname = tname.getValue();
 		currentInput = new StringBuffer(initial.getValue());
-		this.ctx = ctx;
+	
 		vf = ctx.getValueFactory();
 		if(validator.getType().isExternalType() && (validator instanceof OverloadedFunctionResult)){
 			this.validator = (OverloadedFunctionResult) validator;
