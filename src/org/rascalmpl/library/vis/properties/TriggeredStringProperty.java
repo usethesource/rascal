@@ -2,14 +2,14 @@ package org.rascalmpl.library.vis.properties;
 
 import org.rascalmpl.library.vis.FigurePApplet;
 
-public class ControlIntegerProperty implements IIntegerPropertyValue {
+public class TriggeredStringProperty implements IStringPropertyValue {
 	Property property;
-	String name;
+	String tname;
 	private FigurePApplet fpa;
 
-	public ControlIntegerProperty(Property prop, String name, FigurePApplet fpa){
+	public TriggeredStringProperty(Property prop, String name, FigurePApplet fpa){
 		this.property = prop;
-		this.name = name;
+		this.tname = name;
 		this.fpa = fpa;
 	}
 	
@@ -17,8 +17,8 @@ public class ControlIntegerProperty implements IIntegerPropertyValue {
 		return property;
 	}
 	
-	public int getValue() {
-		return fpa.getIntControl(name);
+	public String getValue() {
+		return fpa.getStrTrigger(tname);
 	}
 
 }

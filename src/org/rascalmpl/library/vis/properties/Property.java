@@ -31,5 +31,5 @@ public enum Property {
 	VGAP, 			// float
 	WIDTH,			// float
 	
-	TEXT			// str, used to represent tet arguments
+	TEXT			// str, used to represent text arguments
 }

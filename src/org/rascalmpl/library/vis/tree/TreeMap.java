@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.tree;
 
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -112,14 +113,14 @@ public class TreeMap extends Figure {
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey){
-		return root.mouseOver(mousex, mousey) ||
-		        super.mouseOver(mousex, mousey);
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+		return root.mouseOver(mousex, mousey, centerX, centerY, false) ||
+		        super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey){
-		if(root.mousePressed(mousex, mousey)){
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+		if(root.mousePressed(mousex, mousey, e)){
 			bbox();
 			return true;
 		}

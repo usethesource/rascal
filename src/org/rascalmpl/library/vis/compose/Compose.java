@@ -1,4 +1,6 @@
-package org.rascalmpl.library.vis.compose;
+ package org.rascalmpl.library.vis.compose;
+
+import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -34,35 +36,44 @@ public abstract class Compose extends Figure {
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		for(int i = figures.length-1; i > 0; i--)
-			if(figures[i].mouseOver(mousex, mousey))
+		for(int i = figures.length-1; i >= 0; i--)
+			if(figures[i].mouseInside(mousex, mousey))
 				return true;
 		return super.mouseInside(mousex, mousey);
 	}
+	
+	@Override
+	public boolean mouseInside(int mousex, int mousey,  float centerX, float centerY){
+		for(int i = figures.length-1; i >= 0; i--)
+			if(figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(), figures[i].getCenterY()))
+				return true;
+		return super.mouseInside(mousex, mousey, centerX, centerY);
+	}
 
 	// Visit figures front to back
-	
 	@Override
-	public boolean mouseOver(int mousex, int mousey){
-		for(int i = figures.length-1; i > 0; i--)
-			if(figures[i].mouseOver(mousex, mousey))
+	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent){
+		for(int i = figures.length-1; i >= 0; i--)
+			if(figures[i].mouseOver(mousex, mousey, figures[i].getCenterX(), figures[i].getCenterY(), false))
 				return true;
-		return super.mouseOver(mousex, mousey);
+		return super.mouseOver(mousex, mousey, mouseInParent);
 	}
 	
-//	@Override
-//	public void drawFocus(){
-//		for(Figure fig : figures)
-//			fig.drawFocus();
-//	}
+	@Override
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+		for(int i = figures.length-1; i >= 0; i--)
+			if(figures[i].mouseOver(mousex, mousey, figures[i].getCenterX(), figures[i].getCenterY(), false))
+				return true;
+		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
+	}
 	
 	// Visit figures front to back
 	@Override
-	public boolean mousePressed(int mousex, int mousey){
-		for(int i = figures.length-1; i > 0; i--)
-			if(figures[i].mousePressed(mousex, mousey))
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+		for(int i = figures.length-1; i >= 0; i--)
+			if(figures[i].mousePressed(mousex, mousey, e))
 				return true;
-		return super.mousePressed(mousex, mousey);
+		return super.mousePressed(mousex, mousey, e);
 	}
 	
 //	@Override
@@ -75,7 +86,7 @@ public abstract class Compose extends Figure {
 	
 	@Override
 	public boolean keyPressed(int key, int keyCode){
-		for(int i = figures.length-1; i > 0; i--)
+		for(int i = figures.length-1; i >= 0; i--)
 			if(figures[i].keyPressed(key, keyCode))
 				return true;
 		return super.keyPressed(key, keyCode);

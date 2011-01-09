@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.graph.lattice;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -125,21 +126,21 @@ public class LatticeGraph extends Figure {
 	}
 
 	@Override
-	public boolean mouseOver(int mousex, int mousey) {
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent) {
 		for (LatticeGraphNode n : nodes) {
-			if (n.mouseOver(mousex, mousey))
+			if (n.mouseOver(mousex, mousey, mouseInParent))
 				return true;
 		}
-		return super.mouseOver(mousex, mousey);
+		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
 	}
 
 	@Override
-	public boolean mousePressed(int mousex, int mousey) {
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
 		for (LatticeGraphNode n : nodes) {
-			if (n.mousePressed(mousex, mousey))
+			if (n.mousePressed(mousex, mousey, e))
 				return true;
 		}
-		return super.mouseOver(mousex, mousey);
+		return super.mousePressed(mousex, mousey, e);
 	}
 
 	public boolean isLattice() {

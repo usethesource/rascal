@@ -29,6 +29,10 @@ public class Ellipse extends Container {
 		fpa.ellipse(left, top, left + width, top + height);
 	}
 	
+	String containerName(){
+		return "ellipse";
+	}
+	
 	/**
 	 * Draw a connection from an external position (fromX, fromY) to the center (X,Y) of the current figure.
 	 * At the intersection with the border of the current figure, place an arrow that is appropriately rotated.
@@ -56,7 +60,7 @@ public class Ellipse extends Container {
         }
         float sint = PApplet.sin(theta);
         float cost = PApplet.cos(theta);
-        float r = height * width / (4 *  PApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
+        float r = height * width / (4 * PApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
         float IX = X + r * cost;
         float IY = Y + r * sint;
         
@@ -70,6 +74,43 @@ public class Ellipse extends Container {
         	toArrow.draw(-toArrow.width/2, 0);
         	fpa.popMatrix();
         }
+	}
+	
+	/**
+	 * Draw focus around this figure
+	 */
+	@Override
+	public void drawFocus(){
+		if(isVisible()){
+			fpa.stroke(255, 0,0);
+			fpa.noFill();
+			fpa.ellipseMode(PConstants.CORNERS);
+			fpa.ellipse(left, top, left + width, top + height);
+		}
+	}
+	
+	@Override
+	public boolean mouseInside(int mousex, int mousey){
+		float w2 = width/2;
+		float h2 = height/2;
+		float X = left + w2;
+		float Y = top + h2;
+		float ex =  (mousex - X) / w2;
+		float ey = 	(mousey - Y) / h2;
+		boolean b =  ex * ex + ey * ey <= 1;
+		//System.err.println("ellipse.mouseInside: " + b);
+		return b;
+	}
+	
+	@Override
+	public boolean mouseInside(int mousex, int mousey, float centerX, float centerY){
+		float w2 = width/2;
+		float h2 = height/2;
+		float ex =  (mousex - centerX) / w2;
+		float ey = 	(mousey - centerY) / h2;
+		boolean b =  ex * ex + ey * ey <= 1;
+		//System.err.println("ellipse.mouseInside: " + b);
+		return b;
 	}
 
 }

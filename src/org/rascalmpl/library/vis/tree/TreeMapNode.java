@@ -1,6 +1,7 @@
 
 package org.rascalmpl.library.vis.tree;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -122,15 +123,6 @@ public class TreeMapNode extends Figure {
 		}
 	}
 	
-//	@Override
-//	public boolean mouseInside(int mousex, int mousey){
-//		float l = left + leftDragged;
-//		float t = top + topDragged;
-//	
-//		return mousex > l && mousex < l + width &&
-//			   mousey > t && mousey < t + height;
-//	}
-	
 	@Override
 	public void drawFocus(){
 		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), left, top);
@@ -140,29 +132,29 @@ public class TreeMapNode extends Figure {
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey){
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
 		if(debug)System.err.printf("TreeMapNode.mouseover: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
 		if(debug)System.err.printf("TreeMapNode.mouseover: left=%f, top=%f\n", left, top);
 		if(!isVisible())
 			return false;
-		if(rootFigure.mouseOver(mousex, mousey))
+		if(rootFigure.mouseOver(mousex, mousey, centerX, centerY, false))
 			return true;
 		if(isNextVisible()){
 			for(TreeMapNode child : children)
-				if(child.mouseOver(mousex, mousey))
+				if(child.mouseOver(mousex, mousey, centerX, centerY, mouseInParent))
 					return true;
 		}
 		return false;
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey){
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
 		if(debug)System.err.printf("TreeMapNode.mousePressed: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
 		if(!isVisible())
 			return false;
 		if(isNextVisible()){
 			for(TreeMapNode child : children)
-				if(child.mousePressed(mousex, mousey))
+				if(child.mousePressed(mousex, mousey, e))
 					return true;
 		}
 		if(mouseInside(mousex, mousey)){

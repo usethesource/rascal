@@ -1,6 +1,7 @@
 
 package org.rascalmpl.library.vis.tree;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -205,27 +206,37 @@ public class TreeNode extends Figure {
 //	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey){
-		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
-		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", left, top);
-		if(rootFigure.mouseOver(mousex, mousey))
-			return true;
-		for(TreeNode child : children)
-			if(child.mouseOver(mousex, mousey))
-				return true;
-		return super.mouseOver(mousex, mousey);
+	public boolean mouseInside(int mousex, int mousey){
+		return rootFigure.mouseInside(mousex, mousey);
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey){
-		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
-		if(rootFigure.mousePressed(mousex, mousey))
+	public boolean mouseInside(int mousex, int mousey, float centerX, float centerY){
+		return rootFigure.mouseInside(mousex, mousey, rootFigure.getCenterX(), rootFigure.getCenterY());
+	}
+	
+	@Override
+	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
+		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", left, top);
+		if(rootFigure.mouseOver(mousex, mousey, false))
 			return true;
 		for(TreeNode child : children)
-			if(child.mousePressed(mousex, mousey))
+			if(child.mouseOver(mousex, mousey, false))
+				return true;
+		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
+	}
+	
+	@Override
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
+		if(rootFigure.mousePressed(mousex, mousey, e))
+			return true;
+		for(TreeNode child : children)
+			if(child.mousePressed(mousex, mousey, e))
 				return true;
 		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d, trying outer bounds with left corner: %f, %f\n", rootFigure.getIdProperty(), mousex, mousey, left, top);
-		return super.mousePressed(mousex, mousey);
+		return super.mousePressed(mousex, mousey, e);
 	}
 	
 //	@Override

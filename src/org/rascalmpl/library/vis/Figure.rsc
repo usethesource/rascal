@@ -56,7 +56,7 @@ public Color java rgb(int r, int g, int b, real alpha);
 
 @doc{Interpolate two colors (in RGB space)}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
-public int java interpolateColor(Color from, Color to, real percentage);
+public Color java interpolateColor(Color from, Color to, real percentage);
 
 @doc{Create a list of interpolated colors}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
@@ -119,40 +119,64 @@ public list[str] java fontNames();
    return anchor(0.5, 0.5);
  }
  
- data intVar = intVar(int n);
+ data intTrigger = intTrigger(str name);
+ data realTrigger = realTrigger(str name);
+ data numTrigger = numTrigger(str name);
  
- data strVar = strVar(str s);
+ data strTrigger = strTrigger(str name);
+ data colorTrigger = colorTrigger(str name);
  
 public alias FProperties = list[FProperty];
 
 data FProperty =
 /* sizes */
      width(num width)                   // sets width of element
+   | width(numTrigger nvWidth)               // sets width of element
    | height(num height)                 // sets height of element
+   | height(numTrigger nvheight)             // sets height of element
+   
    | size(num size)					    // sets width and height to same value
+   | size(numTrigger nvSize)					    // sets width and height to same value
+   
    | size(num hor, num vert)            // sets width and height to separate values
+   | size(numTrigger nvHor, numTrigger nvVert)  // sets width and height to separate values
+   
    | gap(num amount)                    // sets hor and vert gap between elements in composition to same value
+   | gap(numTrigger nvAmount)  
    | gap(num hor, num vert) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(numTrigger nvHor, numTrigger nvVert) 
    | hgap(num hor)                      // sets hor gap
+   | hgap(numTrigger nvhor)
    | vgap(num vert)                     // set vert gap
+   | vgap(numTrigger nvHor)
    
 /* alignment */
-   | anchor(num h, num v)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
-   | hanchor(num h)
-   | vanchor(num v)
+   | anchor(num hor, num vert)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
+   | anchor(numTrigger nvHor, numTrigger nvVert) 
+   | hanchor(num hor)
+   | hanchor(numTrigger nvHor)
+   | vanchor(num vert)
+   | vanchor(numTrigger nvVert)
    
 /* line and border properties */
    | lineWidth(num lineWidth)			// line width
+   | lineWidth(numTrigger nvLineWidth)		// line width
+   
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
+   | lineColor(colorTrigger cvColorName)    // named line color
    
    | fillColor(Color fillColor)			// fill color of shapes and text
    | fillColor(str colorName)           // named fill color
+   | fillColor(colorTrigger svColorName)    // named fill color
    
 /* wedge properties */
    | fromAngle(num angle)
+   | fromAngle(numTrigger nvAngle)
    | toAngle(num angle)
+   | toAngle(numTrigger nvAngle)
    | innerRadius(num radius)
+   | innerRadius(numTrigger nvRadius)
 
 /* shape properties */
    | shapeConnected()                   // shapes consist of connected points
@@ -161,10 +185,14 @@ data FProperty =
  
 /* font and text properties */
    | font(str fontName)             	// named font
+   | font(strTrigger svFontName)     
    | fontSize(int isize)                // font size
+   | fontSize(intTrigger ivSize)
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
+   | fontColor(colorTrigger cvColorName)
    | textAngle(num angle)               // text rotation
+   | textAngle(numTrigger nvAngle) 
    
 /* interaction properties */  
    | mouseOver(Figure inner)            // add figure when mouse is over current figure
@@ -172,10 +200,13 @@ data FProperty =
    | contentsVisible()                  // contents of container is visible
    | pinned()                           // position pinned-down, cannot be dragged
    | doi(int d)                        // limit visibility to nesting level d
+   | doi(intTrigger ivD) 
    
 /* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
+   | id(strTrigger svName)
    | hint(str name)                     // hint for various compositions
+   | hint(strTrigger svName)
    ;
 
 /*
@@ -225,7 +256,7 @@ data Figure =
 /* atomic primitives */
 
      _text(str s, FProperties props)		    // text label
-   | _text(strVar sv, FProperties props)
+   | _text(strTrigger sv, FProperties props)
    
    												// file outline
    | _outline(map[int,Color] coloredLines, FProperties props)
@@ -281,11 +312,11 @@ data Figure =
    | _scale(num xperc, num yperc, Figure fig, FProperties props)	// Scale element (different for h and v)
 
 /* interaction */
-
-   | _boolControl(str name, Figure figOn, Figure figOff, FProperties props)
-   | _controlOn(str name, Figure fig,  FProperties props)
-   | _controlOff(str name, Figure fig,  FProperties props)
-   | _strControl(str name, FProperties props)
+   
+   | _computeFigure(Figure (list[str]) computeFig, list[str] triggers, FProperties props)
+   | _computeTrigger(str tname, str init, str(list[str]) computeTrig, list[str] triggers, Figure fig, FProperties props)
+   | _enterTrigger(str tname, str init, bool (str) validate, FProperties props)
+   | _selectFigure(str tname, map[str, Figure] choices, FProperties props)
    ;
 
 
@@ -293,7 +324,7 @@ public Figure text(str s, FProperty props ...){
   return _text(s, props);
 }
 
-public Figure text(strVar sv, FProperty props ...){
+public Figure text(strTrigger sv, FProperty props ...){
   return _text(sv, props);
 }
 
@@ -401,9 +432,37 @@ public Figure controlOff(str name, Figure fig, FProperty props...){
   return _controlOff(name, fig, props);
 }
 
-public Figure strControl(str name, FProperty props...){
-  return _strControl(name, props);
+public Figure strControl(str name, str initial, FProperty props...){
+  return _strControl(name, initial, props);
 }
+
+public Figure intControl(str name, int initial, FProperty props...){
+  return _intControl(name, initial, props);
+}
+
+public Figure colorControl(str name, int initial, FProperty props...){
+  return _colorControl(name, initial, props);
+}
+
+public Figure colorControl(str name, str initial, FProperty props...){
+  return _colorControl(name, initial, props);
+}
+
+public Figure computeFigure(Figure (list[str]) computeFig, list[str] triggers, FProperty props...){
+ 	return _computeFigure(computeFig, triggers, props);
+}
+ 
+public Figure computeTrigger(str tname, str init, str(list[str]) computeTrig, list[str] triggers, Figure fig, FProperty props...){
+	return _computeTrigger(tname, init, computeTrig, triggers, fig, props);
+}
+ 
+ public Figure enterTrigger(str tname, str init, bool (str) validate, FProperty props...){
+ 	return _enterTrigger(tname, init, validate, props);
+ }
+ 
+ public Figure selectFigure(str tname, map[str, Figure] choices, FProperty props...){
+ 	return _selectFigure(tname, choices, props);
+ }
    
 /*
  * Wishlist:

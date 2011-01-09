@@ -77,8 +77,12 @@ public class PropertyManager implements IPropertyManager {
 		int i = 0;
 		
 		for (IValue v : props) {
+			
+			System.err.println("v = " + v);
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
+			
+			System.err.println("pname = " + pname);
 
 			switch (propertyNames.get(pname)) {
 			
@@ -94,13 +98,13 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getIntArg(Property.DOI, c, fpa, ctx); break;
 			
 			case FILLCOLOR:
-				values[i++] = Utils.getColorArg(Property.FILLCOLOR, c, ctx); break;
+				values[i++] = Utils.getColorArg(Property.FILLCOLOR, c, fpa, ctx); break;
 				
 			case FONT:
 				values[i++] = Utils.getStrArg(Property.FONT, c, fpa, ctx); break;
 				
 			case FONTCOLOR:
-				values[i++] = Utils.getColorArg(Property.FONTCOLOR, c, ctx); break;
+				values[i++] = Utils.getColorArg(Property.FONTCOLOR, c, fpa, ctx); break;
 				
 			case FONTSIZE:
 				values[i++] = Utils.getIntArg(Property.FONTSIZE, c, fpa, ctx); break;
@@ -131,17 +135,17 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getIntOrRealArg(Property.HGAP, c, 0, fpa, ctx); break;
 				
 			case HINT:
-				values[i++] = Utils.getStrArg(Property.HINT, c, fpa, ctx); break;
+				values[i++] = Utils.getStrArg(Property.HINT, c.get(0), fpa, ctx); break;
 				//hint = getStrArg(null, c).toLowerCase(); break;
 				
 			case ID:
-				values[i++] = Utils.getStrArg(Property.ID, c, fpa, ctx); break;
+				values[i++] = Utils.getStrArg(Property.ID, c.get(0), fpa, ctx); break;
 				
 			case INNERRADIUS:
 				values[i++] = Utils.getIntOrRealArg(Property.INNERRADIUS, c, 0, fpa, ctx); break;
 				
 			case LINECOLOR:
-				values[i++] = Utils.getColorArg(Property.LINECOLOR, c, ctx); break;
+				values[i++] = Utils.getColorArg(Property.LINECOLOR, c, fpa, ctx); break;
 				
 			case LINEWIDTH:
 				values[i++] = Utils.getIntOrRealArg(Property.LINEWIDTH, c, 0, fpa, ctx); break;
@@ -313,7 +317,6 @@ public class PropertyManager implements IPropertyManager {
 	}
 
 	public Figure getMouseOver() {
-		// TODO Auto-generated method stub
 		return mouseOverFigure;
 	}
 

@@ -21,4 +21,8 @@ public class Box extends Container {
 	void drawContainer(){
 		fpa.rect(left, top, width, height);
 	}
+	
+	String containerName(){
+		return "box";
+	}
 }

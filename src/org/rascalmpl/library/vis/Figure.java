@@ -1,5 +1,7 @@
 package org.rascalmpl.library.vis;
 
+import java.awt.event.MouseEvent;
+
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
@@ -8,10 +10,10 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import processing.core.PApplet;
 
 /**
- * Visual elements are the foundation of Rascal visualization. They are based on a bounding box + anchor model. 
+ * Figures are the foundation of Rascal visualization. They are based on a bounding box + anchor model. 
  * The bounding box defines the maximal dimensions of the element. The anchor defines its alignment properties.
  * 
- * Each element has an associated property manager whose values can be accessed via this class.
+ * Each figure has an associated property manager whose values can be accessed via this class.
  * 
  * @author paulk
  */
@@ -28,10 +30,11 @@ public abstract class Figure implements Comparable<Figure> {
 	protected float top;		// the element's bounding box
 	public float width;			// width of element
 	public float height;		// height of element
+	                            // When this figure is used as mouseOver or inner figure, point back
+	                            // to generating Figure
+	
+	private boolean visibleInMouseOver = false;
 		
-	////Figure(FigurePApplet vlp, IEvaluatorContext ctx){
-	//	this(vlp, null,ctx);
-	//}
 	
 	protected Figure(FigurePApplet vlp, IPropertyManager properties, IEvaluatorContext ctx){
 		this.fpa = vlp;
@@ -46,8 +49,12 @@ public abstract class Figure implements Comparable<Figure> {
 		return left;
 	}
 	
-	public float getMiddle(){
+	public float getCenterX(){
 		return left + width/2;
+	}
+	
+	public float getCenterY(){
+		return top + height/2;
 	}
 	
 	public float getTop(){
@@ -186,11 +193,13 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public boolean isVisible(){
-		return fpa.isVisible(properties.getDOI());
+		return true;
+		//return fpa.isVisible(properties.getDOI());
 	}
 	
 	public boolean isNextVisible(){
-		return fpa.isVisible(properties.getDOI() + 1);
+		return true;
+		//return fpa.isVisible(properties.getDOI() + 1);
 	}
 	
 	public Figure getMouseOverFigure(){
@@ -356,78 +365,128 @@ public abstract class Figure implements Comparable<Figure> {
 	 * Draw focus around this figure
 	 */
 	public void drawFocus(){
+		//System.err.println("drawFocus: " + this);
 		if(isVisible()){
 			fpa.stroke(255, 0,0);
+			fpa.strokeWeight(1);
 			fpa.noFill();
 			fpa.rect(left, top, width, height);
 		}
 	}
 	
+	public boolean isVisibleInMouseOver(){
+		return visibleInMouseOver;
+	}
+	
+	public void setVisibleInMouseOver(boolean b){
+		visibleInMouseOver = b;
+		//System.err.println("setVisibleInMouseOver(" + b + ")" + " : " + this);
+	}
+	
+	public void clearVisibleInMouseOver(){
+		visibleInMouseOver = false;
+	}
+	
 	/**
 	 * Draw the mouseOver figure associated with this figure (if any)
+	 * @param left		left corner op enclosing figure
+	 * @param top		top corner of enclosing figure
 	 */
-	public void drawMouseOverFigure(){
-		if(isVisible() && hasMouseOverFigure()){
+	public void drawWithMouseOver(float left, float top){
+		//draw(left, top);
+		if(hasMouseOverFigure()){
 			Figure mo = getMouseOverFigure();
 			mo.bbox();
-			mo.draw(left + (width - mo.width)/2f, top + (height - mo.height)/2);
+			mo.drawWithMouseOver(max(0, left + (width - mo.width)/2f), max(0, top + (height - mo.height)/2));
 		}
 	}
 	
-	public boolean mouseInside(int mousex, int mousey){
-		boolean cond = (mousex > left  && mousex < left + width) &&
-		        (mousey > top  && mousey < top + height);
-		//System.err.printf("mouseInside(%d,%d), hor=%f-%f, ver=%f-%f => %s\n", mousex, mousey, left, left+width,top, top+height,cond?"true":"false");
-		return cond;
+	public boolean mouseInside(int mouseX, int mouseY){
+		boolean b =  (mouseX >= left  && mouseX <= left + width) &&
+		             (mouseY >= top  && mouseY <= top + height);
+		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		return b;
 	}
 	
-	public void drag(float mousex, float mousey){
-		//System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
-		//leftDragged = mousex - left;
-		//topDragged = mousey - top;
+	public boolean mouseInside(int mouseX, int mouseY, float centerX, float centerY){
+		float left = max(0, centerX - width/2);
+		float top = max(0,centerY - height/2);
+		boolean b = (mouseX >= left  && mouseX <= left + width) &&
+		       (mouseY >= top  && mouseY <= top + height);
+		//System.err.printf("left=%f, top=%f\n", left, top);
+		//System.err.println((mouseX >= left)  + " " + (mouseX <= left + width) +
+	    //   (mouseY >= top) + (mouseY <= top + height));
+		//System.err.println("mouseInside2: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		return b;
 	}
 	
 	/**
-	 * Compute effect of a mouseOver on this element
-	 * @param mousex	x-coordinate of mouse
-	 * @param mousey	y-coordinate of mouse
+	 * Compute effect of a mouseOver on this element (with not yet known position)
+	 * @param mouseX	x-coordinate of mouse
+	 * @param mouseY	y-coordinate of mouse
+	 * @param centerX 	center of parent
+	 * @param centerY 	center of parent
+	 * @param mouseInParent
+	 * 					true if mouse inside parent
 	 * @return			true if element was affected.
 	 */
 	
-	public boolean mouseOver(int mousex, int mousey){
-		if(isVisible() && mouseInside(mousex, mousey)){
-		   //properties.setMouseOver(true);
-		   fpa.registerFocus(this);
+	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+		if(mouseInside(mouseX, mouseY, centerX, centerY)){
+		   fpa.registerMouseOver(this);
 		   return true;
 		}
 		return false;
 	}
 	
-	public boolean mousePressed(int mousex, int mousey){
-		if(/*isVisible() &&*/ mouseInside(mousex, mousey)){
+	/**
+	 * Compute effect of a mouseOver on this element (with known position)
+	 * @param mouseX	x-coordinate of mouse
+	 * @param mouseY	y-coordinate of mouse
+	 * @param mouseInParent
+	 * 					true if mouse inside parent
+	 * @return			true if element was affected.
+	 */
+	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
+		return mouseOver(mouseX, mouseY, getCenterX(), getCenterY(), mouseInParent);
+	}
+	
+	/**
+	 * Compute the effect 
+	 * @param mouseX	x-coordinate of mouse
+	 * @param mouseY	y-coordinate of mouse
+	 * @param e TODO
+	 * @return
+	 */
+	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+		if(mouseInside(mouseX, mouseY)){
 			fpa.registerFocus(this);
-//			leftDragged = leftDragged - (mousex - left);
-//			topDragged = topDragged - (mousey - top);
-			System.err.printf("Figure.mousePressed: %f, %f\n", left, top);
+			//System.err.printf("Figure.mousePressed: %f, %f\n", left, top);
 			return true;
 		}
 		return false;
 	}
 	
-//	public boolean mouseDragged(int mousex, int mousey){
-//		if(!isPinned() && mouseInside(mousex, mousey)){
-//			//properties.setMouseOver(true);
-//			fpa.registerFocus(this);
-//			drag(mousex, mousey);
-//			System.err.printf("Figure.mouseDragged: %f,%f\n", leftDragged, topDragged);
-//			return true;
-//		}
-//		return false;
-//	}
 	
 	public boolean keyPressed(int key, int keyCode){
 		return false;
 	}
 	
+//	public void drag(float mousex, float mousey){
+	//System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
+	//leftDragged = mousex - left;
+	//topDragged = mousey - top;
+//}
+
+//public boolean mouseDragged(int mousex, int mousey){
+//if(!isPinned() && mouseInside(mousex, mousey)){
+//	//properties.setMouseOver(true);
+//	fpa.registerFocus(this);
+//	drag(mousex, mousey);
+//	System.err.printf("Figure.mouseDragged: %f,%f\n", leftDragged, topDragged);
+//	return true;
+//}
+//return false;
+//}
 	
 }

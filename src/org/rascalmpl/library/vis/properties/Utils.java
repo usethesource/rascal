@@ -16,9 +16,9 @@ public class Utils {
 		IValue arg = c.get(0);
 		if(arg.getType().isAbstractDataType()){
 			IConstructor cons = (IConstructor) arg;
-			if(c.getName().equals("intVar")){
+			if(c.getName().equals("intTrigger")){
 				String name = ((IString) cons.get(0)).getValue();
-				new ControlIntegerProperty(prop, name, fpa);
+				new TriggeredIntegerProperty(prop, name, fpa);
 			}
 			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
 					ctx.getStackTrace());
@@ -31,10 +31,9 @@ public class Utils {
 			return new ConstantStringProperty(prop, ((IString) v).getValue());
 		IConstructor c = (IConstructor) v;
 		if(c.getType().isAbstractDataType()){
-			System.err.println("cname = " + c.getName());
-			if(c.getName().equals("strVar")){
+			if(c.getName().equals("strTigger")){
 				String name = ((IString) c.get(0)).getValue();
-				return new ControlStringProperty(prop, name, fpa);
+				return new TriggeredStringProperty(prop, name, fpa);
 			}
 			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
 					ctx.getStackTrace());
@@ -47,23 +46,24 @@ public class Utils {
 		IValue arg = c.get(i);
 		if(arg.getType().isAbstractDataType()){
 			IConstructor cons = (IConstructor) arg;
-			if(c.getName().equals("realVar")){
+			if(cons.getName().equals("realTrigger")){
 				String name = ((IString) cons.get(0)).getValue();
-				return new ControlRealProperty(prop, name, fpa);
+				return new TriggeredRealProperty(prop, name, fpa);
 			}
 			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
 					ctx.getStackTrace());
 		}
 		return new ConstantRealProperty(prop, ((IReal) c.get(0)).floatValue());
 	}
-	//TODO: realVar ok?
+	
 	public static IRealPropertyValue getIntOrRealArg(Property prop, IConstructor c, int i, FigurePApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(i);
+		
 		if(arg.getType().isAbstractDataType()){
 			IConstructor cons = (IConstructor) arg;
-			if(c.getName().equals("realVar")){
+			if(cons.getName().equals("numTrigger") || cons.getName().equals("intTrigger") || cons.getName().equals("realTrigger")){
 				String name = ((IString) cons.get(0)).getValue();
-				return new ControlRealProperty(prop, name, fpa);
+				return new TriggeredRealProperty(prop, name, fpa);
 			}
 			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
 					ctx.getStackTrace());
@@ -74,19 +74,37 @@ public class Utils {
 		return new ConstantRealProperty(prop, ((IReal) c.get(i)).floatValue());
 	}
 
-	//TODO Make colors also variable-dependent
-	public static IIntegerPropertyValue getColorArg(Property prop, IConstructor c, IEvaluatorContext ctx) {
+	public static IColorPropertyValue getColorArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx) {
+		
 		IValue arg = c.get(0);
+		
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cons = (IConstructor) arg;
+			if(cons.getName().equals("colorTrigger")){
+				String name = ((IString) cons.get(0)).getValue();
+				return new TriggeredColorProperty(prop, name, fpa);
+			}
+			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
+					ctx.getStackTrace());
+		}
+		
 		if (arg.getType().isStringType()) {
-			IInteger cl = FigureLibrary.colorNames.get(((IString) arg).getValue().toLowerCase());
+			String s = ((IString) arg).getValue().toLowerCase();
+			if(s.length() == 0)
+				s = "black";
+			IInteger cl = FigureLibrary.colorNames.get(s);
 			if (cl != null)
-				return new ConstantIntegerProperty(prop, cl.intValue());
+				return new ConstantColorProperty(prop, cl.intValue());
 			
 			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
 					ctx.getStackTrace());
 		}
-		return new ConstantIntegerProperty(prop, ((IInteger) arg).intValue());
+		
+		if (arg.getType().isIntegerType())
+			return new ConstantColorProperty(prop, ((IInteger) arg).intValue());
+		
+		
+		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
+				ctx.getStackTrace());
 	}
-	
-	
 }

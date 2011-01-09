@@ -25,18 +25,19 @@ import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
-import org.rascalmpl.library.vis.interaction.BoolControl;
-import org.rascalmpl.library.vis.interaction.BoolControlEffect;
-import org.rascalmpl.library.vis.interaction.StrControl;
+import org.rascalmpl.library.vis.interaction.ComputeFigure;
+import org.rascalmpl.library.vis.interaction.ComputeTrigger;
+import org.rascalmpl.library.vis.interaction.EnterTrigger;
+import org.rascalmpl.library.vis.interaction.SelectFigure;
 import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.IStringPropertyValue;
+import org.rascalmpl.library.vis.properties.Property;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.Utils;
 import org.rascalmpl.library.vis.tree.Tree;
 import org.rascalmpl.library.vis.tree.TreeMap;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.library.vis.properties.Property;
 
 /**
  * 
@@ -51,12 +52,14 @@ public class FigureFactory {
 	static IList emptyList = vf.list();
 	
 	enum Primitives {
-		BOX, 
-		BOOLCONTROL,
+		BOX,
+		COMPUTEFIGURE,
+		COMPUTETRIGGER,
 		CONTROLON,
 		CONTROLOFF,
 		EDGE, 
 		ELLIPSE, 
+		ENTERTRIGGER,
 		GRAPH, 
 		GRID,
 		HCAT, 
@@ -66,9 +69,9 @@ public class FigureFactory {
 		PACK, 
 		ROTATE,
 		SCALE,
+		SELECTFIGURE,
 		SHAPE,
 		SPACE,
-		STRCONTROL,
 		TEXT, 
 		TREE,
 		TREEMAP,
@@ -81,23 +84,23 @@ public class FigureFactory {
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
     	put("_box",			Primitives.BOX);
-    	put("_boolControl",	Primitives.BOOLCONTROL);
-    	put("_controlOff",	Primitives.CONTROLOFF);
-    	put("_controlOn",	Primitives.CONTROLON);
+    	put("_computeFigure",Primitives.COMPUTEFIGURE);
+    	put("_computeTrigger",Primitives.COMPUTETRIGGER);
     	put("_edge",		Primitives.EDGE);
     	put("_ellipse",		Primitives.ELLIPSE);
+    	put("_enterTrigger",Primitives.ENTERTRIGGER);
     	put("_graph",		Primitives.GRAPH);
     	put("_grid",		Primitives.GRID);
     	put("_hcat",		Primitives.HCAT);
-    	put("_hvcat",		Primitives.HVCAT);	
+    	put("_hvcat",		Primitives.HVCAT);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
     	put("_pack",		Primitives.PACK);	
     	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
+    	put("_selectFigure",Primitives.SELECTFIGURE);
     	put("_shape",		Primitives.SHAPE);
     	put("_space",		Primitives.SPACE);
-    	put("_strControl",	Primitives.STRCONTROL);
     	put("_text",		Primitives.TEXT);	    		
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
@@ -122,21 +125,19 @@ public class FigureFactory {
 			
 		case BOX:
 			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
-		
-		case BOOLCONTROL:
-			return new BoolControl(fpa, properties, (IString)c.get(0), (IConstructor) c.get(1), (IConstructor) c.get(2), ctx);
-		
-		case CONTROLON:
-			return new BoolControlEffect(fpa,properties, (IString)c.get(0),  true, (IConstructor) c.get(1), ctx);
-
-		case CONTROLOFF:
-			return new BoolControlEffect(fpa,properties, (IString)c.get(0),  false, (IConstructor) c.get(1), ctx);
 			
-			//		case EDGE:			
-//			return new GraphEdge(null,fpa, properties, (IString)c.get(0), (IString)c.get(1), ctx);
-		
+		case COMPUTEFIGURE:
+			return new ComputeFigure(fpa, properties,  c.get(0), (IList) c.get(1), ctx);
+			
+		case COMPUTETRIGGER:
+							
+			return new ComputeTrigger(fpa, properties, (IString) c.get(0), (IString) c.get(1), c.get(2), (IList) c.get(3), (IConstructor) c.get(4), ctx);
+				
 		case ELLIPSE:
 			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
+			
+		case ENTERTRIGGER:
+			return new EnterTrigger(fpa, properties, (IString) c.get(0), (IString) c.get(1), c.get(2), ctx);
 		
 		case GRAPH:
 			if(properties.getHint().contains("lattice"))
@@ -153,7 +154,7 @@ public class FigureFactory {
 			
 		case HVCAT: 
 			return new HVCat(fpa, properties, (IList) c.get(0), ctx);
-			
+						
 		case OUTLINE: 
 			return new Outline(fpa, properties, (IMap)c.get(0), ctx);
 			
@@ -174,17 +175,18 @@ public class FigureFactory {
 			
 			return new Scale(fpa, properties, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 			
+		case SELECTFIGURE:
+			return new SelectFigure(fpa, properties, (IString) c.get(0), (IMap) c.get(1), ctx);
+
+			
 		case SHAPE: 
 			return new Shape(fpa, properties, (IList) c.get(0), ctx);
 			
 		case SPACE:
 			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
-		case STRCONTROL:
-			return new StrControl(fpa, properties, (IString) c.get(0), ctx);
-			
 		case TEXT:
-			//return new Text(fpa, properties,  (IString) c.get(0), ctx);
+			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
 			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c.get(0), fpa, ctx);
 			return new Text(fpa, properties,  txt, ctx);
 			

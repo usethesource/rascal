@@ -1,5 +1,7 @@
 package org.rascalmpl.library.vis.containers;
 
+import java.awt.event.MouseEvent;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
@@ -24,15 +26,13 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public abstract class Container extends Figure {
 
-	protected Figure inner;
+	protected Figure innerFig;
 	private static boolean debug = false;
-	float hgap;
-	float vgap;
 
-	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor inner, IEvaluatorContext ctx) {
+	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
-		if(inner != null){
-			this.inner = FigureFactory.make(fpa, inner, this.properties, ctx);
+		if(innerCons != null){
+			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
 		}
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
 	}
@@ -43,13 +43,13 @@ public abstract class Container extends Figure {
 		float lw = getLineWidthProperty();
 		width = getWidthProperty();
 		height = getHeightProperty();
-		if(inner != null){
-			hgap = getHGapProperty();
-			vgap = getVGapProperty();
-			inner.bbox();
+		if(innerFig != null){
+			float hgap = getHGapProperty();
+			float vgap = getVGapProperty();
+			innerFig.bbox();
 			if(width == 0 && height == 0){
-				width = inner.width + 2 * hgap;
-				height = inner.height + 2 * vgap;
+				width = innerFig.width + 2 * hgap;
+				height = innerFig.height + 2 * vgap;
 			}
 		} 
 		width += 2*lw;
@@ -66,13 +66,13 @@ public abstract class Container extends Figure {
 		this.top = top;
 	
 		applyProperties();
-		if(debug)System.err.printf("container.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", left, top, width, height, getHanchor(), getVanchor());
+		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHanchor(), getVanchor());
 
 		if(height > 0 && width > 0){
 			drawContainer();
-			if(inner != null && isNextVisible()){
-				if(debug)System.err.printf("container.draw2: hgap=%f, vgap=%f, inside.width=%f\n", hgap, vgap, inner.width);
-				if(insideFits()){
+			if(innerFig != null && isNextVisible()){
+				//if(debug)System.err.printf("%s.draw2: hgap=%f, vgap=%f, inside.width=%f\n",  containerName(), hgap, vgap, innerFig.width);
+				if(innerFits()) {
 					fpa.incDepth();
 					innerDraw();
 					fpa.decDepth();
@@ -81,21 +81,43 @@ public abstract class Container extends Figure {
 		}
 	}
 	
+	@Override
+	public void drawWithMouseOver(float left, float top){
+		draw(left, top);
+		if(innerFig != null && innerFig.isVisibleInMouseOver())
+			innerDrawWithMouseOver(left, top);
+		Figure mo = getMouseOverFigure();
+		if(mo != null && mo.isVisibleInMouseOver()){
+			mo.drawWithMouseOver(max(0, left + mo.getHanchor()*(width  - mo.width)),
+			    				 max(0, top  + mo.getVanchor()*(height - mo.height)));
+		}
+	}
+	
 	/**
-	 * @return true if the inside element fits in the current container.
+	 * @return true if the inner element fits in the current container.
 	 */
-	boolean insideFits(){
-		return inner.width + 2*hgap <= width && inner.height + 2*vgap <= height;
+	boolean innerFits(){
+		return innerFig.width + 2*getHGapProperty() <= width && innerFig.height + 2*getVGapProperty() <= height;
 	}
 	
 	/**
 	 * If the inside  element fits, draw it.
 	 */
 	void innerDraw(){
-		inner.draw(left + hgap + getHanchor()*(width  - inner.width  - 2 * hgap),
-			    	top + vgap + getVanchor()*(height - inner.height - 2 * vgap));
+		float hgap = getHGapProperty();
+		float vgap = getVGapProperty();
+		innerFig.draw(max(0, left + hgap + innerFig.getHanchor()*(width  - innerFig.width  - 2 * hgap)),
+			    	  max(0, top + vgap + innerFig.getVanchor()*(height - innerFig.height - 2 * vgap)));
 	}
 	
+	void innerDrawWithMouseOver(float left, float top){
+		if(innerFig != null){
+			float hgap = getHGapProperty();
+			float vgap = getVGapProperty();
+			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHanchor()*(width  - innerFig.width  - 2 * hgap)),
+			    	  max(0, top + vgap + innerFig.getVanchor()*(height - innerFig.height - 2 * vgap)));
+		}
+	}
 	
 	/**
 	 * drawContainer: draws the graphics associated with the container (if any). 
@@ -104,50 +126,144 @@ public abstract class Container extends Figure {
 	
 	abstract void drawContainer();
 	
-	@Override
-	public boolean mouseOver(int mousex, int mousey){
-		if(!isVisible())
-			return false;
-		if(inner != null && isNextVisible() &&  inner.mouseOver(mousex, mousey))
-				return true;
-		if(mouseInside(mousex, mousey)){
-			fpa.registerFocus(this);
-			return true;
-		}
-		return false;
-	}
+	/**
+	 * @return the actual container name, e.g. box, ellipse, ...
+	 */
+	
+	abstract String containerName();
 	
 	@Override
-	public void drawMouseOverFigure(){
-		if(isVisible()){
-			if(hasMouseOverFigure()){
-				Figure mo = getMouseOverFigure();
-				mo.bbox();
-				mo.draw(left + (width - mo.width)/2f, top + (height - mo.height)/2);
-			} else if(inner != null){
-				innerDraw();
+	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+		if(debug){System.err.println("mouseOver: " + this);
+				System.err.printf("mouse: %d, %d; center: %f, %f\n", mouseX, mouseY, centerX, centerY);
+		}
+		boolean mouseInMe =  mouseInside(mouseX, mouseY);
+		boolean mouseOverActive = false;
+		if(debug)System.err.println("mi = " + mouseInMe);
+		
+		if(innerFig != null){
+			if(innerFits()){
+				mouseOverActive = innerFig.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
+			} else if(innerFig.isVisibleInMouseOver()){
+				if(innerFig.mouseOver(mouseX, mouseY, mouseInMe)){
+					mouseOverActive = true;
+				}
+			} else if (mouseInMe){
+				innerFig.bbox();
+				innerFig.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
+				mouseOverActive = true;
 			}
 		}
+		
+		Figure mo = getMouseOverFigure();
+		if(mo != null){
+			if(mo.isVisibleInMouseOver()){
+				if(mo.mouseOver(mouseX, mouseY, mouseInMe)){
+					mouseOverActive = true;
+				}
+			} else if(mouseInMe){
+				mo.bbox();
+				mo.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
+				mouseOverActive = true;
+			}
+		}
+		
+		boolean status =  mouseInMe  || mouseOverActive || mouseInParent;
+			
+		if(!status)
+			clearVisibleInMouseOver();
+		else {
+			setVisibleInMouseOver(true);
+			fpa.registerMouseOver(this);
+		}
+		
+		if(debug)System.err.println("mouseOver returns " + status + ", mi = " + mouseInMe + ", " + ", moa = " + mouseOverActive + ", " + this);
+		return status;
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey){
+	public void clearVisibleInMouseOver(){
+		if(innerFig != null)
+			innerFig.clearVisibleInMouseOver();
+		Figure mo = getMouseOverFigure();
+		if(mo != null)
+			mo.clearVisibleInMouseOver();
+		setVisibleInMouseOver(false);
+	}
+	
+	@Override
+	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
 		if(!isVisible())
 			return false;
-		if(debug)System.err.println("Container.mousePressed: " + mousex + ", " + mousey);
-		if(inner != null && isNextVisible() && inner.mousePressed(mousex, mousey))
+		if(debug)System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
+	
+		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, e))
 				return true;
-		if(mouseInside(mousex, mousey)){
+		
+		Figure mo = getMouseOverFigure();
+		
+		if(mo != null && mo.isVisibleInMouseOver() && mo.mousePressed(mouseX, mouseY, e))
+			return true;
+		
+		if(mouseInside(mouseX, mouseY)){
 			fpa.registerFocus(this);
 			return true;
 		}
 		return false;
 	}
+	
+	
+
+//	
+//	@Override
+//	public void drawMouseOverFigure(int mouseX, int mouseY){
+//		LinkedList<Figure>  below = getParents();
+//		
+//	//	for(Figure f : below)
+//	//		System.err.println("\t" + f);
+//		
+//		Figure root = below.pop();
+//		float cX = root.getCenterX();
+//		float cY = root.getCenterY();
+//		
+//	//	System.err.println("cX = " + cX + ", cY = " + cY);
+//		
+//		for(Figure f : below){
+//	//		System.err.println("draw: " + f);
+//			f.draw(max(0, cX - f.width/2), max(0, cY - f.height/2));
+//		}
+//		//draw(max(0, cX - width/2), max(0, cY - height/2));
+//			
+//		
+////		if(isVisible()){
+////			if(hasMouseOverFigure()){
+////				Figure mo = getMouseOverFigure();
+////				if(mo.mouseInside(mouseX, mouseY))
+////					mo.draw(max(0, left + (width - mo.width)/2f), max(0, top + (height - mo.height)/2));
+////				mo.drawMouseOverFigure(mouseX, mouseY);
+////			} else if(innerFig != null){
+////				if(!fpa.isRegistered(innerFig))
+////					return;
+////				innerDraw();
+////			}
+////		}
+////	}
+	
+
 	
 	@Override 
 	public boolean keyPressed(int key, int keyCode){
-		if(inner != null)
-			return inner.keyPressed(key, keyCode);
+		if(innerFig != null)
+			return innerFig.keyPressed(key, keyCode);
 		return false;
 	}
+	
+	public String  toString(){
+		return new StringBuffer(containerName()).append("(").
+		append(left).append(",").
+		append(top).append(",").
+		append(width).append(",").
+		append(height).append(")").toString();
+	}
+
 }

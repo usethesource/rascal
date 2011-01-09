@@ -33,6 +33,20 @@ public void tree1a(){
                 ));
 }
 
+public void tree1b(){
+
+   nodes =
+     	[ box(id("A"), width(20), height(20), fillColor("green"),  popup("A"))
+     	];
+     	
+    edges = 
+    	[    	  
+    	];
+    	  
+    render(tree(nodes, edges, gap(10)));
+}
+
+
 public void tree22(){
 
    nodes1 =
@@ -60,6 +74,20 @@ public void tree2(){
    nodes =
      	[ box(id("A"), fillColor("green")),
      	  box(id("B"), fillColor("red"))
+     	];
+     	
+    edges = 
+    	[ edge("A", "B")    	  
+    	];
+    	  
+    render(tree(nodes, edges, gap(10), top(), size(20), lineWidth(1)));
+}
+
+public void tree2b(){
+
+   nodes =
+     	[ box(id("A"), fillColor("green"), popup("A")),
+     	  box(id("B"), fillColor("red"), popup("B"))
      	];
      	
     edges = 
@@ -329,7 +357,7 @@ public Figure T1(){
      	  box(id("C"), size(20), fillColor("blue"), popup("1:Text For Box C")),
      	  box(id("D"), size(20), fillColor("purple"), popup("1:Text For Box D")),
      	  box(id("E"), size(20), fillColor("lightblue"), popup("1:Text For Box E")),
-     	  box(id("F"), size(20), fillColor("orange"), popup("1:ext For Box F")),
+     	  box(id("F"), size(20), fillColor("orange"), popup("1:Text For Box F")),
      	  box(id("G"), size(20), fillColor("brown"), popup("1:Text For Box G")),
      	  box(id("H"), size(20), fillColor("black"), popup("1:Text For Box H")),
      	  box(id("I"), size(20), fillColor("grey"), popup("1:Text For Box I")),

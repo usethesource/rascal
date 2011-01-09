@@ -2,7 +2,6 @@ package org.rascalmpl.library.vis.containers;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
@@ -95,8 +94,8 @@ public class Wedge extends Container {
 			toAngle += 2 * PConstants.PI;
 		
 		
-		if(inner != null)	// Compute bounding box of inside object.
-			inner.bbox();
+		if(innerFig != null)	// Compute bounding box of inside object.
+			innerFig.bbox();
 		
 		float sinFrom = PApplet.sin(fromAngle);
 		float cosFrom = PApplet.cos(fromAngle);
@@ -138,13 +137,13 @@ public class Wedge extends Container {
 		case 3:	IX = -raux * PApplet.cos(middleAngle - PConstants.PI);
 				IY = -raux * PApplet.sin(middleAngle - PConstants.PI);
 				break;
-		case 4:	IX = raux * PApplet.sin(2 *  PConstants.PI - middleAngle);
-				IY = -raux * PApplet.cos(2 *  PConstants.PI - middleAngle);
+		case 4:	IX = raux * PApplet.cos(2 *  PConstants.PI - middleAngle);
+				IY = -raux * PApplet.sin(2 *  PConstants.PI - middleAngle);
 				break;
 		}
 		
-		if(true)System.err.printf("AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
-							        Ax,Ay,Bx,By,Cx,Cy,Dx, Dy,IX,IY);
+		if(debug)System.err.printf("Quadrant=%d,AX=%f,AY=%f, BX=%f,BY=%f,CX=%f,CY=%f,DX=%f,DY=%f,IX=%f,IY=%f\n",
+									quadrant(middleAngle),Ax,Ay,Bx,By,Cx,Cy,Dx, Dy,IX,IY);
 		
 		qFrom = quadrant(fromAngle);
 		qTo = quadrant(toAngle);
@@ -260,7 +259,22 @@ public class Wedge extends Container {
 		if(debug)System.err.printf("wedge.drawContainer: %f, %f\n", centerX, centerY);
 		
 		applyProperties();
+		drawActualContainer();
+	}
+	
+	@Override
+	public void drawFocus() {
+		centerX = left + leftAnchor;
+		centerY = top + topAnchor;
+		
+		fpa.stroke(255, 0,0);
+		fpa.strokeWeight(1);
+		fpa.noFill();
 			
+		drawActualContainer();
+	}
+	
+	private void drawActualContainer(){
 		fpa.beginShape();
 		fpa.vertex(centerX + Ax, centerY + Ay);
 		arcVertex(radius, fromAngle, toAngle);
@@ -270,10 +284,14 @@ public class Wedge extends Container {
 		fpa.endShape();
 	}
 	
+	String containerName(){
+		return "wedge";
+	}
+	
 	@Override 
-	boolean insideFits(){
+	boolean innerFits(){
 		if(debug)System.err.printf("Wedge.insideFits\n");
-		return inner.height < radius - innerRadius && inner.width < width; //TODO was WI
+		return innerFig.height < radius - innerRadius && innerFig.width < width; //TODO was h1()
 	}
 	
 	/**
@@ -281,7 +299,7 @@ public class Wedge extends Container {
 	 */
 	@Override
 	void innerDraw(){
-		inner.draw(centerX + IX - inner.width/2, centerY + IY - inner.height/2);
+		innerFig.draw(centerX + IX - innerFig.width/2, centerY + IY - innerFig.height/2);
 	}
 	
 	@Override
@@ -323,17 +341,17 @@ public class Wedge extends Container {
 		       angle > fromAngle && angle < toAngle;
 	}
 	
-	@Override
-	public void drawMouseOverFigure(){
-		if(isVisible()){
-			if(hasMouseOverFigure()){
-				Figure mo = getMouseOverFigure();
-				mo.bbox();
-				mo.draw(centerX + IX - mo.width/2, centerY + IY - mo.height/2);
-			} else if(inner != null){
-				innerDraw();
-			}
-		}
-	}
+//	@Override
+//	public void drawMouseOverFigure(int mouseX, int mouseY){
+//		if(isVisible()){
+//			if(hasMouseOverFigure()){
+//				Figure mo = getMouseOverFigure();
+//				mo.bbox();
+//				mo.draw(centerX + IX - mo.width/2, centerY + IY - mo.height/2);
+//			} else if(innerFig != null){
+//				innerDraw();
+//			}
+//		}
+//	}
 	
 }
