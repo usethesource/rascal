@@ -99,7 +99,7 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
-		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", TestFramework.class, "/"));
+		//resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", TestFramework.class, "/"));
 		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
 		resolverRegistry.registerInput(modules);
 		
