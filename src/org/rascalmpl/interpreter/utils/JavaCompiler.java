@@ -162,7 +162,7 @@ public class JavaCompiler<T> {
          diagnostics = new DiagnosticCollector<JavaFileObject>();
       Map<String, CharSequence> classes = new HashMap<String, CharSequence>(1);
       classes.put(qualifiedClassName, javaSource);
-      Map<String, Class<T>> compiled = compile(classes, diagnosticsList);
+      Map<String, Class<T>> compiled = compile(classes, diagnostics);
       Class<T> newClass = compiled.get(qualifiedClassName);
       return castable(newClass, types);
    }
@@ -191,7 +191,7 @@ public class JavaCompiler<T> {
     */
    public synchronized Map<String, Class<T>> compile(
          final Map<String, CharSequence> classes,
-         final DiagnosticCollector<JavaFileObject> diagnosticsList)
+         final DiagnosticCollector<JavaFileObject> diagnostics)
          throws JavaCompilerException {
       List<JavaFileObject> sources = new ArrayList<JavaFileObject>();
       for (Entry<String, CharSequence> entry : classes.entrySet()) {
