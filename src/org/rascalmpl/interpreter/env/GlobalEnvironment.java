@@ -3,9 +3,11 @@ package org.rascalmpl.interpreter.env;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -219,6 +221,18 @@ public class GlobalEnvironment {
 		storeParser(rascalParsersForModules, module, productions, parser);
 	}
 	
+	public Set<String> getDependingModules(String mod) {
+		Set<String> result = new HashSet<String>();
+		
+		for (ModuleEnvironment env : moduleEnvironment.values()) {
+			if (env.getImports().contains(mod)) {
+				result.add(env.getName());
+			}
+		}
+		
+		return result;
+	}
+	
 	private class ParserTuple {
 		private ISet production;
 		private Class<IGTD> parser;
@@ -236,4 +250,6 @@ public class GlobalEnvironment {
 			return parser;
 		}
 	}
+
+	
 }
