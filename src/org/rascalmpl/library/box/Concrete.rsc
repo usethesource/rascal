@@ -297,10 +297,10 @@ public Box evPt(Tree q,bool doIndent) {
                        return walkThroughSymbols(s, t,true,doIndent,-1);        
                     }
           case appl ( \regular(\iter-star-seps(Symbol s,list[Symbol] sep), Attributes att),list[Tree] t) : {
-                    return HV(0,getArgsSep(q));
+                    return HV(1,getArgsSep(q));
                     }
           case appl ( \regular(\iter-seps(Symbol s, list[Symbol] sep), Attributes att),list[Tree] t) : {
-                    return HV(0,getArgsSep(q));
+                    return HV(1,getArgsSep(q));
                     }
           case appl ( \regular(\iter-star(Symbol s), Attributes att),list[Tree] t) : {
                     // return HV(0,getArgs(q));
@@ -479,6 +479,10 @@ public text toText(Tree a) {
      return box2text(toBox(a));
      }
 
+public text toRichText(Tree a) {
+     return box2data(toBox(a));
+     }
+     
 public void concrete(Tree a) {
      Box out=evPt(a);
      text t=box2text(out);
@@ -500,7 +504,7 @@ public list[Box] getArgs(Tree g) {
      */
      return r; 
      }
-     
+/*    
 public list[Box] getArgsSep(Tree g) {
      list[Box] r = getArgs(g);
      r = [b|Box b<-r, COMM(_)!:=b]; 
@@ -513,7 +517,21 @@ public list[Box] getArgsSep(Tree g) {
           q += H(1, [r[i], r[i+1]]);
           }
      return q;
+     } 
+ */ 
+ 
+ public list[Box] getArgsSep(Tree g) {
+     list[Box] r = getArgs(g);
+     r = [b|Box b<-r, COMM(_)!:=b]; 
+     if (isEmpty(r)) return r;
+     list[Box] q = [];
+     for (int i<-[0,2..size(r)-3]) {
+          q += H(0, [r[i], r[i+1]]);
+          }
+     q+=H(0, [r[size(r)-1]]);
+     return q;
      }
+
      
 public Box getConstructor(Tree g,str h1,str h2) {
      list[Box] bs=getArgs(g);
