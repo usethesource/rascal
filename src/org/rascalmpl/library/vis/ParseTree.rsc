@@ -40,21 +40,9 @@ private FProperty popup(str s){
 private str viewTree1(Tree t){
   //println("viewTree1:"); rawPrintln(t);
   switch(t){
-    case char(int c) : {
-        root = newId();
-        nodes += box(text(escape(stringChar(c))), vis::Figure::id(root), gap(1), fontColor("blue"));
-        return root;
-    }
-    case str s: {
-      root = newId();
-      nodes += box([id(root), gap(1), fontColor("blue")], text(s));
-    }
-    case appl(Production prod, list[Tree] args):
-     if(prod.rhs == \cf(\opt(\layout()))){
-        root = newId();
-        nodes += ellipse(size(4), vis::Figure::id(root), fillColor("grey"), popup("LAYOUT?"));
-        return root;
-     } else if(\layouts(_) := prod.rhs){
+  
+   case appl(Production prod, list[Tree] args):
+    if(\layouts(_) := prod.rhs){
         root = newId();
         nodes += ellipse(size(4), vis::Figure::id(root), fillColor("grey"), popup("LAYOUTLIST"));
         return root;
@@ -73,6 +61,17 @@ private str viewTree1(Tree t){
          nodes += ellipse(vis::Figure::id(root), size(10), fillColor("red"), p);
 	     return root; 
       }
+     
+    case char(int c) : {
+        root = newId();
+        nodes += box(text(escape(stringChar(c))), vis::Figure::id(root), gap(1), fontColor("blue"));
+        return root;
+    }
+    
+    case str s: {
+      root = newId();
+      nodes += box([id(root), gap(1), fontColor("blue")], text(s));
+    }
   }
   throw "viewTree1: missing case for: <t>";
 }
@@ -118,7 +117,6 @@ private str viewProduction(Production p){
   switch(p){
     case prod(list[Symbol] lhs, Symbol rhs, Attributes attributes):
        return "<for(s <- lhs){><viewSymbol(s)> <}> -\> <viewSymbol(rhs)>";
-    case \list(Symbol s): return viewSymbol(s);
     case \regular(Symbol s, Attributes attributes): return viewSymbol(s);
   }
   throw "viewProduction: missing case for: <p>"; 
@@ -128,24 +126,27 @@ private str viewSymbol(Symbol sym){
   //println("viewSymbol(<sym>)");
   switch(sym){
     case \start(Symbol s): return "start(<viewSymbol(s)>)";
+    case \label(str name, Symbol s): return "<name>:<viewSymbol(s)>";
     case \lit(str s) : return "\"<s>\"";
-    case \cf(\opt(\layout())): return "";
-    case \cf(Symbol s) : return viewSymbol(s);
-    case \sort(str s): return s;
-    case \iter(Symbol s): return viewSymbol(s) + "+";
-    case \iter-star(Symbol s): return viewSymbol(s) + "*";
-    case \iter-star-sep(Symbol s, Symbol sep): return "{<viewSymbol(s)> <viewSymbol(sep)>}+";
-    case \iter-star-sep-star(Symbol s, Symbol sep): return "{<viewSymbol(s)> <viewSymbol(sep)>}*";
-    case \iter-seps(Symbol s, list[Symbol] seps): 
-		return "{<viewSymbol(s)> <for(sep <- seps){><viewSymbol(sep)><}>}+";
-    case \iter-star-seps(Symbol s, list[Symbol] seps): 
-		return "{<viewSymbol(s)> <for(sep <- seps){><viewSymbol(sep)><}>}*";
+    case \cilit(str s) : return "\"<s>\"";
     case \opt(Symbol s): return viewSymbol(s) + "?";
+    case \sort(str s): return s;
     case \layout(): return "LAYOUT";
     case \layouts(str s): return s;
-    case \lex(Symbol s): return viewSymbol(s);
+    case \iter(Symbol s): return viewSymbol(s) + "+";
+    case \iter-star(Symbol s): return viewSymbol(s) + "*";
+    case \iter-seps(Symbol s, list[Symbol] seps): 
+		return "{<viewSymbol(s)> <for(sep <- seps){><viewSymbol(sep)><}>}+";
+ 
+    case \iter-star-seps(Symbol s, list[Symbol] seps): 
+		return "{<viewSymbol(s)> <for(sep <- seps){><viewSymbol(sep)><}>}*";
+ 	case \parameterized-sort(str sort, list[Symbol] parameters):
+ 		return "<viewSymbol(s)>[<for(sep <- seps){><viewSymbol(sep)><}>]";
+    case \parameter(str name): return "param: <name>";
     case \char-class(list[CharRange] ranges): return "[<for(r <- ranges){><viewCharRange(r)><}>]";
-    case \label(str name, Symbol s): return "<name>:<viewSymbol(s)>";
+    case \at-column(int column): return "@<column>";
+    case \start-of-line(): return "^";
+    case \end-of-line(): return "$";
   }
   throw "viewSymbol: missing case for: <sym>";
 }
