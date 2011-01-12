@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -668,12 +669,33 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.eval("import " + string + ";", java.net.URI.create("import:///"));
 	}
 
-	public void reloadModule(String name, URI errorLocation) {
-		if (!this.__getHeap().existsModule(name)) {
-			return;
+	public void reloadModules(Set<String> names, URI errorLocation) {
+		for (String mod : names) {
+			if (this.__getHeap().existsModule(mod)) {
+				this.__getHeap().removeModule(this.__getHeap().getModule(mod));
+			}
 		}
-
-		this.__getHeap().removeModule(this.__getHeap().getModule(name));
+		
+		for (String mod : names) {
+			if (!heap.existsModule(mod)) {
+				reloadModule(mod, errorLocation);
+			}
+		}
+		
+		Set<String> depending = getDependingModules(names);
+		for (String mod : depending) {
+			ModuleEnvironment env = heap.getModule(mod);
+			Set<String> todo = new HashSet<String>(env.getImports());
+			for (String imp : todo) {
+				if (names.contains(imp)) {
+					env.unImport(imp);
+					env.addImport(imp, heap.getModule(imp));
+				}
+			}
+		}
+	}
+	
+	private void reloadModule(String name, URI errorLocation) {	
 		ModuleEnvironment env = new ModuleEnvironment(name);
 		this.__getHeap().addModule(env);
 
@@ -700,13 +722,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	/* First a number of general utility methods */
-
-	/*
+	/**
+	 * transitively compute which modules depend on the given modules
+	 * @param names
+	 * @return
+	 */
+	private Set<String> getDependingModules(Set<String> names) {
+		Set<String> found = new HashSet<String>();
+		LinkedList<String> todo = new LinkedList<String>(names);
+		
+		while (!todo.isEmpty()) {
+			String mod = todo.pop();
+			Set<String> dependingModules = heap.getDependingModules(mod);
+			dependingModules.removeAll(found);
+			found.addAll(dependingModules);
+			todo.addAll(dependingModules);
+		}
+		
+		return found;
+	}
+	
+	/**
 	 * Return an evaluation result that is already in normal form, i.e., all
 	 * potential rules have already been applied to it.
 	 */
-
 	public Result<IValue> normalizedResult(Type t, IValue v) {
 		Map<Type, Type> bindings = this.getCurrentEnvt().getTypeBindings();
 		Type instance;
