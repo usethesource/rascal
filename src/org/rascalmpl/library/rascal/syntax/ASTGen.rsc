@@ -354,7 +354,7 @@ public bool isLexical(Production p) {
   if (p.attributes == \no-attrs()) {
     return false;
   }
-  return term("lex"()) in p.attributes.attrs;
+  return \lex() in p.attributes.attrs;
 }
 
 private void loggedWriteFile(loc file, str src) {
