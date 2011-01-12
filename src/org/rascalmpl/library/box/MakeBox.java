@@ -37,15 +37,15 @@ public class MakeBox {
 	
     private final IValueFactory values;
 	
-	public MakeBox(IValueFactory values){
+	public MakeBox(IValueFactory values) {
 		super();
 		this.values = values;
-	}
+	    }
 	
-	public MakeBox(){
+	public MakeBox() {
 		this.values = null;
-	}
-
+	    }
+	
 	class Data extends ByteArrayOutputStream {
 		ByteArrayInputStream get() {
 			return new ByteArrayInputStream(this.buf);
@@ -100,7 +100,7 @@ public class MakeBox {
 				execute("main(" + varName + ");");
 				return null;
 			}
-			execute(resultName + "=toList(" + varName + ");");
+			execute(resultName + "=box2data(" + varName + ");");
 			IValue r = fetch(resultName);
 			data.close();
 			return r;
@@ -130,14 +130,9 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchConcreteProgram(String cmd, URI uri, String s) {
+	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
 		final String resultName = "c";
-		/*
-		if (s.equals("rsc"))
-			s = "rascal"; // Exception at rascal
-		*/
-		execute("import box::" + s + "::Default;");
-		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
+		execute("import box::" + ext + "::Default;");
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
 		store(v, varName);
@@ -146,22 +141,6 @@ public class MakeBox {
 		return r;
 	}
 	
-	private IValue launchConcreteProgram(String cmd, URI src, URI dest, String s) {
-		final String resultName = "c";
-		/*
-		if (s.equals("rsc"))
-			s = "rascal"; // Exception at rascal
-		*/
-		execute("import box::" + s + "::Default;");
-		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
-		ISourceLocation v = ValueFactoryFactory.getValueFactory()
-				.sourceLocation(src), w = ValueFactoryFactory.getValueFactory()
-				.sourceLocation(dest);
-		store(v, "v"); store(w, "w");
-		execute(resultName + "="+cmd+"(" + "v"+","+"w"+");");
-		IValue r = fetch(resultName);
-		return r;
-	}
 
 	private IValue launchTemplateProgram(URI uri, String s) {
 		final String resultName = "c";
@@ -202,43 +181,6 @@ public class MakeBox {
 		return null;
 	}
 
-	public IValue toRichTxt(URI uri) {
-		start();
-		try {
-			IValue box = computeBox(uri);
-			data = new Data();
-			new PBFWriter().write(box, data, ts);
-			return launchRascalProgram("c");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public IValue toRichTxt(String cmd, URI src, URI dest) {
-		start();
-		try {
-			IValue box = computeBox(src);
-			data = new Data();
-			new PBFWriter().write(box, data, ts);
-			return launchRascalProgram(cmd, src, dest);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/*
-	public IValue toTxt(URI uri) {
-		start();
-		int tail = uri.getPath().lastIndexOf('.');
-		String s = uri.getPath().substring(tail + 1);
-		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
-		return launchConcreteProgram("toLatex", uri, s);
-	}
-	*/
-	
-
 	public IValue toSrc(URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
@@ -251,8 +193,6 @@ public class MakeBox {
 		IList rules = (IList) v;
 		StringBuffer b = new StringBuffer();
 		for (int i = 0; i < rules.length(); i++) {
-			// if (((IString) rules.get(i)).getValue().isEmpty())
-			// System.err.println("OK");
 			b.append(((IString) rules.get(i)).getValue());
 			b.append("\n");
 		}
@@ -262,17 +202,39 @@ public class MakeBox {
 	public String toPrint(String cmd, URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
-		String s = uri.getPath().substring(tail + 1);
-		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
-		return text2String(launchConcreteProgram(cmd, uri, s));
+		String ext = uri.getPath().substring(tail + 1);
+		return text2String(launchConcreteProgram(cmd, uri, ext));
 	}
 	
-	public String toPrint(String cmd, URI src, URI dest) {
+	public String toRichText(URI uri, String ext) {
 		start();
-		int tail = src.getPath().lastIndexOf('.');
-		String s = src.getPath().substring(tail + 1);
-		// s = s.substring(0, 1).toUpperCase() + s.substring(1);
-		return text2String(launchConcreteProgram(cmd, src, dest, s));
+		return text2String(launchConcreteProgram("toRichText", uri, ext));
+	}
+	
+	public String toRichText(URI uri) {
+		start();
+		try {
+			IValue box = computeBox(uri);
+			data = new Data();
+			new PBFWriter().write(box, data, ts);
+			return text2String(launchRascalProgram("c"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public IValue toRichText(String cmd, URI src, URI dest) {
+		start();
+		try {
+			IValue box = computeBox(src);
+			data = new Data();
+			new PBFWriter().write(box, data, ts);
+			return launchRascalProgram(cmd, src, dest);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

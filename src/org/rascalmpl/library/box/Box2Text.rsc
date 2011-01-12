@@ -25,7 +25,7 @@ int hv2h_crit = 70;
 
 alias options = map [str, int];
 alias   foptions = map[str, list[str]];
-options  oDefault = ("h":1,"v":0, "i":5);
+options  oDefault = ("h":1,"v":0, "i":2);
 
 map[Box, text] box2textmap=();
 
@@ -458,14 +458,12 @@ public str format(Box b) {
   return "<for (l <- t) {><l>\n<}>";
 }
 
-
-
 public text box2data(Box b) {
-    println("BEGIN box2dat");
+    println("BEGIN box2data");
     b = removeHV(b);
     b = removeHOV(b);
     text t = O(b, V([]), oDefault, maxWidth);
-    println("END box2dat");
+    println("END box2data");
     return t;
     }
     
@@ -607,14 +605,7 @@ public text box2html(Box b) {
     return t;
     }
 
-public value toList(Box b) {
-  // println("Hallo");
-  b = removeHV(b);
-  b = removeHOV(b);
-  // println("Reduce finished");
-  text t = O(b, V([]), oDefault, maxWidth);
-  return t;
-}
+
 
 public value toText(Box b, loc src, loc dest) {
      text t = box2text(b);

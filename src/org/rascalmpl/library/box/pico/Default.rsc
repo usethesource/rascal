@@ -15,6 +15,7 @@ list[Box(Tree t)] userDefinedFilters = [
 
 list[int] isIndented(list[Symbol] q) {
      if (isScheme(q , ["begin", "N", "N", "end"])) return [1, 2];
+     if (isScheme(q , ["declare", "N", ";"])) return [1];
      if (isScheme(q , ["if", "N", "then", "N", "else",  "N", "fi"])) return [3, 5];
      if (isScheme(q , ["while", "N", "do", "N", "od"])) return [3];
      return [];
@@ -47,7 +48,14 @@ public text toText(loc asf){
      writeData(asf, r, ".txt");
      return r;
      }
- 
+     
+public text toRichText(loc asf){
+     PROGRAM a = parse(#PROGRAM, asf);
+     setUserRules();
+     text r = toRichText(a);
+     return r;
+     }
+     
  public text toHtml(loc asf){
      PROGRAM a = parse(#PROGRAM, asf);
      setUserRules();
