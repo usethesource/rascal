@@ -407,6 +407,9 @@ syntax EscapedName
 	= lex [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]* 
 	# [\- 0-9 A-Z _ a-z] ;
 
+syntax Formal
+	= TypeName: Type type Name name ;
+
 syntax Parameters
 	= Default: "(" Formals formals ")" 
 	| VarArgs: "(" Formals formals "..." ")" ;
@@ -559,7 +562,7 @@ syntax Tags
 	= Default: Tag* tags ;
 
 syntax Formals
-	= Default: {Pattern ","}* formals ;
+	= Default: {Formal ","}* formals ;
 
 syntax PostProtocolChars
 	= lex "\>" URLChars "://" ;
