@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.OriginValueFactory;
 
 public class String {
 	private final IValueFactory values;
@@ -18,6 +19,12 @@ public class String {
 		
 		this.values = values;
 	}
+	
+	
+	public IList origins(IString str) {
+		return ((OriginValueFactory.TString)str).getOrigins();
+	}
+	
 	
 	public IValue stringChar(IInteger i){
 		byte ccode[] = { (byte) i.intValue()};
