@@ -21,27 +21,29 @@ public class Javac{
 		this.values = values;
 	}
 	
-	public IList compile(IString className, IString sourceFile, IList opts) throws Exception{
+	public IList compile(IList opts) throws Exception{
 		if(!opts.getType().getElementType().isStringType()){
 			throw RuntimeExceptionFactory.illegalArgument(opts, null, null);
 		}
 		
+		
 		IList list = opts;
-		ArrayList<java.lang.String> jargs = new ArrayList<java.lang.String>(list.length());
+		java.lang.String[] jargs = new java.lang.String[list.length() + 1];
+		jargs[0] = "javac";
+		int i = 1;
 		for(IValue arg: list){
-			jargs.add(((IString)arg).getValue());
+			jargs[i++] = ((IString)arg).getValue();
 		}
 		
-		JavaCompiler<?> javaCompiler = new JavaCompiler(this.getClass().getClassLoader(), null, jargs);
-		Class<?> result = javaCompiler.compile(className.getValue(), sourceFile.getValue(), null, Object.class);
+		Process p = Runtime.getRuntime().exec(jargs);
 		
-		InputStream classStream = result.getResourceAsStream(result.getName().replace('.', '/') + ".class");
+		InputStream stderr = p.getErrorStream();
 		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] buffer = new byte[8192];
 		
 		int bytesRead;
-		while((bytesRead = classStream.read(buffer)) != -1){
+		while((bytesRead = stderr.read(buffer)) != -1){
 			baos.write(buffer, 0, bytesRead);
 		}
 		
