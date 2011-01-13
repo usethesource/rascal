@@ -1,9 +1,9 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.callbacks.IModulesLoaded;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -365,6 +366,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class CallOrTree extends org.rascalmpl.ast.Expression.CallOrTree {
 
+		private Result<IValue> cachedPrefix = null;
+		private boolean registeredCacheHandler = false;
+		
 		public CallOrTree(INode __param1, org.rascalmpl.ast.Expression __param2, java.util.List<org.rascalmpl.ast.Expression> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -398,7 +402,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 
 			if (nameExpr.isQualifiedName()) {
-				Result<IValue> prefix = __eval.__getCtx().getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
+				// If the name expression is just a name, enable caching of the name lookup result.
+				// Also, if we have not yet registered a handler when we cache the result, do so now.
+				Result<IValue> prefix = this.cachedPrefix;
+				if (prefix == null) {
+					this.cachedPrefix = prefix = __eval.__getCtx().getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
+					
+					if (!registeredCacheHandler) {
+						__eval.getEvaluator().registerGenericLoadListener(new IModulesLoaded() {
+							public void handleGenericLoadEvent() {
+								cachedPrefix = null;
+							}
+						});
+						registeredCacheHandler = true;
+					}
+				}
 
 				// TODO: get rid of __eval if-then-else by introducing
 				// subclasses for NodePattern for each case.
@@ -426,7 +444,28 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			__eval.setCurrentAST(this);
 
-			Result<IValue> function = this.getExpression().__evaluate(__eval);
+			Result<IValue> function = this.cachedPrefix;
+
+			// If the name expression is just a name, enable caching of the name lookup result.
+			// Also, if we have not yet registered a handler when we cache the result, do so now.
+			// NOTE: We verify that this is a constructor type, since we don't cache functions
+			// at this point.
+			// TODO: Split the function name lookup from the closure formation, so we can cache
+			// the lookup without having problems with closure formation and scoping for nested
+			// functions.
+			if (function == null) {
+				this.cachedPrefix = function = this.getExpression().__evaluate(__eval);
+				if (!function.getType().isConstructorType()) this.cachedPrefix = null;
+				
+				if (this.cachedPrefix != null && !registeredCacheHandler) {
+					__eval.getEvaluator().registerGenericLoadListener(new IModulesLoaded() {
+						public void handleGenericLoadEvent() {
+							cachedPrefix = null;
+						}
+					});
+					registeredCacheHandler = true;
+				}
+			}
 
 			java.util.List<org.rascalmpl.ast.Expression> args = this.getArguments();
 

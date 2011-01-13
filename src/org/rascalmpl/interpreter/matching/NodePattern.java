@@ -30,6 +30,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private boolean isGenericNodeType;
 	private QualifiedName qName;
 	private Type type;
+	private Result<IValue> cachedConstructors = null;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(ctx, x);
@@ -190,7 +191,11 @@ public class NodePattern extends AbstractMatchingResult {
 		 Type signature = getSignatureType(env);
 
 		 if (!isGenericNodeType) {
-			 Result<IValue> constructors = env.getVariable(qName);
+			 Result<IValue> constructors = this.cachedConstructors;
+			
+			 if (constructors == null) {
+				 this.cachedConstructors = constructors = env.getVariable(qName);
+			 }
 			 
 			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
 				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
