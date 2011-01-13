@@ -4,7 +4,10 @@ import java.lang.StringBuilder;
 import java.util.List;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.DateTimeLiteral;
 import org.rascalmpl.ast.IntegerLiteral;
@@ -22,6 +25,7 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.values.OriginValueFactory;
 
 public abstract class Literal extends org.rascalmpl.ast.Literal {
 
@@ -218,13 +222,33 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			StringLiteral lit = this.getStringLiteral();
 
-			StringBuilder result = new StringBuilder();
-
+			
 			// To prevent infinite recursion detect non-interpolated strings
 			// first. TODO: design flaw?
 			if (lit.isNonInterpolated()) {
 				java.lang.String str = org.rascalmpl.interpreter.utils.Utils.unescape(((Lexical) lit.getConstant()).getString());
-				result.append(str);
+
+				IValueFactory vf = __eval.__getVf();
+				IValue v;
+				if (vf instanceof OriginValueFactory) {
+					OriginValueFactory of = (OriginValueFactory)vf;
+
+					ISourceLocation loc = ((Lexical)lit.getConstant()).getLocation();
+
+					// Remove quotes from location
+					loc = of.sourceLocation(loc.getURI(), 
+							loc.getOffset() + 1, 
+							loc.getLength() - 2,
+							loc.getBeginLine(), loc.getEndLine(), 
+							loc.getBeginColumn() + 1, 
+							loc.getEndColumn() - 1);
+					v = of.string(loc, str);
+				}
+				else {
+					v = vf.string(str);
+				}
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), v, __eval);
+					
 			} else {
 				Statement stat = org.rascalmpl.interpreter.StringTemplateConverter.convert(lit);
 				Result<IValue> value = stat.__evaluate(__eval);
@@ -232,12 +256,15 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 					throw new ImplementationError("template eval returns non-list");
 				}
 				IList list = (IList) value.getValue();
-				for (IValue elt : list) {
-					__eval.appendToString(elt, result);
+				
+				// list is always non-empty
+				IString s = (IString)list.get(0);
+				for (int i = 1; i < list.length(); i++) {
+					s = s.concat((IString)list.get(i));
 				}
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), s, __eval);
 			}
 
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(result.toString()), __eval);
 
 		}
 

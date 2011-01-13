@@ -130,3 +130,6 @@ public str java toUpperCase(str s);
 @doc{Convert all characters in string s to uppercase.}
 @javaClass{org.rascalmpl.library.String}
 public str java escape(str s, map[str,str] mapping);
+
+@javaClass{org.rascalmpl.library.String}
+public list[tuple[str,loc]] java origins(str s);

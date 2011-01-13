@@ -6,14 +6,18 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.ASTFactoryFactory;
+import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.StringLiteral.NonInterpolated;
 import org.rascalmpl.ast.StringMiddle.Interpolated;
 import org.rascalmpl.ast.StringMiddle.Mid;
@@ -24,6 +28,11 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
+import org.rascalmpl.values.OriginValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -65,9 +74,60 @@ public class StringTemplateConverter {
 		}
 
 		
+		private static class MyAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
+
+			public MyAppend(INode __param1, DataTarget __param2,
+					Statement __param3) {
+				super(__param1, __param2, __param3);
+			}
+			
+			
+			// Ugh, this is the same as normal Statement.Append
+			// but wraps already converts to origined strings
+			@Override
+			public Result<IValue> __evaluate(Evaluator __eval) {
+				Accumulator target = null;
+				if (__eval.__getAccumulators().empty()) {
+					throw new AppendWithoutLoop(this);
+				}
+				if (!this.getDataTarget().isEmpty()) {
+					String label = org.rascalmpl.interpreter.utils.Names.name(this.getDataTarget().getLabel());
+					for (Accumulator accu : __eval.__getAccumulators()) {
+						if (accu.hasLabel(label)) {
+							target = accu;
+							break;
+						}
+					}
+					if (target == null) {
+						throw new AppendWithoutLoop(this); // TODO: better error
+															// message
+					}
+				} else {
+					target = __eval.__getAccumulators().peek();
+				}
+				Result<IValue> result = this.getStatement().__evaluate(__eval);
+				IValueFactory vf = ValueFactoryFactory.getValueFactory();
+				IValue v = result.getValue();
+				if (!(v instanceof IString)) {
+					if (vf instanceof OriginValueFactory) {
+						v = ((OriginValueFactory)vf).string(getLocation(), result.getValue().toString());
+					}
+					else {
+						v = vf.string(v.toString());
+					}
+				}
+				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
+				target.append(result);
+				return result;
+
+			}
+
+			
+		}
+		
 		private Statement makeAppend(Expression exp) {
 			ASTFactory factory = ASTFactoryFactory.getASTFactory();
-			return factory.makeStatementAppend(exp.getTree(), factory.makeDataTargetLabeled(null, label),
+			return new MyAppend(exp.getTree(), factory.makeDataTargetLabeled(null, label),
 					factory.makeStatementExpression(exp.getTree(), exp)); 
 		}
 		
