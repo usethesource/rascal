@@ -71,12 +71,14 @@ public class ParseTree {
 			java.lang.String yield = TreeAdapter.yield(tree);
 			if (type.isAbstractDataType() && constructorName != null) {
 				// make a single argument constructor  with yield as argument
+				// if there is a singleton constructor with a str argument
 				Type cons = findConstructor(type, constructorName, 1, store);
-				if (cons != null) {
+				if (cons != null && cons.getFieldType(0).isStringType()) {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IConstructor ast = values.constructor(cons, values.string(yield));
 					return ast.setAnnotation("location", loc);
 				}
+				
 			}
 			if (type.isIntegerType()) {
 				return values.integer(yield);
@@ -96,6 +98,8 @@ public class ParseTree {
 			if (type.isStringType()) {
 				return values.string(yield);
 			}
+			
+			throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
 		}
 		
 		if (TreeAdapter.isList(tree)) {
@@ -111,7 +115,7 @@ public class ParseTree {
 		}
 		
 		if (TreeAdapter.isOpt(tree) && type.isBoolType()) {
-			IList args = TreeAdapter.getASTArgs(tree);
+			IList args = TreeAdapter.getArgs(tree);
 			if (args.isEmpty()) {
 				return values.bool(false);
 			}
