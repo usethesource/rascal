@@ -39,11 +39,25 @@ public class MakeBox {
 	
 	public MakeBox(IValueFactory values) {
 		super();
+		final PrintWriter stderr = new PrintWriter(System.err);
+		final PrintWriter stdout = new PrintWriter(System.out);
+		commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+				stderr, stdout, root, heap);
 		this.values = values;
 	    }
 	
 	public MakeBox() {
+		final PrintWriter stderr = new PrintWriter(System.err);
+		final PrintWriter stdout = new PrintWriter(System.out);
 		this.values = null;
+		commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+				stderr, stdout, root, heap);
+	    }
+	
+	public MakeBox(PrintWriter stdout, PrintWriter stderr) {
+		this.values = null;
+		commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+				stderr, stdout, root, heap);
 	    }
 	
 	class Data extends ByteArrayOutputStream {
@@ -57,10 +71,8 @@ public class MakeBox {
 	
 	final private GlobalEnvironment heap = new GlobalEnvironment();
 	final private ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***MakeBox***"));
-	final PrintWriter stderr = new PrintWriter(System.err);
-	final PrintWriter stdout = new PrintWriter(System.out);
-	final private Evaluator commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
-			stderr, stdout, root, heap);
+	
+	final private Evaluator commandEvaluator; 
 	
 	public Evaluator getCommandEvaluator() {
 		return commandEvaluator;
@@ -129,15 +141,25 @@ public class MakeBox {
 			return null;
 		}
 	}
-
+	
+	private IValue launchConcreteProgram(String cmd, URI src, URI dest, String ext) {
+		execute("import box::" + ext + "::Default;");
+		ISourceLocation v = ValueFactoryFactory.getValueFactory()
+		.sourceLocation(src), w = ValueFactoryFactory.getValueFactory()
+		.sourceLocation(dest);
+        store(v, "v"); store(w, "w");
+        execute("c="+cmd+"(v, w);");
+		IValue r = fetch("c");
+		return r;
+	    }
+	
 	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
-		final String resultName = "c";
 		execute("import box::" + ext + "::Default;");
 		ISourceLocation v = ValueFactoryFactory.getValueFactory()
 				.sourceLocation(uri);
-		store(v, varName);
-		execute(resultName + "="+cmd+"(" + varName+");");
-		IValue r = fetch(resultName);
+		store(v, "v");
+		execute("c="+cmd+"(v);");
+		IValue r = fetch("c");
 		return r;
 	}
 	
@@ -206,10 +228,31 @@ public class MakeBox {
 		return text2String(launchConcreteProgram(cmd, uri, ext));
 	}
 	
+	public String toPrint(String cmd, URI uri1, URI uri2) {
+		start();
+		int tail = uri1.getPath().lastIndexOf('.');
+		String ext = uri1.getPath().substring(tail + 1);
+		return text2String(launchConcreteProgram(cmd, uri1, uri2, ext));
+	}
+	
+	public IValue rascalToPrint(String cmd, URI src, URI dest) {
+		start();
+		try {
+			IValue box = computeBox(src);
+			data = new Data();
+			new PBFWriter().write(box, data, ts);
+			return launchRascalProgram(cmd, src, dest);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public String toRichText(URI uri, String ext) {
 		start();
 		return text2String(launchConcreteProgram("toRichText", uri, ext));
 	}
+	
 	
 	public String toRichText(URI uri) {
 		start();
@@ -224,17 +267,6 @@ public class MakeBox {
 		return null;
 	}
 	
-	public IValue toRichText(String cmd, URI src, URI dest) {
-		start();
-		try {
-			IValue box = computeBox(src);
-			data = new Data();
-			new PBFWriter().write(box, data, ts);
-			return launchRascalProgram(cmd, src, dest);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	
 
 }

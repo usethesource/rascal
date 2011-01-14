@@ -461,7 +461,6 @@ public Box toBox(Tree a) {
      if (aux[a]?) q=aux[a]; 
      else {
           q = evPt(a);
-          println("End evPt");
           aux+=(a:q);
           }
       return q;
@@ -575,4 +574,6 @@ public void writeData(loc asf,text r,str suffix) {
      for (str q<-r) appendToFile(g,"<q>\n");
      }
      
-
+public void toExport(loc src, loc dest, text r,str suffix) {
+     writeData(src, dest, r, suffix);
+     }
