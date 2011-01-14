@@ -39,40 +39,42 @@ void setUserRules() {
     setIndent(isIndented);
     setCompact(isCompact);
     setKeyword(isKeyword);
-    }  
+    } 
+    
+
      
-public text toText(loc asf){
-     PROGRAM a = parse(#PROGRAM, asf);
+public text toText(loc src, loc dest){
+     PROGRAM a = parse(#PROGRAM, src);
      setUserRules();
      text r = toText(a);
-     writeData(asf, r, ".txt");
+     toExport(src, dest, r, ".txt");
      return r;
      }
      
+ public text toHtml(loc src, loc dest){
+     PROGRAM a = parse(#PROGRAM, src);
+     setUserRules();
+     text r = toHtml(a);
+     toExport(src, dest, r, ".html");
+     return r;
+     }  
+     
+public text toLatex(loc src, loc dest){
+     PROGRAM a = parse(#PROGRAM, src);
+     // rawPrintln(a);
+     setUserRules();
+     text r = toLatex(a);
+     toExport(src, dest, r, ".tex");
+     return r;
+     } 
+
 public text toRichText(loc asf){
      PROGRAM a = parse(#PROGRAM, asf);
      setUserRules();
      text r = toRichText(a);
      return r;
-     }
-     
- public text toHtml(loc asf){
-     PROGRAM a = parse(#PROGRAM, asf);
-     setUserRules();
-     text r = toHtml(a);
-     writeData(asf, r, ".html");
-     return r;
-     }  
-     
-public text toLatex(loc asf){
-     PROGRAM a = parse(#PROGRAM, asf);
-     // rawPrintln(a);
-     setUserRules();
-     text r = toLatex(a);
-     writeData(asf, r, ".tex");
-     return r;
      } 
-     
+          
 public Box toBox(loc asf) {
      Tree a = parse(#PROGRAM, asf);
      setUserRules();
