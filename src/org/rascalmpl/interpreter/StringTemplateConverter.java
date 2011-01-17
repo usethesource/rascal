@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,6 +34,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -113,7 +115,10 @@ public class StringTemplateConverter {
 						v = ((OriginValueFactory)vf).string(getLocation(), result.getValue().toString());
 					}
 					else {
-						v = vf.string(v.toString());
+						// Ensure that values that are trees are yielding the appropriate string value
+						StringBuilder sb = new StringBuilder();
+						__eval.appendToString(v, sb);
+						v = vf.string(sb.toString());
 					}
 				}
 				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
