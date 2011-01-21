@@ -112,7 +112,7 @@ public class StringTemplateConverter {
 				IValue v = result.getValue();
 				if (!(v instanceof IString)) {
 					if (vf instanceof OriginValueFactory) {
-						v = ((OriginValueFactory)vf).string(getLocation(), result.getValue().toString());
+						v = ((OriginValueFactory)vf).expression(getLocation(), result.getValue().toString());
 					}
 					else {
 						// Ensure that values that are trees are yielding the appropriate string value

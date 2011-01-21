@@ -1,5 +1,6 @@
 module String
 
+import Origins;
 
 @doc{Convert a character code into a string}
 @javaClass{org.rascalmpl.library.String}
@@ -132,4 +133,4 @@ public str java toUpperCase(str s);
 public str java escape(str s, map[str,str] mapping);
 
 @javaClass{org.rascalmpl.library.String}
-public list[tuple[str,loc]] java origins(str s);
+public list[tuple[str string, Origin origin]] java origins(str s);
