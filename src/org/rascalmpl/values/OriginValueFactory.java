@@ -2,7 +2,6 @@ package org.rascalmpl.values;
 
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -12,10 +11,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.rascalmpl.interpreter.StringTemplateConverter;
-import org.rascalmpl.values.uptr.Factory;
-
-import com.sun.tools.javac.util.List;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.origins.Factory;
 
 public class OriginValueFactory extends ValueFactory {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
@@ -66,18 +63,22 @@ public class OriginValueFactory extends ValueFactory {
 		protected abstract int length();
 		
 		public abstract IList getOrigins();
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof IString)) {
+				return false;
+			}
+			return compare((IString)obj) == 0;
+		}
 	}
 	
-	
-	private class Value extends TString {
+	private abstract class Unit extends TString {
 		private final String value;
-		private final ISourceLocation origin;
-	
-		protected Value(ISourceLocation origin, String value) {
-			this.origin = origin;
+		
+		public Unit(String value) {
 			this.value = value;
 		}
-		
 		
 		protected int length() {
 			return value.length();
@@ -88,9 +89,53 @@ public class OriginValueFactory extends ValueFactory {
 			return value;
 		}
 
+	}
+	
+	private abstract class OrgUnit extends Unit {
+		private final ISourceLocation origin;
+		
+		protected OrgUnit(ISourceLocation origin, String value) {
+			super(value);
+			this.origin = origin;
+		}
+		
+		public ISourceLocation getOrigin() {
+			return origin;
+		}
+		
+	}
+	
+	private class Expression extends OrgUnit {
+		protected Expression(ISourceLocation origin, String value) {
+			super(origin, value);
+		}
+
+		public IList getOrigins() {
+			return list(tuple(this, constructor(Factory.Origin_expression, getOrigin())));
+		}
+		
+	}
+	
+	private class Literal extends OrgUnit {
+		protected Literal(ISourceLocation origin, String value) {
+			super(origin, value);
+		}
+
 		@Override
 		public IList getOrigins() {
-			return list(tuple(this, origin));
+			return list(tuple(this, constructor(Factory.Origin_literal, getOrigin())));
+		}
+		
+	}
+	
+	private class Anonymous extends Unit {
+		protected Anonymous(String value) {
+			super(value);
+		}
+
+		@Override
+		public IList getOrigins() {
+			return list(tuple(this, constructor(Factory.Origin_none)));
 		}
 		
 	}
@@ -126,8 +171,17 @@ public class OriginValueFactory extends ValueFactory {
 		
 	}
 	
-	public IString string(ISourceLocation origin, String s) {
-		return new Value(origin, s);
+	@Override
+	public IString string(String value) {
+		return new Anonymous(value);
+	}
+	
+	public IString literal(ISourceLocation origin, String s) {
+		return new Literal(origin, s);
+	}
+
+	public IString expression(ISourceLocation origin, String s) {
+		return new Expression(origin, s);
 	}
 	
 	

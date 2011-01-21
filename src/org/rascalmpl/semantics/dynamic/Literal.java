@@ -221,14 +221,14 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		public Result<IValue> __evaluate(Evaluator __eval) {
 
 			StringLiteral lit = this.getStringLiteral();
-
+			IValueFactory vf = __eval.__getVf();
 			
 			// To prevent infinite recursion detect non-interpolated strings
 			// first. TODO: design flaw?
 			if (lit.isNonInterpolated()) {
 				java.lang.String str = org.rascalmpl.interpreter.utils.Utils.unescape(((Lexical) lit.getConstant()).getString());
 
-				IValueFactory vf = __eval.__getVf();
+				
 				IValue v;
 				if (vf instanceof OriginValueFactory) {
 					OriginValueFactory of = (OriginValueFactory)vf;
@@ -242,7 +242,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 							loc.getBeginLine(), loc.getEndLine(), 
 							loc.getBeginColumn() + 1, 
 							loc.getEndColumn() - 1);
-					v = of.string(loc, str);
+					v = of.literal(loc, str);
 				}
 				else {
 					v = vf.string(str);
@@ -260,6 +260,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 				// list is always non-empty
 				IString s = (IString)list.get(0);
 				for (int i = 1; i < list.length(); i++) {
+					IValue x = list.get(i);
 					s = s.concat((IString)list.get(i));
 				}
 				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), s, __eval);
