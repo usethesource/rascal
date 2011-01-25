@@ -8,12 +8,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="lib/core.jar" sourcepath="/home/paulk/software/source/processing-source"/>
 	<classpathentry kind="lib" path="lib/treemap.jar"/>
-	<classpathentry kind="lib" path="lib/svnkit.jar" sourcepath="lib/svnkitsrc.zip"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
-	<classpathentry kind="lib" path="lib/org-netbeans-lib-cvsclient-RELEASE61.jar" sourcepath="lib/org-netbeans-lib-cvsclient-RELEASE61-sources.jar"/>
-	<classpathentry kind="lib" path="lib/javagit.jar"/>
 	<classpathentry kind="lib" path="lib/trilead.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-continuation-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-http-7.1.5.v20100705.jar"/>
