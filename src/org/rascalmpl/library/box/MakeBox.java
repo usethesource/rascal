@@ -41,7 +41,7 @@ public class MakeBox {
 		super();
 		final PrintWriter stderr = new PrintWriter(System.err);
 		final PrintWriter stdout = new PrintWriter(System.out);
-		commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+		commandEvaluator= new Evaluator(values,
 				stderr, stdout, root, heap);
 		this.values = values;
 	    }
@@ -49,14 +49,15 @@ public class MakeBox {
 	public MakeBox() {
 		final PrintWriter stderr = new PrintWriter(System.err);
 		final PrintWriter stdout = new PrintWriter(System.out);
-		this.values = null;
-		commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+		this.values = ValueFactoryFactory
+		.getValueFactory();
+		commandEvaluator= new Evaluator(values,
 				stderr, stdout, root, heap);
 	    }
 	
 	public MakeBox(PrintWriter stdout, PrintWriter stderr) {
-		this.values = null;
-		commandEvaluator= new Evaluator(ValueFactoryFactory.getValueFactory(),
+		this.values = ValueFactoryFactory.getValueFactory();
+		commandEvaluator= new Evaluator(values,
 				stderr, stdout, root, heap);
 	    }
 	
@@ -125,11 +126,10 @@ public class MakeBox {
 	private IValue launchRascalProgram(String cmd, URI src, URI dest) {
 		execute("import box::Box2Text;");
 		try {
-			IValue d= new PBFReader().read(ValueFactoryFactory
-					.getValueFactory(), ts, adt, data.get());
+			IValue d= new PBFReader().read(values, ts, adt, data.get());
 			store(d, "d");
-			ISourceLocation v = ValueFactoryFactory.getValueFactory()
-			.sourceLocation(src), w = ValueFactoryFactory.getValueFactory()
+			ISourceLocation v = values
+			.sourceLocation(src), w = values
 			.sourceLocation(dest);
 	        store(v, "v"); store(w, "w");
 			execute("c="+cmd+"(d, v, w);");
@@ -144,8 +144,8 @@ public class MakeBox {
 	
 	private IValue launchConcreteProgram(String cmd, URI src, URI dest, String ext) {
 		execute("import box::" + ext + "::Default;");
-		ISourceLocation v = ValueFactoryFactory.getValueFactory()
-		.sourceLocation(src), w = ValueFactoryFactory.getValueFactory()
+		ISourceLocation v = values
+		.sourceLocation(src), w = values
 		.sourceLocation(dest);
         store(v, "v"); store(w, "w");
         execute("c="+cmd+"(v, w);");
@@ -155,7 +155,7 @@ public class MakeBox {
 	
 	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
 		execute("import box::" + ext + "::Default;");
-		ISourceLocation v = ValueFactoryFactory.getValueFactory()
+		ISourceLocation v = values
 				.sourceLocation(uri);
 		store(v, "v");
 		execute("c="+cmd+"(v);");
@@ -167,13 +167,13 @@ public class MakeBox {
 	private IValue launchTemplateProgram(URI uri, String s) {
 		final String resultName = "c";
 		execute("import box::" + s + ";");
-		// IString v = ValueFactoryFactory.getValueFactory().string(fileName);
-		ISourceLocation v = ValueFactoryFactory.getValueFactory()
+		// IString v = values.string(fileName);
+		ISourceLocation v = values
 				.sourceLocation(uri);
 		store(v, varName);
 		String name = new File(uri.getPath()).getName();
 		name = name.substring(0, name.lastIndexOf('.'));
-		IString w = ValueFactoryFactory.getValueFactory().string(name);
+		IString w = values.string(name);
 		store(w, moduleName);
 		execute(resultName + "=toStr(" + varName + "," + moduleName + ");");
 		IValue r = fetch(resultName);
@@ -267,6 +267,17 @@ public class MakeBox {
 		return null;
 	}
 	
-	
+	public IValue getFigure(URI uri, String layout) {
+		start();
+		execute("import experiments::Concept::GetFigure;");
+		ISourceLocation v = values
+				.sourceLocation(uri);
+		store(v, "v");
+		IString w = values.string(layout);
+		store(w, "w");
+		execute("c=getFigure(v, w);");
+		IValue r = fetch("c");
+		return r;
+	}
 
 }
