@@ -33,6 +33,7 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   for (sn <- m) {
     asts += ast(sn, m[sn]);
   }
+  
   return asts;
 }
 
@@ -64,7 +65,7 @@ public class ASTFactory {
   }
 <}>
 
-<for (a <- asts) { sn = a.name; >
+<for (sn <- {a.name | a <- asts}) {>
   public <sn>.Ambiguity make<sn>Ambiguity(INode node, java.util.List\<<sn>\> alternatives) {
     return new <sn>.Ambiguity(node, alternatives);
   }
@@ -86,7 +87,7 @@ public interface IASTVisitor\<T\> {
   <for (leaf(sn) <- asts) {>
       public T visit<sn>Lexical(<sn>.Lexical x);
   <}>
-  <for (a <- asts) { sn = a.name; >
+  <for (sn <- { a.name | a <- asts}) { >
       public T visit<sn>Ambiguity(<sn>.Ambiguity x);
   <}>
 }
@@ -104,7 +105,7 @@ public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
   <for (leaf(sn) <- asts) {>
       public T visit<sn>Lexical(<sn>.Lexical x) { return null; }
   <}>
-  <for (a <- asts) { sn = a.name; >
+  <for (sn <- {a.name | a <- asts}) {>
       public T visit<sn>Ambiguity(<sn>.Ambiguity x) { return null; }
   <}>
 }
@@ -296,6 +297,9 @@ public str capitalize(str s) {
 
 public set[Production] astProductions(Grammar g) {
   set[Production] result = {};
+  g = visit(g) {
+    case action(_, Production p, _) => p
+  }
   top-down-break visit (g) {
     case Production p: result += astProductions(p);
   }
