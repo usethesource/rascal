@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis;
 
+import java.awt.Image;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -592,6 +593,8 @@ public class FigurePApplet extends PApplet {
 		else
 			super.endShape(arg0);
 	}
+	
+	public Image getImage() {return this.g.image;}
 	
 }
 
