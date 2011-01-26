@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IModulesLoaded;
@@ -868,6 +869,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			throw new UninitializedVariableError(org.rascalmpl.interpreter.utils.Names.name(this.getName()), this);
 
+		}
+		
+		@Override
+		public Type __evaluate(Visitor eval) {
+			return getType().__evaluate(eval);
 		}
 
 	}

@@ -7,19 +7,26 @@ import java.util.Stack;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
@@ -91,7 +98,7 @@ public class RascalFunction extends NamedFunction {
 				throw new MissingReturnError(ast);
 			}
 
-			return ResultFactory.makeResult(TF.voidType(), null, eval);
+			return makeResult(TF.voidType(), null, eval);
 		}
 		catch (Return e) {
 			Result<IValue> result = e.getValue();
@@ -107,7 +114,7 @@ public class RascalFunction extends NamedFunction {
 				throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
 			}
 
-			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), eval);
+			return makeResult(instantiatedReturnType, result.getValue(), eval);
 		} 
 		catch (Failure e) {
 			throw new UnguardedFailError(ast);
@@ -123,21 +130,48 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	private void assignFormals(IValue[] actuals, Environment env) {
-		Type formals = getFormals();
-		for (int i = 0; i < formals.getArity(); i++) {
-			Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
-			
-			Result<IValue> result;
-			if (actuals[i] instanceof AbstractFunction) {
-				result = (AbstractFunction)actuals[i];
-			}
-			else {	
-				result = ResultFactory.makeResult(formal, actuals[i], eval);
-			}
-			
-			env.declareVariable(formals.getFieldType(i), formals.getFieldName(i));
-			env.storeVariable(formals.getFieldName(i), result);
+		List<Expression> formals = ((FunctionDeclaration) ast).getSignature().getParameters().getFormals().getFormals();
+		// we assume here the list of formals is just as long as the list of actuals
+		int size = actuals.length;
+		IMatchingResult[] matchers = new IMatchingResult[size];
+		PatternEvaluator pe = new PatternEvaluator(ctx);
+		Environment[] olds = new Environment[size];
+		int i = 0;
+		
+		if (size == 0) {
+			return;
 		}
+		matchers[0] = formals.get(0).__evaluate(pe);
+		matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
+		olds[0] = ctx.getCurrentEnvt();
+		ctx.pushEnv();
+
+		// pattern matching requires backtracking due to list, set and map matching and
+		// non-linear use of variables between formal parameters of a function...
+		
+		while (i >= 0 && i < size) {
+			if (ctx.isInterrupted()) {
+				throw new InterruptException(ctx.getStackTrace());
+			}
+			if (matchers[i].hasNext() && matchers[i].next()) {
+				if (i == size - 1) {
+					// NB: no result handling here.
+					return;
+				} else {
+					i++;
+					matchers[i] = formals.get(i).__evaluate(pe);
+					matchers[i].init();
+					olds[i] = ctx.getCurrentEnvt();
+					ctx.pushEnv();
+				}
+			} else {
+				ctx.unwind(olds[i]);
+				i--;
+				ctx.pushEnv();
+			}
+		}
+		
+		throw new MatchFailed();
 	}
 	
 	@Override

@@ -133,7 +133,6 @@ import org.rascalmpl.ast.Expression.Visit;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.Field.Index;
 import org.rascalmpl.ast.Field.Name;
-import org.rascalmpl.ast.Formal.TypeName;
 import org.rascalmpl.ast.FunctionDeclaration.Abstract;
 import org.rascalmpl.ast.FunctionModifier.Java;
 import org.rascalmpl.ast.FunctionType.TypeArguments;
@@ -1116,14 +1115,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitFieldName(Name x) {
 		return eX(x.getFieldName());
-	}
-
-	public IValue visitFormalAmbiguity(org.rascalmpl.ast.Formal.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitFormalTypeName(TypeName x) {
-		return H(1, eX(x.getType()), eX(x.getName()));
 	}
 
 	public IValue visitFormalsAmbiguity(org.rascalmpl.ast.Formals.Ambiguity x) {

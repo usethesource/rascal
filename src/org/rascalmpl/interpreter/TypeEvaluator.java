@@ -4,7 +4,7 @@ import java.lang.String;
 import java.util.List;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.Formal;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.QualifiedName;
@@ -56,7 +56,7 @@ public class TypeEvaluator {
 		return parameters.__evaluate(this.visitor);
 	}
 
-	public Type eval(Formal formal) {
+	public Type eval(Expression formal) {
 		return formal.__evaluate(this.visitor);
 	}
 

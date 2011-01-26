@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredFunctionError;
 
@@ -71,7 +72,12 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		for (AbstractFunction candidate : candidates) {
 			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
 			if (candidate.match(tuple)) {
-				return candidate.call(argTypes, argValues);
+				try {
+					return candidate.call(argTypes, argValues);
+				}
+				catch (MatchFailed m) {
+					// this is perfectly normal
+				}
 			}
 		}
 		

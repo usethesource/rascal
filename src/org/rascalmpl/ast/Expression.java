@@ -2781,6 +2781,50 @@ public Tuple(INode node , java.util.List<org.rascalmpl.ast.Expression> elements)
 }
 
 
+  public boolean isMultiVariable() {
+    return false;
+  }
+  
+static public class MultiVariable extends Expression {
+  // Production: sig("MultiVariable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
+
+  
+     private final org.rascalmpl.ast.QualifiedName qualifiedName;
+  
+
+  
+public MultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+  super(node);
+  
+    this.qualifiedName = qualifiedName;
+  
+}
+
+
+  @Override
+  public boolean isMultiVariable() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitExpressionMultiVariable(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
+        return this.qualifiedName;
+     }
+     
+     @Override
+     public boolean hasQualifiedName() {
+        return true;
+     }
+  	
+}
+
+
   public boolean isFieldUpdate() {
     return false;
   }
@@ -2847,50 +2891,6 @@ public FieldUpdate(INode node , org.rascalmpl.ast.Expression expression,  org.ra
      
      @Override
      public boolean hasReplacement() {
-        return true;
-     }
-  	
-}
-
-
-  public boolean isMultiVariable() {
-    return false;
-  }
-  
-static public class MultiVariable extends Expression {
-  // Production: sig("MultiVariable",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
-
-  
-     private final org.rascalmpl.ast.QualifiedName qualifiedName;
-  
-
-  
-public MultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-  super(node);
-  
-    this.qualifiedName = qualifiedName;
-  
-}
-
-
-  @Override
-  public boolean isMultiVariable() { 
-    return true; 
-  }
-
-  @Override
-  public <T> T accept(IASTVisitor<T> visitor) {
-    return visitor.visitExpressionMultiVariable(this);
-  }
-  
-  
-     @Override
-     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
-        return this.qualifiedName;
-     }
-     
-     @Override
-     public boolean hasQualifiedName() {
         return true;
      }
   	
@@ -3797,6 +3797,7 @@ public TypedVariableBecomes(INode node , org.rascalmpl.ast.Type type,  org.rasca
      }
   	
 }
+
 
 
 }
