@@ -28,7 +28,7 @@ public abstract class Test extends org.rascalmpl.ast.Test {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.getCurrentModuleEnvironment().addTest(this);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -62,7 +62,7 @@ public abstract class Test extends org.rascalmpl.ast.Test {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.getCurrentModuleEnvironment().addTest(this);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();

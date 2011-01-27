@@ -39,9 +39,9 @@ public abstract class Toplevel extends org.rascalmpl.ast.Toplevel {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getDeclaration().__evaluate(__eval);
+			return this.getDeclaration().interpret(__eval);
 
 		}
 

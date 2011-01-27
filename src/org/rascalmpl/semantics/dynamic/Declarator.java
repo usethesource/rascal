@@ -32,7 +32,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
@@ -44,7 +44,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 					// first evaluate the initialization, in case the left hand
 					// side will shadow something
 					// that is used on the right hand side.
-					Result<IValue> v = var.getInitial().__evaluate(__eval);
+					Result<IValue> v = var.getInitial().interpret(__eval);
 
 					Type declaredType = __eval.evalType(this.getType());
 

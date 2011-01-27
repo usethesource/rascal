@@ -39,7 +39,7 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String name = __eval.getModuleName(this);
 
@@ -57,14 +57,14 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 				__eval.setCurrentEnvt(env); // such that declarations end up in
 											// the module scope
 				try {
-					this.getHeader().__evaluate(__eval);
+					this.getHeader().interpret(__eval);
 
 					List<Toplevel> decls = this.getBody().getToplevels();
 					__eval.__getTypeDeclarator().evaluateSyntaxDefinitions(this.getHeader().getImports(), __eval.getCurrentEnvt());
 					__eval.__getTypeDeclarator().evaluateDeclarations(decls, __eval.getCurrentEnvt());
 
 					for (Toplevel l : decls) {
-						l.__evaluate(__eval);
+						l.interpret(__eval);
 					}
 
 					// only after everything was successful mark the module

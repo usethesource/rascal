@@ -29,7 +29,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.visitImports(this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -58,7 +58,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.visitImports(this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();

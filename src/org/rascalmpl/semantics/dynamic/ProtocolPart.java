@@ -31,9 +31,9 @@ public abstract class ProtocolPart extends org.rascalmpl.ast.ProtocolPart {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getProtocolChars().__evaluate(__eval);
+			return this.getProtocolChars().interpret(__eval);
 
 		}
 
@@ -51,11 +51,11 @@ public abstract class ProtocolPart extends org.rascalmpl.ast.ProtocolPart {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> pre = this.getPre().__evaluate(__eval);
-			Result<IValue> expr = this.getExpression().__evaluate(__eval);
-			Result<IValue> tail = this.getTail().__evaluate(__eval);
+			Result<IValue> pre = this.getPre().interpret(__eval);
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			Result<IValue> tail = this.getTail().interpret(__eval);
 			StringBuilder result = new StringBuilder();
 
 			result.append(((IString) pre.getValue()).getValue());

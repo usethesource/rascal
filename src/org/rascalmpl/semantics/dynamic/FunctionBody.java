@@ -26,13 +26,13 @@ public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> result = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 			for (Statement statement : this.getStatements()) {
 				__eval.setCurrentAST(statement);
-				result = statement.__evaluate(__eval);
+				result = statement.interpret(__eval);
 			}
 
 			return result;

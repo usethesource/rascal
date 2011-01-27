@@ -39,7 +39,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// Split into date and time components; of the form $<date>T<time>
 			String dtPart = this.getString().substring(1);

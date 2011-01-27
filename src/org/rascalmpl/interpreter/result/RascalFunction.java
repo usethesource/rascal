@@ -84,7 +84,7 @@ public class RascalFunction extends NamedFunction {
 
 			for (Statement stat: body) {
 				eval.setCurrentAST(stat);
-				stat.__evaluate(eval);
+				stat.interpret(eval);
 			}
 			
 			if(!isVoidFunction){

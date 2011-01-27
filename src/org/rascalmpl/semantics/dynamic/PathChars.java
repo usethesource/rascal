@@ -21,7 +21,7 @@ public abstract class PathChars extends org.rascalmpl.ast.PathChars {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String str = this.getString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(str.substring(0, str.length() - 1)),

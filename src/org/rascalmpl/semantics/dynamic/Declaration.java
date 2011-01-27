@@ -43,7 +43,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO implement
 			throw new NotYetImplemented("Views");
@@ -64,9 +64,9 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getTest().__evaluate(__eval);
+			return this.getTest().interpret(__eval);
 
 		}
 
@@ -79,7 +79,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareAlias(this, __eval.getCurrentEnvt());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -105,7 +105,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Type annoType = new TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getAnnoType());
 			String name = org.rascalmpl.interpreter.utils.Names.name(this.getName());
@@ -139,7 +139,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareAbstractADT(this, __eval.getCurrentEnvt());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -165,7 +165,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 			__eval.setCurrentAST(this);
@@ -174,7 +174,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 				Type declaredType = new TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getType());
 
 				if (var.isInitialized()) {
-					Result<IValue> v = var.getInitial().__evaluate(__eval);
+					Result<IValue> v = var.getInitial().interpret(__eval);
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariableError(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var);
@@ -210,9 +210,9 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getPatternAction().__evaluate(__eval);
+			return this.getPatternAction().interpret(__eval);
 
 		}
 
@@ -235,7 +235,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new NotYetImplemented("tags");
 
@@ -255,7 +255,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareConstructor(this, __eval.getCurrentEnvt());
 			__eval.notifyConstructorDeclaredListeners();
@@ -277,9 +277,9 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getFunctionDeclaration().__evaluate(__eval);
+			return this.getFunctionDeclaration().interpret(__eval);
 
 		}
 

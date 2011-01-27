@@ -37,7 +37,7 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -70,7 +70,7 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();

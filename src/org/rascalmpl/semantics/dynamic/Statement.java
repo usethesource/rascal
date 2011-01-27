@@ -49,7 +49,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			int size = this.getVariables().size();
 			QualifiedName vars[] = new QualifiedName[size];
@@ -79,7 +79,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 				Bound bound = this.getBound();
 				if (bound.isDefault()) {
-					Result<IValue> res = bound.getExpression().__evaluate(__eval);
+					Result<IValue> res = bound.getExpression().interpret(__eval);
 					if (!res.getType().isIntegerType()) {
 						throw new UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().integerType(), res.getType(), this);
 					}
@@ -99,7 +99,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					iterations++;
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
-					bodyResult = body.__evaluate(__eval);
+					bodyResult = body.interpret(__eval);
 					for (int i = 0; i < size; i++) {
 						QualifiedName var = vars[i];
 						Result<IValue> v = __eval.getCurrentEnvt().getVariable(var);
@@ -130,7 +130,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new NotYetImplemented(this.toString()); // TODO
 
@@ -155,9 +155,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getDeclaration().__evaluate(__eval);
+			return this.getDeclaration().interpret(__eval);
 
 		}
 
@@ -170,7 +170,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			if (!this.getTarget().isEmpty()) {
 				throw new Failure(this.getTarget().getName().toString());
@@ -194,9 +194,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			throw new org.rascalmpl.interpreter.control_exceptions.Insert(this.getStatement().__evaluate(__eval));
+			throw new org.rascalmpl.interpreter.control_exceptions.Insert(this.getStatement().interpret(__eval));
 
 		}
 
@@ -219,13 +219,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Environment old = __eval.getCurrentEnvt();
 
 			try {
 				__eval.pushEnv();
-				return this.getExpression().__evaluate(__eval);
+				return this.getExpression().interpret(__eval);
 			} finally {
 				__eval.unwind(old);
 			}
@@ -246,7 +246,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalStatementTry(this.getBody(), this.getHandlers(), null);
 
@@ -266,14 +266,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> r = this.getExpression().__evaluate(__eval);
+			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 				throw new UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), r.getType(), this);
 			}
 			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
-				Result<IValue> msgValue = this.getMessage().__evaluate(__eval);
+				Result<IValue> msgValue = this.getMessage().interpret(__eval);
 				IString msg = __eval.__getVf().string(org.rascalmpl.interpreter.utils.Utils.unescape(msgValue.getValue().toString(), this, __eval.getCurrentEnvt()));
 				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.assertionFailed(msg, __eval.getCurrentAST(), __eval.getStackTrace());
 			}
@@ -295,7 +295,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Accumulator target = null;
 			if (__eval.__getAccumulators().empty()) {
@@ -316,7 +316,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			} else {
 				target = __eval.__getAccumulators().peek();
 			}
-			Result<IValue> result = this.getStatement().__evaluate(__eval);
+			Result<IValue> result = this.getStatement().interpret(__eval);
 			target.append(result);
 			return result;
 
@@ -336,7 +336,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
 			List<org.rascalmpl.ast.Expression> generators = this.getConditions();
@@ -358,7 +358,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							__eval.setCurrentAST(body);
-							return body.__evaluate(__eval);
+							return body.interpret(__eval);
 						}
 
 						i++;
@@ -393,15 +393,15 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> subject = this.getExpression().__evaluate(__eval);
+			Result<IValue> subject = this.getExpression().interpret(__eval);
 
 			for (Case cs : this.getCases()) {
 				if (cs.isDefault()) {
 					// TODO: what if the default statement uses a fail
 					// statement?
-					return cs.getStatement().__evaluate(__eval);
+					return cs.getStatement().interpret(__eval);
 				}
 				PatternWithAction rule = cs.getPatternWithAction();
 				if (rule.isArbitrary() && __eval.matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
@@ -436,7 +436,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			org.rascalmpl.ast.Statement body = this.getBody();
 			List<org.rascalmpl.ast.Expression> generators = this.getConditions();
@@ -472,7 +472,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							throw new InterruptException(__eval.getStackTrace());
 						if (gens[i].hasNext() && gens[i].next()) {
 							if (i == size - 1) {
-								body.__evaluate(__eval);
+								body.interpret(__eval);
 								continue loop;
 							}
 
@@ -510,9 +510,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			throw new org.rascalmpl.interpreter.control_exceptions.Return(this.getStatement().__evaluate(__eval), this.getStatement().getLocation());
+			throw new org.rascalmpl.interpreter.control_exceptions.Return(this.getStatement().interpret(__eval), this.getStatement().getLocation());
 
 		}
 
@@ -530,7 +530,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
 			List<org.rascalmpl.ast.Expression> generators = this.getConditions();
@@ -551,7 +551,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							__eval.setCurrentAST(body);
-							return body.__evaluate(__eval);
+							return body.interpret(__eval);
 						}
 
 						i++;
@@ -571,7 +571,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			org.rascalmpl.ast.Statement elsePart = this.getElseStatement();
 			__eval.setCurrentAST(elsePart);
-			return elsePart.__evaluate(__eval);
+			return elsePart.interpret(__eval);
 
 		}
 
@@ -589,9 +589,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> right = this.getStatement().__evaluate(__eval);
+			Result<IValue> right = this.getStatement().interpret(__eval);
 			return this.getAssignable().__evaluate(new AssignableEvaluator(__eval.getCurrentEnvt(), this.getOperator(), right, __eval));
 
 		}
@@ -610,7 +610,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new Ambiguous((IConstructor) this.getTree());
 
@@ -630,7 +630,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 			Environment old = __eval.getCurrentEnvt();
@@ -639,7 +639,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			try {
 				for (org.rascalmpl.ast.Statement stat : this.getStatements()) {
 					__eval.setCurrentAST(stat);
-					r = stat.__evaluate(__eval);
+					r = stat.interpret(__eval);
 				}
 			} finally {
 				__eval.unwind(old);
@@ -657,7 +657,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new NotYetImplemented(this.toString()); // TODO
 
@@ -682,7 +682,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			org.rascalmpl.ast.Statement body = this.getBody();
 			List<org.rascalmpl.ast.Expression> generators = this.getGenerators();
@@ -716,7 +716,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							// NB: no result handling here.
-							body.__evaluate(__eval);
+							body.interpret(__eval);
 						} else {
 							i++;
 							gens[i] = __eval.makeBooleanResult(generators.get(i));
@@ -753,7 +753,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalStatementTry(this.getBody(), this.getHandlers(), this.getFinallyBody());
 
@@ -778,9 +778,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getVisit().__evaluate(__eval);
+			return this.getVisit().interpret(__eval);
 
 		}
 
@@ -793,7 +793,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new NotYetImplemented(this.toString()); // TODO
 
@@ -818,9 +818,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			throw new org.rascalmpl.interpreter.control_exceptions.Throw(this.getStatement().__evaluate(__eval).getValue(), __eval.getCurrentAST(), __eval.getStackTrace());
+			throw new org.rascalmpl.interpreter.control_exceptions.Throw(this.getStatement().interpret(__eval).getValue(), __eval.getCurrentAST(), __eval.getStackTrace());
 
 		}
 
@@ -838,7 +838,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			org.rascalmpl.ast.Statement body = this.getBody();
 			org.rascalmpl.ast.Expression generator = this.getCondition();
@@ -852,7 +852,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			while (true) {
 				try {
-					body.__evaluate(__eval);
+					body.interpret(__eval);
 
 					gen = __eval.makeBooleanResult(generator);
 					gen.init();
@@ -883,9 +883,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> r = this.getExpression().__evaluate(__eval);
+			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 				throw new UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), r.getType(), this);
 			}
@@ -906,7 +906,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
@@ -931,9 +931,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getFunctionDeclaration().__evaluate(__eval);
+			return this.getFunctionDeclaration().interpret(__eval);
 
 		}
 
