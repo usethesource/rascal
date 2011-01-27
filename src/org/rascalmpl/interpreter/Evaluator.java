@@ -53,7 +53,7 @@ import org.rascalmpl.ast.Import.Default;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.callbacks.IModulesLoaded;
+import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -137,7 +137,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private final URIResolverRegistry resolverRegistry;
 
-	private HashSet<IModulesLoaded> genericLoadListeners;
+	private HashSet<IConstructorDeclared> constructorDeclaredListeners;
 
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
@@ -160,7 +160,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.stdout = stdout;
 		this.builder = new ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
 		this.resolverRegistry = rascalPathResolver.getRegistry();
-		this.genericLoadListeners = new HashSet<IModulesLoaded>();
+		this.constructorDeclaredListeners = new HashSet<IConstructorDeclared>();
 
 		this.updateProperties();
 
@@ -216,12 +216,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.resolverRegistry.registerInputOutput(home);
 	}
 
-	public void registerGenericLoadListener(IModulesLoaded iml) {
-		this.genericLoadListeners.add(iml);
+	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
+		this.constructorDeclaredListeners.add(iml);
 	}
 	
-	public void notifyGenericLoadListeners() {
-		for (IModulesLoaded iml : this.genericLoadListeners) iml.handleGenericLoadEvent();
+	public void notifyConstructorDeclaredListeners() {
+		for (IConstructorDeclared iml : this.constructorDeclaredListeners) iml.handleConstructorDeclaredEvent();
+		this.constructorDeclaredListeners.clear();
 	}
 	
 	public List<ClassLoader> getClassLoaders() {
