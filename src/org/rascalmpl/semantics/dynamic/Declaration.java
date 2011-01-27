@@ -258,6 +258,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		public Result<IValue> __evaluate(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareConstructor(this, __eval.getCurrentEnvt());
+			__eval.notifyConstructorDeclaredListeners();
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}

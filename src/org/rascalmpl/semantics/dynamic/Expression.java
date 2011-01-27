@@ -33,7 +33,7 @@ import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.callbacks.IModulesLoaded;
+import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -65,6 +65,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -408,10 +409,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (prefix == null) {
 					this.cachedPrefix = prefix = __eval.__getCtx().getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
 					
-					if (!registeredCacheHandler) {
-						__eval.getEvaluator().registerGenericLoadListener(new IModulesLoaded() {
-							public void handleGenericLoadEvent() {
+					if (this.cachedPrefix != null && !registeredCacheHandler) {
+						__eval.getEvaluator().registerConstructorDeclaredListener(new IConstructorDeclared() {
+							public void handleConstructorDeclaredEvent() {
 								cachedPrefix = null;
+								registeredCacheHandler = false;
 							}
 						});
 						registeredCacheHandler = true;
@@ -455,12 +457,20 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			// functions.
 			if (function == null) {
 				this.cachedPrefix = function = this.getExpression().__evaluate(__eval);
-				if (!function.getType().isConstructorType()) this.cachedPrefix = null;
+				if (function instanceof OverloadedFunctionResult) {
+					OverloadedFunctionResult ofr = (OverloadedFunctionResult) function;
+					for (AbstractFunction af : ofr.getCandidates()) {
+						if (! (af instanceof ConstructorFunction)) {
+							this.cachedPrefix = null; break;
+						}
+					}
+				} else if (!function.getType().isConstructorType()) this.cachedPrefix = null;
 				
 				if (this.cachedPrefix != null && !registeredCacheHandler) {
-					__eval.getEvaluator().registerGenericLoadListener(new IModulesLoaded() {
-						public void handleGenericLoadEvent() {
+					__eval.getEvaluator().registerConstructorDeclaredListener(new IConstructorDeclared() {
+						public void handleConstructorDeclaredEvent() {
 							cachedPrefix = null;
+							registeredCacheHandler = false;
 						}
 					});
 					registeredCacheHandler = true;

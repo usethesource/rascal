@@ -30,16 +30,8 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 		@Override
 		public Result<IValue> __evaluate(Evaluator __eval) {
-
 			__eval.setCurrentAST(this);
-			Result<IValue> res = this.getImported().__evaluate(__eval);
-			
-			// If we import a module from the command line, notify any expressions caching
-			// results that could be invalidated by a module load that we have loaded.
-			__eval.notifyGenericLoadListeners();
-			
-			return res;
-
+			return this.getImported().__evaluate(__eval);
 		}
 
 	}
