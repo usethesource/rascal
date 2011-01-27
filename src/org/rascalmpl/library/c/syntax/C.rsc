@@ -26,7 +26,63 @@ syntax Expression = Identifier |
                     FloatingPointConstant |  // {category("Constant")}
                     StringConstant |  // {category("Constant")}
                     "sizeof" "(" TypeName ")" |
-                    bracket "(" Expression ")"
+                    bracket "(" Expression ")" |
+                    Expression "." Identifier |
+                    Expression "->" Identifier |
+                    Expression "++" |
+                    Expression "--" >
+                    "++" Expression |
+                    "--" Expression |
+                    "&" Expression |
+                    "*" Expression |
+                    "+" Expression |
+                    "-" Expression |
+                    "~" Expression |
+                    "!" Expression |
+                    "sizeof" Expression |
+                    "(" TypeName ")" Expression >
+                    left (
+                         Expression "*" Expression |
+                         Expression "/" Expression |
+                         Expression "%" Expression
+                    ) >
+                    left (
+                         Expression "+" Expression |
+                         Expression "-" Expression
+                    ) >
+                    left (
+                         Expression "<<" Expression |
+                         Expression ">>" Expression
+                    ) >
+                    left (
+                         Expression "<" Expression |
+                         Expression ">" Expression |
+                         Expression "<=" Expression |
+                         Expression ">=" Expression
+                    ) >
+                    left (
+                         Expression "==" Expression |
+                         Expression "!=" Expression
+                    ) >
+                    left Expression "&" Expression >
+                    left Expression "^" Expression >
+                    left Expression "|" Expression >
+                    left Expression "&&" Expression >
+                    left Expression "||" Expression >
+                    right (
+                          Expression "=" Expression |
+                          Expression "*=" Expression |
+                          Expression "/=" Expression |
+                          Expression "%=" Expression |
+                          Expression "+=" Expression |
+                          Expression "-=" Expression |
+                          Expression "<<=" Expression |
+                          Expression ">>=" Expression |
+                          Expression "&=" Expression |
+                          Expression "^=" Expression |
+                          Expression "|=" Expression
+                    ) >
+                    left Expression "," Expression
                     ;
 
 syntax Identifier = lex [a-zA-Z\_][a-zA-Z\_0-9]*
@@ -133,18 +189,18 @@ syntax Enumerator = Identifier |
                     Identifier "=" Expression
                     ;
 
-syntax AbstractDeclarator = non-assoc Pointer AbstractDeclarator |
-                            AnonymousIdentifier |
+syntax AbstractDeclarator = AnonymousIdentifier |
                             "(" AbstractDeclarator ")" |
                             AbstractDeclarator "[" Expression? "]" |
-                            AbstractDeclarator "(" Parameters? ")"
+                            AbstractDeclarator "(" Parameters? ")" >
+                            non-assoc Pointer AbstractDeclarator
                             ;
 
-syntax Declarator = non-assoc Pointer Declarator |
-                    Identifier |
+syntax Declarator = Identifier |
                     bracket "(" Declarator ")" |
                     Declarator "[" Expression? "]" |
-                    Declarator "(" Parameters? ")"
+                    Declarator "(" Parameters? ")" >
+                    non-assoc Pointer Declarator
                     ;
 
 syntax Parameter = Specifier+ Declarator |
@@ -201,89 +257,21 @@ context-free priorities
 
 Expression                -> Initializer >
 Expression "," Expression -> Expression,
-
 Expression                -> {Expression ","}+ >
 Expression "," Expression -> Expression,
-
 Identifier "=" Expression -> Enumerator >
 Expression "," Expression -> Expression
 
-{
-Declarator "(" Parameters? ")" 		-> Declarator
-Declarator "[" Expression? "]" 	-> Declarator
-}
-> Pointer Declarator 			-> Declarator
+(
+Expression "[" Expression "]"
+Expression "(" {Expression ","}* ")"
+) <0>
+"++" Expression
 
-{
-AbstractDeclarator "(" Parameters? ")"          -> AbstractDeclarator
-AbstractDeclarator "[" Expression? "]"  -> AbstractDeclarator
-}
-> Pointer AbstractDeclarator                    -> AbstractDeclarator
+left Expression "||" Expression
+> right Expression "?" Expression ":" Expression <0,4>
+> right Expression "=" Expression
 
-{
-Expression "[" Expression "]"	  -> Expression 
-Expression "(" {Expression ","}* ")"  -> Expression 
-Expression "." Identifier 		  -> Expression 
-Expression "->" Identifier 	  -> Expression
-Expression "++" 		           -> Expression
-Expression "--" 		           -> Expression
-} <0>
-> 
-{
-"++" Expression 		 -> Expression
-"--" Expression 		 -> Expression
-"&" Expression 		 -> Expression
-"*" Expression 	 	 -> Expression
-"+" Expression 		 -> Expression
-"-" Expression 		 -> Expression
-"~" Expression 		 -> Expression
-"!" Expression 		 -> Expression
-"sizeof" Expression 	 -> Expression
-"(" TypeName ")" Expression -> Expression 
-}
-> { left:
-Expression "*" Expression -> Expression {left}
-Expression "/" Expression -> Expression {left}
-Expression "%" Expression -> Expression {left}}
-> { left:
-Expression "+" Expression -> Expression {left}
-Expression "-" Expression -> Expression {left}}
-> { left:
-Expression "<<" Expression -> Expression {left}
-Expression ">>" Expression -> Expression {left}}
-> { left:
-Expression "<" Expression -> Expression {left}
-Expression ">" Expression -> Expression {left}
-Expression "<=" Expression -> Expression {left}
-Expression ">=" Expression -> Expression {left}
-} >
-{left:
-Expression "==" Expression -> Expression {left}
-Expression "!=" Expression -> Expression {left}
-}
-> Expression "&" Expression -> Expression {left}
-> Expression "^" Expression -> Expression {left}
-> Expression "|" Expression -> Expression {left}
-> Expression "&&" Expression -> Expression {left}
-> Expression "||" Expression -> Expression {left}
-> Expression "?" Expression ":" Expression -> Expression {right}
-<0,4> > 
-{right:
-Expression "=" Expression -> Expression {right}
-Expression "*=" Expression -> Expression {right}
-Expression "/=" Expression -> Expression {right}
-Expression "%=" Expression -> Expression {right}
-Expression "+=" Expression -> Expression {right}
-Expression "-=" Expression -> Expression {right}
-Expression "<<=" Expression -> Expression {right}
-Expression ">>=" Expression -> Expression {right}
-Expression "&=" Expression -> Expression {right}
-Expression "^=" Expression -> Expression {right}
-Expression "|=" Expression -> Expression {right}
-}
->
-Expression "," Expression -> Expression {left}
-
-Expression "?" Expression ":" Expression -> Expression {right}
+right Expression "?" Expression ":" Expression -> Expression
  <0> >
 Expression "?" Expression ":" Expression -> Expression
