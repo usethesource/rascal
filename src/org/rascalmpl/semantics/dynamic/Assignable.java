@@ -15,7 +15,7 @@ public IfDefinedOrDefault (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmp
 	super(__param1,__param2,__param3);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.ImplementationError("ifdefined assignable does not represent a value");
 	
@@ -30,12 +30,12 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.AssignableEvaluator __eval) {
 	
 		try {
-			this.getReceiver().__evaluate((org.rascalmpl.interpreter.Evaluator)__eval.__getEval()); // notice we use 'eval' here not '__eval'
+			this.getReceiver().interpret((org.rascalmpl.interpreter.Evaluator)__eval.__getEval()); // notice we use 'eval' here not '__eval'
 			// if it was not defined, __eval would have thrown an exception, so now we can just go on
 			return this.getReceiver().__evaluate(__eval);
 		}
 		catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
-			__eval.__setValue(__eval.newResult(this.getDefaultExpression().__evaluate((org.rascalmpl.interpreter.Evaluator)__eval.__getEval()), __eval.__getValue()));
+			__eval.__setValue(__eval.newResult(this.getDefaultExpression().interpret((org.rascalmpl.interpreter.Evaluator)__eval.__getEval()), __eval.__getValue()));
 			__eval.__setOperator(AssignmentOperator.Default);
 			return this.getReceiver().__evaluate(__eval);
 		}
@@ -84,7 +84,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.ImplementationError("Tuple in assignable does not represent a value:" + this);
 	
@@ -115,10 +115,10 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().__evaluate(__eval);
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subscript = this.getSubscript().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().interpret(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subscript = this.getSubscript().interpret(__eval);
 
 		if (receiver.getType().isListType()) {
 			if (subscript.getType().isIntegerType()) {
@@ -153,8 +153,8 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 @Override
 public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.AssignableEvaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> rec = this.getReceiver().__evaluate((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subscript = this.getSubscript().__evaluate((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> rec = this.getReceiver().interpret((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subscript = this.getSubscript().interpret((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
 		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result;
 		
 		if (rec == null || rec.getValue() == null) {
@@ -301,7 +301,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.ImplementationError("Constructor assignable does not represent a value");
 	
@@ -320,7 +320,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.Ambiguous((org.eclipse.imp.pdb.facts.IConstructor) this.getTree());
 	
@@ -374,7 +374,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		return __eval.getCurrentEnvt().getVariable(this.getQualifiedName());
 	
@@ -393,9 +393,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().interpret(__eval);
 		java.lang.String label = this.getAnnotation().toString();
 
 		if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getType(), label)) {
@@ -413,7 +413,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.AssignableEvaluator __eval) {
 	
 		java.lang.String label = org.rascalmpl.interpreter.utils.Names.name(this.getAnnotation());
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result = this.getReceiver().__evaluate((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result = this.getReceiver().interpret((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
 				
 		if(result == null || result.getValue() == null)
 			throw new org.rascalmpl.interpreter.staticErrors.UninitializedVariableError(this.getReceiver().toString(), this.getReceiver());
@@ -446,9 +446,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().interpret(__eval);
 		java.lang.String label = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 		if (receiver == null) {
@@ -491,7 +491,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 @Override
 public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.AssignableEvaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().__evaluate((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> receiver = this.getReceiver().interpret((org.rascalmpl.interpreter.Evaluator)__eval.__getEval());
 		java.lang.String label = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 		
 		if(receiver == null || receiver.getValue() == null) {

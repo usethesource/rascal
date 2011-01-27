@@ -18,7 +18,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
@@ -28,7 +28,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 			if (var.isInitialized()) {  // variable declaration without initialization
 				// first evaluate the initialization, in case the left hand side will shadow something
 				// that is used on the right hand side.
-				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> v = var.getInitial().__evaluate(__eval);
+				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> v = var.getInitial().interpret(__eval);
 
 				org.eclipse.imp.pdb.facts.type.Type declaredType = __eval.evalType(this.getType());
 

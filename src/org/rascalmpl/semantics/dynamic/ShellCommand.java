@@ -30,10 +30,10 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		java.lang.String name = "rascal.config."+this.getName().toString();
-		java.lang.String value = this.getExpression().__evaluate(__eval).getValue().toString();
+		java.lang.String value = this.getExpression().interpret(__eval).getValue().toString();
 
 		java.lang.System.setProperty(name, value);
 
@@ -56,7 +56,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.printVisibleDeclaredObjects(__eval.__getStdout());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -71,7 +71,7 @@ public Help (org.eclipse.imp.pdb.facts.INode __param1) {
 	super(__param1);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.setCurrentAST(this);
 		__eval.printHelpMessage(__eval.__getStdout());
@@ -104,7 +104,7 @@ public Test (org.eclipse.imp.pdb.facts.INode __param1) {
 	super(__param1);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(), __eval);
 	
@@ -140,7 +140,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.control_exceptions.QuitException();
 	
@@ -159,7 +159,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		((org.rascalmpl.interpreter.env.ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unImport(this.getName().toString());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -186,7 +186,7 @@ public Edit (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Qualifie
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	

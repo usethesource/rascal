@@ -18,11 +18,11 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> pre = this.getPre().__evaluate(__eval);
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> expr = this.getExpression().__evaluate(__eval);
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> tail = this.getTail().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> pre = this.getPre().interpret(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> expr = this.getExpression().interpret(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> tail = this.getTail().interpret(__eval);
 		java.lang.StringBuilder result = new java.lang.StringBuilder();
 
 		result.append(((org.eclipse.imp.pdb.facts.IString) pre.getValue()).getValue());
@@ -41,9 +41,9 @@ public NonInterpolated (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.a
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getPathChars().__evaluate(__eval);
+		return this.getPathChars().interpret(__eval);
 	
 }
 

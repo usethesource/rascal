@@ -13,10 +13,10 @@ public Default (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Proto
 	super(__param1,__param2,__param3);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> protocolPart = this.getProtocolPart().__evaluate(__eval);
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> pathPart = this.getPathPart().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> protocolPart = this.getProtocolPart().interpret(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> pathPart = this.getPathPart().interpret(__eval);
 
 		java.lang.String uri = ((org.eclipse.imp.pdb.facts.IString) protocolPart.getValue()).getValue() + "://" + ((org.eclipse.imp.pdb.facts.IString) pathPart.getValue()).getValue();
 
