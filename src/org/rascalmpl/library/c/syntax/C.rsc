@@ -25,8 +25,8 @@ syntax Expression = Identifier |
                     CharacterConstant | // {category("Constant")}
                     FloatingPointConstant | // {category("Constant")}
                     StringConstant | // {category("Constant")}
-                    Expression "[" Expression "]" | // TODO: Limit <0> to constants, identifiers & post-fix expressions.
-                    Expression "(" {Expression ","}* ")" | // TODO: Limit <0> to constants, identifiers & post-fix expressions.
+                    Expression "[" Expression "]" | // TODO: Limit <0> to constants, identifiers and post-fix expressions.
+                    Expression "(" {Expression ","}* ")" | // TODO: Limit <0> to constants, identifiers and post-fix expressions.
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
@@ -243,7 +243,7 @@ syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* 
 syntax TranslationUnit = ExternalDeclaration+
                          ;
 
-//////////////////////////// SDF /////////////////////////
+//////////////////////////// TODO: SDF stuff ////////////////////////////
 /*
 Expression                -> Initializer >
 Expression "," Expression -> Expression,
