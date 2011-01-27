@@ -133,7 +133,11 @@ syntax Enumerator = Identifier |
                     Identifier "=" Expression
                     ;
 
-syntax AbstractDeclarator = 
+syntax AbstractDeclarator = non-assoc Pointer AbstractDeclarator |
+                            AnonymousIdentifier |
+                            "(" AbstractDeclarator ")" |
+                            AbstractDeclarator "[" Expression? "]" |
+                            AbstractDeclarator "(" Parameters? ")"
                             ;
 
 syntax Declarator = non-assoc Pointer Declarator |
@@ -183,18 +187,15 @@ syntax TranslationUnit = ExternalDeclaration+
 
 //////////////////////////// SDF /////////////////////////
 
-
 context-free syntax
 
 Expression                -> {Expression ","}+ 
-
 
 context-free restrictions
 
 "&" -/- [\&]
 "-" -/- [\-]
 "+" -/- [\+]
-
 
 context-free priorities
 
@@ -212,6 +213,12 @@ Declarator "(" Parameters? ")" 		-> Declarator
 Declarator "[" Expression? "]" 	-> Declarator
 }
 > Pointer Declarator 			-> Declarator
+
+{
+AbstractDeclarator "(" Parameters? ")"          -> AbstractDeclarator
+AbstractDeclarator "[" Expression? "]"  -> AbstractDeclarator
+}
+> Pointer AbstractDeclarator                    -> AbstractDeclarator
 
 {
 Expression "[" Expression "]"	  -> Expression 
