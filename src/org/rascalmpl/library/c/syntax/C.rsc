@@ -20,23 +20,23 @@ syntax Statement = "{" Declaration* Statement*  "}" |
                    ;
 
 syntax Expression = Identifier |
-                    HexadecimalConstant |  // {category("Constant")}
-                    IntegerConstant |  // {category("Constant")}
-                    CharacterConstant |  // {category("Constant")}
-                    FloatingPointConstant |  // {category("Constant")}
-                    StringConstant |  // {category("Constant")}
+                    HexadecimalConstant | // {category("Constant")}
+                    IntegerConstant | // {category("Constant")}
+                    CharacterConstant | // {category("Constant")}
+                    FloatingPointConstant | // {category("Constant")}
+                    StringConstant | // {category("Constant")}
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
                     Expression "->" Identifier |
                     Expression "++" |
                     Expression "--" >
-                    "++" Expression |
-                    "--" Expression |
-                    "&" Expression |
+                    "++" Expression | // Add precede restriction "+"
+                    "--" Expression | // Add precede restriction "-"
+                    "&" Expression | // Add precede restriction "&"
                     "*" Expression |
-                    "+" Expression |
-                    "-" Expression |
+                    "+" Expression | // Add precede restriction "+"
+                    "-" Expression | // Add precede restriction "-"
                     "~" Expression |
                     "!" Expression |
                     "sizeof" Expression |
@@ -129,7 +129,7 @@ syntax Keyword = "auto" |
                  ;
 
 syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" |
-                     Specifier+ ";"  ///////////////// {avoid}
+                     Specifier+ ";"  // {avoid}
                      ;
 
 syntax InitDeclarator = Declarator |
@@ -240,18 +240,7 @@ syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* 
 syntax TranslationUnit = ExternalDeclaration+
                          ;
 
-
 //////////////////////////// SDF /////////////////////////
-
-context-free syntax
-
-Expression                -> {Expression ","}+ 
-
-context-free restrictions
-
-"&" -/- [\&]
-"-" -/- [\-]
-"+" -/- [\+]
 
 context-free priorities
 
@@ -263,15 +252,14 @@ Identifier "=" Expression -> Enumerator >
 Expression "," Expression -> Expression
 
 (
-Expression "[" Expression "]"
-Expression "(" {Expression ","}* ")"
-) <0>
+  Expression "[" Expression "]"
+  Expression "(" {Expression ","}* ")"
+) <0> >
 "++" Expression
 
-left Expression "||" Expression
-> right Expression "?" Expression ":" Expression <0,4>
-> right Expression "=" Expression
+left Expression "||" Expression >
+right Expression "?" Expression ":" Expression <0,4> >
+right Expression "=" Expression
 
-right Expression "?" Expression ":" Expression -> Expression
- <0> >
+right Expression "?" Expression ":" Expression -> Expression <0> >
 Expression "?" Expression ":" Expression -> Expression
