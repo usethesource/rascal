@@ -30,14 +30,14 @@ public class MatchResult extends AbstractBooleanResult {
     	// because the right hand side may introduce types that are needed
     	// in the left-hand side, we first need to evaluate the expression
     	// before we construct a pattern.
-		Result<IValue> result = expression.__evaluate(ctx.getEvaluator());
+		Result<IValue> result = expression.interpret(ctx.getEvaluator());
 		Type subjectType = result.getType();
 
 		if (mp == null) {
 			mp = pattern.__evaluate(new PatternEvaluator(ctx));
 		}
 		
-    	mp.initMatch(expression.__evaluate(ctx.getEvaluator()));
+    	mp.initMatch(expression.interpret(ctx.getEvaluator()));
 
     	if(!mp.mayMatch(subjectType, ctx.getCurrentEnvt())) {
     		throw new UnexpectedTypeError(mp.getType(ctx.getCurrentEnvt()), subjectType, ctx.getCurrentAST());

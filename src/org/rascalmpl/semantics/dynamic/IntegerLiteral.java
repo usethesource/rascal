@@ -18,7 +18,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		java.lang.String str = ((org.rascalmpl.ast.DecimalIntegerLiteral.Lexical) this.getDecimal()).getString();
 		return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().integerType(), __eval.__getVf().integer(str), __eval);
@@ -50,9 +50,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getOctal().__evaluate(__eval);
+		return this.getOctal().interpret(__eval);
 	
 }
 
@@ -69,9 +69,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getHex().__evaluate(__eval);
+		return this.getHex().interpret(__eval);
 	
 }
 

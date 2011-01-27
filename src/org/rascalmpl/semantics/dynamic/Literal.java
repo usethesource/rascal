@@ -32,12 +32,12 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 @Override
 public org.rascalmpl.interpreter.matching.IMatchingResult __evaluate(org.rascalmpl.interpreter.PatternEvaluator __eval) {
 	
-		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 	
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		java.lang.String str = this.getRealLiteral().toString();
 		if (str.toLowerCase().endsWith("d")) {
@@ -62,14 +62,14 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 @Override
 public org.rascalmpl.interpreter.matching.IMatchingResult __evaluate(org.rascalmpl.interpreter.PatternEvaluator __eval) {
 	
-		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 	
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getIntegerLiteral().__evaluate(__eval);
+		return this.getIntegerLiteral().interpret(__eval);
 	
 }
 
@@ -93,7 +93,7 @@ public org.rascalmpl.interpreter.matching.IMatchingResult __evaluate(org.rascalm
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.staticErrors.SyntaxError("regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).", this.getLocation());
 	
@@ -114,12 +114,12 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 @Override
 public org.rascalmpl.interpreter.matching.IMatchingResult __evaluate(org.rascalmpl.interpreter.PatternEvaluator __eval) {
 	
-		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 	
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		java.lang.String str = this.getBooleanLiteral().toString();
 		return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), __eval.__getVf().bool(str.equals("true")), __eval);
@@ -139,9 +139,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getDateTimeLiteral().__evaluate(__eval);
+		return this.getDateTimeLiteral().interpret(__eval);
 	
 }
 
@@ -158,9 +158,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getLocationLiteral().__evaluate(__eval);
+		return this.getLocationLiteral().interpret(__eval);
 	
 }
 
@@ -179,12 +179,12 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 @Override
 public org.rascalmpl.interpreter.matching.IMatchingResult __evaluate(org.rascalmpl.interpreter.PatternEvaluator __eval) {
 	
-		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+		return new org.rascalmpl.interpreter.matching.LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 	
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.ast.StringLiteral lit = this.getStringLiteral();
 
@@ -198,7 +198,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 		}
 		else {
 			org.rascalmpl.ast.Statement stat = org.rascalmpl.interpreter.StringTemplateConverter.convert(lit);
-			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> value = stat.__evaluate(__eval);
+			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> value = stat.interpret(__eval);
 			if (!value.getType().isListType()) {
 				throw new org.rascalmpl.interpreter.asserts.ImplementationError("template eval returns non-list");
 			}

@@ -22,10 +22,10 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject = this.getSubject().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject = this.getSubject().interpret(__eval);
 		java.util.List<org.rascalmpl.ast.Case> cases = this.getCases();
 		org.rascalmpl.interpreter.TraversalEvaluator te = new org.rascalmpl.interpreter.TraversalEvaluator(__eval);
 
@@ -48,9 +48,9 @@ public GivenStrategy (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast
 	super(__param1,__param2,__param3,__param4);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject = this.getSubject().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject = this.getSubject().interpret(__eval);
 
 		// TODO: warning switched to static type here, but not sure if that's correct...
 		org.eclipse.imp.pdb.facts.type.Type subjectType = subject.getType();

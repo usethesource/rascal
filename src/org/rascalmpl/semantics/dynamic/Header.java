@@ -18,7 +18,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.visitImports(this.getImports());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -45,7 +45,7 @@ public Default (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Tags 
 	super(__param1,__param2,__param3,__param4);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.visitImports(this.getImports());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();

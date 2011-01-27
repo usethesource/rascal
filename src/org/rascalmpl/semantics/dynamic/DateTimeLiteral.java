@@ -13,9 +13,9 @@ public DateAndTimeLiteral (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmp
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getDateAndTime().__evaluate(__eval);
+		return this.getDateAndTime().interpret(__eval);
 	
 }
 
@@ -49,9 +49,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getTime().__evaluate(__eval);
+		return this.getTime().interpret(__eval);
 	
 }
 
@@ -68,9 +68,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getDate().__evaluate(__eval);
+		return this.getDate().interpret(__eval);
 	
 }
 

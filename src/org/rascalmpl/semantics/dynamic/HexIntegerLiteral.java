@@ -25,7 +25,7 @@ public Lexical (org.eclipse.imp.pdb.facts.INode __param1,java.lang.String __para
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		java.lang.String chars = this.getString();
 		java.lang.String hex = chars.substring(2, chars.length());

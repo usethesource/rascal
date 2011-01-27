@@ -13,7 +13,7 @@ public Solve (org.eclipse.imp.pdb.facts.INode __param1,java.util.List<org.rascal
 	super(__param1,__param2,__param3,__param4);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		int size = this.getVariables().size();
 		org.rascalmpl.ast.QualifiedName vars[] = new org.rascalmpl.ast.QualifiedName[size];
@@ -43,7 +43,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 
 			org.rascalmpl.ast.Bound bound= this.getBound();
 			if(bound.isDefault()){
-				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> res = bound.getExpression().__evaluate(__eval);
+				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> res = bound.getExpression().interpret(__eval);
 				if(!res.getType().isIntegerType()){
 					throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().integerType(),res.getType(), this);
 				}
@@ -62,7 +62,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 				change = false;
 				iterations++;
 				if (__eval.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(__eval.getStackTrace());
-				bodyResult = body.__evaluate(__eval);
+				bodyResult = body.interpret(__eval);
 				for(int i = 0; i < size; i++){
 					org.rascalmpl.ast.QualifiedName var = vars[i];
 					org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> v = __eval.getCurrentEnvt().getVariable(var);
@@ -93,7 +93,7 @@ public Break (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Target 
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented(this.toString()); // TODO
 	
@@ -117,9 +117,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getDeclaration().__evaluate(__eval);
+		return this.getDeclaration().interpret(__eval);
 	
 }
 
@@ -131,7 +131,7 @@ public Fail (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Target _
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		if (!this.getTarget().isEmpty()) {
 			throw new org.rascalmpl.interpreter.control_exceptions.Failure(this.getTarget().getName().toString());
@@ -154,9 +154,9 @@ public Insert (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.DataTa
 	super(__param1,__param2,__param3);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		throw new org.rascalmpl.interpreter.control_exceptions.Insert(this.getStatement().__evaluate(__eval));
+		throw new org.rascalmpl.interpreter.control_exceptions.Insert(this.getStatement().interpret(__eval));
 	
 }
 
@@ -178,13 +178,13 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.env.Environment old = __eval.getCurrentEnvt();
 
 		try {
 			__eval.pushEnv();
-			return this.getExpression().__evaluate(__eval);
+			return this.getExpression().interpret(__eval);
 		}
 		finally {
 			__eval.unwind(old);
@@ -205,7 +205,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		return __eval.evalStatementTry(this.getBody(), this.getHandlers(), null);
 	
@@ -224,14 +224,14 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = this.getExpression().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = this.getExpression().interpret(__eval);
 		if (!r.getType().equals(org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 			throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(),r.getType(), this);	
 		}
 		if(r.getValue().isEqual(__eval.__getVf().bool(false))){
-			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> msgValue = this.getMessage().__evaluate(__eval);
+			org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> msgValue = this.getMessage().interpret(__eval);
 			org.eclipse.imp.pdb.facts.IString msg = __eval.__getVf().string(org.rascalmpl.interpreter.utils.Utils.unescape(msgValue.getValue().toString(), this, __eval.getCurrentEnvt()));
 			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.assertionFailed(msg, __eval.getCurrentAST(), __eval.getStackTrace());
 		}
@@ -252,7 +252,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.Accumulator target = null;
 		if (__eval.__getAccumulators().empty()) {
@@ -273,7 +273,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 		else {
 			target = __eval.__getAccumulators().peek();
 		}
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result = this.getStatement().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result = this.getStatement().interpret(__eval);
 		target.append(result);
 		return result;
 	
@@ -292,7 +292,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.ast.Statement body = this.getThenStatement();
 		java.util.List<org.rascalmpl.ast.Expression> generators = this.getConditions();
@@ -313,7 +313,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						__eval.setCurrentAST(body);
-						return body.__evaluate(__eval);
+						return body.interpret(__eval);
 					}
 
 					i++;
@@ -347,14 +347,14 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject = this.getExpression().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> subject = this.getExpression().interpret(__eval);
 
 		for(org.rascalmpl.ast.Case cs : this.getCases()){
 			if(cs.isDefault()){
 				// TODO: what if the default statement uses a fail statement?
-				return cs.getStatement().__evaluate(__eval);
+				return cs.getStatement().interpret(__eval);
 			}
 			org.rascalmpl.ast.PatternWithAction rule = cs.getPatternWithAction();
 			if(rule.isArbitrary() && __eval.matchAndEval(subject, rule.getPattern(), rule.getStatement())){
@@ -388,7 +388,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.ast.Statement body = this.getBody();
 		java.util.List<org.rascalmpl.ast.Expression> generators = this.getConditions();
@@ -421,7 +421,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 					if (__eval.__getInterrupt()) throw new org.rascalmpl.interpreter.control_exceptions.InterruptException(__eval.getStackTrace());
 					if(gens[i].hasNext() && gens[i].next()){
 						if(i == size - 1){
-							body.__evaluate(__eval);
+							body.interpret(__eval);
 							continue loop;
 						}
 
@@ -458,9 +458,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		throw new org.rascalmpl.interpreter.control_exceptions.Return(this.getStatement().__evaluate(__eval), this.getStatement().getLocation());
+		throw new org.rascalmpl.interpreter.control_exceptions.Return(this.getStatement().interpret(__eval), this.getStatement().getLocation());
 	
 }
 
@@ -477,7 +477,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.ast.Statement body = this.getThenStatement();
 		java.util.List<org.rascalmpl.ast.Expression> generators = this.getConditions();
@@ -497,7 +497,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						__eval.setCurrentAST(body);
-						return body.__evaluate(__eval);
+						return body.interpret(__eval);
 					}
 
 					i++;
@@ -517,7 +517,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 
 		org.rascalmpl.ast.Statement elsePart = this.getElseStatement();
 		__eval.setCurrentAST(elsePart);
-		return elsePart.__evaluate(__eval);
+		return elsePart.interpret(__eval);
 	
 }
 
@@ -534,9 +534,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> right = this.getStatement().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> right = this.getStatement().interpret(__eval);
 		return this.getAssignable().__evaluate(new org.rascalmpl.interpreter.AssignableEvaluator(__eval.getCurrentEnvt(), this.getOperator(), right, __eval));
 	
 }
@@ -554,7 +554,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.Ambiguous((org.eclipse.imp.pdb.facts.IConstructor) this.getTree());
 	
@@ -573,7 +573,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		org.rascalmpl.interpreter.env.Environment old = __eval.getCurrentEnvt();
@@ -582,7 +582,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 		try {
 			for (org.rascalmpl.ast.Statement stat : this.getStatements()) {
 				__eval.setCurrentAST(stat);
-				r = stat.__evaluate(__eval);
+				r = stat.interpret(__eval);
 			}
 		}
 		finally {
@@ -600,7 +600,7 @@ public GlobalDirective (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.a
 	super(__param1,__param2,__param3);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented(this.toString()); // TODO
 	
@@ -624,7 +624,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.ast.Statement body = this.getBody();
 		java.util.List<org.rascalmpl.ast.Expression> generators = this.getGenerators();
@@ -657,7 +657,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						// NB: no result handling here.
-						body.__evaluate(__eval);
+						body.interpret(__eval);
 					} else {
 						i++;
 						gens[i] = __eval.makeBooleanResult(generators.get(i));
@@ -693,7 +693,7 @@ public TryFinally (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.St
 	super(__param1,__param2,__param3,__param4);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		return __eval.evalStatementTry(this.getBody(), this.getHandlers(), this.getFinallyBody());
 	
@@ -717,9 +717,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getVisit().__evaluate(__eval);
+		return this.getVisit().interpret(__eval);
 	
 }
 
@@ -731,7 +731,7 @@ public Continue (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Targ
 	super(__param1,__param2);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented(this.toString()); // TODO
 	
@@ -755,9 +755,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		throw new org.rascalmpl.interpreter.control_exceptions.Throw(this.getStatement().__evaluate(__eval).getValue(), __eval.getCurrentAST(), __eval.getStackTrace());
+		throw new org.rascalmpl.interpreter.control_exceptions.Throw(this.getStatement().interpret(__eval).getValue(), __eval.getCurrentAST(), __eval.getStackTrace());
 	
 }
 
@@ -774,7 +774,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.ast.Statement body = this.getBody();
 		org.rascalmpl.ast.Expression generator = this.getCondition();
@@ -789,7 +789,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 		
 		while (true) {
 			try {
-				body.__evaluate(__eval);
+				body.interpret(__eval);
 
 				gen = __eval.makeBooleanResult(generator);
 				gen.init();
@@ -818,9 +818,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = this.getExpression().__evaluate(__eval);
+		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = this.getExpression().interpret(__eval);
 		if (!r.getType().equals(org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 			throw new org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), r.getType(), this);	
 		}
@@ -840,7 +840,7 @@ public EmptyStatement (org.eclipse.imp.pdb.facts.INode __param1) {
 	super(__param1);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	
@@ -864,9 +864,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getFunctionDeclaration().__evaluate(__eval);
+		return this.getFunctionDeclaration().interpret(__eval);
 	
 }
 

@@ -18,7 +18,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		// TODO implement
 		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented("Views");
@@ -38,9 +38,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getTest().__evaluate(__eval);
+		return this.getTest().interpret(__eval);
 	
 }
 
@@ -52,7 +52,7 @@ public Alias (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Tags __
 	super(__param1,__param2,__param3,__param4,__param5);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.__getTypeDeclarator().declareAlias(this, __eval.getCurrentEnvt());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -77,7 +77,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.eclipse.imp.pdb.facts.type.Type annoType = new org.rascalmpl.interpreter.TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getAnnoType());
 		java.lang.String name = org.rascalmpl.interpreter.utils.Names.name(this.getName());
@@ -109,7 +109,7 @@ public DataAbstract (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.
 	super(__param1,__param2,__param3,__param4);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.__getTypeDeclarator().declareAbstractADT(this, __eval.getCurrentEnvt());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -134,7 +134,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		__eval.setCurrentAST(this);
@@ -143,7 +143,7 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 			org.eclipse.imp.pdb.facts.type.Type declaredType = new org.rascalmpl.interpreter.TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getType());
 
 			if (var.isInitialized()) {  
-				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> v = var.getInitial().__evaluate(__eval);
+				org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> v = var.getInitial().interpret(__eval);
 
 				if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 					throw new org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var);
@@ -178,9 +178,9 @@ public Rule (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Tags __p
 	super(__param1,__param2,__param3,__param4);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getPatternAction().__evaluate(__eval);
+		return this.getPatternAction().interpret(__eval);
 	
 }
 
@@ -202,7 +202,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		throw new org.rascalmpl.interpreter.asserts.NotYetImplemented("tags");
 	
@@ -221,7 +221,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		__eval.__getTypeDeclarator().declareConstructor(this, __eval.getCurrentEnvt());
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -241,9 +241,9 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
-		return this.getFunctionDeclaration().__evaluate(__eval);
+		return this.getFunctionDeclaration().interpret(__eval);
 	
 }
 

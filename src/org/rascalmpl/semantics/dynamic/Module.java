@@ -25,7 +25,7 @@ public Default (org.eclipse.imp.pdb.facts.INode __param1,org.rascalmpl.ast.Heade
 	super(__param1,__param2,__param3);
 }
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		java.lang.String name = __eval.getModuleName(this);
 
@@ -42,14 +42,14 @@ public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue>
 			org.rascalmpl.interpreter.env.Environment oldEnv = __eval.getCurrentEnvt();
 			__eval.setCurrentEnvt(env); // such that declarations end up in the module scope
 			try {
-				this.getHeader().__evaluate(__eval);
+				this.getHeader().interpret(__eval);
 
 				java.util.List<org.rascalmpl.ast.Toplevel> decls = this.getBody().getToplevels();
 				__eval.__getTypeDeclarator().evaluateSyntaxDefinitions(this.getHeader().getImports(), __eval.getCurrentEnvt());
 				__eval.__getTypeDeclarator().evaluateDeclarations(decls, __eval.getCurrentEnvt());
 
 				for (org.rascalmpl.ast.Toplevel l : decls) {
-					l.__evaluate(__eval);
+					l.interpret(__eval);
 				}
 
 				// only after everything was successful mark the module initialized

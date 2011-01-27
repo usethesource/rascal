@@ -18,13 +18,13 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> result = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		for (org.rascalmpl.ast.Statement statement : this.getStatements()) {
 			__eval.setCurrentAST(statement);
-			result = statement.__evaluate(__eval);
+			result = statement.interpret(__eval);
 		}
 
 		return result;

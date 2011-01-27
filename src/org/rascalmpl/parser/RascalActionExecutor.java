@@ -71,11 +71,11 @@ public class RascalActionExecutor implements IActionExecutor{
 			if(action.isBuild()){
 				// TODO add type checking
 				eval.setCurrentAST(action.getExpression());
-				return (IConstructor) action.getExpression().__evaluate(eval).getValue();
+				return (IConstructor) action.getExpression().interpret(eval).getValue();
 			}
 			for(Statement s : action.getStatements()){
 				eval.setCurrentAST(s);
-				s.__evaluate(eval);
+				s.interpret(eval);
 			}
 			
 			// nothing happens to the tree, but side-effects may have occurred

@@ -32,7 +32,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.matching.IMatchingResult pv = this.getPattern().__evaluate((org.rascalmpl.interpreter.PatternEvaluator)__eval.__getPatternEvaluator());
 		
@@ -70,7 +70,7 @@ public <T>  T __evaluate(org.rascalmpl.ast.NullASTVisitor<T> __eval) {
 }
 
 @Override
-public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> __evaluate(org.rascalmpl.interpreter.Evaluator __eval) {
+public org.rascalmpl.interpreter.result.Result<org.eclipse.imp.pdb.facts.IValue> interpret(org.rascalmpl.interpreter.Evaluator __eval) {
 	
 		org.rascalmpl.interpreter.matching.IMatchingResult pv = this.getPattern().__evaluate((org.rascalmpl.interpreter.PatternEvaluator)__eval.__getPatternEvaluator());
 		org.eclipse.imp.pdb.facts.type.Type pt = pv.getType(__eval.getCurrentEnvt());
