@@ -27,7 +27,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String str = ((Lexical) this.getDecimal()).getString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().integerType(), __eval.__getVf().integer(str), __eval);
@@ -61,9 +61,9 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getOctal().__evaluate(__eval);
+			return this.getOctal().interpret(__eval);
 
 		}
 
@@ -81,9 +81,9 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getHex().__evaluate(__eval);
+			return this.getHex().interpret(__eval);
 
 		}
 

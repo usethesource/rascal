@@ -43,10 +43,10 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String name = "rascal.config." + this.getName().toString();
-			String value = this.getExpression().__evaluate(__eval).getValue().toString();
+			String value = this.getExpression().interpret(__eval).getValue().toString();
 
 			java.lang.System.setProperty(name, value);
 
@@ -70,7 +70,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.printVisibleDeclaredObjects(__eval.getStdOut());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -86,7 +86,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.printHelpMessage(__eval.getStdOut());
@@ -121,7 +121,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(), __eval);
 
@@ -159,7 +159,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new QuitException();
 
@@ -179,7 +179,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			((ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unImport(this.getName().toString());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -208,7 +208,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 

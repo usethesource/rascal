@@ -97,7 +97,7 @@ public abstract class AbstractAST implements IVisitable {
 		return null;
 	}
 
-	public Result<IValue> __evaluate(Evaluator eval) {
+	public Result<IValue> interpret(Evaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}

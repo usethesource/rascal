@@ -60,12 +60,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public IMatchingResult __evaluate(PatternEvaluator __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.lang.String str = this.getRealLiteral().toString();
 			if (str.toLowerCase().endsWith("d")) {
@@ -91,14 +91,14 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public IMatchingResult __evaluate(PatternEvaluator __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getIntegerLiteral().__evaluate(__eval);
+			return this.getIntegerLiteral().interpret(__eval);
 
 		}
 
@@ -123,7 +123,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new SyntaxError("regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).", this.getLocation());
 
@@ -145,12 +145,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public IMatchingResult __evaluate(PatternEvaluator __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.lang.String str = this.getBooleanLiteral().toString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), __eval.__getVf().bool(str.equals("true")), __eval);
@@ -171,9 +171,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getDateTimeLiteral().__evaluate(__eval);
+			return this.getDateTimeLiteral().interpret(__eval);
 
 		}
 
@@ -191,9 +191,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getLocationLiteral().__evaluate(__eval);
+			return this.getLocationLiteral().interpret(__eval);
 
 		}
 
@@ -213,12 +213,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public IMatchingResult __evaluate(PatternEvaluator __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.__evaluate(__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			StringLiteral lit = this.getStringLiteral();
 			IValueFactory vf = __eval.__getVf();
@@ -251,7 +251,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 					
 			} else {
 				Statement stat = org.rascalmpl.interpreter.StringTemplateConverter.convert(lit);
-				Result<IValue> value = stat.__evaluate(__eval);
+				Result<IValue> value = stat.interpret(__eval);
 				if (!value.getType().isListType()) {
 					throw new ImplementationError("template eval returns non-list");
 				}

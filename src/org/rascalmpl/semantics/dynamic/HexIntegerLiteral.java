@@ -35,7 +35,7 @@ public abstract class HexIntegerLiteral extends org.rascalmpl.ast.HexIntegerLite
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String chars = this.getString();
 			String hex = chars.substring(2, chars.length());

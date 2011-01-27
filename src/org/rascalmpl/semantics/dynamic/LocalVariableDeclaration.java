@@ -26,10 +26,10 @@ public abstract class LocalVariableDeclaration extends org.rascalmpl.ast.LocalVa
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO deal with dynamic variables
-			return this.getDeclarator().__evaluate(__eval);
+			return this.getDeclarator().interpret(__eval);
 
 		}
 

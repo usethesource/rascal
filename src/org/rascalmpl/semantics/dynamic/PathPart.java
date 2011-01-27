@@ -31,11 +31,11 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> pre = this.getPre().__evaluate(__eval);
-			Result<IValue> expr = this.getExpression().__evaluate(__eval);
-			Result<IValue> tail = this.getTail().__evaluate(__eval);
+			Result<IValue> pre = this.getPre().interpret(__eval);
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			Result<IValue> tail = this.getTail().interpret(__eval);
 			StringBuilder result = new StringBuilder();
 
 			result.append(((IString) pre.getValue()).getValue());
@@ -55,9 +55,9 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getPathChars().__evaluate(__eval);
+			return this.getPathChars().interpret(__eval);
 
 		}
 

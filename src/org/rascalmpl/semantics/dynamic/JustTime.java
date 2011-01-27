@@ -26,7 +26,7 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// Time is of the form $T<time>
 			String timePart = this.getString().substring(2);

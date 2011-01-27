@@ -55,7 +55,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO support for full complexity of import declarations
 			String name = __eval.getUnescapedModuleName(this);
@@ -94,7 +94,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareSyntaxType(this.getSyntax().getDefined(), __eval.getCurrentEnvt());
 			__eval.getCurrentEnvt().declareProduction(this);

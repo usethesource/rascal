@@ -49,7 +49,7 @@ public abstract class PatternWithAction extends org.rascalmpl.ast.PatternWithAct
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			IMatchingResult pv = this.getPattern().__evaluate((PatternEvaluator) __eval.__getPatternEvaluator());
 
@@ -88,7 +88,7 @@ public abstract class PatternWithAction extends org.rascalmpl.ast.PatternWithAct
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			IMatchingResult pv = this.getPattern().__evaluate((PatternEvaluator) __eval.__getPatternEvaluator());
 			Type pt = pv.getType(__eval.getCurrentEnvt());

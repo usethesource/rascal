@@ -97,7 +97,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			BasicType basic = this.getBasicType();
 			java.util.List<org.rascalmpl.ast.Expression> args = this.getArguments();
@@ -107,7 +107,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			int i = 0;
 			boolean valued = false;
 			for (org.rascalmpl.ast.Expression a : args) {
-				Result<IValue> argResult = a.__evaluate(__eval);
+				Result<IValue> argResult = a.interpret(__eval);
 				Type argType = argResult.getType();
 
 				if (argType instanceof org.rascalmpl.interpreter.types.ReifiedType) {
@@ -156,11 +156,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> from = this.getFirst().__evaluate(__eval);
-			Result<IValue> to = this.getLast().__evaluate(__eval);
-			Result<IValue> second = this.getSecond().__evaluate(__eval);
+			Result<IValue> from = this.getFirst().interpret(__eval);
+			Result<IValue> to = this.getLast().interpret(__eval);
+			Result<IValue> second = this.getSecond().interpret(__eval);
 			return from.makeStepRange(to, second);
 
 		}
@@ -168,7 +168,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -193,7 +193,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -229,13 +229,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getArgument().__evaluate(__eval).transitiveClosure();
+			return this.getArgument().interpret(__eval).transitiveClosure();
 
 		}
 
@@ -260,7 +260,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Name name = this.getName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
@@ -300,10 +300,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.lessThan(right);
 
 		}
@@ -348,10 +348,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return right.notIn(left);
 
 		}
@@ -439,7 +439,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			if (__eval.__getInterrupt())
 				throw new InterruptException(__eval.getStackTrace());
@@ -456,7 +456,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			// the lookup without having problems with closure formation and scoping for nested
 			// functions.
 			if (function == null) {
-				this.cachedPrefix = function = this.getExpression().__evaluate(__eval);
+				this.cachedPrefix = function = this.getExpression().interpret(__eval);
 				if (function instanceof OverloadedFunctionResult) {
 					OverloadedFunctionResult ofr = (OverloadedFunctionResult) function;
 					for (AbstractFunction af : ofr.getCandidates()) {
@@ -483,7 +483,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type[] types = new Type[args.size()];
 
 			for (int i = 0; i < args.size(); i++) {
-				Result<IValue> resultElem = args.get(i).__evaluate(__eval);
+				Result<IValue> resultElem = args.get(i).interpret(__eval);
 				types[i] = resultElem.getType();
 				actuals[i] = resultElem.getValue();
 			}
@@ -536,7 +536,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -548,7 +548,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.util.List<org.rascalmpl.ast.Expression> elements = this.getElements();
 
@@ -562,7 +562,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			int skip = 0;
 
 			for (org.rascalmpl.ast.Expression expr : elements) {
-				Result<IValue> resultElem = expr.__evaluate(__eval);
+				Result<IValue> resultElem = expr.interpret(__eval);
 
 				if (resultElem.getType().isVoidType())
 					throw new NonVoidTypeRequired(expr);
@@ -649,7 +649,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.util.List<Mapping_Expression> mappings = this.getMappings();
 			java.util.Map<IValue, IValue> result = new HashMap<IValue, IValue>();
@@ -657,8 +657,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type valueType = org.rascalmpl.interpreter.Evaluator.__getTf().voidType();
 
 			for (Mapping_Expression mapping : mappings) {
-				Result<IValue> keyResult = mapping.getFrom().__evaluate(__eval);
-				Result<IValue> valueResult = mapping.getTo().__evaluate(__eval);
+				Result<IValue> keyResult = mapping.getFrom().interpret(__eval);
+				Result<IValue> valueResult = mapping.getTo().interpret(__eval);
 
 				if (keyResult.getType().isVoidType())
 					throw new NonVoidTypeRequired(mapping.getFrom());
@@ -688,7 +688,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -713,7 +713,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Type t = new TypeEvaluator(__eval.getCurrentEnvt(), __eval.__getHeap()).eval(this.getType());
 			return t.accept(new TypeReifier(__eval, __eval.__getVf()));
@@ -770,7 +770,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
@@ -810,12 +810,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Type formals = new TypeEvaluator(__eval.getCurrentEnvt(), __eval.__getHeap()).eval(this.getParameters());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance();
@@ -867,7 +867,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO: should allow qualified names in TypeVariables?!?
 			Result<IValue> result = __eval.getCurrentEnvt().getVariable(org.rascalmpl.interpreter.utils.Names.name(this.getName()));
@@ -901,7 +901,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -944,9 +944,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> result = this.getPattern().__evaluate(__eval);
+			Result<IValue> result = this.getPattern().interpret(__eval);
 			Type expected = new TypeEvaluator(__eval.getCurrentEnvt(), __eval.__getHeap()).eval(this.getType());
 
 			// TODO: clean up __eval hack
@@ -990,7 +990,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -1024,16 +1024,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getComprehension().__evaluate(__eval);
+			return this.getComprehension().interpret(__eval);
 
 		}
 
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1065,7 +1065,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Environment old = __eval.getCurrentEnvt();
 			try {
@@ -1096,9 +1096,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getVisit().__evaluate(__eval);
+			return this.getVisit().interpret(__eval);
 
 		}
 
@@ -1116,14 +1116,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> expr = this.getExpression().__evaluate(__eval);
+			Result<IValue> expr = this.getExpression().interpret(__eval);
 			int nSubs = this.getSubscripts().size();
 			Result<?> subscripts[] = new Result<?>[nSubs];
 			for (int i = 0; i < nSubs; i++) {
 				org.rascalmpl.ast.Expression subsExpr = this.getSubscripts().get(i);
-				subscripts[i] = __eval.isWildCard(subsExpr.toString()) ? null : subsExpr.__evaluate(__eval);
+				subscripts[i] = __eval.isWildCard(subsExpr.toString()) ? null : subsExpr.interpret(__eval);
 			}
 			return expr.subscript(subscripts);
 
@@ -1171,10 +1171,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.greaterThanOrEqual(right);
 
 		}
@@ -1188,10 +1188,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.intersect(right);
 
 		}
@@ -1204,7 +1204,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1231,7 +1231,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1243,7 +1243,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.util.List<org.rascalmpl.ast.Expression> elements = this.getElements();
 
@@ -1251,7 +1251,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type[] types = new Type[elements.size()];
 
 			for (int i = 0; i < elements.size(); i++) {
-				Result<IValue> resultElem = elements.get(i).__evaluate(__eval);
+				Result<IValue> resultElem = elements.get(i).interpret(__eval);
 				types[i] = resultElem.getType();
 				values[i] = resultElem.getValue();
 			}
@@ -1276,7 +1276,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalReducer(this.getInit(), this.getResult(), this.getGenerators());
 
@@ -1291,23 +1291,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Environment old = __eval.getCurrentEnvt();
 			__eval.pushEnv();
 
 			try {
-				Result<IValue> cval = this.getCondition().__evaluate(__eval);
+				Result<IValue> cval = this.getCondition().interpret(__eval);
 
 				if (!cval.getType().isBoolType()) {
 					throw new UnexpectedTypeError(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), cval.getType(), this);
 				}
 
 				if (cval.isTrue()) {
-					return this.getThenExp().__evaluate(__eval);
+					return this.getThenExp().interpret(__eval);
 				}
 
-				return this.getElseExp().__evaluate(__eval);
+				return this.getElseExp().interpret(__eval);
 			} finally {
 				__eval.unwind(old);
 			}
@@ -1347,11 +1347,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> base = this.getExpression().__evaluate(__eval);
+			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this.getName());
-			Result<IValue> anno = this.getValue().__evaluate(__eval);
+			Result<IValue> anno = this.getValue().interpret(__eval);
 			return base.setAnnotation(annoName, anno, __eval.getCurrentEnvt());
 
 		}
@@ -1359,7 +1359,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1395,9 +1395,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getPattern().__evaluate(__eval);
+			return this.getPattern().interpret(__eval);
 
 		}
 
@@ -1424,15 +1424,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.modulo(right);
 
 		}
@@ -1458,9 +1458,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> arg = this.getArgument().__evaluate(__eval);
+			Result<IValue> arg = this.getArgument().interpret(__eval);
 			return arg.negative();
 
 		}
@@ -1468,7 +1468,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1495,15 +1495,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.subtract(right);
 
 		}
@@ -1531,14 +1531,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getArgument().__evaluate(__eval).transitiveReflexiveClosure();
+			return this.getArgument().interpret(__eval).transitiveReflexiveClosure();
 
 		}
 
@@ -1558,7 +1558,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Type formals = new TypeEvaluator(__eval.getCurrentEnvt(), __eval.__getHeap()).eval(this.getParameters());
 			Type returnType = __eval.evalType(this.getType());
@@ -1576,7 +1576,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1601,7 +1601,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -1642,10 +1642,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.greaterThan(right);
 
 		}
@@ -1678,10 +1678,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			try {
-				this.getArgument().__evaluate(__eval); // wait for exception
+				this.getArgument().interpret(__eval); // wait for exception
 				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), __eval.__getVf().bool(true), __eval);
 
 			} catch (Throw e) {
@@ -1701,10 +1701,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO: move to result classes
-			Result<IValue> base = this.getExpression().__evaluate(__eval);
+			Result<IValue> base = this.getExpression().interpret(__eval);
 
 			Type baseType = base.getType();
 			if (!baseType.isTupleType() && !baseType.isRelationType() && !baseType.isMapType()) {
@@ -1718,7 +1718,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			for (int i = 0; i < nFields; i++) {
 				Field f = fields.get(i);
 				if (f.isIndex()) {
-					selectedFields[i] = ((IInteger) f.getFieldIndex().__evaluate(__eval).getValue()).intValue();
+					selectedFields[i] = ((IInteger) f.getFieldIndex().interpret(__eval).getValue()).intValue();
 				} else {
 					String fieldName = org.rascalmpl.interpreter.utils.Names.name(f.getFieldName());
 					try {
@@ -1749,7 +1749,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1774,10 +1774,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.equals(right);
 
 		}
@@ -1805,9 +1805,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> expr = this.getExpression().__evaluate(__eval);
+			Result<IValue> expr = this.getExpression().interpret(__eval);
 			String field = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			return expr.fieldAccess(field, __eval.getCurrentEnvt().getStore());
@@ -1847,11 +1847,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// IListWriter w = vf.listWriter(tf.integerType());
-			Result<IValue> from = this.getFirst().__evaluate(__eval);
-			Result<IValue> to = this.getLast().__evaluate(__eval);
+			Result<IValue> from = this.getFirst().interpret(__eval);
+			Result<IValue> to = this.getLast().interpret(__eval);
 			return from.makeRange(to);
 
 		}
@@ -1859,7 +1859,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1884,7 +1884,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO: what would be the value of a descendant pattern???
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -1920,10 +1920,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.add(right);
 
 		}
@@ -1931,7 +1931,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1956,10 +1956,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> expr = this.getExpression().__evaluate(__eval);
-			Result<IValue> repl = this.getReplacement().__evaluate(__eval);
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			Result<IValue> repl = this.getReplacement().interpret(__eval);
 			String name = org.rascalmpl.interpreter.utils.Names.name(this.getKey());
 			return expr.fieldUpdate(name, repl, __eval.getCurrentEnvt().getStore());
 
@@ -1968,7 +1968,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -1993,7 +1993,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -2035,7 +2035,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO: what would be the value of an anti expression???
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -2065,7 +2065,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.util.List<org.rascalmpl.ast.Expression> elements = this.getElements();
 
@@ -2073,7 +2073,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.List<IValue> results = new ArrayList<IValue>();
 
 			for (org.rascalmpl.ast.Expression expr : elements) {
-				Result<IValue> resultElem = expr.__evaluate(__eval);
+				Result<IValue> resultElem = expr.interpret(__eval);
 				if (resultElem.getType().isVoidType())
 					throw new NonVoidTypeRequired(expr);
 
@@ -2107,7 +2107,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -2125,7 +2125,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result __evaluate(Evaluator __eval) {
+		public Result interpret(Evaluator __eval) {
 
 			java.util.List<org.rascalmpl.ast.Expression> producers = this.getGenerators();
 			int size = producers.size();
@@ -2199,9 +2199,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getPattern().__evaluate(__eval);
+			return this.getPattern().interpret(__eval);
 
 		}
 
@@ -2236,10 +2236,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return right.in(left);
 
 		}
@@ -2267,9 +2267,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> base = this.getExpression().__evaluate(__eval);
+			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this.getName());
 			return base.getAnnotation(annoName, __eval.getCurrentEnvt());
 
@@ -2308,7 +2308,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -2337,7 +2337,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> v = __eval.getCurrentEnvt().getVariable(org.rascalmpl.interpreter.Evaluator.IT);
 			if (v == null) {
@@ -2366,10 +2366,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.compose(right);
 
 		}
@@ -2377,7 +2377,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -2397,10 +2397,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.join(right);
 
 		}
@@ -2424,10 +2424,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.lessThanOrEqual(right);
 
 		}
@@ -2474,9 +2474,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getExpression().__evaluate(__eval);
+			return this.getExpression().interpret(__eval);
 
 		}
 
@@ -2494,16 +2494,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			try {
-				return this.getLhs().__evaluate(__eval);
+				return this.getLhs().interpret(__eval);
 			} catch (UninitializedVariableError e) {
-				return this.getRhs().__evaluate(__eval);
+				return this.getRhs().interpret(__eval);
 			} catch (Throw e) {
 				// TODO For now we __evaluate any Throw here, restrict to
 				// NoSuchKey and NoSuchAnno?
-				return this.getRhs().__evaluate(__eval);
+				return this.getRhs().interpret(__eval);
 			}
 
 		}
@@ -2534,14 +2534,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (this.getLiteral().isBoolean()) {
 				return new BasicBooleanResult(__eval.__getCtx(), this);
 			}
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getLiteral().__evaluate(__eval);
+			return this.getLiteral().interpret(__eval);
 
 		}
 
@@ -2561,15 +2561,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.multiply(right);
 
 		}
@@ -2609,7 +2609,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new Ambiguous((IConstructor) this.getTree());
 
@@ -2624,10 +2624,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.divide(right);
 
 		}
@@ -2640,7 +2640,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult __evaluate(BooleanEvaluator __eval) {
 
-			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.__evaluate(__eval.__getCtx().getEvaluator()).getType(), this);
+			throw new UnexpectedTypeError(__eval.__getTf().boolType(), this.interpret(__eval.__getCtx().getEvaluator()).getType(), this);
 
 		}
 
@@ -2660,10 +2660,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			ASTFactory factory = org.rascalmpl.ast.ASTFactoryFactory.getASTFactory();
-			return factory.makeStatementNonEmptyBlock(this.getTree(), factory.makeLabelEmpty(this.getTree()), this.getStatements()).__evaluate(__eval);
+			return factory.makeStatementNonEmptyBlock(this.getTree(), factory.makeLabelEmpty(this.getTree()), this.getStatements()).interpret(__eval);
 
 		}
 
@@ -2686,7 +2686,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result __evaluate(Evaluator __eval) {
+		public Result interpret(Evaluator __eval) {
 
 			java.util.List<org.rascalmpl.ast.Expression> generators = this.getGenerators();
 			int size = generators.size();
@@ -2742,7 +2742,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.evalBooleanExpression(this);
 
@@ -2783,10 +2783,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> left = this.getLhs().__evaluate(__eval);
-			Result<IValue> right = this.getRhs().__evaluate(__eval);
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.nonEquals(right);
 
 		}

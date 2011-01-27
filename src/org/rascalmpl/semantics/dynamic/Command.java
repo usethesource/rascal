@@ -29,9 +29,9 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 			__eval.setCurrentAST(this);
-			return this.getImported().__evaluate(__eval);
+			return this.getImported().interpret(__eval);
 		}
 
 	}
@@ -43,10 +43,10 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			return this.getCommand().__evaluate(__eval);
+			return this.getCommand().interpret(__eval);
 
 		}
 
@@ -69,7 +69,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new Ambiguous((IConstructor) this.getTree());
 
@@ -89,7 +89,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this.getStatement());
 			return __eval.eval(this.getStatement());
@@ -110,14 +110,14 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			Environment old = __eval.getCurrentEnvt();
 
 			try {
 				__eval.pushEnv();
 				__eval.setCurrentAST(this.getExpression());
-				return this.getExpression().__evaluate(__eval);
+				return this.getExpression().interpret(__eval);
 			} finally {
 				__eval.unwind(old);
 			}
@@ -138,10 +138,10 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			return this.getDeclaration().__evaluate(__eval);
+			return this.getDeclaration().interpret(__eval);
 
 		}
 
