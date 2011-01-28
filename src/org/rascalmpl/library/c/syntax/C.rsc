@@ -30,7 +30,7 @@ syntax Expression = Identifier |
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
-                    Expression "->" Identifier |
+                    Expression "-\>" Identifier |
                     Expression "++" |
                     Expression "--" >
                     "++" Expression | // Add precede restriction "+"
@@ -53,14 +53,14 @@ syntax Expression = Identifier |
                          Expression "-" Expression
                     ) >
                     left (
-                         Expression "<<" Expression |
-                         Expression ">>" Expression
+                         Expression "\<\<" Expression |
+                         Expression "\>\>" Expression
                     ) >
                     left (
-                         Expression "<" Expression |
-                         Expression ">" Expression |
-                         Expression "<=" Expression |
-                         Expression ">=" Expression
+                         Expression "\<" Expression |
+                         Expression "\>" Expression |
+                         Expression "\<=" Expression |
+                         Expression "\>=" Expression
                     ) >
                     left (
                          Expression "==" Expression |
@@ -79,8 +79,8 @@ syntax Expression = Identifier |
                           Expression "%=" Expression |
                           Expression "+=" Expression |
                           Expression "-=" Expression |
-                          Expression "<<=" Expression |
-                          Expression ">>=" Expression |
+                          Expression "\<\<=" Expression |
+                          Expression "\>\>=" Expression |
                           Expression "&=" Expression |
                           Expression "^=" Expression |
                           Expression "|=" Expression
@@ -88,8 +88,8 @@ syntax Expression = Identifier |
                     left Expression "," Expression
                     ;
 
-syntax Identifier = lex [a-zA-Z\_][a-zA-Z\_0-9]*
-                    # [0-9a-zA-Z\_]
+syntax Identifier = lex [a-zA-Z_][a-zA-Z_0-9]*
+                    # [0-9a-zA-Z_]
                     - Keyword
                     ;
 
@@ -128,7 +128,7 @@ syntax Keyword = "auto" |
                  "void" |
                  "volatile" |
                  "while"
-                 # [0-9a-zA-Z\_]
+                 # [0-9a-zA-Z_]
                  ;
 
 syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" |
@@ -185,8 +185,10 @@ syntax Initializer = Expression |
 syntax TypeName = Specifier+ AbstractDeclarator
                   ;
 
-syntax Pointer = ("*" Specifier*)+
+syntax Pointer = PointerContent+
                  ;
+
+syntax PointerContent = "*" Specifier*;
 
 syntax Enumerator = Identifier |
                     Identifier "=" Expression
@@ -218,19 +220,27 @@ syntax IntegerConstant = lex [0-9]+ [uUlL]*
                          # [0-9]
                          ;
 
-syntax CharacterConstant = lex [L]? [\'] (([\\]~[])|~[\\\'])+ [\']
+syntax CharacterConstant = lex [L]? [\'] CharacterConstantContent+ [\']
                            ;
 
+syntax CharacterConstantContent = [\\]![]|
+                                  ![\\\']
+                                  ;
+
 syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
-                               lex [0-9]* [\.] [0-9]+ Exponent? [fFlL]? |
-                               lex [0-9]+ [\.] Exponent? [fFlL]?
+                               lex [0-9]* [.] [0-9]+ Exponent? [fFlL]? |
+                               lex [0-9]+ [.] Exponent? [fFlL]?
                                # [0-9]
                                ;
 
-syntax StringConstant = lex [L]? [\"] ( ([\\]~[]) | ~[\\\"] )* [\"]
+syntax StringConstant = lex [L]? [\"] StringConstant* [\"]
                         ;
 
-syntax Exponent = lex [Ee] [\+\-]? [0-9]+
+syntax StringConstantContent = [\\]![] |
+                               ![\\\"]
+                               ;
+
+syntax Exponent = lex [Ee] [+\-]? [0-9]+
                   ;
 
 syntax ExternalDeclaration = FunctionDefinition |
@@ -243,16 +253,16 @@ syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
 
-syntax Comment = lex [\/][\*] MultiLineCommentBodyToken* [\*][\/] | // category("Comment")
+syntax Comment = lex [/][*] MultiLineCommentBodyToken* [*][/] | // category("Comment")
                  lex "//" ![\n]* [\n] // category("Comment")
                  ;
 
-syntax MultiLineCommentBodyToken = lex ~[\*] |
+syntax MultiLineCommentBodyToken = lex ![*] |
                                    lex Asterisk
                                    ;
 
-syntax Asterisk = lex [\*]
-                  # [\/]
+syntax Asterisk = lex [*]
+                  # [/]
                   ;
 
 layout LAYOUTLIST = LAYOUT*
