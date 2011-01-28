@@ -20,11 +20,11 @@ syntax Statement = "{" Declaration* Statement*  "}" |
                    ;
 
 syntax Expression = Identifier |
-                    HexadecimalConstant | // {category("Constant")}
-                    IntegerConstant | // {category("Constant")}
-                    CharacterConstant | // {category("Constant")}
-                    FloatingPointConstant | // {category("Constant")}
-                    StringConstant | // {category("Constant")}
+                    @category="Constant" HexadecimalConstant |
+                    @category="Constant" IntegerConstant |
+                    @category="Constant" CharacterConstant |
+                    @category="Constant" FloatingPointConstant |
+                    @category="Constant" StringConstant |
                     Expression "[" Expression "]" | // TODO: Limit <0> to constants, identifiers and post-fix expressions.
                     Expression "(" {Expression ","}* ")" | // TODO: Limit <0> to constants, identifiers and post-fix expressions.
                     "sizeof" "(" TypeName ")" |
@@ -88,8 +88,8 @@ syntax Expression = Identifier |
                     left Expression "," Expression
                     ;
 
-syntax Identifier = lex [a-zA-Z_][a-zA-Z_0-9]*
-                    # [0-9a-zA-Z_]
+syntax Identifier = lex [a-zA-Z_][a-zA-Z0-9_]*
+                    # [a-zA-Z0-9_]
                     - Keyword
                     ;
 
@@ -128,7 +128,7 @@ syntax Keyword = "auto" |
                  "void" |
                  "volatile" |
                  "while"
-                 # [0-9a-zA-Z_]
+                 # [a-zA-Z0-9_]
                  ;
 
 syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" |
@@ -253,8 +253,8 @@ syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
 
-syntax Comment = lex [/][*] MultiLineCommentBodyToken* [*][/] | // category("Comment")
-                 lex "//" ![\n]* [\n] // category("Comment")
+syntax Comment = @category="Comment" lex [/][*] MultiLineCommentBodyToken* [*][/] |
+                 @category="Comment" lex "//" ![\n]* [\n]
                  ;
 
 syntax MultiLineCommentBodyToken = lex ![*] |
@@ -270,7 +270,7 @@ layout LAYOUTLIST = LAYOUT*
                     ;
 
 syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
-                lex Comment: Comment
+                @category="Comment" lex Comment: Comment
                 ;
 
 //////////////////////////// TODO: SDF stuff ////////////////////////////
