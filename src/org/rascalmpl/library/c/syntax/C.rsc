@@ -1,8 +1,8 @@
-module c::syntax::C
+module C
 
 /*
 Note: This grammar is intended for recognizing all valid C programs unambiguously.
-Non valid C programs might not fail recognition or be ambiguous;
+Non valid C programs may not fail recognition or be ambiguous;
 this is intentional and will never be a problem, we just require the input C code to compile without errors.
 */
 
@@ -31,8 +31,8 @@ syntax Expression = Identifier |
                     @category="Constant" CharacterConstant |
                     @category="Constant" FloatingPointConstant |
                     @category="Constant" StringConstant |
-                    Expression "[" Expression "]" | // TODO: the spec specifies a post-fix expression and up limit for <0>.
-                    Expression "(" {Expression ","}* ")" | // TODO: the spec specifies a post-fix expression and up limit for <0>.
+                    Expression "[" Expression "]" | // NOTE: the spec specifies a post-fix expression and up limit for <0>, which we can probably savely ignore.
+                    Expression "(" {Expression ","}* ")" | // NOTE: the spec specifies a post-fix expression and up limit for <0>, which we can probably savely ignore.
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
@@ -48,8 +48,7 @@ syntax Expression = Identifier |
                     "~" Expression |
                     "!" Expression |
                     "sizeof" Expression |
-                    "(" TypeName ")" Expression |
-                    right Expression "?" Expression ":" Expression > // TODO: the spec specifies a conditional and up limit for <0> and a logical-OR-expression and up limit <4>.
+                    "(" TypeName ")" Expression >
                     left (
                          Expression "*" Expression |
                          Expression "/" Expression |
@@ -78,6 +77,7 @@ syntax Expression = Identifier |
                     left Expression "|" Expression >
                     left Expression "&&" Expression >
                     left Expression "||" Expression >
+                    right Expression "?" Expression ":" Expression > // TODO: the spec specifies a conditional and up limit for <0> and a logical-OR-expression and up limit <4>; however <2> should be able to contain everything.
                     right (
                           Expression "=" Expression |
                           Expression "*=" Expression |
@@ -262,8 +262,8 @@ syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
 
-syntax Comment = @category="Comment" lex [/][*] MultiLineCommentBodyToken* [*][/] |
-                 @category="Comment" lex "//" ![\n]* [\n]
+syntax Comment = lex [/][*] MultiLineCommentBodyToken* [*][/] |
+                 lex "//" ![\n]* [\n]
                  ;
 
 syntax MultiLineCommentBodyToken = lex ![*] |
