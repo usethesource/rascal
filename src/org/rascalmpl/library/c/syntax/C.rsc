@@ -2,7 +2,7 @@ module c::syntax::C
 
 /*
 Note: This grammar is intended for recognizing all valid C programs unambiguously.
-Non valid C programs may not fail recognition or be ambiguous;
+Non valid C programs might not fail recognition or be ambiguous;
 this is intentional and will never be a problem, we just require the input C code to compile without errors.
 */
 
@@ -31,8 +31,8 @@ syntax Expression = Identifier |
                     @category="Constant" CharacterConstant |
                     @category="Constant" FloatingPointConstant |
                     @category="Constant" StringConstant |
-                    Expression "[" Expression "]" | // NOTE: the spec specifies a post-fix expression and up limit for <0>, which we can probably savely ignore.
-                    Expression "(" {Expression ","}* ")" | // NOTE: the spec specifies a post-fix expression and up limit for <0>, which we can probably savely ignore.
+                    Expression "[" Expression "]" | // TODO: the spec specifies a post-fix expression and up limit for <0>.
+                    Expression "(" {Expression ","}* ")" | // TODO: the spec specifies a post-fix expression and up limit for <0>.
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
@@ -49,7 +49,7 @@ syntax Expression = Identifier |
                     "!" Expression |
                     "sizeof" Expression |
                     "(" TypeName ")" Expression |
-                    right Expression "?" Expression ":" Expression > // NOTE: the spec specifies a conditional and up limit for <0> and a logical-OR-expression and up limit <4>, which we can probably savely ignore.
+                    right Expression "?" Expression ":" Expression > // TODO: the spec specifies a conditional and up limit for <0> and a logical-OR-expression and up limit <4>.
                     left (
                          Expression "*" Expression |
                          Expression "/" Expression |
