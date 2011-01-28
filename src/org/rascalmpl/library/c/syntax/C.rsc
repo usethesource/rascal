@@ -240,8 +240,27 @@ syntax ExternalDeclaration = FunctionDefinition |
 syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}"
                             ;
 
-syntax TranslationUnit = ExternalDeclaration+
-                         ;
+start syntax TranslationUnit = ExternalDeclaration+
+                               ;
+
+syntax Comment = lex [\/][\*] CommentBodyToken* [\*][\/] // category("Comment")
+                 ;
+
+syntax CommentBodyToken = lex ~[\*] |
+                          lex Asterisk
+                          ;
+
+syntax Asterisk = lex [\*]
+                  # [\/]
+                  ;
+
+layout LAYOUTLIST = LAYOUT*
+                    # [\ \t\n\r]
+                    ;
+
+syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
+                lex Comment: Comment
+                ;
 
 //////////////////////////// TODO: SDF stuff ////////////////////////////
 /*
