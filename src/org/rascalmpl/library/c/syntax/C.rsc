@@ -42,7 +42,8 @@ syntax Expression = Identifier |
                     "~" Expression |
                     "!" Expression |
                     "sizeof" Expression |
-                    "(" TypeName ")" Expression >
+                    "(" TypeName ")" Expression |
+                    right Expression "?" Expression ":" Expression -> Expression > // TODO: Limit <0> to conditional-expressions and up; the spec specifies a conditional and up limit for <4> as well, which we can probably savely ignore.
                     left (
                          Expression "*" Expression |
                          Expression "/" Expression |
@@ -71,7 +72,6 @@ syntax Expression = Identifier |
                     left Expression "|" Expression >
                     left Expression "&&" Expression >
                     left Expression "||" Expression >
-                    right Expression "?" Expression ":" Expression -> Expression >
                     right (
                           Expression "=" Expression |
                           Expression "*=" Expression |
