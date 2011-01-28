@@ -1,5 +1,11 @@
 module c::syntax::C
 
+/*
+Note: This grammar is intended for recognizing all valid C programs unambiguously.
+Non valid C programs may not fail recognition or be ambiguous;
+this is intentional and will never be a problem, we just require the input C code to compile without errors.
+*/
+
 syntax Statement = "{" Declaration* Statement*  "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
@@ -43,7 +49,7 @@ syntax Expression = Identifier |
                     "!" Expression |
                     "sizeof" Expression |
                     "(" TypeName ")" Expression |
-                    right Expression "?" Expression ":" Expression -> Expression > // NOTE: the spec specifies a conditional and up limit for <0> and <4>, which we can probably savely ignore.
+                    right Expression "?" Expression ":" Expression > // NOTE: the spec specifies a conditional and up limit for <0> and a logical-OR-expression and up limit <4>, which we can probably savely ignore.
                     left (
                          Expression "*" Expression |
                          Expression "/" Expression |
