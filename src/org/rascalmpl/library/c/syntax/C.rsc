@@ -25,8 +25,8 @@ syntax Expression = Identifier |
                     @category="Constant" CharacterConstant |
                     @category="Constant" FloatingPointConstant |
                     @category="Constant" StringConstant |
-                    Expression "[" Expression "]" | // TODO: Limit <0> to constants, identifiers and post-fix expressions.
-                    Expression "(" {Expression ","}* ")" | // TODO: Limit <0> to constants, identifiers and post-fix expressions.
+                    Expression "[" Expression "]" | // NOTE: the spec specifies a post-fix expression and up limit for <0>, which we can probably savely ignore.
+                    Expression "(" {Expression ","}* ")" | // NOTE: the spec specifies a post-fix expression and up limit for <0>, which we can probably savely ignore.
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
@@ -43,7 +43,7 @@ syntax Expression = Identifier |
                     "!" Expression |
                     "sizeof" Expression |
                     "(" TypeName ")" Expression |
-                    right Expression "?" Expression ":" Expression -> Expression > // TODO: Limit <0> to conditional-expressions and up; the spec specifies a conditional and up limit for <4> as well, which we can probably savely ignore.
+                    right Expression "?" Expression ":" Expression -> Expression > // NOTE: the spec specifies a conditional and up limit for <0> and <4>, which we can probably savely ignore.
                     left (
                          Expression "*" Expression |
                          Expression "/" Expression |
@@ -171,8 +171,8 @@ syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";"
                            ;
 
 syntax StructDeclarator = Declarator |
-                          ":" Expression |
-                          Declarator ":" Expression
+                          Declarator ":" Expression |
+                          ":" Expression
                           ;
 
 syntax Parameters = {Parameter ","}+ MoreParameters?
@@ -226,7 +226,7 @@ syntax IntegerConstant = lex [0-9]+ [uUlL]*
 syntax CharacterConstant = lex [L]? [\'] CharacterConstantContent+ [\']
                            ;
 
-syntax CharacterConstantContent = [\\]![]|
+syntax CharacterConstantContent = [\\]![] |
                                   ![\\\']
                                   ;
 
