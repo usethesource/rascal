@@ -156,12 +156,15 @@ syntax Specifier = Identifier |
                    "unsigned" |
                    "const" |
                    "volatile" |
-                   "struct"|"union" Identifier "{" StructDeclaration+ "}" |
-                   "struct"|"union" "{" StructDeclaration+ "}" |
-                   "struct"|"union" Identifier |
-                   "enum" "{" {Enumerator ","}+  "}" |
-                   "enum" Identifier "{" {Enumerator ","}+  "}" |
+                   "struct" Identifier |
+                   "struct" Identifier "{" StructDeclaration+ "}" |
+                   "struct" "{" StructDeclaration+ "}" |
+                   "union" Identifier |
+                   "union" Identifier "{" StructDeclaration+ "}" |
+                   "union" "{" StructDeclaration+ "}" |
                    "enum" Identifier
+                   "enum" Identifier "{" {Enumerator ","}+  "}" |
+                   "enum" "{" {Enumerator ","}+  "}" |
                    ;
 
 syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";"
