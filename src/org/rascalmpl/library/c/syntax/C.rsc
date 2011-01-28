@@ -243,12 +243,13 @@ syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
 
-syntax Comment = lex [\/][\*] CommentBodyToken* [\*][\/] // category("Comment")
+syntax Comment = lex [\/][\*] MultiLineCommentBodyToken* [\*][\/] | // category("Comment")
+                 lex "//" ![\n]* [\n] // category("Comment")
                  ;
 
-syntax CommentBodyToken = lex ~[\*] |
-                          lex Asterisk
-                          ;
+syntax MultiLineCommentBodyToken = lex ~[\*] |
+                                   lex Asterisk
+                                   ;
 
 syntax Asterisk = lex [\*]
                   # [\/]
