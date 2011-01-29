@@ -15,18 +15,18 @@ import processing.core.PApplet;
  */
 public class SpringGraphNode {
 	
-	private SpringGraph G;
-	protected String name;
-	protected Figure figure;
-	protected float x;
-	protected float y;
+	private final SpringGraph G;
+	protected final String name;
+	protected final Figure figure;
+	private float x;
+	private float y;
 
 	protected float dispx = 0f;
 	protected float dispy = 0f;
 	
 	protected LinkedList<SpringGraphNode> in;
 	protected LinkedList<SpringGraphNode> out;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	
 	SpringGraphNode(SpringGraph springGraph, String name, Figure fig){
 		this.G = springGraph;
@@ -47,23 +47,23 @@ public class SpringGraphNode {
 	}
 	
 	public float xdistance(SpringGraphNode other){
-		float vx = x - other.x;
-		return vx;
-//		if(vx > 0){
-//			return PApplet.max(vx - (velem.width/2 + other.velem.width/2), 0.01f);
-//		} else {
-//			return PApplet.min(vx + (velem.width/2 + other.velem.width/2), -0.01f);
-//		}
+		float vx = getX() - other.getX();
+//		return vx;
+		if(vx > 0){
+			return PApplet.max(vx - (figure.width/2 + other.figure.width/2), 0.01f);
+		} else {
+			return PApplet.min(vx + (figure.width/2 + other.figure.width/2), -0.01f);
+		}
 	}
 	
 	public float ydistance(SpringGraphNode other){
-		float vy = y - other.y ;
-		return vy;
-//		if(vy > 0){
-//			return PApplet.max(vy - (velem.height/2 + other.velem.height/2), 0.01f);
-//		} else {
-//			return PApplet.min(vy + (velem.height/2 + other.velem.height/2), -0.01f);
-//		}
+		float vy = getY() - other.getY() ;
+//		return vy;
+		if(vy > 0){
+			return PApplet.max(vy - (figure.height/2 + other.figure.height/2), 0.01f);
+		} else {
+			return PApplet.min(vy + (figure.height/2 + other.figure.height/2), -0.01f);
+		}
 	}
 	
 //	public float getMass(){
@@ -99,49 +99,50 @@ public class SpringGraphNode {
 		}
 		
 		// Consider the repulsion of the 4 walls of the surrounding frame
-		repulsion(x, G.height/2); repulsion(G.width - x, G.height/2);
-		repulsion(G.width/2, y); repulsion(G.width/2, G.height - y);
+		repulsion(getX(), G.height/2); repulsion(G.width - getX(), G.height/2);
+		repulsion(G.width/2, getY()); repulsion(G.width/2, G.height - getY());
 		
 		
-//		for(GraphEdge e : G.edges){
-//			GraphNode from = e.from;
-//			GraphNode to = e.to;
-//			if(from != this && to != this){
-//				float vlen = PApplet.dist(from.x, from.y, to.x, to.y);
-//				float lenToFrom = PApplet.dist(x, y, from.x, from.y);
-//				float lenToTo = PApplet.dist(x, y, to.x, to.y);
-//				if(lenToFrom + lenToTo - vlen < 1f){
-//					dispx += 1;
-//					dispy += 1;
-//					from.dispx -= 1;
-//					from.dispy -= 1;
-//					to.dispx -= 1;
-//					to.dispy -= 1;
-//				}
-//			}
-//		}
+		for(SpringGraphEdge e : G.edges){
+			SpringGraphNode from = e.getFrom();
+			SpringGraphNode to = e.getTo();
+			if(from != this && to != this){
+				float vlen = PApplet.dist(from.getX(), from.getY(), to.getX(), to.getY());
+				float lenToFrom = PApplet.dist(getX(), getY(), from.getX(), from.getY());
+				float lenToTo = PApplet.dist(getX(), getY(), to.getX(), to.getY());
+				if(lenToFrom + lenToTo - vlen < 1f){
+					dispx += 1;
+					dispy += 1;
+					from.dispx -= 1;
+					from.dispy -= 1;
+					to.dispx -= 1;
+					to.dispy -= 1;
+				}
+			}
+		}
 		
-		if(debug)System.err.printf("Node %s (%f,%f), dispx = %f, dispy =%f\n", name, x, y, dispx, dispy);
+		if(debug)System.err.printf("Node %s (%f,%f), dispx = %f, dispy =%f\n", name, getX(), getY(), dispx, dispy);
 	}
 	
 	void update(SpringGraph G){
 		float dlen = PApplet.mag(dispx, dispy);
 		if(dlen > 0){
-			if(debug)System.err.printf("update %s, dispx=%f, dispy=%f, from %f, %f -> ", name, dispx, dispy, x, y);
-			x += PApplet.constrain(dispx, -G.temperature, G.temperature);
-			y += PApplet.constrain(dispy, -G.temperature, G.temperature);
-			//x =  PApplet.constrain (x, velem.width/2, G.width-velem.width/2);
-			//y =  PApplet.constrain (y, velem.height/2, G.height-velem.height/2);
-			if(debug)System.err.printf("%f, %f\n", x, y);
+			if(debug)System.err.printf("update %s, dispx=%f, dispy=%f, from %f, %f\n", name, dispx, dispy, getX(), getY());
+			float cdispx = PApplet.constrain(dispx, -G.temperature, G.temperature);
+			float cdispy = PApplet.constrain(dispy, -G.temperature, G.temperature);
+			System.err.printf("cdispx=%f, cdispy=%f\n", cdispx, cdispy);
+			setX(PApplet.constrain (getX() + cdispx, figure.width/2, G.width-figure.width/2));
+			setY(PApplet.constrain (getY() + cdispy, figure.height/2, G.height-figure.height/2));
+			System.err.printf("Updated node %s: %f, %f\n", name, getX(), getY());
 		}
 	}
 	
 	public float figX(){
-		return x;
+		return getX();
 	}
 	
 	public float figY(){
-		return y;
+		return getY();
 	}
 	
 	void bbox(){
@@ -160,8 +161,7 @@ public class SpringGraphNode {
 
 	void draw(float left, float top) {
 		if(figure != null){
-			figure.bbox();
-			figure.draw(x + left - figure.width/2, y + top - figure.height/2);
+			figure.draw(getX() + left - figure.width/2, getY() + top - figure.height/2);
 		}
 	}
 	
@@ -171,5 +171,25 @@ public class SpringGraphNode {
 	
 	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
 		return figure.mousePressed(mousex, mousey, e);
+	}
+
+	protected void setX(float x) {
+		if(x < figure.width/2 || x > G.width - figure.width/2)
+			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name, x);
+		this.x = x;
+	}
+
+	protected float getX() {
+		return x;
+	}
+
+	protected void setY(float y) {
+		if(y < figure.height/2 || y > G.height - figure.height/2)
+			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name, y);
+		this.y = y;
+	}
+
+	protected float getY() {
+		return y;
 	}
 }

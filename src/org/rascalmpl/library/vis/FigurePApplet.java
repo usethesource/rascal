@@ -10,6 +10,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
+import SpringGUI.SpringGUI;
+
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
@@ -52,13 +54,20 @@ public class FigurePApplet extends PApplet {
 	
 	private int depth = 0;
 
-// int lastMouseX = 0;
-//	private int lastMouseY = 0;
+	private int lastMouseX = 0;
+	private int lastMouseY = 0;
+
+	private SpringGUI gui;
 
 	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
 		try {
 			this.file = ctx.getResolverRegistry().getResourceURI(sloc.getURI()).toASCIIString();
+			
+			if(file.startsWith("file:")){
+				file = file.substring(5);
+			}
+			System.err.println("saveFile = " + file);
 			IPropertyManager def = new DefaultPropertyManager(this);
 			rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
 		} catch (IOException e) {
@@ -87,12 +96,26 @@ public class FigurePApplet extends PApplet {
 			//width = round(max(width, figure.width + 10));
 		    //height = round(max(height, figure.height + 10));
 			size(width, height);
+			 gui = new SpringGUI(this); // initialise SpringGUI
+			 
+			 gui.addButton("myButton", "I am a button", 10, 10, 200, 25);
+			 
+			 gui.addList("myList", 10, 50, 200, 100);
+			  gui.addItem("myList", "option 1"); // add an item to the List
+			  gui.addItem("myList", "option 2"); // add an item to the List
+			  gui.selectItem("myList", "option 1"); // select the first item in the List
+			  
+			  gui.addTextField("myTextField", "I am a TextField", 10, 200, 200, 25);
 		}
 		noLoop();
 		figure.bbox();
 		controlChanged = false;
 		rootWidth = figure.width;
 		rootHeight = figure.height;
+	}
+	
+	public void handleEvent(String[] parameters) {
+
 	}
 	
 	@Override
@@ -127,7 +150,7 @@ public class FigurePApplet extends PApplet {
 			}
 			rootFigure.draw(left,top);
 			if(mouseOver != null)
-				mouseOver.drawWithMouseOver(mouseOver.left, mouseOver.top);
+				mouseOver.drawWithMouseOver(mouseOver.getLeft(), mouseOver.getTop());
 					
 			if(focus != null && focusSelected)
 				focus.drawFocus();
@@ -223,32 +246,32 @@ public class FigurePApplet extends PApplet {
 	
 	
 	
-//	@Override
-//	public void mouseDragged(){
-//		
-//		if(debug)System.err.println("mouseDragged: " + mouseX + ", " + mouseY);
-//		if(keyPressed && key == SHIFT){
-//			cursor(HAND);
-//			left += mouseX - lastMouseX;
-//			top += mouseY - lastMouseY;
-//			lastMouseX = mouseX;
-//			lastMouseY = mouseY;
-//		}
-//		if(focus != null){
-//			if(debug) System.err.println("update current focus:" + focus);
-//			focusSelected = true;
-//			focus.drag(mouseX, mouseY);
-//			
-//		} else {
-//			if(debug) System.err.println("searching for new focus");
-//			if(figure.mouseDragged(mouseX, mouseY))
-//				focusSelected = true;
-//			else
-//				unRegisterFocus();
-//		}
-//		redraw();
-//		
-//	}
+	@Override
+	public void mouseDragged(){
+		
+		if(debug)System.err.println("mouseDragged: " + mouseX + ", " + mouseY);
+		if(keyPressed && key == SHIFT){
+			cursor(HAND);
+			left += mouseX - lastMouseX;
+			top += mouseY - lastMouseY;
+			lastMouseX = mouseX;
+			lastMouseY = mouseY;
+		}
+		if(focus != null){
+			if(debug) System.err.println("update current focus:" + focus);
+			focusSelected = true;
+			focus.drag(mouseX, mouseY);
+			
+		} else {
+			if(debug) System.err.println("searching for new focus");
+			if(figure.mouseDragged(mouseX, mouseY))
+				focusSelected = true;
+			else
+				unRegisterFocus(focus);
+		}
+		redraw();
+		
+	}
 	
 	@Override
 	public void mouseReleased(){
@@ -259,8 +282,8 @@ public class FigurePApplet extends PApplet {
 	public void mouseMoved(){
 		//if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
 		
-//		lastMouseX = mouseX;
-//		lastMouseY = mouseY;
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
 		
 		figure.mouseOver(mouseX, mouseY, false);
 		redraw();
@@ -270,8 +293,8 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void mousePressed(){
 		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-//		lastMouseX = mouseX;
-//		lastMouseY = mouseY;
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
 		if(figure.mousePressed(mouseX, mouseY, mouseEvent)){
 			focusSelected = true;
 		} else
@@ -279,52 +302,9 @@ public class FigurePApplet extends PApplet {
 
 		redraw(); 
 	}
-	
 
-	
-	
-	
-	// -------------------------------------------
-	//  Various triggers
-	
-	// boolControl
-	
-//	private HashSet<String> boolTriggers = new HashSet<String>();
-//	
-//	
-//	public boolean isBoolTrigger(String b){
-//		return boolTriggers.contains(b);
-//	}
-//	
-//	public void setBoolTrigger(String b, boolean on){
-//		System.err.println("setBoolTrigger(" + b + ", " + on + ")");
-//		if(on)
-//			boolTriggers.add(b);
-//		else
-//			boolTriggers.remove(b);
-//		
-//		controlChanged = true;
-//	}
-//	
-//	// num Triggers
-//	
-//	private Hashtable<String,Float> numTriggers = new Hashtable<String,Float>();
-//
-//	
-//	public void setNumTrigger(String name, float val){
-//		System.err.printf("setNumTrigger(%s,%f)\n", name, val);
-//		numTriggers.put(name, new Float(val));
-//		controlChanged = true;
-//	}
-//	
-//	public float getNumTrigger(String name){
-//		Float val = numTriggers.get(name);
-//		float res =  val == null ? 0 : val.floatValue();
-//		System.err.printf("getNumTrigger(%s) => %f\n", name, res);
-//		return res;
-//	}
-	
-	// str Triggers
+
+	// Triggers
 	
 	private Hashtable<String,String> strTriggers = new Hashtable<String,String>();
 	

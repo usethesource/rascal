@@ -18,7 +18,6 @@ import processing.core.PApplet;
  * @author paulk
  */
 
-
 public abstract class Figure implements Comparable<Figure> {
 	
 	public FigurePApplet fpa;
@@ -26,14 +25,17 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public IPropertyManager properties;
 	
-	protected float left;		// coordinates of top left corner of
-	protected float top;		// the element's bounding box
+	private float left;		// coordinates of top left corner of
+	private float top;		// the element's bounding box
 	public float width;			// width of element
 	public float height;		// height of element
 	                            // When this figure is used as mouseOver or inner figure, point back
 	                            // to generating Figure
 	
 	private boolean visibleInMouseOver = false;
+	
+	private float leftDragged;
+	private float topDragged;
 		
 	
 	protected Figure(FigurePApplet vlp, IPropertyManager properties, IEvaluatorContext ctx){
@@ -41,25 +43,34 @@ public abstract class Figure implements Comparable<Figure> {
 		this.properties = properties;
 	}
 	
+	protected void setLeft(float left) {
+		this.left = left;
+	}
+
+	protected float getLeft() {
+		return left + getLeftDragged();
+	}
+
+	protected void setTop(float top) {
+		this.top = top + getTopDragged();
+	}
+
+	protected float getTop() {
+		return top;
+	}
+
 	public int getDOI(){
 		return properties.getDOI();
 	}
 	
-	public float getLeft(){
-		return left;
-	}
-	
 	public float getCenterX(){
-		return left + width/2;
+		return getLeft() + width/2;
 	}
 	
 	public float getCenterY(){
-		return top + height/2;
+		return getTop() + height/2;
 	}
 	
-	public float getTop(){
-		return top;
-	}
 	
 	public float max(float a, float b){
 		return a > b ? a : b;
@@ -128,11 +139,15 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public float leftAnchor(){
-		return (properties.getHanchor() * width);
+		float res= (properties.getHanchor() * width);
+		System.err.println(this + ".leftAnchor = " + res);
+		return res;
 	}
 	
 	public float rightAnchor(){
-		return (width - properties.getHanchor() * width);
+		float res =  (width - properties.getHanchor() * width);
+		System.err.println(this + ".rightAnchor = " + res);
+		return res;
 	}
 	
 	public float topAnchor(){
@@ -370,7 +385,7 @@ public abstract class Figure implements Comparable<Figure> {
 			fpa.stroke(255, 0,0);
 			fpa.strokeWeight(1);
 			fpa.noFill();
-			fpa.rect(left, top, width, height);
+			fpa.rect(getLeft(), getTop(), width, height);
 		}
 	}
 	
@@ -402,8 +417,8 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public boolean mouseInside(int mouseX, int mouseY){
-		boolean b =  (mouseX >= left  && mouseX <= left + width) &&
-		             (mouseY >= top  && mouseY <= top + height);
+		boolean b =  (mouseX >= getLeft()  && mouseX <= getLeft() + width) &&
+		             (mouseY >= getTop()  && mouseY <= getTop() + height);
 		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
 		return b;
 	}
@@ -472,21 +487,42 @@ public abstract class Figure implements Comparable<Figure> {
 		return false;
 	}
 	
-//	public void drag(float mousex, float mousey){
-	//System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
-	//leftDragged = mousex - left;
-	//topDragged = mousey - top;
-//}
+	public void drag(float mousex, float mousey){
+		System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
+		if(!isDraggable())
+			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
+		setLeftDragged(getLeftDragged() + (mousex - getLeft()));
+		setTopDragged(getTopDragged() + (mousey - getTop()));
+	}
 
-//public boolean mouseDragged(int mousex, int mousey){
-//if(!isPinned() && mouseInside(mousex, mousey)){
-//	//properties.setMouseOver(true);
-//	fpa.registerFocus(this);
-//	drag(mousex, mousey);
-//	System.err.printf("Figure.mouseDragged: %f,%f\n", leftDragged, topDragged);
-//	return true;
-//}
-//return false;
-//}
+	public boolean mouseDragged(int mousex, int mousey){
+		if(isDraggable() && mouseInside(mousex, mousey)){
+			fpa.registerFocus(this);
+			drag(mousex, mousey);
+			System.err.printf("Figure.mouseDragged: %f,%f\n", getLeftDragged(), getTopDragged());
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isDraggable() {
+		return properties.isDraggable();
+	}
+
+	public void setLeftDragged(float leftDragged) {
+		this.leftDragged = leftDragged;
+	}
+
+	public float getLeftDragged() {
+		return leftDragged;
+	}
+
+	public void setTopDragged(float topDragged) {
+		this.topDragged = topDragged;
+	}
+
+	public float getTopDragged() {
+		return topDragged;
+	}
 	
 }

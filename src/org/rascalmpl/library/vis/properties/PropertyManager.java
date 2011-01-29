@@ -17,38 +17,14 @@ import org.rascalmpl.library.vis.FigurePApplet;
  */
 
 public class PropertyManager implements IPropertyManager {
-	
-//	FigurePApplet fpa;
-//	int doi;
-//	int fillColor;
-//	String font;
-//	int fontColor;
-//	int fontSize;
-//	float fromAngle;
-//	public float hanchor;	
-//	float height;
-//	float hgap;
-//	String hint;
-//	String id;
-//	float innerRadius; 
-//	int lineColor;
-//	float lineWidth;
-//	boolean shapeClosed;
-//	boolean shapeConnected;
-//	boolean shapeCurved;
-//	float textAngle; 
-//	float toAngle;
-//	public float vanchor;
-//	float vgap;
-//	float width;
-	
-	// Interaction and mouse handling
 
-	protected Figure mouseOverFigure = null;
-	
+	protected Figure mouseOverFigure = null; // Interaction and mouse handling
 	
 	IPropertyValue values[];
 	IPropertyManager inherited;
+
+//	private boolean usesTrigger;
+	private boolean draggable;
 	
 	private int countProperties(IList props){
 		int n = 0;
@@ -76,13 +52,12 @@ public class PropertyManager implements IPropertyManager {
 		values = new IPropertyValue[countProperties(props)];
 		int i = 0;
 		
+		draggable = false;
+		
 		for (IValue v : props) {
 			
-			System.err.println("v = " + v);
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			
-			System.err.println("pname = " + pname);
 
 			switch (propertyNames.get(pname)) {
 			
@@ -92,6 +67,9 @@ public class PropertyManager implements IPropertyManager {
 				
 				values[i++] = Utils.getRealArg(Property.VANCHOR, c, 1, fpa, ctx);
 				//vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
+				
+				if(values[i-1].usesTrigger() || values[i-1].usesTrigger())
+					draggable = true;
 				break;
 				
 			case DOI:
@@ -126,6 +104,8 @@ public class PropertyManager implements IPropertyManager {
 			case HANCHOR:
 				values[i++] = Utils.getRealArg(Property.HANCHOR, c, 0, fpa, ctx);
 				//hanchor = hanchor < 0 ? 0 : (hanchor > 1 ? 1 : hanchor);
+				if(values[i-1].usesTrigger())
+					draggable = true;
 				break;
 				
 			case HEIGHT:
@@ -185,6 +165,8 @@ public class PropertyManager implements IPropertyManager {
 			case VANCHOR:
 				values[i++] = Utils.getRealArg(Property.VANCHOR, c, 0, fpa, ctx);
 				//vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
+				if(values[i-1].usesTrigger())
+					draggable = true;
 				break;
 				
 			case VGAP:
@@ -198,6 +180,14 @@ public class PropertyManager implements IPropertyManager {
 						.getCurrentAST(), ctx.getStackTrace());
 			}
 		}
+		
+//		for(IPropertyValue v : values){
+//			if(v.usesTrigger()){
+//				this.usesTrigger = true;
+//				break;
+//			}
+//		}
+			
 	}
 	
 	public FigurePApplet getFPA() {
@@ -385,54 +375,11 @@ public class PropertyManager implements IPropertyManager {
 		return inherited.getToAngle();
 	}
 	
-//	private void importProperties(PropertyManager inh) {
-//		doi = inh.doi;
-//		fillColor = inh.fillColor;
-//		font = inh.font;
-//		fontColor = inh.fontColor;
-//		fontSize = inh.fontSize;
-//		fromAngle = inh.fromAngle;
-//		hanchor = inh.hanchor;
-//		height = inh.height;
-//		hgap = inh.hgap;
-//		hint = inh.hint;
-//		id = inh.id;
-//		innerRadius = inh.innerRadius;
-//		lineColor = inh.lineColor;
-//		lineWidth = inh.lineWidth;
-//		shapeClosed = inh.shapeClosed;
-//		shapeConnected = inh.shapeConnected;
-//		shapeCurved = inh.shapeCurved;
-//		textAngle = inh.textAngle;
-//		toAngle = inh.toAngle;
-//		vanchor = inh.vanchor;
-//		vgap = inh.vgap;
-//		width = inh.width;
+//	public boolean usesTrigger(){
+//		return usesTrigger;
 //	}
 	
-//	private void setDefaults() {
-//		doi = 1000000;
-//		fillColor = 255;
-//		font = "Helvetica";
-//		fontColor = 0;
-//		fontSize = 12;
-//		fromAngle = 0;
-//		hanchor = 0.5f;
-//		height = 0;
-//		hgap = 0;
-//		hint = "";
-//		id = "";
-//		innerRadius = 0;
-//		lineColor = 0;
-//		lineWidth = 1;
-//		shapeClosed = false;
-//		shapeConnected = false;
-//		shapeCurved = false;
-//		textAngle = 0;
-//		toAngle = 0;
-//		vanchor = 0.5f;
-//		vgap = 0;
-//		width = 0;
-//		mouseOverFigure = null;
-//	}
+	public boolean isDraggable(){
+		return draggable;
+	}
 }

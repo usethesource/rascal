@@ -29,4 +29,8 @@ public class TriggeredIntegerProperty implements IIntegerPropertyValue {
 		return 0;
 	}
 
+	public boolean usesTrigger() {
+		return true;
+	}
+
 }

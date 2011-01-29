@@ -107,6 +107,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		return 0;
 	}
 
+	public boolean isDraggable() {
+		return false;
+	}
+
 	
 
 }

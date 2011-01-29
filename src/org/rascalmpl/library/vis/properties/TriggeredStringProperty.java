@@ -21,4 +21,8 @@ public class TriggeredStringProperty implements IStringPropertyValue {
 		return fpa.getStrTrigger(tname);
 	}
 
+	public boolean usesTrigger() {
+		return true;
+	}
+
 }

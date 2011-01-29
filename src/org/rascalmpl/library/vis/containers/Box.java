@@ -19,7 +19,7 @@ public class Box extends Container {
 
 	@Override
 	void drawContainer(){
-		fpa.rect(left, top, width, height);
+		fpa.rect(getLeft(), getTop(), width, height);
 	}
 	
 	String containerName(){

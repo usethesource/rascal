@@ -115,8 +115,8 @@ public class LatticeGraph extends Figure {
 
 	@Override
 	public void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		applyProperties();
 		for (LatticeGraphEdge e : edges)
 			e.draw(left, top);

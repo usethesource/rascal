@@ -16,9 +16,11 @@ import processing.core.PConstants;
 public class Text extends Figure {
 
 	private IStringPropertyValue txt;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
+	private float leftAnchor;
+	private float rightAnchor;
 
 	public Text(FigurePApplet fpa, IPropertyManager properties, IStringPropertyValue text, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
@@ -50,7 +52,12 @@ public class Text extends Figure {
 			
 			width = w1 + w2;
 			height = h1 + h2;
-			//TODO adjust anchors
+			
+			leftAnchor = w1/width;
+			rightAnchor = w2/width;
+			topAnchor = h1/height;
+			bottomAnchor = h2/height;
+			
 			
 			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
 		}
@@ -59,8 +66,8 @@ public class Text extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		applyProperties();
 		applyFontProperties();
@@ -84,6 +91,20 @@ public class Text extends Figure {
 		}
 	}
 	
+//	@Override
+//	public float leftAnchor(){
+//		float res= leftAnchor;
+//		System.err.println(this + ".leftAnchor = " + res);
+//		return res;
+//	}
+//	
+//	@Override
+//	public float rightAnchor(){
+//		float res = rightAnchor;
+//		System.err.println(this + ".rightAnchor = " + res);
+//		return res;
+//	}
+	
 	@Override
 	public float topAnchor(){
 		return topAnchor;
@@ -97,9 +118,9 @@ public class Text extends Figure {
 	@Override
 	public
 	String toString(){
-		return new StringBuffer("text").append("(").append("\"").append(txt.getValue()).append("\"").
-		append(left).append(",").
-		append(top).append(",").
+		return new StringBuffer("text").append("(").append("\"").append(txt.getValue()).append("\",").
+		append(getLeft()).append(",").
+		append(getTop()).append(",").
 		append(width).append(",").
 		append(height).append(")").toString();
 	}

@@ -17,4 +17,8 @@ public class ConstantBooleanProperty implements IBooleanPropertyValue {
 		return value;
 	}
 
+	public boolean usesTrigger() {
+		return false;
+	}
+
 }

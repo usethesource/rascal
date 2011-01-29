@@ -66,8 +66,8 @@ public class EnterTrigger extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		if(doubleClicked){
 			fpa.fill(192, 90);
@@ -108,14 +108,14 @@ public class EnterTrigger extends Figure {
 			
 			String s = currentInput.toString();
 			float tw = fpa.textWidth(s);
-			float start = left + width/2 - tw/2;
-			float end = left + width/2 + tw/2;
+			float start = getLeft() + width/2 - tw/2;
+			float end = getLeft() + width/2 + tw/2;
 			if(mouseX < start)
 				cursor = 0;
 			else if(mouseX > end)
 				cursor = s.length();
 			else {
-				if(debug)System.err.printf("tw=%f, mouseDiff=%f, oldCursor=%d, ", tw, mouseX - left, cursor);
+				if(debug)System.err.printf("tw=%f, mouseDiff=%f, oldCursor=%d, ", tw, mouseX - getLeft(), cursor);
 				cursor = FigurePApplet.round(s.length() * (mouseX - start) / tw);
 				if(debug)System.err.printf("newCursor=%d\n", cursor);
 			}

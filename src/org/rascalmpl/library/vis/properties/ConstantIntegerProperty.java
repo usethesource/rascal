@@ -17,4 +17,8 @@ public class ConstantIntegerProperty implements IIntegerPropertyValue {
 		return value;
 	}
 
+	public boolean usesTrigger() {
+		return false;
+	}
+
 }

@@ -190,7 +190,7 @@ data FProperty =
    | fontSize(intTrigger ivSize)
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
-   | fontColor(colorTrigger cvColorName)
+   | fontColor(colorTrigger cvColorName)  
    | textAngle(num angle)               // text rotation
    | textAngle(numTrigger nvAngle) 
    
@@ -199,7 +199,7 @@ data FProperty =
    | contentsHidden()                   // contents of container is hidden
    | contentsVisible()                  // contents of container is visible
    | pinned()                           // position pinned-down, cannot be dragged
-   | doi(int d)                        // limit visibility to nesting level d
+   | doi(int d)                         // limit visibility to nesting level d
    | doi(intTrigger ivD) 
    
 /* other properties */

@@ -90,8 +90,8 @@ public class Vertex extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		applyProperties();
 		if(debug){
 			System.err.println("Vertex: marker = " + marker);

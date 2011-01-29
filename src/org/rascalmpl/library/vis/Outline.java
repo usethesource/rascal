@@ -38,8 +38,8 @@ public class Outline extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		float lw = getLineWidthProperty();
 		applyProperties();

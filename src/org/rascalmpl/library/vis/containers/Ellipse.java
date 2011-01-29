@@ -26,7 +26,7 @@ public class Ellipse extends Container {
 	@Override
 	void drawContainer(){
 		fpa.ellipseMode(PConstants.CORNERS);
-		fpa.ellipse(left, top, left + width, top + height);
+		fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
 	}
 	
 	String containerName(){
@@ -85,7 +85,7 @@ public class Ellipse extends Container {
 			fpa.stroke(255, 0,0);
 			fpa.noFill();
 			fpa.ellipseMode(PConstants.CORNERS);
-			fpa.ellipse(left, top, left + width, top + height);
+			fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
 		}
 	}
 	
@@ -93,8 +93,8 @@ public class Ellipse extends Container {
 	public boolean mouseInside(int mousex, int mousey){
 		float w2 = width/2;
 		float h2 = height/2;
-		float X = left + w2;
-		float Y = top + h2;
+		float X = getLeft() + w2;
+		float Y = getTop() + h2;
 		float ex =  (mousex - X) / w2;
 		float ey = 	(mousey - Y) / h2;
 		boolean b =  ex * ex + ey * ey <= 1;

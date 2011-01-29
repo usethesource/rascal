@@ -105,8 +105,8 @@ public class Tree extends Figure {
 	void draw(float left, float top) {
 		if(!isNextVisible())
 			return;
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		//System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties();

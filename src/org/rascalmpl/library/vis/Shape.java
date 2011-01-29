@@ -52,8 +52,8 @@ public class Shape extends Compose {
 	public
 	void draw(float left, float top){
 		
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		applyProperties();
 		float bottom = top + height - bottomAnchor;

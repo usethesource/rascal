@@ -83,7 +83,7 @@ public class TreeMap extends Figure {
 	@Override
 	public
 	void bbox() {
-		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", left, top);
+		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", getLeft(), getTop());
 		width = getWidthProperty();
 		if(width == 0) 
 			width = 400;
@@ -98,8 +98,8 @@ public class TreeMap extends Figure {
 	void draw(float left, float top) {
 		if(!isVisible())
 			return;
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties();
