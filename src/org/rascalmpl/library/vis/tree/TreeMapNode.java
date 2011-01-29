@@ -101,8 +101,8 @@ public class TreeMapNode extends Figure {
 	@Override
 	public
 	void draw(float left, float top){
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		if(debug)System.err.printf("draw: %s at %f, %f (%s)\n", 
 				          rootFigure.getIdProperty(), left,  top,
 				          isVisible() ? "visible" : "invisible");
@@ -125,16 +125,16 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public void drawFocus(){
-		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), left, top);
+		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), getLeft(), getTop());
 		fpa.stroke(255, 0,0);
 		fpa.noFill();
-		fpa.rect(left, top, width, height);
+		fpa.rect(getLeft(), getTop(), width, height);
 	}
 	
 	@Override
 	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
 		if(debug)System.err.printf("TreeMapNode.mouseover: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
-		if(debug)System.err.printf("TreeMapNode.mouseover: left=%f, top=%f\n", left, top);
+		if(debug)System.err.printf("TreeMapNode.mouseover: left=%f, top=%f\n", getLeft(), getTop());
 		if(!isVisible())
 			return false;
 		if(rootFigure.mouseOver(mousex, mousey, centerX, centerY, false))

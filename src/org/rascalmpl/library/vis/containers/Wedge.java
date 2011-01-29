@@ -253,8 +253,8 @@ public class Wedge extends Container {
 	
 	@Override
 	void drawContainer() {
-		centerX = left + leftAnchor;
-		centerY = top + topAnchor;
+		centerX = getLeft() + leftAnchor;
+		centerY = getTop() + topAnchor;
 		
 		if(debug)System.err.printf("wedge.drawContainer: %f, %f\n", centerX, centerY);
 		
@@ -264,8 +264,8 @@ public class Wedge extends Container {
 	
 	@Override
 	public void drawFocus() {
-		centerX = left + leftAnchor;
-		centerY = top + topAnchor;
+		centerX = getLeft() + leftAnchor;
+		centerY = getTop() + topAnchor;
 		
 		fpa.stroke(255, 0,0);
 		fpa.strokeWeight(1);

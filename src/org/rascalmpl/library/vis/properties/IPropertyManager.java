@@ -64,4 +64,6 @@ public interface IPropertyManager {
 	public float getVanchor();
 	public float getVGap();
 	public float getWidth();
+	
+	public boolean isDraggable();
 }

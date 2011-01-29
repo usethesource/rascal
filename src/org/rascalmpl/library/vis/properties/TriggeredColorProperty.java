@@ -28,5 +28,9 @@ public class TriggeredColorProperty extends TriggeredIntegerProperty  implements
 		}
 		return 0;
 	}
+	
+	public boolean usesTrigger() {
+		return true;
+	}
 
 }

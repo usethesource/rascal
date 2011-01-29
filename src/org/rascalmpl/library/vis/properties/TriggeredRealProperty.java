@@ -29,4 +29,8 @@ public class TriggeredRealProperty implements IRealPropertyValue {
 		return 0;
 	}
 
+	public boolean usesTrigger() {
+		return true;
+	}
+
 }

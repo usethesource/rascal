@@ -17,4 +17,8 @@ public class ConstantStringProperty implements IStringPropertyValue {
 		return value;
 	}
 
+	public boolean usesTrigger() {
+		return false;
+	}
+
 }

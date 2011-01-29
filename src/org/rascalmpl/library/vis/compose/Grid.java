@@ -86,8 +86,8 @@ public class Grid extends Compose {
 	@Override
 	public
 	void draw(float left, float top){
-		this.left = left;
-		this.top = top;
+		setLeft(left);
+		setTop(top);
 	
 		applyProperties();
 
