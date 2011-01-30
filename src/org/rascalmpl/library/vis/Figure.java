@@ -2,8 +2,12 @@ package org.rascalmpl.library.vis;
 
 import java.awt.event.MouseEvent;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -416,7 +420,7 @@ public abstract class Figure implements Comparable<Figure> {
 		}
 	}
 	
-	public boolean mouseInside(int mouseX, int mouseY){
+	public synchronized boolean mouseInside(int mouseX, int mouseY){
 		boolean b =  (mouseX >= getLeft()  && mouseX <= getLeft() + width) &&
 		             (mouseY >= getTop()  && mouseY <= getTop() + height);
 		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
@@ -446,7 +450,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @return			true if element was affected.
 	 */
 	
-	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public synchronized boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
 		if(mouseInside(mouseX, mouseY, centerX, centerY)){
 		   fpa.registerMouseOver(this);
 		   return true;
@@ -462,9 +466,12 @@ public abstract class Figure implements Comparable<Figure> {
 	 * 					true if mouse inside parent
 	 * @return			true if element was affected.
 	 */
-	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
+	public synchronized boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
 		return mouseOver(mouseX, mouseY, getCenterX(), getCenterY(), mouseInParent);
 	}
+	
+	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
+	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
 	
 	/**
 	 * Compute the effect 
@@ -473,9 +480,19 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @param e TODO
 	 * @return
 	 */
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+		System.err.println("Figure.mousePressed, handler = " + properties.getOnClick());
 		if(mouseInside(mouseX, mouseY)){
-			fpa.registerFocus(this);
+			
+			IValue handler = properties.getOnClick();
+			if(handler != null){
+				if(handler instanceof RascalFunction)
+					((RascalFunction) handler).call(argTypes, argVals);
+				else
+					((OverloadedFunctionResult) handler).call(argTypes, argVals);
+				fpa.setComputedValueChanged();
+			} else
+				fpa.registerFocus(this);
 			//System.err.printf("Figure.mousePressed: %f, %f\n", left, top);
 			return true;
 		}

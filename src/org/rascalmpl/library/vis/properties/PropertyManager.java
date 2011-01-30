@@ -19,6 +19,7 @@ import org.rascalmpl.library.vis.FigurePApplet;
 public class PropertyManager implements IPropertyManager {
 
 	protected Figure mouseOverFigure = null; // Interaction and mouse handling
+	protected IValue onClickHandler = null;
 	
 	IPropertyValue values[];
 	IPropertyManager inherited;
@@ -37,7 +38,9 @@ public class PropertyManager implements IPropertyManager {
 			case GAP:
 				n += 2; break;
 			case MOUSEOVER:
+			case ONCLICK:
 				break;
+			
 			default:
 				n++;
 			}
@@ -136,6 +139,11 @@ public class PropertyManager implements IPropertyManager {
 													 new DefaultPropertyManager(fpa),
 													 ctx);
 				break;	
+				
+			case ONCLICK:
+				onClickHandler = c.get(0);
+				System.err.println("onClickHandler = " + onClickHandler);
+				break;
 				
 			case SHAPECLOSED:
 				values[i++] = new ConstantBooleanProperty(Property.SHAPECLOSED, true); break;
@@ -308,6 +316,10 @@ public class PropertyManager implements IPropertyManager {
 
 	public Figure getMouseOver() {
 		return mouseOverFigure;
+	}
+	
+	public IValue getOnClick(){
+		return onClickHandler;
 	}
 
 	public float getTextAngle() {

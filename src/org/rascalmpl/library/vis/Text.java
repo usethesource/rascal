@@ -16,7 +16,7 @@ import processing.core.PConstants;
 public class Text extends Figure {
 
 	private IStringPropertyValue txt;
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 	private float leftAnchor;

@@ -119,12 +119,12 @@ public list[str] java fontNames();
    return anchor(0.5, 0.5);
  }
  
- data intTrigger = intTrigger(str name);
- data realTrigger = realTrigger(str name);
- data numTrigger = numTrigger(str name);
+ alias intTrigger	= int();
+ alias realTrigger 	= real();
+ alias numTrigger 	= num();
  
- data strTrigger = strTrigger(str name);
- data colorTrigger = colorTrigger(str name);
+ alias strTrigger 	= str();
+ alias colorTrigger = Color();
  
 public alias FProperties = list[FProperty];
 
@@ -196,6 +196,7 @@ data FProperty =
    
 /* interaction properties */  
    | mouseOver(Figure inner)            // add figure when mouse is over current figure
+   | onClick(void() handler)            // handler for mouse clicks
    | contentsHidden()                   // contents of container is hidden
    | contentsVisible()                  // contents of container is visible
    | pinned()                           // position pinned-down, cannot be dragged
@@ -312,13 +313,19 @@ data Figure =
    | _scale(num xperc, num yperc, Figure fig, FProperties props)	// Scale element (different for h and v)
 
 /* interaction */
-   
+ /*  
    | _computeFigure(Figure (list[str]) computeFig, list[str] triggers, FProperties props)
    | _computeTrigger(str tname, str init, str(list[str]) computeTrig, list[str] triggers, Figure fig, FProperties props)
    | _enterTrigger(str tname, str init, bool (str) validate, FProperties props)
    | _selectFigure(str tname, map[str, Figure] choices, FProperties props)
-   ;
+*/
 
+   | _computeFigure(Figure () computeFig, FProperties props)
+   | _button(str label, void () vcallback, FProperties props)
+   | _textfield(str text, void (str) scallback, FProperties props)
+   | _textfield(str text, void (str) scallback, bool (str) validate, FProperties props)
+   | _textarea(list[str] lines, map[int,Color] coloredLines, FProperties props)
+   ;
 
 public Figure text(str s, FProperty props ...){
   return _text(s, props);
@@ -448,21 +455,41 @@ public Figure colorControl(str name, str initial, FProperty props...){
   return _colorControl(name, initial, props);
 }
 
-public Figure computeFigure(Figure (list[str]) computeFig, list[str] triggers, FProperty props...){
- 	return _computeFigure(computeFig, triggers, props);
+
+public Figure computeFigure(Figure () computeFig, FProperty props...){
+ 	return _computeFigure(computeFig, props);
 }
- 
+
+/*
 public Figure computeTrigger(str tname, str init, str(list[str]) computeTrig, list[str] triggers, Figure fig, FProperty props...){
 	return _computeTrigger(tname, init, computeTrig, triggers, fig, props);
 }
  
  public Figure enterTrigger(str tname, str init, bool (str) validate, FProperty props...){
  	return _enterTrigger(tname, init, validate, props);
- }
+}
  
- public Figure selectFigure(str tname, map[str, Figure] choices, FProperty props...){
+public Figure selectFigure(str tname, map[str, Figure] choices, FProperty props...){
  	return _selectFigure(tname, choices, props);
- }
+}
+*/
+  
+public Figure button(str label, void () callback, FProperty props...){
+ 	return _button(label, callback, props);
+}
+ 
+public Figure textfield(str text, void (str) callback, FProperty props...){
+ 	return _textfield(text, callback, props);
+}
+ 
+public Figure textfield(str text,  void (str) callback, bool (str) validate, FProperty props...){
+ 	return _textfield(text, callback, validate, props);
+}
+   
+public Figure textarea(list[str] lines, map[int,Color] coloredLines, FProperty props...){
+   return _textarea(lines, coloredLines, props);
+}
+ 
    
 /*
  * Wishlist:

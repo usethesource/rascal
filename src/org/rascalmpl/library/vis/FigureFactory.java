@@ -25,10 +25,10 @@ import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
+import org.rascalmpl.library.vis.interaction.Button;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
-import org.rascalmpl.library.vis.interaction.ComputeTrigger;
-import org.rascalmpl.library.vis.interaction.EnterTrigger;
-import org.rascalmpl.library.vis.interaction.SelectFigure;
+import org.rascalmpl.library.vis.interaction.TextArea;
+import org.rascalmpl.library.vis.interaction.TextField;
 import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.IStringPropertyValue;
@@ -53,13 +53,14 @@ public class FigureFactory {
 	
 	enum Primitives {
 		BOX,
+		BUTTON,
 		COMPUTEFIGURE,
-		COMPUTETRIGGER,
+//		COMPUTETRIGGER,
 		CONTROLON,
 		CONTROLOFF,
 		EDGE, 
 		ELLIPSE, 
-		ENTERTRIGGER,
+//		ENTERTRIGGER,
 		GRAPH, 
 		GRID,
 		HCAT, 
@@ -69,10 +70,12 @@ public class FigureFactory {
 		PACK, 
 		ROTATE,
 		SCALE,
-		SELECTFIGURE,
+//		SELECTFIGURE,
 		SHAPE,
 		SPACE,
 		TEXT, 
+		TEXTAREA,
+		TEXTFIELD,
 		TREE,
 		TREEMAP,
 		USE,
@@ -84,11 +87,12 @@ public class FigureFactory {
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
     {
     	put("_box",			Primitives.BOX);
+    	put("_button", 		Primitives.BUTTON);
     	put("_computeFigure",Primitives.COMPUTEFIGURE);
-    	put("_computeTrigger",Primitives.COMPUTETRIGGER);
+ //   	put("_computeTrigger",Primitives.COMPUTETRIGGER);
     	put("_edge",		Primitives.EDGE);
     	put("_ellipse",		Primitives.ELLIPSE);
-    	put("_enterTrigger",Primitives.ENTERTRIGGER);
+ //   	put("_enterTrigger",Primitives.ENTERTRIGGER);
     	put("_graph",		Primitives.GRAPH);
     	put("_grid",		Primitives.GRID);
     	put("_hcat",		Primitives.HCAT);
@@ -98,10 +102,12 @@ public class FigureFactory {
     	put("_pack",		Primitives.PACK);	
     	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
-    	put("_selectFigure",Primitives.SELECTFIGURE);
+ //   	put("_selectFigure",Primitives.SELECTFIGURE);
     	put("_shape",		Primitives.SHAPE);
     	put("_space",		Primitives.SPACE);
-    	put("_text",		Primitives.TEXT);	    		
+    	put("_text",		Primitives.TEXT);	
+       	put("_textarea",	Primitives.TEXTAREA);	
+    	put("_textfield",	Primitives.TEXTFIELD);
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
     	put("_use",			Primitives.USE);
@@ -126,18 +132,21 @@ public class FigureFactory {
 		case BOX:
 			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
-		case COMPUTEFIGURE:
-			return new ComputeFigure(fpa, properties,  c.get(0), (IList) c.get(1), ctx);
+		case BUTTON:
+			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
 			
-		case COMPUTETRIGGER:
+		case COMPUTEFIGURE:
+			return new ComputeFigure(fpa, properties,  c.get(0), ctx);
+			
+		//case COMPUTETRIGGER:
 							
-			return new ComputeTrigger(fpa, properties, (IString) c.get(0), (IString) c.get(1), c.get(2), (IList) c.get(3), (IConstructor) c.get(4), ctx);
+		//	return new ComputeTrigger(fpa, properties, (IString) c.get(0), (IString) c.get(1), c.get(2), (IList) c.get(3), (IConstructor) c.get(4), ctx);
 				
 		case ELLIPSE:
 			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
-		case ENTERTRIGGER:
-			return new EnterTrigger(fpa, properties, (IString) c.get(0), (IString) c.get(1), c.get(2), ctx);
+		//case ENTERTRIGGER:
+		//	return new EnterTrigger(fpa, properties, (IString) c.get(0), (IString) c.get(1), c.get(2), ctx);
 		
 		case GRAPH:
 			if(properties.getHint().contains("lattice"))
@@ -175,8 +184,8 @@ public class FigureFactory {
 			
 			return new Scale(fpa, properties, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 			
-		case SELECTFIGURE:
-			return new SelectFigure(fpa, properties, (IString) c.get(0), (IMap) c.get(1), ctx);
+		//case SELECTFIGURE:
+		//	return new SelectFigure(fpa, properties, (IString) c.get(0), (IMap) c.get(1), ctx);
 
 			
 		case SHAPE: 
@@ -189,6 +198,15 @@ public class FigureFactory {
 			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
 			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c.get(0), fpa, ctx);
 			return new Text(fpa, properties,  txt, ctx);
+			
+		case TEXTAREA:
+			return new TextArea(fpa, properties, (IList)c.get(0), (IMap)c.get(1), ctx);
+			
+		case TEXTFIELD:
+			if(c.arity() > 3)
+				return new TextField(fpa, properties, (IString) c.get(0), c.get(1), c.get(2), ctx);
+			else
+				return new TextField(fpa, properties, (IString) c.get(0), c.get(1), null, ctx);
 			
 		case TREE: 			
 			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
