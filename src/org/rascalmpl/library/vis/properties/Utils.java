@@ -6,52 +6,43 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.FigureLibrary;
 import org.rascalmpl.library.vis.FigurePApplet;
 
 public class Utils {
 	
-	public static IIntegerPropertyValue getIntArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx){
-		IValue arg = c.get(0);
-		if(arg.getType().isAbstractDataType()){
-			IConstructor cons = (IConstructor) arg;
-			if(c.getName().equals("intTrigger")){
-				String name = ((IString) cons.get(0)).getValue();
-				new TriggeredIntegerProperty(prop, name, fpa);
-			}
-			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+	public static IIntegerPropertyValue getIntArg(Property prop, IValue v, FigurePApplet fpa, IEvaluatorContext ctx){
+		if(v.getType().isIntegerType())
+			return new ConstantIntegerProperty(prop, ((IInteger) v).intValue());
+		
+		if(v.getType().isExternalType() && ((v instanceof RascalFunction) || (v instanceof OverloadedFunctionResult))){
+			return new ComputedIntegerProperty(prop, v, fpa);
 		}
-		return new ConstantIntegerProperty(prop, ((IInteger) c.get(0)).intValue());
+		throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	public static IStringPropertyValue getStrArg(Property prop, IValue v, FigurePApplet fpa, IEvaluatorContext ctx){
+		
 		if(v.getType().isStringType())
 			return new ConstantStringProperty(prop, ((IString) v).getValue());
-		IConstructor c = (IConstructor) v;
-		if(c.getType().isAbstractDataType()){
-			if(c.getName().equals("strTigger")){
-				String name = ((IString) c.get(0)).getValue();
-				return new TriggeredStringProperty(prop, name, fpa);
-			}
-			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+
+		
+		if(v.getType().isExternalType() && ((v instanceof RascalFunction) || (v instanceof OverloadedFunctionResult))){
+			return new ComputedStringProperty(prop, v, fpa);
 		}
+		
 		throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(),
 				ctx.getStackTrace());
 	}
 	
 	public static IRealPropertyValue getRealArg(Property prop, IConstructor c, int i, FigurePApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(i);
-		if(arg.getType().isAbstractDataType()){
-			IConstructor cons = (IConstructor) arg;
-			if(cons.getName().equals("realTrigger")){
-				String name = ((IString) cons.get(0)).getValue();
-				return new TriggeredRealProperty(prop, name, fpa);
-			}
-			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+		
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+			return new ComputedRealProperty(prop, arg, fpa);
 		}
 		return new ConstantRealProperty(prop, ((IReal) c.get(0)).floatValue());
 	}
@@ -59,14 +50,8 @@ public class Utils {
 	public static IRealPropertyValue getIntOrRealArg(Property prop, IConstructor c, int i, FigurePApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(i);
 		
-		if(arg.getType().isAbstractDataType()){
-			IConstructor cons = (IConstructor) arg;
-			if(cons.getName().equals("numTrigger") || cons.getName().equals("intTrigger") || cons.getName().equals("realTrigger")){
-				String name = ((IString) cons.get(0)).getValue();
-				return new TriggeredRealProperty(prop, name, fpa);
-			}
-			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+			return new ComputedRealProperty(prop, arg, fpa);
 		}
 		if(c.get(i).getType().isIntegerType())
 			return new ConstantRealProperty(prop, ((IInteger) c.get(i)).intValue());
@@ -78,14 +63,8 @@ public class Utils {
 		
 		IValue arg = c.get(0);
 		
-		if(arg.getType().isAbstractDataType()){
-			IConstructor cons = (IConstructor) arg;
-			if(cons.getName().equals("colorTrigger")){
-				String name = ((IString) cons.get(0)).getValue();
-				return new TriggeredColorProperty(prop, name, fpa);
-			}
-			throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+			return new ComputedColorProperty(prop, arg, fpa);
 		}
 		
 		if (arg.getType().isStringType()) {

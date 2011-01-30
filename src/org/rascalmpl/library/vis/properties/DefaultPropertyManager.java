@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.properties;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 
@@ -71,6 +72,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 	}
 
 	public Figure getMouseOver() {
+		return null;
+	}
+	
+	public IValue getOnClick() {
 		return null;
 	}
 
