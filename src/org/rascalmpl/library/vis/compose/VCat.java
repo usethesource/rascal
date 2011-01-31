@@ -18,7 +18,7 @@ public class VCat extends Compose {
 	float vgap;
 	float leftAnchor = 0;
 	float rightAnchor = 0;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	public VCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);

@@ -36,7 +36,7 @@ public class FigurePApplet extends PApplet {
 	private Figure mouseOver = null;
 	private boolean computedValueChanged = true;
 
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private boolean saveFigure = true;
 	private String file;
 	private float scale = 1.0f;
@@ -134,7 +134,6 @@ public class FigurePApplet extends PApplet {
 			rootFigure.draw(left,top);
 			if(mouseOver != null)
 				mouseOver.drawWithMouseOver(mouseOver.getLeft(), mouseOver.getTop());
-					
 			if(focus != null && focusSelected)
 				focus.drawFocus();
 		}
@@ -259,6 +258,7 @@ public class FigurePApplet extends PApplet {
 	@Override
 	public void mouseReleased(){
 		//focusSelected = false;
+		figure.mouseReleased();
 	}
 	
 	@Override
@@ -271,23 +271,32 @@ public class FigurePApplet extends PApplet {
 		figure.mouseOver(mouseX, mouseY, false);
 		redraw();
 	}
+	
+	@Override
+	public void mouseDragged(){
+		if (debug) System.err.println("========= mouseDragged: " + mouseX + ", " + mouseY);
+		
+//		lastMouseX = mouseX;
+//		lastMouseY = mouseY;
+		
+//		figure.mouseOver(mouseX, mouseY, false);
+		figure.mouseDragged(mouseX, mouseY);
+		redraw();
+	}
 			
 	
 	@Override
 	public synchronized void mousePressed(){
-		System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+		if (debug) System.err.println("mousePressed: " + mouseX + ", " + mouseY);
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
 		if(figure.mousePressed(mouseX, mouseY, mouseEvent)){
 			focusSelected = true;
+			if (debug) System.err.println(""+this.getClass()+" "+focusSelected);
 		} else
 			unRegisterFocus(focus);
-
 		redraw(); 
 	}
-
-
-	// Triggers
 	
 	public synchronized void setComputedValueChanged(){
 		computedValueChanged = true;

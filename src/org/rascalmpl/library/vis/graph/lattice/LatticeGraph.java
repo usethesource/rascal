@@ -30,9 +30,11 @@ public class LatticeGraph extends Figure {
 	protected ArrayList<LatticeGraphNode> nodes;
 	protected ArrayList<LatticeGraphEdge> edges;
 	private HashMap<String, LatticeGraphNode> registered;
+	private final boolean debug = false;
 	private LinkedList<LatticeGraphNode> nextLayer = new LinkedList<LatticeGraphNode>();
 	IEvaluatorContext ctx;
 	ArrayList<LatticeGraphNode>[] layers;
+	final int border = 20;
 
 	// private static boolean debug = false;
 	private LatticeGraphNode topNode = null, bottomNode = null;
@@ -45,7 +47,7 @@ public class LatticeGraph extends Figure {
 		this.ctx = ctx;
 		width = getWidthProperty();
 		height = getHeightProperty();
-
+        if (debug) System.err.println("LatticaGraph");
 		registered = new HashMap<String, LatticeGraphNode>();
 		for (IValue v : nodes) {
 
@@ -104,7 +106,7 @@ public class LatticeGraph extends Figure {
 					// n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));
 					n.x = x;
 					x += (i % 2 == 0 ? step : -step);
-					n.y = (n.rank * height) / layers.length;
+					n.y = border+ (n.rank * (height-2*border)) / layers.length;
 					// System.err.println("y:"+n.y);
 				}
 				i++;
@@ -124,6 +126,19 @@ public class LatticeGraph extends Figure {
 			n.draw(left, top);
 		}
 	}
+	
+	/**
+	 * Draw focus around this figure
+	 */
+	public void drawFocus(){
+	    // System.err.println("drawFocus: " + this.left);
+		if(isVisible()){
+			fpa.stroke(255, 0,0);
+			fpa.strokeWeight(1);
+			fpa.noFill();
+			fpa.rect(getLeft(), getTop(), width, height);
+		}
+	}
 
 	@Override
 	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent) {
@@ -136,11 +151,37 @@ public class LatticeGraph extends Figure {
 
 	@Override
 	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
+		// System.err.println("mousePressed:"+this.getClass()+" "+nodes.size());
 		for (LatticeGraphNode n : nodes) {
 			if (n.mousePressed(mousex, mousey, e))
 				return true;
 		}
-		return super.mousePressed(mousex, mousey, e);
+		return false;
+		// return super.mousePressed(mousex, mousey, e);
+	}
+	
+	@Override
+	public boolean mouseDragged(int mousex, int mousey) {
+		// System.err.println("mouseDragged:"+this.getClass()+" "+nodes.size());
+		for (LatticeGraphNode n : nodes) {
+			if (n.mousePressed) {
+				     n.x = mousex;
+				     n.y = mousey;
+				     return true;
+			         }
+		}
+		return false;
+		// return super.mousePressed(mousex, mousey, e);
+	}
+	
+	@Override
+	public boolean mouseReleased() {
+		if (debug) System.err.println("mouseReleased");
+		for (LatticeGraphNode n : nodes) {
+			if (n.mouseReleased())
+				return true;
+		}
+		return false;
 	}
 
 	public boolean isLattice() {
