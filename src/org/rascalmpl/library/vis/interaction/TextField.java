@@ -71,12 +71,12 @@ public class TextField extends Figure {
 	    				  } 
 	    			  }
 
-					@Override
+					// @Override
 					public void keyPressed(KeyEvent e) {
 						 keyTyped(e);
 					}
 
-					@Override
+					// @Override
 					public void keyReleased(KeyEvent e) {
 						keyTyped(e);
 					}

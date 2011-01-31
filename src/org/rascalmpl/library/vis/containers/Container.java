@@ -27,7 +27,7 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 public abstract class Container extends Figure {
 
 	protected Figure innerFig;
-	private static boolean debug = false;
+	final private static boolean debug = false;
 
 	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
