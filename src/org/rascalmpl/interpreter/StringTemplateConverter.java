@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -14,11 +13,11 @@ import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
+import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.StringLiteral.NonInterpolated;
 import org.rascalmpl.ast.StringMiddle.Interpolated;
 import org.rascalmpl.ast.StringMiddle.Mid;
@@ -34,7 +33,6 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
