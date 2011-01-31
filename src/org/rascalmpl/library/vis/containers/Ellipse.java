@@ -53,10 +53,10 @@ public class Ellipse extends Container {
         float theta = PApplet.atan((fromY - Y) / (fromX - X));
         if(theta < 0){
         	if(fromX < X )
-        		theta += PApplet.PI;
+        		theta += PConstants.PI;
         } else {
         	if(fromX < X )
-        		theta += PApplet.PI;
+        		theta += PConstants.PI;
         }
         float sint = PApplet.sin(theta);
         float cost = PApplet.cos(theta);

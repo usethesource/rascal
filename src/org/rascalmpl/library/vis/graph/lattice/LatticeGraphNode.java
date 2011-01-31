@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
 
 /**
  * A GraphNode is created for each "node" constructor that occurs in the graph.
