@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.graph.lattice.LatticeGraphNode;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**

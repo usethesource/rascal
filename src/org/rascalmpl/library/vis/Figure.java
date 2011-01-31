@@ -12,6 +12,7 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 /**
  * Figures are the foundation of Rascal visualization. They are based on a
@@ -307,10 +308,10 @@ public abstract class Figure implements Comparable<Figure> {
 		float theta = PApplet.atan(s);
 		if (theta < 0) {
 			if (fromX < X)
-				theta += PApplet.PI;
+				theta += PConstants.PI;
 		} else {
 			if (fromX < X)
-				theta += PApplet.PI;
+				theta += PConstants.PI;
 		}
 		float IX;
 		float IY;
