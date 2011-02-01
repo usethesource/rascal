@@ -33,12 +33,12 @@ syntax Expression = Identifier |
                     Expression "-\>" Identifier |
                     Expression "++" |
                     Expression "--" >
-                    "++" Expression | // Add precede restriction "+"
-                    "--" Expression | // Add precede restriction "-"
-                    "&" Expression | // Add precede restriction "&"
+                    "++" Expression |
+                    "--" Expression |
+                    "&" Expression |
                     "*" Expression |
-                    "+" Expression | // Add precede restriction "+"
-                    "-" Expression | // Add precede restriction "-"
+                    "+" Expression |
+                    "-" Expression |
                     "~" Expression |
                     "!" Expression |
                     "sizeof" Expression |
