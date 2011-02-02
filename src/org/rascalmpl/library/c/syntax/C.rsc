@@ -144,7 +144,7 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" |
+syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" | // Handle typedef
                      Specifier+ ";"  // {avoid}
                      ;
 
@@ -180,12 +180,11 @@ syntax Specifier = Identifier |
                    "enum" "{" {Enumerator ","}+  "}" |
                    ;
 
-syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";"
+syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" // Handle typedef
                            ;
 
 syntax StructDeclarator = Declarator |
-                          Declarator ":" Expression |
-                          ":" Expression
+                          Declarator? ":" Expression
                           ;
 
 syntax Parameters = {Parameter ","}+ MoreParameters?
