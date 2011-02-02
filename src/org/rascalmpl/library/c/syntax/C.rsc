@@ -232,8 +232,8 @@ syntax IntegerConstant = lex [0-9]+ [uUlL]*
 syntax CharacterConstant = lex [L]? [\'] CharacterConstantContent+ [\']
                            ;
 
-syntax CharacterConstantContent = [\\]![] |
-                                  ![\\\']
+syntax CharacterConstantContent = lex [\\] ![] |
+                                  lex ![\\\']
                                   ;
 
 syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
@@ -245,8 +245,8 @@ syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
 syntax StringConstant = lex [L]? [\"] StringConstant* [\"]
                         ;
 
-syntax StringConstantContent = [\\]![] |
-                               ![\\\"]
+syntax StringConstantContent = lex [\\] ![] |
+                               lex ![\\\"]
                                ;
 
 syntax Exponent = lex [Ee] [+\-]? [0-9]+
@@ -284,12 +284,6 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
 
 //////////////////////////// TODO: SDF stuff ////////////////////////////
 /*
-Expression                -> Initializer >
-Expression "," Expression -> Expression,
-
 Expression                -> {Expression ","}+ >
-Expression "," Expression -> Expression,
-
-Identifier "=" Expression -> Enumerator >
 Expression "," Expression -> Expression
 */
