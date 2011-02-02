@@ -26,7 +26,7 @@ syntax Expression = Identifier |
                     @category="Constant" FloatingPointConstant |
                     @category="Constant" StringConstant |
                     Expression "[" Expression "]" |
-                    Expression "(" {Expression ","}* ")" |
+                    Expression "(" {NonCommaExpression ","}* ")" |
                     "sizeof" "(" TypeName ")" |
                     bracket "(" Expression ")" |
                     Expression "." Identifier |
@@ -85,8 +85,15 @@ syntax Expression = Identifier |
                           Expression "^=" Expression |
                           Expression "|=" Expression
                     ) >
-                    left Expression "," Expression
+                    left CommaExpression: Expression "," Expression
                     ;
+
+syntax NonCommaExpression = Expression expr {
+                               if(appl(prod(_,_,attrs([_*,term(cons("CommaExpression")),_*])),_) := expr) {
+                                  fail;
+                               }
+                            }
+                            ;
 
 syntax "+" = ... # "+";
 
@@ -187,7 +194,7 @@ syntax Parameters = {Parameter ","}+ MoreParameters?
 syntax MoreParameters = "," "..."
                         ;
 
-syntax Initializer = Expression |
+syntax Initializer = NonCommaExpression |
                      "{" {Initializer ","}+ ","?  "}"
                      ;
 
@@ -200,7 +207,7 @@ syntax Pointer = PointerContent+
 syntax PointerContent = "*" Specifier*;
 
 syntax Enumerator = Identifier |
-                    Identifier "=" Expression
+                    Identifier "=" NonCommaExpression
                     ;
 
 syntax AbstractDeclarator = AnonymousIdentifier |
