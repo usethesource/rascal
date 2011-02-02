@@ -281,9 +281,3 @@ layout LAYOUTLIST = LAYOUT*
 syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 @category="Comment" lex Comment: Comment
                 ;
-
-//////////////////////////// TODO: SDF stuff ////////////////////////////
-/*
-Expression                -> {Expression ","}+ >
-Expression "," Expression -> Expression
-*/
