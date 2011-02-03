@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -17,28 +18,21 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 import processing.core.PApplet;
 
 public class Button extends Figure {
-											// Function of type Figure (list[str]) to compute new figure
-	private RascalFunction callback;
+	final private RascalFunction callback;
 	
-	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
-	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
+	final Type[] argTypes = new Type[0];		// Argument types of callback: []
+	final IValue[] argVals = new IValue[0];		// Argument values of callback: []
 	
 	final java.awt.Button button = new java.awt.Button();
 
 	public Button(FigurePApplet fpa, IPropertyManager properties, IString tname, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
-		
-		System.err.println("fun = " + fun + fun.getType().isExternalType() + (fun instanceof RascalFunction));
-		System.err.println(fun.getClass());
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
 			this.callback = (RascalFunction) fun;
-			System.err.println("Assign to callback");
 		} else {
 			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
 			 this.callback = null;
 		}
-		
-		System.err.println("callback = " + callback);
 		
 	    button.addMouseListener(
 	    	      new MouseAdapter() {
@@ -52,6 +46,7 @@ public class Button extends Figure {
 	    	        }
 	    	      });
 	    button.setLabel(tname.getValue());
+	    button.setBackground(new Color(0));
 	    fpa.add(button);
 	}
 
@@ -59,11 +54,13 @@ public class Button extends Figure {
 	public void bbox() {
 		width = button.getWidth();
 		height = button.getHeight();
-		button.setSize(PApplet.round(width), PApplet.round(height));
 	}
 	
 	public void doCallBack(){
+		button.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		callback.call(argTypes, argVals);
+		button.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.setComputedValueChanged();
 	}
 
 	@Override

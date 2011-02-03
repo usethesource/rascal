@@ -162,7 +162,7 @@ data FProperty =
    | gap(computedNum cAmount)  
    | gap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
    | gap(computedNum cWidth, computedNum cHeight) 
-   | hgap(num cWidth)                      // sets hor gap
+   | hgap(num width)                      // sets hor gap
    | hgap(computedNum cWidth)
    | vgap(num height)                     // set vert gap
    | vgap(computedNum cHeight)
@@ -337,7 +337,7 @@ data Figure =
    | _textfield(str text, void (str) scallback, bool (str) validate, FProperties props)
    | _textarea(list[str] lines, map[int,Color] coloredLines, FProperties props)
    | _choice(list[str] choices, void(str s) ccallback, FProperties props)
-   | _checkbox(str text, void() vcallback, FProperties props)
+   | _checkbox(str text, void(bool) vbcallback, FProperties props)
    ;
 
 public Figure text(str s, FProperty props ...){
@@ -507,7 +507,7 @@ public Figure choice(list[str] choices, void(str s) ccallback, FProperty props..
    return _choice(choices, ccallback, props);
 }
 
-public Figure checkbox(str text, void() vcallback, FProperty props...){
+public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
    return _checkbox(text, vcallback, props);
 }  
   

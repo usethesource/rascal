@@ -95,6 +95,7 @@ public class FigurePApplet extends PApplet {
 			size(width, height);
 		}
 		noLoop();
+		setLayout(null); // allows more precise position of AWT widgets.
 		figure.bbox();
 		computedValueChanged = false;
 		rootWidth = figure.width;

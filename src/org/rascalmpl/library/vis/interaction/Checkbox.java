@@ -8,6 +8,7 @@ import java.awt.event.ItemListener;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -21,8 +22,8 @@ public class Checkbox extends Figure {
 											
 	private final RascalFunction callback;		// Function of type void() to communicate checkbox state change
 	
-	final Type[] argTypes = new Type[0];		// Argument types of callback: []
-	final IValue[] argVals = new IValue[0];		// Argument values of callback: none
+	final Type[] argTypes = new Type[1];		// Argument types of callback: [bool]
+	final IValue[] argVals = new IValue[1];		// Argument values of callback: bool
 	
 	final java.awt.Checkbox checkbox;
 
@@ -36,6 +37,10 @@ public class Checkbox extends Figure {
 			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
 			 this.callback = null;
 		}
+		TypeFactory tf = TypeFactory.getInstance();
+
+		argTypes[0] = tf.boolType();
+		argVals[0] = vf.bool(false);
 		
 		checkbox = new java.awt.Checkbox(name.getValue(), false);
 	    checkbox.addItemListener(
@@ -43,15 +48,19 @@ public class Checkbox extends Figure {
 	    	    	  @Override
 	    	        public void itemStateChanged(ItemEvent e) {
 	    	          try {
-	    	        	  doCallBack();
+	    	        	  checkbox.getParent().invalidate();
+	    	        	  System.err.println("itemStateChanged: getState() == " + checkbox.getState());
+	    	        	  //checkbox.setState(!checkbox.getState());
+	    	        	  doCallBack(checkbox.getState());
 	    	          } catch (Exception ex) {
 	    	        	  System.err.println("EXCEPTION");
-	    	            ex.printStackTrace();
+	    	              ex.printStackTrace();
 	    	          }
 	    	        }
 	    	      });
-	    //checkbox.setBackground(new Color(0));
+	    //checkbox.setBackground(new Color(255));
 	    fpa.add(checkbox);
+	    System.err.println("Created checkbox");
 	}
 
 	@Override
@@ -60,9 +69,11 @@ public class Checkbox extends Figure {
 		height = checkbox.getHeight();
 	}
 	
-	public void doCallBack(){
-		System.err.println("Calling callback: " + callback);
+	public void doCallBack(boolean selected){
+		System.err.println("Calling callback: " + callback + " with selected = " + selected);
+		argVals[0] = vf.bool(selected);
 		callback.call(argTypes, argVals);
+		checkbox.getParent().validate();
 		fpa.setComputedValueChanged();
 	}
 
@@ -70,7 +81,6 @@ public class Checkbox extends Figure {
 	public void draw(float left, float top) {
 		this.setLeft(left);
 		this.setTop(top);
-		//fpa.setBackground(new Color(getFillColorProperty()));
 		checkbox.setBackground(new Color(getFillColorProperty()));
 		checkbox.setLocation(PApplet.round(left), PApplet.round(top));
 	}

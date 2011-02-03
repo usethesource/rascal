@@ -19,11 +19,11 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 import processing.core.PApplet;
 
 public class Choice extends Figure {
-											// Function of type Figure (list[str]) to compute new figure
-	private RascalFunction callback;
 	
-	Type[] argTypes = new Type[1];			// Argument types of callback: list[str]
-	IValue[] argVals = new IValue[1];		// Argument values of callback: argList
+	final private RascalFunction callback;
+	
+	final Type[] argTypes = new Type[1];			// Argument types of callback: [str]
+	final IValue[] argVals = new IValue[1];		    // Argument values of callback: [str]
 	
 	final java.awt.Choice choice = new java.awt.Choice();
 

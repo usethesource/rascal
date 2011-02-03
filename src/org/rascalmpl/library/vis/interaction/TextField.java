@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -88,9 +89,11 @@ public class TextField extends Figure {
 	public void bbox() {
 		width = getWidthProperty();
 		height = getHeightProperty();
+		
 		field.setSize(PApplet.round(width), PApplet.round(height));
 		field.setPreferredSize(new Dimension(PApplet.round(width), PApplet.round(height)));
-		
+		width = field.getWidth();
+		height = field.getHeight();
 	}
 	
 	public boolean doValidate(){
@@ -110,10 +113,13 @@ public class TextField extends Figure {
 	
 	public void doCallBack(){
 		argVals[0] = vf.string(field.getText());
+		//fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		//fpa.validate();
 		if(callback instanceof RascalFunction)
 			((RascalFunction) callback).call(argTypes, argVals);
 		else
 			((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		//fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		fpa.setComputedValueChanged();
 	}
 
