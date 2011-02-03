@@ -520,8 +520,8 @@ public abstract class Figure implements Comparable<Figure> {
 		return mouseOver(mouseX, mouseY, getCenterX(), getCenterY(), mouseInParent);
 	}
 
-	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
-	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
+	final Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
+	final IValue[] argVals = new IValue[0];		// Argument values of callback: argList
 	
 	/**
 	 * Compute the effect
@@ -536,7 +536,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 
 	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
-		System.err.println("Figure.mousePressed, handler = " + properties.getOnClick());
+		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
 		if(mouseInside(mouseX, mouseY)){
 			IValue handler = properties.getOnClick();
 			if(handler != null){
@@ -596,6 +596,12 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public float getTopDragged() {
 		return topDragged;
+	}
+	
+	/**
+	 * Give a figure the opportunity to remove allocated components, etc.
+	 */
+	public void destroy(){
 	}
 	
 }

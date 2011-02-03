@@ -20,7 +20,7 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 public abstract class Compose extends Figure {
 
 	protected Figure[] figures;
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	protected Compose(FigurePApplet fpa, IPropertyManager properties,
 			IList elems, IEvaluatorContext ctx) {

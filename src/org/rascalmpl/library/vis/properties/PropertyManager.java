@@ -88,7 +88,7 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getColorArg(Property.FONTCOLOR, c, fpa, ctx); break;
 				
 			case FONTSIZE:
-				values[i++] = Utils.getIntArg(Property.FONTSIZE, c.get(0), fpa, ctx); break;
+				values[i++] = Utils.getIntArg(Property.FONTSIZE, (IConstructor) c.get(0), fpa, ctx); break;
 				
 			case FROMANGLE:
 				values[i++] = Utils.getIntOrRealArg(Property.FROMANGLE, c, 0, fpa, ctx); break;
@@ -315,11 +315,15 @@ public class PropertyManager implements IPropertyManager {
 	}
 
 	public Figure getMouseOver() {
-		return mouseOverFigure;
+		if(mouseOverFigure != null)
+			return mouseOverFigure;
+		return inherited.getMouseOver();
 	}
 	
 	public IValue getOnClick(){
-		return onClickHandler;
+		if(onClickHandler != null)
+			return onClickHandler;
+		return inherited.getOnClick();
 	}
 
 	public float getTextAngle() {

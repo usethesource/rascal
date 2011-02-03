@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -17,6 +16,7 @@ import processing.core.PApplet;
 public class TextArea extends Figure {
 	
 	final java.awt.TextArea area;
+	boolean added = false;
 
 	public TextArea(FigurePApplet fpa, IPropertyManager properties, IList lines, IMap colored, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
@@ -25,50 +25,29 @@ public class TextArea extends Figure {
 			text.append(((IString) iline).getValue()).append("\n");
 		}
 		
-		area = new java.awt.TextArea(text.toString(), 50, 50, java.awt.TextArea.SCROLLBARS_VERTICAL_ONLY);
-		area.setEditable(false);
-		
-//	    area.addKeyListener(
-//	    		  new KeyListener(){
-//	    			  public void keyTyped(KeyEvent e){ 
-//	    			  }
-//
-//					@Override
-//					public void keyPressed(KeyEvent e) {
-//					}
-//
-//					@Override
-//					public void keyReleased(KeyEvent e) {
-//					}
-//	    		  });
-		
-//		area.addMouseListener(
-//				 new MouseAdapter(){
-//					 public void mousePressed(){}
-//					 public void mouseReleased(){}
-//					 public void mouseClicked(){}
-//					 public void mouseEntered(MouseEvent e) {}
-//					 public void mouseExited(MouseEvent e) {}
-//				 }
-//		);
-		
-	    fpa.add(area);
+		area = new java.awt.TextArea(text.toString(), 10, 50, java.awt.TextArea.SCROLLBARS_BOTH);
+		fpa.add(area);
 	}
 
 	@Override
 	public void bbox() {
-		width = getWidthProperty();
-		height = getHeightProperty();
-		area.setSize(PApplet.round(width), PApplet.round(height));
-		area.setPreferredSize(new Dimension(PApplet.round(width), PApplet.round(height)));
+		width = area.getWidth();
+		height = area.getHeight();
 	}
 
 	@Override
 	public void draw(float left, float top) {
+		System.err.println("DRAW TEXTAREA");
 		this.setLeft(left);
 		this.setTop(top);
 		area.setForeground(new Color(getFontColorProperty()));
 		area.setLocation(PApplet.round(left), PApplet.round(top));
+	}
+	
+	@Override
+	public void destroy(){
+		fpa.removeAll();
+		fpa.invalidate();
 	}
 
 }

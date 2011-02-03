@@ -14,14 +14,16 @@ import org.rascalmpl.library.vis.FigurePApplet;
 
 public class Utils {
 	
-	public static IIntegerPropertyValue getIntArg(Property prop, IValue v, FigurePApplet fpa, IEvaluatorContext ctx){
-		if(v.getType().isIntegerType())
-			return new ConstantIntegerProperty(prop, ((IInteger) v).intValue());
+	public static IIntegerPropertyValue getIntArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx){
+		IValue arg = c.get(0);
+
+		if(arg.getType().isIntegerType())
+			return new ConstantIntegerProperty(prop, ((IInteger) arg).intValue());
 		
-		if(v.getType().isExternalType() && ((v instanceof RascalFunction) || (v instanceof OverloadedFunctionResult))){
-			return new ComputedIntegerProperty(prop, v, fpa);
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+			return new ComputedIntegerProperty(prop, arg, fpa);
 		}
-		throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(), ctx.getStackTrace());
+		throw RuntimeExceptionFactory.illegalArgument(arg, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	public static IStringPropertyValue getStrArg(Property prop, IValue v, FigurePApplet fpa, IEvaluatorContext ctx){

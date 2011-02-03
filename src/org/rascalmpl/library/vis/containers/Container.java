@@ -26,14 +26,16 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public abstract class Container extends Figure {
 
-	protected Figure innerFig;
-	final private static boolean debug = false;
+	final protected Figure innerFig;
+
+	final private static boolean debug = true;
 
 	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		if(innerCons != null){
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
-		}
+		} else
+			this.innerFig = null;
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
 	}
 
@@ -207,7 +209,7 @@ public abstract class Container extends Figure {
 		
 		if(mouseInside(mouseX, mouseY)){
 			fpa.registerFocus(this);
-			return true;
+			return super.mousePressed(mouseX, mouseY, e);
 		}
 		return false;
 	}

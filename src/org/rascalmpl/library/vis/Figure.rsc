@@ -8,6 +8,23 @@ import IO;
 
 /*
  * Declarations and library functions for Rascal Visualization
+ *
+ * There are several sources of ugliness in the following definitions:
+ * - data declarations cannot have variadic parameters, hence we need a wrapper function for each constructor.
+ * - Alternatives of a data declaration always need a constructor, hence many constructors have to be duplicated.
+ * - We are awaiting the intro of key word parameters.
+ */
+ 
+/*
+ * Wishlist:
+ * - textures
+ * - boxes with round corners
+ * - drop shadows
+ * - dashed/dotted lines
+ * - ngons
+ * - bitmap import and display
+ * - new layouts (circuar) treemap, icecle
+ * - interaction
  */
  
  /*
@@ -119,64 +136,64 @@ public list[str] java fontNames();
    return anchor(0.5, 0.5);
  }
  
- alias intTrigger	= int();
- alias realTrigger 	= real();
- alias numTrigger 	= num();
+ alias computedInt	= int();
+ alias computedReal = real();
+ alias computedNum 	= num();
  
- alias strTrigger 	= str();
- alias colorTrigger = Color();
+ alias computedStr 	= str();
+ alias computedColor = Color();
  
 public alias FProperties = list[FProperty];
 
 data FProperty =
 /* sizes */
      width(num width)                   // sets width of element
-   | width(numTrigger nvWidth)               // sets width of element
+   | width(computedNum cWidth)         // sets width of element
    | height(num height)                 // sets height of element
-   | height(numTrigger nvheight)             // sets height of element
+   | height(computedNum cHeight)       // sets height of element
    
    | size(num size)					    // sets width and height to same value
-   | size(numTrigger nvSize)					    // sets width and height to same value
+   | size(computedNum cSize)			// sets width and height to same value
    
-   | size(num hor, num vert)            // sets width and height to separate values
-   | size(numTrigger nvHor, numTrigger nvVert)  // sets width and height to separate values
+   | size(num width, num height)            // sets width and height to separate values
+   | size(computedNum cWidth, computedNum cHeight)  // sets width and height to separate values
    
    | gap(num amount)                    // sets hor and vert gap between elements in composition to same value
-   | gap(numTrigger nvAmount)  
-   | gap(num hor, num vert) 			// sets hor and vert gap between elements in composition to separate values
-   | gap(numTrigger nvHor, numTrigger nvVert) 
-   | hgap(num hor)                      // sets hor gap
-   | hgap(numTrigger nvhor)
-   | vgap(num vert)                     // set vert gap
-   | vgap(numTrigger nvHor)
+   | gap(computedNum cAmount)  
+   | gap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(computedNum cWidth, computedNum cHeight) 
+   | hgap(num cWidth)                      // sets hor gap
+   | hgap(computedNum cWidth)
+   | vgap(num height)                     // set vert gap
+   | vgap(computedNum cHeight)
    
 /* alignment */
    | anchor(num hor, num vert)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
-   | anchor(numTrigger nvHor, numTrigger nvVert) 
+   | anchor(computedNum cHor, computedNum cVert) 
    | hanchor(num hor)
-   | hanchor(numTrigger nvHor)
+   | hanchor(computedNum cHor)
    | vanchor(num vert)
-   | vanchor(numTrigger nvVert)
+   | vanchor(computedNum cVert)
    
 /* line and border properties */
    | lineWidth(num lineWidth)			// line width
-   | lineWidth(numTrigger nvLineWidth)		// line width
+   | lineWidth(computedNum cLineWidth)		// line width
    
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
-   | lineColor(colorTrigger cvColorName)    // named line color
+   | lineColor(computedColor cColorName)    // named line color
    
    | fillColor(Color fillColor)			// fill color of shapes and text
    | fillColor(str colorName)           // named fill color
-   | fillColor(colorTrigger svColorName)    // named fill color
+   | fillColor(computedColor cColorName)    // named fill color
    
 /* wedge properties */
    | fromAngle(num angle)
-   | fromAngle(numTrigger nvAngle)
+   | fromAngle(computedNum cAngle)
    | toAngle(num angle)
-   | toAngle(numTrigger nvAngle)
+   | toAngle(computedNum cAngle)
    | innerRadius(num radius)
-   | innerRadius(numTrigger nvRadius)
+   | innerRadius(computedNum cRadius)
 
 /* shape properties */
    | shapeConnected()                   // shapes consist of connected points
@@ -185,14 +202,14 @@ data FProperty =
  
 /* font and text properties */
    | font(str fontName)             	// named font
-   | font(strTrigger svFontName)     
+   | font(computedStr cFontName)     
    | fontSize(int isize)                // font size
-   | fontSize(intTrigger ivSize)
+   | fontSize(computedInt ciSize)
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
-   | fontColor(colorTrigger cvColorName)  
+   | fontColor(computedColor cColorName)  
    | textAngle(num angle)               // text rotation
-   | textAngle(numTrigger nvAngle) 
+   | textAngle(computedNum cAngle) 
    
 /* interaction properties */  
    | mouseOver(Figure inner)            // add figure when mouse is over current figure
@@ -201,13 +218,13 @@ data FProperty =
    | contentsVisible()                  // contents of container is visible
    | pinned()                           // position pinned-down, cannot be dragged
    | doi(int d)                         // limit visibility to nesting level d
-   | doi(intTrigger ivD) 
+   | doi(computedInt ciD) 
    
 /* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
-   | id(strTrigger svName)
+   | id(computedStr cName)
    | hint(str name)                     // hint for various compositions
-   | hint(strTrigger svName)
+   | hint(computedStr cName)
    ;
 
 /*
@@ -257,7 +274,7 @@ data Figure =
 /* atomic primitives */
 
      _text(str s, FProperties props)		    // text label
-   | _text(strTrigger sv, FProperties props)
+   | _text(computedStr sv, FProperties props)
    
    												// file outline
    | _outline(map[int,Color] coloredLines, FProperties props)
@@ -265,7 +282,7 @@ data Figure =
    
 /* primitives/containers */
 
-   | _box(FProperties props)			          	// rectangular box
+   | _box(FProperties props)			          // rectangular box
    | _box(Figure inner, FProperties props)       // rectangular box with inner element
    
    | _ellipse(FProperties props)                 // ellipse with inner element
@@ -313,25 +330,21 @@ data Figure =
    | _scale(num xperc, num yperc, Figure fig, FProperties props)	// Scale element (different for h and v)
 
 /* interaction */
- /*  
-   | _computeFigure(Figure (list[str]) computeFig, list[str] triggers, FProperties props)
-   | _computeTrigger(str tname, str init, str(list[str]) computeTrig, list[str] triggers, Figure fig, FProperties props)
-   | _enterTrigger(str tname, str init, bool (str) validate, FProperties props)
-   | _selectFigure(str tname, map[str, Figure] choices, FProperties props)
-*/
 
    | _computeFigure(Figure () computeFig, FProperties props)
    | _button(str label, void () vcallback, FProperties props)
    | _textfield(str text, void (str) scallback, FProperties props)
    | _textfield(str text, void (str) scallback, bool (str) validate, FProperties props)
    | _textarea(list[str] lines, map[int,Color] coloredLines, FProperties props)
+   | _choice(list[str] choices, void(str s) ccallback, FProperties props)
+   | _checkbox(str text, void() vcallback, FProperties props)
    ;
 
 public Figure text(str s, FProperty props ...){
   return _text(s, props);
 }
 
-public Figure text(strTrigger sv, FProperty props ...){
+public Figure text(computedStr sv, FProperty props ...){
   return _text(sv, props);
 }
 
@@ -489,17 +502,14 @@ public Figure textfield(str text,  void (str) callback, bool (str) validate, FPr
 public Figure textarea(list[str] lines, map[int,Color] coloredLines, FProperty props...){
    return _textarea(lines, coloredLines, props);
 }
- 
-   
-/*
- * Wishlist:
- * - textures
- * - boxes with round corners
- * - drop shadows
- * - dashed/dotted lines
- * - ngons
- * - bitmap import and display
- * - new layouts (circuar) treemap, icecle
- * - interaction
- */
+  
+public Figure choice(list[str] choices, void(str s) ccallback, FProperty props...){
+   return _choice(choices, ccallback, props);
+}
+
+public Figure checkbox(str text, void() vcallback, FProperty props...){
+   return _checkbox(text, vcallback, props);
+}  
+  
+
 
