@@ -42,12 +42,14 @@ public class TextArea extends Figure {
 		this.setTop(top);
 		area.setForeground(new Color(getFontColorProperty()));
 		area.setLocation(PApplet.round(left), PApplet.round(top));
+		area.getParent().invalidate();
 	}
 	
 	@Override
 	public void destroy(){
-		fpa.removeAll();
+		fpa.remove(area);
 		fpa.invalidate();
+		fpa.setComputedValueChanged();
 	}
 
 }

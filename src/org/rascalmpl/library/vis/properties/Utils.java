@@ -26,17 +26,17 @@ public class Utils {
 		throw RuntimeExceptionFactory.illegalArgument(arg, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static IStringPropertyValue getStrArg(Property prop, IValue v, FigurePApplet fpa, IEvaluatorContext ctx){
+	public static IStringPropertyValue getStrArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx){
+		IValue arg = c.get(0);
 		
-		if(v.getType().isStringType())
-			return new ConstantStringProperty(prop, ((IString) v).getValue());
-
+		if(arg.getType().isStringType())
+			return new ConstantStringProperty(prop, ((IString) arg).getValue());
 		
-		if(v.getType().isExternalType() && ((v instanceof RascalFunction) || (v instanceof OverloadedFunctionResult))){
-			return new ComputedStringProperty(prop, v, fpa);
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+			return new ComputedStringProperty(prop, arg, fpa);
 		}
 		
-		throw RuntimeExceptionFactory.illegalArgument(v, ctx.getCurrentAST(),
+		throw RuntimeExceptionFactory.illegalArgument(arg, ctx.getCurrentAST(),
 				ctx.getStackTrace());
 	}
 	

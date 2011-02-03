@@ -88,7 +88,7 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getColorArg(Property.FONTCOLOR, c, fpa, ctx); break;
 				
 			case FONTSIZE:
-				values[i++] = Utils.getIntArg(Property.FONTSIZE, (IConstructor) c.get(0), fpa, ctx); break;
+				values[i++] = Utils.getIntArg(Property.FONTSIZE, c, fpa, ctx); break;
 				
 			case FROMANGLE:
 				values[i++] = Utils.getIntOrRealArg(Property.FROMANGLE, c, 0, fpa, ctx); break;
@@ -118,11 +118,11 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getIntOrRealArg(Property.HGAP, c, 0, fpa, ctx); break;
 				
 			case HINT:
-				values[i++] = Utils.getStrArg(Property.HINT, c.get(0), fpa, ctx); break;
+				values[i++] = Utils.getStrArg(Property.HINT, c, fpa, ctx); break;
 				//hint = getStrArg(null, c).toLowerCase(); break;
 				
 			case ID:
-				values[i++] = Utils.getStrArg(Property.ID, c.get(0), fpa, ctx); break;
+				values[i++] = Utils.getStrArg(Property.ID, c, fpa, ctx); break;
 				
 			case INNERRADIUS:
 				values[i++] = Utils.getIntOrRealArg(Property.INNERRADIUS, c, 0, fpa, ctx); break;

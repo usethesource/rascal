@@ -536,10 +536,11 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 
 	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
-		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
+		
 		if(mouseInside(mouseX, mouseY)){
 			IValue handler = properties.getOnClick();
 			if(handler != null){
+				System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
 				if(handler instanceof RascalFunction)
 					((RascalFunction) handler).call(argTypes, argVals);
 				else

@@ -208,7 +208,7 @@ public class FigureFactory {
 			
 		case TEXT:
 			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
-			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c.get(0), fpa, ctx);
+			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c, fpa, ctx);
 			return new Text(fpa, properties,  txt, ctx);
 			
 		case TEXTAREA:
