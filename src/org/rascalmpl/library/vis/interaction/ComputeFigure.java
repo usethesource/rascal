@@ -43,6 +43,10 @@ public class ComputeFigure extends Figure {
 		
 		Result<IValue> figureVal;
 		
+		if(figure != null){
+			figure.destroy();
+		}
+		
 		if(callback instanceof RascalFunction)
 			figureVal = ((RascalFunction) callback).call(argTypes, argVals);
 		else
@@ -55,6 +59,7 @@ public class ComputeFigure extends Figure {
 		figure.bbox();
 		width = figure.width;
 		height = figure.height;
+		fpa.validate();
 	}
 
 	@Override

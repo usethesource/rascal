@@ -1,8 +1,9 @@
 package org.rascalmpl.library.vis.interaction;
 
+
 import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -16,33 +17,31 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
 
-public class Button extends Figure {
-											// Function of type Figure (list[str]) to compute new figure
-	private RascalFunction callback;
+public class Checkbox extends Figure {
+											
+	private final RascalFunction callback;		// Function of type void() to communicate checkbox state change
 	
-	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
-	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
+	final Type[] argTypes = new Type[0];		// Argument types of callback: []
+	final IValue[] argVals = new IValue[0];		// Argument values of callback: none
 	
-	final java.awt.Button button = new java.awt.Button();
+	final java.awt.Checkbox checkbox;
 
-	public Button(FigurePApplet fpa, IPropertyManager properties, IString tname, IValue fun, IEvaluatorContext ctx) {
+	public Checkbox(FigurePApplet fpa, IPropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
 		
-		System.err.println("fun = " + fun + fun.getType().isExternalType() + (fun instanceof RascalFunction));
-		System.err.println(fun.getClass());
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
 			this.callback = (RascalFunction) fun;
-			System.err.println("Assign to callback");
+
 		} else {
 			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
 			 this.callback = null;
 		}
 		
-		System.err.println("callback = " + callback);
-		
-	    button.addMouseListener(
-	    	      new MouseAdapter() {
-	    	        public void mouseClicked(MouseEvent e) {
+		checkbox = new java.awt.Checkbox(name.getValue(), false);
+	    checkbox.addItemListener(
+	    	      new ItemListener() {
+	    	    	  @Override
+	    	        public void itemStateChanged(ItemEvent e) {
 	    	          try {
 	    	        	  doCallBack();
 	    	          } catch (Exception ex) {
@@ -51,27 +50,29 @@ public class Button extends Figure {
 	    	          }
 	    	        }
 	    	      });
-	    button.setLabel(tname.getValue());
-	    fpa.add(button);
+	    //checkbox.setBackground(new Color(0));
+	    fpa.add(checkbox);
 	}
 
 	@Override
 	public void bbox() {
-		width = button.getWidth();
-		height = button.getHeight();
-		button.setSize(PApplet.round(width), PApplet.round(height));
+		width = checkbox.getWidth();
+		height = checkbox.getHeight();
 	}
 	
 	public void doCallBack(){
+		System.err.println("Calling callback: " + callback);
 		callback.call(argTypes, argVals);
+		fpa.setComputedValueChanged();
 	}
 
 	@Override
 	public void draw(float left, float top) {
 		this.setLeft(left);
 		this.setTop(top);
-		button.setBackground(new Color(getFillColorProperty()));
-		button.setLocation(PApplet.round(left), PApplet.round(top));
+		//fpa.setBackground(new Color(getFillColorProperty()));
+		checkbox.setBackground(new Color(getFillColorProperty()));
+		checkbox.setLocation(PApplet.round(left), PApplet.round(top));
 	}
 
 }

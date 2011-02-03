@@ -26,6 +26,8 @@ import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
 import org.rascalmpl.library.vis.interaction.Button;
+import org.rascalmpl.library.vis.interaction.Checkbox;
+import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.TextArea;
 import org.rascalmpl.library.vis.interaction.TextField;
@@ -54,6 +56,8 @@ public class FigureFactory {
 	enum Primitives {
 		BOX,
 		BUTTON,
+		CHECKBOX,
+		CHOICE,
 		COMPUTEFIGURE,
 //		COMPUTETRIGGER,
 		CONTROLON,
@@ -88,6 +92,8 @@ public class FigureFactory {
     {
     	put("_box",			Primitives.BOX);
     	put("_button", 		Primitives.BUTTON);
+    	put("_checkbox",	Primitives.CHECKBOX);
+    	put("_choice", 		Primitives.CHOICE);
     	put("_computeFigure",Primitives.COMPUTEFIGURE);
  //   	put("_computeTrigger",Primitives.COMPUTETRIGGER);
     	put("_edge",		Primitives.EDGE);
@@ -134,6 +140,12 @@ public class FigureFactory {
 			
 		case BUTTON:
 			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
+			
+		case CHECKBOX:
+			return new Checkbox(fpa, properties, (IString) c.get(0), c.get(1), ctx);
+			
+		case CHOICE:
+			return new Choice(fpa, properties, (IList) c.get(0), c.get(1), ctx);
 			
 		case COMPUTEFIGURE:
 			return new ComputeFigure(fpa, properties,  c.get(0), ctx);

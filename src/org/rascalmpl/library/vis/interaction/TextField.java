@@ -68,19 +68,17 @@ public class TextField extends Figure {
 	    				  if(e.getKeyCode() == KeyEvent.VK_ENTER){
 	    					  if(b)
 	    						  doCallBack();
+	    					  field.validate();
 	    				  } 
 	    			  }
-
 					// @Override
 					public void keyPressed(KeyEvent e) {
 						 keyTyped(e);
 					}
-
 					// @Override
 					public void keyReleased(KeyEvent e) {
 						keyTyped(e);
 					}
-	    			  
 	    		  });
 	    field.setText(text.getValue());
 	    fpa.add(field);
@@ -123,8 +121,9 @@ public class TextField extends Figure {
 	public void draw(float left, float top) {
 		this.setLeft(left);
 		this.setTop(top);
+		fpa.setBackground(new Color(getFillColorProperty()));
+		//field.setBackground(new Color(getFillColorProperty()));
 		field.setForeground(validated ? new Color(getFontColorProperty()) : falseColor);
 		field.setLocation(PApplet.round(left), PApplet.round(top));
 	}
-
 }
