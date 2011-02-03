@@ -247,8 +247,8 @@ public class ListContainerNode extends AbstractContainerNode{
 			}
 		}else{
 			if(cycleNode != null){
-				newPostFix = new IConstructor[length + 1];
-				System.arraycopy(postFix, 0, newPostFix, + 1, length);
+				newPostFix = new IConstructor[length + 2];
+				System.arraycopy(postFix, 0, newPostFix, 2, length);
 				newPostFix[1] = cycleNode;
 				newPostFix[0] = result;
 			}else{
