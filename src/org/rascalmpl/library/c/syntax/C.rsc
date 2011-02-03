@@ -1,6 +1,6 @@
 module C
 
-syntax Statement = "{" Declaration* Statement*  "}" |
+syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
                    "default" ":" Statement |
