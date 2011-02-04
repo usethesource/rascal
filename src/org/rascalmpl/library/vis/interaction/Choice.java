@@ -69,7 +69,9 @@ public class Choice extends Figure {
 	
 	public void doCallBack(String s){
 		argVals[0] = vf.string(s);
-		callback.call(argTypes, argVals);
+		synchronized(fpa){
+			callback.call(argTypes, argVals);
+		}
 		fpa.setComputedValueChanged();
 	}
 

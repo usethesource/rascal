@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -100,10 +99,12 @@ public class TextField extends Figure {
 		if(validate != null){
 			argVals[0] = vf.string(field.getText());
 			Result<IValue> res;
-			if(validate instanceof RascalFunction)
-				res = ((RascalFunction) validate).call(argTypes, argVals);
-			else
-				res = ((OverloadedFunctionResult) validate).call(argTypes, argVals);
+			synchronized(fpa){
+				if(validate instanceof RascalFunction)
+					res = ((RascalFunction) validate).call(argTypes, argVals);
+				else
+					res = ((OverloadedFunctionResult) validate).call(argTypes, argVals);
+			}
 			validated = res.getValue().equals(vf.bool(true));
 			field.setForeground(validated ? trueColor : falseColor);
 			return validated;
@@ -115,10 +116,12 @@ public class TextField extends Figure {
 		argVals[0] = vf.string(field.getText());
 		//fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		//fpa.validate();
-		if(callback instanceof RascalFunction)
-			((RascalFunction) callback).call(argTypes, argVals);
-		else
-			((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		synchronized(fpa){
+			if(callback instanceof RascalFunction)
+				((RascalFunction) callback).call(argTypes, argVals);
+			else
+				((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		}
 		//fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		fpa.setComputedValueChanged();
 	}
