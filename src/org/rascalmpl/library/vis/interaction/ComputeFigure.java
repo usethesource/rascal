@@ -19,7 +19,7 @@ public class ComputeFigure extends Figure {
 	
 	Figure figure = null;					// Last computed figure
 	
-	private IValue callback;
+	final private IValue callback;
 	
 	Type[] argTypes = new Type[0];			// Argument types of callback
 	IValue[] argVals = new IValue[0];		// Argument values of callback
@@ -35,6 +35,7 @@ public class ComputeFigure extends Figure {
 		if(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult))){
 			this.callback = fun;
 		} else
+			this.callback = null;
 			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 
@@ -46,13 +47,14 @@ public class ComputeFigure extends Figure {
 		if(figure != null){
 			figure.destroy();
 		}
-		
-		if(callback instanceof RascalFunction)
-			figureVal = ((RascalFunction) callback).call(argTypes, argVals);
-		else
-			figureVal = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		synchronized(fpa){
+			if(callback instanceof RascalFunction)
+				figureVal = ((RascalFunction) callback).call(argTypes, argVals);
+			else
+				figureVal = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		}
 			
-		System.err.println("callback returns: " + figureVal.getValue());
+		//System.err.println("callback returns: " + figureVal.getValue());
 		IConstructor figureCons = (IConstructor) figureVal.getValue();
 		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
 		fpa.setComputedValueChanged();

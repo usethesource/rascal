@@ -69,9 +69,11 @@ public class Checkbox extends Figure {
 	}
 	
 	public void doCallBack(boolean selected){
-		System.err.println("Calling callback: " + callback + " with selected = " + selected);
+		//System.err.println("Calling callback: " + callback + " with selected = " + selected);
 		argVals[0] = vf.bool(selected);
-		callback.call(argTypes, argVals);
+		synchronized(fpa){
+			callback.call(argTypes, argVals);
+		}
 		checkbox.getParent().validate();
 		fpa.setComputedValueChanged();
 	}

@@ -142,7 +142,6 @@ public class PropertyManager implements IPropertyManager {
 				
 			case ONCLICK:
 				onClickHandler = c.get(0);
-				System.err.println("onClickHandler = " + onClickHandler);
 				break;
 				
 			case SHAPECLOSED:
