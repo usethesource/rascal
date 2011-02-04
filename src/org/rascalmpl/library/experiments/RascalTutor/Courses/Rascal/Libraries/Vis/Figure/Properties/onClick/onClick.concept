@@ -1,0 +1,28 @@
+Name: onClick
+
+Details:
+
+Categories:
+
+Syntax:
+
+
+Types:
+
+Function:
+`onClick(void() handler)`
+
+Synopsis:
+
+Description:
+Define a handler for mouse clicks on the current figure.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+* Currently, we do not differentiate between different mouse buttons, modifiers, and the like.
+
+Questions:
+

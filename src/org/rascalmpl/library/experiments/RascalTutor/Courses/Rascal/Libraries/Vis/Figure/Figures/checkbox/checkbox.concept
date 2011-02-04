@@ -1,0 +1,30 @@
+Name: checkbox
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`checkbox(str text, void(bool state) vcallback, FProperty props...)`
+
+Synopsis:
+
+Description:
+A checkbox that can be selected or deselected by the user.
+Whenever this occurs, `vcallback` is called. The `state` argument of the callback is `true` when the check box is checked (= selected).
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+<warning>
+Does not work properly.
+</warning>
+Do not use checkbox in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
+Questions:
+

@@ -1,0 +1,29 @@
+Name: button
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`button(str label, void () vcallback, FProperty props...)`
+
+Synopsis:
+
+Description:
+A button with the text `'label`. Whenever the user clicks on this button,
+callback `vcallback` is called. Typically, the callback causes a state change in the Rascal program
+(e.g., the value of a variable is changed) and this variable is used in another part of the figure.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+Do not use button in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
+
+Questions:
+

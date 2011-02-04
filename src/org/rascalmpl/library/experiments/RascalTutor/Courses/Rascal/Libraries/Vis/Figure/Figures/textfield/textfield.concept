@@ -1,0 +1,32 @@
+Name: textfield
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+# `textfield(str text, void (str) scallback, FProperty props...)`
+# `textfield(str text, void (str) scallback, bool (str) validate, FProperty props...)`
+
+Synopsis:
+
+Description:
+A textfield in which the user can enter text:
+# The callback `scallback` is called whenever the user types ENTER or RETURN in the textfield.
+# The callback `validate` is called for every character that the user types. When validate yields `false`
+a visual cue is given that the entered text is erroneous. Only when `validate` returns `true` and 
+  the user types ENTER or RETURN, `scallback` will be called.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Do not use textfield in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
+Questions:
+

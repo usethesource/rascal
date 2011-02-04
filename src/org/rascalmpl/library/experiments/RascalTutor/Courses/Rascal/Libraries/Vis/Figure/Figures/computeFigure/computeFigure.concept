@@ -1,0 +1,28 @@
+Name: computeFigure
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`computeFigure(Figure () computeFig, FProperty props...)`
+
+Synopsis:
+
+Description:
+The figure that is returned by the callback `computeFig`.
+Subsequent calls to `computeFig` may return different figures and may thus change the resulting visualization.
+The figure is recomputed after each user interaction.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
