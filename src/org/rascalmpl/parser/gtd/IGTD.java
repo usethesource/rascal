@@ -7,7 +7,7 @@ import java.io.Reader;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 
 public interface IGTD {
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor);
