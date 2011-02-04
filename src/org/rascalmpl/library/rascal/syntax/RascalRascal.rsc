@@ -131,7 +131,7 @@ syntax Header
 syntax Name
 	= lex [A-Z _ a-z] [0-9 A-Z _ a-z]* 
 	| lex EscapedName 
-	- RascalReservedKeywords 
+	- RascalReservedKeywords
 	# [0-9 A-Z _ a-z] ;
 
 syntax SyntaxDefinition
