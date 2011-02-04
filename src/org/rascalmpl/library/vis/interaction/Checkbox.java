@@ -45,7 +45,6 @@ public class Checkbox extends Figure {
 		checkbox = new java.awt.Checkbox(name.getValue(), false);
 	    checkbox.addItemListener(
 	    	      new ItemListener() {
-	    	    	  @Override
 	    	        public void itemStateChanged(ItemEvent e) {
 	    	          try {
 	    	        	  checkbox.getParent().invalidate();
