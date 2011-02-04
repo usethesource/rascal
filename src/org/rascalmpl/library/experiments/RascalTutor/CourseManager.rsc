@@ -44,7 +44,7 @@ set[str] enabledCategories = {};
 
 map[str, Course] courses = ();
 
-bool editingAllowed = true;
+bool editingAllowed = false;
 
 // Initialize CourseManager. 
 // ** Be aware that this function should be called at the beginning of each function that can be
