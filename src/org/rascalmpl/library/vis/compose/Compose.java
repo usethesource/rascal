@@ -38,20 +38,24 @@ public abstract class Compose extends Figure {
 
 	@Override
 	public boolean mouseInside(int mousex, int mousey) {
-		for (int i = figures.length - 1; i >= 0; i--)
-			if (figures[i].mouseInside(mousex, mousey))
-				return true;
-		return super.mouseInside(mousex, mousey);
+		if(super.mouseInside(mousex, mousey)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mouseInside(mousex, mousey))
+					return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean mouseInside(int mousex, int mousey, float centerX,
 			float centerY) {
-		for (int i = figures.length - 1; i >= 0; i--)
-			if (figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(),
-					figures[i].getCenterY()))
-				return true;
-		return super.mouseInside(mousex, mousey, centerX, centerY);
+		if(super.mouseInside(mousex, mousey, centerX, centerY)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(),
+						figures[i].getCenterY()))
+					return true;
+		}
+		return false;
 	}
 
 	// Visit figures front to back
@@ -81,11 +85,14 @@ public abstract class Compose extends Figure {
 
 	// Visit figures front to back
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
-		for (int i = figures.length - 1; i >= 0; i--)
-			if (figures[i].mousePressed(mousex, mousey, e))
-				return true;
-		return super.mousePressed(mousex, mousey, e);
+	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
+			if(super.mouseInside(mouseX, mouseY)){
+				for (int i = figures.length - 1; i >= 0; i--)
+					if (figures[i].mousePressed(mouseX, mouseY, e))
+						return true;
+				return super.mousePressed(mouseX, mouseY, e);
+			}
+			return false;
 	}
 
 //	 @Override
@@ -103,7 +110,5 @@ public abstract class Compose extends Figure {
 				return true;
 		return super.keyPressed(key, keyCode);
 	}
-	
-
 		
 }
