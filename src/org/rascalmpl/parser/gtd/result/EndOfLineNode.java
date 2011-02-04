@@ -1,7 +1,7 @@
 package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
