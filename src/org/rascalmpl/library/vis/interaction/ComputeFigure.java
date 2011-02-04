@@ -97,11 +97,9 @@ public class ComputeFigure extends Figure {
 	
 	@Override
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
-		if(super.mousePressed(mouseX, mouseY, e))
-			return true;
 		if(figure != null)
 			return figure.mousePressed(mouseX, mouseY, e);
-		return false;
+		return super.mousePressed(mouseX, mouseY, e);
 	}
 	
 	@Override
