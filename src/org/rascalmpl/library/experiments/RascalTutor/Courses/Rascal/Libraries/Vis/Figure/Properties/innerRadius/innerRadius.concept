@@ -8,11 +8,13 @@ Syntax:
 
 Types:
 
-Function: `FProperty innerRadius(num r)`
+Function: 
+# `FProperty innerRadius(num r)`
+# `FProperty innerRadius(computedNum cr)`
 
 Synopsis:
 
-Description: Set the inner radius of a [wedge] to `r`.
+Description: Set the inner radius of a [wedge] to `r`. The value of the inner radius may also be computed by callback `cr`.
 
 Examples:
 

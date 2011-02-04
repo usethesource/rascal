@@ -8,12 +8,16 @@ Syntax:
 
 Types:
 
-Function: `FProperty textAngle(num a)`
+Function: 
+# `FProperty textAngle(num a)`
+# `FProperty textAngle(computedNum ca)`
+
 
 Synopsis:
 
 Description:
-Place text at `a` degrees. Also see [Angles].
+Place text at `a` degrees. The value of the angle may also be computed by a callback `ca`.
+Also see [Angles].
 
 Examples:
 

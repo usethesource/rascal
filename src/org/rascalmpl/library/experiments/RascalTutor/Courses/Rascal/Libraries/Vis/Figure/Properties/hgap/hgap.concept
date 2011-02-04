@@ -9,12 +9,14 @@ Syntax:
 Types:
 
 Function:
-`FProperty hgap(num h)`
+# `FProperty hgap(num h)`
+# `FProperty hgap(computedNum ch)`
 
 Synopsis:
 
 Description:
 Set the horizontal gap between figures to `h`.
+The value of the horizontal gap may also be computed by a callback `ch`.
 
 Examples:
 

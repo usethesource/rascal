@@ -8,7 +8,9 @@ Syntax:
 
 Types:
 
-Function: `FProperty doi(int d)`
+Function: 
+* `FProperty doi(int d)`
+* `FProperty doi(computedInt d)`
 
 Synopsis:
 
@@ -19,6 +21,7 @@ Examples:
 Benefits:
 
 Pitfalls:
+This property is not yet used. It anticipates on showing, for instance, trees to a certain depth.
 
 Questions:
 
