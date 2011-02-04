@@ -58,6 +58,7 @@ public class Button extends Figure {
 	
 	public void doCallBack(){
 		button.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		System.err.println("Button, call callback");
 		callback.call(argTypes, argVals);
 		button.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		fpa.setComputedValueChanged();

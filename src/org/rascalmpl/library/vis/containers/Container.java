@@ -28,7 +28,7 @@ public abstract class Container extends Figure {
 
 	final protected Figure innerFig;
 
-	final private static boolean debug = true;
+	final private static boolean debug = false;
 
 	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
 		super(fpa, properties, ctx);
