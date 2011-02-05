@@ -29,6 +29,7 @@ public class Ellipse extends Container {
 		fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
 	}
 	
+	@Override
 	String containerName(){
 		return "ellipse";
 	}

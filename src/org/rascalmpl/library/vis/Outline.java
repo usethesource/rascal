@@ -3,7 +3,6 @@ package org.rascalmpl.library.vis;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
@@ -19,8 +18,8 @@ public class Outline extends Figure {
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
 
-	public Outline(FigurePApplet fpa, IPropertyManager properties, IMap coloredLines, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+	public Outline(FigurePApplet fpa, IPropertyManager properties, IMap coloredLines) {
+		super(fpa, properties);
 		this.coloredLines = coloredLines;
 	}
 

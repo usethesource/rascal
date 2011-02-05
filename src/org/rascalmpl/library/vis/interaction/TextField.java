@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -35,7 +36,7 @@ public class TextField extends Figure {
 	final java.awt.TextField field = new java.awt.TextField();
 
 	public TextField(FigurePApplet fpa, IPropertyManager properties, IString text, IValue cb, IValue validate,  IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		
 		if(cb.getType().isExternalType() && ((cb instanceof RascalFunction) || (cb instanceof OverloadedFunctionResult))){
 			this.callback = cb;
@@ -108,21 +109,20 @@ public class TextField extends Figure {
 			validated = res.getValue().equals(vf.bool(true));
 			field.setForeground(validated ? trueColor : falseColor);
 			return validated;
-		} else
-			return true;
+		}
+		return true;
 	}
 	
 	public void doCallBack(){
 		argVals[0] = vf.string(field.getText());
-		//fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
-		//fpa.validate();
+		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		synchronized(fpa){
 			if(callback instanceof RascalFunction)
 				((RascalFunction) callback).call(argTypes, argVals);
 			else
 				((OverloadedFunctionResult) callback).call(argTypes, argVals);
 		}
-		//fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		fpa.setComputedValueChanged();
 	}
 
@@ -134,5 +134,12 @@ public class TextField extends Figure {
 		//field.setBackground(new Color(getFillColorProperty()));
 		field.setForeground(validated ? new Color(getFontColorProperty()) : falseColor);
 		field.setLocation(PApplet.round(left), PApplet.round(top));
+	}
+	
+	@Override
+	public void destroy(){
+		fpa.remove(field);
+		fpa.invalidate();
+		fpa.setComputedValueChanged();
 	}
 }

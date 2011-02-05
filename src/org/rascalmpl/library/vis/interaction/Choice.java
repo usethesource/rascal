@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -28,7 +29,7 @@ public class Choice extends Figure {
 	final java.awt.Choice choice = new java.awt.Choice();
 
 	public Choice(FigurePApplet fpa, IPropertyManager properties, IList choices, IValue fun, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
 			this.callback = (RascalFunction) fun;
@@ -69,9 +70,11 @@ public class Choice extends Figure {
 	
 	public void doCallBack(String s){
 		argVals[0] = vf.string(s);
+		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		synchronized(fpa){
 			callback.call(argTypes, argVals);
 		}
+		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		fpa.setComputedValueChanged();
 	}
 
@@ -82,6 +85,13 @@ public class Choice extends Figure {
 		fpa.setBackground(new Color(getFillColorProperty()));
 		choice.setBackground(new Color(getFillColorProperty()));
 		choice.setLocation(PApplet.round(left), PApplet.round(top));
+	}
+	
+	@Override
+	public void destroy(){
+		fpa.remove(choice);
+		fpa.invalidate();
+		fpa.setComputedValueChanged();
 	}
 
 }

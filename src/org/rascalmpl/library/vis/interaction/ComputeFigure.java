@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.interaction;
 
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -21,14 +22,14 @@ public class ComputeFigure extends Figure {
 	
 	final private IValue callback;
 	
-	Type[] argTypes = new Type[0];			// Argument types of callback
-	IValue[] argVals = new IValue[0];		// Argument values of callback
+	final Type[] argTypes = new Type[0];			// Argument types of callback
+	final IValue[] argVals = new IValue[0];		// Argument values of callback
 	
-	private IEvaluatorContext ctx;
+	final private IEvaluatorContext ctx;
 
 
 	public ComputeFigure(FigurePApplet fpa, IPropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 	
 		this.ctx = ctx;
 
@@ -47,14 +48,16 @@ public class ComputeFigure extends Figure {
 		if(figure != null){
 			figure.destroy();
 		}
+		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		synchronized(fpa){
 			if(callback instanceof RascalFunction)
 				figureVal = ((RascalFunction) callback).call(argTypes, argVals);
 			else
 				figureVal = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
 		}
+		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 			
-		//System.err.println("callback returns: " + figureVal.getValue());
+		System.err.println("callback returns: " + figureVal.getValue());
 		IConstructor figureCons = (IConstructor) figureVal.getValue();
 		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
 		fpa.setComputedValueChanged();
@@ -109,6 +112,12 @@ public class ComputeFigure extends Figure {
 		if(figure != null)
 			return figure.keyPressed(key, keyCode);
 		return false;
+	}
+	
+	@Override
+	public void destroy(){
+		if(figure != null)
+			figure.destroy();
 	}
 
 }

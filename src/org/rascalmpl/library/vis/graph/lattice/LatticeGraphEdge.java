@@ -19,7 +19,7 @@ public class LatticeGraphEdge extends Figure {
 	private static boolean debug = false;
 	
 	public LatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, IPropertyManager properties, IString fromName, IString toName, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){

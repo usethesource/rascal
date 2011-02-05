@@ -46,7 +46,7 @@ public class SpringGraph extends Figure {
 	
 	public SpringGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.nodes = new ArrayList<SpringGraphNode>();
 		this.ctx = ctx;
 		width = getWidthProperty();

@@ -26,7 +26,7 @@ public class Button extends Figure {
 	final java.awt.Button button = new java.awt.Button();
 
 	public Button(FigurePApplet fpa, IPropertyManager properties, IString tname, IValue fun, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
 			this.callback = (RascalFunction) fun;
 		} else {
@@ -36,7 +36,8 @@ public class Button extends Figure {
 		
 	    button.addMouseListener(
 	    	      new MouseAdapter() {
-	    	        public void mouseClicked(MouseEvent e) {
+	    	        @Override
+					public void mouseClicked(MouseEvent e) {
 	    	          try {
 	    	        	  doCallBack();
 	    	          } catch (Exception ex) {
@@ -57,12 +58,12 @@ public class Button extends Figure {
 	}
 	
 	public void doCallBack(){
-		button.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		//System.err.println("Button, call callback");
 		synchronized(fpa){
 			callback.call(argTypes, argVals);
 		}
-		button.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		fpa.setComputedValueChanged();
 	}
 
@@ -72,6 +73,13 @@ public class Button extends Figure {
 		this.setTop(top);
 		button.setBackground(new Color(getFillColorProperty()));
 		button.setLocation(PApplet.round(left), PApplet.round(top));
+	}
+	
+	@Override
+	public void destroy(){
+		fpa.remove(button);
+		fpa.invalidate();
+		fpa.setComputedValueChanged();
 	}
 
 }

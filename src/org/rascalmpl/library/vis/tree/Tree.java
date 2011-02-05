@@ -37,7 +37,7 @@ public class Tree extends Figure {
 	TreeNode root = null;
 	
 	public Tree(FigurePApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);		
+		super(fpa, properties);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();

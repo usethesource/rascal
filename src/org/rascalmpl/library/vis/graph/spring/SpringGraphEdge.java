@@ -29,7 +29,7 @@ public class SpringGraphEdge extends Figure {
 						IString fromName, IString toName, 
 						IConstructor toArrowCons, IConstructor fromArrowCons,
 						IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){

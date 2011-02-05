@@ -21,7 +21,7 @@ public class Rotate extends Figure {
 	private float cosa;
 	
 	Rotate(FigurePApplet fpa, IPropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
-		super(fpa, inherited, ctx);
+		super(fpa, inherited);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = PApplet.radians(a);

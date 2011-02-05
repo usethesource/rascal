@@ -2,7 +2,7 @@ package org.rascalmpl.library.vis.properties;
 
 public class ConstantColorProperty implements IColorPropertyValue {
 	Property property;
-	Integer value;
+	int value;
 
 	public ConstantColorProperty(Property prop, int val){
 		this.property = prop;

@@ -263,7 +263,7 @@ public class FigurePApplet extends PApplet {
 	}
 	
 	@Override
-	public synchronized void mouseMoved(){
+	public void mouseMoved(){
 		//if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
 		
 		lastMouseX = mouseX;

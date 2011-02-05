@@ -5,7 +5,6 @@ import java.awt.event.MouseEvent;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
@@ -48,7 +47,7 @@ public abstract class Figure implements Comparable<Figure> {
 	private float topDragged;
 		
 	
-	protected Figure(FigurePApplet vlp, IPropertyManager properties, IEvaluatorContext ctx){
+	protected Figure(FigurePApplet vlp, IPropertyManager properties){
 		this.fpa = vlp;
 		this.properties = properties;
 	}
@@ -457,7 +456,7 @@ public abstract class Figure implements Comparable<Figure> {
 		}
 	}
 	
-	public synchronized boolean mouseInside(int mouseX, int mouseY){
+	public boolean mouseInside(int mouseX, int mouseY){
 		boolean b =  (mouseX >= getLeft()  && mouseX <= getLeft() + width) &&
 		             (mouseY >= getTop()  && mouseY <= getTop() + height);
 		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
@@ -496,7 +495,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @return true if element was affected.
 	 */
 	
-	public synchronized boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
 		if(mouseInside(mouseX, mouseY, centerX, centerY)){
 		   fpa.registerMouseOver(this);
 		   return true;
@@ -516,7 +515,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @return true if element was affected.
 	 */
 
-	public synchronized boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
 		return mouseOver(mouseX, mouseY, getCenterX(), getCenterY(), mouseInParent);
 	}
 
@@ -535,8 +534,8 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @return
 	 */
 
-	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
-		//System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
+	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
 		if(mouseInside(mouseX, mouseY)){
 			IValue handler = properties.getOnClick();
 			if(handler != null){
@@ -557,6 +556,10 @@ public abstract class Figure implements Comparable<Figure> {
 		return false;
 	}
 
+	/**
+	 * @param key  
+	 * @param keyCode 
+	 */
 	public boolean keyPressed(int key, int keyCode) {
 		return false;
 	}
