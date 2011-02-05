@@ -29,7 +29,7 @@ public class TreeMap extends Figure {
 	TreeMapNode root = null;
 	
 	public TreeMap(FigurePApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);		
+		super(fpa, properties);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();
 		

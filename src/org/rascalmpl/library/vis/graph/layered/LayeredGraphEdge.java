@@ -27,7 +27,7 @@ public class LayeredGraphEdge extends Figure {
 			IString fromName, IString toName,
 			IConstructor toArrowCons, IConstructor fromArrowCons, 
 			IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){
@@ -53,7 +53,7 @@ public class LayeredGraphEdge extends Figure {
 	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow, IEvaluatorContext ctx){
 		
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){

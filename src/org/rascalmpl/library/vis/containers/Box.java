@@ -22,6 +22,7 @@ public class Box extends Container {
 		fpa.rect(getLeft(), getTop(), width, height);
 	}
 	
+	@Override
 	String containerName(){
 		return "box";
 	}

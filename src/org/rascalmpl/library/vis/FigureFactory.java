@@ -177,7 +177,7 @@ public class FigureFactory {
 			return new HVCat(fpa, properties, (IList) c.get(0), ctx);
 						
 		case OUTLINE: 
-			return new Outline(fpa, properties, (IMap)c.get(0), ctx);
+			return new Outline(fpa, properties, (IMap)c.get(0));
 			
 		case OVERLAY: 
 			return new Overlay(fpa, properties, (IList) c.get(0), ctx);
@@ -209,16 +209,15 @@ public class FigureFactory {
 		case TEXT:
 			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
 			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c, fpa, ctx);
-			return new Text(fpa, properties,  txt, ctx);
+			return new Text(fpa, properties,  txt);
 			
 		case TEXTAREA:
-			return new TextArea(fpa, properties, (IList)c.get(0), (IMap)c.get(1), ctx);
+			return new TextArea(fpa, properties, (IList)c.get(0), (IMap)c.get(1));
 			
 		case TEXTFIELD:
 			if(c.arity() > 3)
 				return new TextField(fpa, properties, (IString) c.get(0), c.get(1), c.get(2), ctx);
-			else
-				return new TextField(fpa, properties, (IString) c.get(0), c.get(1), null, ctx);
+			return new TextField(fpa, properties, (IString) c.get(0), c.get(1), null, ctx);
 			
 		case TREE: 			
 			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);

@@ -24,7 +24,7 @@ public abstract class Compose extends Figure {
 
 	protected Compose(FigurePApplet fpa, IPropertyManager properties,
 			IList elems, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		int n = elems.length();
 		figures = new Figure[n];
 		for (int i = 0; i < n; i++) {
@@ -37,7 +37,7 @@ public abstract class Compose extends Figure {
 	}
 
 	@Override
-	public boolean mouseInside(int mousex, int mousey) {
+	public synchronized boolean mouseInside(int mousex, int mousey) {
 		if(super.mouseInside(mousex, mousey)){
 			for (int i = figures.length - 1; i >= 0; i--)
 				if (figures[i].mouseInside(mousex, mousey))
@@ -85,7 +85,7 @@ public abstract class Compose extends Figure {
 
 	// Visit figures front to back
 	@Override
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
+	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
 			if(super.mouseInside(mouseX, mouseY)){
 				for (int i = figures.length - 1; i >= 0; i--)
 					if (figures[i].mousePressed(mouseX, mouseY, e))
@@ -109,6 +109,11 @@ public abstract class Compose extends Figure {
 			if (figures[i].keyPressed(key, keyCode))
 				return true;
 		return super.keyPressed(key, keyCode);
+	}
+	
+	@Override public void destroy(){
+		for (int i = figures.length - 1; i >= 0; i--)
+			figures[i].destroy();
 	}
 		
 }

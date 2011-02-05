@@ -27,7 +27,7 @@ public class TreeMapNode extends Figure {
 	
 	public TreeMapNode(FigurePApplet fpa, TreeMap treeMap, IPropertyManager properties,
 			Figure fig, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.treemap = treeMap;
 		rootFigure = fig;
 		children = new ArrayList<TreeMapNode>();

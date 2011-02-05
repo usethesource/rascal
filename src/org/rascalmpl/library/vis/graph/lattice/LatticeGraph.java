@@ -42,7 +42,7 @@ public class LatticeGraph extends Figure {
 
 	public LatticeGraph(FigurePApplet fpa, IPropertyManager properties,
 			IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.nodes = new ArrayList<LatticeGraphNode>();
 		this.ctx = ctx;
 		width = getWidthProperty();

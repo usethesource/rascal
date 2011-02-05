@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.IStringPropertyValue;
 
@@ -22,8 +21,8 @@ public class Text extends Figure {
 	private float leftAnchor;
 	private float rightAnchor;
 
-	public Text(FigurePApplet fpa, IPropertyManager properties, IStringPropertyValue text, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+	public Text(FigurePApplet fpa, IPropertyManager properties, IStringPropertyValue text) {
+		super(fpa, properties);
 		this.txt = text;
 		if(debug)System.err.printf("Text: %s\n", txt);
 	}

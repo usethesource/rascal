@@ -41,7 +41,7 @@ public class LayeredGraph extends Figure {
 //	private static boolean debug = false;
 	public LayeredGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.nodes = new ArrayList<LayeredGraphNode>();
 		this.ctx = ctx;
 		width = getWidthProperty();

@@ -76,7 +76,7 @@ public class PropertyManager implements IPropertyManager {
 				break;
 				
 			case DOI:
-				values[i++] = Utils.getIntArg(Property.DOI, c, fpa, ctx); break;
+				values[i++] = Utils.getIntArg(Property.DOI, c, ctx); break;
 			
 			case FILLCOLOR:
 				values[i++] = Utils.getColorArg(Property.FILLCOLOR, c, fpa, ctx); break;
@@ -88,7 +88,7 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getColorArg(Property.FONTCOLOR, c, fpa, ctx); break;
 				
 			case FONTSIZE:
-				values[i++] = Utils.getIntArg(Property.FONTSIZE, c, fpa, ctx); break;
+				values[i++] = Utils.getIntArg(Property.FONTSIZE, c, ctx); break;
 				
 			case FROMANGLE:
 				values[i++] = Utils.getIntOrRealArg(Property.FROMANGLE, c, 0, fpa, ctx); break;

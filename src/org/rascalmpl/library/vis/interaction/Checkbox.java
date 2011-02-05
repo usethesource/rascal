@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis.interaction;
 
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -28,7 +29,7 @@ public class Checkbox extends Figure {
 	final java.awt.Checkbox checkbox;
 
 	public Checkbox(FigurePApplet fpa, IPropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
 			this.callback = (RascalFunction) fun;
@@ -71,9 +72,11 @@ public class Checkbox extends Figure {
 	public void doCallBack(boolean selected){
 		//System.err.println("Calling callback: " + callback + " with selected = " + selected);
 		argVals[0] = vf.bool(selected);
+		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		synchronized(fpa){
 			callback.call(argTypes, argVals);
 		}
+		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		checkbox.getParent().validate();
 		fpa.setComputedValueChanged();
 	}
@@ -84,6 +87,13 @@ public class Checkbox extends Figure {
 		this.setTop(top);
 		checkbox.setBackground(new Color(getFillColorProperty()));
 		checkbox.setLocation(PApplet.round(left), PApplet.round(top));
+	}
+	
+	@Override
+	public void destroy(){
+		fpa.remove(checkbox);
+		fpa.invalidate();
+		fpa.setComputedValueChanged();
 	}
 
 }

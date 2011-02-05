@@ -22,7 +22,7 @@ public class Use extends Figure {
 	private static boolean debug = false;
 
 	public Use(FigurePApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		if(inside != null){
 			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
 		}

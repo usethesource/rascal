@@ -29,7 +29,7 @@ public class TreeNode extends Figure {
 	
 	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig,
 			IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();
 		edgeProperties = new ArrayList<PropertyManager>();

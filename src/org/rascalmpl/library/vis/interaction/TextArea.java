@@ -1,12 +1,9 @@
 package org.rascalmpl.library.vis.interaction;
 
-import java.awt.Color;
-
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
@@ -18,8 +15,8 @@ public class TextArea extends Figure {
 	final java.awt.TextArea area;
 	boolean added = false;
 
-	public TextArea(FigurePApplet fpa, IPropertyManager properties, IList lines, IMap colored, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+	public TextArea(FigurePApplet fpa, IPropertyManager properties, IList lines, IMap colored) {
+		super(fpa, properties);
 		StringBuffer text = new StringBuffer();
 		for(IValue iline : lines){
 			text.append(((IString) iline).getValue()).append("\n");
@@ -37,12 +34,12 @@ public class TextArea extends Figure {
 
 	@Override
 	public void draw(float left, float top) {
-		System.err.println("DRAW TEXTAREA");
+		System.err.println("DRAW TEXTAREA: " + left + ", " + top);
 		this.setLeft(left);
 		this.setTop(top);
-		area.setForeground(new Color(getFontColorProperty()));
+		//area.setForeground(new Color(getFontColorProperty()));
 		area.setLocation(PApplet.round(left), PApplet.round(top));
-		area.getParent().invalidate();
+		area.validate();
 	}
 	
 	@Override

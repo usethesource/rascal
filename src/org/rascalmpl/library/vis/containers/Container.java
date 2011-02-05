@@ -31,7 +31,7 @@ public abstract class Container extends Figure {
 	final private static boolean debug = false;
 
 	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		if(innerCons != null){
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
 		} else
@@ -283,12 +283,18 @@ public abstract class Container extends Figure {
 		return false;
 	}
 	
+	@Override
 	public String  toString(){
 		return new StringBuffer(containerName()).append("(").
 		append(getLeft()).append(",").
 		append(getTop()).append(",").
 		append(width).append(",").
 		append(height).append(")").toString();
+	}
+	
+	@Override public void destroy(){
+		if(innerFig != null)
+			innerFig.destroy();
 	}
 
 }

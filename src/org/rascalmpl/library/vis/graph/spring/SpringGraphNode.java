@@ -51,9 +51,8 @@ public class SpringGraphNode {
 //		return vx;
 		if(vx > 0){
 			return PApplet.max(vx - (figure.width/2 + other.figure.width/2), 0.01f);
-		} else {
-			return PApplet.min(vx + (figure.width/2 + other.figure.width/2), -0.01f);
 		}
+		return PApplet.min(vx + (figure.width/2 + other.figure.width/2), -0.01f);
 	}
 	
 	public float ydistance(SpringGraphNode other){
@@ -61,9 +60,8 @@ public class SpringGraphNode {
 //		return vy;
 		if(vy > 0){
 			return PApplet.max(vy - (figure.height/2 + other.figure.height/2), 0.01f);
-		} else {
-			return PApplet.min(vy + (figure.height/2 + other.figure.height/2), -0.01f);
 		}
+		return PApplet.min(vy + (figure.height/2 + other.figure.height/2), -0.01f);
 	}
 	
 //	public float getMass(){
