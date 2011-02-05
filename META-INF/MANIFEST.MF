@@ -23,7 +23,8 @@ Bundle-ClassPath: rascal.jar,
  lib/jetty-servlet-7.1.5.v20100705.jar,
  lib/jetty-util-7.1.5.v20100705.jar,
  lib/jetty-webapp-7.1.5.v20100705.jar,
- lib/jetty-xml-7.1.5.v20100705.jar
+ lib/jetty-xml-7.1.5.v20100705.jar,
+ lib/SpringGUI.jar
 Export-Package: org.jdom,
  org.jdom.adapters,
  org.jdom.filter,
