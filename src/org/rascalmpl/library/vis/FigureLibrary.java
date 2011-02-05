@@ -203,13 +203,18 @@ public class FigureLibrary extends PApplet {
   
     };
 	
-	public void render(IConstructor velem, IEvaluatorContext ctx){
-		PApplet pa = new FigurePApplet(velem, ctx);
+	public void render(IConstructor fig, IEvaluatorContext ctx){
+		PApplet pa = new FigurePApplet(fig, ctx);
 		new StandaloneSWTBridge(pa);
 	}
 	
-	public synchronized void renderSave(IConstructor velem, ISourceLocation file, IEvaluatorContext ctx){
-		PApplet pa = new FigurePApplet(velem, file, ctx);
+	public void render(IString name, IConstructor fig,  IEvaluatorContext ctx){
+		PApplet pa = new FigurePApplet(name, fig, ctx);
+		new StandaloneSWTBridge(pa);
+	}
+	
+	public synchronized void renderSave(IConstructor fig, ISourceLocation file, IEvaluatorContext ctx){
+		PApplet pa = new FigurePApplet(fig, file, ctx);
 		pa.init();
 		synchronized(pa){
 			pa.setup();
