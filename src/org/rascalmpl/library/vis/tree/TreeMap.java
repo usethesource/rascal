@@ -40,7 +40,7 @@ public class TreeMap extends Figure {
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("TreeMap: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeMapNode tn = new TreeMapNode(fpa, this, properties, fig, ctx);
+			TreeMapNode tn = new TreeMapNode(fpa, this, properties, fig);
 			nodeMap.put(name, tn);
 		}
 		

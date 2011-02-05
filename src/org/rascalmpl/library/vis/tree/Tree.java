@@ -49,7 +49,7 @@ public class Tree extends Figure {
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeNode tn = new TreeNode(fpa, properties, fig, ctx);
+			TreeNode tn = new TreeNode(fpa, properties, fig);
 			nodeMap.put(name, tn);
 		}
 		

@@ -14,7 +14,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Processing.SketchSWT;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import processing.core.PApplet;
@@ -206,7 +205,7 @@ public class FigureLibrary extends PApplet {
 	
 	public void render(IConstructor velem, IEvaluatorContext ctx){
 		PApplet pa = new FigurePApplet(velem, ctx);
-		new SketchSWT(pa);
+		new SWTBridge(pa);
 	}
 	
 	public synchronized void renderSave(IConstructor velem, ISourceLocation file, IEvaluatorContext ctx){
