@@ -205,7 +205,7 @@ public class FigureLibrary extends PApplet {
 	
 	public void render(IConstructor velem, IEvaluatorContext ctx){
 		PApplet pa = new FigurePApplet(velem, ctx);
-		new SWTBridge(pa);
+		new StandaloneSWTBridge(pa);
 	}
 	
 	public synchronized void renderSave(IConstructor velem, ISourceLocation file, IEvaluatorContext ctx){
