@@ -136,7 +136,7 @@ public class Scripting {
 	
 	public IValue evalType (IList commands, IInteger duration, IEvaluatorContext ctx) {
 		Result<IValue> result = doEval(commands, duration, ctx);
-		return values.string(result.getType().toString());
+		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
 	public IValue evalType (IList commands, IEvaluatorContext ctx) {
