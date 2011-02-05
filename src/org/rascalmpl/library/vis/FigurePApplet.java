@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
@@ -59,7 +60,7 @@ public class FigurePApplet extends PApplet {
 	@SuppressWarnings("unused")
 	private int lastMouseY = 0;
 
-	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
+	public FigurePApplet(IConstructor fig, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
 		try {
 			this.file = ctx.getResolverRegistry().getResourceURI(sloc.getURI()).toASCIIString();
@@ -69,22 +70,31 @@ public class FigurePApplet extends PApplet {
 			}
 			System.err.println("saveFile = " + file);
 			IPropertyManager def = new DefaultPropertyManager(this);
-			this.figure = FigureFactory.make(this, elem, def, ctx);
+			this.figure = FigureFactory.make(this, fig, def, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
+	public FigurePApplet(IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
 		IPropertyManager def = new DefaultPropertyManager(this);
-		this.figure = FigureFactory.make(this, elem, def, ctx);
+		this.figure = FigureFactory.make(this, fig, def, ctx);
+		setName("Figure");
+	}
+	
+	public FigurePApplet(IString name, IConstructor fig, IEvaluatorContext ctx){
+		saveFigure = false;
+		IPropertyManager def = new DefaultPropertyManager(this);
+		this.figure = FigureFactory.make(this, fig, def, ctx);
+		setName(name.getValue());
 	}
 
 	@Override
 	public synchronized void setup(){
 		System.err.println("setup called");
+		System.err.println("name: " + getName());
 		if(saveFigure){
 			canvas = createGraphics(width, height, JAVA2D);
 			figure.bbox();
