@@ -27,8 +27,7 @@ public class TreeNode extends Figure {
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig,
-			IEvaluatorContext ctx) {
+	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig) {
 		super(fpa, properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();
