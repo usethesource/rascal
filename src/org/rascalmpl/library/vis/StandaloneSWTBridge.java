@@ -12,11 +12,11 @@ import org.eclipse.swt.widgets.Shell;
 
 import processing.core.PApplet;
 
-public class SWTBridge   {
+public class StandaloneSWTBridge   {
 	
 	final private PApplet applet;
 
-	public SWTBridge (final PApplet pa){
+	public StandaloneSWTBridge (final PApplet pa){
 		this.applet = pa;
 		final Display display = new Display();
 		final Shell shell = new Shell(display);

@@ -57,7 +57,7 @@ public class ComputeFigure extends Figure {
 		}
 		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 			
-		System.err.println("callback returns: " + figureVal.getValue());
+		//System.err.println("callback returns: " + figureVal.getValue());
 		IConstructor figureCons = (IConstructor) figureVal.getValue();
 		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
 		fpa.setComputedValueChanged();

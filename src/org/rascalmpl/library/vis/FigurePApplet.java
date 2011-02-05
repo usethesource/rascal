@@ -26,10 +26,16 @@ public class FigurePApplet extends PApplet {
 	 */
 	private static final long serialVersionUID = 6074377218243765483L;
 	
-	private int width = 2000;
-	private int height = 2000;
-	private Figure  figure;
-	private Figure rootFigure;
+	private int width;						// Current dimensions of canvas
+	private int height;
+	
+	final private int defaultWidth = 1000;	// Default dimensions of canvas
+	final private int defaultHeight = 1000;
+	
+	private Figure  figure;					// The figure that is drawn on the canvas
+	private float figureWidth = defaultWidth;
+	private float figureHeight = defaultHeight;
+	
 	private Figure focus = null;
 	private boolean focusSelected = false;
 	
@@ -45,9 +51,6 @@ public class FigurePApplet extends PApplet {
 
 	private PGraphics canvas;
 	private PFont stdFont;
-
-	private float rootWidth;
-	private float rootHeight;
 	
 	private int depth = 0;
 
@@ -66,48 +69,52 @@ public class FigurePApplet extends PApplet {
 			}
 			System.err.println("saveFile = " + file);
 			IPropertyManager def = new DefaultPropertyManager(this);
-			rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
+			this.figure = FigureFactory.make(this, elem, def, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		boolTriggers = new HashSet<String>();
 	}
 	
 	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
 		saveFigure = false;
 		IPropertyManager def = new DefaultPropertyManager(this);
-		rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
+		this.figure = FigureFactory.make(this, elem, def, ctx);
 	}
 
 	@Override
-	public void setup(){
+	public synchronized void setup(){
 		System.err.println("setup called");
 		if(saveFigure){
 			canvas = createGraphics(width, height, JAVA2D);
 			figure.bbox();
-			rootWidth = figure.width;
-			rootHeight = figure.height;
-			canvas = createGraphics(round(rootWidth + 2), round(rootHeight + 2), JAVA2D);
+			figureWidth = figure.width;
+			figureHeight = figure.height;
+			canvas = createGraphics(round(figureWidth + 2), round(figureHeight + 2), JAVA2D);
 		} else {
-			//width = round(max(width, figure.width + 10));
-		    //height = round(max(height, figure.height + 10));
-			size(width, height);
+			size(defaultWidth, defaultHeight);
 		}
 		noLoop();
 		setLayout(null); // allows more precise position of AWT widgets.
+		
 		figure.bbox();
+		
 		computedValueChanged = false;
-		rootWidth = figure.width;
-		rootHeight = figure.height;
+		figureWidth = figure.width;
+		figureHeight = figure.height;
+		width = max(defaultWidth, round(figureWidth)+2);
+		height = max(defaultHeight, round(figureHeight)+2);
+		resize(width, height);
+		System.err.println("Figure size: " + figureWidth + ", " + figureHeight);
+		System.err.println("resize to: " + width + ", " + height);
 	}
 	
 	@Override
-	public synchronized void draw(){
+	public void draw(){
 		stdFont = createFont("Helvetica", 15);		
 		textFont(stdFont);
 		if(saveFigure){
-			canvas = createGraphics(round(rootWidth + 2), round(rootHeight + 2), JAVA2D);
+			canvas = createGraphics(round(figureWidth + 2), round(figureHeight + 2), JAVA2D);
 			canvas.hint(ENABLE_NATIVE_FONTS);
 			canvas.beginDraw();
 			canvas.background(255);
@@ -127,17 +134,27 @@ public class FigurePApplet extends PApplet {
 			depth = 0;
 
 			if(computedValueChanged){
-				rootFigure.bbox();
-				rootWidth = rootFigure.width;
-				rootHeight = rootFigure.height;
+				figure.bbox();
+				figureWidth = figure.width;
+				figureHeight = figure.height;
 				computedValueChanged = false;
 			}
-			rootFigure.draw(left,top);
+			figure.draw(left,top);
 			if(mouseOver != null)
 				mouseOver.drawWithMouseOver(mouseOver.getLeft(), mouseOver.getTop());
 			if(focus != null && focusSelected)
 				focus.drawFocus();
 		}
+	}
+	
+	public synchronized int getFigureWidth(){
+		//System.err.println("getFigureWidth: " + figureWidth);
+		return round(figureWidth);
+	}
+	
+	public synchronized int getFigureHeight(){
+		//System.err.println("getFigureHeight: " + figureHeight);
+		return round(figureHeight);
 	}
 	
 	//-----------------------
