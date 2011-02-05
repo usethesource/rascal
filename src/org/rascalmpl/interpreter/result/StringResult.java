@@ -129,6 +129,7 @@ public class StringResult extends ElementResult<IString> {
 		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 
+	@Override
 	protected <U extends IValue> Result<U> addSourceLocation(
 			SourceLocationResult that) {
 		Result<IValue> path = that.fieldAccess("path", new TypeStore());
