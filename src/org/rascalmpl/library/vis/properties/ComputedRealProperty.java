@@ -31,10 +31,12 @@ public class ComputedRealProperty implements IRealPropertyValue {
 	public synchronized float getValue() {
 		Result<IValue> res;
 		float old = value;
-		if(fun instanceof RascalFunction)
-			res = ((RascalFunction) fun).call(argTypes, argVals);
-		else
-			res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
+		synchronized(fpa){
+			if(fun instanceof RascalFunction)
+				res = ((RascalFunction) fun).call(argTypes, argVals);
+			else
+				res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
+		}
 		if(res.getType().isIntegerType())
 			value = ((IInteger) res.getValue()).intValue();
 		else if(res.getType().isRealType())

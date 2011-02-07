@@ -47,7 +47,8 @@ public class Button extends Figure {
 	    	        }
 	    	      });
 	    button.setLabel(tname.getValue());
-	    button.setBackground(new Color(0));
+	    //button.setBackground(new Color(255));
+	    fpa.setBackground(new Color(0XFFFFFFFF));
 	    fpa.add(button);
 	}
 
