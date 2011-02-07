@@ -101,7 +101,7 @@ syntax "-" = ... # "-";
 
 syntax "&" = ... # "&";
 
-syntax Identifier = lex [a-zA-Z_][a-zA-Z0-9_]*
+syntax Identifier = lex [a-zA-Z_] [a-zA-Z0-9_]*
                     - Keyword
                     # [a-zA-Z0-9_]
                     ;
