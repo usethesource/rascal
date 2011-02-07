@@ -29,6 +29,5 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/SpringGUI.jar"/>
 	<classpathentry kind="output" path="src"/>
 </classpath>
