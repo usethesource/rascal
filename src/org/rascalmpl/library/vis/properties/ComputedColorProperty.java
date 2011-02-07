@@ -32,10 +32,12 @@ public class ComputedColorProperty  implements IColorPropertyValue  {
 		
 		Result<IValue> res;
 		int old = value;
-		if(fun instanceof RascalFunction)
-			res = ((RascalFunction) fun).call(argTypes, argVals);
-		else
-			res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
+		synchronized(fpa){
+			if(fun instanceof RascalFunction)
+				res = ((RascalFunction) fun).call(argTypes, argVals);
+			else
+				res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
+		}
 		
 		value = ((IInteger) res.getValue()).intValue();
 		if(value != old)

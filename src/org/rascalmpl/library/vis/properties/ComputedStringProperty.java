@@ -30,10 +30,12 @@ public class ComputedStringProperty implements IStringPropertyValue {
 	public synchronized String getValue() {
 		Result<IValue> res;
 		String old = value;
-		if(fun instanceof RascalFunction)
-			res = ((RascalFunction) fun).call(argTypes, argVals);
-		else
-			res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
+		synchronized(fpa){
+			if(fun instanceof RascalFunction)
+				res = ((RascalFunction) fun).call(argTypes, argVals);
+			else
+				res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
+		}
 		
 		value = ((IString) res.getValue()).getValue();
 		if(!value.equals(old))

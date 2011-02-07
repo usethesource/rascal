@@ -1,5 +1,14 @@
 package org.rascalmpl.library.vis.interaction;
 
+import java.awt.Graphics;
+
+import javax.swing.JEditorPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Highlighter;
+import javax.swing.text.JTextComponent;
+
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
@@ -12,7 +21,7 @@ import processing.core.PApplet;
 
 public class TextArea extends Figure {
 	
-	final java.awt.TextArea area;
+	final JEditorPane area;
 	boolean added = false;
 
 	public TextArea(FigurePApplet fpa, IPropertyManager properties, IList lines, IMap colored) {
@@ -22,7 +31,10 @@ public class TextArea extends Figure {
 			text.append(((IString) iline).getValue()).append("\n");
 		}
 		
-		area = new java.awt.TextArea(text.toString(), 10, 50, java.awt.TextArea.SCROLLBARS_BOTH);
+		//area = new java.awr.textarea(text.toString(), 10, 50, java.awt.TextArea.SCROLLBARS_BOTH);
+		
+		area = new javax.swing.JEditorPane();
+		area.setText(text.toString());
 		fpa.add(area);
 	}
 
@@ -48,5 +60,5 @@ public class TextArea extends Figure {
 		fpa.invalidate();
 		fpa.setComputedValueChanged();
 	}
-
+	
 }
