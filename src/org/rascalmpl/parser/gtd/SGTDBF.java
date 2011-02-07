@@ -157,8 +157,7 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
-		int id = next.getId();
-		AbstractStackNode alternative = sharedNextNodes.get(id);
+		AbstractStackNode alternative = sharedNextNodes.get(next.getId());
 		if(alternative != null){
 			if(alternative.isEndNode()){
 				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable()){
@@ -182,7 +181,7 @@ public abstract class SGTDBF implements IGTD{
 		next.setStartLocation(location);
 		next.updateNode(node, result);
 		
-		sharedNextNodes.putUnsafe(id, next);
+		sharedNextNodes.putUnsafe(next.getId(), next);
 		stacksToExpand.add(next);
 		
 		return next;
