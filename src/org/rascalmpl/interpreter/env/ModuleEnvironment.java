@@ -42,6 +42,7 @@ import org.rascalmpl.values.uptr.Factory;
  * 
  */
 public class ModuleEnvironment extends Environment {
+	protected final GlobalEnvironment heap;
 	protected Map<String, ModuleEnvironment> importedModules;
 	protected Map<Type, List<Type>> extensions;
 	protected TypeStore typeStore;
@@ -53,8 +54,9 @@ public class ModuleEnvironment extends Environment {
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
-	public ModuleEnvironment(String name) {
+	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(name);
+		this.heap = heap;
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();

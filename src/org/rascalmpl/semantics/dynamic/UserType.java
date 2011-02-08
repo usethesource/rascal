@@ -1,18 +1,18 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.NullASTVisitor;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 
 public abstract class UserType extends org.rascalmpl.ast.UserType {
+	private static final TypeFactory TF = TypeFactory.getInstance();
 
 	public UserType(INode __param1) {
 		super(__param1);
@@ -24,15 +24,10 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			Environment theEnv = __eval.getEnvironmentForName(this.getName());
+		public Type typeOf(Environment __eval) {
+			Environment theEnv = __eval.getHeap().getEnvironmentForName(getName(), __eval);
 			String name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
 
 			if (theEnv != null) {
@@ -67,10 +62,6 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -81,11 +72,10 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			String name;
 			Type type = null;
-			Environment theEnv = __eval.getEnvironmentForName(this.getName());
+			Environment theEnv = __eval.getHeap().getEnvironmentForName(this.getName(), __eval);
 
 			name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
 
@@ -103,15 +93,15 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 				int i = 0;
 				for (org.rascalmpl.ast.Type param : this.getParameters()) {
-					params[i++] = param.__evaluate(__eval);
+					params[i++] = param.typeOf(__eval);
 				}
 
 				// __eval has side-effects that we might need?
-				type.getTypeParameters().match(org.rascalmpl.interpreter.TypeEvaluator.__getTf().tupleType(params), bindings);
+				type.getTypeParameters().match(TF.tupleType(params), bindings);
 
 				// Note that instantiation use type variables from the current
 				// context, not the declaring context
-				Type outerInstance = type.instantiate(__eval.__getEnv().getTypeBindings());
+				Type outerInstance = type.instantiate(__eval.getTypeBindings());
 				return outerInstance.instantiate(bindings);
 			}
 
@@ -119,10 +109,6 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

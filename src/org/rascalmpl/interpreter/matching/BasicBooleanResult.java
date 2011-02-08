@@ -33,7 +33,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 		if (firstTime) {
 			/* Evaluate expression only once */
 			firstTime = false;
-			result = expr.__evaluate(ctx.getEvaluator());
+			result = expr.interpret(ctx.getEvaluator());
 			if (result.getType().isBoolType() && result.getValue() != null) {
 				if (result.getValue().isEqual(ctx.getValueFactory().bool(true))) {
 					return true;

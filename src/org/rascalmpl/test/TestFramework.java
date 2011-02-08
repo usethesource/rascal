@@ -19,7 +19,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -91,7 +90,7 @@ public class TestFramework {
 	
 	static{
 		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("***test***"));
+		root = heap.addModule(new ModuleEnvironment("***test***", heap));
 		modules = new TestModuleResolver();
 		
 		stderr = new PrintWriter(System.err);

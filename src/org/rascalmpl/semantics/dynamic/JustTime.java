@@ -20,13 +20,9 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// Time is of the form $T<time>
 			String timePart = this.getString().substring(2);
@@ -42,10 +38,6 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

@@ -43,7 +43,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;
-	protected static boolean soundCallTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
 	public AbstractFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, boolean varargs, Environment env) {
@@ -158,6 +157,16 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		callNesting++;
 	}
 
+	protected void printFinally() {
+		callNesting--;
+		StringBuilder b = new StringBuilder();
+		b.append("except>");
+		printNesting(b);
+		printHeader(b);
+		eval.getStdOut().println(b.toString());
+		eval.getStdOut().flush();
+	}
+	
 	protected void printEndTrace() {
 		callNesting--;
 		StringBuilder b = new StringBuilder();
@@ -348,9 +357,5 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	public Evaluator getEval() {
 		return eval;
-	}
-
-	public static void setSoundCallTracing(boolean on) {
-		soundCallTracing = on;
 	}
 }

@@ -36,7 +36,6 @@ import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.JavaCompilationError;
@@ -145,7 +144,7 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
-		return new TypeEvaluator(env, null).eval(formal);
+		return formal.typeOf(env);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {

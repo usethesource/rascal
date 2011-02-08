@@ -1,13 +1,14 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BasicType;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.interpreter.BasicTypeEvaluator;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.utils.TypeUtils;
 
 public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 
@@ -21,16 +22,10 @@ public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return this.getBasicType().__evaluate(new BasicTypeEvaluator(__eval.__getEnv(), __eval.getArgumentTypes(this.getArguments()), null));
-
+		public Type typeOf(Environment __eval) {
+			return this.getBasicType().__evaluate(new BasicTypeEvaluator(__eval, TypeUtils.typeOf(this.getArguments(), __eval), null));
 		}
 
 	}
@@ -41,10 +36,6 @@ public abstract class StructuredType extends org.rascalmpl.ast.StructuredType {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

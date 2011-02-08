@@ -1,20 +1,24 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.DataTypeSelector;
 import org.rascalmpl.ast.FunctionType;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.StructuredType;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.TypeVar;
 import org.rascalmpl.ast.UserType;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Type extends org.rascalmpl.ast.Type {
+	private static final TypeFactory TF = TypeFactory.getInstance();
 
 	public Type(INode __param1) {
 		super(__param1);
@@ -26,16 +30,10 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
-
-			return this.getStructured().__evaluate(__eval);
-
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+			return getStructured().typeOf(__eval);
 		}
 
 	}
@@ -47,16 +45,12 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			return this.getSelector().__evaluate(__eval);
+			return this.getSelector().typeOf(__eval);
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -66,16 +60,10 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
-
-			return this.getBasic().__evaluate(__eval);
-
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+			return this.getBasic().typeOf(__eval);
 		}
 
 	}
@@ -86,13 +74,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
 			throw new Ambiguous((IConstructor) this.getTree());
 
@@ -107,27 +91,23 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
-
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
 			TypeVar var = this.getTypeVar();
 			org.eclipse.imp.pdb.facts.type.Type param;
 
 			if (var.isBounded()) {
-				param = org.rascalmpl.interpreter.TypeEvaluator.__getTf().parameterType(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var.getBound().__evaluate(__eval));
+				param = TF.parameterType(Names.name(var.getName()), var.getBound().typeOf(env));
 			} else {
-				param = org.rascalmpl.interpreter.TypeEvaluator.__getTf().parameterType(org.rascalmpl.interpreter.utils.Names.name(var.getName()));
+				param = TF.parameterType(Names.name(var.getName()));
 			}
-			if (__eval.__getEnv() != null) {
-				return param.instantiate(__eval.__getEnv().getTypeBindings());
+			
+			if (env != null) {
+				return param.instantiate(env.getTypeBindings());
 			}
 			return param;
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -137,15 +117,11 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			return this.getUser().__evaluate(__eval);
+			return this.getUser().typeOf(__eval);
 
 		}
 
@@ -157,15 +133,11 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			return this.getType().__evaluate(__eval);
+			return this.getType().typeOf(__eval);
 
 		}
 
@@ -177,15 +149,11 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
 
-			return this.getFunction().__evaluate(__eval);
+			return this.getFunction().typeOf(__eval);
 
 		}
 
@@ -197,15 +165,11 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance().nonTerminalType(this);
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance();
+			return RTF.nonTerminalType(this);
 
 		}
 

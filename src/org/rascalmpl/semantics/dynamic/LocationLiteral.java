@@ -27,10 +27,10 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> protocolPart = this.getProtocolPart().__evaluate(__eval);
-			Result<IValue> pathPart = this.getPathPart().__evaluate(__eval);
+			Result<IValue> protocolPart = this.getProtocolPart().interpret(__eval);
+			Result<IValue> pathPart = this.getPathPart().interpret(__eval);
 
 			String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
 
@@ -44,10 +44,6 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -57,10 +53,6 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

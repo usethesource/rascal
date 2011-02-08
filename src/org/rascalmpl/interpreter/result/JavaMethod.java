@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -25,7 +24,7 @@ public class JavaMethod extends NamedFunction {
 	private final boolean hasReflectiveAccess;
 	
 	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		super(func, eval, (FunctionType) new TypeEvaluator(env, eval.getHeap()).eval(func.getSignature()), Names.name(func.getSignature().getName()), varargs, env);
+		super(func, eval, (FunctionType) func.getSignature().typeOf(env), Names.name(func.getSignature().getName()), varargs, env);
 		
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);

@@ -1,7 +1,8 @@
 package org.rascalmpl.interpreter.result;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -13,7 +14,6 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
-import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -26,8 +26,6 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
 public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
@@ -36,7 +34,7 @@ public class RascalFunction extends NamedFunction {
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
-				(FunctionType) new TypeEvaluator(env, eval.getHeap()).eval(func.getSignature()),
+				(FunctionType) func.getSignature().typeOf(env),
 				varargs,
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
@@ -57,41 +55,34 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
-		Map<Type,Type> bindings = declarationEnvironment.getTypeBindings();
-		Type instantiatedFormals = getFormals().instantiate(bindings);
-		
-		if (callTracing) {
-			printStartTrace();
-		}
-		
-		Type actualTypesTuple;
-		if (hasVarArgs) {
-			actualTypesTuple = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
-		}
-		else {
-			actualTypesTuple = TF.tupleType(actualTypes);
-		}
-
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
 		
 		try {
-			ctx.setCurrentEnvt(new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), isAnonymous()?"Anonymous Function":name));
+			String label = isAnonymous()?"Anonymous Function":name;
+			Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
+			ctx.setCurrentEnvt(environment);
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
 			
-			bindTypeParameters(actualTypesTuple, instantiatedFormals, ctx.getCurrentEnvt());
-
 			if (hasVarArgs) {
 				actuals = computeVarArgsActuals(actuals, getFormals());
 			}
 
 			assignFormals(actuals, ctx.getCurrentEnvt());
 
+			if (callTracing) {
+				printStartTrace();
+			}
+			
 			for (Statement stat: body) {
 				eval.setCurrentAST(stat);
-				stat.__evaluate(eval);
+				stat.interpret(eval);
+			}
+			
+			if (callTracing) {
+				printEndTrace();
 			}
 			
 			if(!isVoidFunction){
@@ -121,7 +112,7 @@ public class RascalFunction extends NamedFunction {
 		}
 		finally {
 			if (callTracing) {
-				printEndTrace();
+				printFinally();
 			}
 			ctx.setCurrentEnvt(old);
 			ctx.setAccumulators(oldAccus);
@@ -141,7 +132,7 @@ public class RascalFunction extends NamedFunction {
 		if (size == 0) {
 			return;
 		}
-		matchers[0] = formals.get(0).__evaluate(pe);
+		matchers[0] = formals.get(0).buildMatcher(pe);
 		matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
 		olds[0] = ctx.getCurrentEnvt();
 		ctx.pushEnv();
@@ -159,7 +150,7 @@ public class RascalFunction extends NamedFunction {
 					return;
 				} else {
 					i++;
-					matchers[i] = formals.get(i).__evaluate(pe);
+					matchers[i] = formals.get(i).buildMatcher(pe);
 					matchers[i].init();
 					olds[i] = ctx.getCurrentEnvt();
 					ctx.pushEnv();

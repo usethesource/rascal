@@ -87,7 +87,7 @@ public class StringTemplateConverter {
 			// Ugh, this is the same as normal Statement.Append
 			// but wraps already converts to origined strings
 			@Override
-			public Result<IValue> __evaluate(Evaluator __eval) {
+			public Result<IValue> interpret(Evaluator __eval) {
 				Accumulator target = null;
 				if (__eval.__getAccumulators().empty()) {
 					throw new AppendWithoutLoop(this);
@@ -107,7 +107,7 @@ public class StringTemplateConverter {
 				} else {
 					target = __eval.__getAccumulators().peek();
 				}
-				Result<IValue> result = this.getStatement().__evaluate(__eval);
+				Result<IValue> result = this.getStatement().interpret(__eval);
 				IValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
 				if (!(v instanceof IString)) {

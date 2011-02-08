@@ -8,6 +8,7 @@ import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -23,10 +24,6 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -36,10 +33,6 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -49,25 +42,22 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO support for full complexity of import declarations
 			String name = __eval.getUnescapedModuleName(this);
 
-			if (!__eval.__getHeap().existsModule(name)) {
+			GlobalEnvironment heap = __eval.__getHeap();
+			if (!heap.existsModule(name)) {
 				// deal with a fresh module that needs initialization
-				__eval.__getHeap().addModule(new ModuleEnvironment(name));
+				heap.addModule(new ModuleEnvironment(name, heap));
 				__eval.evalRascalModule(this, name);
 				__eval.addImportToCurrentModule(this, name);
 			} else if (__eval.getCurrentEnvt() == __eval.__getRootScope()) {
 				// in the root scope we treat an import as a "reload"
-				__eval.__getHeap().resetModule(name);
+				heap.resetModule(name);
 				__eval.evalRascalModule(this, name);
 				__eval.addImportToCurrentModule(this, name);
 			} else {
@@ -88,13 +78,9 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareSyntaxType(this.getSyntax().getDefined(), __eval.getCurrentEnvt());
 			__eval.getCurrentEnvt().declareProduction(this);

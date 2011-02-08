@@ -2,7 +2,9 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -12,16 +14,29 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredFunctionError;
 
+/**
+ * This class holds different functions that have the same name. Each function has different patterns as formal parameters.
+ * The implementation should quickly decide which pattern is most likely to match, then use the pattern matcher to bind actual
+ * values to the formal parameters. 
+ * 
+ * Note that the semantics of this class depend heavily on the patterns being mutually exclusive!
+ * 
+ * Note that ***shadowing*** rules may not have been implemented by this class at the moment.
+ */
 public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	
-	private final List<AbstractFunction> candidates; // it should be a list to allow proper shadowing
+	private final Hashtable<Type, List<AbstractFunction>> candidates = new Hashtable<Type, List<AbstractFunction>>();
 	private final String name;
 
 	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, IEvaluatorContext ctx) {
@@ -30,8 +45,29 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		if (candidates.size() <= 0) {
 			throw new ImplementationError("at least need one function");
 		}
-		this.candidates = new ArrayList<AbstractFunction>(candidates.size());
-		this.candidates.addAll(candidates);
+		
+		for (AbstractFunction candidate : candidates) {
+			List<Expression> formals = ((FunctionDeclaration) candidate.getAst()).getSignature().getParameters().getFormals().getFormals();
+			if (formals.size() > 0) { // with args, we store the function under the type of the first argument (for speed!)
+				Expression first = formals.get(0);
+				Type storeUnder = null;
+				TypeEvaluator te = new TypeEvaluator(ctx.getCurrentEnvt(), ctx.getHeap());
+				if (first instanceof Expression.CallOrTree) { // a constructor!
+					storeUnder = te.eval(first);
+				}
+				else { // something else than a constructor
+					
+				}
+			}
+			else { // no args candidates are stored under the void type
+				List<AbstractFunction> l = this.candidates.get(TF.voidType());
+				if (l == null) {
+					l = new LinkedList<AbstractFunction>();
+					this.candidates.put(TF.voidType(), l);
+				}
+				l.add(candidate);
+			}
+		}
 		this.name = name;
 	}
 	
@@ -190,7 +226,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			for (AbstractFunction g : that.candidates) {
 				Result<U> result = f.compare(g);
 				
-				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
+				if (((IInteger) result.getValue()).intValue() != 0) {
 					return result;
 				}
 			}

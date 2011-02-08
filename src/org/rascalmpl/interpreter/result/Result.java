@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
@@ -157,7 +158,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	///////
 	
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) throws MatchFailed {
 		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	

@@ -9,9 +9,12 @@ import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
@@ -92,24 +95,21 @@ public abstract class AbstractAST implements IVisitable {
 		return TreeAdapter.yield((IConstructor) node);
 	}
 
-	public <T> T __evaluate(NullASTVisitor<T> eval) {
+	public Result<IValue> interpret(Evaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Result<IValue> __evaluate(Evaluator eval) {
+	public Result<IValue> assignment(AssignableEvaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Result<IValue> __evaluate(AssignableEvaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Type __evaluate(org.rascalmpl.interpreter.TypeEvaluator.Visitor eval) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Computes internal type representations for type literals and patterns. 
+	 */
+	public Type typeOf(Environment env) {
+		throw new ImplementationError("typeOf is not implemented for " + getClass().getCanonicalName());
 	}
 
 	public Type __evaluate(org.rascalmpl.interpreter.BasicTypeEvaluator eval) {
@@ -117,12 +117,11 @@ public abstract class AbstractAST implements IVisitable {
 		return null;
 	}
 
-	public IMatchingResult __evaluate(PatternEvaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
+	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		throw new UnsupportedPatternError(toString(), this);
 	}
 
-	public IBooleanResult __evaluate(BooleanEvaluator eval) {
+	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}

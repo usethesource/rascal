@@ -60,7 +60,7 @@ public class RascalActionExecutor implements IActionExecutor{
 			}else{
 				// TODO: see above, this should be fixed if every action knows to which module it belongs
 //				System.err.println("WARNING: could not retrieve a module environment for action for " + TreeAdapter.getProduction(tree));
-				scope = new ModuleEnvironment("***no module environment for action***");
+				scope = new ModuleEnvironment("***no module environment for action***", eval.getHeap());
 			}
 			
 			eval.setCurrentAST(action);
@@ -71,11 +71,11 @@ public class RascalActionExecutor implements IActionExecutor{
 			if(action.isBuild()){
 				// TODO add type checking
 				eval.setCurrentAST(action.getExpression());
-				return (IConstructor) action.getExpression().__evaluate(eval).getValue();
+				return (IConstructor) action.getExpression().interpret(eval).getValue();
 			}
 			for(Statement s : action.getStatements()){
 				eval.setCurrentAST(s);
-				s.__evaluate(eval);
+				s.interpret(eval);
 			}
 			
 			// nothing happens to the tree, but side-effects may have occurred

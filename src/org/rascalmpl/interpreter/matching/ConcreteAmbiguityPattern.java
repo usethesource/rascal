@@ -13,7 +13,6 @@ class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 		super(ctx, x);
 	}
 
-	@Override
 	public Type getType(Environment env) {
 		// TODO Auto-generated method stub
 		return null;

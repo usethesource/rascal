@@ -21,10 +21,6 @@ public abstract class HexIntegerLiteral extends org.rascalmpl.ast.HexIntegerLite
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -35,7 +31,7 @@ public abstract class HexIntegerLiteral extends org.rascalmpl.ast.HexIntegerLite
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String chars = this.getString();
 			String hex = chars.substring(2, chars.length());
@@ -44,10 +40,6 @@ public abstract class HexIntegerLiteral extends org.rascalmpl.ast.HexIntegerLite
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

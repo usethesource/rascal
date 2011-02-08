@@ -45,22 +45,18 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new ImplementationError("ifdefined assignable does not represent a value");
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			try {
-				this.getReceiver().__evaluate((Evaluator) __eval.__getEval()); // notice
+				this.getReceiver().interpret((Evaluator) __eval.__getEval()); // notice
 																				// we
 																				// use
 																				// 'eval'
@@ -69,11 +65,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 																				// '__eval'
 				// if it was not defined, __eval would have thrown an exception,
 				// so now we can just go on
-				return this.getReceiver().__evaluate(__eval);
+				return this.getReceiver().assignment(__eval);
 			} catch (Throw e) {
-				__eval.__setValue(__eval.newResult(this.getDefaultExpression().__evaluate((Evaluator) __eval.__getEval()), __eval.__getValue()));
+				__eval.__setValue(__eval.newResult(this.getDefaultExpression().interpret((Evaluator) __eval.__getEval()), __eval.__getValue()));
 				__eval.__setOperator(AssignmentOperator.Default);
-				return this.getReceiver().__evaluate(__eval);
+				return this.getReceiver().assignment(__eval);
 			}
 
 		}
@@ -87,7 +83,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			List<org.rascalmpl.ast.Assignable> arguments = this.getElements();
 
@@ -106,7 +102,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				IValue arg = tuple.get(i);
 				Result<IValue> result = org.rascalmpl.interpreter.result.ResultFactory.makeResult(argType, arg, __eval.__getEval());
 				AssignableEvaluator ae = new AssignableEvaluator(__eval.__getEnv(), null, result, __eval.__getEval());
-				Result<IValue> argResult = arguments.get(i).__evaluate(ae);
+				Result<IValue> argResult = arguments.get(i).assignment(ae);
 				results[i] = argResult.getValue();
 				resultTypes[i] = argResult.getType();
 			}
@@ -116,13 +112,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new ImplementationError("Tuple in assignable does not represent a value:" + this);
 
@@ -136,10 +128,6 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -149,16 +137,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> receiver = this.getReceiver().__evaluate(__eval);
-			Result<IValue> subscript = this.getSubscript().__evaluate(__eval);
+			Result<IValue> receiver = this.getReceiver().interpret(__eval);
+			Result<IValue> subscript = this.getSubscript().interpret(__eval);
 
 			if (receiver.getType().isListType()) {
 				if (subscript.getType().isIntegerType()) {
@@ -190,10 +174,10 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
-			Result<IValue> rec = this.getReceiver().__evaluate((Evaluator) __eval.__getEval());
-			Result<IValue> subscript = this.getSubscript().__evaluate((Evaluator) __eval.__getEval());
+			Result<IValue> rec = this.getReceiver().interpret((Evaluator) __eval.__getEval());
+			Result<IValue> subscript = this.getSubscript().interpret((Evaluator) __eval.__getEval());
 			Result<IValue> result;
 
 			if (rec == null || rec.getValue() == null) {
@@ -279,7 +263,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			Type valueType = __eval.__getValue().getType();
 
@@ -313,7 +297,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				IValue arg = node.get(i);
 				Result<IValue> result = org.rascalmpl.interpreter.result.ResultFactory.makeResult(argType, arg, __eval.__getEval());
 				AssignableEvaluator ae = new AssignableEvaluator(__eval.__getEnv(), null, result, __eval.__getEval());
-				Result<IValue> argResult = arguments.get(i).__evaluate(ae);
+				Result<IValue> argResult = arguments.get(i).assignment(ae);
 				results[i] = argResult.getValue();
 				resultTypes[i] = argType;
 			}
@@ -332,13 +316,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new ImplementationError("Constructor assignable does not represent a value");
 
@@ -352,13 +332,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			throw new Ambiguous((IConstructor) this.getTree());
 
@@ -372,13 +348,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			QualifiedName qname = this.getQualifiedName();
 			Result<IValue> previous = __eval.__getEnv().getVariable(qname);
@@ -414,7 +386,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			return __eval.getCurrentEnvt().getVariable(this.getQualifiedName());
 
@@ -428,15 +400,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> receiver = this.getReceiver().__evaluate(__eval);
+			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = this.getAnnotation().toString();
 
 			if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getType(), label)) {
@@ -451,10 +419,10 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			String label = org.rascalmpl.interpreter.utils.Names.name(this.getAnnotation());
-			Result<IValue> result = this.getReceiver().__evaluate((Evaluator) __eval.__getEval());
+			Result<IValue> result = this.getReceiver().interpret((Evaluator) __eval.__getEval());
 
 			if (result == null || result.getValue() == null)
 				throw new UninitializedVariableError(this.getReceiver().toString(), this.getReceiver());
@@ -483,15 +451,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> receiver = this.getReceiver().__evaluate(__eval);
+			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			if (receiver == null) {
@@ -530,9 +494,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(AssignableEvaluator __eval) {
+		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
-			Result<IValue> receiver = this.getReceiver().__evaluate((Evaluator) __eval.__getEval());
+			Result<IValue> receiver = this.getReceiver().interpret((Evaluator) __eval.__getEval());
 			String label = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			if (receiver == null || receiver.getValue() == null) {

@@ -24,17 +24,13 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> mid = this.getMid().__evaluate(__eval);
-			Result<IValue> expr = this.getExpression().__evaluate(__eval);
-			Result<IValue> tail = this.getTail().__evaluate(__eval);
+			Result<IValue> mid = this.getMid().interpret(__eval);
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			Result<IValue> tail = this.getTail().interpret(__eval);
 			StringBuilder result = new StringBuilder();
 
 			result.append(((IString) mid.getValue()).getValue());
@@ -53,10 +49,6 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -66,15 +58,11 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
-			return this.getPost().__evaluate(__eval);
+			return this.getPost().interpret(__eval);
 
 		}
 

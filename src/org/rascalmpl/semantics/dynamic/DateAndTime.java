@@ -20,10 +20,6 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -33,13 +29,9 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// Split into date and time components; of the form $<date>T<time>
 			String dtPart = this.getString().substring(1);

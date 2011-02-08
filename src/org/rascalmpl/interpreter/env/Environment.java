@@ -480,6 +480,10 @@ public class Environment {
 		}
 		return target;
 	}
+	
+	public GlobalEnvironment getHeap() {
+		return getRoot().getHeap();
+	}
 
 	public Type getConstructor(Type sort, String cons, Type args) {
 		return getRoot().getConstructor(sort, cons, args);

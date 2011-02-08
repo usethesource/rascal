@@ -146,7 +146,7 @@ public class AssignableEvaluator extends NullASTVisitor<Result<IValue>>{
 	}
 	
 	public Result<IValue> recur(Assignable x, Result<IValue> result) {
-		return x.getReceiver().__evaluate(new org.rascalmpl.interpreter.AssignableEvaluator(this.__getEnv(), null, result, this.__getEval()));
+		return x.getReceiver().assignment(new org.rascalmpl.interpreter.AssignableEvaluator(this.__getEnv(), null, result, this.__getEval()));
 	}
 	
 	public AbstractAST getCurrentAST() {

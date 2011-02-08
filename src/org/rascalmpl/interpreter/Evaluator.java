@@ -536,7 +536,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			this.currentAST = stat;
 			try {
-				return stat.__evaluate(this);
+				return stat.interpret(this);
 			} finally {
 				if (Evaluator.doProfiling) {
 					if (this.profiler != null) {
@@ -569,7 +569,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		}
 		try {
-			Result<IValue> r = expr.__evaluate(this);
+			Result<IValue> r = expr.interpret(this);
 			if (r != null) {
 				return r;
 			}
@@ -632,7 +632,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		}
 		try {
-			return command.__evaluate(this);
+			return command.interpret(this);
 		} finally {
 			if (Evaluator.doProfiling) {
 				if (this.profiler != null) {
@@ -652,7 +652,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> eval(Declaration declaration) {
 		this.__setInterrupt(false);
 		this.currentAST = declaration;
-		Result<IValue> r = declaration.__evaluate(this);
+		Result<IValue> r = declaration.interpret(this);
 		if (r != null) {
 			return r;
 		}
@@ -669,7 +669,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> eval(Import imp) {
 		this.__setInterrupt(false);
 		this.currentAST = imp;
-		Result<IValue> r = imp.__evaluate(this);
+		Result<IValue> r = imp.interpret(this);
 		if (r != null) {
 			return r;
 		}
@@ -708,7 +708,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	private void reloadModule(String name, URI errorLocation) {	
-		ModuleEnvironment env = new ModuleEnvironment(name);
+		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
 		this.__getHeap().addModule(env);
 
 		try {
@@ -720,7 +720,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
-				module.__evaluate(this);
+				module.interpret(this);
 			}
 		} catch (StaticError e) {
 			this.__getHeap().removeModule(env);
@@ -1002,7 +1002,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Module preModule = this.builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 
 		// take care of imports and declare syntax
-		Result<IValue> name = preModule.__evaluate(this);
+		Result<IValue> name = preModule.interpret(this);
 
 		if (env == null) {
 			env = this.__getHeap().getModule(((IString) name.getValue()).getValue());
@@ -1066,7 +1066,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Module evalRascalModule(AbstractAST x, String name) {
 		ModuleEnvironment env = this.__getHeap().getModule(name);
 		if (env == null) {
-			env = new ModuleEnvironment(name);
+			env = new ModuleEnvironment(name, this.__getHeap());
 			this.__getHeap().addModule(env);
 		}
 		try {
@@ -1078,7 +1078,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
-				module.__evaluate(this);
+				module.interpret(this);
 				return module;
 			}
 		} catch (StaticError e) {
@@ -1106,24 +1106,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public void visitImports(List<Import> imports) {
 		for (Import i : imports) {
-			i.__evaluate(this);
+			i.interpret(this);
 		}
 	}
 
-	public Type evalType(org.rascalmpl.ast.Type type) {
-		return new TypeEvaluator(this.getCurrentEnvt(), this.__getHeap()).eval(type);
-	}
-
-	public boolean hasJavaModifier(FunctionDeclaration func) {
-		List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
-		for (FunctionModifier m : mods) {
-			if (m.isJava()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
+	
 
 	public boolean isWildCard(String fieldName) {
 		return fieldName.equals("_");
@@ -1133,7 +1120,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		try {
-			res = body.__evaluate(this);
+			res = body.interpret(this);
 		} catch (Throw e) {
 			IValue eValue = e.getException();
 
@@ -1141,7 +1128,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			for (Catch c : handlers) {
 				if (c.isDefault()) {
-					res = c.getBody().__evaluate(this);
+					res = c.getBody().interpret(this);
 					handled = true;
 					break;
 				}
@@ -1157,7 +1144,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				throw e;
 		} finally {
 			if (finallyBody != null) {
-				finallyBody.__evaluate(this);
+				finallyBody.interpret(this);
 			}
 		}
 		return res;
@@ -1170,8 +1157,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		BooleanEvaluator pe = new BooleanEvaluator(this);
-		return pat.__evaluate(pe);
-	}
+		return pat.buildBooleanBacktracker(pe);
+	} 
 
 	// Expressions -----------------------------------------------------------
 
@@ -1247,7 +1234,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.pushEnv();
 
 		try {
-			IMatchingResult mp = pat.__evaluate((PatternEvaluator) this.__getPatternEvaluator());
+			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) this.__getPatternEvaluator());
 			mp.initMatch(subject);
 			if (debug)
 				System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
@@ -1265,7 +1252,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 						if (debug)
 							System.err.println(stat.toString());
 						try {
-							stat.__evaluate(this);
+							stat.interpret(this);
 						} catch (Insert e) {
 							// Make sure that the match pattern is set
 							if (e.getMatchPattern() == null) {
@@ -1295,7 +1282,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
 		Environment old = this.getCurrentEnvt();
 		try {
-			IMatchingResult mp = pat.__evaluate((PatternEvaluator) this.__getPatternEvaluator());
+			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) this.__getPatternEvaluator());
 			mp.initMatch(subject);
 
 			while (mp.hasNext()) {
@@ -1305,13 +1292,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					try {
 						boolean trueConditions = true;
 						for (Expression cond : conditions) {
-							if (!cond.__evaluate(this).isTrue()) {
+							if (!cond.interpret(this).isTrue()) {
 								trueConditions = false;
 								break;
 							}
 						}
 						if (trueConditions) {
-							throw new Insert(replacementExpr.__evaluate(this), mp);
+							throw new Insert(replacementExpr.interpret(this), mp);
 						}
 					} catch (Failure e) {
 						System.err.println("failure occurred");
@@ -1375,7 +1362,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				this.elementType1 = org.rascalmpl.interpreter.Evaluator.__getTf().voidType();
 
 				for (Expression resExpr : this.resultExprs) {
-					this.rawElements[k] = resExpr.__evaluate(this.ev);
+					this.rawElements[k] = resExpr.interpret(this.ev);
 					Type elementType = this.rawElements[k].getType();
 
 					if (elementType.isListType() && !resExpr.isList()) {
@@ -1395,7 +1382,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			else {
 				int k = 0;
 				for (Expression resExpr : this.resultExprs) {
-					this.rawElements[k++] = resExpr.__evaluate(this.ev);
+					this.rawElements[k++] = resExpr.interpret(this.ev);
 				}
 			}
 
@@ -1451,7 +1438,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				this.elementType1 = org.rascalmpl.interpreter.Evaluator.__getTf().voidType();
 
 				for (Expression resExpr : this.resultExprs) {
-					this.rawElements[k] = resExpr.__evaluate(this.ev);
+					this.rawElements[k] = resExpr.interpret(this.ev);
 					Type elementType = this.rawElements[k].getType();
 
 					if (elementType.isSetType() && !resExpr.isSet()) {
@@ -1471,7 +1458,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			else {
 				int k = 0;
 				for (Expression resExpr : this.resultExprs) {
-					this.rawElements[k++] = resExpr.__evaluate(this.ev);
+					this.rawElements[k++] = resExpr.interpret(this.ev);
 				}
 			}
 
@@ -1517,8 +1504,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		@Override
 		public void append() {
-			Result<IValue> r1 = this.resultExprs.get(0).__evaluate(this.ev);
-			Result<IValue> r2 = this.resultExprs.get(1).__evaluate(this.ev);
+			Result<IValue> r1 = this.resultExprs.get(0).interpret(this.ev);
+			Result<IValue> r2 = this.resultExprs.get(1).interpret(this.ev);
 			if (this.writer == null) {
 				this.elementType1 = r1.getType();
 				this.elementType2 = r2.getType();
@@ -1550,7 +1537,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Environment old = this.getCurrentEnvt();
 		int i = 0;
 
-		Result<IValue> it = init.__evaluate(this);
+		Result<IValue> it = init.interpret(this);
 
 		try {
 			gens[0] = this.makeBooleanResult(generators.get(0));
@@ -1564,7 +1551,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if (gens[i].hasNext() && gens[i].next()) {
 					if (i == size - 1) {
 						this.getCurrentEnvt().storeVariable(Evaluator.IT, it);
-						it = result.__evaluate(this);
+						it = result.interpret(this);
 						this.unwind(olds[i]);
 						this.pushEnv();
 					} else {

@@ -10,6 +10,7 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -25,10 +26,6 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -39,15 +36,16 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			String name = __eval.getModuleName(this);
 
-			ModuleEnvironment env = __eval.__getHeap().getModule(name);
+			GlobalEnvironment heap = __eval.__getHeap();
+			ModuleEnvironment env = heap.getModule(name);
 
 			if (env == null) {
-				env = new ModuleEnvironment(name);
-				__eval.__getHeap().addModule(env);
+				env = new ModuleEnvironment(name, heap);
+				heap.addModule(env);
 			}
 
 			env.setBootstrap(__eval.needBootstrapParser(this));
@@ -57,14 +55,14 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 				__eval.setCurrentEnvt(env); // such that declarations end up in
 											// the module scope
 				try {
-					this.getHeader().__evaluate(__eval);
+					this.getHeader().interpret(__eval);
 
 					List<Toplevel> decls = this.getBody().getToplevels();
 					__eval.__getTypeDeclarator().evaluateSyntaxDefinitions(this.getHeader().getImports(), __eval.getCurrentEnvt());
 					__eval.__getTypeDeclarator().evaluateDeclarations(decls, __eval.getCurrentEnvt());
 
 					for (Toplevel l : decls) {
-						l.__evaluate(__eval);
+						l.interpret(__eval);
 					}
 
 					// only after everything was successful mark the module
@@ -79,10 +77,6 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

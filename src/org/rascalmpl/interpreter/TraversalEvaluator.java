@@ -377,7 +377,7 @@ public class TraversalEvaluator {
 					eval.pushEnv();
 					eval.setCurrentAST(cs);
 					if (cs.isDefault()) {
-						cs.getStatement().__evaluate(eval);
+						cs.getStatement().interpret(eval);
 						return new TraverseResult(true,subject);
 					}
 

@@ -20,16 +20,12 @@ public abstract class LocalVariableDeclaration extends org.rascalmpl.ast.LocalVa
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Result<IValue> __evaluate(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator __eval) {
 
 			// TODO deal with dynamic variables
-			return this.getDeclarator().__evaluate(__eval);
+			return this.getDeclarator().interpret(__eval);
 
 		}
 
@@ -41,10 +37,6 @@ public abstract class LocalVariableDeclaration extends org.rascalmpl.ast.LocalVa
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -54,10 +46,6 @@ public abstract class LocalVariableDeclaration extends org.rascalmpl.ast.LocalVa
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }
