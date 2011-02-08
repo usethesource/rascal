@@ -646,21 +646,22 @@ public abstract class SGTDBF implements IGTD{
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		expand();
 		
-		findFirstStackToReduce();
-		do{
-			lookAheadChar = (location < input.length) ? input[location] : 0;
+		if(findFirstStackToReduce()){
 			do{
-				if(shiftedLevel){ // Nullable fix.
-					sharedNextNodes.clear();
-					resultStoreCache.clear();
-					cachedEdgesForExpect.clear();
-				}
-				
-				reduce();
-				
-				expand();
-			}while(!stacksWithNonTerminalsToReduce.isEmpty());
-		}while(findStacksToReduce());
+				lookAheadChar = (location < input.length) ? input[location] : 0;
+				do{
+					if(shiftedLevel){ // Nullable fix.
+						sharedNextNodes.clear();
+						resultStoreCache.clear();
+						cachedEdgesForExpect.clear();
+					}
+					
+					reduce();
+					
+					expand();
+				}while(!stacksWithNonTerminalsToReduce.isEmpty());
+			}while(findStacksToReduce());
+		}
 		
 		if(location == input.length){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
