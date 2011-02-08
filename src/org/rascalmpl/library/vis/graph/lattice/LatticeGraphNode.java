@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.graph.lattice;
 
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
@@ -12,20 +13,21 @@ import org.rascalmpl.library.vis.Figure;
  * 
  */
 public class LatticeGraphNode {
-    private final boolean debug = false;
+	private final boolean debug = false;
 	int label = -1;
 	int layer = -1;
 	String name;
 	Figure figure;
 	LinkedList<LatticeGraphNode> in;
 	LinkedList<LatticeGraphNode> out;
-	float x;
+	HashSet<LatticeGraphNode> reached = new HashSet<LatticeGraphNode>();
+	float x, cX[]; // Candidates of x
 	float y;
 	public int rank;
 	public int rankTop;
 	public int rankBottom;
 	public boolean mousePressed = false;
-	private int fromX, fromY;
+	// private int fromX, fromY;
 
 	LatticeGraphNode(String name, Figure fig) {
 		this.name = name;
@@ -61,28 +63,39 @@ public class LatticeGraphNode {
 			figure.bbox();
 			figure.draw(x + left - figure.width / 2, y + top - figure.height
 					/ 2);
-//			if (mousePressed) {
-//				// System.err.println("Pressed");
-//				FigurePApplet fpa = figure.fpa;
-//				fpa.stroke(255, 0, 0);
-//				fpa.strokeWeight(1);
-//				// fpa.noFill();
-//				fpa.rect(fromX + left - 10, fromY + top - 10, 20, 20);
-//				fpa.stroke(0, 0, 0);
-//			}
+			// if (mousePressed) {
+			// // System.err.println("Pressed");
+			// FigurePApplet fpa = figure.fpa;
+			// fpa.stroke(255, 0, 0);
+			// fpa.strokeWeight(1);
+			// // fpa.noFill();
+			// fpa.rect(fromX + left - 10, fromY + top - 10, 20, 20);
+			// fpa.stroke(0, 0, 0);
+			// }
 		}
 	}
 
 	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent) {
-		
+
 		if (figure.mouseInside(mousex, mousey, figure.getCenterX(),
 				figure.getCenterY())
 				&& !mousePressed) {
-			if (debug) System.err.println(""+this+" "+mousePressed+" "+figure.getCenterX()+" "+
-					figure.getCenterY()+" "+figure.mouseInside(mousex, mousey, figure.getCenterX(),
-							figure.getCenterY())+" "+figure.getClass());
+			if (debug)
+				System.err.println(""
+						+ this
+						+ " "
+						+ mousePressed
+						+ " "
+						+ figure.getCenterX()
+						+ " "
+						+ figure.getCenterY()
+						+ " "
+						+ figure.mouseInside(mousex, mousey,
+								figure.getCenterX(), figure.getCenterY()) + " "
+						+ figure.getClass());
 			return figure.mouseOver(mousex, mousey, mouseInParent);
-		} else figure.fpa.unRegisterMouseOver(this.figure);
+		} else
+			figure.fpa.unRegisterMouseOver(this.figure);
 		return false;
 	}
 
@@ -91,9 +104,10 @@ public class LatticeGraphNode {
 				figure.getCenterY())) {
 			mousePressed = true;
 			figure.fpa.unRegisterMouseOver(this.figure);
-			fromX = mouseX;
-			fromY = mouseY;
-			if (debug) System.err.println("mousePressed");
+			// fromX = mouseX;
+			// fromY = mouseY;
+			if (debug)
+				System.err.println("mousePressed");
 			return true;
 		} else
 			return false;
@@ -103,7 +117,8 @@ public class LatticeGraphNode {
 	public boolean mouseReleased() {
 		if (mousePressed) {
 			mousePressed = false;
-			if (debug) System.err.println("mouseReleased");
+			if (debug)
+				System.err.println("mouseReleased");
 			return true;
 		}
 		return false;
