@@ -23,8 +23,21 @@ public abstract class StaticError extends RuntimeException {
 		}
 	}
 	
+	public StaticError(String message, ISourceLocation loc, Throwable cause) {
+		super(message, cause);
+		this.loc = loc;
+		if (loc == null) {
+			//System.err.println("TODO: provide error location");
+			//printStackTrace();
+		}
+	}
+
 	public StaticError(String message, AbstractAST ast) {
 		this(message, ast != null ? ast.getLocation() : null);
+	}
+	
+	public StaticError(String message, AbstractAST ast, Throwable cause) {
+		this(message, ast != null ? ast.getLocation() : null, cause);
 	}
 	
 	public ISourceLocation getLocation() {
