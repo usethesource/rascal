@@ -142,15 +142,10 @@ public abstract class SGTDBF implements IGTD{
 					// Ignore this if it happens.
 				}
 			}catch(NoSuchMethodException nsmex){
-				String message = nsmex.getMessage();
 				int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 				int line = positionStore.findLine(errorLocation);
 				int column = positionStore.getColumn(errorLocation, line);
-				throw new UndeclaredNonTerminalError(message.substring(
-						message.lastIndexOf(".") + 1,
-						message.length()), 
-						vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column),
-						nsmex);
+				throw new UndeclaredNonTerminalError(name, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column), nsmex);
 			}
 			methodCache.putUnsafe(name, method);
 		}
