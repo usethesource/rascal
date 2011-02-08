@@ -37,7 +37,7 @@ public abstract class Compose extends Figure {
 	}
 
 	@Override
-	public synchronized boolean mouseInside(int mousex, int mousey) {
+	public boolean mouseInside(int mousex, int mousey) {
 		if(super.mouseInside(mousex, mousey)){
 			for (int i = figures.length - 1; i >= 0; i--)
 				if (figures[i].mouseInside(mousex, mousey))
@@ -60,39 +60,27 @@ public abstract class Compose extends Figure {
 
 	// Visit figures front to back
 	@Override
-	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent) {
+	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent) {
 		if (debug) System.err.println("MouseOver:"+this.getClass()+" "+super.getClass());
-		if (super.mouseOver(mousex, mousey, mouseInParent)) return true;
-		for (int i = figures.length - 1; i >= 0; i--)
-			if (figures[i].mouseOver(mousex, mousey, figures[i].getCenterX(),
-					figures[i].getCenterY(), false))
-				return true;
-	return false;
+		if(super.mouseInside(mouseX, mouseY)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mouseOver(mouseX, mouseY, figures[i].getCenterX(),
+						figures[i].getCenterY(), false))
+					return true;
+		}
+		return super.mouseOver(mouseX, mouseY, mouseInParent);
 	}
-
-	/*@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX,
-			float centerY, boolean mouseInParent) {
-		System.err.println("MouseOver:"+this.getClass()+" "+super.getClass());
-//		for (int i = figures.length - 1; i >= 0; i--) {
-//			if (figures[i].mouseOver(mousex, mousey, figures[i].getCenterX(),
-//					figures[i].getCenterY(), false))
-//				return true;
-//		}
-		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
-	}
-	*/
 
 	// Visit figures front to back
 	@Override
 	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
-			if(super.mouseInside(mouseX, mouseY)){
-				for (int i = figures.length - 1; i >= 0; i--)
-					if (figures[i].mousePressed(mouseX, mouseY, e))
-						return true;
-				return super.mousePressed(mouseX, mouseY, e);
-			}
-			return false;
+		if(super.mouseInside(mouseX, mouseY)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mousePressed(mouseX, mouseY, e))
+					return true;
+			return super.mousePressed(mouseX, mouseY, e);
+		}
+		return super.mousePressed(mouseX, mouseY, e);
 	}
 
 //	 @Override
