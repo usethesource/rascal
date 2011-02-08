@@ -414,8 +414,6 @@ public abstract class Figure implements Comparable<Figure> {
 	 * Draw focus around this figure
 	 */
 	public void drawFocus() {
-		// System.err.println("drawFocus: " +
-		// this.left+" "+this.top+" "+isVisible());
 		if (isVisible()) {
 			fpa.stroke(255, 0, 0);
 			fpa.strokeWeight(1);
@@ -539,11 +537,12 @@ public abstract class Figure implements Comparable<Figure> {
 		if(mouseInside(mouseX, mouseY)){
 			IValue handler = properties.getOnClick();
 			if(handler != null){
-				
-				if(handler instanceof RascalFunction)
-					((RascalFunction) handler).call(argTypes, argVals);
-				else
-					((OverloadedFunctionResult) handler).call(argTypes, argVals);
+				synchronized(fpa){
+					if(handler instanceof RascalFunction)
+						((RascalFunction) handler).call(argTypes, argVals);
+					else
+						((OverloadedFunctionResult) handler).call(argTypes, argVals);
+				}
 				fpa.setComputedValueChanged();
 			} else
 				fpa.registerFocus(this);
