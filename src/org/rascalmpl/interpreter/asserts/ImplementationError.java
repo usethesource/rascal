@@ -14,6 +14,7 @@ public final class ImplementationError extends AssertionError {
 
 	public ImplementationError(String message, Throwable cause) {
 		super("Unexpected error in Rascal interpreter: " + message + " caused by " + cause.getMessage());
+		this.initCause(cause);
 		this.location = null;
 	}
 	

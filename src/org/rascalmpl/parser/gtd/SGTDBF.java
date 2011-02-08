@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminalError;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ListContainerNode;
@@ -141,8 +142,15 @@ public abstract class SGTDBF implements IGTD{
 					// Ignore this if it happens.
 				}
 			}catch(NoSuchMethodException nsmex){
-				nsmex.printStackTrace(); // Necessary because Implementation errors are useless.
-				throw new ImplementationError(nsmex.getMessage(), nsmex);
+				String message = nsmex.getMessage();
+				int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
+				int line = positionStore.findLine(errorLocation);
+				int column = positionStore.getColumn(errorLocation, line);
+				throw new UndeclaredNonTerminalError(message.substring(
+						message.lastIndexOf(".") + 1,
+						message.length()), 
+						vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column),
+						nsmex);
 			}
 			methodCache.putUnsafe(name, method);
 		}
