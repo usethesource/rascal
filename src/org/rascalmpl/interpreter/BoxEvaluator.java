@@ -285,8 +285,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return currentAST;
 	}
 
-	public IValue evalRascalModule(Module module) {
-		return eX(module);
+	public IValue evalRascalModule(Module module, IList ls) {
+		return V(0, getComment(ls, 0), eX(module));
 	}
 
 	protected String getModuleName(Module module) {
@@ -1169,7 +1169,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		 * tags:Tags visibility:Visibility signature:Signature body:FunctionBody
 		 */
 		IList c1 = getComment(x, 5);
-		return cStat((c1.isEmpty()?eX(x.getSignature()):V(0,eX(x.getSignature()), c1)),  eX(x.getBody()));
+		return V(
+				0,
+				eX(x.getTags()),
+				cStat((c1.isEmpty() ? eX(x.getSignature()) : V(0,
+						eX(x.getSignature()), c1)), eX(x.getBody())));
 	}
 
 	public IValue visitFunctionModifierAmbiguity(
@@ -1212,8 +1216,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitHeaderDefault(org.rascalmpl.ast.Header.Default x) {
 		/* "tags", "name","params", "imports" */
 		IList l = getTreeList(x, 6);
-		return V(getComment(x, 1), H(KW("module"), H(0, eX(x.getName()))),
+		IValue r =  V(getComment(x, 1), H(KW("module"), H(0, eX(x.getName()))),
 				getComment(x, 5), V(0, eXs0(x.getImports(), l)));
+		return r;
 	}
 
 	public IValue visitHeaderParameters(Parameters x) {
@@ -2174,16 +2179,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitStringMiddleTemplate(
 			org.rascalmpl.ast.StringMiddle.Template x) {
-		// System.err.println("MiddleTemplate:"+ x.toString());
-		// return list(eX(x.getMid()), eX(x.getTemplate()), eX(x.getTail()));
-		// return H(eX(x.getMid()), eX(x.getTemplate()), eX(x.getTail()));
-		// System.err.println("VISIT:" + x.getClass());
-		// System.err.println("Mid:" + x.getMid() + " " +
-		// x.getMid().getClass());
-		// System.err.println("Template:" + x.getTemplate() + " "
-		// + x.getTemplate().getClass());
-		// System.err
-		// .println("Tail:" + x.getTail() + " " + x.getTail().getClass());
 		return cTempl(eX(x.getMid()), eX(x.getTemplate()), eX(x.getTail()));
 	}
 
@@ -2231,8 +2226,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitStringTemplateFor(org.rascalmpl.ast.StringTemplate.For x) {
-		return list(H(0, L("for"), BoxADT.LPAR, eXs(x.getGenerators(), null, null),
-				BoxADT.RPAR, BoxADT.LBLOCK,  eXs0(x.getPreStats())),
+		return list(
+				H(0, L("for"), BoxADT.LPAR, eXs(x.getGenerators(), null, null),
+						BoxADT.RPAR, BoxADT.LBLOCK, eXs0(x.getPreStats())),
 				HV(0, eX(x.getBody()), eXs0(x.getPostStats()), BoxADT.RBLOCK));
 	}
 
@@ -2918,7 +2914,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	private IList getComment(IList z, int ind) {
-		// System.err.println("getComment:"+z.get(ind));
 		IList c = TreeAdapter.searchCategory((IConstructor) z.get(ind),
 				"Comment");
 		IList r = list();
@@ -3037,7 +3032,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				H(1, KW(name), t == null ? BoxADT.EMPTY : H(0, t),
 						head(body, false)), tail(body, false));
 	}
-	
 
 	private IValue cStat(IValue hBox, IValue left, IValue exs, IValue right,
 			IValue body) {
@@ -3515,7 +3509,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdReject(Reject x) {
 		// TODO Auto-generated method stub
-		return H(1, eX(x.getLhs()), BoxADT.MINUS,eX(x.getRhs()));
+		return H(1, eX(x.getLhs()), BoxADT.MINUS, eX(x.getRhs()));
 	}
 
 	public IValue visitOctalEscapeSequenceAmbiguity(
