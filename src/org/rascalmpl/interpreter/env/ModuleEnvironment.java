@@ -80,6 +80,11 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
+	public GlobalEnvironment getHeap() {
+		return heap;
+	}
+	
+	@Override
 	public void declareProduction(Syntax x) {
 		productions.add(x.getTree());
 	}

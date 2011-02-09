@@ -33,7 +33,7 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 		@Override
 		public Type typeOf(Environment env) {
 			List<org.rascalmpl.ast.Expression> list = this.getFormals();
-			Object[] typesAndNames = new Object[list.size() * 2];
+			Type[] types = new Type[list.size()];
 
 			for (int formal = 0, index = 0; formal < list.size(); formal++, index++) {
 				org.rascalmpl.ast.Expression f = list.get(formal);
@@ -42,11 +42,10 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 				if (type == null) {
 					throw new UndeclaredTypeError(f.getType().toString(), f);
 				}
-				typesAndNames[index++] = type;
-				typesAndNames[index] = Names.name(f.getName());
+				types[index++] = type;
 			}
 
-			return TypeFactory.getInstance().tupleType(typesAndNames);
+			return TypeFactory.getInstance().tupleType(types);
 		}
 
 	}

@@ -92,10 +92,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return hasVarArgs;
 	}
 	
-	public boolean isAmbiguous(AbstractFunction other) {
-		return other.match(getFormals()) || match(other.getFormals());
-	}
-	
 	private boolean matchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;

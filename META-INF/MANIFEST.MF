@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: rascal
+Bundle-Name: rascal_2
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.2
 Bundle-ClassPath: rascal.jar,

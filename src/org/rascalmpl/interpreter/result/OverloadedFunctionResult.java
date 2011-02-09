@@ -98,12 +98,6 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 	
 	public OverloadedFunctionResult add(AbstractFunction candidate) {
-		for (AbstractFunction other : iterable()) {
-			if (!other.equals((Object) candidate) && candidate.isAmbiguous(other)) {
-				throw new RedeclaredFunctionError(candidate.getHeader(), other.getHeader(), candidate.getAst());
-			}
-		}
-		
 		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(candidates.size() + 1);
 		joined.addAll(candidates);
 		
