@@ -59,10 +59,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			__eval.printVisibleDeclaredObjects(__eval.getStdOut());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}

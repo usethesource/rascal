@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.utils.Names;
  */
 public class Environment {
 	
+	// TODO: these NameFlags should also be used to implement Public & Private ??
 	private class NameFlags {
 		public final static int FINAL_NAME = 0x01;
 		public final static int OVERLOADABLE_NAME = 0x02;
@@ -60,32 +61,26 @@ public class Environment {
 	protected final Environment callerScope;
 	protected final ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected final ISourceLocation loc;
-	protected Cache cache = null;
 	protected final String name;
 
 	public Environment(String name) {
-		this(null, null, null, null, null, name);
+		this(null, null, null, null, name);
 	}
 
 	public Environment(Environment parent, String name) {
-		this(parent, null, null, parent.getCache(), null, name);
+		this(parent, null, null, null, name);
 	}
 
 	public Environment(Environment parent, ISourceLocation loc, String name) {
-		this(parent, null, null, parent.getCache(), loc, name);
+		this(parent, null, null, loc, name);
 	}
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
-		this(parent, callerScope, callerLocation, parent.getCache(), loc, name);
-	}
-	
-	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache, ISourceLocation loc, String name) {
 		this.variableEnvironment = new HashMap<String, Result<IValue>>();
 		this.functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
 		this.nameFlags = new HashMap<String, NameFlags>();
 		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
-		this.cache = cache;
 		this.loc = loc;
 		this.name = name;
 		this.callerScope = callerScope;
@@ -107,43 +102,6 @@ public class Environment {
 	 */
 	public ISourceLocation getLocation() {
 		return loc;
-	}
-
-	private Cache getCache() {
-		return cache;
-	}
-
-	public void checkPoint() {
-		this.cache = new Cache();
-	}
-
-	public void rollback() {
-		cache.rollback();
-		cache = null;
-	}
-
-	public void commit() {
-		cache = null;
-	}
-
-
-	private void updateVariableCache(String name, Map<String, Result<IValue>> env, Result<IValue> old) {
-		if (cache == null) {
-			return;
-		}
-		if (!cache.containsVariable(env, name)) {
-			cache.save(env, name, old);
-		}
-	}
-
-	private void updateFunctionCache(String name,
-			Map<String, OverloadedFunctionResult> env, OverloadedFunctionResult list) {
-		if (cache == null) {
-			return;
-		}
-		if (!cache.containsFunction(env, name)) {
-			cache.save(env, name, list);
-		}
 	}
 
 	public boolean isRootScope() {
@@ -200,13 +158,7 @@ public class Environment {
 			return t;
 		}
 		
-		OverloadedFunctionResult funs = getAllFunctions(name);
-		
-		if (funs == null || funs.size() == 0) {
-			return null;
-		}
-		
-		return funs;
+		return getAllFunctions(name);
 	}
 	
 	protected Result<IValue> getSimpleVariable(String name) {
@@ -355,7 +307,6 @@ public class Environment {
 		
 		if (env == null) {
 			// an undeclared variable, which gets an inferred type
-			updateVariableCache(name, variableEnvironment, null);
 			variableEnvironment.put(name, value);
 			//System.out.println("Inferred: " + name);
 			if (value != null) {
@@ -365,7 +316,6 @@ public class Environment {
 		else {
 			// a declared variable
 			Result<IValue> old = env.get(name);
-			updateVariableCache(name, env, old);
 			value.setPublic(old.isPublic());
 			env.put(name, value);
 		}
@@ -386,10 +336,7 @@ public class Environment {
 
 		Result<IValue> old = env.get(name);
 
-		if (old != null) {
-			updateVariableCache(name, env, old);
-		}
-		else {
+		if (old == null) {
 			value.setInferredType(true);
 		}
 
@@ -403,15 +350,8 @@ public class Environment {
 	public void storeFunction(String name, AbstractFunction function) {
 		OverloadedFunctionResult list = functionEnvironment.get(name);
 		if (list == null || !this.isNameFlagged(name,NameFlags.OVERLOADABLE_NAME)) {
-			// NB: we store null in the cache so that rollback will remove the table entry on name
-			// instead of restoring an empty list.
-			updateFunctionCache(name, functionEnvironment, null);
-			
 			list = new OverloadedFunctionResult(function);
 			functionEnvironment.put(name, list);
-		}
-		else {
-			updateFunctionCache(name, functionEnvironment, list);
 		}
 
 		functionEnvironment.put(name, list.add(function));
@@ -593,24 +533,6 @@ public class Environment {
 		return functions;
 	}
 	
-	public List<Entry<String, OverloadedFunctionResult>> getAllFunctions() {
-		ArrayList<Entry<String, OverloadedFunctionResult>> functions = new ArrayList<Entry<String, OverloadedFunctionResult>>();
-		functions.addAll(getFunctions());
-		
-		for (String i : getImports()) {
-			next:for (Entry<String, OverloadedFunctionResult> cand : getImport(i).getFunctions()) {
-				for (AbstractFunction func : cand.getValue().iterable()) {
-					if (func.isPublic()) {
-						functions.add(cand);
-						continue next;
-					}
-				}
-			}
-		}
-		return functions;
-	}
-	
-
 	public Environment getParent() {
 		return parent;
 	}

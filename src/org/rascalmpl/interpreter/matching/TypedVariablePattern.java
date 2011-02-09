@@ -13,6 +13,8 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+// TODO: in case of type parameters, a successful match should bind them...
+
 public class TypedVariablePattern extends AbstractMatchingResult {
 	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;

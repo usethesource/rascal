@@ -38,8 +38,6 @@ import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.FunctionDeclaration;
-import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
@@ -455,18 +453,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			this.parserGenerator = new ParserGenerator(this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
 		return this.parserGenerator;
-	}
-
-	private void checkPoint(Environment env) {
-		env.checkPoint();
-	}
-
-	private void rollback(Environment env) {
-		env.rollback();
-	}
-
-	private void commit(Environment env) {
-		env.commit();
 	}
 
 	public void setCurrentAST(AbstractAST currentAST) {
@@ -898,47 +884,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		out.flush();
 	}
 
-	public void printVisibleDeclaredObjects(PrintWriter out) {
-		List<Entry<String, OverloadedFunctionResult>> functions = this.getCurrentEnvt().getAllFunctions();
-		java.util.Collections.sort(functions, new Comparator<Entry<String, OverloadedFunctionResult>>() {
-			public int compare(Entry<String, OverloadedFunctionResult> o1, Entry<String, OverloadedFunctionResult> o2) {
-				return o1.getKey().compareTo(o2.getKey());
-			}
-		});
-
-		if (functions.size() != 0) {
-			out.println("Functions:");
-
-			for (Entry<String, OverloadedFunctionResult> cand : functions) {
-				for (AbstractFunction func : cand.getValue().iterable()) {
-					out.print('\t');
-					out.println(func.getHeader());
-				}
-			}
-		}
-
-		List<RewriteRule> rules = this.getHeap().getRules();
-		if (rules.size() != 0) {
-			out.println("Rules:");
-			for (RewriteRule rule : rules) {
-				out.print('\t');
-				out.println(rule.getRule().getPattern().toString());
-			}
-		}
-
-		Map<String, Result<IValue>> variables = this.getCurrentEnvt().getVariables();
-		if (variables.size() != 0) {
-			out.println("Variables:");
-			for (String name : variables.keySet()) {
-				out.print('\t');
-				Result<IValue> value = variables.get(name);
-				out.println(value.getType() + " " + name + " = " + value.getValue());
-			}
-		}
-
-		out.flush();
-	}
-
 	// Modules -------------------------------------------------------------
 
 	public void addImportToCurrentModule(AbstractAST x, String name) {
@@ -1236,21 +1181,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try {
 			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) this.__getPatternEvaluator());
 			mp.initMatch(subject);
-			if (debug)
-				System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
+
 			while (mp.hasNext()) {
 				this.pushEnv();
 				if (this.__getInterrupt())
 					throw new InterruptException(this.getStackTrace());
-				if (debug)
-					System.err.println("matchAndEval: mp.hasNext()==true");
+
 				if (mp.next()) {
-					if (debug)
-						System.err.println("matchAndEval: mp.next()==true");
 					try {
-						this.checkPoint(this.getCurrentEnvt());
-						if (debug)
-							System.err.println(stat.toString());
 						try {
 							stat.interpret(this);
 						} catch (Insert e) {
@@ -1260,12 +1198,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							}
 							throw e;
 						}
-						this.commit(this.getCurrentEnvt());
 						return true;
 					} catch (Failure e) {
-						if (debug)
-							System.err.println("failure occurred");
-						this.rollback(this.getCurrentEnvt());
 						// unwind(old); // can not clean up because you don't
 						// know how far to roll back
 					}

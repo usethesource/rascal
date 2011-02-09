@@ -60,7 +60,7 @@ public class RascalFunction extends NamedFunction {
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
 		
 		try {
-			String label = isAnonymous()?"Anonymous Function":name;
+			String label = isAnonymous() ? "Anonymous Function" : name;
 			Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
 			ctx.setCurrentEnvt(environment);
 			ctx.setAccumulators(accumulators);
@@ -146,7 +146,7 @@ public class RascalFunction extends NamedFunction {
 			}
 			if (matchers[i].hasNext() && matchers[i].next()) {
 				if (i == size - 1) {
-					// NB: no result handling here.
+					// formals are now bound by side effect of the pattern matcher
 					return;
 				} else {
 					i++;
