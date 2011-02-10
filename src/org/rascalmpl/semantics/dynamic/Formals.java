@@ -35,14 +35,14 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 			List<org.rascalmpl.ast.Expression> list = this.getFormals();
 			Type[] types = new Type[list.size()];
 
-			for (int formal = 0, index = 0; formal < list.size(); formal++, index++) {
-				org.rascalmpl.ast.Expression f = list.get(formal);
+			for (int index = 0; index < list.size(); index++) {
+				org.rascalmpl.ast.Expression f = list.get(index);
 				Type type = f.typeOf(env);
 
 				if (type == null) {
 					throw new UndeclaredTypeError(f.getType().toString(), f);
 				}
-				types[index++] = type;
+				types[index] = type;
 			}
 
 			return TypeFactory.getInstance().tupleType(types);

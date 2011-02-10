@@ -6,7 +6,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry exported="true" kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.5.jar"/>
-	<classpathentry kind="lib" path="lib/core.jar" sourcepath="/home/paulk/software/source/processing-source"/>
+	<classpathentry exported="true" kind="lib" path="lib/core.jar" sourcepath="/home/paulk/software/source/processing-source"/>
 	<classpathentry kind="lib" path="lib/treemap.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>

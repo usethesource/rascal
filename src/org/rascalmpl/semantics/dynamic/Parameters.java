@@ -28,23 +28,19 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 			int arity = formals.getArity();
 
 			if (arity == 0) {
-				// TODO is __eval sensible or should we restrict the syntax?
-				return TF.tupleType(TF.listType(TF.valueType()), "args");
+				return TF.tupleType(TF.listType(TF.valueType()));
 			}
 
 			Type[] types = new Type[arity];
-			String[] labels = new String[arity];
 			int i;
 
 			for (i = 0; i < arity - 1; i++) {
 				types[i] = formals.getFieldType(i);
-				labels[i] = formals.getFieldName(i);
 			}
 
 			types[i] = TF.listType(formals.getFieldType(i));
-			labels[i] = formals.getFieldName(i);
 
-			return TF.tupleType(types, labels);
+			return TF.tupleType(types);
 		}
 
 	}

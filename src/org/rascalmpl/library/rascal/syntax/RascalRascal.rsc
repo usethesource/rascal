@@ -345,7 +345,7 @@ syntax Assignment
 syntax Assignable
 	= bracket Bracket   : "(" Assignable arg ")"
 	| Variable          : QualifiedName qualifiedName
-    | Subscript         : Assignable receiver "[" Expression subscript "]" 
+| Subscript         : Assignable receiver "[" Expression subscript "]" 
 	| FieldAccess       : Assignable receiver "." Name field 
 	| IfDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
 	| Constructor       : Name name "(" {Assignable ","}+ arguments ")"  

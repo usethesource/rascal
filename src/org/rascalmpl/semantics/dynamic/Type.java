@@ -101,6 +101,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 				param = TF.parameterType(Names.name(var.getName()));
 			}
 			
+			// TODO: this is smelly, should probably remove
 			if (env != null) {
 				return param.instantiate(env.getTypeBindings());
 			}

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: rascal_2
+Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.2
 Bundle-ClassPath: rascal.jar,
@@ -55,7 +55,9 @@ Export-Package: org.jdom,
  org.rascalmpl.values.errors,
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
- org.rascalmpl.values.uptr.visitors
+ org.rascalmpl.values.uptr.visitors,
+ processing.core,
+ processing.xml
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt
 Import-Package: javax.servlet,

@@ -159,9 +159,15 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 					} else {
 						throw new UnexpectedTypeError(declaredType, v.getType(), var);
 					}
-				} else {
-					throw new UninitializedVariableError(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var);
+				} 
+				else {
+					__eval.getCurrentModuleEnvironment().storeVariable(var.getName(), org.rascalmpl.interpreter.result.ResultFactory.nothing(declaredType));
 				}
+				
+//				To whomever added this; why? uninitialized variables are allowed to be declared in Rascal, just not used.
+//				else {
+//					throw new UninitializedVariableError(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var);
+//				}
 			}
 
 			r.setPublic(this.getVisibility().isPublic());

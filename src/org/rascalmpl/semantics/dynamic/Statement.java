@@ -312,6 +312,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
+					__eval.unwind(olds[i]);
+					__eval.pushEnv();
+					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -324,10 +327,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						gens[i] = __eval.makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
-						__eval.pushEnv();
 					} else {
-						__eval.unwind(olds[i]);
-						__eval.pushEnv();
 						i--;
 					}
 				}
@@ -416,13 +416,17 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					gens[0] = __eval.makeBooleanResult(generators.get(0));
 					gens[0].init();
 					olds[0] = __eval.getCurrentEnvt();
-					__eval.pushEnv();
 
 					while (i >= 0 && i < size) {
-						if (__eval.__getInterrupt())
+						__eval.unwind(olds[i]);
+						__eval.pushEnv();
+						
+						if (__eval.__getInterrupt()) {
 							throw new InterruptException(__eval.getStackTrace());
+						}
 						if (gens[i].hasNext() && gens[i].next()) {
 							if (i == size - 1) {
+								__eval.setCurrentAST(body);
 								body.interpret(__eval);
 								continue loop;
 							}
@@ -431,10 +435,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							gens[i] = __eval.makeBooleanResult(generators.get(i));
 							gens[i].init();
 							olds[i] = __eval.getCurrentEnvt();
-							__eval.pushEnv();
 						} else {
-							__eval.unwind(olds[i]);
-							__eval.pushEnv();
 							i--;
 						}
 					}
@@ -487,8 +488,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				gens[0] = __eval.makeBooleanResult(generators.get(0));
 				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
-				__eval.pushEnv();
+
 				while (i >= 0 && i < size) {
+					__eval.unwind(olds[i]);
+					__eval.pushEnv();
+					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -501,10 +505,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						gens[i] = __eval.makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
-						__eval.pushEnv();
 					} else {
-						__eval.unwind(olds[i]);
-						__eval.pushEnv();
 						i--;
 					}
 				}
@@ -629,31 +630,31 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			boolean normalCflow = false;
 			try {
 				gens[0] = __eval.makeBooleanResult(generators.get(0));
-				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
-				__eval.pushEnv();
+				gens[0].init();
 
 				while (i >= 0 && i < size) {
+					__eval.unwind(olds[i]);
+					__eval.pushEnv();
+					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							// NB: no result handling here.
+							__eval.setCurrentAST(body);
 							body.interpret(__eval);
 						} else {
 							i++;
 							gens[i] = __eval.makeBooleanResult(generators.get(i));
-							gens[i].init();
 							olds[i] = __eval.getCurrentEnvt();
-							__eval.pushEnv();
+							gens[i].init();
 						}
 					} else {
-						__eval.unwind(olds[i]);
 						i--;
-						__eval.pushEnv();
 					}
 				}
-				// TODO: __eval is not enough, we must also detect
+				// TODO: this is not enough, we must also detect
 				// break and return a list result then.
 				normalCflow = true;
 			} finally {
