@@ -229,7 +229,11 @@ public class ListPattern extends AbstractMatchingResult  {
 				        }
 					}
 				}
-			} else {
+			}
+			else if(child instanceof VariableBecomesPattern){
+				// Nothing to do
+			} 
+			else {
 				if (debug) {
 					System.err.println("List: child " + child);
 					System.err.println("List: child is a" + child.getClass());
