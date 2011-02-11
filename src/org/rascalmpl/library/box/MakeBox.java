@@ -95,7 +95,6 @@ public class MakeBox {
 	}
 
 	private void execute(String s) {
-		// System.err.println("execute:" + s);
 		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
@@ -151,6 +150,7 @@ public class MakeBox {
 	}
 
 	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
+		// System.err.println("Start launch concrete"+uri);
 		execute("import box::" + ext + "::Default;");
 		ISourceLocation v = values.sourceLocation(uri);
 		store(v, "v");
@@ -162,7 +162,6 @@ public class MakeBox {
 	private IValue launchTemplateProgram(URI uri, String s) {
 		final String resultName = "c";
 		execute("import box::" + s + ";");
-		// IString v = values.string(fileName);
 		ISourceLocation v = values.sourceLocation(uri);
 		store(v, varName);
 		String name = new File(uri.getPath()).getName();
@@ -179,26 +178,12 @@ public class MakeBox {
 		return computeBox(loc.getURI());
 	}
 
-	private String getComment(IList z, int ind) {
-		IList c = TreeAdapter.searchCategory((IConstructor) z.get(ind),
-				"Comment");
-		String r = "";
-		for (IValue t : c) {
-			String s = TreeAdapter.yield((IConstructor) t);
-			if (s.endsWith("\n") && r.length() == c.length() - 1)
-				s = s.substring(0, s.length() - 1);
-			r += s;
-		}
-		return r;
-	}
 
 	public IConstructor computeBox(URI uri) {
 		try {
 			// System.err.println("computeBox: start parsing");
 			IConstructor moduleTree = commandEvaluator.parseModule(uri, null);
 			IList z = TreeAdapter.getArgs(moduleTree);
-			// IConstructor c = (IConstructor) z.get(0);
-			// TreeAdapter.unparse(c , System.err);
 			// System.err.println("computeBox: parsed");
 			ASTBuilder astBuilder = new ASTBuilder(
 					ASTFactoryFactory.getASTFactory());
