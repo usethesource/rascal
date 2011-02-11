@@ -245,12 +245,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		
 		int arity = formals.getArity();
 		Type[] types = new Type[arity];
-		java.lang.String[] labels = new java.lang.String[arity];
 		int i;
 		
 		for (i = 0; i < arity - 1; i++) {
 			types[i] = formals.getFieldType(i);
-			labels[i] = formals.getFieldName(i);
 		}
 		
 		Type lub = TF.voidType();
@@ -259,9 +257,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 		
 		types[i] = TF.listType(lub);
-		labels[i] = formals.getFieldName(i);
 		
-		return TF.tupleType(types, labels);
+		return TF.tupleType(types);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

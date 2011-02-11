@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
@@ -22,8 +22,6 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
-//	private boolean iDeclaredItMyself;
-//	private Environment cachedEnv;
 
 	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
@@ -31,7 +29,6 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		this.name = Names.name(name);
 		this.declaredType = type;
 		this.anonymous = Names.name(name).equals("_");
-//		this.iDeclaredItMyself = false;
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
 	}
 	
@@ -67,21 +64,6 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 			System.err.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		}
 
-//		Type instanceType = declaredType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
-		
-//		if (!anonymous && !ctx.getCurrentEnvt().declareVariable(instanceType, name)) {
-//			throw new RedeclaredVariableError(name, ctx.getCurrentAST());
-//		}
-		
-		// in some circumstances, apparently, the environment that held the declared variable is cleaned up between
-		// calls to next. In this case, we need to redeclare it. 
-//		if (cachedEnv != ctx.getCurrentEnvt()) {
-//			ctx.getCurrentEnvt().declareVariable(instanceType, name);
-//		}
-		
-//		cachedEnv = ctx.getCurrentEnvt();
-//		iDeclaredItMyself = true;
-		
 		// isSubtypeOf does not know about concrete syntax types
 		// so deal with it here explicitly
 		if (declaredType instanceof NonTerminalType) {
@@ -100,16 +82,25 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 			return false;
 		}
 		
+		Type tmp;
 		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
 			if(debug)System.err.println("matches");
 			
-			Map<Type, Type> bindings = new HashMap<Type,Type>();
-			declaredType.match(subject.getType(), bindings);
-			
-			Type tmp = declaredType.instantiate(bindings);
-			
-			if (tmp != declaredType) {
-				ctx.getCurrentEnvt().storeTypeBindings(bindings);
+			try {
+				// type checking code for formal parameters; the static type of the actual should be a sub-type of the type of the formal
+				Map<Type, Type> bindings = new HashMap<Type,Type>();
+				bindings.putAll(ctx.getCurrentEnvt().getTypeBindings());
+				declaredType.match(subject.getType(), bindings);
+
+			   tmp = declaredType.instantiate(bindings);
+
+				if (tmp != declaredType) {
+					ctx.getCurrentEnvt().storeTypeBindings(bindings);
+				}
+			}
+			catch (FactTypeUseException e) {
+				// however, in normal matching (not formal parameters) we allow the static type to be a strict super-type, as long as the dynamic type is a sub-type of the pattern we succeed!
+				tmp = declaredType;
 			}
 			
 			if (anonymous) {

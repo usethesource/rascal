@@ -1,7 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
@@ -15,7 +15,6 @@ import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.LocalVariableDeclaration;
 import org.rascalmpl.ast.NoElseMayFollow;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Target;
@@ -312,8 +311,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
-					__eval.unwind(olds[i]);
-					__eval.pushEnv();
+					
 					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
@@ -327,7 +325,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						gens[i] = __eval.makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
+						__eval.pushEnv();
 					} else {
+						__eval.unwind(olds[i]);
+						__eval.pushEnv();
 						i--;
 					}
 				}
@@ -488,10 +489,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				gens[0] = __eval.makeBooleanResult(generators.get(0));
 				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
+				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
-					__eval.unwind(olds[i]);
-					__eval.pushEnv();
 					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
@@ -505,7 +505,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						gens[i] = __eval.makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
+						__eval.pushEnv();
 					} else {
+						__eval.unwind(olds[i]);
+						__eval.pushEnv();
 						i--;
 					}
 				}
@@ -623,7 +626,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			__eval.__getAccumulators().push(new Accumulator(__eval.__getVf(), label));
 
-			// TODO: does __eval prohibit that the body influences the behavior
+			// TODO: does this prohibit that the body influences the behavior
 			// of the generators??
 
 			int i = 0;
@@ -632,11 +635,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				gens[0] = __eval.makeBooleanResult(generators.get(0));
 				olds[0] = __eval.getCurrentEnvt();
 				gens[0].init();
+				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
-					__eval.unwind(olds[i]);
-					__eval.pushEnv();
-					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -644,14 +645,19 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							// NB: no result handling here.
 							__eval.setCurrentAST(body);
 							body.interpret(__eval);
+//							__eval.unwind(olds[i]);
+//							__eval.pushEnv();
 						} else {
 							i++;
 							gens[i] = __eval.makeBooleanResult(generators.get(i));
 							olds[i] = __eval.getCurrentEnvt();
 							gens[i].init();
+							__eval.pushEnv();
 						}
 					} else {
+						__eval.unwind(olds[i]);
 						i--;
+						__eval.pushEnv();
 					}
 				}
 				// TODO: this is not enough, we must also detect

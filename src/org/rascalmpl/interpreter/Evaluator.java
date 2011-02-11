@@ -762,10 +762,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public void unwind(Environment old) {
 		// TODO why not just replace the current env with the old one??
-		while (this.getCurrentEnvt() != old) {
-			this.setCurrentEnvt(this.getCurrentEnvt().getParent());
-			this.getCurrentEnvt();
-		}
+//		while (this.getCurrentEnvt() != old) {
+//			this.setCurrentEnvt(this.getCurrentEnvt().getParent());
+//			this.getCurrentEnvt();
+//		}
+		setCurrentEnvt(old);
 	}
 
 	public void pushEnv() {
