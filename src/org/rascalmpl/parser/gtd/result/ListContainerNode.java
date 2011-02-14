@@ -270,6 +270,8 @@ public class ListContainerNode extends AbstractContainerNode{
 			IConstructor[] prefixAlternative = gatheredPrefixes.getFirst(0);
 			
 			IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+			if(constructedPrefix == null) return;
+			
 			int length = constructedPrefix.length;
 			int prefixLength = prefixAlternative.length;
 			IConstructor[] newPostFix = new IConstructor[length + prefixLength];
@@ -299,6 +301,8 @@ public class ListContainerNode extends AbstractContainerNode{
 				}
 				
 				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+				if(constructedPrefix == null) return;
+				
 				int length = constructedPrefix.length;
 				IConstructor[] newPostFix = new IConstructor[nrOfChildren + length];
 				System.arraycopy(children, 0, newPostFix, 0, nrOfChildren);
@@ -310,6 +314,8 @@ public class ListContainerNode extends AbstractContainerNode{
 				IConstructor prefixResult = vf.constructor(Factory.Tree_Amb, ambSublist.done());
 				
 				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+				if(constructedPrefix == null) return;
+				
 				int length = constructedPrefix.length;
 				IConstructor[] newPostFix = new IConstructor[length + 1];
 				System.arraycopy(constructedPrefix, 0, newPostFix, 1, length);
