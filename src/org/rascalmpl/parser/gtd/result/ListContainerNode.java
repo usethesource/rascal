@@ -249,12 +249,7 @@ public class ListContainerNode extends AbstractContainerNode{
 				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
 					if(cycle != null){
-						int length = postFix.length;
-						AbstractNode[] newPostFix = new AbstractNode[length + 1];
-						System.arraycopy(postFix, 0, newPostFix, 1, length);
-						newPostFix[0] = cycle;
-						
-						gatherProduction(prefix, newPostFix, gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
+						gatherProduction(prefix, new AbstractNode[]{cycle}, gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor);
 						continue;
 					}
 				}
