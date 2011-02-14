@@ -6,5 +6,5 @@ import org.eclipse.imp.pdb.facts.ISet;
 public interface IActionExecutor{
 	IConstructor filterProduction(IConstructor tree);
 	
-	ISet filterAmbiguity(ISet ambCluster);
+	IConstructor filterAmbiguity(IConstructor ambCluster);
 }

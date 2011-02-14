@@ -153,6 +153,9 @@ public class SortContainerNode extends AbstractContainerNode{
 				filteringTracker.setLastFilered(offset, endOffset);
 			}else{
 				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
+				result = actionExecutor.filterAmbiguity(result);
+				if(result == null) return null;
+				
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
 		}

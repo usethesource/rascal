@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.gtd.result.action;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
 
 public class VoidActionExecutor implements IActionExecutor{
 	
@@ -9,7 +8,7 @@ public class VoidActionExecutor implements IActionExecutor{
 		super();
 	}
 	
-	public ISet filterAmbiguity(ISet ambCluster){
+	public IConstructor filterAmbiguity(IConstructor ambCluster){
 		return ambCluster;
 	}
 	
