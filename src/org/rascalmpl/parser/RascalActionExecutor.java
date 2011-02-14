@@ -4,7 +4,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -46,7 +45,7 @@ public class RascalActionExecutor implements IActionExecutor{
 		return forest;
 	}
 	
-	public ISet filterAmbiguity(ISet ambCluster){
+	public IConstructor filterAmbiguity(IConstructor ambCluster){
 		// TODO Implement.
 		return ambCluster;
 	}
