@@ -27,20 +27,25 @@ public class SortContainerNode extends AbstractContainerNode{
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
-			IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-			if(result == null) return;
-			
-			IConstructor[] postFix = new IConstructor[]{result};
+			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 		}else{
 			gatheredAlternatives.add(new IConstructor[]{}, production);
 		}
 	}
 	
-	private void gatherProduction(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	private void gatherProduction(Link child, AbstractNode[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
-			gatheredAlternatives.add(postFix, production);
+			int postFixLength = postFix.length;
+			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
+			for(int i = 0; i < postFixLength; ++i){
+				IConstructor node = postFix[i].toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+				if(node == null) return;
+				constructedPostFix[i] = node;
+			}
+			
+			gatheredAlternatives.add(constructedPostFix, production);
 			return;
 		}
 		
@@ -49,13 +54,10 @@ public class SortContainerNode extends AbstractContainerNode{
 			
 			AbstractNode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
-				IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-				if(result == null) continue;
-				
 				int length = postFix.length;
-				IConstructor[] newPostFix = new IConstructor[length + 1];
+				AbstractNode[] newPostFix = new AbstractNode[length + 1];
 				System.arraycopy(postFix, 0, newPostFix, 1, length);
-				newPostFix[0] = result;
+				newPostFix[0] = resultNode;
 				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 			}
 		}
