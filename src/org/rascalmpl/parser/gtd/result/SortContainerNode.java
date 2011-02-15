@@ -23,7 +23,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	
-	protected void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	protected static void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
@@ -34,7 +34,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		}
 	}
 	
-	private void gatherProduction(Link child, AbstractNode[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	private static void gatherProduction(Link child, AbstractNode[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
 			int postFixLength = postFix.length;
@@ -63,7 +63,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		}
 	}
 	
-	private IConstructor buildAlternative(IConstructor production, IValue[] children){
+	private static IConstructor buildAlternative(IConstructor production, IValue[] children){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
