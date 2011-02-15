@@ -202,6 +202,8 @@ syntax Expression
 	| FieldAccess : Expression expression "." Name field 
 	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
 	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
+	| Is : Expression expression "is" Name name
+	| Has : Expression expression "has" Name name
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
 	| Negative: "-" Expression argument 
@@ -331,7 +333,8 @@ syntax DatePart
 	| lex [0-9] [0-9] [0-9] [0-9] [0-1] [0-9] [0-3] [0-9] ;
 
 syntax FunctionModifier
-	= Java: "java" ;
+	= Java: "java" 
+	| Default: "default";
 
 syntax Assignment
 	= IfDefined: "?=" 

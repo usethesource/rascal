@@ -4,7 +4,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
@@ -15,12 +17,17 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
 	protected final INode node;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
+	protected final TypeFactory TF = TypeFactory.getInstance();
+	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	AbstractAST(INode node) {
 		this.node = node;
@@ -43,8 +50,6 @@ public abstract class AbstractAST implements IVisitable {
 	
 //	abstract public <T> T accept(IASTVisitor<T> v);
 	public <T> T accept(IASTVisitor<T> v) {
-		int x = 3;
-		x = x + 1;
 		return null;
 	}
 

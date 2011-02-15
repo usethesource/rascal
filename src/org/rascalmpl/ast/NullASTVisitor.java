@@ -95,134 +95,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitModuleParametersDefault(ModuleParameters.Default x) { return null; }
   
-      public T visitExpressionAnti(Expression.Anti x) { return null; }
-  
-      public T visitExpressionProduct(Expression.Product x) { return null; }
-  
-      public T visitExpressionDivision(Expression.Division x) { return null; }
-  
-      public T visitExpressionEquivalence(Expression.Equivalence x) { return null; }
-  
-      public T visitExpressionAny(Expression.Any x) { return null; }
-  
-      public T visitExpressionNonEquals(Expression.NonEquals x) { return null; }
-  
-      public T visitExpressionMatch(Expression.Match x) { return null; }
-  
-      public T visitExpressionStepRange(Expression.StepRange x) { return null; }
-  
-      public T visitExpressionComposition(Expression.Composition x) { return null; }
-  
-      public T visitExpressionEnumerator(Expression.Enumerator x) { return null; }
-  
-      public T visitExpressionJoin(Expression.Join x) { return null; }
-  
-      public T visitExpressionNoMatch(Expression.NoMatch x) { return null; }
-  
-      public T visitExpressionLessThanOrEq(Expression.LessThanOrEq x) { return null; }
-  
-      public T visitExpressionTypedVariable(Expression.TypedVariable x) { return null; }
-  
-      public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) { return null; }
-  
-      public T visitExpressionVoidClosure(Expression.VoidClosure x) { return null; }
-  
-      public T visitExpressionComprehension(Expression.Comprehension x) { return null; }
-  
-      public T visitExpressionIn(Expression.In x) { return null; }
-  
-      public T visitExpressionOr(Expression.Or x) { return null; }
-  
-      public T visitExpressionSet(Expression.Set x) { return null; }
-  
-      public T visitExpressionFieldAccess(Expression.FieldAccess x) { return null; }
-  
-      public T visitExpressionAll(Expression.All x) { return null; }
-  
-      public T visitExpressionFieldProject(Expression.FieldProject x) { return null; }
-  
-      public T visitExpressionEquals(Expression.Equals x) { return null; }
-  
-      public T visitExpressionAddition(Expression.Addition x) { return null; }
-  
-      public T visitExpressionImplication(Expression.Implication x) { return null; }
-  
-      public T visitExpressionReifiedType(Expression.ReifiedType x) { return null; }
-  
-      public T visitExpressionBracket(Expression.Bracket x) { return null; }
-  
-      public T visitExpressionGreaterThan(Expression.GreaterThan x) { return null; }
-  
-      public T visitExpressionSubscript(Expression.Subscript x) { return null; }
-  
-      public T visitExpressionIfThenElse(Expression.IfThenElse x) { return null; }
-  
-      public T visitExpressionModulo(Expression.Modulo x) { return null; }
-  
-      public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x) { return null; }
-  
-      public T visitExpressionSubtraction(Expression.Subtraction x) { return null; }
-  
-      public T visitExpressionReifyType(Expression.ReifyType x) { return null; }
-  
-      public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x) { return null; }
-  
-      public T visitExpressionCallOrTree(Expression.CallOrTree x) { return null; }
-  
-      public T visitExpressionDescendant(Expression.Descendant x) { return null; }
-  
-      public T visitExpressionRange(Expression.Range x) { return null; }
-  
-      public T visitExpressionGetAnnotation(Expression.GetAnnotation x) { return null; }
-  
-      public T visitExpressionGuarded(Expression.Guarded x) { return null; }
-  
-      public T visitExpressionVariableBecomes(Expression.VariableBecomes x) { return null; }
-  
-      public T visitExpressionGreaterThanOrEq(Expression.GreaterThanOrEq x) { return null; }
-  
-      public T visitExpressionIntersection(Expression.Intersection x) { return null; }
-  
-      public T visitExpressionTuple(Expression.Tuple x) { return null; }
-  
-      public T visitExpressionMultiVariable(Expression.MultiVariable x) { return null; }
-  
-      public T visitExpressionFieldUpdate(Expression.FieldUpdate x) { return null; }
-  
-      public T visitExpressionNegation(Expression.Negation x) { return null; }
-  
-      public T visitExpressionLiteral(Expression.Literal x) { return null; }
-  
-      public T visitExpressionIsDefined(Expression.IsDefined x) { return null; }
-  
-      public T visitExpressionClosure(Expression.Closure x) { return null; }
-  
-      public T visitExpressionList(Expression.List x) { return null; }
-  
-      public T visitExpressionLessThan(Expression.LessThan x) { return null; }
-  
-      public T visitExpressionNotIn(Expression.NotIn x) { return null; }
-  
-      public T visitExpressionIt(Expression.It x) { return null; }
-  
-      public T visitExpressionAnd(Expression.And x) { return null; }
-  
-      public T visitExpressionQualifiedName(Expression.QualifiedName x) { return null; }
-  
-      public T visitExpressionNegative(Expression.Negative x) { return null; }
-  
-      public T visitExpressionReducer(Expression.Reducer x) { return null; }
-  
-      public T visitExpressionTransitiveReflexiveClosure(Expression.TransitiveReflexiveClosure x) { return null; }
-  
-      public T visitExpressionMap(Expression.Map x) { return null; }
-  
-      public T visitExpressionVisit(Expression.Visit x) { return null; }
-  
-      public T visitExpressionSetAnnotation(Expression.SetAnnotation x) { return null; }
-  
-      public T visitExpressionTypedVariableBecomes(Expression.TypedVariableBecomes x) { return null; }
-  
       public T visitModuleDefault(Module.Default x) { return null; }
   
       public T visitDateTimeLiteralDateAndTimeLiteral(DateTimeLiteral.DateAndTimeLiteral x) { return null; }
@@ -318,6 +190,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitBoundDefault(Bound.Default x) { return null; }
   
       public T visitPreModuleDefault(PreModule.Default x) { return null; }
+  
+      public T visitFunctionModifierDefault(FunctionModifier.Default x) { return null; }
+  
+      public T visitFunctionModifierJava(FunctionModifier.Java x) { return null; }
   
       public T visitNoElseMayFollowDefault(NoElseMayFollow.Default x) { return null; }
   
@@ -545,6 +421,138 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitLanguageActionAction(LanguageAction.Action x) { return null; }
   
+      public T visitExpressionProduct(Expression.Product x) { return null; }
+  
+      public T visitExpressionDivision(Expression.Division x) { return null; }
+  
+      public T visitExpressionAny(Expression.Any x) { return null; }
+  
+      public T visitExpressionNonEquals(Expression.NonEquals x) { return null; }
+  
+      public T visitExpressionStepRange(Expression.StepRange x) { return null; }
+  
+      public T visitExpressionEnumerator(Expression.Enumerator x) { return null; }
+  
+      public T visitExpressionJoin(Expression.Join x) { return null; }
+  
+      public T visitExpressionNoMatch(Expression.NoMatch x) { return null; }
+  
+      public T visitExpressionTypedVariable(Expression.TypedVariable x) { return null; }
+  
+      public T visitExpressionComprehension(Expression.Comprehension x) { return null; }
+  
+      public T visitExpressionIn(Expression.In x) { return null; }
+  
+      public T visitExpressionSet(Expression.Set x) { return null; }
+  
+      public T visitExpressionFieldAccess(Expression.FieldAccess x) { return null; }
+  
+      public T visitExpressionFieldProject(Expression.FieldProject x) { return null; }
+  
+      public T visitExpressionEquals(Expression.Equals x) { return null; }
+  
+      public T visitExpressionImplication(Expression.Implication x) { return null; }
+  
+      public T visitExpressionBracket(Expression.Bracket x) { return null; }
+  
+      public T visitExpressionReifiedType(Expression.ReifiedType x) { return null; }
+  
+      public T visitExpressionTransitiveClosure(Expression.TransitiveClosure x) { return null; }
+  
+      public T visitExpressionSubtraction(Expression.Subtraction x) { return null; }
+  
+      public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x) { return null; }
+  
+      public T visitExpressionCallOrTree(Expression.CallOrTree x) { return null; }
+  
+      public T visitExpressionRange(Expression.Range x) { return null; }
+  
+      public T visitExpressionGetAnnotation(Expression.GetAnnotation x) { return null; }
+  
+      public T visitExpressionGuarded(Expression.Guarded x) { return null; }
+  
+      public T visitExpressionVariableBecomes(Expression.VariableBecomes x) { return null; }
+  
+      public T visitExpressionFieldUpdate(Expression.FieldUpdate x) { return null; }
+  
+      public T visitExpressionNegation(Expression.Negation x) { return null; }
+  
+      public T visitExpressionLiteral(Expression.Literal x) { return null; }
+  
+      public T visitExpressionClosure(Expression.Closure x) { return null; }
+  
+      public T visitExpressionLessThan(Expression.LessThan x) { return null; }
+  
+      public T visitExpressionMap(Expression.Map x) { return null; }
+  
+      public T visitExpressionTypedVariableBecomes(Expression.TypedVariableBecomes x) { return null; }
+  
+      public T visitExpressionAnti(Expression.Anti x) { return null; }
+  
+      public T visitExpressionEquivalence(Expression.Equivalence x) { return null; }
+  
+      public T visitExpressionMatch(Expression.Match x) { return null; }
+  
+      public T visitExpressionComposition(Expression.Composition x) { return null; }
+  
+      public T visitExpressionLessThanOrEq(Expression.LessThanOrEq x) { return null; }
+  
+      public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) { return null; }
+  
+      public T visitExpressionVoidClosure(Expression.VoidClosure x) { return null; }
+  
+      public T visitExpressionOr(Expression.Or x) { return null; }
+  
+      public T visitExpressionAll(Expression.All x) { return null; }
+  
+      public T visitExpressionAddition(Expression.Addition x) { return null; }
+  
+      public T visitExpressionGreaterThan(Expression.GreaterThan x) { return null; }
+  
+      public T visitExpressionSubscript(Expression.Subscript x) { return null; }
+  
+      public T visitExpressionIfThenElse(Expression.IfThenElse x) { return null; }
+  
+      public T visitExpressionModulo(Expression.Modulo x) { return null; }
+  
+      public T visitExpressionReifyType(Expression.ReifyType x) { return null; }
+  
+      public T visitExpressionDescendant(Expression.Descendant x) { return null; }
+  
+      public T visitExpressionHas(Expression.Has x) { return null; }
+  
+      public T visitExpressionGreaterThanOrEq(Expression.GreaterThanOrEq x) { return null; }
+  
+      public T visitExpressionIntersection(Expression.Intersection x) { return null; }
+  
+      public T visitExpressionTuple(Expression.Tuple x) { return null; }
+  
+      public T visitExpressionMultiVariable(Expression.MultiVariable x) { return null; }
+  
+      public T visitExpressionIs(Expression.Is x) { return null; }
+  
+      public T visitExpressionIsDefined(Expression.IsDefined x) { return null; }
+  
+      public T visitExpressionList(Expression.List x) { return null; }
+  
+      public T visitExpressionNotIn(Expression.NotIn x) { return null; }
+  
+      public T visitExpressionIt(Expression.It x) { return null; }
+  
+      public T visitExpressionAnd(Expression.And x) { return null; }
+  
+      public T visitExpressionQualifiedName(Expression.QualifiedName x) { return null; }
+  
+      public T visitExpressionNegative(Expression.Negative x) { return null; }
+  
+      public T visitExpressionReducer(Expression.Reducer x) { return null; }
+  
+      public T visitExpressionTransitiveReflexiveClosure(Expression.TransitiveReflexiveClosure x) { return null; }
+  
+      public T visitExpressionSetAnnotation(Expression.SetAnnotation x) { return null; }
+  
+      public T visitExpressionVisit(Expression.Visit x) { return null; }
+  
       public T visitIntegerLiteralOctalIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x) { return null; }
   
       public T visitIntegerLiteralHexIntegerLiteral(IntegerLiteral.HexIntegerLiteral x) { return null; }
@@ -560,8 +568,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitImportDefault(Import.Default x) { return null; }
   
       public T visitImportSyntax(Import.Syntax x) { return null; }
-  
-      public T visitFunctionModifierJava(FunctionModifier.Java x) { return null; }
   
       public T visitShellCommandUnimport(ShellCommand.Unimport x) { return null; }
   

@@ -188,262 +188,6 @@ public class ASTFactory {
          return new ModuleParameters.Default(node , parameters);
       }
 
-      public Expression.Anti makeExpressionAnti(INode node , org.rascalmpl.ast.Expression pattern) {
-         return new Expression.Anti(node , pattern);
-      }
-
-      public Expression.Product makeExpressionProduct(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Product(node , lhs, rhs);
-      }
-
-      public Expression.Division makeExpressionDivision(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Division(node , lhs, rhs);
-      }
-
-      public Expression.Equivalence makeExpressionEquivalence(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Equivalence(node , lhs, rhs);
-      }
-
-      public Expression.Any makeExpressionAny(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
-         return new Expression.Any(node , generators);
-      }
-
-      public Expression.NonEquals makeExpressionNonEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.NonEquals(node , lhs, rhs);
-      }
-
-      public Expression.Match makeExpressionMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-         return new Expression.Match(node , pattern, expression);
-      }
-
-      public Expression.StepRange makeExpressionStepRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
-         return new Expression.StepRange(node , first, second, last);
-      }
-
-      public Expression.Composition makeExpressionComposition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Composition(node , lhs, rhs);
-      }
-
-      public Expression.Enumerator makeExpressionEnumerator(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-         return new Expression.Enumerator(node , pattern, expression);
-      }
-
-      public Expression.Join makeExpressionJoin(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Join(node , lhs, rhs);
-      }
-
-      public Expression.NoMatch makeExpressionNoMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-         return new Expression.NoMatch(node , pattern, expression);
-      }
-
-      public Expression.LessThanOrEq makeExpressionLessThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.LessThanOrEq(node , lhs, rhs);
-      }
-
-      public Expression.TypedVariable makeExpressionTypedVariable(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
-         return new Expression.TypedVariable(node , type, name);
-      }
-
-      public Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.IfDefinedOtherwise(node , lhs, rhs);
-      }
-
-      public Expression.VoidClosure makeExpressionVoidClosure(INode node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-         return new Expression.VoidClosure(node , parameters, statements);
-      }
-
-      public Expression.Comprehension makeExpressionComprehension(INode node , org.rascalmpl.ast.Comprehension comprehension) {
-         return new Expression.Comprehension(node , comprehension);
-      }
-
-      public Expression.In makeExpressionIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.In(node , lhs, rhs);
-      }
-
-      public Expression.Or makeExpressionOr(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Or(node , lhs, rhs);
-      }
-
-      public Expression.Set makeExpressionSet(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-         return new Expression.Set(node , elements);
-      }
-
-      public Expression.FieldAccess makeExpressionFieldAccess(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
-         return new Expression.FieldAccess(node , expression, field);
-      }
-
-      public Expression.All makeExpressionAll(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
-         return new Expression.All(node , generators);
-      }
-
-      public Expression.FieldProject makeExpressionFieldProject(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
-         return new Expression.FieldProject(node , expression, fields);
-      }
-
-      public Expression.Equals makeExpressionEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Equals(node , lhs, rhs);
-      }
-
-      public Expression.Addition makeExpressionAddition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Addition(node , lhs, rhs);
-      }
-
-      public Expression.Implication makeExpressionImplication(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Implication(node , lhs, rhs);
-      }
-
-      public Expression.ReifiedType makeExpressionReifiedType(INode node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
-         return new Expression.ReifiedType(node , basicType, arguments);
-      }
-
-      public Expression.Bracket makeExpressionBracket(INode node , org.rascalmpl.ast.Expression expression) {
-         return new Expression.Bracket(node , expression);
-      }
-
-      public Expression.GreaterThan makeExpressionGreaterThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.GreaterThan(node , lhs, rhs);
-      }
-
-      public Expression.Subscript makeExpressionSubscript(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
-         return new Expression.Subscript(node , expression, subscripts);
-      }
-
-      public Expression.IfThenElse makeExpressionIfThenElse(INode node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
-         return new Expression.IfThenElse(node , condition, thenExp, elseExp);
-      }
-
-      public Expression.Modulo makeExpressionModulo(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Modulo(node , lhs, rhs);
-      }
-
-      public Expression.TransitiveClosure makeExpressionTransitiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.TransitiveClosure(node , argument);
-      }
-
-      public Expression.Subtraction makeExpressionSubtraction(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Subtraction(node , lhs, rhs);
-      }
-
-      public Expression.ReifyType makeExpressionReifyType(INode node , org.rascalmpl.ast.Type type) {
-         return new Expression.ReifyType(node , type);
-      }
-
-      public Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
-         return new Expression.NonEmptyBlock(node , statements);
-      }
-
-      public Expression.CallOrTree makeExpressionCallOrTree(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
-         return new Expression.CallOrTree(node , expression, arguments);
-      }
-
-      public Expression.Descendant makeExpressionDescendant(INode node , org.rascalmpl.ast.Expression pattern) {
-         return new Expression.Descendant(node , pattern);
-      }
-
-      public Expression.Range makeExpressionRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
-         return new Expression.Range(node , first, last);
-      }
-
-      public Expression.GetAnnotation makeExpressionGetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
-         return new Expression.GetAnnotation(node , expression, name);
-      }
-
-      public Expression.Guarded makeExpressionGuarded(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
-         return new Expression.Guarded(node , type, pattern);
-      }
-
-      public Expression.VariableBecomes makeExpressionVariableBecomes(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
-         return new Expression.VariableBecomes(node , name, pattern);
-      }
-
-      public Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.GreaterThanOrEq(node , lhs, rhs);
-      }
-
-      public Expression.Intersection makeExpressionIntersection(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Intersection(node , lhs, rhs);
-      }
-
-      public Expression.Tuple makeExpressionTuple(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-         return new Expression.Tuple(node , elements);
-      }
-
-      public Expression.MultiVariable makeExpressionMultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-         return new Expression.MultiVariable(node , qualifiedName);
-      }
-
-      public Expression.FieldUpdate makeExpressionFieldUpdate(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
-         return new Expression.FieldUpdate(node , expression, key, replacement);
-      }
-
-      public Expression.Negation makeExpressionNegation(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.Negation(node , argument);
-      }
-
-      public Expression.Literal makeExpressionLiteral(INode node , org.rascalmpl.ast.Literal literal) {
-         return new Expression.Literal(node , literal);
-      }
-
-      public Expression.IsDefined makeExpressionIsDefined(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.IsDefined(node , argument);
-      }
-
-      public Expression.Closure makeExpressionClosure(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-         return new Expression.Closure(node , type, parameters, statements);
-      }
-
-      public Expression.List makeExpressionList(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-         return new Expression.List(node , elements);
-      }
-
-      public Expression.LessThan makeExpressionLessThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.LessThan(node , lhs, rhs);
-      }
-
-      public Expression.NotIn makeExpressionNotIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.NotIn(node , lhs, rhs);
-      }
-
-      public Expression.It makeExpressionIt(INode node ) {
-         return new Expression.It(node );
-      }
-
-      public Expression.And makeExpressionAnd(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.And(node , lhs, rhs);
-      }
-
-      public Expression.QualifiedName makeExpressionQualifiedName(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-         return new Expression.QualifiedName(node , qualifiedName);
-      }
-
-      public Expression.Negative makeExpressionNegative(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.Negative(node , argument);
-      }
-
-      public Expression.Reducer makeExpressionReducer(INode node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-         return new Expression.Reducer(node , init, result, generators);
-      }
-
-      public Expression.TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.TransitiveReflexiveClosure(node , argument);
-      }
-
-      public Expression.Map makeExpressionMap(INode node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
-         return new Expression.Map(node , mappings);
-      }
-
-      public Expression.Visit makeExpressionVisit(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-         return new Expression.Visit(node , label, visit);
-      }
-
-      public Expression.SetAnnotation makeExpressionSetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
-         return new Expression.SetAnnotation(node , expression, name, value);
-      }
-
-      public Expression.TypedVariableBecomes makeExpressionTypedVariableBecomes(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
-         return new Expression.TypedVariableBecomes(node , type, name, pattern);
-      }
-
       public Module.Default makeModuleDefault(INode node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Body body) {
          return new Module.Default(node , header, body);
       }
@@ -634,6 +378,14 @@ public class ASTFactory {
 
       public PreModule.Default makePreModuleDefault(INode node , org.rascalmpl.ast.Header header) {
          return new PreModule.Default(node , header);
+      }
+
+      public FunctionModifier.Default makeFunctionModifierDefault(INode node ) {
+         return new FunctionModifier.Default(node );
+      }
+
+      public FunctionModifier.Java makeFunctionModifierJava(INode node ) {
+         return new FunctionModifier.Java(node );
       }
 
       public NoElseMayFollow.Default makeNoElseMayFollowDefault(INode node ) {
@@ -1088,6 +840,270 @@ public class ASTFactory {
          return new LanguageAction.Action(node , statements);
       }
 
+      public Expression.Product makeExpressionProduct(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Product(node , lhs, rhs);
+      }
+
+      public Expression.Division makeExpressionDivision(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Division(node , lhs, rhs);
+      }
+
+      public Expression.Any makeExpressionAny(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+         return new Expression.Any(node , generators);
+      }
+
+      public Expression.NonEquals makeExpressionNonEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.NonEquals(node , lhs, rhs);
+      }
+
+      public Expression.StepRange makeExpressionStepRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
+         return new Expression.StepRange(node , first, second, last);
+      }
+
+      public Expression.Enumerator makeExpressionEnumerator(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+         return new Expression.Enumerator(node , pattern, expression);
+      }
+
+      public Expression.Join makeExpressionJoin(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Join(node , lhs, rhs);
+      }
+
+      public Expression.NoMatch makeExpressionNoMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+         return new Expression.NoMatch(node , pattern, expression);
+      }
+
+      public Expression.TypedVariable makeExpressionTypedVariable(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+         return new Expression.TypedVariable(node , type, name);
+      }
+
+      public Expression.Comprehension makeExpressionComprehension(INode node , org.rascalmpl.ast.Comprehension comprehension) {
+         return new Expression.Comprehension(node , comprehension);
+      }
+
+      public Expression.In makeExpressionIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.In(node , lhs, rhs);
+      }
+
+      public Expression.Set makeExpressionSet(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+         return new Expression.Set(node , elements);
+      }
+
+      public Expression.FieldAccess makeExpressionFieldAccess(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
+         return new Expression.FieldAccess(node , expression, field);
+      }
+
+      public Expression.FieldProject makeExpressionFieldProject(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
+         return new Expression.FieldProject(node , expression, fields);
+      }
+
+      public Expression.Equals makeExpressionEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Equals(node , lhs, rhs);
+      }
+
+      public Expression.Implication makeExpressionImplication(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Implication(node , lhs, rhs);
+      }
+
+      public Expression.Bracket makeExpressionBracket(INode node , org.rascalmpl.ast.Expression expression) {
+         return new Expression.Bracket(node , expression);
+      }
+
+      public Expression.ReifiedType makeExpressionReifiedType(INode node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
+         return new Expression.ReifiedType(node , basicType, arguments);
+      }
+
+      public Expression.TransitiveClosure makeExpressionTransitiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.TransitiveClosure(node , argument);
+      }
+
+      public Expression.Subtraction makeExpressionSubtraction(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Subtraction(node , lhs, rhs);
+      }
+
+      public Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
+         return new Expression.NonEmptyBlock(node , statements);
+      }
+
+      public Expression.CallOrTree makeExpressionCallOrTree(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
+         return new Expression.CallOrTree(node , expression, arguments);
+      }
+
+      public Expression.Range makeExpressionRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
+         return new Expression.Range(node , first, last);
+      }
+
+      public Expression.GetAnnotation makeExpressionGetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+         return new Expression.GetAnnotation(node , expression, name);
+      }
+
+      public Expression.Guarded makeExpressionGuarded(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
+         return new Expression.Guarded(node , type, pattern);
+      }
+
+      public Expression.VariableBecomes makeExpressionVariableBecomes(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+         return new Expression.VariableBecomes(node , name, pattern);
+      }
+
+      public Expression.FieldUpdate makeExpressionFieldUpdate(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
+         return new Expression.FieldUpdate(node , expression, key, replacement);
+      }
+
+      public Expression.Negation makeExpressionNegation(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.Negation(node , argument);
+      }
+
+      public Expression.Literal makeExpressionLiteral(INode node , org.rascalmpl.ast.Literal literal) {
+         return new Expression.Literal(node , literal);
+      }
+
+      public Expression.Closure makeExpressionClosure(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+         return new Expression.Closure(node , type, parameters, statements);
+      }
+
+      public Expression.LessThan makeExpressionLessThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.LessThan(node , lhs, rhs);
+      }
+
+      public Expression.Map makeExpressionMap(INode node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
+         return new Expression.Map(node , mappings);
+      }
+
+      public Expression.TypedVariableBecomes makeExpressionTypedVariableBecomes(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+         return new Expression.TypedVariableBecomes(node , type, name, pattern);
+      }
+
+      public Expression.Anti makeExpressionAnti(INode node , org.rascalmpl.ast.Expression pattern) {
+         return new Expression.Anti(node , pattern);
+      }
+
+      public Expression.Equivalence makeExpressionEquivalence(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Equivalence(node , lhs, rhs);
+      }
+
+      public Expression.Match makeExpressionMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+         return new Expression.Match(node , pattern, expression);
+      }
+
+      public Expression.Composition makeExpressionComposition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Composition(node , lhs, rhs);
+      }
+
+      public Expression.LessThanOrEq makeExpressionLessThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.LessThanOrEq(node , lhs, rhs);
+      }
+
+      public Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.IfDefinedOtherwise(node , lhs, rhs);
+      }
+
+      public Expression.VoidClosure makeExpressionVoidClosure(INode node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+         return new Expression.VoidClosure(node , parameters, statements);
+      }
+
+      public Expression.Or makeExpressionOr(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Or(node , lhs, rhs);
+      }
+
+      public Expression.All makeExpressionAll(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+         return new Expression.All(node , generators);
+      }
+
+      public Expression.Addition makeExpressionAddition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Addition(node , lhs, rhs);
+      }
+
+      public Expression.GreaterThan makeExpressionGreaterThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.GreaterThan(node , lhs, rhs);
+      }
+
+      public Expression.Subscript makeExpressionSubscript(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
+         return new Expression.Subscript(node , expression, subscripts);
+      }
+
+      public Expression.IfThenElse makeExpressionIfThenElse(INode node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
+         return new Expression.IfThenElse(node , condition, thenExp, elseExp);
+      }
+
+      public Expression.Modulo makeExpressionModulo(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Modulo(node , lhs, rhs);
+      }
+
+      public Expression.ReifyType makeExpressionReifyType(INode node , org.rascalmpl.ast.Type type) {
+         return new Expression.ReifyType(node , type);
+      }
+
+      public Expression.Descendant makeExpressionDescendant(INode node , org.rascalmpl.ast.Expression pattern) {
+         return new Expression.Descendant(node , pattern);
+      }
+
+      public Expression.Has makeExpressionHas(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+         return new Expression.Has(node , expression, name);
+      }
+
+      public Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.GreaterThanOrEq(node , lhs, rhs);
+      }
+
+      public Expression.Intersection makeExpressionIntersection(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Intersection(node , lhs, rhs);
+      }
+
+      public Expression.Tuple makeExpressionTuple(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+         return new Expression.Tuple(node , elements);
+      }
+
+      public Expression.MultiVariable makeExpressionMultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+         return new Expression.MultiVariable(node , qualifiedName);
+      }
+
+      public Expression.Is makeExpressionIs(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+         return new Expression.Is(node , expression, name);
+      }
+
+      public Expression.IsDefined makeExpressionIsDefined(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.IsDefined(node , argument);
+      }
+
+      public Expression.List makeExpressionList(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+         return new Expression.List(node , elements);
+      }
+
+      public Expression.NotIn makeExpressionNotIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.NotIn(node , lhs, rhs);
+      }
+
+      public Expression.It makeExpressionIt(INode node ) {
+         return new Expression.It(node );
+      }
+
+      public Expression.And makeExpressionAnd(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.And(node , lhs, rhs);
+      }
+
+      public Expression.QualifiedName makeExpressionQualifiedName(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+         return new Expression.QualifiedName(node , qualifiedName);
+      }
+
+      public Expression.Negative makeExpressionNegative(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.Negative(node , argument);
+      }
+
+      public Expression.Reducer makeExpressionReducer(INode node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+         return new Expression.Reducer(node , init, result, generators);
+      }
+
+      public Expression.TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.TransitiveReflexiveClosure(node , argument);
+      }
+
+      public Expression.SetAnnotation makeExpressionSetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
+         return new Expression.SetAnnotation(node , expression, name, value);
+      }
+
+      public Expression.Visit makeExpressionVisit(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+         return new Expression.Visit(node , label, visit);
+      }
+
       public IntegerLiteral.OctalIntegerLiteral makeIntegerLiteralOctalIntegerLiteral(INode node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
          return new IntegerLiteral.OctalIntegerLiteral(node , octal);
       }
@@ -1118,10 +1134,6 @@ public class ASTFactory {
 
       public Import.Syntax makeImportSyntax(INode node , org.rascalmpl.ast.SyntaxDefinition syntax) {
          return new Import.Syntax(node , syntax);
-      }
-
-      public FunctionModifier.Java makeFunctionModifierJava(INode node ) {
-         return new FunctionModifier.Java(node );
       }
 
       public ShellCommand.Unimport makeShellCommandUnimport(INode node , org.rascalmpl.ast.QualifiedName name) {

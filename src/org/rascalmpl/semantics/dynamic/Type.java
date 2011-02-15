@@ -169,7 +169,6 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 		@Override
 		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
-			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance();
 			return RTF.nonTerminalType(this);
 
 		}

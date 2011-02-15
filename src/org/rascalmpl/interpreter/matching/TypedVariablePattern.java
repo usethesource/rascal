@@ -30,6 +30,7 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		this.declaredType = type;
 		this.anonymous = Names.name(name).equals("_");
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
+		
 	}
 	
 	@Override
