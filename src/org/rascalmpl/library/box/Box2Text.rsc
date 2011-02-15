@@ -19,13 +19,75 @@ import Node;
 import SystemAPI;
 import box::Box;
 import box::Latex;
+
 int maxWidth = 80;
 int hv2h_crit = 70;
 
-
 alias options = map [str, int];
-alias   foptions = map[str, list[str]];
 options  oDefault = ("h":1,"v":0, "i":2);
+
+@doc{Print boxes}   
+public void fprint(Box b) {
+  print(format(b));
+}
+
+@doc{Print boxes followed by newline}
+public void fprintln(Box b) {
+  println(format(b));
+}
+
+@doc{Converts boxes into a string} 
+public str format(Box b) {
+  box2textmap=();
+  text t = box2text(b);
+  return "<for (l <- t) {><l>\n<}>";
+}
+
+
+@doc{Converts boxes into latex}       
+public text box2latex(Box b) {
+    // println("Start box2latex");
+    text q = [];
+    if (box2textmap[b]?) q = box2textmap[b];
+    else {
+        q = box2data(b);
+        box2textmap+=(b:q);
+        }
+    text t = readFileLines(|std:///box/Start.tex|)+text2latex(q)+readFileLines(|std:///box/End.tex|);    
+    // println("End box2latex");
+    return t;
+    }
+
+@doc{Converts boxes into html}       
+public text box2html(Box b) {
+    println("Start box2html");
+    text q = [];
+    if (box2textmap[b]?) q = box2textmap[b];
+    else {
+        q = box2data(b);
+        box2textmap+=(b:q);
+        }
+    text t = readFileLines(|std:///box/Start.html|)+text2html(q)+readFileLines(|std:///box/End.html|);    
+    println("End box2html");
+    return t;
+    }
+
+@doc{Converts boxes into list of lines (ASCII)}      
+ public text box2text(Box b) {
+    text q = [];
+    if (box2textmap[b]?) q = box2textmap[b];
+    else {
+        q = box2data(b);
+        box2textmap+=(b:q);
+        }
+    text t = text2txt(q);
+    return t;
+    }
+    
+//-------------------------------------------------------------------------------------------------
+
+alias   foptions = map[str, list[str]];
+
 
 map[Box, text] box2textmap=();
 
@@ -444,19 +506,7 @@ public void main(Box b) {
 */
 }
 
-public void fprint(Box b) {
-  print(format(b));
-}
 
-public void fprintln(Box b) {
-  println(format(b));
-}
-
-public str format(Box b) {
-  box2textmap=();
-  text t = box2text(b);
-  return "<for (l <- t) {><l>\n<}>";
-}
 
 public text box2data(Box b) {
     println("BEGIN box2data");
@@ -495,14 +545,6 @@ str text2latex(str t) {
        }
     }
 
-str selectTag(str tg, str key) {
-   if (tg=="KW") return "\<B\><key>\</B\>";
-   if (tg=="CT") return "\<I\><key>\</I\>";
-   if (tg=="SG") return "\<FONT color=\"blue\"\><key>\</FONT\>";
-   if (tg=="NM") return "\<FONT color=\"blue\"\><key>\</FONT\>";
-   if (tg=="SC") return "\<I\><key>\</I\>";
-   return key;
-}
 
 str selectBeginTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>";
@@ -529,8 +571,6 @@ public str convert2html(str s) {
 	  case /^ / => "&nbsp;"
 	  case /^\"/ => "&quot;"
 	  case /^&/ => "&amp;"
-	  // case /^\{/ => "\\{"
-	  // case /^\}/ => "\\}"
 	  case /^\</ => "&lt;"
 	  case /^\>/ => "&gt;"
 	  case /^%/ => "\\%"
@@ -540,7 +580,6 @@ public str convert2html(str s) {
 str text2html(str t) {
     t = convert2html(t);
     return visit(t) {
-       // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => selectTag(tg, text2htlm(key))
        case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
        case /^\r\}<tg:..>/ => selectEndTag(tg)
        }
@@ -548,7 +587,6 @@ str text2html(str t) {
     
 public str text2txt(str t) {
     return visit(t) {
-       // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "<key>"
        case /^\r\{../ => ""
        case /^\r\}../ => ""
        }
@@ -567,44 +605,6 @@ text text2txt(text t) {
     } 
        
 
-     
-public text box2latex(Box b) {
-    // println("Start box2latex");
-    text q = [];
-    if (box2textmap[b]?) q = box2textmap[b];
-    else {
-        q = box2data(b);
-        box2textmap+=(b:q);
-        }
-    text t = readFileLines(|std:///box/Start.tex|)+text2latex(q)+readFileLines(|std:///box/End.tex|);    
-    // println("End box2latex");
-    return t;
-    }
-    
-public text box2html(Box b) {
-    println("Start box2html");
-    text q = [];
-    if (box2textmap[b]?) q = box2textmap[b];
-    else {
-        q = box2data(b);
-        box2textmap+=(b:q);
-        }
-    text t = readFileLines(|std:///box/Start.html|)+text2html(q)+readFileLines(|std:///box/End.html|);    
-    println("End box2html");
-    return t;
-    }
-    
- public text box2text(Box b) {
-    text q = [];
-    if (box2textmap[b]?) q = box2textmap[b];
-    else {
-        q = box2data(b);
-        box2textmap+=(b:q);
-        }
-    text t = text2txt(q);
-    return t;
-    }
-
 
 
 public value toText(Box b, loc src, loc dest) {
@@ -618,7 +618,8 @@ public value toLatex(Box b, loc src, loc dest) {
      writeData(src, dest, t, ".tex");
      return t;
      }
-     
+
+  
 public value toHtml(Box b, loc src, loc dest) {
      text t = box2html(b);
      writeData(src, dest, t, ".html");
