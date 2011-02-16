@@ -390,11 +390,34 @@ public class PropertyManager implements IPropertyManager {
 		return inherited.getToAngle();
 	}
 	
-//	public boolean usesTrigger(){
-//		return usesTrigger;
-//	}
-	
 	public boolean isDraggable(){
 		return draggable;
+	}
+
+	@Override
+	public int getIntegerProperty(Property property) {
+		for(IPropertyValue pv : values){
+			if(pv.getProperty() == property)
+				return ((IIntegerPropertyValue) pv).getValue();
+		}
+		return inherited.getIntegerProperty(property);
+	}
+	
+	@Override
+	public float getRealProperty(Property property) {
+		for(IPropertyValue pv : values){
+			if(pv.getProperty() == property)
+				return ((IRealPropertyValue) pv).getValue();
+		}
+		return inherited.getRealProperty(property);
+	}
+	
+	@Override
+	public String getStringProperty(Property property) {
+		for(IPropertyValue pv : values){
+			if(pv.getProperty() == property)
+				return ((IStringPropertyValue) pv).getValue();
+		}
+		return inherited.getStringProperty(property);
 	}
 }

@@ -41,6 +41,10 @@ public interface IPropertyManager {
 		}
 	};
 	
+	public int getIntegerProperty(Property property);
+	public float getRealProperty(Property property);
+	public String getStringProperty(Property property);
+	
 	public FigurePApplet getFPA();
 	
 	public int getDOI();

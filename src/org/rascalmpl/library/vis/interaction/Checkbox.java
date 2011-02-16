@@ -26,7 +26,7 @@ public class Checkbox extends Figure {
 	final Type[] argTypes = new Type[1];		// Argument types of callback: [bool]
 	final IValue[] argVals = new IValue[1];		// Argument values of callback: bool
 	
-	final java.awt.Checkbox checkbox;
+	java.awt.Checkbox checkbox;
 
 	public Checkbox(FigurePApplet fpa, IPropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
@@ -44,13 +44,17 @@ public class Checkbox extends Figure {
 		argVals[0] = vf.bool(false);
 		
 		checkbox = new java.awt.Checkbox(name.getValue(), false);
+		
 	    checkbox.addItemListener(
 	    	      new ItemListener() {
 	    	        public void itemStateChanged(ItemEvent e) {
 	    	          try {
-	    	        	  checkbox.getParent().invalidate();
-	    	        	  System.err.println("itemStateChanged: getState() == " + checkbox.getState());
+	    	        
+	    	        	  boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+	    	        	  System.err.println("getStateChange = " + e.getStateChange());
+	    	        	  System.err.println("getState = " + checkbox.getState());
 	    	        	  //checkbox.setState(!checkbox.getState());
+	    	        	  System.err.println("new getState = " + checkbox.getState());
 	    	        	  doCallBack(checkbox.getState());
 	    	          } catch (Exception ex) {
 	    	        	  System.err.println("EXCEPTION");
@@ -59,6 +63,7 @@ public class Checkbox extends Figure {
 	    	        }
 	    	      });
 	    //checkbox.setBackground(new Color(255));
+	    checkbox.isEnabled();
 	    fpa.add(checkbox);
 	    System.err.println("Created checkbox");
 	}
@@ -70,7 +75,7 @@ public class Checkbox extends Figure {
 	}
 	
 	public void doCallBack(boolean selected){
-		//System.err.println("Calling callback: " + callback + " with selected = " + selected);
+		System.err.println("Calling callback: " + callback + " with selected = " + selected);
 		argVals[0] = vf.bool(selected);
 		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		synchronized(fpa){
@@ -92,6 +97,7 @@ public class Checkbox extends Figure {
 	@Override
 	public void destroy(){
 		fpa.remove(checkbox);
+		checkbox = null;
 		fpa.invalidate();
 		fpa.setComputedValueChanged();
 	}

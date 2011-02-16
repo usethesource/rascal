@@ -41,23 +41,22 @@ public abstract class Figure implements Comparable<Figure> {
 	                            // to generating Figure
 	
 	private boolean visibleInMouseOver = false;
-
-	
 	private float leftDragged;
 	private float topDragged;
 		
-	
-	protected Figure(FigurePApplet vlp, IPropertyManager properties){
-		this.fpa = vlp;
+	protected Figure(FigurePApplet fpa, IPropertyManager properties){
+		this.fpa = fpa;
 		this.properties = properties;
+		String id = properties.getId();
+		if(id != null)
+			fpa.registerId(id, this);
 	}
-
 	
 	protected void setLeft(float left) {
 		this.left = left;
 	}
 
-	protected float getLeft() {
+	public float getLeft() {
 		return left + getLeftDragged();
 	}
 
@@ -65,7 +64,7 @@ public abstract class Figure implements Comparable<Figure> {
 		this.top = top + getTopDragged();
 	}
 
-	protected float getTop() {
+	public float getTop() {
 		return top;
 	}
 
@@ -76,7 +75,6 @@ public abstract class Figure implements Comparable<Figure> {
 	public float getCenterX(){
 		return getLeft() + width/2;
 	}
-
 	
 	public float getCenterY(){
 		return getTop() + height/2;
@@ -455,9 +453,9 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public boolean mouseInside(int mouseX, int mouseY){
-		boolean b =  (mouseX >= getLeft()  && mouseX <= getLeft() + width) &&
-		             (mouseY >= getTop()  && mouseY <= getTop() + height);
-		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		boolean b =  (mouseX > getLeft()  && mouseX < getLeft() + width) &&
+		             (mouseY > getTop()  && mouseY < getTop() + height);
+		System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
 		return b;
 	}
 
@@ -465,14 +463,11 @@ public abstract class Figure implements Comparable<Figure> {
 			float centerY) {
 		float left = max(0, centerX - width / 2);
 		float top = max(0, centerY - height / 2);
-		boolean b = (mouseX >= left && mouseX <= left + width)
-				&& (mouseY >= top && mouseY <= top + height);
-		// System.err.printf("left=%f, top=%f\n", left, top);
-		// System.err.println((mouseX >= left) + " " + (mouseX <= left + width)
-		// +
-		// (mouseY >= top) + (mouseY <= top + height));
-		// System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
-		// "]: "+ b + "; " + this);
+		boolean b = (mouseX > left && mouseX < left + width)
+				&& (mouseY > top && mouseY < top + height);
+
+		 System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
+		 "]: "+ b + "; " + this);
 		return b;
 	}
 
@@ -494,6 +489,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	
 	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+		System.err.println("Figure.MouseOver: " + this);
 		if(mouseInside(mouseX, mouseY, centerX, centerY)){
 		   fpa.registerMouseOver(this);
 		   return true;
@@ -533,7 +529,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
-		//System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
+		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
 		if(mouseInside(mouseX, mouseY)){
 			IValue handler = properties.getOnClick();
 			if(handler != null){

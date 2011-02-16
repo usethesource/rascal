@@ -9,6 +9,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureLibrary;
 import org.rascalmpl.library.vis.FigurePApplet;
 
@@ -19,6 +20,13 @@ public class Utils {
 
 		if(arg.getType().isIntegerType())
 			return new ConstantIntegerProperty(prop, ((IInteger) arg).intValue());
+		
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cs = (IConstructor) arg;
+			if(cs.getName().equals("like")){
+				return new LikeIntegerProperty(prop, ((IString) cs.get(0)).getValue(), fpa, ctx);
+			}
+		}
 		
 		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
 			return new ComputedIntegerProperty(prop, arg, fpa);
@@ -31,6 +39,13 @@ public class Utils {
 		
 		if(arg.getType().isStringType())
 			return new ConstantStringProperty(prop, ((IString) arg).getValue());
+		
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cs = (IConstructor) arg;
+			if(cs.getName().equals("like")){
+				return new LikeStringProperty(prop, ((IString) cs.get(0)).getValue(), fpa, ctx);
+			}
+		}
 		
 		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
 			return new ComputedStringProperty(prop, arg, fpa);
@@ -45,6 +60,13 @@ public class Utils {
 		
 		if(arg.getType().isRealType())
 			return new ConstantRealProperty(prop, ((IReal) c.get(0)).floatValue());
+		
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cs = (IConstructor) arg;
+			if(cs.getName().equals("like")){
+				return new LikeRealProperty(prop, ((IString) cs.get(0)).getValue(), fpa, ctx);
+			}
+		}
 		
 		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
 			return new ComputedRealProperty(prop, arg, fpa);
@@ -61,6 +83,13 @@ public class Utils {
 		
 		if(arg.getType().isRealType())
 			return new ConstantRealProperty(prop, ((IReal) c.get(i)).floatValue());
+		
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cs = (IConstructor) arg;
+			if(cs.getName().equals("like")){
+				return new LikeRealProperty(prop, ((IString) cs.get(0)).getValue(), fpa, ctx);
+			}
+		}
 		
 		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
 			return new ComputedRealProperty(prop, arg, fpa);
@@ -82,7 +111,7 @@ public class Utils {
 			String s = ((IString) arg).getValue().toLowerCase();
 			if(s.length() == 0)
 				s = "black";
-			IInteger cl = FigureLibrary.colorNames.get(s);
+			IInteger cl = FigureColorUtils.colorNames.get(s);
 			if (cl != null)
 				return new ConstantColorProperty(prop, cl.intValue());
 			
@@ -92,6 +121,13 @@ public class Utils {
 		
 		if (arg.getType().isIntegerType())
 			return new ConstantColorProperty(prop, ((IInteger) arg).intValue());
+		
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cs = (IConstructor) arg;
+			if(cs.getName().equals("like")){
+				return new LikeColorProperty(prop, ((IString) cs.get(0)).getValue(), fpa, ctx);
+			}
+		}
 		
 		
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
