@@ -197,7 +197,7 @@ public abstract class Container extends Figure {
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
 		if(!isVisible())
 			return false;
-		if(debug)System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
+		System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
 	
 		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, e))
 				return true;

@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -43,7 +44,7 @@ public class FigurePApplet extends PApplet {
 	private Figure mouseOver = null;
 	private boolean computedValueChanged = true;
 
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private boolean saveFigure = true;
 	private String file;
 	private float scale = 1.0f;
@@ -92,7 +93,7 @@ public class FigurePApplet extends PApplet {
 	}
 
 	@Override
-	public synchronized void setup(){
+	public void setup(){
 		System.err.println("setup called");
 		System.err.println("name: " + getName());
 		if(saveFigure){
@@ -157,12 +158,12 @@ public class FigurePApplet extends PApplet {
 		}
 	}
 	
-	public synchronized int getFigureWidth(){
+	public int getFigureWidth(){
 		//System.err.println("getFigureWidth: " + figureWidth);
 		return round(figureWidth);
 	}
 	
-	public synchronized int getFigureHeight(){
+	public int getFigureHeight(){
 		//System.err.println("getFigureHeight: " + figureHeight);
 		return round(figureHeight);
 	}
@@ -191,18 +192,30 @@ public class FigurePApplet extends PApplet {
 		return depth <= d;
 	}
 	
+	// Id management
+	
+	HashMap<String, Figure> ids = new HashMap<String, Figure>();
+	
+	public void registerId(String id, Figure fig){
+		ids.put(id, fig);
+	}
+	
+	public Figure getRegisteredId(String id){
+		return ids.get(id);
+	}
+	
 	// Focus handling: called during mousePressed
 	
-	public synchronized void registerFocus(Figure f){
+	public void registerFocus(Figure f){
 		focus = f;
 		if(debug)System.err.println("registerFocus:" + f);
 	}
 	
-	public synchronized boolean isRegisteredAsFocus(Figure f){
+	public boolean isRegisteredAsFocus(Figure f){
 		return focus == f;
 	}
 	
-	public synchronized void unRegisterFocus(Figure f){
+	public void unRegisterFocus(Figure f){
 		if(debug)System.err.println("unRegisterFocus:" + f);
 		focus = null;
 		focusSelected = false;
@@ -210,16 +223,16 @@ public class FigurePApplet extends PApplet {
 	
 	// MouseOver handling: called during mouseOver
 	
-	public synchronized void registerMouseOver(Figure f){
+	public void registerMouseOver(Figure f){
 		mouseOver = f;
-		//if(debug)System.err.println("registerMouseOver:" + f);
+		if(debug)System.err.println("registerMouseOver:" + f);
 	}
 	
-	public synchronized boolean isRegisteredAsMouseOver(Figure f){
+	public boolean isRegisteredAsMouseOver(Figure f){
 		return mouseOver == f;
 	}
 	
-	public synchronized void unRegisterMouseOver(Figure f){
+	public void unRegisterMouseOver(Figure f){
 		if(debug)System.err.println("unRegisterMouseOver:" + f);
 		mouseOver = null;
 	}
@@ -285,18 +298,20 @@ public class FigurePApplet extends PApplet {
 	
 	@Override
 	public void mouseReleased(){
+		if(debug)System.err.println("========= mouseReleased");
 		//focusSelected = false;
 		figure.mouseReleased();
 	}
 	
 	@Override
 	public void mouseMoved(){
-		//if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
+		if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
 		
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
 		
-		figure.mouseOver(mouseX, mouseY, false);
+		if(!figure.mouseOver(mouseX, mouseY, false))
+			unRegisterMouseOver(mouseOver);
 		redraw();
 	}
 	
@@ -314,10 +329,11 @@ public class FigurePApplet extends PApplet {
 			
 	
 	@Override
-	public synchronized void mousePressed(){
-		if (debug) System.err.println("mousePressed: " + mouseX + ", " + mouseY);
+	public void mousePressed(){
+		if (debug) System.err.println("=== FigurePApplet.mousePressed: " + mouseX + ", " + mouseY);
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
+		unRegisterMouseOver(mouseOver);
 		if(figure.mousePressed(mouseX, mouseY, mouseEvent)){
 			focusSelected = true;
 			if (debug) System.err.println(""+this.getClass()+" "+focusSelected);
@@ -326,25 +342,11 @@ public class FigurePApplet extends PApplet {
 		redraw(); 
 	}
 	
-	public synchronized void setComputedValueChanged(){
+	public void setComputedValueChanged(){
 		computedValueChanged = true;
 		redraw();
 	}
-	
-//	private Hashtable<String,String> strTriggers = new Hashtable<String,String>();
-//	
-//	public void setStrTrigger(String name, String val){
-//		//if(debug)System.err.printf("setStrTrigger(%s,%s)\n", name, val);
-//		strTriggers.put(name, val);
-//		computedValueChanged = true;
-//	}
-//	
-//	public String getStrTrigger(String name){
-//		String val = strTriggers.get(name);
-//		String res = val == null ? "" : val;
-//		//if(debug)System.err.printf("getStrTrigger(%s) => %s\n", name, res);
-//		return res;
-//	}
+
 	
 	// ---------------------
 	

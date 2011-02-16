@@ -19,8 +19,8 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
  */
 public abstract class Compose extends Figure {
 
-	protected Figure[] figures;
-	private static boolean debug = false;
+	final protected Figure[] figures;
+	final private static boolean debug = false;
 
 	protected Compose(FigurePApplet fpa, IPropertyManager properties,
 			IList elems, IEvaluatorContext ctx) {
@@ -57,18 +57,21 @@ public abstract class Compose extends Figure {
 		}
 		return false;
 	}
-
+	
 	// Visit figures front to back
 	@Override
-	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent) {
-		if (debug) System.err.println("MouseOver:"+this.getClass()+" "+super.getClass());
+	public boolean mouseOver(int mouseX, int mouseY,  float centerX, float centerY, boolean mouseInParent) {
+		System.err.println("Compose.MouseOver2: " + this.getClass());
 		if(super.mouseInside(mouseX, mouseY)){
-			for (int i = figures.length - 1; i >= 0; i--)
+			for (int i = figures.length - 1; i >= 0; i--){
+				System.err.println("Compose.MouseOver, child : " + i);
 				if (figures[i].mouseOver(mouseX, mouseY, figures[i].getCenterX(),
-						figures[i].getCenterY(), false))
+						figures[i].getCenterY(), false)){
 					return true;
+				}
+			}
 		}
-		return super.mouseOver(mouseX, mouseY, mouseInParent);
+		return false; //super.mouseOver(mouseX, mouseY, mouseInParent);
 	}
 
 	// Visit figures front to back
@@ -78,9 +81,8 @@ public abstract class Compose extends Figure {
 			for (int i = figures.length - 1; i >= 0; i--)
 				if (figures[i].mousePressed(mouseX, mouseY, e))
 					return true;
-			return super.mousePressed(mouseX, mouseY, e);
 		}
-		return super.mousePressed(mouseX, mouseY, e);
+		return false; //super.mousePressed(mouseX, mouseY, e);
 	}
 
 //	 @Override

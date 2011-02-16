@@ -33,50 +33,67 @@ import IO;
 
 alias Color = int;
 
+/*
+ * Decorations for source code lines:
+ * - info, warning and error
+ * - highlights (levels [0 .. 4] currently supported)
+ * Used by:
+ * - Outline
+ * - editor
+ */
+
+public data LineDecoration = 
+    info(int lineNumber, str msg)
+  | warning(int lineNumber, str msg)
+  | error(int lineNumber, str msg)
+  | highlight(int lineNumber, str msg)
+  | highlight(int lineNumber, str msg, int level)
+  ;
+
 @doc{Gray color (0-255)}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java gray(int gray);
 
 @doc{Gray color (0-255) with transparency}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java gray(int gray, real alpha);
 
 @doc{Gray color as percentage (0.0-1.0)}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java gray(real perc);
 
 @doc{Gray color with transparency}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java gray(real perc, real alpha);
 
 @doc{Named color}
 @reflect{Needs calling context when generating an exception}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java color(str colorName);
 
 @doc{Named color with transparency}
 @reflect{Needs calling context when generating an exception}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java color(str colorName, real alpha);
 
 @doc{Sorted list of all color names}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public list[str] java colorNames();
 
 @doc{RGB color}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java rgb(int r, int g, int b);
 
 @doc{RGB color with transparency}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java rgb(int r, int g, int b, real alpha);
 
 @doc{Interpolate two colors (in RGB space)}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public Color java interpolateColor(Color from, Color to, real percentage);
 
 @doc{Create a list of interpolated colors}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public list[Color] java colorSteps(Color from, Color to, int steps);
 
 @doc{Create a colorscale from a list of numbers}
@@ -88,9 +105,11 @@ public Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to)
 }
 
 @doc{Create a fixed color palette}
-private list[str] p12 = [ "navy", "violet", "yellow", "aqua", 
+public list[str] p12 = [ "navy", "violet", "yellow", "aqua", 
                           "red", "darkviolet", "maroon", "green",
                           "teal", "blue", "olive", "lime"];
+                          
+public list[Color] p12Colors = [color(s) | s <- p12];
 
 @doc{Return named color from fixed palette}
 public str palette(int n){
@@ -99,6 +118,8 @@ public str palette(int n){
   catch:
     return "black";
 }
+
+
 
 @doc{Create a list of font names}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
@@ -139,9 +160,10 @@ public list[str] java fontNames();
  alias computedInt	= int();
  alias computedReal = real();
  alias computedNum 	= num();
- 
  alias computedStr 	= str();
  alias computedColor = Color();
+ 
+ data Like = like(str id);
  
 public alias FProperties = list[FProperty];
 
@@ -149,51 +171,72 @@ data FProperty =
 /* sizes */
      width(num width)                   // sets width of element
    | width(computedNum cWidth)         // sets width of element
+   | width(Like other)
    | height(num height)                 // sets height of element
    | height(computedNum cHeight)       // sets height of element
+   | height(Like other)
    
    | size(num size)					    // sets width and height to same value
    | size(computedNum cSize)			// sets width and height to same value
+   | size(Like other)
    
    | size(num width, num height)            // sets width and height to separate values
-   | size(computedNum cWidth, computedNum cHeight)  // sets width and height to separate values
+//   | size(computedNum cWidth, computedNum cHeight)  // sets width and height to separate values
    
    | gap(num amount)                    // sets hor and vert gap between elements in composition to same value
-   | gap(computedNum cAmount)  
+   | gap(computedNum cAmount) 
+   | gap(Like other) 
+   
    | gap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
-   | gap(computedNum cWidth, computedNum cHeight) 
+ //  | gap(computedNum cWidth, computedNum cHeight) 
+   
    | hgap(num width)                      // sets hor gap
    | hgap(computedNum cWidth)
+   | hgap(Like other)
+   
    | vgap(num height)                     // set vert gap
    | vgap(computedNum cHeight)
+   | vgap(Like other)
    
 /* alignment */
    | anchor(num hor, num vert)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
-   | anchor(computedNum cHor, computedNum cVert) 
+ //  | anchor(computedNum cHor, computedNum cVert) 
+ 
    | hanchor(num hor)
    | hanchor(computedNum cHor)
+   | hanchor(Like other)
+   
    | vanchor(num vert)
    | vanchor(computedNum cVert)
+   | vanchor(Like other)
    
 /* line and border properties */
    | lineWidth(num lineWidth)			// line width
    | lineWidth(computedNum cLineWidth)		// line width
+   | lineWidth(Like other)
    
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
    | lineColor(computedColor cColorName)    // named line color
+   | lineColor(Like other)
    
    | fillColor(Color fillColor)			// fill color of shapes and text
    | fillColor(str colorName)           // named fill color
    | fillColor(computedColor cColorName)    // named fill color
+   | fillColor(Like other)
    
 /* wedge properties */
    | fromAngle(num angle)
    | fromAngle(computedNum cAngle)
+   | fromAngle(Like other)
+   
    | toAngle(num angle)
    | toAngle(computedNum cAngle)
+   | toAngle(Like other)
+   
    | innerRadius(num radius)
    | innerRadius(computedNum cRadius)
+   | innerRadius(Like other)
 
 /* shape properties */
    | shapeConnected()                   // shapes consist of connected points
@@ -202,14 +245,21 @@ data FProperty =
  
 /* font and text properties */
    | font(str fontName)             	// named font
-   | font(computedStr cFontName)     
+   | font(computedStr cFontName)    
+   | font(Like other)
+    
    | fontSize(int isize)                // font size
    | fontSize(computedInt ciSize)
+   | fontSize(Like other)
+   
    | fontColor(Color textColor)         // font color
    | fontColor(str colorName)
    | fontColor(computedColor cColorName)  
+   | fontColor(Like other)
+   
    | textAngle(num angle)               // text rotation
    | textAngle(computedNum cAngle) 
+   | textAngle(Like other)
    
 /* interaction properties */  
    | mouseOver(Figure inner)            // add figure when mouse is over current figure
@@ -277,7 +327,7 @@ data Figure =
    | _text(computedStr sv, FProperties props)
    
    												// file outline
-   | _outline(map[int,Color] coloredLines, FProperties props)
+   | _outline(list[LineDecoration] lineInfo, int maxLine, FProperties props)
    
    
 /* primitives/containers */
@@ -298,6 +348,8 @@ data Figure =
    
    | _use(Figure elem)                           // use another elem
    | _use(Figure elem, FProperties props)
+   
+   | _place(Figure onTop, str at, Figure onBottom, FProperties props)
                        
    | _hcat(Figures figs, FProperties props)     // horizontal concatenation
                      
@@ -335,7 +387,6 @@ data Figure =
    | _button(str label, void () vcallback, FProperties props)
    | _textfield(str text, void (str) scallback, FProperties props)
    | _textfield(str text, void (str) scallback, bool (str) validate, FProperties props)
-   | _textarea(list[str] lines, map[int,Color] coloredLines, FProperties props)
    | _choice(list[str] choices, void(str s) ccallback, FProperties props)
    | _checkbox(str text, void(bool) vbcallback, FProperties props)
    ;
@@ -348,8 +399,8 @@ public Figure text(computedStr sv, FProperty props ...){
   return _text(sv, props);
 }
 
-public Figure outline (map[int,Color] coloredLines, FProperty props ...){
-  return _outline(coloredLines, props);
+public Figure outline (list[LineDecoration] lineInfo, int maxLine, FProperty props ...){
+  return _outline(lineInfo, maxLine, props);
 }
 
 public Figure box(FProperty props ...){
@@ -383,6 +434,11 @@ public Figure space(FProperty props ...){
 public Figure space(Figure fig, FProperty props ...){
   return _space(fig, props);
 }
+
+public Figure place(Figure fig, str at, Figure base, FProperty props ...){
+  return _place(fig, at, base, props);
+}
+
 
 public Figure use(Figure fig, FProperty props ...){
   return _use(fig, props);
@@ -468,24 +524,9 @@ public Figure colorControl(str name, str initial, FProperty props...){
   return _colorControl(name, initial, props);
 }
 
-
 public Figure computeFigure(Figure () computeFig, FProperty props...){
  	return _computeFigure(computeFig, props);
 }
-
-/*
-public Figure computeTrigger(str tname, str init, str(list[str]) computeTrig, list[str] triggers, Figure fig, FProperty props...){
-	return _computeTrigger(tname, init, computeTrig, triggers, fig, props);
-}
- 
- public Figure enterTrigger(str tname, str init, bool (str) validate, FProperty props...){
- 	return _enterTrigger(tname, init, validate, props);
-}
- 
-public Figure selectFigure(str tname, map[str, Figure] choices, FProperty props...){
- 	return _selectFigure(tname, choices, props);
-}
-*/
   
 public Figure button(str label, void () callback, FProperty props...){
  	return _button(label, callback, props);
@@ -497,10 +538,6 @@ public Figure textfield(str text, void (str) callback, FProperty props...){
  
 public Figure textfield(str text,  void (str) callback, bool (str) validate, FProperty props...){
  	return _textfield(text, callback, validate, props);
-}
-   
-public Figure textarea(list[str] lines, map[int,Color] coloredLines, FProperty props...){
-   return _textarea(lines, coloredLines, props);
 }
   
 public Figure choice(list[str] choices, void(str s) ccallback, FProperty props...){

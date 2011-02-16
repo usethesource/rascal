@@ -57,7 +57,7 @@ public class ComputeFigure extends Figure {
 		}
 		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 			
-		//System.err.println("callback returns: " + figureVal.getValue());
+		System.err.println("callback returns: " + figureVal.getValue());
 		IConstructor figureCons = (IConstructor) figureVal.getValue();
 		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
 		fpa.setComputedValueChanged();
@@ -69,11 +69,36 @@ public class ComputeFigure extends Figure {
 
 	@Override
 	public void draw(float left, float top) {
+		System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
+		this.setLeft(left);
+		this.setTop(top);
 		figure.draw(left,top);
+	}
+	
+	@Override 
+	public float topAnchor(){
+		return figure != null ? figure.topAnchor() : 0;
+	}
+	
+	@Override 
+	public float bottomAnchor(){
+		return figure != null ? figure.bottomAnchor() : 0;
+	}
+	
+	@Override 
+	public float leftAnchor(){
+		return figure != null ? figure.leftAnchor() : 0;
+	}
+	
+	@Override 
+	public float rightAnchor(){
+		return figure != null ? figure.rightAnchor() : 0;
 	}
 	
 	@Override
 	public boolean mouseInside(int mouseX, int mouseY){
+		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
+				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
 		if(figure != null)
 			return figure.mouseInside(mouseX, mouseY);
 		return false;
@@ -81,27 +106,38 @@ public class ComputeFigure extends Figure {
 	
 	@Override
 	public boolean mouseInside(int mouseX, int mouseY, float centerX, float centerY){
-		if(figure != null)
-			return figure.mouseInside(mouseX, mouseY, centerX, centerY);
+		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
+				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
+		if(figure != null){
+			boolean b = figure.mouseInside(mouseX, mouseY, centerX, centerY);
+			System.err.println("ComputeFigure.mouseInside => " + b);
+			return b;
+		}
+		System.err.println("ComputeFigure.mouseInside => " + false);
 		return false;
 	}
 	
 	@Override
 	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
-		if(figure != null)
+		System.err.println("ComputeFigure.mouseOver1: " + figure);
+		if(figure != null){
 			return figure.mouseOver(mouseX, mouseY, mouseInParent);
+		}
 		return false;
 	}
 	
 	@Override
 	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
-		if(figure != null)
+		System.err.println("ComputeFigure.mouseOver2: " + figure);
+		if(figure != null){
 			return figure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);
+		}
 		return false;
 	}
 	
 	@Override
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+		System.err.println("ComputeFigure.mousePressed: " + mouseX + ", " + mouseY);
 		if(figure != null)
 			return figure.mousePressed(mouseX, mouseY, e);
 		return super.mousePressed(mouseX, mouseY, e);

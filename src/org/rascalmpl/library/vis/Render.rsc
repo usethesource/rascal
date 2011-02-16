@@ -20,3 +20,7 @@ public void java render(str name, Figure fig);
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public void java renderSave(Figure fig, loc file);
+
+@doc{Set custom colors for editor annotations}
+@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+public void java setHighlightColors(list[Color] colors);
