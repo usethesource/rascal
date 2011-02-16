@@ -37,6 +37,7 @@ import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.RotatingQueue;
+import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -54,7 +55,7 @@ public abstract class SGTDBF implements IGTD{
 	private RotatingQueue<AbstractStackNode>[] todoLists;
 	private int queueIndex;
 	
-	private final ArrayList<AbstractStackNode> stacksToExpand;
+	private final Stack<AbstractStackNode> stacksToExpand;
 	private RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
 	private final DoubleRotatingQueue<AbstractStackNode, AbstractNode> stacksWithNonTerminalsToReduce;
 	
@@ -80,7 +81,7 @@ public abstract class SGTDBF implements IGTD{
 		
 		positionStore = new PositionStore();
 		
-		stacksToExpand = new ArrayList<AbstractStackNode>();
+		stacksToExpand = new Stack<AbstractStackNode>();
 		stacksWithNonTerminalsToReduce = new DoubleRotatingQueue<AbstractStackNode, AbstractNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
@@ -185,7 +186,7 @@ public abstract class SGTDBF implements IGTD{
 		next.updateNode(node, result);
 		
 		sharedNextNodes.putUnsafe(next.getId(), next);
-		stacksToExpand.add(next);
+		stacksToExpand.push(next);
 		
 		return next;
 	}
@@ -201,7 +202,7 @@ public abstract class SGTDBF implements IGTD{
 			next.setStartLocation(location);
 			
 			sharedNextNodes.putUnsafe(id, next);
-			stacksToExpand.add(next);
+			stacksToExpand.push(next);
 		}
 	}
 	
@@ -511,7 +512,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			sharedLastExpects.add(firstId, first);
 			
-			stacksToExpand.add(first);
+			stacksToExpand.push(first);
 		}
 		
 		cachedEdgesForExpect.put(stackBeingWorkedOn.getName(), cachedEdges);
@@ -589,7 +590,7 @@ public abstract class SGTDBF implements IGTD{
 				child.initEdges();
 				child.addEdgeWithPrefix(stack, null, location);
 				
-				stacksToExpand.add(child);
+				stacksToExpand.push(child);
 			}
 			
 			if(listChildren.length > 1){ // Star list or optional.
@@ -599,15 +600,15 @@ public abstract class SGTDBF implements IGTD{
 				empty.initEdges();
 				empty.addEdge(stack);
 				
-				stacksToExpand.add(empty);
+				stacksToExpand.push(empty);
 			}
 		}
 	}
 	
 	private void expand(){
-		while(stacksToExpand.size() > 0){
+		while(!stacksToExpand.isEmpty()){
 			lastExpects.dirtyClear();
-			expandStack(stacksToExpand.remove(stacksToExpand.size() - 1));
+			expandStack(stacksToExpand.pop());
 		}
 	}
 	
@@ -645,7 +646,7 @@ public abstract class SGTDBF implements IGTD{
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);
 		rootNode.initEdges();
-		stacksToExpand.add(rootNode);
+		stacksToExpand.push(rootNode);
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		expand();
 		
