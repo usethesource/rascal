@@ -282,145 +282,137 @@ private set[Symbol] mergeCC(set[Symbol] su) {
 
 // -------- Examples and tests -------------------
 
-// Commented out to optimize load time...
+public Grammar G0 = simple({sort("S")}, {});
 
-// public Grammar G1 = 
-// simple({sort("Module")}, {
-  // prod([sort("Modifier"),\layouts("Module"),\iter-seps(sort("Modifier"),[\layouts("Module")])],\iter-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
-  // prod([sort("Modifier")],\iter-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
-  // prod([\iter-seps(sort("Modifier"),[\layouts("Module")])],\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
-  // prod([],\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
-  // prod([\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\layouts("Module"),lit("x")],sort("Module"),\no-attrs()),
-  // prod([lit("@")],sort("Modifier"),\no-attrs()),
-  // prod([\char-class([range(64,64)])],lit("@"),\no-attrs()),
-  // prod([\char-class([range(120,120)])],lit("x"),\no-attrs()),
-  // prod([\iter-star(sort("WS"))],\layouts("Module"),\no-attrs()),
-  // prod([\char-class([range(32,32)])],sort("WS"),\no-attrs()),
-  // prod([],\iter-star(sort("WS")),\no-attrs()),
-  // prod([\iter(sort("WS"))],\iter-star(sort("WS")),\no-attrs()),
-  // prod([sort("WS")],\iter(sort("WS")),\no-attrs()),
-  // prod([sort("WS"),\iter(sort("WS"))],\iter(sort("WS")),\no-attrs())
-// });
-                    
-/*
-public Grammar G0 = grammar({sort("S")},
-{
-});
-
-test first(importGrammar(G0)) == ();
+test first(G0) == ();
 
 test firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
-public Grammar G1 = grammar({sort("E")},
+private Production pr(Symbol rhs, list[Symbol] lhs) {
+  return prod(lhs, rhs, \no-attrs());
+}
+
+public Grammar Lit1 = simple({}, {
+  pr(lit("*"),[\char-class([range(42,42)])]),
+	pr(lit("+"),[\char-class([range(43,43)])]),
+	pr(lit("0"),[\char-class([range(48,48)])]),
+	pr(lit("1"),[\char-class([range(49,49)])])
+});
+
+public Grammar G1 = simple({sort("E")},
 {
 	pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
 	pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
 	pr(sort("E"), [sort("B")]),
 	pr(sort("B"), [lit("0")]),
 	pr(sort("B"), [lit("1")])
-});
+} + Lit1.productions);
 
-test usedSymbols(importGrammar(G1)) == {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
+test usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
 
-test definedSymbols(importGrammar(G1)) == {sort("E"),sort("B")};
+test definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
 
-test G1.start < definedSymbols(importGrammar(G1));
+test G1.start < definedSymbols(G1);
 
-test first(importGrammar(G1)) ==
-	 (lit("0"):{lit("0")},
-      sort("E"):{lit("0"),lit("1")},
-      lit("1"):{lit("1")},
-      sort("B"):{lit("0"),lit("1")},
-      lit("*"):{lit("*")},
-      lit("+"):{lit("+")}
-     );
-      
+public SymbolUse firstLit1 = (
+  lit("0"):{\char-class([range(48,48)])},
+  lit("1"):{\char-class([range(49,49)])},
+  lit("*"):{\char-class([range(42,42)])},
+  lit("+"):{\char-class([range(43,43)])}
+);
+
+test SymbolUse F := first(G1) 
+     && F[sort("E")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
+     && F[sort("B")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
+     ;
                        
-public Grammar G2 = grammar({sort("E")},
+public Grammar G2 = simple({sort("E")},
 {
-	first([pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+	first(sort("E"), [pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
      	 pr(sort("E"), [sort("E"), lit("+"), sort("B")])
     	]),
 	pr(sort("E"), [sort("B")]),
-	choice({pr(sort("B"), [lit("0")]),
+	choice(sort("B"), {pr(sort("B"), [lit("0")]),
     	pr(sort("B"), [lit("1")])
    		})
-});
+} + Lit1.productions);
 
-test first(importGrammar(G2)) ==
-	(lit("0"):{lit("0")},
-     sort("E"):{lit("0"),lit("1")},
-     lit("1"):{lit("1")},
-     sort("B"):{lit("0"),lit("1")},
-     lit("*"):{lit("*")},
-     lit("+"):{lit("+")}
-    );
+test SymbolUse F := first(G2)
+     && F[sort("E")] == {\char-class([range(48,49)])}
+     && F[sort("B")] == {\char-class([range(48,49)])}
+     ;
 
-public Grammar G3 = grammar( {sort("E")},
+public Grammar G3 = simple( {sort("E")},
 {
 	pr(sort("E"),  [sort("T"), sort("E1")]),
 	pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
+	pr(lit("+"), [\char-class([range(43,43)])]),
 	pr(sort("E1"), []),
 	pr(sort("T"),  [sort("F"), sort("T1")]),
 	pr(sort("T1"), [lit("*"), sort("F"), sort("T1")]),
+	pr(lit("*"), [\char-class([range(42,42)])]),
 	pr(sort("T1"), []),
 	pr(sort("F"),  [lit("("), sort("E"), lit(")")]),
-	pr(sort("F"),  [lit("id")])
+	pr(lit("("), [\char-class([range(40,40)])]),
+	pr(lit(")"), [\char-class([range(41,41)])]),
+	pr(sort("F"),  [lit("id")]),
+	pr(lit("id"), [\char-class([range(105,105)]),\char-class([range(100,100)])])
 });
 
-public KernelGrammar K3 = importGrammar(G3);
-test first(K3) ==
-	 (sort("F"):{lit("id"),lit("(")},
-      sort("T"):{lit("id"),lit("(")},
-      sort("E"):{lit("id"),lit("(")},
-      lit("*"):{lit("*")},
-      lit("+"):{lit("+")},
-      lit("id"):{lit("id")},
-      sort("E1"):{lit("+"),empty()},
-      sort("T1"):{lit("*"),empty()},
-      lit("("): {lit("(")},
-      lit(")"): {lit(")")}
+test first(G3) ==
+	 (sort("F"):{\char-class([range(100,100),range(105,105)])},
+      sort("T"):{\char-class([range(100,100),range(105,105)])},
+      sort("E"):{\char-class([range(100,100),range(105,105)])},
+      lit("*"):{\char-class([range(42,42)])},
+      lit("+"):{\char-class([range(43,43)])},
+      lit("id"):{\char-class([range(105,105)])},
+      sort("E1"):{\char-class([range(43,43)]),empty()},
+      sort("T1"):{\char-class([range(42,42)]),empty()},
+      lit("("): {\char-class([range(40,40)])},
+      lit(")"): {\char-class([range(41,41)])}
      );
       
-test follow(K3, first(K3)) ==
-     (sort("E"):{lit(")"), eoi()},
-      sort("E1"):{lit(")"), eoi()},
-      sort("T"):{lit("+"), lit(")"), eoi()},
-      sort("T1"):{lit("+"), lit(")"), eoi()},
-      sort("F"):{lit("+"), lit("*"), lit(")"), eoi()}
+test follow(G3, first(G3)) ==
+     (sort("E"):{\char-class([range(41,41)]), eoi()},
+      sort("E1"):{\char-class([range(41,41)]), eoi()},
+      sort("T"):{\char-class([range(41,41),range(43,43)]), eoi()},
+      sort("T1"):{\char-class([range(41,41),range(43,43)]), eoi()},
+      sort("F"):{\char-class([range(41,43)]), eoi()}
      );
        
 public Grammar Session = grammar({sort("Session")},
 {
 	pr(sort("Session"), [sort("Facts"), sort("Question")]),
 	pr(sort("Session"), [lit("("), sort("Session"), lit(")"), sort("Session")]),
+	pr(lit("("), [\char-class([range(40,40)])]),
+	pr(lit(")"), [\char-class([range(41,41)])]),
 	pr(sort("Facts"),   [sort("Fact"), sort("Facts")]),
 	pr(sort("Facts"),   []),
 	pr(sort("Fact"),    [lit("!"), sort("STRING")]),
+	pr(lit("!"), [\char-class([range(33,33)])]),
 	pr(sort("Question"),[lit("?"), sort("STRING")]),
-	pr(sort("STRING"),  [lit("a")])
+	pr(lit("?"), [\char-class([range(63,63)])]),
+	pr(sort("STRING"),  [lit("a")]),
+	pr(lit("a"), [\char-class([range(97,97)])])
 });
 
-KernelGrammar KSession = importGrammar(Session);
-
-test first(KSession) ==
-     (sort("Question"):{lit("?")},
-      sort("Session"):{lit("!"),lit("("), lit("?")},
-      sort("Facts"):{lit("!"),empty()},
-      lit("a"):{lit("a")},
-      lit("!"):{lit("!")},
-      lit("?"):{lit("?")},
-      lit("("):{lit("(")},
-      lit(")"):{lit(")")},
-      sort("STRING"):{lit("a")},
-      sort("Fact"):{lit("!")}
+test first(Session) ==
+     (sort("Question"):{\char-class([range(63,63)])},
+      sort("Session"):{\char-class([range(33,33),range(40,40),range(63,63)])},
+      sort("Facts"):{\char-class([range(33,33)]),empty()},
+      lit("a"):{\char-class([range(97,97)])},
+      lit("!"):{\char-class([range(33,33)])},
+      lit("?"):{\char-class([range(63,63)])},
+      lit("("):{\char-class([range(40,40)])},
+      lit(")"):{\char-class([range(41,41)])},
+      sort("STRING"):{\char-class([range(97,97)])},
+      sort("Fact"):{\char-class([range(33,33)])}
      );
      
-test follow(KSession, first(KSession)) ==
- 	 (sort("Question"):{lit(")"),eoi()},
- 	 sort("Session"):{lit(")"),eoi()},
- 	 sort("Facts"):{lit("?")},
- 	 sort("STRING"):{lit("!"),lit(")"),lit("?"),eoi()},
- 	 sort("Fact"):{lit("!"),lit("?")}
+test follow(Session, first(Session)) ==
+ 	 (sort("Question"):{\char-class([range(41,41)]),eoi()},
+ 	 sort("Session"):{\char-class([range(41,41)]),eoi()},
+ 	 sort("Facts"):{\char-class([range(63,63)])},
+ 	 sort("STRING"):{\char-class([range(33,33),range(41,41),range(63,63)]),eoi()},
+ 	 sort("Fact"):{\char-class([range(33,33),range(63,63)])}
  	 );
-*/

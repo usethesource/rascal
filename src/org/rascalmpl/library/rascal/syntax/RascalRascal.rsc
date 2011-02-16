@@ -760,6 +760,7 @@ syntax Variant
 
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
+	| Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
 	| Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 syntax PreProtocolChars
