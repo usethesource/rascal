@@ -22,4 +22,9 @@ public abstract class AbstractStrategy extends AbstractFunction {
 	public static Result<IValue> makeResult(IValue result, IEvaluatorContext ctx){
 		return ResultFactory.makeResult(result.getType(), result, ctx);
 	}
+	
+	@Override
+	public boolean isDefault() {
+		return false;
+	}
 }

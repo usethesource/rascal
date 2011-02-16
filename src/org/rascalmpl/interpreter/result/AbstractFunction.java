@@ -117,6 +117,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return true;
 	}
 	
+	public abstract boolean isDefault();
+	
 	
 	private void printNesting(StringBuilder b) {
 		for (int i = 0; i < callNesting; i++) {

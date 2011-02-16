@@ -32,6 +32,11 @@ public class JavaMethod extends NamedFunction {
 		this.func = func;
 	}
 	
+	@Override
+	public boolean isDefault() {
+		return false;
+	}
+	
 	private boolean hasReflectiveAccess(FunctionDeclaration func) {
 		for (Tag tag : func.getTags().getTags()) {
 			if (Names.name(tag.getName()).equals("reflect")) {

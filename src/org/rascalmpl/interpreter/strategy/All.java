@@ -35,4 +35,5 @@ public class All extends AbstractStrategy {
 		
 		return makeResult(res, ctx);
 	}
+	
 }

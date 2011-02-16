@@ -847,7 +847,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance();
-			return new RascalFunction(this, __eval, (FunctionType) RTF.functionType(TF.voidType(), formals), this.getParameters().isVarArgs(),
+			return new RascalFunction(this, __eval, (FunctionType) RTF.functionType(TF.voidType(), formals), this.getParameters().isVarArgs(), false,
 					this.getStatements(), __eval.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}
@@ -1497,7 +1497,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
 			Type returnType = typeOf(__eval.getCurrentEnvt());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance();
-			return new RascalFunction(this, __eval, (FunctionType) RTF.functionType(returnType, formals), this.getParameters().isVarArgs(), this.getStatements(), __eval.getCurrentEnvt(),
+			return new RascalFunction(this, __eval, (FunctionType) RTF.functionType(returnType, formals), this.getParameters().isVarArgs(), false, this.getStatements(), __eval.getCurrentEnvt(),
 					__eval.__getAccumulators());
 
 		}

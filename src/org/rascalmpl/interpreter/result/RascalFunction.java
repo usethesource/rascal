@@ -15,6 +15,7 @@ import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.TypeArg;
@@ -44,21 +45,25 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
 	private final IMatchingResult[] matchers;
+	private final boolean isDefault;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				(FunctionType) func.getSignature().typeOf(env),
-				varargs,
+				varargs, isDefault(func),
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 	}
 	
+	
+
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, Evaluator eval, FunctionType functionType,
-			boolean varargs, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
+			boolean varargs, boolean isDefault, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
 		super(ast, eval, functionType, null, varargs, env);
 		this.body = body;
+		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.matchers = prepareFormals(eval);
@@ -66,6 +71,21 @@ public class RascalFunction extends NamedFunction {
 	
 	public boolean isAnonymous() {
 		return getName() == null;
+	}
+
+	private static boolean isDefault(FunctionDeclaration func) {
+		List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
+		for (FunctionModifier m : mods) {
+			if (m.isDefault()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isDefault() {
+		return isDefault;
 	}
 	
 	@Override
