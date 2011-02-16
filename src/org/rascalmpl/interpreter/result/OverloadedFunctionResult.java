@@ -144,7 +144,28 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	public Iterable<AbstractFunction> iterable() {
 		return new Iterable<AbstractFunction>() {
 			public Iterator<AbstractFunction> iterator() {
-				return primaryCandidates.iterator();
+				return new Iterator<AbstractFunction> () {
+					private final Iterator<AbstractFunction> primary = primaryCandidates.iterator();
+					private final Iterator<AbstractFunction> defaults = defaultCandidates.iterator();
+					
+					@Override
+					public boolean hasNext() {
+						return primary.hasNext() || defaults.hasNext();
+					}
+
+					@Override
+					public AbstractFunction next() {
+						if (primary.hasNext()) {
+							return primary.next();
+						}
+						return defaults.next();
+					}
+
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
 			}
 		};
 	}
@@ -154,7 +175,9 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		if (obj instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult other = (OverloadedFunctionResult) obj;
 			return primaryCandidates.containsAll(other.primaryCandidates)
-			&& other.primaryCandidates.containsAll(primaryCandidates);
+			&& other.primaryCandidates.containsAll(primaryCandidates)
+			&& defaultCandidates.containsAll(other.defaultCandidates)
+			&& other.defaultCandidates.containsAll(defaultCandidates);
 		}
 		return false;
 	}
@@ -190,7 +213,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@Override
 	public <U extends IValue> Result<U> equalToOverloadedFunction(
 			OverloadedFunctionResult that) {
-		return ResultFactory.bool(primaryCandidates.equals(that.primaryCandidates), ctx);
+		return ResultFactory.bool(primaryCandidates.equals(that.primaryCandidates) && defaultCandidates.equals(that.defaultCandidates), ctx);
 	}
 	
 	@Override
@@ -216,6 +239,24 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 		for (AbstractFunction f : primaryCandidates) {
 			for (AbstractFunction g : that.primaryCandidates) {
+				Result<U> result = f.compare(g);
+				
+				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
+					return result;
+				}
+			}
+		}
+		
+		if (defaultCandidates.size() > that.defaultCandidates.size()) {
+			return  ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(1), ctx);
+		}
+		
+		if (defaultCandidates.size() < that.defaultCandidates.size()) {
+			 ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(-1), ctx);
+		}
+		
+		for (AbstractFunction f : defaultCandidates) {
+			for (AbstractFunction g : that.defaultCandidates) {
 				Result<U> result = f.compare(g);
 				
 				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
