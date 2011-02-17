@@ -705,7 +705,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitDeclarationData(Data x) {
-	    /* Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";" */
+		/*
+		 * Tags tags Visibility visibility "data" UserType user "=" {Variant
+		 * "|"}+ variants ";"
+		 */
 		IValue r = H(1, eX(x.getVisibility()), getComment(x, 3), KW("data"),
 				getComment(x, 5), eX(x.getUser()));
 		java.util.List<Variant> vs = x.getVariants();
@@ -764,9 +767,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitDeclaratorDefault(org.rascalmpl.ast.Declarator.Default x) {
-		IList l = getTreeList(x, 2);
+		// IList l = getTreeList(x, 2);
 		return cList(eX(x.getType()), getComment(x, 1),
-				eXs0(x.getVariables(), l));
+		// eXs(x.getVariables(), l)); goed
+				eXs(x.getVariables()));
 	}
 
 	public IValue visitEscapedNameAmbiguity(
@@ -2747,9 +2751,13 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				0,
 				eX(x.getTags()),
 				getComment(x, 1),
-				H(1, eX(x.getVisibility()), getComment(x, 3), KW("data"),
-						getComment(x, 5), H(0, eX(x.getUser()), 
-								getComment(x, 7), BoxADT.SEMICOLON)));
+				H(1,
+						eX(x.getVisibility()),
+						getComment(x, 3),
+						KW("data"),
+						getComment(x, 5),
+						H(0, eX(x.getUser()), getComment(x, 7),
+								BoxADT.SEMICOLON)));
 
 	}
 
