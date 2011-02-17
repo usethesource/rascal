@@ -333,7 +333,7 @@ private map[str, map[RName,RType] (RType,RType,map[RName,RType],loc)] matchHandl
     "RStatementType" : getTVBindingsStatementType
 );
 
-public RType getTVBindings(RType formal, RType actual, map[RName varName, RType varType] bindings, loc l) {
+public map[RName varName, RType varType] getTVBindings(RType formal, RType actual, map[RName varName, RType varType] bindings, loc l) {
     if (getName(formal) in matchHandlers) 
         return (matchHandlers[getName(formal)])(formal,actual,bindings,l);
     else
