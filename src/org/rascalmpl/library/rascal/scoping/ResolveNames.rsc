@@ -150,6 +150,31 @@ public Tree resolveTree(Tree t) {
     return t2;     
 }
 
+public tuple[Tree,SymbolTable] resolveTreeAux(Tree t) {
+    println("NAME RESOLVER: Getting Imports for Module");
+    list[Import] imports = getImports(t);
+    println("NAME RESOLVER: Got Imports");
+    
+    println("NAME RESOLVER: Generating Signature Map");
+    SignatureMap sigMap = populateSignatureMap(imports);
+    println("NAME RESOLVER: Generated Signature Map");
+    
+    println("NAME RESOLVER: Generating Symbol Table"); 
+    SymbolTable st = buildTable(t, sigMap);
+    println("NAME RESOLVER: Generated Symbol Table");
+    
+    println("NAME RESOLVER: Associating Scope Information with Names");
+    Tree t2 = addNamesToTree(st,t);
+    println("NAME RESOLVER: Associated Scope Information with Names");
+
+    println("NAME RESOLVER: Adding Information for Scope Errors");
+    if (size(st.scopeErrorMap) > 0)
+        t2 = t2[@messages = { error(l,s) | l <- st.scopeErrorMap<0>, s <- st.scopeErrorMap[l] }]; 
+    println("NAME RESOLVER: Added Information for Scope Errors");
+
+    return <t2,st>;     
+}
+
 //
 // Retrieve the list of imports from the module
 //
@@ -266,13 +291,14 @@ public SymbolTable handleModuleImports(Import* il, SignatureMap signatures, Symb
             if (imp in signatures)
                 symbolTable = importModuleTypes(im, signatures[imp], imp@\loc, symbolTable);
             else
-                throw "No signature found for imported module <imp>";
+                symbolTable = addScopeError(symbolTable, imp@\loc, "Could not build signature for imported module <getNameOfImportedModule(im)>");
         }
     }
 
     for (imp <- impList) {
         if ((Import)`import <ImportedModule im> ;` := imp || (Import)`extend <ImportedModule im> ;` := imp) {
-            symbolTable = importModuleItems(im, signatures[imp], imp@\loc, symbolTable);
+            if (imp in signatures)
+                symbolTable = importModuleItems(im, signatures[imp], imp@\loc, symbolTable);
         }
     }
 

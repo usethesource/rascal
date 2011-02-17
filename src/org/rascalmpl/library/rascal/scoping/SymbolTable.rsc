@@ -210,21 +210,22 @@ public SymbolTable createNewSymbolTable() {
 // Given a number of different OR scope layers in the symbol table, find the subset of
 // variables declared in all the layers. Note that, at this point, we just pick one of
 // the identical variable as a representative, since they are all considered the same.
-// TODO: Is this true? Should also check declared types [DONE]
 // TODO: Should we do anything here for parameterized types? For instance, if one or
 // branch introduced one set of bindings, and the other introduced (somehow) a different
-// set of bindings? [DONE -- forcing them all to have the same type, which would include params]
+// set of bindings?
 // TODO: Add location information so we can track back to all points of definition
 //
 public SymbolTable mergeOrLayers(SymbolTable symbolTable, list[STItemId] orLayers, STItemId intoLayer) {
     // First, get back the items introduced in the first or layer in the list
     set[STItemId] introducedItems = { vi | vi <- symbolTable.scopeRel[head(orLayers)], VariableItem(_,_,_) := symbolTable.scopeItemMap[vi] };
 	
-    // Now, go through the rest of the layers -- we only keep vars found in all the layers with the same name and type
+    // Now, go through the rest of the layers -- we only keep vars found in all the layers with the same name.
+    // Note that we don't restrict this based on type here, since we may not know the type yet -- this
+    // is instead a decision for the type checker.
     for (oritem <- tail(orLayers)) {
         set[STItemId] sharedItems = { };
-        for (li <- introducedItems, VariableItem(vn,vt,_) := symbolTable.scopeItemMap[li],
-            ri <- symbolTable.scopeRel[oritem], VariableItem(vn,vt,_) := symbolTable.scopeItemMap[ri]) {
+        for (li <- introducedItems, VariableItem(vn,_,_) := symbolTable.scopeItemMap[li],
+            ri <- symbolTable.scopeRel[oritem], VariableItem(vn,_,_) := symbolTable.scopeItemMap[ri]) {
             sharedItems += li;
         }
         introducedItems = sharedItems;
@@ -232,8 +233,9 @@ public SymbolTable mergeOrLayers(SymbolTable symbolTable, list[STItemId] orLayer
 
 	// Finally, inject them into the intoLayer
     symbolTable = pushScope(intoLayer, symbolTable);
-    for (oritem <- introducedItems, VariableItem(vn,vt,_) := symbolTable.scopeItemMap[oritem])
+    for (oritem <- introducedItems, VariableItem(vn,vt,_) := symbolTable.scopeItemMap[oritem]) {
         symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(vn, vt, false, symbolTable.scopeItemMap[oritem]@at, symbolTable),[<true,symbolTable.scopeItemMap[oritem]@at>]));
+    }
     symbolTable = popScope(symbolTable);
 
     return symbolTable;
