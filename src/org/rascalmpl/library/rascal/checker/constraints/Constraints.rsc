@@ -217,14 +217,13 @@ data Constraint =
     | FieldProjection(RType inType, list[RType] fieldTypes, RType result, loc at) 
     | Subscript(RType inType, list[Tree] indices, list[RType] indexTypes, RType result, loc at) 
 	| Comparable(RType left, RType right, loc at)
-    | AnnotationAssignable(Tree parent, loc at, Tree lhs, Tree ann, Tree rhs, RType rvalue, RType lvalue)
+    | AnnotationAssignable(Tree parent, loc at, Tree lhs, Tree ann, Tree rhs, RType rvalue, RType lvalue, RType result)
 	| AnnotationOf(Tree t, RType inType, RType annType, loc at)
 	| Composable(RType left, RType right, RType result, loc at)
     | BuiltInAppliable(RBuiltInOp op, RType domain, RType range, loc at)
     | Bindable(Tree pattern, RType subject, loc at)
     | Enumerable(Tree pattern, RType subject, loc at)
 	| StepItType(Tree reducer, loc at, RType inType, RType outType, RType result)
-    | Failure(Tree t, loc at, RType failureType)
     | DefinedBy(RType lvalue, set[STItemId] definingIds, loc at)
     ;
 

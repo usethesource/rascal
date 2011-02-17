@@ -429,5 +429,3 @@ test lub(makeAliasType(RSimpleName("A"),makeIntType()), makeIntType()) == makeIn
 test lub(makeIntType(), makeAliasType(RSimpleName("A"),makeIntType())) == makeIntType();
 test lub(makeAliasType(RSimpleName("A"),makeIntType()), makeAliasType(RSimpleName("B"),makeIntType())) == makeIntType();
 
-
-

@@ -183,41 +183,6 @@ public ConstraintBase gatherConstraints(SymbolTable st, Tree t) {
     return cb;
 }
 
-//
-// TODO: We need logic that caches the signatures on the parse trees for the
-// modules. Until then, we load up the signatures here...
-public SignatureMap populateSignatureMap(list[Import] imports) {
-
-	str getNameOfImportedModule(ImportedModule im) {
-		switch(im) {
-			case `<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
-				return prettyPrintName(convertName(qn));
-			}
-			case `<QualifiedName qn> <ModuleActuals ma>` : {
-				return prettyPrintName(convertName(qn));
-			}
-			case `<QualifiedName qn> <Renamings rn>` : {
-				return prettyPrintName(convertName(qn));
-			}
-			case (ImportedModule)`<QualifiedName qn>` : {
-				return prettyPrintName(convertName(qn));
-			}
-		}
-		throw "getNameOfImportedModule: invalid syntax for ImportedModule <im>, cannot get name";
-	}
-
-
-	SignatureMap sigMap = ( );
-	for (i <- imports) {
-		if (`import <ImportedModule im> ;` := i || `extend <ImportedModule im> ;` := i) {
-			Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
-			sigMap[i] = getModuleSignature(importTree);
-		} 
-	}
-
-	return sigMap;
-}
-
 private SymbolTable globalSymbolTable = createNewSymbolTable();
 
 // Check to see if the cases given cover the possible matches of the expected type.
@@ -462,6 +427,7 @@ public Tree typecheckTreeWithExistingTable(SymbolTable symbolTable, Tree t) {
 }
 
 public tuple[ConstraintBase,bool] oneStepReduce(SymbolTable st, ConstraintBase cb) {
+
     <cbp, b> = unifyDefinedBy(st,cb); if (b) return <cbp, b>;
 
     <cbp, b> = unifyTypesAreEqual(st,cb); if (b) return <cbp,b>;
@@ -477,6 +443,8 @@ public tuple[ConstraintBase,bool] oneStepReduce(SymbolTable st, ConstraintBase c
     <cbp, b> = unifyBuiltInAppliable(st,cb); if (b) return <cbp,b>;
     
 
+    <cbp, b> = unifyIsRuntimeException(st,cb); if (b) return <cbp,b>;
+
     <cbp, b> = unifyLubOf(st,cb); if (b) return <cbp, b>;
 
     <cbp, b> = unifyLubOfSet(st,cb); if (b) return <cbp, b>;
@@ -490,7 +458,6 @@ public tuple[ConstraintBase,bool] oneStepReduce(SymbolTable st, ConstraintBase c
 
     <cbp, b> = unifyReturnable(st,cb); if (b) return <cbp, b>;
     
-
     <cbp, b> = unifyAssignable(st,cb); if (b) return <cbp, b>;
     
 
@@ -504,9 +471,14 @@ public tuple[ConstraintBase,bool] oneStepReduce(SymbolTable st, ConstraintBase c
 
     <cbp, b> = unifyFieldProjection(st,cb); if (b) return <cbp, b>;
 
-    <cbp, b> = unifySubscriptOf(st,cb); if (b) return <cbp, b>;
+    <cbp, b> = unifySubtypeOf(st,cb); if (b) return <cbp, b>;
 
+    <cbp, b> = unifyAnnotationOf(st, cb); if (b) return <cbp, b>;
 
+    <cbp, b> = unifyAnnotationAssignable(st, cb); if (b) return <cbp, b>;
+    
+    <cbp, b> = unifyComposable(st, cb); if (b) return <cbp, b>;
+    
     return <cb, false>;
 }
 
@@ -725,12 +697,16 @@ public tuple[ConstraintBase,bool] unifyLubOfSet(SymbolTable st, ConstraintBase c
 //
 // CONSTRAINT: BindableToCase(RType subject, RType caseType, loc at)
 //
+// TODO: IMPLEMENT
+//
 public tuple[ConstraintBase,bool] unifyBindableToCase(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
 }
 
 //
 // CONSTRAINT: Assignable(Tree parent, loc at, Tree lhs, Tree rhs, RType rvalue, RType lvalue, RType result)
+//
+// TODO: IMPLEMENT
 //
 public tuple[ConstraintBase,bool] unifyAssignable(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
@@ -759,6 +735,8 @@ public tuple[ConstraintBase,bool] unifyAssignableWithValue(SymbolTable st, Const
 //
 // CONSTRAINT: IsNameAssignable(RType assignableType, RType resultType, loc at)
 //
+// TODO: IMPLEMENT
+//
 public tuple[ConstraintBase,bool] unifyIsNameAssignable(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
 }
@@ -784,11 +762,22 @@ public tuple[ConstraintBase,bool] unifyReturnable(SymbolTable st, ConstraintBase
 // CONSTRAINT: IsRuntimeException(RType expType, loc at)
 //
 public tuple[ConstraintBase,bool] unifyIsRuntimeException(SymbolTable st, ConstraintBase cb) {
+    if ({_*,ire:IsRuntimeException(expType,at)} := cb.constraints, isConcreteType(st,cb,expType)) {
+        cb.constraints = cb.constraints - ire;
+        
+        if (! (isADTType(expType) && getADTName(expType) in { RSimpleName("RuntimeException"),RCompoundName(["Exception","RuntimeException"]) })) {
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("The type of the thrown expression must be RuntimeException, not <prettyPrintType(expType)>",at));
+        }
+        
+        return <cb, true>;
+    }
     return <cb, false>;
 }
 
 //
 // CONSTRAINT: BindsRuntimeException(Tree pat, loc at)
+//
+// TODO: IMPLEMENT
 //
 public tuple[ConstraintBase,bool] unifyBindsRuntimeException(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
@@ -796,6 +785,8 @@ public tuple[ConstraintBase,bool] unifyBindsRuntimeException(SymbolTable st, Con
 
 //
 // CONSTRAINT: CaseIsReachable(RType caseType, RType expType, loc at)
+//
+// TODO: IMPLEMENT
 //
 public tuple[ConstraintBase,bool] unifyCaseIsReachable(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
@@ -820,12 +811,16 @@ public tuple[ConstraintBase,bool] unifySubtypeOf(SymbolTable st, ConstraintBase 
 //
 // CONSTRAINT: PWAResultType(RType left, RType right, loc at)
 //
+// TODO: IMPLEMENT
+//
 public tuple[ConstraintBase,bool] unifyPWAResultType(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
 }
 
 //
 // CONSTRAINT: IsReifiedType(RType outer, list[RType] params, loc at, RType result)
+//
+// TODO: IMPLEMENT
 //
 public tuple[ConstraintBase,bool] unifyIsReifiedType(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
@@ -922,6 +917,22 @@ public tuple[ConstraintBase,bool] unifyCallOrTree(SymbolTable st, ConstraintBase
                 } else {
                     failures = failures + makeFailType("Could not use alternative <prettyPrintType(fcType)><typeHasLoc ? " defined at <fcType@at>" : "">: constructor accepts <size(formalTypes)> arguments but was given <size(actuals)>", at);
                 }
+            } else if (isStrType(fcType)) {
+                // node, need to verify that the string is a valid identifier
+                // TODO: Add identifier checking
+                // TODO: I don't believe we need to do anything with the params, since they
+                // are all of type value, but check to make sure. Not sure how this could
+                // fail typing then as long as the identifier given is a proper identifier
+                // name.
+                matches = matches + makeNodeType();
+            } else if (isLocType(fcType)) {
+                // parameters should be (int, int, tuple[int,int], tuple[int,int])
+                list[RType] actualTypes = params;
+                if (! (size(actualTypes) == 4 && isIntType(actualTypes[0]) && isIntType(actualTypes[1]) && isTupleType(actualTypes[2]) && size(getTupleFields(actualTypes[2])) == 2 && isIntType(getTupleFields(actualTypes[2])[0]) && isIntType(getTupleFields(actualTypes[2])[1]) && isTupleType(actualTypes[3])) && isIntType(getTupleFields(actualTypes[3])[0]) && isIntType(getTupleFields(actualTypes[3])[1]) ) {
+                    failures = failures + makeFailType("The location offset information must be given as (int,int,\<int,int\>,\<int,int\>)",at);
+                } else {
+                    matches = matches + makeLocType();
+                }
             } else {
                 failures = failures + makeFailType("Type <prettyPrintType(fcType)> is not a function or constructor type.",at);
             }
@@ -946,6 +957,7 @@ public tuple[ConstraintBase,bool] unifyCallOrTree(SymbolTable st, ConstraintBase
 //
 public tuple[ConstraintBase,bool] unifyFieldOf(SymbolTable st, ConstraintBase cb) {
     if ({_*,fof:FieldOf(t,inType,fieldType,at)} := cb.constraints, isConcreteType(st,cb,inType)) {
+        cb.constraints = cb.constraints - fof;
         inType = instantiateAllInferenceVars(st,cb,inType);
         if (`<Name n>` := t) {
             RType resType = getFieldType(inType,convertName(n),st,at);
@@ -970,14 +982,15 @@ public tuple[ConstraintBase,bool] unifyFieldOf(SymbolTable st, ConstraintBase cb
 //
 public tuple[ConstraintBase,bool] unifyNamedFieldOf(SymbolTable st, ConstraintBase cb) {
     if ({_*,fof:NamedFieldOf(t,inType,fieldType,at)} := cb.constraints, isConcreteType(st,cb,inType)) {
+        cb.constraints = cb.constraints - fof;
         inType = instantiateAllInferenceVars(st,cb,inType);
         if ((Field)`<Name n>` := t) {
             RType resType = getFieldType(inType,convertName(n),st,at);
             if (!isFailType(resType)) {
                 resType = TypeWithName(RNamedType(resType,convertName(n)));
-                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at) - fof;
+                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at);
             } else {
-                cb.constraints = cb.constraints + LocIsType(at,resType) - fof;
+                cb.constraints = cb.constraints + LocIsType(at,resType);
             }
             return <cb, true>;                                    
         } else {
@@ -995,6 +1008,7 @@ public tuple[ConstraintBase,bool] unifyNamedFieldOf(SymbolTable st, ConstraintBa
 //
 public tuple[ConstraintBase,bool] unifyIndexedFieldOf(SymbolTable st, ConstraintBase cb) {
     if ({_*,iof:IndexedFieldOf(t,inType,fieldType,at)} := cb.constraints, isConcreteType(st,cb,inType)) {
+        cb.constraints = cb.constraints - iof;
         inType = instantiateAllInferenceVars(st,cb,inType);
         if ((Field)`<IntegerLiteral il>` := t) {
             int ilval = toInt("<il>"); 
@@ -1004,9 +1018,9 @@ public tuple[ConstraintBase,bool] unifyIndexedFieldOf(SymbolTable st, Constraint
                     resType = TypeWithName(RNamedType(resType,getTypeFieldName(inType,ilval)));
                 else
                     resType = TypeWithName(RUnnamedType(resType));
-                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at) - iof;
+                cb.constraints = cb.constraints + TypesAreEqual(fieldType,resType,at);
             } else {
-                cb.constraints = cb.constraints + LocIsType(at,resType) - iof;
+                cb.constraints = cb.constraints + LocIsType(at,resType);
             }
             return <cb, true>;                                    
         } else {
@@ -1028,11 +1042,12 @@ public tuple[ConstraintBase,bool] unifyIndexedFieldOf(SymbolTable st, Constraint
 //
 public tuple[ConstraintBase,bool] unifyFieldProjection(SymbolTable st, ConstraintBase cb) {
     if ({_*,fpr:FieldProjection(inType,fieldTypes,result,at)} := cb.constraints, isConcreteType(st,cb,inType), isConcreteType(st,cb,fieldTypes)) {
+        cb.constraints = cb.constraints - frp;
+
         // NOTE: We expect all the fieldTypes to be of type TypeWithName
         list[RNamedType] ftl = [ t | TypeWithName(t) <- fieldTypes];
         list[RType] ftlnn = [ getElementType(t) | t <- ftl];
         set[RName] fieldNames = { n | RNamedType(_,n) <- ftl };
-        cb.constraints = cb.constraints - fpr;
         
         if (size(ftl) != size(fieldTypes)) throw "Error, fieldTypes contains invalid types: <fieldTypes>";
         
@@ -1163,11 +1178,11 @@ public tuple[ConstraintBase,bool] unifySubscript(SymbolTable st, ConstraintBase 
 //
 public tuple[ConstraintBase,bool] unifyComparable(SymbolTable st, ConstraintBase cb) {
     if ({_*,cmp:Comparable(lt,rt,at)} := cb.constraints, isConcreteType(st,cb,lt), isConcreteType(st,cb,rt)) {
-        cb.constraints = cb.constraints - sof;
+        cb.constraints = cb.constraints - cmp;
         lt = instantiateAllInferenceVars(st,cb,lt);
         rt = instantiateAllInferenceVars(st,cb,rt);
         if (!comparable(lt,rt))
-            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Type <prettyPrintType(lt)> is not comparable with <prettyPrintType(rt)>",at));
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Types <prettyPrintType(lt)> and <prettyPrintType(rt)> are not comparable.",at));
         return <cb, true>;
     }
     
@@ -1175,23 +1190,155 @@ public tuple[ConstraintBase,bool] unifyComparable(SymbolTable st, ConstraintBase
 }
 
 //
-// CONSTRAINT: AnnotationAssignable(Tree parent, loc at, Tree lhs, Tree ann, Tree rhs, RType rvalue, RType lvalue)
+// CONSTRAINT: AnnotationAssignable(Tree parent, loc at, Tree lhs, Tree ann, Tree rhs, RType rvalue, RType lvalue, RType result)
+//
+// TODO: Size check could fail in the case of aliases. We need to actually use an equivalence
+// check here as well.
 //
 public tuple[ConstraintBase,bool] unifyAnnotationAssignable(SymbolTable st, ConstraintBase cb) {
+    if ({_*, aa:AnnotationAssignable(parent,at,lhs,ann,rhs,rvalue,lvalue,result) } := cb.constraints, `<Name n>` := ann, isConcreteType(st,cb,lvalue), isConcreteType(st,cb,rvalue)) {
+        cb.constraints = cb.constraints - aa;
+        
+        // First, get back the annotations with the given name n
+        RName rn = convertName(n);
+        set[STItem] annItems = { st.scopeItemMap[annId] | annId <- getAnnotationItemsForName(st, st.currentModule, rn) };
+        
+        // Second, narrow down this list so that we only keep those where inType
+        // is a subtype of the type where the annotation is defined.
+        set[RType] annTypes = { markUserTypes(annItem.annoType,st,st.currentModule) | annItem <- annItems, subtypeOf(inType,markUserTypes(annItem.onType,st,st.currentModule)) };
+        
+        // Third, pick one. If we have multiple available choices here, this is
+        // itself an error (unless all the choices have the same type). If we have
+        // no choices, this is also an error, since that means the annotation is not
+        // defined for this type. Note that the first error should be caught during
+        // symbol table construction, but we handle it here just in case.
+        if (size(annTypes) == 1) {
+            RType annType = getOneFrom(annTypes);
+            // Now, check to see that the rvalue type can be assigned into the annotation type.
+            if (subtypeOf(rvalue,annType)) {
+                cb.constraints = cb.constraints + TypesAreEqual(resultType,lvalue,at);
+            } else {
+                cb.constraints = cb.constraints + LocIsType(at,makeFailType("Can not assign value of type <prettyPrintType(rvalue)> to annotation of type <prettyPrintType(annType)>.",at));
+            }
+        } else if (size(annTypes) == 0) {
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Annotation <prettyPrintName(rn)> is not defined on type <prettyPrintType(inType)>",at));
+        } else {
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Annotation <prettyPrintName(rn)> has multiple possible types on type <prettyPrintType(inType)>",at));
+        }
+        
+        return <cb, true>;
+    }
+    
     return <cb, false>;
 }
 
 //
 // CONSTRAINT: AnnotationOf(Tree t, RType inType, RType annType, loc at)
 //
+// TODO: Size check could fail in the case of aliases. We need to actually use an equivalence
+// check here as well.
+//
 public tuple[ConstraintBase,bool] unifyAnnotationOf(SymbolTable st, ConstraintBase cb) {
+    if ({_*, aof:AnnotationOf(t,inType,annType,at) } := cb.constraints, `<Name n>` := t, isConcreteType(st,cb,lvalue), isConcreteType(st,cb,rvalue)) {
+        cb.constraints = cb.constraints - aof;
+        
+        // First, get back the annotations with the given name n
+        RName rn = convertName(n);
+        set[STItem] annItems = { st.scopeItemMap[annId] | annId <- getAnnotationItemsForName(st, st.currentModule, rn) };
+        
+        // Second, narrow down this list so that we only keep those where inType
+        // is a subtype of the type where the annotation is defined.
+        set[RType] annTypes = { markUserTypes(annItem.annoType,st,st.currentModule) | annItem <- annItems, subtypeOf(inType,markUserTypes(annItem.onType,st,st.currentModule)) };
+        
+        // Third, pick one. If we have multiple available choices here, this is
+        // itself an error (unless all the choices have the same type). If we have
+        // no choices, this is also an error, since that means the annotation is not
+        // defined for this type. Note that the first error should be caught during
+        // symbol table construction, but we handle it here just in case.
+        if (size(annTypes) == 1) {
+            cb.constraints = cb.constraints + TypesAreEqual(annType,getOneFrom(annTypes),at);
+        } else if (size(annTypes) == 0) {
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Annotation <prettyPrintName(rn)> is not defined on type <prettyPrintType(inType)>",at));
+        } else {
+            cb.constraints = cb.constraints + LocIsType(at,makeFailType("Annotation <prettyPrintName(rn)> has multiple possible types on type <prettyPrintType(inType)>",at));
+        }
+        
+        return <cb, true>;
+    }
+    
     return <cb, false>;
 }
 
 //
 // CONSTRAINT: Composable(RType left, RType right, RType result, loc at)
 //
+// TODO: Add support for overloaded types and for overloaded type/function type combos
+//
 public tuple[ConstraintBase,bool] unifyComposable(SymbolTable st, ConstraintBase cb) {
+    if ({_*,cmp:Composable(left, right, result, at)} := cb.constraints, isConcreteType(st,cb,left), isConcreteType(st,cb,right)) {
+        cb.constraints = cb.constraints - cmp;
+        
+        if (isOverloadedType(left) && isOverloadedType(right)) {
+            cb.constraints = cb.constraints + LocIsType(at, makeFailType("Not yet supported (overlaoded function composition)!",at));
+        } else if (isOverloadedType(left) && isFunctionType(right)) {
+            cb.constraints = cb.constraints + LocIsType(at, makeFailType("Not yet supported (overlaoded function composition)!",at));
+        } else if (isFunctionType(left) && isOverloadedType(right)) {
+            cb.constraints = cb.constraints + LocIsType(at, makeFailType("Not yet supported (overlaoded function composition)!",at));
+        } else if (isFunType(left) && isFunType(right)) {
+            RType rightRet = getFunctionReturnType(right);
+            list[RType] leftParams = getFunctionArgumentTypes(left);
+            
+            if (size(leftParams) != 1) {
+                cb.constraints = cb.constarints + LocIsType(at, makeFailType("Type <prettyPrintType(left)> must have exactly one formal parameter",at));            
+            } else {
+                RType leftParam = leftParams[0];
+                if (subtypeOf(rightRet,leftParam)) {
+                    cb.constraints = cb.constraints + TypesAreEqual(result, makeFunctionType(getFunctionReturnType(left),getFunctionArgumentTypes(right)), at);
+                } else {
+                    cb.constraints = cb.constraints + LocIsType(at, makeFailType("Cannot compose function types <prettyPrintType(left)> and <prettyPrintType(right)>",at));                
+                }            
+            }
+        } else if (isMapType(left) && isMapType(right)) {
+            RType j1 = getMapRangeType(left); 
+            RType j2 = getMapDomainType(right);
+            if (! subtypeOf(j1,j2)) 
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Incompatible types in map composition: domain <prettyPrintType(j1)> and range <prettyPrintType(j2)>", at));
+            else    
+                cb.constraints = cb.constraints + TypesAreEqual(result,RMapType(getMapDomainType(left), getMapRangeType(right)),at);
+        } else if (isRelType(left) && isRelType(right)) {
+            list[RNamedType] leftFields = getRelFieldsWithNames(left); 
+            list[RNamedType] rightFields = getRelFieldsWithNames(right);
+    
+            if (size(leftFields) != 2) {
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Error in composition: <prettyPrintType(left)> should have arity 2", at));
+            }
+            
+            if (size(rightFields) != 2) {
+                cb.constraints = cb.constraints + LocIsType(at, makeFailType("Error in composition: <prettyPrintType(right)> should have arity 2", at));
+            }
+            
+            if (size(leftFields) == 2 && size(rightFields) == 2) {
+                // Check to make sure the fields are of the right type to compose
+                RType j1 = getElementType(leftFields[1]); 
+                RType j2 = getElementType(rightFields[0]);
+                if (! subtypeOf(j1,j2)) { 
+                    cb.constraints = cb.constraints + LocIsType(at, makeFailType("Incompatible types of fields in relation composition: <prettyPrintType(j1)> and <prettyPrintType(j2)>", at));
+                } else {
+                    // Check to see if we need to drop the field names, then return the proper type
+                    RNamedType r1 = leftFields[1]; 
+                    RNamedType r2 = rightFields[0];
+                    if (RNamedType(t1,n) := r1, RNamedType(t2,m) := r2, n != m)
+                        cb.constraints = cb.constraints + TypesAreEqual(result,RRelType([r1,r2]),at); 
+                    else 
+                        cb.constraints = cb.constraints + TypesAreEqual(result,RRelType([RUnnamedType(getElementType(r1)),RUnnamedType(getElementType(r2))]),at); 
+                }
+            }
+        } else {
+            cb.constraints = cb.constraints + LocIsType(at, makeFailType("Composition is not supported on types <prettyPrintType(left)> and <prettyPrintType(right)>", at));
+        }
+        
+        return <cb, true>;
+    }
     return <cb, false>;
 }
 
@@ -1216,12 +1363,16 @@ public tuple[ConstraintBase,bool] unifyBuiltInAppliable(SymbolTable st, Constrai
 //
 // CONSTRAINT: Bindable(Tree pattern, RType subject, loc at)
 //
+// TODO: IMPLEMENT
+//
 public tuple[ConstraintBase,bool] unifyBindable(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
 }
 
 //
 // CONSTRAINT: Enumerable(Tree pattern, RType subject, loc at)
+//
+// TODO: IMPLEMENT
 //
 public tuple[ConstraintBase,bool] unifyEnumerable(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
@@ -1230,14 +1381,9 @@ public tuple[ConstraintBase,bool] unifyEnumerable(SymbolTable st, ConstraintBase
 //
 // CONSTRAINT: StepItType(Tree reducer, loc at, RType inType, RType outType, RType result)
 //
+// TODO: IMPLEMENT
+//
 public tuple[ConstraintBase,bool] unifyStepItType(SymbolTable st, ConstraintBase cb) {
-    return <cb, false>;
-}
-
-//
-// CONSTRAINT: Failure(Tree t, loc at, RType failureType)
-//
-public tuple[ConstraintBase,bool] unifyFailure(SymbolTable st, ConstraintBase cb) {
     return <cb, false>;
 }
 
@@ -1285,12 +1431,6 @@ public tuple[ConstraintBase,bool] unifyDefinedBy(SymbolTable st, ConstraintBase 
     
     return <cb, false>;
 }
-
-
-
-
-
-
 
 
 
@@ -1471,14 +1611,13 @@ public Constraint instantiateInferenceVar(Constraint c, RType infv, RType conc) 
         case FieldProjection(lt,ftl,res,at) : return FieldProjection(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(ftl,infv,conc),instantiateInferenceVar(res,infv,conc),at);
         case Subscript(lt,tl,rtl,res,at) :return Subscript(instantiateInferenceVar(lt,infv,conc),tl,instantiateInferenceVar(rtl,infv,conc),instantiateInferenceVar(res,infv,conc),at);        
         case Comparable(lt,rt,at) : return Comparable(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
-        case AnnotationAssignable(p,at,lt,ant,rt,rv,lv) : return AnnotationAssignable(p,at,lt,ant,rt,instantiateInferenceVar(rv,infv,conc),instantiateInferenceVar(lv,infv,conc));
+        case AnnotationAssignable(p,at,lt,ant,rt,rv,lv,res) : return AnnotationAssignable(p,at,lt,ant,rt,instantiateInferenceVar(rv,infv,conc),instantiateInferenceVar(lv,infv,conc),instantiateInferenceVar(res,infv,conc));
         case AnnotationOf(t,lt,rt,at) : return AnnotationOf(t,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),at);
         case Composable(lt,rt,res,at) : return Composable(instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(rt,infv,conc),instantiateInferenceVar(res,infv,conc),at);
         case BuiltInAppliable(op,d,r,at) : return BuiltInAppliable(op,instantiateInferenceVar(d,infv,conc),instantiateInferenceVar(r,infv,conc),at);
         case Bindable(p,st,at) : return Bindable(p,instantiateInferenceVar(st,infv,conc),at);
         case Enumerable(p,st,at) : return Enumerable(p,instantiateInferenceVar(st,infv,conc),at);
         case StepItType(p,at,lt,st,rt) : return Enumerable(p,at,instantiateInferenceVar(lt,infv,conc),instantiateInferenceVar(st,infv,conc),instantiateInferenceVar(rt,infv,conc));
-        case Failure(t,at,ft) : return c;
         case DefinedBy(lt,ids,at) : return DefinedBy(instantiateInferenceVar(lt,infv,conc),ids,at);
     }
 }
@@ -1711,14 +1850,13 @@ public Constraint instantiateAllInferenceVars(SymbolTable st, ConstraintBase cb,
         case FieldProjection(lt,ftl,res,at) : return FieldProjection(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,ftl),instantiateAllInferenceVars(st,cb,res),at);
         case Subscript(lt,tl,rtl,res,at) :return Subscript(instantiateAllInferenceVars(st,cb,lt),tl,instantiateAllInferenceVars(rtl,cb,lt),instantiateAllInferenceVars(st,cb,res),at);        
         case Comparable(lt,rt,at) : return Comparable(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
-        case AnnotationAssignable(p,at,lt,ant,rt,rv,lv) : return AnnotationAssignable(p,at,lt,ant,rt,instantiateAllInferenceVars(st,cb,rv),instantiateAllInferenceVars(st,cb,lv));
+        case AnnotationAssignable(p,at,lt,ant,rt,rv,lv,res) : return AnnotationAssignable(p,at,lt,ant,rt,instantiateAllInferenceVars(st,cb,rv),instantiateAllInferenceVars(st,cb,lv),instantiateAllInferenceVars(st,cb,res));
         case AnnotationOf(t,lt,rt,at) : return AnnotationOf(t,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),at);
         case Composable(lt,rt,res,at) : return Composable(instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,rt),instantiateAllInferenceVars(st,cb,res),at);
         case BuiltInAppliable(op,d,r,at) : return BuiltInAppliable(op,instantiateAllInferenceVars(st,cb,d),instantiateAllInferenceVars(st,cb,r),at);
         case Bindable(p,stt,at) : return Bindable(p,instantiateAllInferenceVars(st,cb,stt),at);
         case Enumerable(p,stt,at) : return Enumerable(p,instantiateAllInferenceVars(st,cb,stt),at);
         case StepItType(p,at,lt,stt,rt) : return StepItType(p,at,instantiateAllInferenceVars(st,cb,lt),instantiateAllInferenceVars(st,cb,stt),instantiateAllInferenceVars(st,cb,rt));
-        case Failure(t,at,ft) : return c;
         case DefinedBy(lt,ids,at) : return DefinedBy(instantiateAllInferenceVars(st,cb,lt),ids,at);
     }
 }

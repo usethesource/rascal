@@ -686,10 +686,10 @@ public list[RNamedType] getFunctionArgumentTypesWithNames(RType ft) {
     throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
 }
 
-public list[RNamedType] getFunctionArgumentTypesAsTuple(RType ft) {
+public RType getFunctionArgumentTypesAsTuple(RType ft) {
     if (RAliasType(_,_,at) := ft) return getFunctionArgumentTypesAsTuple(at);
     if (RTypeVar(_,tvb) := ft) return getFunctionArgumentTypesAsTuple(tvb);
-    if (RFunctionType(_, ats, _) := ft) return RTupleType(ats);
+    if (RFunctionType(_,ats,_) := ft) return RTupleType(ats);
     throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
 }
 

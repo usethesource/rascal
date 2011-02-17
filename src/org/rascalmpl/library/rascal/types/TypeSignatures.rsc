@@ -230,7 +230,9 @@ private list[RType] getParameterTypes(Parameters ps) {
 //
 // Return true if the parameter list is a varargs list
 //
-private bool isVarArgsParameters(Parameters ps) {
+// TODO: Find a better place for this...
+//
+public bool isVarArgsParameters(Parameters ps) {
     return `( <Formals _> ...)` := ps;
 }
 
@@ -253,6 +255,24 @@ private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
 //
 
 data RType = RUnknownType(RType baseType);
+
+public RType makeUnknownType(RType rt) {
+    return RUnknownType(rt);
+}
+
+public RType getUnknownType(RType rt) {
+    if (RAliasType(_,_,at) := rt) return getUnknownType(at);
+    if (RTypeVar(_,tvb) := rt) return getUnknownType(tvb);
+    if (RUnknownType(t) := rt) return t;
+    throw "Warning, was not given RUnknownType";
+}
+
+public RType isUnknownType(RType rt) {
+    if (RAliasType(_,_,at) := rt) return isUnknownType(at);
+    if (RTypeVar(_,tvb) := rt) return isUnknownType(tvb);
+    if (RUnknownType(t) := rt) return true;
+    return false;
+}
 
 private RSignature markUndefinedTypes(RSignature sig) {
 	set[RName] localNames = getLocallyDefinedTypeNames(sig);

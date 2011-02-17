@@ -45,3 +45,11 @@ public list[Tree] prodFilter(Tree t, bool(Production) fltr) {
         return [  ] ;
     }
 }
+
+public list[Tree] getAllNodes(Tree t) {
+    if (appl(p,list[Tree] tl) := t) {
+        return [ t ] + [ getAllNodes(tli) | tli <- tl ];
+    } else {
+        return [  ] ;
+    }
+}

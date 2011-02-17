@@ -122,6 +122,7 @@ private bool subtypeOfRealType(RType t1, RType t2) {
 //
 private bool subtypeOfFunctionType(RType t1, RType t2) {
     if (t1 == t2) return true;
+
     if (isFunctionType(t2)) {
         if (subtypeOf(getFunctionReturnType(t1),getFunctionReturnType(t2))) {
             if (subtypeOf(makeTupleType(getFunctionArgumentTypes(t1)),makeTupleType(getFunctionArgumentTypes(t2)))) {
@@ -131,7 +132,6 @@ private bool subtypeOfFunctionType(RType t1, RType t2) {
         
         return false;
     }
-
 
     return subtypeOfBase(t1,t2);
 }

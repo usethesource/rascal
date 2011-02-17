@@ -465,12 +465,12 @@ public ConstraintBase gatherGetAnnotationExpressionConstraints(SymbolTable st, C
 // TODO: Add type rule!
 //
 public ConstraintBase gatherSetAnnotationExpressionConstraints(SymbolTable st, ConstraintBase cs, Expression ep, Expression el, Name n, Expression er) {
-    <cs, ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; ts = ts[2];
-    Constraint c1 = TreeIsType(el,el@\loc,t1);
-    Constraint c2 = TreeIsType(ep,ep@\loc,t1);
-    Constraint c3 = AnnotationOf(n,t1,t2,n@\loc);
-    Constraint c4 = TreeIsType(er,er@\loc,t3);
-    Constraint c5 = AnnotationAssignable(ep,ep@\loc,el,n,er,t3,t2);
+    <cs, ts> = makeFreshTypes(cs,4); t1 = ts[0]; t2 = ts[1]; t3 = ts[2]; t4 = ts[3];
+    Constraint c1 = TreeIsType(el,el@\loc,t1); // el is of arbitrary type t1
+    Constraint c2 = AnnotationOf(n,t1,t2,n@\loc); // n is an annotation on t1 with type t2
+    Constraint c3 = TreeIsType(er,er@\loc,t3); // er is of arbitrary type t3
+    Constraint c4 = AnnotationAssignable(ep,ep@\loc,el,n,er,t3,t2,t4); // for el[@n] = er, the type of er, t3, is assignable to type type of the annotation, t2, with result t4 
+    Constraint c5 = TreeIsType(ep,ep@\loc,t4); // the overall exp type if the type of the assignment result
     cs.constraints = cs.constraints + { c1, c2, c3, c4, c5 };
     return cs;
 }
@@ -954,9 +954,15 @@ public ConstraintBase gatherExpressionConstraints(SymbolTable st, ConstraintBase
             return cs;
         }
 
-        // _ as a name, should only be in patterns, but include just in case...
+        // _ as a name, which, unbelievably, can be used just about anywhere (but we
+        // treat it as an anonymous type here, instead of as a regular name like in
+        // the current implementation)
         case (Expression)`_`: {
-            cs.constraints = cs.constraints + Failure(exp,exp@\loc,makeFailType("The anonymous name _ can only be used inside a pattern",exp@\loc));
+            <cs, t1> = makeFreshType(cs);
+            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,t1);
+            if (exp@\loc in st.itemUses) {
+                cs.constraints = cs.constraints + DefinedBy(t1,(st.itemUses)[exp@\loc],exp@\loc);
+            }   
             return cs;
         }
 
