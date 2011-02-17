@@ -5,6 +5,7 @@ import List;
 import Set;
 import ParseTree;
 import Reflective;
+import IO;
 
 import rascal::types::Types;
 import rascal::syntax::RascalRascal;
@@ -309,35 +310,37 @@ public RSignature getModuleSignature(Tree t) {
 //
 public alias SignatureMap = map[Import importedModule, RSignature moduleSignature];
 
+public str getNameOfImportedModule(ImportedModule im) {
+    switch(im) {
+        case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
+            return prettyPrintName(convertName(qn));
+        }
+        case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma>` : {
+            return prettyPrintName(convertName(qn));
+        }
+        case (ImportedModule)`<QualifiedName qn> <Renamings rn>` : {
+            return prettyPrintName(convertName(qn));
+        }
+        case (ImportedModule)`<QualifiedName qn>` : {
+            return prettyPrintName(convertName(qn));
+        }
+    }
+    throw "getNameOfImportedModule: invalid syntax for ImportedModule <im>, cannot get name";
+}
+
 //
 // Fill in the signature map with one signature per import.
 //
 public SignatureMap populateSignatureMap(list[Import] imports) {
-
-	str getNameOfImportedModule(ImportedModule im) {
-		switch(im) {
-			case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>` : {
-				return prettyPrintName(convertName(qn));
-			}
-			case (ImportedModule)`<QualifiedName qn> <ModuleActuals ma>` : {
-				return prettyPrintName(convertName(qn));
-			}
-			case (ImportedModule)`<QualifiedName qn> <Renamings rn>` : {
-				return prettyPrintName(convertName(qn));
-			}
-			case (ImportedModule)`<QualifiedName qn>` : {
-				return prettyPrintName(convertName(qn));
-			}
-		}
-		throw "getNameOfImportedModule: invalid syntax for ImportedModule <im>, cannot get name";
-	}
-
-
 	SignatureMap sigMap = ( );
 	for (i <- imports) {
 		if ((Import)`import <ImportedModule im> ;` := i || (Import)`extend <ImportedModule im> ;` := i) {
-			Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
-			sigMap[i] = getModuleSignature(importTree);
+            try {
+    			Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
+    			sigMap[i] = getModuleSignature(importTree);
+            } catch : {
+                println("TypeSignatures: Failed to build signature for module <getNameOfImportedModule(im)>");
+            }
 		} 
 	}
 
