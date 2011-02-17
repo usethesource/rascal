@@ -127,7 +127,6 @@ public final class DefaultPropertyManager implements IPropertyManager {
 	public boolean isDraggable();
 	 */
 
-	@Override
 	public int getIntegerProperty(Property property) {
 		// TODO Auto-generated method stub
 		switch(property){
@@ -141,7 +140,6 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		}
 	}
 
-	@Override
 	public float getRealProperty(Property property) {
 		switch(property){
 		case FROMANGLE: 	return getFromAngle();
@@ -160,7 +158,6 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		}
 	}
 
-	@Override
 	public String getStringProperty(Property property) {
 		switch(property){
 		case FONT:	return getFont();

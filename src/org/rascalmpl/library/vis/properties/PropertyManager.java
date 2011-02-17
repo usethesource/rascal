@@ -394,7 +394,6 @@ public class PropertyManager implements IPropertyManager {
 		return draggable;
 	}
 
-	@Override
 	public int getIntegerProperty(Property property) {
 		for(IPropertyValue pv : values){
 			if(pv.getProperty() == property)
@@ -403,7 +402,6 @@ public class PropertyManager implements IPropertyManager {
 		return inherited.getIntegerProperty(property);
 	}
 	
-	@Override
 	public float getRealProperty(Property property) {
 		for(IPropertyValue pv : values){
 			if(pv.getProperty() == property)
@@ -412,7 +410,6 @@ public class PropertyManager implements IPropertyManager {
 		return inherited.getRealProperty(property);
 	}
 	
-	@Override
 	public String getStringProperty(Property property) {
 		for(IPropertyValue pv : values){
 			if(pv.getProperty() == property)
