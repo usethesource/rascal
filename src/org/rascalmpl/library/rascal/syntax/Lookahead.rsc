@@ -175,7 +175,7 @@ public list[Symbol] removeLabels(list[Symbol] syms) {
 }
 
 public set[Symbol] usedSymbols(Grammar G){
-   return { s |  Production p <- G.productions, /Symbol s <- p.lhs };
+   return { s |  Production p:prod(_,_,_) <- G.productions, /Symbol s <- p.lhs };
 }
 
 public set[Symbol] definedSymbols(Grammar G) {
@@ -328,18 +328,16 @@ test SymbolUse F := first(G1)
                        
 public Grammar G2 = simple({sort("E")},
 {
-	first(sort("E"), [pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
-     	 pr(sort("E"), [sort("E"), lit("+"), sort("B")])
-    	]),
+	pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+    pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
 	pr(sort("E"), [sort("B")]),
-	choice(sort("B"), {pr(sort("B"), [lit("0")]),
-    	pr(sort("B"), [lit("1")])
-   		})
+	pr(sort("B"), [lit("0")]),
+    pr(sort("B"), [lit("1")])
 } + Lit1.productions);
 
 test SymbolUse F := first(G2)
-     && F[sort("E")] == {\char-class([range(48,49)])}
-     && F[sort("B")] == {\char-class([range(48,49)])}
+     && F[sort("E")] == {\char-class([range(48,48)]),\char-class([range(49,49)])}
+     && F[sort("B")] == {\char-class([range(48,48)]),\char-class([range(49,49)])}
      ;
 
 public Grammar G3 = simple( {sort("E")},
@@ -359,28 +357,30 @@ public Grammar G3 = simple( {sort("E")},
 	pr(lit("id"), [\char-class([range(105,105)]),\char-class([range(100,100)])])
 });
 
-test first(G3) ==
-	 (sort("F"):{\char-class([range(100,100),range(105,105)])},
-      sort("T"):{\char-class([range(100,100),range(105,105)])},
-      sort("E"):{\char-class([range(100,100),range(105,105)])},
-      lit("*"):{\char-class([range(42,42)])},
-      lit("+"):{\char-class([range(43,43)])},
-      lit("id"):{\char-class([range(105,105)])},
-      sort("E1"):{\char-class([range(43,43)]),empty()},
-      sort("T1"):{\char-class([range(42,42)]),empty()},
-      lit("("): {\char-class([range(40,40)])},
-      lit(")"): {\char-class([range(41,41)])}
-     );
+private SymbolUse F3 = first(G3);
+
+test F3[sort("F")] == {\char-class([range(105,105)]),\char-class([range(40,40)])};
+test F3[sort("T")] == F3[sort("F")];
+test F3[sort("E")] == F3[sort("T")];
+test F3[lit("*")] == {\char-class([range(42,42)])};
+test F3[lit("+")] == {\char-class([range(43,43)])};
+test F3[lit("id")] == {\char-class([range(105,105)])};
+test F3[sort("E1")] == {empty()} + F3[lit("+")];
+test F3[sort("T1")] == {empty()} + F3[lit("*")];
+test F3[lit("(")] == {\char-class([range(40,40)])};
+test F3[lit(")")] == {\char-class([range(41,41)])};
+     
       
-test follow(G3, first(G3)) ==
-     (sort("E"):{\char-class([range(41,41)]), eoi()},
-      sort("E1"):{\char-class([range(41,41)]), eoi()},
-      sort("T"):{\char-class([range(41,41),range(43,43)]), eoi()},
-      sort("T1"):{\char-class([range(41,41),range(43,43)]), eoi()},
-      sort("F"):{\char-class([range(41,43)]), eoi()}
-     );
+public SymbolUse Fol3 = follow(G3, first(G3));
+ 
+test Fol3[sort("E")] == {\char-class([range(41,41)]), eoi()};
+test Fol3[sort("E1")] == {\char-class([range(41,41)]), eoi()};
+test Fol3[sort("T")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
+test Fol3[sort("T1")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
+test Fol3[sort("F")] == {\char-class([range(43,43)]),\char-class([range(42,42)]),\char-class([range(41,41)]),eoi()};
+     
        
-public Grammar Session = grammar({sort("Session")},
+public Grammar Session = simple({sort("Session")},
 {
 	pr(sort("Session"), [sort("Facts"), sort("Question")]),
 	pr(sort("Session"), [lit("("), sort("Session"), lit(")"), sort("Session")]),
@@ -396,20 +396,20 @@ public Grammar Session = grammar({sort("Session")},
 	pr(lit("a"), [\char-class([range(97,97)])])
 });
 
-test first(Session) ==
-     (sort("Question"):{\char-class([range(63,63)])},
-      sort("Session"):{\char-class([range(33,33),range(40,40),range(63,63)])},
-      sort("Facts"):{\char-class([range(33,33)]),empty()},
-      lit("a"):{\char-class([range(97,97)])},
-      lit("!"):{\char-class([range(33,33)])},
-      lit("?"):{\char-class([range(63,63)])},
-      lit("("):{\char-class([range(40,40)])},
-      lit(")"):{\char-class([range(41,41)])},
-      sort("STRING"):{\char-class([range(97,97)])},
-      sort("Fact"):{\char-class([range(33,33)])}
-     );
+test SymbolUse F := first(Session) 
+     && F[sort("Question")] == {\char-class([range(63,63)])}
+     && F[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])}
+     && F[sort("Facts")] == {\char-class([range(33,33)]),empty()}
+     && F[lit("a")] == {\char-class([range(97,97)])}
+     && F[lit("!")] == {\char-class([range(33,33)])}
+     && F[lit("?")] == {\char-class([range(63,63)])}
+     && F[lit("(")] == {\char-class([range(40,40)])}
+     && F[lit(")")] == {\char-class([range(41,41)])}
+     && F[sort("STRING")] == {\char-class([range(97,97)])}
+     && F[sort("Fact")] == {\char-class([range(33,33)])}
+     ;
      
-test follow(Session, first(Session)) ==
+test follow(Session, first(Session)) >=
  	 (sort("Question"):{\char-class([range(41,41)]),eoi()},
  	 sort("Session"):{\char-class([range(41,41)]),eoi()},
  	 sort("Facts"):{\char-class([range(63,63)])},
