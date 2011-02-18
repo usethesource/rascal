@@ -322,16 +322,17 @@ public abstract class AbstractStackNode{
 				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 					int startLocation = edgesMapToAdd.getKey(i);
 					int index = edgesMap.findKey(startLocation);
+					ArrayList<Link> prefixes;
 					if(index == -1){
 						index = edgesMap.size();
 						edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
-					}
-					
-					ArrayList<Link> prefixes = prefixesMap[index];
-					if(prefixes == null){
+						
 						prefixes = new ArrayList<Link>(1);
 						prefixesMap[index] = prefixes;
+					}else{
+						prefixes = prefixesMap[index];
 					}
+					
 					prefixes.add(new Link(prefixesMapToAdd[i], result));
 				}
 			}
