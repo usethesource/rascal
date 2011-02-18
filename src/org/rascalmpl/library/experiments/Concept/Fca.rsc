@@ -28,23 +28,22 @@ public property_table readCxt(loc input)  {
     
     
     @doc{Create Lattice Figure from Property Table}
- public Figure createLatticeFigure(property_table vb) {
+ public Figure createLatticeFigure(property_table vb, str layout_alg) {
+     int bound = 10;
      rel[concept_t, concept_t] q = createLattice(vb);
      map[concept_t, int] z = makeNodes(q);
      set[concept_t] d = domain(z);
      Figures nodes = [];
+     bool big = (size(d)<bound);
      for (concept_t c <- d) {
        set[str] a0 = newAdded0(q, c);
        set[str] a1 = newAdded1(q, c);
        str s0 = (isEmpty(a0)?"":((size(a0)==1)?getOneFrom(a0):toString(a0)));
        str s1 = (isEmpty(a1)?"":((size(a1)==1)?getOneFrom(a1):toString(a1)));
-       nodes += vcat(compose(s0, s1),[id("<z[c]>"),mouseOver(box(
-      text("<c[0]> <c[1]>", [fontColor("green")]), 
-         [fillColor("lightgrey")]
-         ))]);
+       nodes += compose(s0, s1, c, z, big);
      }  
      list[Edge] edges =   [ edge("<z[x[0]]>", "<z[x[1]]>", [lineWidth(1)]) | x<-q];  
-     return graph( nodes, edges, [hint("lattice")]);
+     return graph( nodes, edges, [hint(layout_alg)]);
      }
      
 // Auxilary functions
@@ -70,11 +69,18 @@ set[str] newAdded1(rel[concept_t, concept_t] q, concept_t c) {
               }
           }
      return r;
-     } 
-     
- Figures compose(str s1, str s2) {
+     }
+   
+ Figure compose(str s1, str s2, concept_t c, map[concept_t, int] z, bool big) {
      int w = 70, h = 20;
+     FProperty mOver = mouseOver(box(
+      text("<c[0]> <c[1]>", [fontColor("green")]), 
+         [fillColor("lightgrey")]));
      list[FProperty] l = [width(w), height(h), fontSize(9), lineColor("black")];
-     return [box(text(s1), l+fillColor("lightgrey")),
-             box(text(s2), l+fillColor("lightyellow"))];
+     if (big)
+     return vcat([box(text(s1), l+fillColor("lightgrey")),
+             box(text(s2), l+fillColor("lightyellow"))],[id("<z[c]>"),mOver]
+         );
+     else
+     return ellipse([width(10), height(10),fillColor("lightyellow"), id("<z[c]>"), mOver]);
      } 

@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
  * are implemented in such a way such that a function value simulates an empty map if it
  * escapes beyond the reach of the Rascal interpreter. This is useless, but safe behavior.
  */
-abstract public class AbstractFunction extends Result<IValue> implements IExternalValue {
+abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;

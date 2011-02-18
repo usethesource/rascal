@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.parser.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
@@ -23,24 +23,29 @@ public class SortContainerNode extends AbstractContainerNode{
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	
-	private void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	protected static void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
-			IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-			if(result == null) return;
-			
-			IConstructor[] postFix = new IConstructor[]{result};
+			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 		}else{
 			gatheredAlternatives.add(new IConstructor[]{}, production);
 		}
 	}
 	
-	private void gatherProduction(Link child, IConstructor[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	private static void gatherProduction(Link child, AbstractNode[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
-			gatheredAlternatives.add(postFix, production);
+			int postFixLength = postFix.length;
+			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
+			for(int i = 0; i < postFixLength; ++i){
+				IConstructor node = postFix[i].toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+				if(node == null) return;
+				constructedPostFix[i] = node;
+			}
+			
+			gatheredAlternatives.add(constructedPostFix, production);
 			return;
 		}
 		
@@ -49,19 +54,16 @@ public class SortContainerNode extends AbstractContainerNode{
 			
 			AbstractNode resultNode = prefix.node;
 			if(!resultNode.isRejected()){
-				IConstructor result = resultNode.toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-				if(result == null) continue;
-				
 				int length = postFix.length;
-				IConstructor[] newPostFix = new IConstructor[length + 1];
+				AbstractNode[] newPostFix = new AbstractNode[length + 1];
 				System.arraycopy(postFix, 0, newPostFix, 1, length);
-				newPostFix[0] = result;
+				newPostFix[0] = resultNode;
 				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 			}
 		}
 	}
 	
-	private IConstructor buildAlternative(IConstructor production, IValue[] children){
+	private static IConstructor buildAlternative(IConstructor production, IValue[] children){
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
@@ -93,7 +95,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
-			cycle = actionExecutor.filterAppl(cycle);
+			cycle = actionExecutor.filterProduction(cycle);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);
@@ -122,7 +124,7 @@ public class SortContainerNode extends AbstractContainerNode{
 			IConstructor production = gatheredAlternatives.getSecond(0);
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
-			result = actionExecutor.filterAppl(result);
+			result = actionExecutor.filterProduction(result);
 			if(result != null){
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}else{
@@ -137,7 +139,7 @@ public class SortContainerNode extends AbstractContainerNode{
 				IValue[] alternative = gatheredAlternatives.getFirst(i);
 				
 				IConstructor alt = buildAlternative(production, alternative);
-				alt = actionExecutor.filterAppl(alt);
+				alt = actionExecutor.filterProduction(alt);
 				if(alt != null){
 					if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
 					lastAlternative = alt;
@@ -151,6 +153,9 @@ public class SortContainerNode extends AbstractContainerNode{
 				filteringTracker.setLastFilered(offset, endOffset);
 			}else{
 				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
+				result = actionExecutor.filterAmbiguity(result);
+				if(result == null) return null;
+				
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
 		}

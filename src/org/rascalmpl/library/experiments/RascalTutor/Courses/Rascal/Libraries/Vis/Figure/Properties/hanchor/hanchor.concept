@@ -9,7 +9,9 @@ Syntax:
 Types:
 
 Function:
-`FProperty hanchor(num h)`
+# `FProperty hanchor(num h)`
+# `FProperty hanchor(computedNum ch)`
+
 
 Synopsis:
 
@@ -17,6 +19,7 @@ Description:
 
 `hanchor` defines __horizontal alignment__.
 It sets the horizontal anchor to `h`% of the width of the current figure. `h` should be a value between 0.0 and 1.0.
+The horizontal anchor value may also be computed by a callback `ch`.
 
 Also see [BoxModel], [Properties/left], [hcenter] and [Properties/right].
 

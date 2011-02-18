@@ -2,7 +2,7 @@ package org.rascalmpl.library.vis.properties;
 
 public class ConstantIntegerProperty implements IIntegerPropertyValue {
 	Property property;
-	Integer value;
+	int value;
 
 	public ConstantIntegerProperty(Property prop, int val){
 		this.property = prop;
@@ -15,6 +15,10 @@ public class ConstantIntegerProperty implements IIntegerPropertyValue {
 	
 	public int getValue() {
 		return value;
+	}
+
+	public boolean usesTrigger() {
+		return false;
 	}
 
 }

@@ -28,39 +28,35 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
-
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class MakeBox {
 
 	private final String varName = "boxData";
 	private final String moduleName = "moduleName";
-	
-    private final IValueFactory values;
-	
+
+	private final IValueFactory values;
+
 	public MakeBox(IValueFactory values) {
 		super();
 		final PrintWriter stderr = new PrintWriter(System.err);
 		final PrintWriter stdout = new PrintWriter(System.out);
-		commandEvaluator= new Evaluator(values,
-				stderr, stdout, root, heap);
+		commandEvaluator = new Evaluator(values, stderr, stdout, root, heap);
 		this.values = values;
-	    }
-	
+	}
+
 	public MakeBox() {
 		final PrintWriter stderr = new PrintWriter(System.err);
 		final PrintWriter stdout = new PrintWriter(System.out);
-		this.values = ValueFactoryFactory
-		.getValueFactory();
-		commandEvaluator= new Evaluator(values,
-				stderr, stdout, root, heap);
-	    }
-	
+		this.values = ValueFactoryFactory.getValueFactory();
+		commandEvaluator = new Evaluator(values, stderr, stdout, root, heap);
+	}
+
 	public MakeBox(PrintWriter stdout, PrintWriter stderr) {
 		this.values = ValueFactoryFactory.getValueFactory();
-		commandEvaluator= new Evaluator(values,
-				stderr, stdout, root, heap);
-	    }
-	
+		commandEvaluator = new Evaluator(values, stderr, stdout, root, heap);
+	}
+
 	class Data extends ByteArrayOutputStream {
 		ByteArrayInputStream get() {
 			return new ByteArrayInputStream(this.buf);
@@ -69,12 +65,12 @@ public class MakeBox {
 
 	BoxEvaluator eval = new BoxEvaluator();
 
-	
 	final private GlobalEnvironment heap = new GlobalEnvironment();
-	final private ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***MakeBox***", heap));
-	
-	final private Evaluator commandEvaluator; 
-	
+	final private ModuleEnvironment root = heap
+			.addModule(new ModuleEnvironment("***MakeBox***", heap));
+
+	final private Evaluator commandEvaluator;
+
 	public Evaluator getCommandEvaluator() {
 		return commandEvaluator;
 	}
@@ -82,7 +78,7 @@ public class MakeBox {
 	private Data data;
 	private TypeStore ts = BoxEvaluator.getTypeStore();
 	private Type adt = BoxEvaluator.getType();
-	
+
 	void store(IValue v, String varName) {
 		Result<IValue> r = makeResult(v.getType(), v, commandEvaluator);
 		root.storeVariable(varName, r);
@@ -94,20 +90,19 @@ public class MakeBox {
 		return r.getValue();
 	}
 
-	private void start() { 
+	private void start() {
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
 	}
 
 	private void execute(String s) {
-		// System.err.println("execute:" + s);
 		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
 	private IValue launchRascalProgram(String resultName) {
 		execute("import box::Box2Text;");
 		try {
-			IValue v = new PBFReader().read(ValueFactoryFactory
-					.getValueFactory(), ts, adt, data.get());
+			IValue v = new PBFReader().read(
+					ValueFactoryFactory.getValueFactory(), ts, adt, data.get());
 			store(v, varName);
 			if (resultName == null) {
 				execute("main(" + varName + ");");
@@ -122,17 +117,17 @@ public class MakeBox {
 			return null;
 		}
 	}
-	
+
 	private IValue launchRascalProgram(String cmd, URI src, URI dest) {
 		execute("import box::Box2Text;");
 		try {
-			IValue d= new PBFReader().read(values, ts, adt, data.get());
+			IValue d = new PBFReader().read(values, ts, adt, data.get());
 			store(d, "d");
-			ISourceLocation v = values
-			.sourceLocation(src), w = values
-			.sourceLocation(dest);
-	        store(v, "v"); store(w, "w");
-			execute("c="+cmd+"(d, v, w);");
+			ISourceLocation v = values.sourceLocation(src), w = values
+					.sourceLocation(dest);
+			store(v, "v");
+			store(w, "w");
+			execute("c=" + cmd + "(d, v, w);");
 			IValue r = fetch("c");
 			data.close();
 			return r;
@@ -141,35 +136,33 @@ public class MakeBox {
 			return null;
 		}
 	}
-	
-	private IValue launchConcreteProgram(String cmd, URI src, URI dest, String ext) {
+
+	private IValue launchConcreteProgram(String cmd, URI src, URI dest,
+			String ext) {
 		execute("import box::" + ext + "::Default;");
-		ISourceLocation v = values
-		.sourceLocation(src), w = values
-		.sourceLocation(dest);
-        store(v, "v"); store(w, "w");
-        execute("c="+cmd+"(v, w);");
-		IValue r = fetch("c");
-		return r;
-	    }
-	
-	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
-		execute("import box::" + ext + "::Default;");
-		ISourceLocation v = values
-				.sourceLocation(uri);
+		ISourceLocation v = values.sourceLocation(src), w = values
+				.sourceLocation(dest);
 		store(v, "v");
-		execute("c="+cmd+"(v);");
+		store(w, "w");
+		execute("c=" + cmd + "(v, w);");
 		IValue r = fetch("c");
 		return r;
 	}
-	
+
+	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
+		// System.err.println("Start launch concrete"+uri);
+		execute("import box::" + ext + "::Default;");
+		ISourceLocation v = values.sourceLocation(uri);
+		store(v, "v");
+		execute("c=" + cmd + "(v);");
+		IValue r = fetch("c");
+		return r;
+	}
 
 	private IValue launchTemplateProgram(URI uri, String s) {
 		final String resultName = "c";
 		execute("import box::" + s + ";");
-		// IString v = values.string(fileName);
-		ISourceLocation v = values
-				.sourceLocation(uri);
+		ISourceLocation v = values.sourceLocation(uri);
 		store(v, varName);
 		String name = new File(uri.getPath()).getName();
 		name = name.substring(0, name.lastIndexOf('.'));
@@ -179,24 +172,26 @@ public class MakeBox {
 		IValue r = fetch(resultName);
 		return r;
 	}
-	
-	public  IValue makeBox(ISourceLocation loc, org.rascalmpl.interpreter.IEvaluatorContext c) {
+
+	public IValue makeBox(ISourceLocation loc,
+			org.rascalmpl.interpreter.IEvaluatorContext c) {
 		return computeBox(loc.getURI());
 	}
+
 
 	public IConstructor computeBox(URI uri) {
 		try {
 			// System.err.println("computeBox: start parsing");
-			IConstructor moduleTree = commandEvaluator.parseModule(uri,
-				  null);
+			IConstructor moduleTree = commandEvaluator.parseModule(uri, null);
+			IList z = TreeAdapter.getArgs(moduleTree);
 			// System.err.println("computeBox: parsed");
-			ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
+			ASTBuilder astBuilder = new ASTBuilder(
+					ASTFactoryFactory.getASTFactory());
 			Module moduleAst = astBuilder.buildModule(moduleTree);
 			// System.err.println("computeBox: build");
 			commandEvaluator.getHeap().clear();
 			if (moduleAst != null)
-				return (IConstructor) eval.evalRascalModule(moduleAst);	
-			// System.err.println("computeBox: evalled");
+				return (IConstructor) eval.evalRascalModule(moduleAst, z);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -210,7 +205,7 @@ public class MakeBox {
 		s = s.substring(0, 1).toUpperCase() + s.substring(1);
 		return launchTemplateProgram(uri, s);
 	}
-	
+
 	public String text2String(IValue v) {
 		IList rules = (IList) v;
 		StringBuffer b = new StringBuffer();
@@ -220,21 +215,21 @@ public class MakeBox {
 		}
 		return b.toString();
 	}
-	
+
 	public String toPrint(String cmd, URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
 		String ext = uri.getPath().substring(tail + 1);
 		return text2String(launchConcreteProgram(cmd, uri, ext));
 	}
-	
+
 	public String toPrint(String cmd, URI uri1, URI uri2) {
 		start();
 		int tail = uri1.getPath().lastIndexOf('.');
 		String ext = uri1.getPath().substring(tail + 1);
 		return text2String(launchConcreteProgram(cmd, uri1, uri2, ext));
 	}
-	
+
 	public IValue rascalToPrint(String cmd, URI src, URI dest) {
 		start();
 		try {
@@ -247,13 +242,12 @@ public class MakeBox {
 		}
 		return null;
 	}
-	
+
 	public String toRichText(URI uri, String ext) {
 		start();
 		return text2String(launchConcreteProgram("toRichText", uri, ext));
 	}
-	
-	
+
 	public String toRichText(URI uri) {
 		start();
 		try {
@@ -266,12 +260,11 @@ public class MakeBox {
 		}
 		return null;
 	}
-	
+
 	public IValue getFigure(URI uri, String layout) {
 		start();
 		execute("import experiments::Concept::GetFigure;");
-		ISourceLocation v = values
-				.sourceLocation(uri);
+		ISourceLocation v = values.sourceLocation(uri);
 		store(v, "v");
 		IString w = values.string(layout);
 		store(w, "w");

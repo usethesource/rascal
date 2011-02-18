@@ -1,10 +1,12 @@
 package org.rascalmpl.library.vis;
 
+import java.awt.Image;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
@@ -26,17 +28,23 @@ public class FigurePApplet extends PApplet {
 	 */
 	private static final long serialVersionUID = 6074377218243765483L;
 	
-	private int width = 2000;
-	private int height = 2000;
-	private Figure  figure;
-	private Figure rootFigure;
+	private int width;						// Current dimensions of canvas
+	private int height;
+	
+	final private int defaultWidth = 1000;	// Default dimensions of canvas
+	final private int defaultHeight = 1000;
+	
+	private Figure  figure;					// The figure that is drawn on the canvas
+	private float figureWidth = defaultWidth;
+	private float figureHeight = defaultHeight;
+	
 	private Figure focus = null;
 	private boolean focusSelected = false;
 	
 	private Figure mouseOver = null;
-	private boolean controlChanged = false;
+	private boolean computedValueChanged = true;
 
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private boolean saveFigure = true;
 	private String file;
 	private float scale = 1.0f;
@@ -45,53 +53,71 @@ public class FigurePApplet extends PApplet {
 
 	private PGraphics canvas;
 	private PFont stdFont;
-
-	private float rootWidth;
-	private float rootHeight;
 	
 	private int depth = 0;
 
-// int lastMouseX = 0;
-//	private int lastMouseY = 0;
+	@SuppressWarnings("unused")
+	private int lastMouseX = 0;
+	@SuppressWarnings("unused")
+	private int lastMouseY = 0;
 
-	public FigurePApplet(IConstructor elem, ISourceLocation sloc, IEvaluatorContext ctx){
+	public FigurePApplet(IConstructor fig, ISourceLocation sloc, IEvaluatorContext ctx){
 		saveFigure = true;
 		try {
 			this.file = ctx.getResolverRegistry().getResourceURI(sloc.getURI()).toASCIIString();
+			
+			if(file.startsWith("file:")){
+				file = file.substring(5);
+			}
+			System.err.println("saveFile = " + file);
 			IPropertyManager def = new DefaultPropertyManager(this);
-			rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
+			this.figure = FigureFactory.make(this, fig, def, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		boolTriggers = new HashSet<String>();
 	}
 	
-	public FigurePApplet(IConstructor elem, IEvaluatorContext ctx){
+	public FigurePApplet(IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
 		IPropertyManager def = new DefaultPropertyManager(this);
-		rootFigure = this.figure = FigureFactory.make(this, elem, def, ctx);
+		this.figure = FigureFactory.make(this, fig, def, ctx);
+		setName("Figure");
+	}
+	
+	public FigurePApplet(IString name, IConstructor fig, IEvaluatorContext ctx){
+		saveFigure = false;
+		IPropertyManager def = new DefaultPropertyManager(this);
+		this.figure = FigureFactory.make(this, fig, def, ctx);
+		setName(name.getValue());
 	}
 
 	@Override
 	public void setup(){
 		System.err.println("setup called");
+		System.err.println("name: " + getName());
 		if(saveFigure){
 			canvas = createGraphics(width, height, JAVA2D);
 			figure.bbox();
-			rootWidth = figure.width;
-			rootHeight = figure.height;
-			canvas = createGraphics(round(rootWidth + 2), round(rootHeight + 2), JAVA2D);
+			figureWidth = figure.width;
+			figureHeight = figure.height;
+			canvas = createGraphics(round(figureWidth + 2), round(figureHeight + 2), JAVA2D);
 		} else {
-			//width = round(max(width, figure.width + 10));
-		    //height = round(max(height, figure.height + 10));
-			size(width, height);
+			size(defaultWidth, defaultHeight);
 		}
 		noLoop();
+		setLayout(null); // allows more precise position of AWT widgets.
+		
 		figure.bbox();
-		controlChanged = false;
-		rootWidth = figure.width;
-		rootHeight = figure.height;
+		
+		computedValueChanged = false;
+		figureWidth = figure.width;
+		figureHeight = figure.height;
+		width = max(defaultWidth, round(figureWidth)+2);
+		height = max(defaultHeight, round(figureHeight)+2);
+		resize(width, height);
+		System.err.println("Figure size: " + figureWidth + ", " + figureHeight);
+		System.err.println("resize to: " + width + ", " + height);
 	}
 	
 	@Override
@@ -99,7 +125,7 @@ public class FigurePApplet extends PApplet {
 		stdFont = createFont("Helvetica", 15);		
 		textFont(stdFont);
 		if(saveFigure){
-			canvas = createGraphics(round(rootWidth + 2), round(rootHeight + 2), JAVA2D);
+			canvas = createGraphics(round(figureWidth + 2), round(figureHeight + 2), JAVA2D);
 			canvas.hint(ENABLE_NATIVE_FONTS);
 			canvas.beginDraw();
 			canvas.background(255);
@@ -118,19 +144,28 @@ public class FigurePApplet extends PApplet {
 			strokeJoin(MITER);
 			depth = 0;
 
-			if(controlChanged){
-				rootFigure.bbox();
-				rootWidth = rootFigure.width;
-				rootHeight = rootFigure.height;
-				controlChanged = false;
+			if(computedValueChanged){
+				figure.bbox();
+				figureWidth = figure.width;
+				figureHeight = figure.height;
+				computedValueChanged = false;
 			}
-			rootFigure.draw(left,top);
+			figure.draw(left,top);
 			if(mouseOver != null)
-				mouseOver.drawWithMouseOver(mouseOver.left, mouseOver.top);
-					
+				mouseOver.drawWithMouseOver(mouseOver.getLeft(), mouseOver.getTop());
 			if(focus != null && focusSelected)
 				focus.drawFocus();
 		}
+	}
+	
+	public int getFigureWidth(){
+		//System.err.println("getFigureWidth: " + figureWidth);
+		return round(figureWidth);
+	}
+	
+	public int getFigureHeight(){
+		//System.err.println("getFigureHeight: " + figureHeight);
+		return round(figureHeight);
 	}
 	
 	//-----------------------
@@ -157,6 +192,18 @@ public class FigurePApplet extends PApplet {
 		return depth <= d;
 	}
 	
+	// Id management
+	
+	HashMap<String, Figure> ids = new HashMap<String, Figure>();
+	
+	public void registerId(String id, Figure fig){
+		ids.put(id, fig);
+	}
+	
+	public Figure getRegisteredId(String id){
+		return ids.get(id);
+	}
+	
 	// Focus handling: called during mousePressed
 	
 	public void registerFocus(Figure f){
@@ -178,7 +225,7 @@ public class FigurePApplet extends PApplet {
 	
 	public void registerMouseOver(Figure f){
 		mouseOver = f;
-		//if(debug)System.err.println("registerMouseOver:" + f);
+		if(debug)System.err.println("registerMouseOver:" + f);
 	}
 	
 	public boolean isRegisteredAsMouseOver(Figure f){
@@ -243,7 +290,7 @@ public class FigurePApplet extends PApplet {
 //			if(figure.mouseDragged(mouseX, mouseY))
 //				focusSelected = true;
 //			else
-//				unRegisterFocus();
+//				unRegisterFocus(focus);
 //		}
 //		redraw();
 //		
@@ -251,94 +298,55 @@ public class FigurePApplet extends PApplet {
 	
 	@Override
 	public void mouseReleased(){
+		if(debug)System.err.println("========= mouseReleased");
 		//focusSelected = false;
+		figure.mouseReleased();
 	}
 	
 	@Override
 	public void mouseMoved(){
-		//if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
+		if(debug)System.err.println("========= mouseMoved: " + mouseX + ", " + mouseY);
+		
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		
+		if(!figure.mouseOver(mouseX, mouseY, false))
+			unRegisterMouseOver(mouseOver);
+		redraw();
+	}
+	
+	@Override
+	public void mouseDragged(){
+		if (debug) System.err.println("========= mouseDragged: " + mouseX + ", " + mouseY);
 		
 //		lastMouseX = mouseX;
 //		lastMouseY = mouseY;
 		
-		figure.mouseOver(mouseX, mouseY, false);
+//		figure.mouseOver(mouseX, mouseY, false);
+		figure.mouseDragged(mouseX, mouseY);
 		redraw();
 	}
 			
 	
 	@Override
 	public void mousePressed(){
-		if(debug)System.err.println("mousePressed: " + mouseX + ", " + mouseY);
-//		lastMouseX = mouseX;
-//		lastMouseY = mouseY;
+		if (debug) System.err.println("=== FigurePApplet.mousePressed: " + mouseX + ", " + mouseY);
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		unRegisterMouseOver(mouseOver);
 		if(figure.mousePressed(mouseX, mouseY, mouseEvent)){
 			focusSelected = true;
+			if (debug) System.err.println(""+this.getClass()+" "+focusSelected);
 		} else
 			unRegisterFocus(focus);
-
 		redraw(); 
 	}
 	
+	public void setComputedValueChanged(){
+		computedValueChanged = true;
+		redraw();
+	}
 
-	
-	
-	
-	// -------------------------------------------
-	//  Various triggers
-	
-	// boolControl
-	
-//	private HashSet<String> boolTriggers = new HashSet<String>();
-//	
-//	
-//	public boolean isBoolTrigger(String b){
-//		return boolTriggers.contains(b);
-//	}
-//	
-//	public void setBoolTrigger(String b, boolean on){
-//		System.err.println("setBoolTrigger(" + b + ", " + on + ")");
-//		if(on)
-//			boolTriggers.add(b);
-//		else
-//			boolTriggers.remove(b);
-//		
-//		controlChanged = true;
-//	}
-//	
-//	// num Triggers
-//	
-//	private Hashtable<String,Float> numTriggers = new Hashtable<String,Float>();
-//
-//	
-//	public void setNumTrigger(String name, float val){
-//		System.err.printf("setNumTrigger(%s,%f)\n", name, val);
-//		numTriggers.put(name, new Float(val));
-//		controlChanged = true;
-//	}
-//	
-//	public float getNumTrigger(String name){
-//		Float val = numTriggers.get(name);
-//		float res =  val == null ? 0 : val.floatValue();
-//		System.err.printf("getNumTrigger(%s) => %f\n", name, res);
-//		return res;
-//	}
-	
-	// str Triggers
-	
-	private Hashtable<String,String> strTriggers = new Hashtable<String,String>();
-	
-	public void setStrTrigger(String name, String val){
-		//if(debug)System.err.printf("setStrTrigger(%s,%s)\n", name, val);
-		strTriggers.put(name, val);
-		controlChanged = true;
-	}
-	
-	public String getStrTrigger(String name){
-		String val = strTriggers.get(name);
-		String res = val == null ? "" : val;
-		//if(debug)System.err.printf("getStrTrigger(%s) => %s\n", name, res);
-		return res;
-	}
 	
 	// ---------------------
 	
@@ -592,6 +600,8 @@ public class FigurePApplet extends PApplet {
 		else
 			super.endShape(arg0);
 	}
+	
+	public Image getImage() {return this.g.image;}
 	
 }
 

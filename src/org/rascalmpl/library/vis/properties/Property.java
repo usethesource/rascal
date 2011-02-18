@@ -20,6 +20,7 @@ public enum Property {
 	INNERRADIUS, 	// float
 	LINECOLOR, 		// color
 	LINEWIDTH, 		// float
+	ONCLICK,		// function/closure
 	MOUSEOVER, 		// figure
 	SHAPECLOSED, 	// boolean
 	SHAPECONNECTED,	// boolean

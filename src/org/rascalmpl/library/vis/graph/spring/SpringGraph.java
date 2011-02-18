@@ -41,12 +41,12 @@ public class SpringGraph extends Figure {
 	protected float springConstant;
 	protected float springConstant2;
 	protected int temperature;
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	
 	public SpringGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.nodes = new ArrayList<SpringGraphNode>();
 		this.ctx = ctx;
 		width = getWidthProperty();
@@ -83,6 +83,8 @@ public class SpringGraph extends Figure {
 		if (debug)
 			System.err.printf("springConstant = %f\n", springConstant);
 		springConstant2 = springConstant * springConstant;
+		
+		System.err.println("SpringGraph created");
 	}
 	
 	public void register(String name, SpringGraphNode nd){
@@ -97,21 +99,24 @@ public class SpringGraph extends Figure {
 
 		
 		SpringGraphNode root = null;
-		// for(SpringGraphNode n : nodes){
-		// if(n.in.isEmpty()){
-		// root = n;
-		// break;
-		// }
-		// }
-		// if(root != null){
-		// root.x = width/2;
-		// root.y = height/2;
-		// }
+//		 for(SpringGraphNode n : nodes){
+//		 if(n.in.isEmpty()){
+//		 root = n;
+//		 break;
+//		 }
+//		 }
+//		 if(root != null){
+//		 root.setX(width/2);
+//		 root.setY(height/2);
+//		 }
 		for (SpringGraphNode n : nodes) {
+			n.figure.bbox();
 			if (n != root) {
-				n.x = fpa.random(width);
-				n.y = fpa.random(height);
+				n.setX(fpa.random(n.figure.width/2,  width  - n.figure.width/2));
+				n.setY(fpa.random(n.figure.height/2, height - n.figure.height/2));
 			}
+			
+			System.err.printf("Initial: node %s, width=%f, height=%f, x=%f, y=%f\n", n.name, n.figure.width, n.figure.height, n.getX(), n.getY());
 		}
 	}
 
@@ -128,11 +133,11 @@ public class SpringGraph extends Figure {
 	void bbox() {
 
 		initialPlacement();
+			
 
 		temperature = 50;
 		for (int iter = 0; iter < 150; iter++) {
-			for (SpringGraphNode n : nodes)
-				n.figure.bbox();
+			System.err.println("iter = " + iter);
 
 			for (SpringGraphNode n : nodes)
 				n.relax();
@@ -146,42 +151,42 @@ public class SpringGraph extends Figure {
 
 
 		// Now scale (back or up) to the desired width x height frame
-		float minx = Float.MAX_VALUE;
-		float maxx = Float.MIN_VALUE;
-		float miny = Float.MAX_VALUE;
-		float maxy = Float.MIN_VALUE;
-
-		for(SpringGraphNode n : nodes){
-			float w2 = n.width()/2;
-			float h2 = n.height()/2;
-			if(n.x - w2 < minx)
-
-				minx = n.x - w2;
-			if (n.x + w2 > maxx)
-				maxx = n.x + w2;
-
-			if (n.y - h2 < miny)
-				miny = n.y - h2;
-			if (n.y + h2 > maxy)
-				maxy = n.y + h2;
-		}
-
-		float scalex = width / (maxx - minx);
-		float scaley = height / (maxy - miny);
-
-		for (SpringGraphNode n : nodes) {
-			n.x = n.x - minx;
-			n.x *= scalex;
-			n.y = n.y - miny;
-			n.y *= scaley;
-		}
+//		float minx = Float.MAX_VALUE;
+//		float maxx = Float.MIN_VALUE;
+//		float miny = Float.MAX_VALUE;
+//		float maxy = Float.MIN_VALUE;
+//
+//		for(SpringGraphNode n : nodes){
+//			float w2 = n.width()/2;
+//			float h2 = n.height()/2;
+//			if(n.x - w2 < minx)
+//
+//				minx = n.x - w2;
+//			if (n.x + w2 > maxx)
+//				maxx = n.x + w2;
+//
+//			if (n.y - h2 < miny)
+//				miny = n.y - h2;
+//			if (n.y + h2 > maxy)
+//				maxy = n.y + h2;
+//		}
+//
+//		float scalex = width / (maxx - minx);
+//		float scaley = height / (maxy - miny);
+//
+//		for (SpringGraphNode n : nodes) {
+//			n.x = n.x - minx;
+//			n.x *= scalex;
+//			n.y = n.y - miny;
+//			n.y *= scaley;
+//		}
 	}
 
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 
 		applyProperties();
 		

@@ -1,4 +1,4 @@
- package org.rascalmpl.library.vis.compose;
+package org.rascalmpl.library.vis.compose;
 
 import java.awt.event.MouseEvent;
 
@@ -15,80 +15,95 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
  * Abstract class for the composition of a list of visual elements.
  * 
  * @author paulk
- *
+ * 
  */
 public abstract class Compose extends Figure {
 
-	protected Figure[] figures;
-	private static boolean debug = false;
+	final protected Figure[] figures;
+	final private static boolean debug = false;
 
-	protected Compose(FigurePApplet fpa,IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);	
+	protected Compose(FigurePApplet fpa, IPropertyManager properties,
+			IList elems, IEvaluatorContext ctx) {
+		super(fpa, properties);
 		int n = elems.length();
 		figures = new Figure[n];
-		for(int i = 0; i < n; i++){
+		for (int i = 0; i < n; i++) {
 			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
-			if(debug)System.err.println("Compose, elem = " + c.getName());
+			if (debug)
+				System.err.println("Compose, elem = " + c.getName());
 			figures[i] = FigureFactory.make(fpa, c, properties, ctx);
 		}
 	}
-	
+
 	@Override
-	public boolean mouseInside(int mousex, int mousey){
-		for(int i = figures.length-1; i >= 0; i--)
-			if(figures[i].mouseInside(mousex, mousey))
-				return true;
-		return super.mouseInside(mousex, mousey);
+	public boolean mouseInside(int mousex, int mousey) {
+		if(super.mouseInside(mousex, mousey)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mouseInside(mousex, mousey))
+					return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean mouseInside(int mousex, int mousey, float centerX,
+			float centerY) {
+		if(super.mouseInside(mousex, mousey, centerX, centerY)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(),
+						figures[i].getCenterY()))
+					return true;
+		}
+		return false;
 	}
 	
+	// Visit figures front to back
 	@Override
-	public boolean mouseInside(int mousex, int mousey,  float centerX, float centerY){
-		for(int i = figures.length-1; i >= 0; i--)
-			if(figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(), figures[i].getCenterY()))
-				return true;
-		return super.mouseInside(mousex, mousey, centerX, centerY);
+	public boolean mouseOver(int mouseX, int mouseY,  float centerX, float centerY, boolean mouseInParent) {
+		System.err.println("Compose.MouseOver2: " + this.getClass());
+		if(super.mouseInside(mouseX, mouseY)){
+			for (int i = figures.length - 1; i >= 0; i--){
+				System.err.println("Compose.MouseOver, child : " + i);
+				if (figures[i].mouseOver(mouseX, mouseY, figures[i].getCenterX(),
+						figures[i].getCenterY(), false)){
+					return true;
+				}
+			}
+		}
+		return false; //super.mouseOver(mouseX, mouseY, mouseInParent);
 	}
 
 	// Visit figures front to back
 	@Override
-	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent){
-		for(int i = figures.length-1; i >= 0; i--)
-			if(figures[i].mouseOver(mousex, mousey, figures[i].getCenterX(), figures[i].getCenterY(), false))
-				return true;
-		return super.mouseOver(mousex, mousey, mouseInParent);
+	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
+		if(super.mouseInside(mouseX, mouseY)){
+			for (int i = figures.length - 1; i >= 0; i--)
+				if (figures[i].mousePressed(mouseX, mouseY, e))
+					return true;
+		}
+		return false; //super.mousePressed(mouseX, mouseY, e);
 	}
-	
+
+//	 @Override
+//	 public boolean mouseDragged(int mousex, int mousey){
+//	 for(Figure fig : figures)
+//	 if(fig.mouseDragged(mousex, mousey))
+//	 return true;
+//	 return super.mouseDragged(mousex, mousey);
+//	 }
+
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
-		for(int i = figures.length-1; i >= 0; i--)
-			if(figures[i].mouseOver(mousex, mousey, figures[i].getCenterX(), figures[i].getCenterY(), false))
-				return true;
-		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
-	}
-	
-	// Visit figures front to back
-	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
-		for(int i = figures.length-1; i >= 0; i--)
-			if(figures[i].mousePressed(mousex, mousey, e))
-				return true;
-		return super.mousePressed(mousex, mousey, e);
-	}
-	
-//	@Override
-//	public boolean mouseDragged(int mousex, int mousey){
-//		for(Figure fig : figures)
-//			if(fig.mouseDragged(mousex, mousey))
-//				return true;
-//		return super.mouseDragged(mousex, mousey);
-//	}
-	
-	@Override
-	public boolean keyPressed(int key, int keyCode){
-		for(int i = figures.length-1; i >= 0; i--)
-			if(figures[i].keyPressed(key, keyCode))
+	public boolean keyPressed(int key, int keyCode) {
+		for (int i = figures.length - 1; i >= 0; i--)
+			if (figures[i].keyPressed(key, keyCode))
 				return true;
 		return super.keyPressed(key, keyCode);
 	}
+	
+	@Override public void destroy(){
+		for (int i = figures.length - 1; i >= 0; i--)
+			figures[i].destroy();
+	}
+		
 }

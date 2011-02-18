@@ -21,7 +21,7 @@ public class Rotate extends Figure {
 	private float cosa;
 	
 	Rotate(FigurePApplet fpa, IPropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
-		super(fpa, inherited, ctx);
+		super(fpa, inherited);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = PApplet.radians(a);
@@ -59,8 +59,8 @@ public class Rotate extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		fpa.pushMatrix();
 		// move origin to the anchor of the figure to be rotated
@@ -96,7 +96,7 @@ public class Rotate extends Figure {
 	public void drawFocus(){
 		if(isVisible()){
 			fpa.pushMatrix();
-			fpa.translate(left + width/2, top + height/2);
+			fpa.translate(getLeft() + width/2, getTop() + height/2);
 			fpa.rotate(angle);
 			fpa.stroke(255, 0,0);
 			fpa.noFill();

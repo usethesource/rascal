@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -35,13 +36,18 @@ public class RascalActionExecutor implements IActionExecutor{
 		this.info = info;
 	}
 	
-	public IConstructor filterAppl(IConstructor forest){
+	public IConstructor filterProduction(IConstructor forest){
 		LanguageAction action = info.getAction(TreeAdapter.getProduction(forest));
 		if(action != null){
 			return call(forest, action);
 		}
 		
 		return forest;
+	}
+	
+	public IConstructor filterAmbiguity(IConstructor ambCluster){
+		// TODO Implement.
+		return ambCluster;
 	}
 
 	/**

@@ -8,7 +8,9 @@ Syntax:
 
 Types:
 
-Function: `FProperty fromAngle(num a)`
+Function: 
+# `FProperty fromAngle(num a)`
+# `FProperty fromAngle(computedNum ca)`
 
 Synopsis:
 

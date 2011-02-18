@@ -8,12 +8,15 @@ Syntax:
 
 Types:
 
-Function: `FProperty id(str name)`
+Function: 
+# `FProperty id(str name)`
+# `FProperty id(computedStr cname)`
 
 Synopsis:
 
 Description: Assign the identity `name` to the current figure. Identities are used in
 compositions like [graph], [tree] and [treemap] to define the [edge]s between figures.
+The name may also be computed by a callback `cname`.
 
 Examples:
 

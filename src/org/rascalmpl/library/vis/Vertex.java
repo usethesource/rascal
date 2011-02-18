@@ -32,14 +32,14 @@ public class Vertex extends Figure {
 		return 0;
 		
 	}
-	public Vertex(FigurePApplet fpa, IPropertyManager properties, IValue dx, IValue dy, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+	public Vertex(FigurePApplet fpa, IPropertyManager properties, IValue dx, IValue dy) {
+		super(fpa, properties);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 	}
 	
 	public Vertex(FigurePApplet fpa, IPropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 		if(marker != null)
@@ -90,8 +90,8 @@ public class Vertex extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		applyProperties();
 		if(debug){
 			System.err.println("Vertex: marker = " + marker);

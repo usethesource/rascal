@@ -8,7 +8,9 @@ Syntax:
 
 Types:
 
-Function: `FProperty fontSize(int s)`
+Function: 
+# `FProperty fontSize(int s)`
+# `FProperty fontSize(computedInt cs)`
 
 Synopsis:
 

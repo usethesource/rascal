@@ -27,7 +27,7 @@ public class LayeredGraphEdge extends Figure {
 			IString fromName, IString toName,
 			IConstructor toArrowCons, IConstructor fromArrowCons, 
 			IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){
@@ -53,7 +53,7 @@ public class LayeredGraphEdge extends Figure {
 	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow, IEvaluatorContext ctx){
 		
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){
@@ -126,12 +126,14 @@ public class LayeredGraphEdge extends Figure {
 				fpa.line(left + getFrom().figX(), top + getFrom().figY(), left + midX, top + midY);
 			
 			fpa.noFill();
+			
 			fpa.beginShape();
-			fpa.vertex(left + midX, top + midY);      										// V1
-			fpa.bezierVertex(left + getFrom().figX() + dx*1.05f, top + getFrom().figY()  + dy, 	// C1
-							 left + currentNode.figX(),    top + currentNode.figY(),      	// C2
-							 left + currentNode.figX(),    top + currentNode.figY()      	// V2
-					);
+			fpa.vertex(left + midX, top + midY);      									// V1
+			fpa.bezierVertex(left + currentNode.figX(), 	  top + midY + dy/2, 		// C1
+					 left + currentNode.figX(),    top + currentNode.figY() - dy/4,     // C2
+					 left + currentNode.figX(),    top + currentNode.figY()      		// V2
+			);
+			
             
 			LayeredGraphNode prevNode = currentNode;
 			currentNode =  currentNode.out.get(0);
@@ -145,52 +147,18 @@ public class LayeredGraphEdge extends Figure {
 								left + currentNode.figX(), top + currentNode.figY(),
 								left + currentNode.figX(), top + currentNode.figY()
 								);
-				}else{
-					fpa.bezierVertex(left + currentNode.figX(), top + currentNode.figY()  - 100,
-							left + nextNode.figX(), top + nextNode.figY() + 100,
-							left + currentNode.figX(), top + currentNode.figY()
-							);
-				}	
+				}
+				//else{
+//					fpa.bezierVertex(left + currentNode.figX(), top + currentNode.figY()  - 100,
+//							left + nextNode.figX(), top + nextNode.figY() + 100,
+//							left + currentNode.figX(), top + currentNode.figY()
+//							);
+//				}	
 				prevNode = currentNode;
 				currentNode = nextNode;
 			}
-			midX = prevNode.figX() + (currentNode.figX() - prevNode.figX())/2;
-			midY = prevNode.figY() + (currentNode.figY() - prevNode.figY())/2;
 			
-			System.err.printf("after loop: (%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
-					prevNode.figX(), prevNode.figY(),
-					currentNode.figX(), currentNode.figY(), midX, midY);
-			
-			if(getToArrow() != null){
-				
-				//fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),
-				//				left + currentNode.figX(), top + currentNode.figY(),
-				//		        left + midX, top + midY
-				//		         );
-				fpa.endShape();
-				
-				System.err.println("Has a to arrow");
-				//currentNode.figure.connectFrom(left, top, 
-				//		currentNode.figX(), currentNode.figY(), 
-				//		midX, midY,
-				//		getToArrow());
-			} else {
-				dx = currentNode.figX() - prevNode.figX();
-				dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
-				midX = prevNode.figX() + dx/2;
-				midY = prevNode.figY() + dy/2;
-				
-				fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(),   // C1
-								 left + currentNode.figX(), top + currentNode.figY(), // C2
-								 left + midX, top + midY	    // V	
-				);
-//				fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(), // C1
-//						left + midX, top +  midY,                              // C2
-//						left + currentNode.figX(), top + currentNode.figY()	    // V	
-//				);
-				
-				fpa.endShape();
-			}
+			drawLastSegment(prevNode, currentNode);
 			
 		} else {
 			//System.err.println("Drawing a line");
@@ -228,6 +196,49 @@ public class LayeredGraphEdge extends Figure {
 			} else 
 				fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
 						left + getTo().figX(), top + getTo().figY());
+		}
+	}
+	
+	private void drawLastSegment(LayeredGraphNode prevNode, LayeredGraphNode currentNode){
+		float dx = currentNode.figX() - prevNode.figX();
+		float dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
+		float midX = prevNode.figX() + dx/2;
+		float midY = prevNode.figY() + dy/2;
+		
+		System.err.printf("after loop: (%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
+				prevNode.figX(), prevNode.figY(),
+				currentNode.figX(), currentNode.figY(), midX, midY);
+		
+		if(getToArrow() != null){
+			
+			fpa.bezierVertex(getLeft() + prevNode.figX(), getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C1
+					 		getLeft() + prevNode.figX(), getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C2
+					 		getLeft() + midX, getTop() + midY	    // V	
+			);
+			
+			fpa.endShape();
+			
+			System.err.println("Has a to arrow");
+			currentNode.figure.connectFrom(getLeft(), getTop(), 
+					currentNode.figX(), currentNode.figY(), 
+					midX, midY,
+					getToArrow());
+		} else {
+			dx = currentNode.figX() - prevNode.figX();
+			dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
+			midX = prevNode.figX() + dx/2;
+			midY = prevNode.figY() + dy/2;
+			
+			fpa.bezierVertex(getLeft() + prevNode.figX(), getTop() + prevNode.figY() + dy/2,   // C1
+							 getLeft() + prevNode.figX(), getTop() + prevNode.figY() + dy/2,   // C2
+							getLeft() + currentNode.figX(), getTop() + currentNode.figY()	    // V	
+			);
+//			fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(), // C1
+//					left + midX, top +  midY,                              // C2
+//					left + currentNode.figX(), top + currentNode.figY()	    // V	
+//			);
+			
+			fpa.endShape();
 		}
 	}
 

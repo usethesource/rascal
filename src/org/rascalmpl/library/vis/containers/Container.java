@@ -26,14 +26,16 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public abstract class Container extends Figure {
 
-	protected Figure innerFig;
-	private static boolean debug = false;
+	final protected Figure innerFig;
+
+	final private static boolean debug = false;
 
 	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		if(innerCons != null){
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
-		}
+		} else
+			this.innerFig = null;
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
 	}
 
@@ -62,8 +64,8 @@ public abstract class Container extends Figure {
 	void draw(float left, float top) {
 		if(!isVisible())
 			return;
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 	
 		applyProperties();
 		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHanchor(), getVanchor());
@@ -106,8 +108,8 @@ public abstract class Container extends Figure {
 	void innerDraw(){
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
-		innerFig.draw(max(0, left + hgap + innerFig.getHanchor()*(width  - innerFig.width  - 2 * hgap)),
-			    	  max(0, top + vgap + innerFig.getVanchor()*(height - innerFig.height - 2 * vgap)));
+		innerFig.draw(max(0, getLeft() + hgap + innerFig.getHanchor()*(width  - innerFig.width  - 2 * hgap)),
+			    	  max(0, getTop() + vgap + innerFig.getVanchor()*(height - innerFig.height - 2 * vgap)));
 	}
 	
 	void innerDrawWithMouseOver(float left, float top){
@@ -195,7 +197,7 @@ public abstract class Container extends Figure {
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
 		if(!isVisible())
 			return false;
-		if(debug)System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
+		System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
 	
 		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, e))
 				return true;
@@ -207,6 +209,29 @@ public abstract class Container extends Figure {
 		
 		if(mouseInside(mouseX, mouseY)){
 			fpa.registerFocus(this);
+			return super.mousePressed(mouseX, mouseY, e);
+		}
+		return false;
+	}
+	
+	@Override
+	public void drag(float mousex, float mousey){
+		System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
+		if(!isDraggable())
+			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
+		setLeftDragged(getLeftDragged() + (mousex - getLeft()));
+		setTopDragged(getTopDragged() + (mousey - getTop()));
+	}
+	
+	@Override
+	public boolean mouseDragged(int mousex, int mousey){
+		if(innerFits() && innerFig.isDraggable() && innerFig.mouseDragged(mousex, mousey))
+			return true;
+		
+		if(isDraggable() && mouseInside(mousex, mousey)){
+			fpa.registerFocus(this);
+			drag(mousex, mousey);
+			System.err.printf("Figure.mouseDragged: %f,%f\n", getLeftDragged(), getTopDragged());
 			return true;
 		}
 		return false;
@@ -258,12 +283,18 @@ public abstract class Container extends Figure {
 		return false;
 	}
 	
+	@Override
 	public String  toString(){
 		return new StringBuffer(containerName()).append("(").
-		append(left).append(",").
-		append(top).append(",").
+		append(getLeft()).append(",").
+		append(getTop()).append(",").
 		append(width).append(",").
 		append(height).append(")").toString();
+	}
+	
+	@Override public void destroy(){
+		if(innerFig != null)
+			innerFig.destroy();
 	}
 
 }

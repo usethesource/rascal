@@ -70,7 +70,7 @@ QType: {<A:int>, <B:str>, <C:int>}
 
 QType: <A:rel[str,int,loc]>
 
-QType: <A:rel[int,int]>
+QType: <A:rel[int[0,20],int]>
 
 QValue:
 desc: Determine the number of elements in a list

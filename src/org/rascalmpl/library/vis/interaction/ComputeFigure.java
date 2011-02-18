@@ -1,15 +1,14 @@
 package org.rascalmpl.library.vis.interaction;
 
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
@@ -19,86 +18,87 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public class ComputeFigure extends Figure {
 	
-	private String neededTriggers[];		// Triggers needed to compute figure
-	int nTriggers;							// Number of triggers
-	private String lastTriggerValues[];		// Their last used values
-	
 	Figure figure = null;					// Last computed figure
 	
-											// Function of type Figure (list[str]) to compute new figure
-	private OverloadedFunctionResult callback;
+	final private IValue callback;
 	
-	Type[] argTypes = new Type[1];			// Argument types of callback: list[str]
-	IValue[] argVals = new IValue[1];		// Argument values of callback: argList
-	private IList argList;					// Actual list of strings to be used as argument in call
+	final Type[] argTypes = new Type[0];			// Argument types of callback
+	final IValue[] argVals = new IValue[0];		// Argument values of callback
 	
-	private IEvaluatorContext ctx;
+	final private IEvaluatorContext ctx;
 
 
-	public ComputeFigure(FigurePApplet fpa, IPropertyManager properties,  IValue fun, IList needed, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
-		nTriggers = needed.length();
-		neededTriggers = new String[nTriggers];
-		lastTriggerValues = new String[nTriggers];
-		for(int i = 0; i < nTriggers; i++){
-			neededTriggers[i] = ((IString)needed.get(i)).getValue();
-		}
+	public ComputeFigure(FigurePApplet fpa, IPropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
+		super(fpa, properties);
 	
 		this.ctx = ctx;
 
-		if(fun.getType().isExternalType() && (fun instanceof OverloadedFunctionResult)){
-			this.callback = (OverloadedFunctionResult) fun;
+		if(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult))){
+			this.callback = fun;
 		} else
+			this.callback = null;
 			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
-	
-		TypeFactory tf = TypeFactory.getInstance();
-
-		argTypes[0] = tf.listType(tf.stringType());
-		argList = vf.list(tf.stringType());
-		
-		IString empty = vf.string("");
-		for(int i = 0; i < nTriggers; i++){
-			argList = argList.insert(empty);
-		}
-		
-		argVals[0] = argList;
 	}
 
 	@Override
 	public void bbox() {
-		boolean change = (figure == null);
 		
-		for(int i = 0; i < nTriggers; i++){
-			String s = fpa.getStrTrigger(neededTriggers[i]);
-			if(s != lastTriggerValues[i]){
-				change = true;
-				lastTriggerValues[i] = s;
-			}	
+		Result<IValue> figureVal;
+		
+		if(figure != null){
+			figure.destroy();
 		}
-		
-		if(change){
-			for(int i = 0; i < nTriggers; i++){
-				argList = argList.put(i, vf.string(lastTriggerValues[i]));
-			}
-			argVals[0] = argList;
+		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		synchronized(fpa){
+			if(callback instanceof RascalFunction)
+				figureVal = ((RascalFunction) callback).call(argTypes, argVals);
+			else
+				figureVal = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		}
+		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 			
-			Result<IValue> figureVal = callback.call(argTypes, argVals);
-			//System.err.println("callback returns: " + figureVal.getValue());
-			IConstructor figureCons = (IConstructor) figureVal.getValue();
-			figure = FigureFactory.make(fpa, figureCons, properties, ctx);
-		}
+		System.err.println("callback returns: " + figureVal.getValue());
+		IConstructor figureCons = (IConstructor) figureVal.getValue();
+		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
+		fpa.setComputedValueChanged();
 		figure.bbox();
 		width = figure.width;
 		height = figure.height;
+		fpa.validate();
 	}
 
 	@Override
 	public void draw(float left, float top) {
+		System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
+		this.setLeft(left);
+		this.setTop(top);
 		figure.draw(left,top);
+	}
+	
+	@Override 
+	public float topAnchor(){
+		return figure != null ? figure.topAnchor() : 0;
+	}
+	
+	@Override 
+	public float bottomAnchor(){
+		return figure != null ? figure.bottomAnchor() : 0;
+	}
+	
+	@Override 
+	public float leftAnchor(){
+		return figure != null ? figure.leftAnchor() : 0;
+	}
+	
+	@Override 
+	public float rightAnchor(){
+		return figure != null ? figure.rightAnchor() : 0;
 	}
 	
 	@Override
 	public boolean mouseInside(int mouseX, int mouseY){
+		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
+				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
 		if(figure != null)
 			return figure.mouseInside(mouseX, mouseY);
 		return false;
@@ -106,30 +106,41 @@ public class ComputeFigure extends Figure {
 	
 	@Override
 	public boolean mouseInside(int mouseX, int mouseY, float centerX, float centerY){
-		if(figure != null)
-			return figure.mouseInside(mouseX, mouseY, centerX, centerY);
+		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
+				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
+		if(figure != null){
+			boolean b = figure.mouseInside(mouseX, mouseY, centerX, centerY);
+			System.err.println("ComputeFigure.mouseInside => " + b);
+			return b;
+		}
+		System.err.println("ComputeFigure.mouseInside => " + false);
 		return false;
 	}
 	
 	@Override
 	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
-		if(figure != null)
+		System.err.println("ComputeFigure.mouseOver1: " + figure);
+		if(figure != null){
 			return figure.mouseOver(mouseX, mouseY, mouseInParent);
+		}
 		return false;
 	}
 	
 	@Override
 	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
-		if(figure != null)
+		System.err.println("ComputeFigure.mouseOver2: " + figure);
+		if(figure != null){
 			return figure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);
+		}
 		return false;
 	}
 	
 	@Override
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+		System.err.println("ComputeFigure.mousePressed: " + mouseX + ", " + mouseY);
 		if(figure != null)
 			return figure.mousePressed(mouseX, mouseY, e);
-		return false;
+		return super.mousePressed(mouseX, mouseY, e);
 	}
 	
 	@Override
@@ -137,6 +148,12 @@ public class ComputeFigure extends Figure {
 		if(figure != null)
 			return figure.keyPressed(key, keyCode);
 		return false;
+	}
+	
+	@Override
+	public void destroy(){
+		if(figure != null)
+			figure.destroy();
 	}
 
 }

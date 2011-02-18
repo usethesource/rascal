@@ -65,9 +65,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
 		if (value != null && !value.getType().isSubtypeOf(type) && !(type instanceof NonTerminalType && value.getType() == Factory.Tree)) {
-			System.err.println(value.getType());
-			System.err.println(type); 
-			System.err.println(value.getType().isSubtypeOf(type));
+			//System.err.println(value.getType());
+			//System.err.println(type); 
+			//System.err.println(value.getType().isSubtypeOf(type));
 			throw new UnexpectedTypeError(type, value.getType(), ctx.getCurrentAST());
 		}
 	
@@ -91,6 +91,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return value;
 	}
 	
+	@Override
 	public String toString(){
 		return getType().toString() + ": " + value.toString();
 	}

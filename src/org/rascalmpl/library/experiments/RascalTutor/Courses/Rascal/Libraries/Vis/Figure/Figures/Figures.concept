@@ -19,7 +19,7 @@ data Figure =
 /* Atomic figures */
 
      text(str s, FProperty props...)	        // text label
-   
+   | text computedStr cs,  FProperty props...)
                                                 
    | outline(map[int,Color] coloredLines,       // file outline
              FProperty props...)
@@ -74,6 +74,16 @@ data Figure =
    | rotate(num angle, Figure fig)              // Rotate figure around its anchor point
    | scale(num perc, Figure fig)	        // Scale figure (same for h and v)
    | scale(num xperc, num yperc, Figure fig)	// Scale figure (different for h and v)
+
+/* interaction */
+
+   | computeFigure(Figure () computeFig, FProperty props...)
+   | button(str label, void () vcallback, FProperty props...)
+   | textfield(str text, void (str) scallback, FProperty props...)
+   | textfield(str text, void (str) scallback, bool (str) validate, FProperty props...)
+   | textarea(list[str] lines, map[int,Color] coloredLines, FProperty props...)
+   | choice(list[str] choices, void(str s) ccallback, FProperty props...)
+   | checkbox(str text, void(bool state) vcallback, FProperty props...)
    ;
 </listing>
 
@@ -87,6 +97,8 @@ Figures can be classified as follows:
 * __Compositions__: serve to combine figures into new figures. Examples are horizontal ([hcat]) or vertical ([vcat]) concatenation 
   or placement of figures in a [grid], [graph] or [tree].
 * __Transformations__: perform geometric transformations on a given figure.
+* __Interaction__: provide interaction with the user, see [computeFigure], [button], [textField], [textarea], [choice], and
+  [checkbox].
 
 Examples:
 

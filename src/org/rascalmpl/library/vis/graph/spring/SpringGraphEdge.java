@@ -23,13 +23,13 @@ public class SpringGraphEdge extends Figure {
 	private Figure toArrow;
 	private Figure fromArrow;
 	private boolean inverted = false;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	
 	public SpringGraphEdge(SpringGraph G, FigurePApplet fpa, IPropertyManager properties, 
 						IString fromName, IString toName, 
 						IConstructor toArrowCons, IConstructor fromArrowCons,
 						IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){
@@ -72,7 +72,7 @@ public class SpringGraphEdge extends Figure {
 		float vy = to.ydistance(getFrom());
 		
 		float dlen = PApplet.mag(vx, vy);
-		dlen = (dlen == 0) ? .0001f : dlen;
+		//dlen = (dlen == 0) ? .0001f : dlen;
 
 		//float attract = G.attract(dlen);
 		float attract = dlen * dlen / G.springConstant;
@@ -83,16 +83,16 @@ public class SpringGraphEdge extends Figure {
 		to.dispy += -dy;
 		getFrom().dispx += dx;
 		getFrom().dispy += dy;
-		
+
 		if(debug)System.err.printf("edge: %s -> %s: dx=%f, dy=%f\n", getFrom().name, to.name, dx, dy);
-	}
+}
 
 	@Override
 	public
 	void draw(float left, float top) {
 		applyProperties();
-		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
-				to.name + ": " + to.x + "," + to.y + ")");
+		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
+				to.name + ": " + to.getX() + "," + to.getY() + ")");
 
 		if(toArrow != null){
 			getTo().figure.connectFrom(left, top, 

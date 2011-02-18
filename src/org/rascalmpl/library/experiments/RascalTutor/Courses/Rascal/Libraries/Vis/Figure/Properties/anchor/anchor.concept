@@ -9,7 +9,8 @@ Syntax:
 Types:
 
 Function:
-`FProperty anchor(num h, num v)`
+* `FProperty anchor(num h, num v)`
+* `FProperty anchor(computedNum h, computedNum v)`
 
 
 Synopsis:
@@ -22,6 +23,9 @@ of the current height.
 Also see [BoxModel].
 
 Examples:
+
+* `anchor(1.0, 0.5)` sets the horizontal anchor to 100% of the current width (= right aligned) and 
+  the vertical anchor to 50% of the current height (= vertically centered).
 
 Benefits:
 

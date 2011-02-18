@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -33,7 +32,7 @@ import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.callbacks.IModulesLoaded;
+import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -86,8 +85,6 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
-	private static TypeFactory TF = TypeFactory.getInstance();
-
 	public Expression(INode __param1) {
 		super(__param1);
 	}
@@ -441,8 +438,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					this.cachedPrefix = prefix = __eval.__getCtx().getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
 					
 					if (!registeredCacheHandler) {
-						__eval.getEvaluator().registerGenericLoadListener(new IModulesLoaded() {
-							public void handleGenericLoadEvent() {
+						__eval.getEvaluator().registerConstructorDeclaredListener(new IConstructorDeclared() {
+							@Override
+							public void handleConstructorDeclaredEvent() {
 								cachedPrefix = null;
 							}
 						});
@@ -485,8 +483,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (!function.getType().isConstructorType()) this.cachedPrefix = null;
 				
 				if (this.cachedPrefix != null && !registeredCacheHandler) {
-					__eval.getEvaluator().registerGenericLoadListener(new IModulesLoaded() {
-						public void handleGenericLoadEvent() {
+					__eval.getEvaluator().registerConstructorDeclaredListener(new IConstructorDeclared() {
+						@Override
+						public void handleConstructorDeclaredEvent() {
 							cachedPrefix = null;
 						}
 					});

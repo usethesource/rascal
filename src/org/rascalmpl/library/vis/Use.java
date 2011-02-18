@@ -1,5 +1,7 @@
 package org.rascalmpl.library.vis;
 
+import java.awt.event.MouseEvent;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
@@ -20,7 +22,7 @@ public class Use extends Figure {
 	private static boolean debug = false;
 
 	public Use(FigurePApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		if(inside != null){
 			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
 		}
@@ -40,8 +42,8 @@ public class Use extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		applyProperties();
 		
 		inside.draw(left + getHanchor()*(width - inside.width),
@@ -71,5 +73,20 @@ public class Use extends Figure {
 	@Override
 	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
 		return inside.mouseOver(mousex, mousey, centerX, centerY, false);
+	}
+	
+	@Override
+	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
+		return inside.mousePressed(mousex, mousey, e);
+	}
+	
+	@Override
+	public boolean mouseReleased() {	
+		return inside.mouseReleased();
+	}
+	
+	@Override
+	public boolean mouseDragged(int mousex, int mousey){
+		return inside.mouseDragged(mousex, mousey);
 	}
 }

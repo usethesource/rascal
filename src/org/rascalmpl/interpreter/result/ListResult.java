@@ -166,7 +166,7 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
-		IList list = (IList) getValue();
+		IList list = getValue();
 		return makeResult(getType(), list.delete(value.getValue()), ctx);
 	}
 

@@ -1,0 +1,28 @@
+Name: choice
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`choice(list[str] choices, void(str s) ccallback, FProperty props...)`
+
+Synopsis:
+
+Description:
+Presents a list of named choices to the user. When the user selects one of them, callback `ccallback` is
+called with that choice as argument.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+Do not use choice in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
+
+Questions:
+

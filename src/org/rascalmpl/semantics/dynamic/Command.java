@@ -32,7 +32,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 			
 			// If we import a module from the command line, notify any expressions caching
 			// results that could be invalidated by a module load that we have loaded.
-			__eval.notifyGenericLoadListeners();
+			__eval.notifyConstructorDeclaredListeners();
 			
 			return res;
 

@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis.properties;
 
 import java.util.HashMap;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 
@@ -10,34 +11,39 @@ public interface IPropertyManager {
 	
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
-			put("anchor", Property.ANCHOR);
-			put("doi",       Property.DOI);
-			put("fillColor", Property.FILLCOLOR);
-			put("font", Property.FONT);
-			put("fontColor", Property.FONTCOLOR);
-			put("fontSize", Property.FONTSIZE);
-			put("fromAngle", Property.FROMANGLE);
-			put("gap", Property.GAP);
-			put("hanchor", Property.HANCHOR);
-			put("height", Property.HEIGHT);
-			put("hgap", Property.HGAP);                  // Only used internally
-			put("hint", Property.HINT);
-			put("id", Property.ID);
-			put("innerRadius", Property.INNERRADIUS);
-			put("lineColor", Property.LINECOLOR);
-			put("lineWidth", Property.LINEWIDTH);
-			put("mouseOver", Property.MOUSEOVER);
-			put("shapeClosed", Property.SHAPECLOSED);
-			put("shapeConnected", Property.SHAPECONNECTED);
-			put("shapeCurved", Property.SHAPECURVED);
-			put("size", Property.SIZE);
-			put("textAngle", Property.TEXTANGLE);
-			put("toAngle", Property.TOANGLE);
-			put("vanchor", Property.VANCHOR);
-			put("vgap", Property.VGAP);                 // Only used internally
-			put("width", Property.WIDTH);
+			put("anchor",			Property.ANCHOR);
+			put("doi",       		Property.DOI);
+			put("fillColor", 		Property.FILLCOLOR);
+			put("font", 			Property.FONT);
+			put("fontColor", 		Property.FONTCOLOR);
+			put("fontSize", 		Property.FONTSIZE);
+			put("fromAngle", 		Property.FROMANGLE);
+			put("gap", 				Property.GAP);
+			put("hanchor", 			Property.HANCHOR);
+			put("height", 			Property.HEIGHT);
+			put("hgap",				Property.HGAP);                  // Only used internally
+			put("hint", 			Property.HINT);
+			put("id", 				Property.ID);
+			put("innerRadius", 		Property.INNERRADIUS);
+			put("lineColor", 		Property.LINECOLOR);
+			put("lineWidth", 		Property.LINEWIDTH);
+			put("mouseOver", 		Property.MOUSEOVER);
+			put("onClick",			Property.ONCLICK);
+			put("shapeClosed", 		Property.SHAPECLOSED);
+			put("shapeConnected", 	Property.SHAPECONNECTED);
+			put("shapeCurved", 		Property.SHAPECURVED);
+			put("size", 			Property.SIZE);
+			put("textAngle", 		Property.TEXTANGLE);
+			put("toAngle", 			Property.TOANGLE);
+			put("vanchor", 			Property.VANCHOR);
+			put("vgap", 			Property.VGAP);                 // Only used internally
+			put("width", 			Property.WIDTH);
 		}
 	};
+	
+	public int getIntegerProperty(Property property);
+	public float getRealProperty(Property property);
+	public String getStringProperty(Property property);
 	
 	public FigurePApplet getFPA();
 	
@@ -56,6 +62,7 @@ public interface IPropertyManager {
 	public int getLineColor();
 	public float getLineWidth();
 	public Figure getMouseOver();
+	public IValue getOnClick();
 	public boolean isShapeClosed();
 	public boolean isShapeConnected();
 	public boolean isShapeCurved();
@@ -64,4 +71,6 @@ public interface IPropertyManager {
 	public float getVanchor();
 	public float getVGap();
 	public float getWidth();
+	
+	public boolean isDraggable();
 }

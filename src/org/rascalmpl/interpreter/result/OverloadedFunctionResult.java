@@ -16,7 +16,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 
-public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue {
+public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	
 	private final List<AbstractFunction> primaryCandidates; // it should be a list to allow proper shadowing

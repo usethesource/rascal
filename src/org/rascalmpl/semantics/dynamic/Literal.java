@@ -1,7 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.StringBuilder;
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -16,8 +16,8 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.RealLiteral;
 import org.rascalmpl.ast.RegExpLiteral;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.StringConstant.Lexical;
 import org.rascalmpl.ast.StringLiteral;
+import org.rascalmpl.ast.StringConstant.Lexical;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;

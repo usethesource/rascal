@@ -41,7 +41,7 @@ public class LayeredGraph extends Figure {
 //	private static boolean debug = false;
 	public LayeredGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+		super(fpa, properties);
 		this.nodes = new ArrayList<LayeredGraphNode>();
 		this.ctx = ctx;
 		width = getWidthProperty();
@@ -174,19 +174,17 @@ public class LayeredGraph extends Figure {
 	@Override
 	public
 	void draw(float left, float top) {
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 
-		applyProperties();
-		
-
-		for (LayeredGraphNode n : nodes) {
-			n.draw(left, top);
-		}
-		
+		applyProperties();		
 		
 		for (LayeredGraphEdge e : edges)
 			e.draw(left, top);
+		
+		for (LayeredGraphNode n : nodes) {
+			n.draw(left, top);
+		}
 		
 	}
 
@@ -473,7 +471,7 @@ public class LayeredGraph extends Figure {
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		
-		// Pass 1: collect the size of then nodes in each layer
+		// Pass 1: collect the size of the nodes in each layer
 		
 		int l = 0;
 		for(LinkedList<LayeredGraphNode> layer : layers){
@@ -500,9 +498,18 @@ public class LayeredGraph extends Figure {
 		for(LinkedList<LayeredGraphNode> layer : layers){
 			
 			int nVirtual = 0;
-			for(LayeredGraphNode g : layer)
+			LayeredGraphNode leftMost = null;
+			LayeredGraphNode rightMost = null;
+			for(LayeredGraphNode g : layer){
 				if(g.isVirtual())
 					nVirtual++;
+				else {
+					if(leftMost == null)
+						leftMost = rightMost = g;
+					else
+						rightMost = g;
+				}
+			}
 			float deltax = (maxWidth - wlayer[l])/(1 + layer.size() - nVirtual);
 			float x = deltax;
 			

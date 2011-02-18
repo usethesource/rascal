@@ -10,13 +10,17 @@ Types:
 
 Function:
 # `FProperty size(num s)`
+# `FProperty size(computedNum cs)`
 # `Fproperty size(num w, num h)`
+# `Fproperty size(computedNum cw, computedNum ch)`
 
 Synopsis:
 
 Description: Set the size of a figure:
 # Set width and height to `s`. This is equivalent to `width(s)` and `height(s)`.
+# Same, but the width value is computed by the callback `cs`.
 # Set width to `w` and height to `h`. This is equivalent to `width(w)` and `height(h)`.
+# Same, but the values for width and height are computed by the callbacks `cw`, respectively, `ch`.
 
 Examples:
 

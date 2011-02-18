@@ -10,6 +10,7 @@ Types:
 
 Function:
 # `FProperty fillColor(Color c)`
+# `FProperty fillColor(computedColor cc)`
 # `FProperty fillColor(str cname)`
 
 Synopsis:
@@ -17,7 +18,8 @@ Synopsis:
 Description:
 Set the color used to fill the inside of figures:
 # Set the fill color to `c`.
-# Set the fill color to color with name `cname`.
+# Set the fill color to the value of the callback function `cc`.
+# Set the fill color to the color with name `cname`.
 
 
 Also see [ColorModel].

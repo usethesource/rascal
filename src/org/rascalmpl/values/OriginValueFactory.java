@@ -1,7 +1,5 @@
 package org.rascalmpl.values;
 
-
-
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -11,7 +9,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.origins.Factory;
 
 public class OriginValueFactory extends ValueFactory {
@@ -27,22 +24,18 @@ public class OriginValueFactory extends ValueFactory {
 	
 	public abstract class TString implements IString {
 		
-		@Override
 		public Type getType() {
 			return STRING_TYPE;
 		}
-
-		@Override
+		
 		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 			return v.visitString(this);
 		}
 		
-		@Override
 		public IString concat(IString other) {
 			return new Concat(this, (TString)other);
 		}
 		
-		@Override
 		public boolean isEqual(IValue other) {
 			if (!(other instanceof IString)) {
 				return false;
@@ -50,7 +43,6 @@ public class OriginValueFactory extends ValueFactory {
 			return getValue().equals(((IString)other).getValue());
 		}
 		
-		@Override
 		public int compare(IString other){
 			int result = getValue().compareTo(other.getValue());
 			
@@ -84,7 +76,6 @@ public class OriginValueFactory extends ValueFactory {
 			return value.length();
 		}
 		
-		@Override
 		public String getValue() {
 			return value;
 		}
@@ -159,7 +150,6 @@ public class OriginValueFactory extends ValueFactory {
 			return length;
 		}
 		
-		@Override
 		public String getValue() {
 			return lhs.getValue() + rhs.getValue();
 		}

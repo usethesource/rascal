@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -374,7 +375,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					throw new NotYetImplemented(rule);
 				}
 			}
-			return null;
+			return ResultFactory.nothing();
 
 		}
 

@@ -27,9 +27,8 @@ public class TreeNode extends Figure {
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig,
-			IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);
+	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig) {
+		super(fpa, properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();
 		edgeProperties = new ArrayList<PropertyManager>();
@@ -124,17 +123,17 @@ public class TreeNode extends Figure {
 			width = max(rootFigure.width, rightExtentChildren - (leftPosition - children.get(0).rootPosition));
 
 			// Make child positions and rootPosition relative to this parent
-			left = leftPosition - children.get(0).rootPosition;
+			setLeft(leftPosition - children.get(0).rootPosition);
 			
 			for(int i = 0; i < nChildren; i++){
-				childRoot[i] -= left;
+				childRoot[i] -= getLeft();
 			}
-			rootPosition = position - left;
+			rootPosition = position - getLeft();
 		}
 	
 		// After placing all children, we can finally add the current root figure to the raster.
 		raster.add(position, rootTop, rootFigure.width, rootFigure.height);
-		if(debug)System.err.printf("shapeTree(%s, %f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, left, top, width, height);
+		if(debug)System.err.printf("shapeTree(%s, %f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, getLeft(), getTop(), width, height);
 		return position;
 	}
 	
@@ -148,8 +147,8 @@ public class TreeNode extends Figure {
 	public
 	void draw(float left, float top){
 		
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 	
 		if(!isVisible())
 			return;
@@ -218,7 +217,7 @@ public class TreeNode extends Figure {
 	@Override
 	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
 		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
-		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", left, top);
+		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", getLeft(), getTop());
 		if(rootFigure.mouseOver(mousex, mousey, false))
 			return true;
 		for(TreeNode child : children)
@@ -235,7 +234,7 @@ public class TreeNode extends Figure {
 		for(TreeNode child : children)
 			if(child.mousePressed(mousex, mousey, e))
 				return true;
-		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d, trying outer bounds with left corner: %f, %f\n", rootFigure.getIdProperty(), mousex, mousey, left, top);
+		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d, trying outer bounds with left corner: %f, %f\n", rootFigure.getIdProperty(), mousex, mousey, getLeft(), getTop());
 		return super.mousePressed(mousex, mousey, e);
 	}
 	

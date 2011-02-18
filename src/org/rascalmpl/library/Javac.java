@@ -2,14 +2,12 @@ package org.rascalmpl.library;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.utils.JavaCompiler;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class Javac{

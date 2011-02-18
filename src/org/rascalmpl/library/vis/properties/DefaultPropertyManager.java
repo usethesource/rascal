@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.properties;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 
@@ -73,6 +74,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 	public Figure getMouseOver() {
 		return null;
 	}
+	
+	public IValue getOnClick() {
+		return null;
+	}
 
 	public float getTextAngle() {
 		return 0;
@@ -107,6 +112,60 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		return 0;
 	}
 
+	public boolean isDraggable() {
+		return false;
+	}
+	/*
+	 * p
+
+	public Figure getMouseOver();
+	public IValue getOnClick();
+	public boolean isShapeClosed();
+	public boolean isShapeConnected();
+	public boolean isShapeCurved();
 	
+	public boolean isDraggable();
+	 */
+
+	public int getIntegerProperty(Property property) {
+		// TODO Auto-generated method stub
+		switch(property){
+		case DOI:		return getDOI();
+		case FILLCOLOR: return getFillColor();
+		case FONTCOLOR:	return getFontColor();
+		case FONTSIZE: 	return getFontSize();
+		case LINECOLOR:	return getLineColor();
+		default:
+						return -1;
+		}
+	}
+
+	public float getRealProperty(Property property) {
+		switch(property){
+		case FROMANGLE: 	return getFromAngle();
+		case HANCHOR:		return getHanchor();
+		case HGAP:			return getHGap();
+		case HEIGHT:		return getHeight();
+		case INNERRADIUS:	return getInnerRadius();
+		case LINEWIDTH:		return getLineWidth();
+		case TEXTANGLE:		return getTextAngle();
+		case TOANGLE:		return getToAngle();
+		case VANCHOR:		return getVanchor();
+		case VGAP:			return getVGap();
+		case WIDTH:			return getWidth();
+		default:
+							return -1;		
+		}
+	}
+
+	public String getStringProperty(Property property) {
+		switch(property){
+		case FONT:	return getFont();
+		case HINT:	return getHint();
+		case ID:	return getId();
+		default:
+					return null;
+		}
+	}
 
 }

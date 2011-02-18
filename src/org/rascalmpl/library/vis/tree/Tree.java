@@ -37,7 +37,7 @@ public class Tree extends Figure {
 	TreeNode root = null;
 	
 	public Tree(FigurePApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties, ctx);		
+		super(fpa, properties);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();
@@ -49,7 +49,7 @@ public class Tree extends Figure {
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
-			TreeNode tn = new TreeNode(fpa, properties, fig, ctx);
+			TreeNode tn = new TreeNode(fpa, properties, fig);
 			nodeMap.put(name, tn);
 		}
 		
@@ -105,8 +105,8 @@ public class Tree extends Figure {
 	void draw(float left, float top) {
 		if(!isNextVisible())
 			return;
-		this.left = left;
-		this.top = top;
+		this.setLeft(left);
+		this.setTop(top);
 		
 		//System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties();

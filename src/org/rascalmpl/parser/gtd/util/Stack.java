@@ -55,6 +55,10 @@ public class Stack<E>{
 		return false;
 	}
 	
+	public boolean isEmpty(){
+		return (size == 0);
+	}
+	
 	public void clear(){
 		data = (E[]) new Object[data.length];
 		size = 0;
