@@ -396,18 +396,18 @@ public Grammar Session = simple({sort("Session")},
 	pr(lit("a"), [\char-class([range(97,97)])])
 });
 
-test SymbolUse F := first(Session) 
-     && F[sort("Question")] == {\char-class([range(63,63)])}
-     && F[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])}
-     && F[sort("Facts")] == {\char-class([range(33,33)]),empty()}
-     && F[lit("a")] == {\char-class([range(97,97)])}
-     && F[lit("!")] == {\char-class([range(33,33)])}
-     && F[lit("?")] == {\char-class([range(63,63)])}
-     && F[lit("(")] == {\char-class([range(40,40)])}
-     && F[lit(")")] == {\char-class([range(41,41)])}
-     && F[sort("STRING")] == {\char-class([range(97,97)])}
-     && F[sort("Fact")] == {\char-class([range(33,33)])}
-     ;
+private SymbolUse SF = first(Session);
+
+test SF[sort("Question")] == {\char-class([range(63,63)])};
+test SF[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])};
+test SF[sort("Facts")] == {\char-class([range(33,33)]),empty()};
+test SF[lit("a")] == {\char-class([range(97,97)])};
+test SF[lit("!")] == {\char-class([range(33,33)])};
+test SF[lit("?")] == {\char-class([range(63,63)])};
+test SF[lit("(")] == {\char-class([range(40,40)])};
+test SF[lit(")")] == {\char-class([range(41,41)])};
+test SF[sort("STRING")] == {\char-class([range(97,97)])};
+test SF[sort("Fact")] == {\char-class([range(33,33)])};
      
 test follow(Session, first(Session)) >=
  	 (sort("Question"):{\char-class([range(41,41)]),eoi()},
