@@ -20,10 +20,6 @@ public abstract class MidPathChars extends org.rascalmpl.ast.MidPathChars {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -42,10 +38,6 @@ public abstract class MidPathChars extends org.rascalmpl.ast.MidPathChars {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

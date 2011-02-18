@@ -2,6 +2,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Class;
 import org.rascalmpl.ast.IntegerLiteral;
@@ -9,6 +10,7 @@ import org.rascalmpl.ast.NonterminalLabel;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.ParameterizedNonterminal;
 import org.rascalmpl.ast.StringConstant;
+import org.rascalmpl.interpreter.env.Environment;
 
 public abstract class Sym extends org.rascalmpl.ast.Sym {
 
@@ -22,10 +24,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -35,10 +33,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -48,10 +42,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -61,10 +51,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -74,10 +60,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -87,10 +69,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -99,11 +77,12 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 		public Nonterminal(INode __param1, org.rascalmpl.ast.Nonterminal __param2) {
 			super(__param1, __param2);
 		}
-
+		
 		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
+		public Type typeOf(Environment env) {
+			return getNonterminal().typeOf(env);
 		}
+
 
 	}
 
@@ -113,10 +92,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -126,10 +101,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -139,10 +110,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -152,10 +119,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -165,10 +128,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -178,10 +137,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -191,10 +146,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -204,10 +155,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -217,10 +164,6 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

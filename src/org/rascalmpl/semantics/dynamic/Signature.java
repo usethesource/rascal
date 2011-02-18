@@ -1,13 +1,14 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionModifiers;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public abstract class Signature extends org.rascalmpl.ast.Signature {
 
@@ -21,16 +22,11 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			super(__param1, __param2, __param3, __param4, __param5, __param6);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance().functionType(this.getType().__evaluate(__eval), this.getParameters().__evaluate(__eval));
-
+		public Type typeOf(Environment env) {
+			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+			return RTF.functionType(getType().typeOf(env), getParameters().typeOf(env));
 		}
 
 	}
@@ -41,16 +37,11 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance().functionType(this.getType().__evaluate(__eval), this.getParameters().__evaluate(__eval));
-
+		public Type typeOf(Environment env) {
+			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance();
+			return RTF.functionType(getType().typeOf(env), getParameters().typeOf(env));
 		}
 
 	}
@@ -61,10 +52,6 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

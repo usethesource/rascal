@@ -113,6 +113,7 @@ public class TestEvaluator {
 			
 			try{
 				result = x.getExpression().interpret(eval);
+				testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
 			}
 			catch(StaticError e) {
 				testResultListener.report(false, x.toString(), x.getLocation(), e);
@@ -123,7 +124,7 @@ public class TestEvaluator {
 				testResultListener.report(false, x.toString(), x.getLocation(), e);
 			}
 			
-			testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
+			
 			
 			return ResultFactory.bool(result.isTrue(), eval);
 		}

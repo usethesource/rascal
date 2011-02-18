@@ -26,10 +26,6 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -39,13 +35,9 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			if (__eval.__getDebug())
 				System.err.println("visitRegExpLiteralLexical: " + this.getString());

@@ -6,16 +6,17 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.NullASTVisitor;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.BasicTypeEvaluator;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.NonWellformedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 import org.rascalmpl.values.uptr.Factory;
 
 public abstract class BasicType extends org.rascalmpl.ast.BasicType {
+	private static final TypeFactory TF = TypeFactory.getInstance();
 
 	public BasicType(INode __param1) {
 		super(__param1);
@@ -27,16 +28,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment env) {
 			throw new NonWellformedTypeError("type should have at one type argument, like type[value].", this);
-
 		}
 
 		@Override
@@ -75,16 +70,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			throw new NonWellformedTypeError("a reified non-terminal type should look like non-terminal(Symbol symbol, this)", this);
-
 		}
 
 	}
@@ -96,14 +85,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
-
-		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().stringType();
+		public Type typeOf(Environment __eval) {
+			return TF.stringType();
 
 		}
 
@@ -125,10 +108,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -141,9 +120,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().valueType();
+		public Type typeOf(Environment __eval) {
+			return TF.valueType();
 
 		}
 
@@ -155,10 +133,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -179,10 +153,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -192,26 +162,18 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
-
 			if (__eval.__getTypeArgument().getArity() == 0) {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf().voidType();
 			}
 			throw new NonWellformedTypeError("void cannot have type arguments.", this);
-
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().voidType();
-
+		public Type typeOf(Environment __eval) {
+			return TF.voidType();
 		}
 
 	}
@@ -222,16 +184,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().dateTimeType();
-
+		public Type typeOf(Environment __eval) {
+			return TF.dateTimeType();
 		}
 
 		@Override
@@ -252,10 +208,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -275,10 +227,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			throw new NonWellformedTypeError("a reified reified type should look like reified(type[&T] arg)", this);
-
 		}
 
 	}
@@ -290,10 +240,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			throw new NonWellformedTypeError("a reified adt should be one of adt(str name), adt(str name, list[type[&T]] parameters), adt(str name, list[Constructor] constructors).", this);
-
 		}
 
 		@Override
@@ -347,10 +295,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -361,16 +305,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			throw new NonWellformedTypeError("lex should have one type argument, like lex[Id].", this);
-
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -387,16 +325,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().realType();
-
+		public Type typeOf(Environment __eval) {
+			return TF.realType();
 		}
 
 		@Override
@@ -417,16 +349,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			throw new NonWellformedTypeError("list should have one type argument, like list[value].", this);
-
 		}
 
 		@Override
@@ -447,10 +373,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -463,7 +385,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
 			throw new NonWellformedTypeError("map should have at two type arguments, like map[value,value].", this);
 
@@ -477,13 +399,9 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
 			throw new NonWellformedTypeError("rel should have at least one type argument, like rel[value,value].", this);
 
@@ -504,15 +422,11 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().nodeType();
+			return TF.nodeType();
 
 		}
 
@@ -534,10 +448,6 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -547,7 +457,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
 			throw new NonWellformedTypeError("a reified constructor declaration should look like contructor(str name, type[&T1] arg1, ...)", this);
 
@@ -561,13 +471,9 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
 			throw new NonWellformedTypeError("set should have one type argument, like set[value].", this);
 
@@ -591,15 +497,11 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().sourceLocationType();
+			return TF.sourceLocationType();
 
 		}
 
@@ -622,16 +524,12 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().numberType();
+			return TF.numberType();
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -651,15 +549,11 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().boolType();
+			return TF.boolType();
 
 		}
 
@@ -682,16 +576,12 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
 			throw new NonWellformedTypeError("tuple should have type arguments, like tuple[value,value].", this);
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
@@ -708,13 +598,9 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
 			throw new NonWellformedTypeError("bag should have one type argument, like bag[value].", this);
 
@@ -745,44 +631,30 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return org.rascalmpl.interpreter.TypeEvaluator.__getTf().integerType();
+			return TF.integerType();
 
 		}
 
 	}
 
 	static public class Ambiguity extends org.rascalmpl.ast.BasicType.Ambiguity {
-
 		public Ambiguity(INode __param1, java.util.List<org.rascalmpl.ast.BasicType> __param2) {
 			super(__param1, __param2);
 		}
 
 		@Override
 		public Type __evaluate(BasicTypeEvaluator __eval) {
-
 			throw new ImplementationError("Detected ambiguity in BasicType", this.getLocation());
 
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment __eval) {
 			throw new ImplementationError("Ambiguity detected in BasicType", this.getLocation());
-
 		}
-
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
-
 	}
 }

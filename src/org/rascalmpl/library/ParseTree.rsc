@@ -6,7 +6,8 @@ data Tree =
      appl(Production prod, list[Tree] args) |
 	 cycle(Symbol symbol, int cycleLength) |
 	 amb(set[Tree] alternatives) | 
-	 char(int character);
+	 char(int character) |
+	 error(list[Tree] args);
 
 data Production =
      prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 

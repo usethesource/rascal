@@ -29,7 +29,7 @@ public class StaticChecker {
 	
 	public StaticChecker(PrintWriter stderr, PrintWriter stdout) {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***static-checker***"));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***static-checker***", heap));
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		checkerEnabled = false;
 		initialized = false;

@@ -29,10 +29,6 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -106,10 +102,6 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -119,10 +111,6 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

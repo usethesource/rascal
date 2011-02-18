@@ -10,6 +10,7 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -25,10 +26,6 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -43,11 +40,12 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 
 			String name = __eval.getModuleName(this);
 
-			ModuleEnvironment env = __eval.__getHeap().getModule(name);
+			GlobalEnvironment heap = __eval.__getHeap();
+			ModuleEnvironment env = heap.getModule(name);
 
 			if (env == null) {
-				env = new ModuleEnvironment(name);
-				__eval.__getHeap().addModule(env);
+				env = new ModuleEnvironment(name, heap);
+				heap.addModule(env);
 			}
 
 			env.setBootstrap(__eval.needBootstrapParser(this));
@@ -79,10 +77,6 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

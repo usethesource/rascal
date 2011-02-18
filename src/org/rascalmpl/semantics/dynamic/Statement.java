@@ -1,7 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
@@ -15,7 +15,6 @@ import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.LocalVariableDeclaration;
 import org.rascalmpl.ast.NoElseMayFollow;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Target;
@@ -116,10 +115,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -136,10 +131,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -149,10 +140,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -180,10 +167,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -200,10 +183,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -213,10 +192,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -240,10 +215,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -260,10 +231,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -274,7 +241,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
 				Result<IValue> msgValue = this.getMessage().interpret(__eval);
-				IString msg = __eval.__getVf().string(org.rascalmpl.interpreter.utils.Utils.unescape(msgValue.getValue().toString(), this, __eval.getCurrentEnvt()));
+				IString msg = __eval.__getVf().string(org.rascalmpl.interpreter.utils.StringUtils.unescape(msgValue.getValue().toString(), this, __eval.getCurrentEnvt()));
 				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.assertionFailed(msg, __eval.getCurrentAST(), __eval.getStackTrace());
 			}
 			return r;
@@ -289,10 +256,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -330,10 +293,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -353,6 +312,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
+					
+					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -387,10 +348,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -430,10 +387,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -465,13 +418,17 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					gens[0] = __eval.makeBooleanResult(generators.get(0));
 					gens[0].init();
 					olds[0] = __eval.getCurrentEnvt();
-					__eval.pushEnv();
 
 					while (i >= 0 && i < size) {
-						if (__eval.__getInterrupt())
+						__eval.unwind(olds[i]);
+						__eval.pushEnv();
+						
+						if (__eval.__getInterrupt()) {
 							throw new InterruptException(__eval.getStackTrace());
+						}
 						if (gens[i].hasNext() && gens[i].next()) {
 							if (i == size - 1) {
+								__eval.setCurrentAST(body);
 								body.interpret(__eval);
 								continue loop;
 							}
@@ -480,10 +437,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							gens[i] = __eval.makeBooleanResult(generators.get(i));
 							gens[i].init();
 							olds[i] = __eval.getCurrentEnvt();
-							__eval.pushEnv();
 						} else {
-							__eval.unwind(olds[i]);
-							__eval.pushEnv();
 							i--;
 						}
 					}
@@ -504,10 +458,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -524,10 +474,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -545,7 +491,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
+
 				while (i >= 0 && i < size) {
+					
 					if (__eval.__getInterrupt())
 						throw new InterruptException(__eval.getStackTrace());
 					if (gens[i].hasNext() && gens[i].next()) {
@@ -583,16 +531,12 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> right = this.getStatement().interpret(__eval);
-			return this.getAssignable().__evaluate(new AssignableEvaluator(__eval.getCurrentEnvt(), this.getOperator(), right, __eval));
+			return this.getAssignable().assignment(new AssignableEvaluator(__eval.getCurrentEnvt(), this.getOperator(), right, __eval));
 
 		}
 
@@ -604,10 +548,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -624,10 +564,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -663,10 +599,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -676,10 +608,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -699,15 +627,15 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			__eval.__getAccumulators().push(new Accumulator(__eval.__getVf(), label));
 
-			// TODO: does __eval prohibit that the body influences the behavior
+			// TODO: does this prohibit that the body influences the behavior
 			// of the generators??
 
 			int i = 0;
 			boolean normalCflow = false;
 			try {
 				gens[0] = __eval.makeBooleanResult(generators.get(0));
-				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
+				gens[0].init();
 				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
@@ -716,12 +644,15 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							// NB: no result handling here.
+							__eval.setCurrentAST(body);
 							body.interpret(__eval);
+//							__eval.unwind(olds[i]);
+//							__eval.pushEnv();
 						} else {
 							i++;
 							gens[i] = __eval.makeBooleanResult(generators.get(i));
-							gens[i].init();
 							olds[i] = __eval.getCurrentEnvt();
+							gens[i].init();
 							__eval.pushEnv();
 						}
 					} else {
@@ -730,7 +661,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						__eval.pushEnv();
 					}
 				}
-				// TODO: __eval is not enough, we must also detect
+				// TODO: this is not enough, we must also detect
 				// break and return a list result then.
 				normalCflow = true;
 			} finally {
@@ -759,10 +690,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -772,10 +699,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -799,10 +722,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -812,10 +731,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -832,10 +747,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -877,10 +788,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -912,10 +819,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -925,10 +828,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {

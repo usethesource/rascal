@@ -5,7 +5,9 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.RascalFunction;
 
 public class ArgumentsMismatchError extends StaticError {
 	private static final long serialVersionUID = -641438732779898646L;
@@ -28,13 +30,18 @@ public class ArgumentsMismatchError extends StaticError {
 			b.append(",\ndoes not match the declared signature:");
 		}
 		else {
-			b.append(",\ndoes not match any of the declared (overloaded) signatures:\n");
+			b.append(",\ndoes not match any of the declared (overloaded) signature patterns:\n");
 		}
 		for (AbstractFunction c : candidates) {
 			b.append('\t');
 			b.append(c.getName());
 			b.append('(');
-			argumentTypes(c.getFunctionType().getArgumentTypes(), b);
+			if (c instanceof RascalFunction) {
+				b.append(((FunctionDeclaration) ((RascalFunction) c).getAst()).getSignature().getParameters().getFormals());
+			}
+			else {
+				argumentTypes(c.getFunctionType().getArgumentTypes(), b);
+			}
 			b.append(')');
 			b.append('\n');
 		}

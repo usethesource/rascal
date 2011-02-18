@@ -23,10 +23,6 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -44,10 +40,6 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -65,10 +57,6 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

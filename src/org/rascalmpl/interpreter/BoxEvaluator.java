@@ -91,10 +91,12 @@ import org.rascalmpl.ast.Expression.GetAnnotation;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
 import org.rascalmpl.ast.Expression.Guarded;
+import org.rascalmpl.ast.Expression.Has;
 import org.rascalmpl.ast.Expression.IfDefinedOtherwise;
 import org.rascalmpl.ast.Expression.IfThenElse;
 import org.rascalmpl.ast.Expression.Implication;
 import org.rascalmpl.ast.Expression.In;
+import org.rascalmpl.ast.Expression.Is;
 import org.rascalmpl.ast.Expression.IsDefined;
 import org.rascalmpl.ast.Expression.It;
 import org.rascalmpl.ast.Expression.Join;
@@ -125,7 +127,6 @@ import org.rascalmpl.ast.Expression.Visit;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.Field.Index;
 import org.rascalmpl.ast.Field.Name;
-import org.rascalmpl.ast.Formal.TypeName;
 import org.rascalmpl.ast.FunctionDeclaration.Abstract;
 import org.rascalmpl.ast.FunctionModifier.Java;
 import org.rascalmpl.ast.FunctionType.TypeArguments;
@@ -1113,14 +1114,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitFieldName(Name x) {
 		return eX(x.getFieldName());
-	}
-
-	public IValue visitFormalAmbiguity(org.rascalmpl.ast.Formal.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitFormalTypeName(TypeName x) {
-		return H(1, eX(x.getType()), eX(x.getName()));
 	}
 
 	public IValue visitFormalsAmbiguity(org.rascalmpl.ast.Formals.Ambiguity x) {
@@ -3663,6 +3656,25 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitProdModifierTag(org.rascalmpl.ast.ProdModifier.Tag x) {
 		// TODO Auto-generated method stub
 		return eX(x.getTag());
+	}
+
+	@Override
+	public IValue visitExpressionHas(Has x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitExpressionIs(Is x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitFunctionModifierDefault(
+			org.rascalmpl.ast.FunctionModifier.Default x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

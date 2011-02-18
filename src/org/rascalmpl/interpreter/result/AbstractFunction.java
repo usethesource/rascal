@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
  * are implemented in such a way such that a function value simulates an empty map if it
  * escapes beyond the reach of the Rascal interpreter. This is useless, but safe behavior.
  */
-abstract public class AbstractFunction extends Result<IValue> implements IExternalValue {
+abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;
@@ -43,7 +43,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;
-	protected static boolean soundCallTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
 	public AbstractFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, boolean varargs, Environment env) {
@@ -93,10 +92,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return hasVarArgs;
 	}
 	
-	public boolean isAmbiguous(AbstractFunction other) {
-		return other.match(getFormals()) || match(other.getFormals());
-	}
-	
 	private boolean matchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
@@ -121,6 +116,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		
 		return true;
 	}
+	
+	public abstract boolean isDefault();
 	
 	
 	private void printNesting(StringBuilder b) {
@@ -158,6 +155,16 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		callNesting++;
 	}
 
+	protected void printFinally() {
+		callNesting--;
+		StringBuilder b = new StringBuilder();
+		b.append("except>");
+		printNesting(b);
+		printHeader(b);
+		eval.getStdOut().println(b.toString());
+		eval.getStdOut().flush();
+	}
+	
 	protected void printEndTrace() {
 		callNesting--;
 		StringBuilder b = new StringBuilder();
@@ -240,12 +247,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		
 		int arity = formals.getArity();
 		Type[] types = new Type[arity];
-		java.lang.String[] labels = new java.lang.String[arity];
 		int i;
 		
 		for (i = 0; i < arity - 1; i++) {
 			types[i] = formals.getFieldType(i);
-			labels[i] = formals.getFieldName(i);
 		}
 		
 		Type lub = TF.voidType();
@@ -254,9 +259,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 		
 		types[i] = TF.listType(lub);
-		labels[i] = formals.getFieldName(i);
 		
-		return TF.tupleType(types, labels);
+		return TF.tupleType(types);
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
@@ -348,9 +352,5 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	public Evaluator getEval() {
 		return eval;
-	}
-
-	public static void setSoundCallTracing(boolean on) {
-		soundCallTracing = on;
 	}
 }

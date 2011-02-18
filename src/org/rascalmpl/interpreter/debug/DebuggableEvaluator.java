@@ -108,8 +108,8 @@ public class DebuggableEvaluator extends Evaluator {
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
-			ModuleEnvironment moduleEnvironment, IDebugger debugger) {
-		super(vf, stderr, stdout, moduleEnvironment, new GlobalEnvironment());
+			ModuleEnvironment moduleEnvironment, IDebugger debugger, GlobalEnvironment heap) {
+		super(vf, stderr, stdout, moduleEnvironment, heap);
 		this.__setPatternEvaluator(new DebuggingDecorator<IMatchingResult>(__getPatternEvaluator(), debugger));
 		this.debugger = debugger;
 	}

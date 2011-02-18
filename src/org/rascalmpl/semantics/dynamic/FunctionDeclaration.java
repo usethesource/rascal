@@ -1,17 +1,17 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionBody;
-import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.RascalFunction;
@@ -21,8 +21,20 @@ import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
 
 public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDeclaration {
 
+	
 	public FunctionDeclaration(INode __param1) {
 		super(__param1);
+	}
+	
+	private static boolean hasJavaModifier(org.rascalmpl.ast.FunctionDeclaration func) {
+		List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
+		for (FunctionModifier m : mods) {
+			if (m.isJava()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	static public class Abstract extends org.rascalmpl.ast.FunctionDeclaration.Abstract {
@@ -31,17 +43,13 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 			super(__param1, __param2, __param3, __param4);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
-			if (!__eval.hasJavaModifier(this)) {
+			if (!hasJavaModifier(this)) {
 				throw new MissingModifierError("java", this);
 			}
 
@@ -64,10 +72,6 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -75,7 +79,7 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
-			if (__eval.hasJavaModifier(this)) {
+			if (hasJavaModifier(this)) {
 				throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null, this);
 			}
 
@@ -95,9 +99,9 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return this.getSignature().__evaluate(__eval);
+			return this.getSignature().typeOf(__eval);
 
 		}
 
@@ -109,10 +113,6 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

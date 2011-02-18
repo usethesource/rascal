@@ -202,6 +202,8 @@ syntax Expression
 	| FieldAccess : Expression expression "." Name field 
 	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
 	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
+	| Is : Expression expression "is" Name name
+	| Has : Expression expression "has" Name name
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
 	| Negative: "-" Expression argument 
@@ -331,7 +333,8 @@ syntax DatePart
 	| lex [0-9] [0-9] [0-9] [0-9] [0-1] [0-9] [0-3] [0-9] ;
 
 syntax FunctionModifier
-	= Java: "java" ;
+	= Java: "java" 
+	| Default: "default";
 
 syntax Assignment
 	= IfDefined: "?=" 
@@ -345,7 +348,7 @@ syntax Assignment
 syntax Assignable
 	= bracket Bracket   : "(" Assignable arg ")"
 	| Variable          : QualifiedName qualifiedName
-    | Subscript         : Assignable receiver "[" Expression subscript "]" 
+| Subscript         : Assignable receiver "[" Expression subscript "]" 
 	| FieldAccess       : Assignable receiver "." Name field 
 	| IfDefinedOrDefault: Assignable receiver "?" Expression defaultExpression 
 	| Constructor       : Name name "(" {Assignable ","}+ arguments ")"  
@@ -406,9 +409,6 @@ syntax RegExpModifier
 syntax EscapedName
 	= lex [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]* 
 	# [\- 0-9 A-Z _ a-z] ;
-
-syntax Formal
-	= TypeName: Type type Name name ;
 
 syntax Parameters
 	= Default: "(" Formals formals ")" 
@@ -495,7 +495,7 @@ syntax PatternWithAction
 
 syntax LAYOUT
 	= lex Comment 
-	| lex whitespace: [\t-\n \r \ ] ;
+	| lex [\t-\n \r \ ] ;
 
 syntax Visit
 	= GivenStrategy: Strategy strategy "visit" "(" Expression subject ")" "{" Case+ cases "}" 
@@ -562,7 +562,7 @@ syntax Tags
 	= Default: Tag* tags ;
 
 syntax Formals
-	= Default: {Formal ","}* formals ;
+	= Default: {Pattern ","}* formals ;
 
 syntax PostProtocolChars
 	= lex "\>" URLChars "://" ;
@@ -760,6 +760,7 @@ syntax Variant
 
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
+	| Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
 	| Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 syntax PreProtocolChars

@@ -29,10 +29,6 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -42,10 +38,6 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -55,10 +47,6 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -75,10 +63,6 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {

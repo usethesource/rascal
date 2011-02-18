@@ -1,15 +1,15 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Variable;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -27,13 +27,12 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 		}
 
 		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
+		public Type typeOf(Environment env) {
+			return getType().typeOf(env);
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 			for (Variable var : this.getVariables()) {
@@ -46,7 +45,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 					// that is used on the right hand side.
 					Result<IValue> v = var.getInitial().interpret(__eval);
 
-					Type declaredType = __eval.evalType(this.getType());
+					Type declaredType = typeOf(__eval.getCurrentEnvt());
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariableError(varAsString, var);
@@ -66,7 +65,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 						throw new UnexpectedTypeError(declaredType, v.getType(), var);
 					}
 				} else {
-					Type declaredType = __eval.evalType(this.getType());
+					Type declaredType = typeOf(__eval.getCurrentEnvt());
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariableError(varAsString, var);
@@ -86,10 +85,6 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

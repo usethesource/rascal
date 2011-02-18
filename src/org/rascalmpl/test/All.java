@@ -9,6 +9,7 @@ import org.junit.runners.Suite;
 	AllTests2.class,
 	AllTests3.class,
 	AllTests4.class,
+	ConcreteSyntaxTests.class,
 	AllBenchmarks.class,
 	AllDemoTests.class
         })

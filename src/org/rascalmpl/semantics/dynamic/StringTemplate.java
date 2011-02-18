@@ -19,10 +19,6 @@ public abstract class StringTemplate extends org.rascalmpl.ast.StringTemplate {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -32,10 +28,6 @@ public abstract class StringTemplate extends org.rascalmpl.ast.StringTemplate {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -46,10 +38,6 @@ public abstract class StringTemplate extends org.rascalmpl.ast.StringTemplate {
 			super(__param1, __param2, __param3, __param4, __param5, __param6, __param7, __param8);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -59,10 +47,6 @@ public abstract class StringTemplate extends org.rascalmpl.ast.StringTemplate {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -72,10 +56,6 @@ public abstract class StringTemplate extends org.rascalmpl.ast.StringTemplate {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -85,10 +65,6 @@ public abstract class StringTemplate extends org.rascalmpl.ast.StringTemplate {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

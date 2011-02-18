@@ -17,10 +17,6 @@ public abstract class DataTarget extends org.rascalmpl.ast.DataTarget {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -30,10 +26,6 @@ public abstract class DataTarget extends org.rascalmpl.ast.DataTarget {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -43,10 +35,6 @@ public abstract class DataTarget extends org.rascalmpl.ast.DataTarget {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

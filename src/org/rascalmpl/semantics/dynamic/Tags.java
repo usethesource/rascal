@@ -17,10 +17,6 @@ public abstract class Tags extends org.rascalmpl.ast.Tags {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -30,10 +26,6 @@ public abstract class Tags extends org.rascalmpl.ast.Tags {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

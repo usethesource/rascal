@@ -24,10 +24,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -37,10 +33,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -64,17 +56,10 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			__eval.printVisibleDeclaredObjects(__eval.getStdOut());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}
@@ -94,10 +79,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -107,10 +88,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -127,10 +104,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -140,10 +113,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -153,10 +122,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -173,10 +138,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -194,10 +155,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -214,10 +171,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

@@ -1,7 +1,6 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,46 +13,50 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
-import org.rascalmpl.interpreter.staticErrors.RedeclaredFunctionError;
 
-public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue {
+public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	
-	private final List<AbstractFunction> candidates; // it should be a list to allow proper shadowing
+	private final List<AbstractFunction> primaryCandidates; // it should be a list to allow proper shadowing
+	private final List<AbstractFunction> defaultCandidates; // it should be a list to allow proper shadowing
 	private final String name;
 
-	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, IEvaluatorContext ctx) {
+	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, IEvaluatorContext ctx) {
 		super(type, null, ctx);
 		
-		if (candidates.size() <= 0) {
+		if (candidates.size() + defaults.size() <= 0) {
 			throw new ImplementationError("at least need one function");
 		}
-		this.candidates = new ArrayList<AbstractFunction>(candidates.size());
-		this.candidates.addAll(candidates);
 		this.name = name;
+		
+		this.primaryCandidates = new ArrayList<AbstractFunction>(candidates.size());
+		this.defaultCandidates = new ArrayList<AbstractFunction>(candidates.size());
+		
+	    primaryCandidates.addAll(candidates);
+	    defaultCandidates.addAll(defaults);
 	}
 	
 	public OverloadedFunctionResult(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
-		this.candidates = new ArrayList<AbstractFunction>(1);
-		this.candidates.add(function);
 		this.name = function.getName();
+		
+		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
+		this.defaultCandidates = new ArrayList<AbstractFunction>(1);
+		if (function.isDefault()) {
+			defaultCandidates.add(function);
+		}
+		else {
+			primaryCandidates.add(function);
+		}
 	}
 	
-	public List<AbstractFunction> getCandidates() {
-		return Collections.unmodifiableList(candidates);
-	}
-
 	@Override
 	public IValue getValue() {
 		return this;
 	}
 
-	public int size() {
-		return candidates.size();
-	}
-	
 	private Type lub(List<AbstractFunction> candidates) {
 		Type lub = TF.voidType();
 		
@@ -64,53 +67,105 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return lub;
 	}
 
-	@Override
+	@Override 
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues);
+		
+		if (result == null) {
+			result = callWith(defaultCandidates, argTypes, argValues);
+		}
+
+		if (result == null) {
+			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
+			all.addAll(primaryCandidates);
+			all.addAll(defaultCandidates);
+			throw new ArgumentsMismatchError(name, all, argTypes, ctx.getCurrentAST());
+		}
+		
+		return result;
+	}
+
+	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues) {
 		Type tuple = getTypeFactory().tupleType(argTypes);
 		
 		for (AbstractFunction candidate : candidates) {
 			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
 			if (candidate.match(tuple)) {
-				return candidate.call(argTypes, argValues);
+				try {
+					return candidate.call(argTypes, argValues);
+				}
+				catch (MatchFailed m) {
+					// could happen if pattern dispatched
+				}
 			}
 		}
 		
-		throw new ArgumentsMismatchError(name, candidates, argTypes, ctx.getCurrentAST());
+		return null;
 	}
 	
 	public OverloadedFunctionResult join(OverloadedFunctionResult other) {
-		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(other.candidates.size() + candidates.size());
-		joined.addAll(candidates);
+		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(other.primaryCandidates.size() + primaryCandidates.size());
+		List<AbstractFunction> defJoined = new ArrayList<AbstractFunction>(other.defaultCandidates.size() + defaultCandidates.size());
 		
-		for (AbstractFunction cand : other.candidates) {
+		joined.addAll(primaryCandidates);
+		defJoined.addAll(defaultCandidates);
+		
+		for (AbstractFunction cand : other.primaryCandidates) {
 			if (!joined.contains(cand)) {
 				joined.add(cand);
 			}
 		}
 		
-		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
-	}
-	
-	public OverloadedFunctionResult add(AbstractFunction candidate) {
-		for (AbstractFunction other : iterable()) {
-			if (!other.equals((Object) candidate) && candidate.isAmbiguous(other)) {
-				throw new RedeclaredFunctionError(candidate.getHeader(), other.getHeader(), candidate.getAst());
+		for (AbstractFunction cand : other.defaultCandidates) {
+			if (!defJoined.contains(cand)) {
+				defJoined.add(cand);
 			}
 		}
 		
-		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(candidates.size() + 1);
-		joined.addAll(candidates);
+		return new OverloadedFunctionResult(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+	}
+	
+	public OverloadedFunctionResult add(AbstractFunction candidate) {
+		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(primaryCandidates.size() + 1);
+		joined.addAll(primaryCandidates);
+		List<AbstractFunction> defJoined = new ArrayList<AbstractFunction>(defaultCandidates.size() + 1);
+		defJoined.addAll(defaultCandidates);
 		
-		if (!joined.contains(candidate)) {
+		if (candidate.isDefault() && !defJoined.contains(candidate)) {
+			defJoined.add(candidate);
+		}
+		else if (!candidate.isDefault() && !joined.contains(candidate)) {
 			joined.add(candidate);
 		}
-		return new OverloadedFunctionResult(name, lub(joined), joined, ctx);
+		
+		return new OverloadedFunctionResult(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 
 	public Iterable<AbstractFunction> iterable() {
 		return new Iterable<AbstractFunction>() {
 			public Iterator<AbstractFunction> iterator() {
-				return candidates.iterator();
+				return new Iterator<AbstractFunction> () {
+					private final Iterator<AbstractFunction> primary = primaryCandidates.iterator();
+					private final Iterator<AbstractFunction> defaults = defaultCandidates.iterator();
+					
+					@Override
+					public boolean hasNext() {
+						return primary.hasNext() || defaults.hasNext();
+					}
+
+					@Override
+					public AbstractFunction next() {
+						if (primary.hasNext()) {
+							return primary.next();
+						}
+						return defaults.next();
+					}
+
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
 			}
 		};
 	}
@@ -119,8 +174,10 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	public boolean equals(Object obj) {
 		if (obj instanceof OverloadedFunctionResult) {
 			OverloadedFunctionResult other = (OverloadedFunctionResult) obj;
-			return candidates.containsAll(other.candidates)
-			&& other.candidates.containsAll(candidates);
+			return primaryCandidates.containsAll(other.primaryCandidates)
+			&& other.primaryCandidates.containsAll(primaryCandidates)
+			&& defaultCandidates.containsAll(other.defaultCandidates)
+			&& other.defaultCandidates.containsAll(defaultCandidates);
 		}
 		return false;
 	}
@@ -142,7 +199,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 
 	public boolean isEqual(IValue other) {
 		if (other instanceof OverloadedFunctionResult) {
-			return candidates.equals(((OverloadedFunctionResult) other).candidates);
+			return primaryCandidates.equals(((OverloadedFunctionResult) other).primaryCandidates);
 		}
 		return false;
 	}
@@ -156,7 +213,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@Override
 	public <U extends IValue> Result<U> equalToOverloadedFunction(
 			OverloadedFunctionResult that) {
-		return ResultFactory.bool(candidates.equals(that.candidates), ctx);
+		return ResultFactory.bool(primaryCandidates.equals(that.primaryCandidates) && defaultCandidates.equals(that.defaultCandidates), ctx);
 	}
 	
 	@Override
@@ -172,16 +229,34 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
 		}
 		
-		if (candidates.size() > that.candidates.size()) {
+		if (primaryCandidates.size() > that.primaryCandidates.size()) {
 			return  ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(1), ctx);
 		}
 		
-		if (candidates.size() < that.candidates.size()) {
+		if (primaryCandidates.size() < that.primaryCandidates.size()) {
 			 ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(-1), ctx);
 		}
 		
-		for (AbstractFunction f : candidates) {
-			for (AbstractFunction g : that.candidates) {
+		for (AbstractFunction f : primaryCandidates) {
+			for (AbstractFunction g : that.primaryCandidates) {
+				Result<U> result = f.compare(g);
+				
+				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
+					return result;
+				}
+			}
+		}
+		
+		if (defaultCandidates.size() > that.defaultCandidates.size()) {
+			return  ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(1), ctx);
+		}
+		
+		if (defaultCandidates.size() < that.defaultCandidates.size()) {
+			 ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(-1), ctx);
+		}
+		
+		for (AbstractFunction f : defaultCandidates) {
+			for (AbstractFunction g : that.defaultCandidates) {
 				Result<U> result = f.compare(g);
 				
 				if (!((IInteger) result.getValue()).getStringRepresentation().equals("0")) {
@@ -201,29 +276,48 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunctionResult that) {
-		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(candidates.size());
+		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
 		
-		for (AbstractFunction f : candidates) {
-			for (AbstractFunction g : that.candidates) {
+		
+		for (AbstractFunction f : primaryCandidates) {
+			for (AbstractFunction g : that.primaryCandidates) {
 				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
 					newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
 				}
 			}
 		}
 		
-		if (newAlternatives.size() == 0) {
+		List<AbstractFunction> newDefaults = new ArrayList<AbstractFunction>(defaultCandidates.size());
+		
+		for (AbstractFunction f : defaultCandidates) {
+			for (AbstractFunction g : that.defaultCandidates) {
+				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
+					newDefaults.add(new ComposedFunctionResult(f, g, ctx));
+				}
+			}
+		}
+		
+		if (newAlternatives.size() + newDefaults.size() == 0) {
 			return undefinedError("composition", that);
 		}
 		
-		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, ctx);
+		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, newDefaults, ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends IValue> Result<U> composeFunction(AbstractFunction g) {
-		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(candidates.size());
+		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
 
-		for (AbstractFunction f : candidates) {
+		for (AbstractFunction f : primaryCandidates) {
+			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
+				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
+			}
+		}
+		
+		List<AbstractFunction> newDefaults = new ArrayList<AbstractFunction>(defaultCandidates.size());
+
+		for (AbstractFunction f : defaultCandidates) {
 			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
 				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
 			}
@@ -233,7 +327,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			return undefinedError("composition", g);
 		}
 		
-		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, ctx);
+		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, newDefaults, ctx);
 	}
 	
 }

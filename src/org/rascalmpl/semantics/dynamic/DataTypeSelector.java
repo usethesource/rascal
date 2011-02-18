@@ -1,14 +1,14 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.List;
 import java.util.Set;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
@@ -26,10 +26,6 @@ public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelecto
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -39,20 +35,16 @@ public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelecto
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
+		public Type typeOf(Environment env) {
 			Type adt;
 			QualifiedName sort = this.getSort();
 			String name = org.rascalmpl.interpreter.utils.Names.typeName(sort);
 
 			if (org.rascalmpl.interpreter.utils.Names.isQualified(sort)) {
-				ModuleEnvironment mod = __eval.__getHeap().getModule(org.rascalmpl.interpreter.utils.Names.moduleName(sort));
+				GlobalEnvironment heap = env.getHeap();
+				ModuleEnvironment mod = heap.getModule(org.rascalmpl.interpreter.utils.Names.moduleName(sort));
 
 				if (mod == null) {
 					throw new UndeclaredModuleError(org.rascalmpl.interpreter.utils.Names.moduleName(sort), sort);
@@ -60,7 +52,7 @@ public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelecto
 
 				adt = mod.lookupAbstractDataType(name);
 			} else {
-				adt = __eval.__getEnv().lookupAbstractDataType(name);
+				adt = env.lookupAbstractDataType(name);
 			}
 
 			if (adt == null) {
@@ -68,7 +60,7 @@ public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelecto
 			}
 
 			String constructor = org.rascalmpl.interpreter.utils.Names.name(this.getProduction());
-			Set<Type> constructors = __eval.__getEnv().lookupConstructor(adt, constructor);
+			Set<Type> constructors = env.lookupConstructor(adt, constructor);
 
 			if (constructors.size() == 0) {
 				throw new UndeclaredTypeError(name + "." + constructor, this);

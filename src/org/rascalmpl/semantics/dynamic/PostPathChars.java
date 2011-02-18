@@ -29,10 +29,6 @@ public abstract class PostPathChars extends org.rascalmpl.ast.PostPathChars {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -42,10 +38,6 @@ public abstract class PostPathChars extends org.rascalmpl.ast.PostPathChars {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

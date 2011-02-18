@@ -1,9 +1,9 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -11,14 +11,12 @@ import org.rascalmpl.ast.Alternative;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Kind;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
@@ -37,10 +35,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2, __param3, __param4, __param5, __param6);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -58,10 +52,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -86,10 +76,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -99,22 +85,16 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2, __param3, __param4, __param5, __param6);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			Type annoType = new TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getAnnoType());
+			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt());
 			String name = org.rascalmpl.interpreter.utils.Names.name(this.getName());
 
-			Type onType = new TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getOnType());
+			Type onType = getOnType().typeOf(__eval.getCurrentEnvt());
 			__eval.getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}
@@ -125,10 +105,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -146,10 +122,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -159,10 +131,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -171,7 +139,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			__eval.setCurrentAST(this);
 
 			for (org.rascalmpl.ast.Variable var : this.getVariables()) {
-				Type declaredType = new TypeEvaluator(__eval.getCurrentModuleEnvironment(), __eval.__getHeap()).eval(this.getType());
+				Type declaredType = getType().typeOf(__eval.getCurrentEnvt());
 
 				if (var.isInitialized()) {
 					Result<IValue> v = var.getInitial().interpret(__eval);
@@ -191,9 +159,15 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 					} else {
 						throw new UnexpectedTypeError(declaredType, v.getType(), var);
 					}
-				} else {
-					throw new UninitializedVariableError(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var);
+				} 
+				else {
+					__eval.getCurrentModuleEnvironment().storeVariable(var.getName(), org.rascalmpl.interpreter.result.ResultFactory.nothing(declaredType));
 				}
+				
+//				To whomever added this; why? uninitialized variables are allowed to be declared in Rascal, just not used.
+//				else {
+//					throw new UninitializedVariableError(org.rascalmpl.interpreter.utils.Names.name(var.getName()), var);
+//				}
 			}
 
 			r.setPublic(this.getVisibility().isPublic());
@@ -216,10 +190,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -229,10 +199,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2, __param3, __param4, __param5, __param6);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -249,16 +215,11 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.__getTypeDeclarator().declareConstructor(this, __eval.getCurrentEnvt());
-			__eval.notifyConstructorDeclaredListeners();
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
@@ -271,10 +232,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {

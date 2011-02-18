@@ -23,15 +23,19 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
 			__eval.setCurrentAST(this);
-			return this.getImported().interpret(__eval);
+			Result<IValue> res = this.getImported().interpret(__eval);
+			
+			// If we import a module from the command line, notify any expressions caching
+			// results that could be invalidated by a module load that we have loaded.
+			__eval.notifyConstructorDeclaredListeners();
+			
+			return res;
+
 		}
 
 	}
@@ -50,10 +54,6 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -63,10 +63,6 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -83,10 +79,6 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -104,10 +96,6 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -132,10 +120,6 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {

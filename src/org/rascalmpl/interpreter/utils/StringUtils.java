@@ -10,7 +10,7 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public final class Utils {
+public final class StringUtils {
 	
 	// TODO remove this one
 	public static String unescape(String str, AbstractAST ast, Environment env) {
