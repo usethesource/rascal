@@ -29,14 +29,13 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.IMatchableStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.parser.gtd.util.DoubleRotatingQueue;
+import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.RotatingQueue;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -52,12 +51,12 @@ public abstract class SGTDBF implements IGTD{
 	private char[] input;
 	private final PositionStore positionStore;
 	
-	private RotatingQueue<AbstractStackNode>[] todoLists;
+	private Stack<AbstractStackNode>[] todoLists;
 	private int queueIndex;
 	
 	private final Stack<AbstractStackNode> stacksToExpand;
-	private RotatingQueue<AbstractStackNode> stacksWithTerminalsToReduce;
-	private final DoubleRotatingQueue<AbstractStackNode, AbstractNode> stacksWithNonTerminalsToReduce;
+	private Stack<AbstractStackNode> stacksWithTerminalsToReduce;
+	private final DoubleStack<AbstractStackNode, AbstractNode> stacksWithNonTerminalsToReduce;
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
@@ -82,7 +81,7 @@ public abstract class SGTDBF implements IGTD{
 		positionStore = new PositionStore();
 		
 		stacksToExpand = new Stack<AbstractStackNode>();
-		stacksWithNonTerminalsToReduce = new DoubleRotatingQueue<AbstractStackNode, AbstractNode>();
+		stacksWithNonTerminalsToReduce = new DoubleStack<AbstractStackNode, AbstractNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
 		sharedLastExpects = new LinearIntegerKeyedMap<AbstractStackNode>();
@@ -278,13 +277,13 @@ public abstract class SGTDBF implements IGTD{
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.addAlternative(production, resultLink);
 							
-							stacksWithNonTerminalsToReduce.put(edge, resultStore);
+							stacksWithNonTerminalsToReduce.push(edge, resultStore);
 							
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
 					}
 				}else{
-					stacksWithNonTerminalsToReduce.put(edge, resultStore);
+					stacksWithNonTerminalsToReduce.push(edge, resultStore);
 				}
 			}
 		}
@@ -413,19 +412,19 @@ public abstract class SGTDBF implements IGTD{
 	private void reduce(){
 		// Reduce terminals.
 		while(!stacksWithTerminalsToReduce.isEmpty()){
-			AbstractStackNode terminal = stacksWithTerminalsToReduce.getDirtyUnsafe();
+			AbstractStackNode terminal = stacksWithTerminalsToReduce.pop();
 			reduceTerminal(terminal);
 		}
 		
 		// Reduce non-terminals.
 		while(!stacksWithNonTerminalsToReduce.isEmpty()){
-			reduceNonTerminal(stacksWithNonTerminalsToReduce.peekFirstUnsafe(), stacksWithNonTerminalsToReduce.getSecondDirtyUnsafe());
+			reduceNonTerminal(stacksWithNonTerminalsToReduce.peekFirst(), stacksWithNonTerminalsToReduce.popSecond());
 		}
 	}
 	
 	private boolean findFirstStackToReduce(){
 		for(int i = 0; i < todoLists.length; ++i){
-			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[i];
+			Stack<AbstractStackNode> terminalsTodo = todoLists[i];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
@@ -450,7 +449,7 @@ public abstract class SGTDBF implements IGTD{
 		for(int i = 1; i < queueDepth; ++i){
 			queueIndex = (queueIndex + 1) % queueDepth;
 			
-			RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[queueIndex];
+			Stack<AbstractStackNode> terminalsTodo = todoLists[queueIndex];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
@@ -540,8 +539,8 @@ public abstract class SGTDBF implements IGTD{
 				
 				int queueDepth = todoLists.length;
 				if(length >= queueDepth){
-					RotatingQueue<AbstractStackNode>[] oldTodoLists = todoLists;
-					todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[length + 1];
+					Stack<AbstractStackNode>[] oldTodoLists = todoLists;
+					todoLists = (Stack<AbstractStackNode>[]) new Stack[length + 1];
 					System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
 					System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
 					queueDepth = length + 1;
@@ -549,12 +548,12 @@ public abstract class SGTDBF implements IGTD{
 				}
 				
 				int insertLocation = (queueIndex + length) % queueDepth;
-				RotatingQueue<AbstractStackNode> terminalsTodo = todoLists[insertLocation];
+				Stack<AbstractStackNode> terminalsTodo = todoLists[insertLocation];
 				if(terminalsTodo == null){
-					terminalsTodo = new RotatingQueue<AbstractStackNode>();
+					terminalsTodo = new Stack<AbstractStackNode>();
 					todoLists[insertLocation] = terminalsTodo;
 				}
-				terminalsTodo.put(stack);
+				terminalsTodo.push(stack);
 			}
 			
 			return;
@@ -565,7 +564,7 @@ public abstract class SGTDBF implements IGTD{
 			if(levelResultStoreMap != null){
 				AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName(), getResultStoreId(stack.getId()));
 				if(resultStore != null){ // Is nullable, add the known results.
-					stacksWithNonTerminalsToReduce.put(stack, resultStore);
+					stacksWithNonTerminalsToReduce.push(stack, resultStore);
 				}
 			}
 			
@@ -641,7 +640,7 @@ public abstract class SGTDBF implements IGTD{
 		this.input = input;
 		positionStore.index(input);
 		
-		todoLists = (RotatingQueue<AbstractStackNode>[]) new RotatingQueue[DEFAULT_TODOLIST_CAPACITY];
+		todoLists = (Stack<AbstractStackNode>[]) new Stack[DEFAULT_TODOLIST_CAPACITY];
 		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);

@@ -130,8 +130,6 @@ public class ParserTest extends TestCase{
 	
 	public void testReject(){
 		executeParser(new Reject1());
-		executeParser(new Reject2());
-		executeParser(new Reject3());
 		executeParser(new Reject4());
 	}
 	
