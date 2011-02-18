@@ -260,9 +260,7 @@ public abstract class AbstractStackNode{
 		prefixes.add(prefix);
 	}
 	
-	private void addPrefix(Link prefix, int prefixStartLocation){
-		int index = edgesMap.findKey(prefixStartLocation);
-		
+	private void addPrefix(Link prefix, int index){
 		ArrayList<Link> prefixes = prefixesMap[index];
 		if(prefixes == null){
 			prefixes = new ArrayList<Link>(1);
@@ -284,7 +282,8 @@ public abstract class AbstractStackNode{
 			}
 			
 			if(prefixesMapToAdd == null){
-				addPrefix(new Link(null, result), predecessor.getStartLocation());
+				int index = edgesMap.findKey(predecessor.getStartLocation());
+				addPrefix(new Link(null, result), index);
 			}else{
 				int nrOfPrefixes = edgesMapToAdd.size();
 				for(int i = nrOfPrefixes - 1; i >= 0; --i){
@@ -314,10 +313,11 @@ public abstract class AbstractStackNode{
 				int startLocation = edgesMapToAdd.getKey(0);
 				int index = edgesMap.findKey(startLocation);
 				if(index == -1){
+					addPrefix(new Link(null, result), edgesMap.size());
 					edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
+				}else{
+					addPrefix(new Link(null, result), index);
 				}
-				
-				addPrefix(new Link(null, result), predecessor.getStartLocation());
 			}else{
 				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 					int startLocation = edgesMapToAdd.getKey(i);
@@ -341,7 +341,8 @@ public abstract class AbstractStackNode{
 			}
 			
 			if(prefixesMapToAdd == null){
-				addPrefix(new Link(null, result), predecessor.getStartLocation());
+				int index = edgesMap.findKey(predecessor.getStartLocation());
+				addPrefix(new Link(null, result), index);
 			}else{
 				int nrOfPrefixes = edgesMapToAdd.size();
 				for(int i = nrOfPrefixes - 1; i >= 0; --i){
