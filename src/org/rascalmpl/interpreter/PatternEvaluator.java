@@ -95,64 +95,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		return result.toString();
 	}
 
-	public boolean isConcreteSyntaxAppl(CallOrTree tree) {
-		if (!tree.getExpression().isQualifiedName()) {
-			return false;
-		}
-		return org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(tree.getExpression().getQualifiedName())).equals("appl")
-				&& tree._getType() instanceof NonTerminalType;
-	}
-
-	public boolean isConcreteSyntaxAmb(CallOrTree tree) {
-		if (!tree.getExpression().isQualifiedName()) {
-			return false;
-		}
-		return org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(tree.getExpression().getQualifiedName())).equals("amb")
-				&& tree._getType() instanceof NonTerminalType;
-	}
-
-	public boolean isConcreteSyntaxList(CallOrTree tree) {
-		return this.isConcreteSyntaxAppl(tree) && this.isConcreteListProd((CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof NonTerminalType;
-	}
-
-	public boolean isConcreteSyntaxOptional(CallOrTree tree) {
-		return this.isConcreteSyntaxAppl(tree) && this.isConcreteOptionalProd((CallOrTree) tree.getArguments().get(0)) && tree._getType() instanceof NonTerminalType;
-	}
-
-	private boolean isConcreteListProd(CallOrTree prod) {
-		if (!prod.getExpression().isQualifiedName()) {
-			return false;
-		}
-		String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
-		// TODO: note how this code breaks if we start using regular for other
-		// things besides lists...
-		if (name.equals("regular")) {
-			Expression sym = prod.getArguments().get(0);
-			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).startsWith("iter")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private boolean isConcreteOptionalProd(CallOrTree prod) {
-		if (!prod.getExpression().isQualifiedName()) {
-			return false;
-		}
-		String name = org.rascalmpl.interpreter.utils.Names.name(org.rascalmpl.interpreter.utils.Names.lastName(prod.getExpression().getQualifiedName()));
-		// TODO: note how this code breaks if we start using regular for other
-		// things besides lists...
-		if (name.equals("regular")) {
-			Expression sym = prod.getArguments().get(0);
-			if (Names.name(Names.lastName(sym.getExpression().getQualifiedName())).equals("opt")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
+	
 	public List<IMatchingResult> visitArguments(CallOrTree x) {
 		List<Expression> elements = x.getArguments();
 		return this.visitElements(elements);
@@ -178,7 +121,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 		for (int i = 0; i < n; i += 2) { // skip layout elements
 			Expression e = elements.get(i);
-			args.add(e.__evaluate(this));
+			args.add(e.buildMatcher(this));
 		}
 		return args;
 	}
@@ -188,7 +131,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 		int i = 0;
 		for (Expression e : elements) {
-			args.add(i++, e.__evaluate(this));
+			args.add(i++, e.buildMatcher(this));
 		}
 		return args;
 	}

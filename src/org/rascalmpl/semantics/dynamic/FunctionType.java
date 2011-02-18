@@ -1,11 +1,12 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.TypeArg;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.utils.TypeUtils;
 
 public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
 
@@ -19,10 +20,6 @@ public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -32,19 +29,12 @@ public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
-
-			Type returnType = this.getType().__evaluate(__eval);
-			Type argTypes = __eval.getArgumentTypes(this.getArguments());
+		public Type typeOf(Environment __eval) {
+			Type returnType = this.getType().typeOf(__eval);
+			Type argTypes = TypeUtils.typeOf(this.getArguments(), __eval);
 			return org.rascalmpl.interpreter.types.RascalTypeFactory.getInstance().functionType(returnType, argTypes);
-
 		}
-
 	}
 }

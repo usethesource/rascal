@@ -38,8 +38,6 @@ import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.FunctionDeclaration;
-import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
@@ -458,18 +456,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return this.parserGenerator;
 	}
 
-	private void checkPoint(Environment env) {
-		env.checkPoint();
-	}
-
-	private void rollback(Environment env) {
-		env.rollback();
-	}
-
-	private void commit(Environment env) {
-		env.commit();
-	}
-
 	public void setCurrentAST(AbstractAST currentAST) {
 		this.currentAST = currentAST;
 	}
@@ -709,7 +695,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	private void reloadModule(String name, URI errorLocation) {	
-		ModuleEnvironment env = new ModuleEnvironment(name);
+		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
 		this.__getHeap().addModule(env);
 
 		try {
@@ -777,10 +763,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public void unwind(Environment old) {
 		// TODO why not just replace the current env with the old one??
-		while (this.getCurrentEnvt() != old) {
-			this.setCurrentEnvt(this.getCurrentEnvt().getParent());
-			this.getCurrentEnvt();
-		}
+//		while (this.getCurrentEnvt() != old) {
+//			this.setCurrentEnvt(this.getCurrentEnvt().getParent());
+//			this.getCurrentEnvt();
+//		}
+		setCurrentEnvt(old);
 	}
 
 	public void pushEnv() {
@@ -896,47 +883,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		out.println("println(\"Hello World\")     Function calling");
 		out.println();
 		out.println("Please read the manual for further information");
-		out.flush();
-	}
-
-	public void printVisibleDeclaredObjects(PrintWriter out) {
-		List<Entry<String, OverloadedFunctionResult>> functions = this.getCurrentEnvt().getAllFunctions();
-		java.util.Collections.sort(functions, new Comparator<Entry<String, OverloadedFunctionResult>>() {
-			public int compare(Entry<String, OverloadedFunctionResult> o1, Entry<String, OverloadedFunctionResult> o2) {
-				return o1.getKey().compareTo(o2.getKey());
-			}
-		});
-
-		if (functions.size() != 0) {
-			out.println("Functions:");
-
-			for (Entry<String, OverloadedFunctionResult> cand : functions) {
-				for (AbstractFunction func : cand.getValue().iterable()) {
-					out.print('\t');
-					out.println(func.getHeader());
-				}
-			}
-		}
-
-		List<RewriteRule> rules = this.getHeap().getRules();
-		if (rules.size() != 0) {
-			out.println("Rules:");
-			for (RewriteRule rule : rules) {
-				out.print('\t');
-				out.println(rule.getRule().getPattern().toString());
-			}
-		}
-
-		Map<String, Result<IValue>> variables = this.getCurrentEnvt().getVariables();
-		if (variables.size() != 0) {
-			out.println("Variables:");
-			for (String name : variables.keySet()) {
-				out.print('\t');
-				Result<IValue> value = variables.get(name);
-				out.println(value.getType() + " " + name + " = " + value.getValue());
-			}
-		}
-
 		out.flush();
 	}
 
@@ -1067,7 +1013,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Module evalRascalModule(AbstractAST x, String name) {
 		ModuleEnvironment env = this.__getHeap().getModule(name);
 		if (env == null) {
-			env = new ModuleEnvironment(name);
+			env = new ModuleEnvironment(name, this.__getHeap());
 			this.__getHeap().addModule(env);
 		}
 		try {
@@ -1111,20 +1057,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public Type evalType(org.rascalmpl.ast.Type type) {
-		return new TypeEvaluator(this.getCurrentEnvt(), this.__getHeap()).eval(type);
-	}
-
-	public boolean hasJavaModifier(FunctionDeclaration func) {
-		List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
-		for (FunctionModifier m : mods) {
-			if (m.isJava()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
+	
 
 	public boolean isWildCard(String fieldName) {
 		return fieldName.equals("_");
@@ -1171,8 +1104,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		BooleanEvaluator pe = new BooleanEvaluator(this);
-		return pat.__evaluate(pe);
-	}
+		return pat.buildBooleanBacktracker(pe);
+	} 
 
 	// Expressions -----------------------------------------------------------
 
@@ -1248,23 +1181,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.pushEnv();
 
 		try {
-			IMatchingResult mp = pat.__evaluate((PatternEvaluator) this.__getPatternEvaluator());
+			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) this.__getPatternEvaluator());
 			mp.initMatch(subject);
-			if (debug)
-				System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
+
 			while (mp.hasNext()) {
 				this.pushEnv();
 				if (this.__getInterrupt())
 					throw new InterruptException(this.getStackTrace());
-				if (debug)
-					System.err.println("matchAndEval: mp.hasNext()==true");
+
 				if (mp.next()) {
-					if (debug)
-						System.err.println("matchAndEval: mp.next()==true");
 					try {
-						this.checkPoint(this.getCurrentEnvt());
-						if (debug)
-							System.err.println(stat.toString());
 						try {
 							stat.interpret(this);
 						} catch (Insert e) {
@@ -1274,12 +1200,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							}
 							throw e;
 						}
-						this.commit(this.getCurrentEnvt());
 						return true;
 					} catch (Failure e) {
-						if (debug)
-							System.err.println("failure occurred");
-						this.rollback(this.getCurrentEnvt());
 						// unwind(old); // can not clean up because you don't
 						// know how far to roll back
 					}
@@ -1296,7 +1218,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
 		Environment old = this.getCurrentEnvt();
 		try {
-			IMatchingResult mp = pat.__evaluate((PatternEvaluator) this.__getPatternEvaluator());
+			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) this.__getPatternEvaluator());
 			mp.initMatch(subject);
 
 			while (mp.hasNext()) {

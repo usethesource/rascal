@@ -33,6 +33,36 @@ static public class Ambiguity extends FunctionModifier {
 
 
 
+  public boolean isDefault() {
+    return false;
+  }
+  
+static public class Default extends FunctionModifier {
+  // Production: sig("Default",[])
+
+  
+
+  
+public Default(INode node ) {
+  super(node);
+  
+}
+
+
+  @Override
+  public boolean isDefault() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitFunctionModifierDefault(this);
+  }
+  
+  	
+}
+
+
   public boolean isJava() {
     return false;
   }

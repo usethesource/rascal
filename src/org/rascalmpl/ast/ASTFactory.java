@@ -64,10 +64,6 @@ public class ASTFactory {
          return new FunctionBody.Default(node , statements);
       }
 
-      public Formals.Default makeFormalsDefault(INode node , java.util.List<org.rascalmpl.ast.Formal> formals) {
-         return new Formals.Default(node , formals);
-      }
-
       public Renaming.Default makeRenamingDefault(INode node , org.rascalmpl.ast.Name from,  org.rascalmpl.ast.Name to) {
          return new Renaming.Default(node , from, to);
       }
@@ -190,262 +186,6 @@ public class ASTFactory {
 
       public ModuleParameters.Default makeModuleParametersDefault(INode node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
          return new ModuleParameters.Default(node , parameters);
-      }
-
-      public Expression.Anti makeExpressionAnti(INode node , org.rascalmpl.ast.Expression pattern) {
-         return new Expression.Anti(node , pattern);
-      }
-
-      public Expression.Product makeExpressionProduct(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Product(node , lhs, rhs);
-      }
-
-      public Expression.Division makeExpressionDivision(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Division(node , lhs, rhs);
-      }
-
-      public Expression.Equivalence makeExpressionEquivalence(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Equivalence(node , lhs, rhs);
-      }
-
-      public Expression.Any makeExpressionAny(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
-         return new Expression.Any(node , generators);
-      }
-
-      public Expression.NonEquals makeExpressionNonEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.NonEquals(node , lhs, rhs);
-      }
-
-      public Expression.Match makeExpressionMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-         return new Expression.Match(node , pattern, expression);
-      }
-
-      public Expression.StepRange makeExpressionStepRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
-         return new Expression.StepRange(node , first, second, last);
-      }
-
-      public Expression.Composition makeExpressionComposition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Composition(node , lhs, rhs);
-      }
-
-      public Expression.Enumerator makeExpressionEnumerator(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-         return new Expression.Enumerator(node , pattern, expression);
-      }
-
-      public Expression.Join makeExpressionJoin(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Join(node , lhs, rhs);
-      }
-
-      public Expression.NoMatch makeExpressionNoMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-         return new Expression.NoMatch(node , pattern, expression);
-      }
-
-      public Expression.LessThanOrEq makeExpressionLessThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.LessThanOrEq(node , lhs, rhs);
-      }
-
-      public Expression.TypedVariable makeExpressionTypedVariable(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
-         return new Expression.TypedVariable(node , type, name);
-      }
-
-      public Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.IfDefinedOtherwise(node , lhs, rhs);
-      }
-
-      public Expression.VoidClosure makeExpressionVoidClosure(INode node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-         return new Expression.VoidClosure(node , parameters, statements);
-      }
-
-      public Expression.Comprehension makeExpressionComprehension(INode node , org.rascalmpl.ast.Comprehension comprehension) {
-         return new Expression.Comprehension(node , comprehension);
-      }
-
-      public Expression.In makeExpressionIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.In(node , lhs, rhs);
-      }
-
-      public Expression.Or makeExpressionOr(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Or(node , lhs, rhs);
-      }
-
-      public Expression.Set makeExpressionSet(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-         return new Expression.Set(node , elements);
-      }
-
-      public Expression.FieldAccess makeExpressionFieldAccess(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
-         return new Expression.FieldAccess(node , expression, field);
-      }
-
-      public Expression.All makeExpressionAll(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
-         return new Expression.All(node , generators);
-      }
-
-      public Expression.FieldProject makeExpressionFieldProject(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
-         return new Expression.FieldProject(node , expression, fields);
-      }
-
-      public Expression.Equals makeExpressionEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Equals(node , lhs, rhs);
-      }
-
-      public Expression.Addition makeExpressionAddition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Addition(node , lhs, rhs);
-      }
-
-      public Expression.Implication makeExpressionImplication(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Implication(node , lhs, rhs);
-      }
-
-      public Expression.ReifiedType makeExpressionReifiedType(INode node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
-         return new Expression.ReifiedType(node , basicType, arguments);
-      }
-
-      public Expression.Bracket makeExpressionBracket(INode node , org.rascalmpl.ast.Expression expression) {
-         return new Expression.Bracket(node , expression);
-      }
-
-      public Expression.GreaterThan makeExpressionGreaterThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.GreaterThan(node , lhs, rhs);
-      }
-
-      public Expression.Subscript makeExpressionSubscript(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
-         return new Expression.Subscript(node , expression, subscripts);
-      }
-
-      public Expression.IfThenElse makeExpressionIfThenElse(INode node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
-         return new Expression.IfThenElse(node , condition, thenExp, elseExp);
-      }
-
-      public Expression.Modulo makeExpressionModulo(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Modulo(node , lhs, rhs);
-      }
-
-      public Expression.TransitiveClosure makeExpressionTransitiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.TransitiveClosure(node , argument);
-      }
-
-      public Expression.Subtraction makeExpressionSubtraction(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Subtraction(node , lhs, rhs);
-      }
-
-      public Expression.ReifyType makeExpressionReifyType(INode node , org.rascalmpl.ast.Type type) {
-         return new Expression.ReifyType(node , type);
-      }
-
-      public Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
-         return new Expression.NonEmptyBlock(node , statements);
-      }
-
-      public Expression.CallOrTree makeExpressionCallOrTree(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
-         return new Expression.CallOrTree(node , expression, arguments);
-      }
-
-      public Expression.Descendant makeExpressionDescendant(INode node , org.rascalmpl.ast.Expression pattern) {
-         return new Expression.Descendant(node , pattern);
-      }
-
-      public Expression.Range makeExpressionRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
-         return new Expression.Range(node , first, last);
-      }
-
-      public Expression.GetAnnotation makeExpressionGetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
-         return new Expression.GetAnnotation(node , expression, name);
-      }
-
-      public Expression.Guarded makeExpressionGuarded(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
-         return new Expression.Guarded(node , type, pattern);
-      }
-
-      public Expression.VariableBecomes makeExpressionVariableBecomes(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
-         return new Expression.VariableBecomes(node , name, pattern);
-      }
-
-      public Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.GreaterThanOrEq(node , lhs, rhs);
-      }
-
-      public Expression.Intersection makeExpressionIntersection(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.Intersection(node , lhs, rhs);
-      }
-
-      public Expression.Tuple makeExpressionTuple(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-         return new Expression.Tuple(node , elements);
-      }
-
-      public Expression.FieldUpdate makeExpressionFieldUpdate(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
-         return new Expression.FieldUpdate(node , expression, key, replacement);
-      }
-
-      public Expression.MultiVariable makeExpressionMultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-         return new Expression.MultiVariable(node , qualifiedName);
-      }
-
-      public Expression.Negation makeExpressionNegation(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.Negation(node , argument);
-      }
-
-      public Expression.Literal makeExpressionLiteral(INode node , org.rascalmpl.ast.Literal literal) {
-         return new Expression.Literal(node , literal);
-      }
-
-      public Expression.IsDefined makeExpressionIsDefined(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.IsDefined(node , argument);
-      }
-
-      public Expression.Closure makeExpressionClosure(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-         return new Expression.Closure(node , type, parameters, statements);
-      }
-
-      public Expression.List makeExpressionList(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-         return new Expression.List(node , elements);
-      }
-
-      public Expression.LessThan makeExpressionLessThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.LessThan(node , lhs, rhs);
-      }
-
-      public Expression.NotIn makeExpressionNotIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.NotIn(node , lhs, rhs);
-      }
-
-      public Expression.It makeExpressionIt(INode node ) {
-         return new Expression.It(node );
-      }
-
-      public Expression.And makeExpressionAnd(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
-         return new Expression.And(node , lhs, rhs);
-      }
-
-      public Expression.QualifiedName makeExpressionQualifiedName(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-         return new Expression.QualifiedName(node , qualifiedName);
-      }
-
-      public Expression.Negative makeExpressionNegative(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.Negative(node , argument);
-      }
-
-      public Expression.Reducer makeExpressionReducer(INode node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-         return new Expression.Reducer(node , init, result, generators);
-      }
-
-      public Expression.TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
-         return new Expression.TransitiveReflexiveClosure(node , argument);
-      }
-
-      public Expression.Map makeExpressionMap(INode node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
-         return new Expression.Map(node , mappings);
-      }
-
-      public Expression.Visit makeExpressionVisit(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-         return new Expression.Visit(node , label, visit);
-      }
-
-      public Expression.SetAnnotation makeExpressionSetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
-         return new Expression.SetAnnotation(node , expression, name, value);
-      }
-
-      public Expression.TypedVariableBecomes makeExpressionTypedVariableBecomes(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
-         return new Expression.TypedVariableBecomes(node , type, name, pattern);
       }
 
       public Module.Default makeModuleDefault(INode node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Body body) {
@@ -604,10 +344,6 @@ public class ASTFactory {
          return new Renamings.Default(node , renamings);
       }
 
-      public Formal.TypeName makeFormalTypeName(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
-         return new Formal.TypeName(node , type, name);
-      }
-
       public Class.Union makeClassUnion(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
          return new Class.Union(node , lhs, rhs);
       }
@@ -642,6 +378,14 @@ public class ASTFactory {
 
       public PreModule.Default makePreModuleDefault(INode node , org.rascalmpl.ast.Header header) {
          return new PreModule.Default(node , header);
+      }
+
+      public FunctionModifier.Default makeFunctionModifierDefault(INode node ) {
+         return new FunctionModifier.Default(node );
+      }
+
+      public FunctionModifier.Java makeFunctionModifierJava(INode node ) {
+         return new FunctionModifier.Java(node );
       }
 
       public NoElseMayFollow.Default makeNoElseMayFollowDefault(INode node ) {
@@ -1076,6 +820,10 @@ public class ASTFactory {
          return new Assignment.Default(node );
       }
 
+      public Formals.Default makeFormalsDefault(INode node , java.util.List<org.rascalmpl.ast.Expression> formals) {
+         return new Formals.Default(node , formals);
+      }
+
       public Header.Parameters makeHeaderParameters(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleParameters params,  java.util.List<org.rascalmpl.ast.Import> imports) {
          return new Header.Parameters(node , tags, name, params, imports);
       }
@@ -1090,6 +838,270 @@ public class ASTFactory {
 
       public LanguageAction.Action makeLanguageActionAction(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
          return new LanguageAction.Action(node , statements);
+      }
+
+      public Expression.Product makeExpressionProduct(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Product(node , lhs, rhs);
+      }
+
+      public Expression.Division makeExpressionDivision(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Division(node , lhs, rhs);
+      }
+
+      public Expression.Any makeExpressionAny(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+         return new Expression.Any(node , generators);
+      }
+
+      public Expression.NonEquals makeExpressionNonEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.NonEquals(node , lhs, rhs);
+      }
+
+      public Expression.StepRange makeExpressionStepRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
+         return new Expression.StepRange(node , first, second, last);
+      }
+
+      public Expression.Enumerator makeExpressionEnumerator(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+         return new Expression.Enumerator(node , pattern, expression);
+      }
+
+      public Expression.Join makeExpressionJoin(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Join(node , lhs, rhs);
+      }
+
+      public Expression.NoMatch makeExpressionNoMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+         return new Expression.NoMatch(node , pattern, expression);
+      }
+
+      public Expression.TypedVariable makeExpressionTypedVariable(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+         return new Expression.TypedVariable(node , type, name);
+      }
+
+      public Expression.Comprehension makeExpressionComprehension(INode node , org.rascalmpl.ast.Comprehension comprehension) {
+         return new Expression.Comprehension(node , comprehension);
+      }
+
+      public Expression.In makeExpressionIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.In(node , lhs, rhs);
+      }
+
+      public Expression.Set makeExpressionSet(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+         return new Expression.Set(node , elements);
+      }
+
+      public Expression.FieldAccess makeExpressionFieldAccess(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
+         return new Expression.FieldAccess(node , expression, field);
+      }
+
+      public Expression.FieldProject makeExpressionFieldProject(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
+         return new Expression.FieldProject(node , expression, fields);
+      }
+
+      public Expression.Equals makeExpressionEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Equals(node , lhs, rhs);
+      }
+
+      public Expression.Implication makeExpressionImplication(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Implication(node , lhs, rhs);
+      }
+
+      public Expression.Bracket makeExpressionBracket(INode node , org.rascalmpl.ast.Expression expression) {
+         return new Expression.Bracket(node , expression);
+      }
+
+      public Expression.ReifiedType makeExpressionReifiedType(INode node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
+         return new Expression.ReifiedType(node , basicType, arguments);
+      }
+
+      public Expression.TransitiveClosure makeExpressionTransitiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.TransitiveClosure(node , argument);
+      }
+
+      public Expression.Subtraction makeExpressionSubtraction(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Subtraction(node , lhs, rhs);
+      }
+
+      public Expression.NonEmptyBlock makeExpressionNonEmptyBlock(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
+         return new Expression.NonEmptyBlock(node , statements);
+      }
+
+      public Expression.CallOrTree makeExpressionCallOrTree(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
+         return new Expression.CallOrTree(node , expression, arguments);
+      }
+
+      public Expression.Range makeExpressionRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
+         return new Expression.Range(node , first, last);
+      }
+
+      public Expression.GetAnnotation makeExpressionGetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+         return new Expression.GetAnnotation(node , expression, name);
+      }
+
+      public Expression.Guarded makeExpressionGuarded(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
+         return new Expression.Guarded(node , type, pattern);
+      }
+
+      public Expression.VariableBecomes makeExpressionVariableBecomes(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+         return new Expression.VariableBecomes(node , name, pattern);
+      }
+
+      public Expression.FieldUpdate makeExpressionFieldUpdate(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
+         return new Expression.FieldUpdate(node , expression, key, replacement);
+      }
+
+      public Expression.Negation makeExpressionNegation(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.Negation(node , argument);
+      }
+
+      public Expression.Literal makeExpressionLiteral(INode node , org.rascalmpl.ast.Literal literal) {
+         return new Expression.Literal(node , literal);
+      }
+
+      public Expression.Closure makeExpressionClosure(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+         return new Expression.Closure(node , type, parameters, statements);
+      }
+
+      public Expression.LessThan makeExpressionLessThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.LessThan(node , lhs, rhs);
+      }
+
+      public Expression.Map makeExpressionMap(INode node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
+         return new Expression.Map(node , mappings);
+      }
+
+      public Expression.TypedVariableBecomes makeExpressionTypedVariableBecomes(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+         return new Expression.TypedVariableBecomes(node , type, name, pattern);
+      }
+
+      public Expression.Anti makeExpressionAnti(INode node , org.rascalmpl.ast.Expression pattern) {
+         return new Expression.Anti(node , pattern);
+      }
+
+      public Expression.Equivalence makeExpressionEquivalence(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Equivalence(node , lhs, rhs);
+      }
+
+      public Expression.Match makeExpressionMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+         return new Expression.Match(node , pattern, expression);
+      }
+
+      public Expression.Composition makeExpressionComposition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Composition(node , lhs, rhs);
+      }
+
+      public Expression.LessThanOrEq makeExpressionLessThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.LessThanOrEq(node , lhs, rhs);
+      }
+
+      public Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.IfDefinedOtherwise(node , lhs, rhs);
+      }
+
+      public Expression.VoidClosure makeExpressionVoidClosure(INode node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+         return new Expression.VoidClosure(node , parameters, statements);
+      }
+
+      public Expression.Or makeExpressionOr(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Or(node , lhs, rhs);
+      }
+
+      public Expression.All makeExpressionAll(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+         return new Expression.All(node , generators);
+      }
+
+      public Expression.Addition makeExpressionAddition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Addition(node , lhs, rhs);
+      }
+
+      public Expression.GreaterThan makeExpressionGreaterThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.GreaterThan(node , lhs, rhs);
+      }
+
+      public Expression.Subscript makeExpressionSubscript(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
+         return new Expression.Subscript(node , expression, subscripts);
+      }
+
+      public Expression.IfThenElse makeExpressionIfThenElse(INode node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
+         return new Expression.IfThenElse(node , condition, thenExp, elseExp);
+      }
+
+      public Expression.Modulo makeExpressionModulo(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Modulo(node , lhs, rhs);
+      }
+
+      public Expression.ReifyType makeExpressionReifyType(INode node , org.rascalmpl.ast.Type type) {
+         return new Expression.ReifyType(node , type);
+      }
+
+      public Expression.Descendant makeExpressionDescendant(INode node , org.rascalmpl.ast.Expression pattern) {
+         return new Expression.Descendant(node , pattern);
+      }
+
+      public Expression.Has makeExpressionHas(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+         return new Expression.Has(node , expression, name);
+      }
+
+      public Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.GreaterThanOrEq(node , lhs, rhs);
+      }
+
+      public Expression.Intersection makeExpressionIntersection(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.Intersection(node , lhs, rhs);
+      }
+
+      public Expression.Tuple makeExpressionTuple(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+         return new Expression.Tuple(node , elements);
+      }
+
+      public Expression.MultiVariable makeExpressionMultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+         return new Expression.MultiVariable(node , qualifiedName);
+      }
+
+      public Expression.Is makeExpressionIs(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+         return new Expression.Is(node , expression, name);
+      }
+
+      public Expression.IsDefined makeExpressionIsDefined(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.IsDefined(node , argument);
+      }
+
+      public Expression.List makeExpressionList(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+         return new Expression.List(node , elements);
+      }
+
+      public Expression.NotIn makeExpressionNotIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.NotIn(node , lhs, rhs);
+      }
+
+      public Expression.It makeExpressionIt(INode node ) {
+         return new Expression.It(node );
+      }
+
+      public Expression.And makeExpressionAnd(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+         return new Expression.And(node , lhs, rhs);
+      }
+
+      public Expression.QualifiedName makeExpressionQualifiedName(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+         return new Expression.QualifiedName(node , qualifiedName);
+      }
+
+      public Expression.Negative makeExpressionNegative(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.Negative(node , argument);
+      }
+
+      public Expression.Reducer makeExpressionReducer(INode node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+         return new Expression.Reducer(node , init, result, generators);
+      }
+
+      public Expression.TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
+         return new Expression.TransitiveReflexiveClosure(node , argument);
+      }
+
+      public Expression.SetAnnotation makeExpressionSetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
+         return new Expression.SetAnnotation(node , expression, name, value);
+      }
+
+      public Expression.Visit makeExpressionVisit(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+         return new Expression.Visit(node , label, visit);
       }
 
       public IntegerLiteral.OctalIntegerLiteral makeIntegerLiteralOctalIntegerLiteral(INode node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
@@ -1122,10 +1134,6 @@ public class ASTFactory {
 
       public Import.Syntax makeImportSyntax(INode node , org.rascalmpl.ast.SyntaxDefinition syntax) {
          return new Import.Syntax(node , syntax);
-      }
-
-      public FunctionModifier.Java makeFunctionModifierJava(INode node ) {
-         return new FunctionModifier.Java(node );
       }
 
       public ShellCommand.Unimport makeShellCommandUnimport(INode node , org.rascalmpl.ast.QualifiedName name) {
@@ -1382,24 +1390,24 @@ public class ASTFactory {
     return new RegExpLiteral.Lexical(node, string); 
   }
 
-  public PreProtocolChars.Lexical makePreProtocolCharsLexical(INode node, String string) {
-    return new PreProtocolChars.Lexical(node, string); 
-  }
-
   public NamedRegExp.Lexical makeNamedRegExpLexical(INode node, String string) {
     return new NamedRegExp.Lexical(node, string); 
+  }
+
+  public PreProtocolChars.Lexical makePreProtocolCharsLexical(INode node, String string) {
+    return new PreProtocolChars.Lexical(node, string); 
   }
 
   public OctalEscapeSequence.Lexical makeOctalEscapeSequenceLexical(INode node, String string) {
     return new OctalEscapeSequence.Lexical(node, string); 
   }
 
-  public PostStringChars.Lexical makePostStringCharsLexical(INode node, String string) {
-    return new PostStringChars.Lexical(node, string); 
-  }
-
   public HexIntegerLiteral.Lexical makeHexIntegerLiteralLexical(INode node, String string) {
     return new HexIntegerLiteral.Lexical(node, string); 
+  }
+
+  public PostStringChars.Lexical makePostStringCharsLexical(INode node, String string) {
+    return new PostStringChars.Lexical(node, string); 
   }
 
   public OctalLongLiteral.Lexical makeOctalLongLiteralLexical(INode node, String string) {
@@ -1434,12 +1442,12 @@ public class ASTFactory {
     return new TagString.Lexical(node, string); 
   }
 
-  public Word.Lexical makeWordLexical(INode node, String string) {
-    return new Word.Lexical(node, string); 
-  }
-
   public LAYOUT.Lexical makeLAYOUTLexical(INode node, String string) {
     return new LAYOUT.Lexical(node, string); 
+  }
+
+  public Word.Lexical makeWordLexical(INode node, String string) {
+    return new Word.Lexical(node, string); 
   }
 
   public Nonterminal.Lexical makeNonterminalLexical(INode node, String string) {
@@ -1534,12 +1542,12 @@ public class ASTFactory {
     return new ShortChar.Lexical(node, string); 
   }
 
-  public NamedBackslash.Lexical makeNamedBackslashLexical(INode node, String string) {
-    return new NamedBackslash.Lexical(node, string); 
-  }
-
   public MidProtocolChars.Lexical makeMidProtocolCharsLexical(INode node, String string) {
     return new MidProtocolChars.Lexical(node, string); 
+  }
+
+  public NamedBackslash.Lexical makeNamedBackslashLexical(INode node, String string) {
+    return new NamedBackslash.Lexical(node, string); 
   }
 
   public NumChar.Lexical makeNumCharLexical(INode node, String string) {
@@ -1604,336 +1612,8 @@ public class ASTFactory {
 
 
 
-  public RegExpLiteral.Ambiguity makeRegExpLiteralAmbiguity(INode node, java.util.List<RegExpLiteral> alternatives) {
-    return new RegExpLiteral.Ambiguity(node, alternatives);
-  }
-
-  public LocationLiteral.Ambiguity makeLocationLiteralAmbiguity(INode node, java.util.List<LocationLiteral> alternatives) {
-    return new LocationLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Tag.Ambiguity makeTagAmbiguity(INode node, java.util.List<Tag> alternatives) {
-    return new Tag.Ambiguity(node, alternatives);
-  }
-
-  public PreProtocolChars.Ambiguity makePreProtocolCharsAmbiguity(INode node, java.util.List<PreProtocolChars> alternatives) {
-    return new PreProtocolChars.Ambiguity(node, alternatives);
-  }
-
-  public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity(INode node, java.util.List<NamedRegExp> alternatives) {
-    return new NamedRegExp.Ambiguity(node, alternatives);
-  }
-
-  public OctalEscapeSequence.Ambiguity makeOctalEscapeSequenceAmbiguity(INode node, java.util.List<OctalEscapeSequence> alternatives) {
-    return new OctalEscapeSequence.Ambiguity(node, alternatives);
-  }
-
-  public PostStringChars.Ambiguity makePostStringCharsAmbiguity(INode node, java.util.List<PostStringChars> alternatives) {
-    return new PostStringChars.Ambiguity(node, alternatives);
-  }
-
-  public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity(INode node, java.util.List<HexIntegerLiteral> alternatives) {
-    return new HexIntegerLiteral.Ambiguity(node, alternatives);
-  }
-
-  public UserType.Ambiguity makeUserTypeAmbiguity(INode node, java.util.List<UserType> alternatives) {
-    return new UserType.Ambiguity(node, alternatives);
-  }
-
-  public OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity(INode node, java.util.List<OctalLongLiteral> alternatives) {
-    return new OctalLongLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Range.Ambiguity makeRangeAmbiguity(INode node, java.util.List<Range> alternatives) {
-    return new Range.Ambiguity(node, alternatives);
-  }
-
-  public Char.Ambiguity makeCharAmbiguity(INode node, java.util.List<Char> alternatives) {
-    return new Char.Ambiguity(node, alternatives);
-  }
-
-  public PrePathChars.Ambiguity makePrePathCharsAmbiguity(INode node, java.util.List<PrePathChars> alternatives) {
-    return new PrePathChars.Ambiguity(node, alternatives);
-  }
-
-  public StructuredType.Ambiguity makeStructuredTypeAmbiguity(INode node, java.util.List<StructuredType> alternatives) {
-    return new StructuredType.Ambiguity(node, alternatives);
-  }
-
-  public ProdModifier.Ambiguity makeProdModifierAmbiguity(INode node, java.util.List<ProdModifier> alternatives) {
-    return new ProdModifier.Ambiguity(node, alternatives);
-  }
-
-  public MidPathChars.Ambiguity makeMidPathCharsAmbiguity(INode node, java.util.List<MidPathChars> alternatives) {
-    return new MidPathChars.Ambiguity(node, alternatives);
-  }
-
-  public DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity(INode node, java.util.List<DataTypeSelector> alternatives) {
-    return new DataTypeSelector.Ambiguity(node, alternatives);
-  }
-
-  public FunctionBody.Ambiguity makeFunctionBodyAmbiguity(INode node, java.util.List<FunctionBody> alternatives) {
-    return new FunctionBody.Ambiguity(node, alternatives);
-  }
-
-  public Formals.Ambiguity makeFormalsAmbiguity(INode node, java.util.List<Formals> alternatives) {
-    return new Formals.Ambiguity(node, alternatives);
-  }
-
-  public Renaming.Ambiguity makeRenamingAmbiguity(INode node, java.util.List<Renaming> alternatives) {
-    return new Renaming.Ambiguity(node, alternatives);
-  }
-
-  public StringLiteral.Ambiguity makeStringLiteralAmbiguity(INode node, java.util.List<StringLiteral> alternatives) {
-    return new StringLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Body.Ambiguity makeBodyAmbiguity(INode node, java.util.List<Body> alternatives) {
-    return new Body.Ambiguity(node, alternatives);
-  }
-
-  public PostProtocolChars.Ambiguity makePostProtocolCharsAmbiguity(INode node, java.util.List<PostProtocolChars> alternatives) {
-    return new PostProtocolChars.Ambiguity(node, alternatives);
-  }
-
-  public NonterminalLabel.Ambiguity makeNonterminalLabelAmbiguity(INode node, java.util.List<NonterminalLabel> alternatives) {
-    return new NonterminalLabel.Ambiguity(node, alternatives);
-  }
-
-  public Variant.Ambiguity makeVariantAmbiguity(INode node, java.util.List<Variant> alternatives) {
-    return new Variant.Ambiguity(node, alternatives);
-  }
-
-  public StringTail.Ambiguity makeStringTailAmbiguity(INode node, java.util.List<StringTail> alternatives) {
-    return new StringTail.Ambiguity(node, alternatives);
-  }
-
-  public Test.Ambiguity makeTestAmbiguity(INode node, java.util.List<Test> alternatives) {
-    return new Test.Ambiguity(node, alternatives);
-  }
-
-  public ProtocolPart.Ambiguity makeProtocolPartAmbiguity(INode node, java.util.List<ProtocolPart> alternatives) {
-    return new ProtocolPart.Ambiguity(node, alternatives);
-  }
-
-  public FunctionModifiers.Ambiguity makeFunctionModifiersAmbiguity(INode node, java.util.List<FunctionModifiers> alternatives) {
-    return new FunctionModifiers.Ambiguity(node, alternatives);
-  }
-
-  public Command.Ambiguity makeCommandAmbiguity(INode node, java.util.List<Command> alternatives) {
-    return new Command.Ambiguity(node, alternatives);
-  }
-
-  public Toplevel.Ambiguity makeToplevelAmbiguity(INode node, java.util.List<Toplevel> alternatives) {
-    return new Toplevel.Ambiguity(node, alternatives);
-  }
-
-  public Type.Ambiguity makeTypeAmbiguity(INode node, java.util.List<Type> alternatives) {
-    return new Type.Ambiguity(node, alternatives);
-  }
-
-  public Label.Ambiguity makeLabelAmbiguity(INode node, java.util.List<Label> alternatives) {
-    return new Label.Ambiguity(node, alternatives);
-  }
-
-  public ModuleParameters.Ambiguity makeModuleParametersAmbiguity(INode node, java.util.List<ModuleParameters> alternatives) {
-    return new ModuleParameters.Ambiguity(node, alternatives);
-  }
-
-  public DecimalIntegerLiteral.Ambiguity makeDecimalIntegerLiteralAmbiguity(INode node, java.util.List<DecimalIntegerLiteral> alternatives) {
-    return new DecimalIntegerLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Expression.Ambiguity makeExpressionAmbiguity(INode node, java.util.List<Expression> alternatives) {
-    return new Expression.Ambiguity(node, alternatives);
-  }
-
-  public Module.Ambiguity makeModuleAmbiguity(INode node, java.util.List<Module> alternatives) {
-    return new Module.Ambiguity(node, alternatives);
-  }
-
-  public TagString.Ambiguity makeTagStringAmbiguity(INode node, java.util.List<TagString> alternatives) {
-    return new TagString.Ambiguity(node, alternatives);
-  }
-
-  public DateTimeLiteral.Ambiguity makeDateTimeLiteralAmbiguity(INode node, java.util.List<DateTimeLiteral> alternatives) {
-    return new DateTimeLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Word.Ambiguity makeWordAmbiguity(INode node, java.util.List<Word> alternatives) {
-    return new Word.Ambiguity(node, alternatives);
-  }
-
-  public LAYOUT.Ambiguity makeLAYOUTAmbiguity(INode node, java.util.List<LAYOUT> alternatives) {
-    return new LAYOUT.Ambiguity(node, alternatives);
-  }
-
-  public Declaration.Ambiguity makeDeclarationAmbiguity(INode node, java.util.List<Declaration> alternatives) {
-    return new Declaration.Ambiguity(node, alternatives);
-  }
-
-  public Nonterminal.Ambiguity makeNonterminalAmbiguity(INode node, java.util.List<Nonterminal> alternatives) {
-    return new Nonterminal.Ambiguity(node, alternatives);
-  }
-
-  public LongLiteral.Ambiguity makeLongLiteralAmbiguity(INode node, java.util.List<LongLiteral> alternatives) {
-    return new LongLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Sym.Ambiguity makeSymAmbiguity(INode node, java.util.List<Sym> alternatives) {
-    return new Sym.Ambiguity(node, alternatives);
-  }
-
-  public CommentChar.Ambiguity makeCommentCharAmbiguity(INode node, java.util.List<CommentChar> alternatives) {
-    return new CommentChar.Ambiguity(node, alternatives);
-  }
-
-  public SyntaxDefinition.Ambiguity makeSyntaxDefinitionAmbiguity(INode node, java.util.List<SyntaxDefinition> alternatives) {
-    return new SyntaxDefinition.Ambiguity(node, alternatives);
-  }
-
-  public Assoc.Ambiguity makeAssocAmbiguity(INode node, java.util.List<Assoc> alternatives) {
-    return new Assoc.Ambiguity(node, alternatives);
-  }
-
-  public Comment.Ambiguity makeCommentAmbiguity(INode node, java.util.List<Comment> alternatives) {
-    return new Comment.Ambiguity(node, alternatives);
-  }
-
-  public Renamings.Ambiguity makeRenamingsAmbiguity(INode node, java.util.List<Renamings> alternatives) {
-    return new Renamings.Ambiguity(node, alternatives);
-  }
-
-  public Formal.Ambiguity makeFormalAmbiguity(INode node, java.util.List<Formal> alternatives) {
-    return new Formal.Ambiguity(node, alternatives);
-  }
-
-  public Class.Ambiguity makeClassAmbiguity(INode node, java.util.List<Class> alternatives) {
-    return new Class.Ambiguity(node, alternatives);
-  }
-
-  public StrChar.Ambiguity makeStrCharAmbiguity(INode node, java.util.List<StrChar> alternatives) {
-    return new StrChar.Ambiguity(node, alternatives);
-  }
-
-  public Bound.Ambiguity makeBoundAmbiguity(INode node, java.util.List<Bound> alternatives) {
-    return new Bound.Ambiguity(node, alternatives);
-  }
-
-  public ProtocolChars.Ambiguity makeProtocolCharsAmbiguity(INode node, java.util.List<ProtocolChars> alternatives) {
-    return new ProtocolChars.Ambiguity(node, alternatives);
-  }
-
-  public MidStringChars.Ambiguity makeMidStringCharsAmbiguity(INode node, java.util.List<MidStringChars> alternatives) {
-    return new MidStringChars.Ambiguity(node, alternatives);
-  }
-
-  public PreModule.Ambiguity makePreModuleAmbiguity(INode node, java.util.List<PreModule> alternatives) {
-    return new PreModule.Ambiguity(node, alternatives);
-  }
-
-  public NoElseMayFollow.Ambiguity makeNoElseMayFollowAmbiguity(INode node, java.util.List<NoElseMayFollow> alternatives) {
-    return new NoElseMayFollow.Ambiguity(node, alternatives);
-  }
-
-  public Comprehension.Ambiguity makeComprehensionAmbiguity(INode node, java.util.List<Comprehension> alternatives) {
-    return new Comprehension.Ambiguity(node, alternatives);
-  }
-
-  public RegExpModifier.Ambiguity makeRegExpModifierAmbiguity(INode node, java.util.List<RegExpModifier> alternatives) {
-    return new RegExpModifier.Ambiguity(node, alternatives);
-  }
-
-  public EscapedName.Ambiguity makeEscapedNameAmbiguity(INode node, java.util.List<EscapedName> alternatives) {
-    return new EscapedName.Ambiguity(node, alternatives);
-  }
-
-  public RegExp.Ambiguity makeRegExpAmbiguity(INode node, java.util.List<RegExp> alternatives) {
-    return new RegExp.Ambiguity(node, alternatives);
-  }
-
-  public SingleQuotedStrChar.Ambiguity makeSingleQuotedStrCharAmbiguity(INode node, java.util.List<SingleQuotedStrChar> alternatives) {
-    return new SingleQuotedStrChar.Ambiguity(node, alternatives);
-  }
-
-  public PathTail.Ambiguity makePathTailAmbiguity(INode node, java.util.List<PathTail> alternatives) {
-    return new PathTail.Ambiguity(node, alternatives);
-  }
-
-  public Literal.Ambiguity makeLiteralAmbiguity(INode node, java.util.List<Literal> alternatives) {
-    return new Literal.Ambiguity(node, alternatives);
-  }
-
-  public RealLiteral.Ambiguity makeRealLiteralAmbiguity(INode node, java.util.List<RealLiteral> alternatives) {
-    return new RealLiteral.Ambiguity(node, alternatives);
-  }
-
-  public Strategy.Ambiguity makeStrategyAmbiguity(INode node, java.util.List<Strategy> alternatives) {
-    return new Strategy.Ambiguity(node, alternatives);
-  }
-
   public DataTarget.Ambiguity makeDataTargetAmbiguity(INode node, java.util.List<DataTarget> alternatives) {
     return new DataTarget.Ambiguity(node, alternatives);
-  }
-
-  public Case.Ambiguity makeCaseAmbiguity(INode node, java.util.List<Case> alternatives) {
-    return new Case.Ambiguity(node, alternatives);
-  }
-
-  public DatePart.Ambiguity makeDatePartAmbiguity(INode node, java.util.List<DatePart> alternatives) {
-    return new DatePart.Ambiguity(node, alternatives);
-  }
-
-  public Catch.Ambiguity makeCatchAmbiguity(INode node, java.util.List<Catch> alternatives) {
-    return new Catch.Ambiguity(node, alternatives);
-  }
-
-  public Field.Ambiguity makeFieldAmbiguity(INode node, java.util.List<Field> alternatives) {
-    return new Field.Ambiguity(node, alternatives);
-  }
-
-  public TypeVar.Ambiguity makeTypeVarAmbiguity(INode node, java.util.List<TypeVar> alternatives) {
-    return new TypeVar.Ambiguity(node, alternatives);
-  }
-
-  public Alternative.Ambiguity makeAlternativeAmbiguity(INode node, java.util.List<Alternative> alternatives) {
-    return new Alternative.Ambiguity(node, alternatives);
-  }
-
-  public ModuleActuals.Ambiguity makeModuleActualsAmbiguity(INode node, java.util.List<ModuleActuals> alternatives) {
-    return new ModuleActuals.Ambiguity(node, alternatives);
-  }
-
-  public Target.Ambiguity makeTargetAmbiguity(INode node, java.util.List<Target> alternatives) {
-    return new Target.Ambiguity(node, alternatives);
-  }
-
-  public StringConstant.Ambiguity makeStringConstantAmbiguity(INode node, java.util.List<StringConstant> alternatives) {
-    return new StringConstant.Ambiguity(node, alternatives);
-  }
-
-  public StringTemplate.Ambiguity makeStringTemplateAmbiguity(INode node, java.util.List<StringTemplate> alternatives) {
-    return new StringTemplate.Ambiguity(node, alternatives);
-  }
-
-  public Visit.Ambiguity makeVisitAmbiguity(INode node, java.util.List<Visit> alternatives) {
-    return new Visit.Ambiguity(node, alternatives);
-  }
-
-  public ParameterizedNonterminal.Ambiguity makeParameterizedNonterminalAmbiguity(INode node, java.util.List<ParameterizedNonterminal> alternatives) {
-    return new ParameterizedNonterminal.Ambiguity(node, alternatives);
-  }
-
-  public Visibility.Ambiguity makeVisibilityAmbiguity(INode node, java.util.List<Visibility> alternatives) {
-    return new Visibility.Ambiguity(node, alternatives);
-  }
-
-  public TagChar.Ambiguity makeTagCharAmbiguity(INode node, java.util.List<TagChar> alternatives) {
-    return new TagChar.Ambiguity(node, alternatives);
-  }
-
-  public Tags.Ambiguity makeTagsAmbiguity(INode node, java.util.List<Tags> alternatives) {
-    return new Tags.Ambiguity(node, alternatives);
   }
 
   public JustTime.Ambiguity makeJustTimeAmbiguity(INode node, java.util.List<JustTime> alternatives) {
@@ -1944,64 +1624,44 @@ public class ASTFactory {
     return new StringCharacter.Ambiguity(node, alternatives);
   }
 
-  public Kind.Ambiguity makeKindAmbiguity(INode node, java.util.List<Kind> alternatives) {
-    return new Kind.Ambiguity(node, alternatives);
+  public Assoc.Ambiguity makeAssocAmbiguity(INode node, java.util.List<Assoc> alternatives) {
+    return new Assoc.Ambiguity(node, alternatives);
   }
 
-  public FunctionType.Ambiguity makeFunctionTypeAmbiguity(INode node, java.util.List<FunctionType> alternatives) {
-    return new FunctionType.Ambiguity(node, alternatives);
+  public StringConstant.Ambiguity makeStringConstantAmbiguity(INode node, java.util.List<StringConstant> alternatives) {
+    return new StringConstant.Ambiguity(node, alternatives);
   }
 
-  public Prod.Ambiguity makeProdAmbiguity(INode node, java.util.List<Prod> alternatives) {
-    return new Prod.Ambiguity(node, alternatives);
+  public Replacement.Ambiguity makeReplacementAmbiguity(INode node, java.util.List<Replacement> alternatives) {
+    return new Replacement.Ambiguity(node, alternatives);
   }
 
-  public URLChars.Ambiguity makeURLCharsAmbiguity(INode node, java.util.List<URLChars> alternatives) {
-    return new URLChars.Ambiguity(node, alternatives);
+  public ParameterizedNonterminal.Ambiguity makeParameterizedNonterminalAmbiguity(INode node, java.util.List<ParameterizedNonterminal> alternatives) {
+    return new ParameterizedNonterminal.Ambiguity(node, alternatives);
   }
 
-  public LocalVariableDeclaration.Ambiguity makeLocalVariableDeclarationAmbiguity(INode node, java.util.List<LocalVariableDeclaration> alternatives) {
-    return new LocalVariableDeclaration.Ambiguity(node, alternatives);
+  public TagChar.Ambiguity makeTagCharAmbiguity(INode node, java.util.List<TagChar> alternatives) {
+    return new TagChar.Ambiguity(node, alternatives);
   }
 
-  public TimeZonePart.Ambiguity makeTimeZonePartAmbiguity(INode node, java.util.List<TimeZonePart> alternatives) {
-    return new TimeZonePart.Ambiguity(node, alternatives);
+  public FunctionModifier.Ambiguity makeFunctionModifierAmbiguity(INode node, java.util.List<FunctionModifier> alternatives) {
+    return new FunctionModifier.Ambiguity(node, alternatives);
   }
 
-  public BasicType.Ambiguity makeBasicTypeAmbiguity(INode node, java.util.List<BasicType> alternatives) {
-    return new BasicType.Ambiguity(node, alternatives);
+  public Assignment.Ambiguity makeAssignmentAmbiguity(INode node, java.util.List<Assignment> alternatives) {
+    return new Assignment.Ambiguity(node, alternatives);
   }
 
-  public PreStringChars.Ambiguity makePreStringCharsAmbiguity(INode node, java.util.List<PreStringChars> alternatives) {
-    return new PreStringChars.Ambiguity(node, alternatives);
+  public Assignable.Ambiguity makeAssignableAmbiguity(INode node, java.util.List<Assignable> alternatives) {
+    return new Assignable.Ambiguity(node, alternatives);
   }
 
-  public ProtocolTail.Ambiguity makeProtocolTailAmbiguity(INode node, java.util.List<ProtocolTail> alternatives) {
-    return new ProtocolTail.Ambiguity(node, alternatives);
+  public Mapping_Expression.Ambiguity makeMapping_ExpressionAmbiguity(INode node, java.util.List<Mapping_Expression> alternatives) {
+    return new Mapping_Expression.Ambiguity(node, alternatives);
   }
 
-  public QualifiedName.Ambiguity makeQualifiedNameAmbiguity(INode node, java.util.List<QualifiedName> alternatives) {
-    return new QualifiedName.Ambiguity(node, alternatives);
-  }
-
-  public Backslash.Ambiguity makeBackslashAmbiguity(INode node, java.util.List<Backslash> alternatives) {
-    return new Backslash.Ambiguity(node, alternatives);
-  }
-
-  public CaseInsensitiveStringConstant.Ambiguity makeCaseInsensitiveStringConstantAmbiguity(INode node, java.util.List<CaseInsensitiveStringConstant> alternatives) {
-    return new CaseInsensitiveStringConstant.Ambiguity(node, alternatives);
-  }
-
-  public Start.Ambiguity makeStartAmbiguity(INode node, java.util.List<Start> alternatives) {
-    return new Start.Ambiguity(node, alternatives);
-  }
-
-  public ShortChar.Ambiguity makeShortCharAmbiguity(INode node, java.util.List<ShortChar> alternatives) {
-    return new ShortChar.Ambiguity(node, alternatives);
-  }
-
-  public Parameters.Ambiguity makeParametersAmbiguity(INode node, java.util.List<Parameters> alternatives) {
-    return new Parameters.Ambiguity(node, alternatives);
+  public DatePart.Ambiguity makeDatePartAmbiguity(INode node, java.util.List<DatePart> alternatives) {
+    return new DatePart.Ambiguity(node, alternatives);
   }
 
   public NamedBackslash.Ambiguity makeNamedBackslashAmbiguity(INode node, java.util.List<NamedBackslash> alternatives) {
@@ -2016,8 +1676,12 @@ public class ASTFactory {
     return new NumChar.Ambiguity(node, alternatives);
   }
 
-  public Mapping_Expression.Ambiguity makeMapping_ExpressionAmbiguity(INode node, java.util.List<Mapping_Expression> alternatives) {
-    return new Mapping_Expression.Ambiguity(node, alternatives);
+  public NoElseMayFollow.Ambiguity makeNoElseMayFollowAmbiguity(INode node, java.util.List<NoElseMayFollow> alternatives) {
+    return new NoElseMayFollow.Ambiguity(node, alternatives);
+  }
+
+  public Field.Ambiguity makeFieldAmbiguity(INode node, java.util.List<Field> alternatives) {
+    return new Field.Ambiguity(node, alternatives);
   }
 
   public JustDate.Ambiguity makeJustDateAmbiguity(INode node, java.util.List<JustDate> alternatives) {
@@ -2028,128 +1692,468 @@ public class ASTFactory {
     return new PostPathChars.Ambiguity(node, alternatives);
   }
 
-  public TimePartNoTZ.Ambiguity makeTimePartNoTZAmbiguity(INode node, java.util.List<TimePartNoTZ> alternatives) {
-    return new TimePartNoTZ.Ambiguity(node, alternatives);
+  public PathPart.Ambiguity makePathPartAmbiguity(INode node, java.util.List<PathPart> alternatives) {
+    return new PathPart.Ambiguity(node, alternatives);
   }
 
-  public DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity(INode node, java.util.List<DecimalLongLiteral> alternatives) {
-    return new DecimalLongLiteral.Ambiguity(node, alternatives);
+  public CaseInsensitiveStringConstant.Ambiguity makeCaseInsensitiveStringConstantAmbiguity(INode node, java.util.List<CaseInsensitiveStringConstant> alternatives) {
+    return new CaseInsensitiveStringConstant.Ambiguity(node, alternatives);
   }
 
-  public Replacement.Ambiguity makeReplacementAmbiguity(INode node, java.util.List<Replacement> alternatives) {
-    return new Replacement.Ambiguity(node, alternatives);
+  public Backslash.Ambiguity makeBackslashAmbiguity(INode node, java.util.List<Backslash> alternatives) {
+    return new Backslash.Ambiguity(node, alternatives);
   }
 
-  public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity(INode node, java.util.List<SingleQuotedStrCon> alternatives) {
-    return new SingleQuotedStrCon.Ambiguity(node, alternatives);
+  public Label.Ambiguity makeLabelAmbiguity(INode node, java.util.List<Label> alternatives) {
+    return new Label.Ambiguity(node, alternatives);
   }
 
-  public Assignment.Ambiguity makeAssignmentAmbiguity(INode node, java.util.List<Assignment> alternatives) {
-    return new Assignment.Ambiguity(node, alternatives);
+  public ShortChar.Ambiguity makeShortCharAmbiguity(INode node, java.util.List<ShortChar> alternatives) {
+    return new ShortChar.Ambiguity(node, alternatives);
   }
 
-  public Name.Ambiguity makeNameAmbiguity(INode node, java.util.List<Name> alternatives) {
-    return new Name.Ambiguity(node, alternatives);
-  }
-
-  public Header.Ambiguity makeHeaderAmbiguity(INode node, java.util.List<Header> alternatives) {
-    return new Header.Ambiguity(node, alternatives);
+  public PreModule.Ambiguity makePreModuleAmbiguity(INode node, java.util.List<PreModule> alternatives) {
+    return new PreModule.Ambiguity(node, alternatives);
   }
 
   public LanguageAction.Ambiguity makeLanguageActionAmbiguity(INode node, java.util.List<LanguageAction> alternatives) {
     return new LanguageAction.Ambiguity(node, alternatives);
   }
 
-  public IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity(INode node, java.util.List<IntegerLiteral> alternatives) {
-    return new IntegerLiteral.Ambiguity(node, alternatives);
+  public URLChars.Ambiguity makeURLCharsAmbiguity(INode node, java.util.List<URLChars> alternatives) {
+    return new URLChars.Ambiguity(node, alternatives);
   }
 
-  public PatternWithAction.Ambiguity makePatternWithActionAmbiguity(INode node, java.util.List<PatternWithAction> alternatives) {
-    return new PatternWithAction.Ambiguity(node, alternatives);
+  public TimeZonePart.Ambiguity makeTimeZonePartAmbiguity(INode node, java.util.List<TimeZonePart> alternatives) {
+    return new TimeZonePart.Ambiguity(node, alternatives);
+  }
+
+  public ProtocolPart.Ambiguity makeProtocolPartAmbiguity(INode node, java.util.List<ProtocolPart> alternatives) {
+    return new ProtocolPart.Ambiguity(node, alternatives);
+  }
+
+  public StringTemplate.Ambiguity makeStringTemplateAmbiguity(INode node, java.util.List<StringTemplate> alternatives) {
+    return new StringTemplate.Ambiguity(node, alternatives);
+  }
+
+  public PreStringChars.Ambiguity makePreStringCharsAmbiguity(INode node, java.util.List<PreStringChars> alternatives) {
+    return new PreStringChars.Ambiguity(node, alternatives);
   }
 
   public Import.Ambiguity makeImportAmbiguity(INode node, java.util.List<Import> alternatives) {
     return new Import.Ambiguity(node, alternatives);
   }
 
-  public FunctionModifier.Ambiguity makeFunctionModifierAmbiguity(INode node, java.util.List<FunctionModifier> alternatives) {
-    return new FunctionModifier.Ambiguity(node, alternatives);
+  public UserType.Ambiguity makeUserTypeAmbiguity(INode node, java.util.List<UserType> alternatives) {
+    return new UserType.Ambiguity(node, alternatives);
+  }
+
+  public Body.Ambiguity makeBodyAmbiguity(INode node, java.util.List<Body> alternatives) {
+    return new Body.Ambiguity(node, alternatives);
+  }
+
+  public FunctionBody.Ambiguity makeFunctionBodyAmbiguity(INode node, java.util.List<FunctionBody> alternatives) {
+    return new FunctionBody.Ambiguity(node, alternatives);
+  }
+
+  public Expression.Ambiguity makeExpressionAmbiguity(INode node, java.util.List<Expression> alternatives) {
+    return new Expression.Ambiguity(node, alternatives);
+  }
+
+  public SyntaxDefinition.Ambiguity makeSyntaxDefinitionAmbiguity(INode node, java.util.List<SyntaxDefinition> alternatives) {
+    return new SyntaxDefinition.Ambiguity(node, alternatives);
+  }
+
+  public Kind.Ambiguity makeKindAmbiguity(INode node, java.util.List<Kind> alternatives) {
+    return new Kind.Ambiguity(node, alternatives);
+  }
+
+  public Test.Ambiguity makeTestAmbiguity(INode node, java.util.List<Test> alternatives) {
+    return new Test.Ambiguity(node, alternatives);
   }
 
   public StrCon.Ambiguity makeStrConAmbiguity(INode node, java.util.List<StrCon> alternatives) {
     return new StrCon.Ambiguity(node, alternatives);
   }
 
-  public ShellCommand.Ambiguity makeShellCommandAmbiguity(INode node, java.util.List<ShellCommand> alternatives) {
-    return new ShellCommand.Ambiguity(node, alternatives);
+  public IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity(INode node, java.util.List<IntegerLiteral> alternatives) {
+    return new IntegerLiteral.Ambiguity(node, alternatives);
   }
 
-  public Declarator.Ambiguity makeDeclaratorAmbiguity(INode node, java.util.List<Declarator> alternatives) {
-    return new Declarator.Ambiguity(node, alternatives);
-  }
-
-  public Variable.Ambiguity makeVariableAmbiguity(INode node, java.util.List<Variable> alternatives) {
-    return new Variable.Ambiguity(node, alternatives);
-  }
-
-  public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity(INode node, java.util.List<BooleanLiteral> alternatives) {
-    return new BooleanLiteral.Ambiguity(node, alternatives);
-  }
-
-  public StringMiddle.Ambiguity makeStringMiddleAmbiguity(INode node, java.util.List<StringMiddle> alternatives) {
-    return new StringMiddle.Ambiguity(node, alternatives);
-  }
-
-  public Signature.Ambiguity makeSignatureAmbiguity(INode node, java.util.List<Signature> alternatives) {
-    return new Signature.Ambiguity(node, alternatives);
-  }
-
-  public TypeArg.Ambiguity makeTypeArgAmbiguity(INode node, java.util.List<TypeArg> alternatives) {
-    return new TypeArg.Ambiguity(node, alternatives);
-  }
-
-  public FunctionDeclaration.Ambiguity makeFunctionDeclarationAmbiguity(INode node, java.util.List<FunctionDeclaration> alternatives) {
-    return new FunctionDeclaration.Ambiguity(node, alternatives);
-  }
-
-  public PathPart.Ambiguity makePathPartAmbiguity(INode node, java.util.List<PathPart> alternatives) {
-    return new PathPart.Ambiguity(node, alternatives);
-  }
-
-  public DateAndTime.Ambiguity makeDateAndTimeAmbiguity(INode node, java.util.List<DateAndTime> alternatives) {
-    return new DateAndTime.Ambiguity(node, alternatives);
+  public Target.Ambiguity makeTargetAmbiguity(INode node, java.util.List<Target> alternatives) {
+    return new Target.Ambiguity(node, alternatives);
   }
 
   public ImportedModule.Ambiguity makeImportedModuleAmbiguity(INode node, java.util.List<ImportedModule> alternatives) {
     return new ImportedModule.Ambiguity(node, alternatives);
   }
 
-  public Asterisk.Ambiguity makeAsteriskAmbiguity(INode node, java.util.List<Asterisk> alternatives) {
-    return new Asterisk.Ambiguity(node, alternatives);
+  public Header.Ambiguity makeHeaderAmbiguity(INode node, java.util.List<Header> alternatives) {
+    return new Header.Ambiguity(node, alternatives);
+  }
+
+  public Name.Ambiguity makeNameAmbiguity(INode node, java.util.List<Name> alternatives) {
+    return new Name.Ambiguity(node, alternatives);
+  }
+
+  public TimePartNoTZ.Ambiguity makeTimePartNoTZAmbiguity(INode node, java.util.List<TimePartNoTZ> alternatives) {
+    return new TimePartNoTZ.Ambiguity(node, alternatives);
+  }
+
+  public Sym.Ambiguity makeSymAmbiguity(INode node, java.util.List<Sym> alternatives) {
+    return new Sym.Ambiguity(node, alternatives);
+  }
+
+  public DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity(INode node, java.util.List<DecimalLongLiteral> alternatives) {
+    return new DecimalLongLiteral.Ambiguity(node, alternatives);
+  }
+
+  public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity(INode node, java.util.List<SingleQuotedStrCon> alternatives) {
+    return new SingleQuotedStrCon.Ambiguity(node, alternatives);
   }
 
   public UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity(INode node, java.util.List<UnicodeEscape> alternatives) {
     return new UnicodeEscape.Ambiguity(node, alternatives);
   }
 
-  public Statement.Ambiguity makeStatementAmbiguity(INode node, java.util.List<Statement> alternatives) {
-    return new Statement.Ambiguity(node, alternatives);
-  }
-
   public OctalIntegerLiteral.Ambiguity makeOctalIntegerLiteralAmbiguity(INode node, java.util.List<OctalIntegerLiteral> alternatives) {
     return new OctalIntegerLiteral.Ambiguity(node, alternatives);
   }
 
-  public Assignable.Ambiguity makeAssignableAmbiguity(INode node, java.util.List<Assignable> alternatives) {
-    return new Assignable.Ambiguity(node, alternatives);
+  public TypeArg.Ambiguity makeTypeArgAmbiguity(INode node, java.util.List<TypeArg> alternatives) {
+    return new TypeArg.Ambiguity(node, alternatives);
+  }
+
+  public Variable.Ambiguity makeVariableAmbiguity(INode node, java.util.List<Variable> alternatives) {
+    return new Variable.Ambiguity(node, alternatives);
+  }
+
+  public Catch.Ambiguity makeCatchAmbiguity(INode node, java.util.List<Catch> alternatives) {
+    return new Catch.Ambiguity(node, alternatives);
+  }
+
+  public Renaming.Ambiguity makeRenamingAmbiguity(INode node, java.util.List<Renaming> alternatives) {
+    return new Renaming.Ambiguity(node, alternatives);
+  }
+
+  public PathChars.Ambiguity makePathCharsAmbiguity(INode node, java.util.List<PathChars> alternatives) {
+    return new PathChars.Ambiguity(node, alternatives);
   }
 
   public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity(INode node, java.util.List<HexLongLiteral> alternatives) {
     return new HexLongLiteral.Ambiguity(node, alternatives);
   }
 
-  public PathChars.Ambiguity makePathCharsAmbiguity(INode node, java.util.List<PathChars> alternatives) {
-    return new PathChars.Ambiguity(node, alternatives);
+  public Signature.Ambiguity makeSignatureAmbiguity(INode node, java.util.List<Signature> alternatives) {
+    return new Signature.Ambiguity(node, alternatives);
+  }
+
+  public DateAndTime.Ambiguity makeDateAndTimeAmbiguity(INode node, java.util.List<DateAndTime> alternatives) {
+    return new DateAndTime.Ambiguity(node, alternatives);
+  }
+
+  public ModuleParameters.Ambiguity makeModuleParametersAmbiguity(INode node, java.util.List<ModuleParameters> alternatives) {
+    return new ModuleParameters.Ambiguity(node, alternatives);
+  }
+
+  public Strategy.Ambiguity makeStrategyAmbiguity(INode node, java.util.List<Strategy> alternatives) {
+    return new Strategy.Ambiguity(node, alternatives);
+  }
+
+  public Asterisk.Ambiguity makeAsteriskAmbiguity(INode node, java.util.List<Asterisk> alternatives) {
+    return new Asterisk.Ambiguity(node, alternatives);
+  }
+
+  public Literal.Ambiguity makeLiteralAmbiguity(INode node, java.util.List<Literal> alternatives) {
+    return new Literal.Ambiguity(node, alternatives);
+  }
+
+  public Alternative.Ambiguity makeAlternativeAmbiguity(INode node, java.util.List<Alternative> alternatives) {
+    return new Alternative.Ambiguity(node, alternatives);
+  }
+
+  public Module.Ambiguity makeModuleAmbiguity(INode node, java.util.List<Module> alternatives) {
+    return new Module.Ambiguity(node, alternatives);
+  }
+
+  public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity(INode node, java.util.List<BooleanLiteral> alternatives) {
+    return new BooleanLiteral.Ambiguity(node, alternatives);
+  }
+
+  public Tag.Ambiguity makeTagAmbiguity(INode node, java.util.List<Tag> alternatives) {
+    return new Tag.Ambiguity(node, alternatives);
+  }
+
+  public ModuleActuals.Ambiguity makeModuleActualsAmbiguity(INode node, java.util.List<ModuleActuals> alternatives) {
+    return new ModuleActuals.Ambiguity(node, alternatives);
+  }
+
+  public Prod.Ambiguity makeProdAmbiguity(INode node, java.util.List<Prod> alternatives) {
+    return new Prod.Ambiguity(node, alternatives);
+  }
+
+  public Char.Ambiguity makeCharAmbiguity(INode node, java.util.List<Char> alternatives) {
+    return new Char.Ambiguity(node, alternatives);
+  }
+
+  public PrePathChars.Ambiguity makePrePathCharsAmbiguity(INode node, java.util.List<PrePathChars> alternatives) {
+    return new PrePathChars.Ambiguity(node, alternatives);
+  }
+
+  public DateTimeLiteral.Ambiguity makeDateTimeLiteralAmbiguity(INode node, java.util.List<DateTimeLiteral> alternatives) {
+    return new DateTimeLiteral.Ambiguity(node, alternatives);
+  }
+
+  public LongLiteral.Ambiguity makeLongLiteralAmbiguity(INode node, java.util.List<LongLiteral> alternatives) {
+    return new LongLiteral.Ambiguity(node, alternatives);
+  }
+
+  public MidPathChars.Ambiguity makeMidPathCharsAmbiguity(INode node, java.util.List<MidPathChars> alternatives) {
+    return new MidPathChars.Ambiguity(node, alternatives);
+  }
+
+  public Toplevel.Ambiguity makeToplevelAmbiguity(INode node, java.util.List<Toplevel> alternatives) {
+    return new Toplevel.Ambiguity(node, alternatives);
+  }
+
+  public ProdModifier.Ambiguity makeProdModifierAmbiguity(INode node, java.util.List<ProdModifier> alternatives) {
+    return new ProdModifier.Ambiguity(node, alternatives);
+  }
+
+  public TypeVar.Ambiguity makeTypeVarAmbiguity(INode node, java.util.List<TypeVar> alternatives) {
+    return new TypeVar.Ambiguity(node, alternatives);
+  }
+
+  public OctalEscapeSequence.Ambiguity makeOctalEscapeSequenceAmbiguity(INode node, java.util.List<OctalEscapeSequence> alternatives) {
+    return new OctalEscapeSequence.Ambiguity(node, alternatives);
+  }
+
+  public PostStringChars.Ambiguity makePostStringCharsAmbiguity(INode node, java.util.List<PostStringChars> alternatives) {
+    return new PostStringChars.Ambiguity(node, alternatives);
+  }
+
+  public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity(INode node, java.util.List<HexIntegerLiteral> alternatives) {
+    return new HexIntegerLiteral.Ambiguity(node, alternatives);
+  }
+
+  public BasicType.Ambiguity makeBasicTypeAmbiguity(INode node, java.util.List<BasicType> alternatives) {
+    return new BasicType.Ambiguity(node, alternatives);
+  }
+
+  public OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity(INode node, java.util.List<OctalLongLiteral> alternatives) {
+    return new OctalLongLiteral.Ambiguity(node, alternatives);
+  }
+
+  public RegExpLiteral.Ambiguity makeRegExpLiteralAmbiguity(INode node, java.util.List<RegExpLiteral> alternatives) {
+    return new RegExpLiteral.Ambiguity(node, alternatives);
+  }
+
+  public Variant.Ambiguity makeVariantAmbiguity(INode node, java.util.List<Variant> alternatives) {
+    return new Variant.Ambiguity(node, alternatives);
+  }
+
+  public Comprehension.Ambiguity makeComprehensionAmbiguity(INode node, java.util.List<Comprehension> alternatives) {
+    return new Comprehension.Ambiguity(node, alternatives);
+  }
+
+  public FunctionModifiers.Ambiguity makeFunctionModifiersAmbiguity(INode node, java.util.List<FunctionModifiers> alternatives) {
+    return new FunctionModifiers.Ambiguity(node, alternatives);
+  }
+
+  public FunctionDeclaration.Ambiguity makeFunctionDeclarationAmbiguity(INode node, java.util.List<FunctionDeclaration> alternatives) {
+    return new FunctionDeclaration.Ambiguity(node, alternatives);
+  }
+
+  public PreProtocolChars.Ambiguity makePreProtocolCharsAmbiguity(INode node, java.util.List<PreProtocolChars> alternatives) {
+    return new PreProtocolChars.Ambiguity(node, alternatives);
+  }
+
+  public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity(INode node, java.util.List<NamedRegExp> alternatives) {
+    return new NamedRegExp.Ambiguity(node, alternatives);
+  }
+
+  public Bound.Ambiguity makeBoundAmbiguity(INode node, java.util.List<Bound> alternatives) {
+    return new Bound.Ambiguity(node, alternatives);
+  }
+
+  public Type.Ambiguity makeTypeAmbiguity(INode node, java.util.List<Type> alternatives) {
+    return new Type.Ambiguity(node, alternatives);
+  }
+
+  public Declaration.Ambiguity makeDeclarationAmbiguity(INode node, java.util.List<Declaration> alternatives) {
+    return new Declaration.Ambiguity(node, alternatives);
+  }
+
+  public Class.Ambiguity makeClassAmbiguity(INode node, java.util.List<Class> alternatives) {
+    return new Class.Ambiguity(node, alternatives);
+  }
+
+  public FunctionType.Ambiguity makeFunctionTypeAmbiguity(INode node, java.util.List<FunctionType> alternatives) {
+    return new FunctionType.Ambiguity(node, alternatives);
+  }
+
+  public Declarator.Ambiguity makeDeclaratorAmbiguity(INode node, java.util.List<Declarator> alternatives) {
+    return new Declarator.Ambiguity(node, alternatives);
+  }
+
+  public Case.Ambiguity makeCaseAmbiguity(INode node, java.util.List<Case> alternatives) {
+    return new Case.Ambiguity(node, alternatives);
+  }
+
+  public Statement.Ambiguity makeStatementAmbiguity(INode node, java.util.List<Statement> alternatives) {
+    return new Statement.Ambiguity(node, alternatives);
+  }
+
+  public NonterminalLabel.Ambiguity makeNonterminalLabelAmbiguity(INode node, java.util.List<NonterminalLabel> alternatives) {
+    return new NonterminalLabel.Ambiguity(node, alternatives);
+  }
+
+  public StructuredType.Ambiguity makeStructuredTypeAmbiguity(INode node, java.util.List<StructuredType> alternatives) {
+    return new StructuredType.Ambiguity(node, alternatives);
+  }
+
+  public PostProtocolChars.Ambiguity makePostProtocolCharsAmbiguity(INode node, java.util.List<PostProtocolChars> alternatives) {
+    return new PostProtocolChars.Ambiguity(node, alternatives);
+  }
+
+  public Formals.Ambiguity makeFormalsAmbiguity(INode node, java.util.List<Formals> alternatives) {
+    return new Formals.Ambiguity(node, alternatives);
+  }
+
+  public Start.Ambiguity makeStartAmbiguity(INode node, java.util.List<Start> alternatives) {
+    return new Start.Ambiguity(node, alternatives);
+  }
+
+  public Comment.Ambiguity makeCommentAmbiguity(INode node, java.util.List<Comment> alternatives) {
+    return new Comment.Ambiguity(node, alternatives);
+  }
+
+  public StringLiteral.Ambiguity makeStringLiteralAmbiguity(INode node, java.util.List<StringLiteral> alternatives) {
+    return new StringLiteral.Ambiguity(node, alternatives);
+  }
+
+  public Tags.Ambiguity makeTagsAmbiguity(INode node, java.util.List<Tags> alternatives) {
+    return new Tags.Ambiguity(node, alternatives);
+  }
+
+  public Renamings.Ambiguity makeRenamingsAmbiguity(INode node, java.util.List<Renamings> alternatives) {
+    return new Renamings.Ambiguity(node, alternatives);
+  }
+
+  public CommentChar.Ambiguity makeCommentCharAmbiguity(INode node, java.util.List<CommentChar> alternatives) {
+    return new CommentChar.Ambiguity(node, alternatives);
+  }
+
+  public PathTail.Ambiguity makePathTailAmbiguity(INode node, java.util.List<PathTail> alternatives) {
+    return new PathTail.Ambiguity(node, alternatives);
+  }
+
+  public Visibility.Ambiguity makeVisibilityAmbiguity(INode node, java.util.List<Visibility> alternatives) {
+    return new Visibility.Ambiguity(node, alternatives);
+  }
+
+  public PatternWithAction.Ambiguity makePatternWithActionAmbiguity(INode node, java.util.List<PatternWithAction> alternatives) {
+    return new PatternWithAction.Ambiguity(node, alternatives);
+  }
+
+  public Visit.Ambiguity makeVisitAmbiguity(INode node, java.util.List<Visit> alternatives) {
+    return new Visit.Ambiguity(node, alternatives);
+  }
+
+  public TagString.Ambiguity makeTagStringAmbiguity(INode node, java.util.List<TagString> alternatives) {
+    return new TagString.Ambiguity(node, alternatives);
+  }
+
+  public Command.Ambiguity makeCommandAmbiguity(INode node, java.util.List<Command> alternatives) {
+    return new Command.Ambiguity(node, alternatives);
+  }
+
+  public Word.Ambiguity makeWordAmbiguity(INode node, java.util.List<Word> alternatives) {
+    return new Word.Ambiguity(node, alternatives);
+  }
+
+  public LAYOUT.Ambiguity makeLAYOUTAmbiguity(INode node, java.util.List<LAYOUT> alternatives) {
+    return new LAYOUT.Ambiguity(node, alternatives);
+  }
+
+  public Nonterminal.Ambiguity makeNonterminalAmbiguity(INode node, java.util.List<Nonterminal> alternatives) {
+    return new Nonterminal.Ambiguity(node, alternatives);
+  }
+
+  public ProtocolTail.Ambiguity makeProtocolTailAmbiguity(INode node, java.util.List<ProtocolTail> alternatives) {
+    return new ProtocolTail.Ambiguity(node, alternatives);
+  }
+
+  public QualifiedName.Ambiguity makeQualifiedNameAmbiguity(INode node, java.util.List<QualifiedName> alternatives) {
+    return new QualifiedName.Ambiguity(node, alternatives);
+  }
+
+  public StringMiddle.Ambiguity makeStringMiddleAmbiguity(INode node, java.util.List<StringMiddle> alternatives) {
+    return new StringMiddle.Ambiguity(node, alternatives);
+  }
+
+  public DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity(INode node, java.util.List<DataTypeSelector> alternatives) {
+    return new DataTypeSelector.Ambiguity(node, alternatives);
+  }
+
+  public DecimalIntegerLiteral.Ambiguity makeDecimalIntegerLiteralAmbiguity(INode node, java.util.List<DecimalIntegerLiteral> alternatives) {
+    return new DecimalIntegerLiteral.Ambiguity(node, alternatives);
+  }
+
+  public StringTail.Ambiguity makeStringTailAmbiguity(INode node, java.util.List<StringTail> alternatives) {
+    return new StringTail.Ambiguity(node, alternatives);
+  }
+
+  public Range.Ambiguity makeRangeAmbiguity(INode node, java.util.List<Range> alternatives) {
+    return new Range.Ambiguity(node, alternatives);
+  }
+
+  public ShellCommand.Ambiguity makeShellCommandAmbiguity(INode node, java.util.List<ShellCommand> alternatives) {
+    return new ShellCommand.Ambiguity(node, alternatives);
+  }
+
+  public LocationLiteral.Ambiguity makeLocationLiteralAmbiguity(INode node, java.util.List<LocationLiteral> alternatives) {
+    return new LocationLiteral.Ambiguity(node, alternatives);
+  }
+
+  public SingleQuotedStrChar.Ambiguity makeSingleQuotedStrCharAmbiguity(INode node, java.util.List<SingleQuotedStrChar> alternatives) {
+    return new SingleQuotedStrChar.Ambiguity(node, alternatives);
+  }
+
+  public LocalVariableDeclaration.Ambiguity makeLocalVariableDeclarationAmbiguity(INode node, java.util.List<LocalVariableDeclaration> alternatives) {
+    return new LocalVariableDeclaration.Ambiguity(node, alternatives);
+  }
+
+  public RealLiteral.Ambiguity makeRealLiteralAmbiguity(INode node, java.util.List<RealLiteral> alternatives) {
+    return new RealLiteral.Ambiguity(node, alternatives);
+  }
+
+  public EscapedName.Ambiguity makeEscapedNameAmbiguity(INode node, java.util.List<EscapedName> alternatives) {
+    return new EscapedName.Ambiguity(node, alternatives);
+  }
+
+  public Parameters.Ambiguity makeParametersAmbiguity(INode node, java.util.List<Parameters> alternatives) {
+    return new Parameters.Ambiguity(node, alternatives);
+  }
+
+  public RegExp.Ambiguity makeRegExpAmbiguity(INode node, java.util.List<RegExp> alternatives) {
+    return new RegExp.Ambiguity(node, alternatives);
+  }
+
+  public StrChar.Ambiguity makeStrCharAmbiguity(INode node, java.util.List<StrChar> alternatives) {
+    return new StrChar.Ambiguity(node, alternatives);
+  }
+
+  public ProtocolChars.Ambiguity makeProtocolCharsAmbiguity(INode node, java.util.List<ProtocolChars> alternatives) {
+    return new ProtocolChars.Ambiguity(node, alternatives);
+  }
+
+  public MidStringChars.Ambiguity makeMidStringCharsAmbiguity(INode node, java.util.List<MidStringChars> alternatives) {
+    return new MidStringChars.Ambiguity(node, alternatives);
+  }
+
+  public RegExpModifier.Ambiguity makeRegExpModifierAmbiguity(INode node, java.util.List<RegExpModifier> alternatives) {
+    return new RegExpModifier.Ambiguity(node, alternatives);
   }
 
 }

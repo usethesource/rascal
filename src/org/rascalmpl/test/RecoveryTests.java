@@ -3,6 +3,7 @@ package org.rascalmpl.test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RecoveryTests extends TestFramework {
@@ -13,27 +14,27 @@ public class RecoveryTests extends TestFramework {
 		prepare("import RecoveryTests;");
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testRecoveryOfLocalVariable() {
 		assertTrue(runTestInSameEvaluator("recoveryOfLocalVariable() == 0;"));
 	}
 
-	@Test
+	@Test @Ignore
 	public void testNestedRecoveryOfLocalVariable() {
 		assertTrue(runTestInSameEvaluator("nestedRecoveryOfLocalVariable() == 3;"));
 	}
 
-	@Test
+	@Test @Ignore
 	public void testNoNestedRecovery() {
 		assertTrue(runTestInSameEvaluator("noNestedRecovery() == 12;"));
 	}
 
-	@Test
+	@Test @Ignore
 	public void testRecoveryOfLocalVariableUsingIfThen() {
 		assertTrue(runTestInSameEvaluator("recoveryOfLocalVariableUsingIfThen() == 0;"));
 	}
 
-	@Test
+	@Test @Ignore
 	public void testRecoveryOfGlobalVariable() {
 		assertTrue(runTestInSameEvaluator("recoveryOfGlobalVariable() == 0;"));
 	}
@@ -43,7 +44,7 @@ public class RecoveryTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("recoveryOfGlobalAfterFailingRule() == 0;"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testRecoveryOfGlobalDuringComprehension() {
 		assertTrue(runTestInSameEvaluator("recoveryOfGlobalDuringComprehension() == 0;"));
 	}

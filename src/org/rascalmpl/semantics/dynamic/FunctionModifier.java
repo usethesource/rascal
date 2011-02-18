@@ -16,10 +16,6 @@ public abstract class FunctionModifier extends org.rascalmpl.ast.FunctionModifie
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -29,10 +25,6 @@ public abstract class FunctionModifier extends org.rascalmpl.ast.FunctionModifie
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

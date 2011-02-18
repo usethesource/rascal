@@ -65,7 +65,7 @@ public class DynamicSemanticsASTFactory extends ASTFactory {
 		return new FunctionBody.Default(node, statements);
 	}
 
-	public org.rascalmpl.ast.Formals.Default makeFormalsDefault(INode node, java.util.List<org.rascalmpl.ast.Formal> formals) {
+	public org.rascalmpl.ast.Formals.Default makeFormalsDefault(INode node, java.util.List<org.rascalmpl.ast.Expression> formals) {
 		return new Formals.Default(node, formals);
 	}
 
@@ -618,10 +618,6 @@ public class DynamicSemanticsASTFactory extends ASTFactory {
 
 	public org.rascalmpl.ast.Renamings.Default makeRenamingsDefault(INode node, java.util.List<org.rascalmpl.ast.Renaming> renamings) {
 		return new Renamings.Default(node, renamings);
-	}
-
-	public org.rascalmpl.ast.Formal.TypeName makeFormalTypeName(INode node, org.rascalmpl.ast.Type type, org.rascalmpl.ast.Name name) {
-		return new Formal.TypeName(node, type, name);
 	}
 
 	public org.rascalmpl.ast.Class.Union makeClassUnion(INode node, org.rascalmpl.ast.Class lhs, org.rascalmpl.ast.Class rhs) {

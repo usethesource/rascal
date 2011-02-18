@@ -15,7 +15,7 @@ public abstract class Formals extends AbstractAST {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Formal> getFormals() {
+  public java.util.List<org.rascalmpl.ast.Expression> getFormals() {
     throw new UnsupportedOperationException();
   }
 
@@ -46,14 +46,14 @@ static public class Ambiguity extends Formals {
   }
   
 static public class Default extends Formals {
-  // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Formal\>","formals")])
+  // Production: sig("Default",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","formals")])
 
   
-     private final java.util.List<org.rascalmpl.ast.Formal> formals;
+     private final java.util.List<org.rascalmpl.ast.Expression> formals;
   
 
   
-public Default(INode node , java.util.List<org.rascalmpl.ast.Formal> formals) {
+public Default(INode node , java.util.List<org.rascalmpl.ast.Expression> formals) {
   super(node);
   
     this.formals = formals;
@@ -73,7 +73,7 @@ public Default(INode node , java.util.List<org.rascalmpl.ast.Formal> formals) {
   
   
      @Override
-     public java.util.List<org.rascalmpl.ast.Formal> getFormals() {
+     public java.util.List<org.rascalmpl.ast.Expression> getFormals() {
         return this.formals;
      }
      

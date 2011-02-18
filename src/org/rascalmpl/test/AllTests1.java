@@ -13,7 +13,6 @@ import org.junit.runners.Suite;
 	
 	CallTests.class,
 	ComprehensionTests.class,
-	ConcreteSyntaxTests.class,
 	DataDeclarationTests.class,
 	DataTypeTests.class,
 	DeclarationTests.class,

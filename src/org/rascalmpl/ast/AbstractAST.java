@@ -4,20 +4,30 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
 	protected final INode node;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
+	protected final TypeFactory TF = TypeFactory.getInstance();
+	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	AbstractAST(INode node) {
 		this.node = node;
@@ -40,8 +50,6 @@ public abstract class AbstractAST implements IVisitable {
 	
 //	abstract public <T> T accept(IASTVisitor<T> v);
 	public <T> T accept(IASTVisitor<T> v) {
-		int x = 3;
-		x = x + 1;
 		return null;
 	}
 
@@ -92,24 +100,21 @@ public abstract class AbstractAST implements IVisitable {
 		return TreeAdapter.yield((IConstructor) node);
 	}
 
-	public <T> T __evaluate(NullASTVisitor<T> eval) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public Result<IValue> interpret(Evaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Result<IValue> __evaluate(AssignableEvaluator eval) {
+	public Result<IValue> assignment(AssignableEvaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Type __evaluate(org.rascalmpl.interpreter.TypeEvaluator.Visitor eval) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Computes internal type representations for type literals and patterns. 
+	 */
+	public Type typeOf(Environment env) {
+		throw new ImplementationError("typeOf is not implemented for " + getClass().getCanonicalName());
 	}
 
 	public Type __evaluate(org.rascalmpl.interpreter.BasicTypeEvaluator eval) {
@@ -117,12 +122,11 @@ public abstract class AbstractAST implements IVisitable {
 		return null;
 	}
 
-	public IMatchingResult __evaluate(PatternEvaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
+	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		throw new UnsupportedPatternError(toString(), this);
 	}
 
-	public IBooleanResult __evaluate(BooleanEvaluator eval) {
+	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -106,7 +106,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = new TypeEvaluator(env, null).eval(arg.getType());
+					fields[i] = arg.getType().typeOf(env);
 
 					if (fields[i] == null) {
 						throw new UndeclaredTypeError(arg.getType()
@@ -163,7 +163,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = new TypeEvaluator(env, eval.getHeap()).eval(x.getBase());
+			Type base = x.getBase().typeOf(env);
 
 			if (base == null) {
 				throw new UndeclaredTypeError(x.getBase().toString(), x
@@ -216,7 +216,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();	
-				Type bound = var.hasBound() ? new TypeEvaluator(env, null).eval(var.getBound()) : tf
+				Type bound = var.hasBound() ? var.getBound().typeOf(env) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);

@@ -18,6 +18,7 @@ private loc inputFolder = |rascal:///rascal/syntax|;
 //private loc astFolder = |project://RascalLibrary/src/org/rascalmpl/ast|;
 private loc outputFolder = |boot:///src/org/rascalmpl/library/rascal/syntax|;
 private loc astFolder = |boot:///src/org/rascalmpl/ast|;
+// private loc astFolder = |home:///Sources/Rascal/rascal/src/org/rascalmpl/ast|;
 private str grammarName = "RascalRascal";
 private str rootName = "RascalRascal";
 private str objectName = "ObjectRascalRascal";

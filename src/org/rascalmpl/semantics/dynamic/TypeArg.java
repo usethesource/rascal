@@ -1,11 +1,11 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.interpreter.TypeEvaluator.Visitor;
+import org.rascalmpl.interpreter.env.Environment;
 
 public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 
@@ -19,15 +19,11 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 			super(__param1, __param2, __param3);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return this.getType().__evaluate(__eval);
+			return this.getType().typeOf(__eval);
 
 		}
 
@@ -39,10 +35,6 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -52,15 +44,11 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public Type __evaluate(Visitor __eval) {
+		public Type typeOf(Environment __eval) {
 
-			return this.getType().__evaluate(__eval);
+			return this.getType().typeOf(__eval);
 
 		}
 

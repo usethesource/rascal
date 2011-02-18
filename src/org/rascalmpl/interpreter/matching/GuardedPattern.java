@@ -24,7 +24,6 @@ public class GuardedPattern extends AbstractMatchingResult {
 		this.pat = pat;
 	}
 
-	@Override
 	public Type getType(Environment env) {
 		return type;
 	}

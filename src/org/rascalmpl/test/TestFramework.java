@@ -90,7 +90,7 @@ public class TestFramework {
 	
 	static{
 		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("***test***"));
+		root = heap.addModule(new ModuleEnvironment("***test***", heap));
 		modules = new TestModuleResolver();
 		
 		stderr = new PrintWriter(System.err);

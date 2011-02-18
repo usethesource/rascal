@@ -154,6 +154,24 @@ public class GlobalEnvironment {
 	public String getModuleForURI(URI location) {
 		return locationModules.get(location);
 	}
+
+	/**
+	 * A utility method for getting the right environment for a qualified name in a certain context.
+	 * 
+	 * @param current  the current environment
+	 * @return current if the given name is not qualifed, otherwise it returns the environment that the qualified name points to
+	 */
+	public Environment getEnvironmentForName(QualifiedName name, Environment current) {
+		if (Names.isQualified(name)) {
+			ModuleEnvironment mod = getModule(Names.moduleName(name));
+			if (mod == null) {
+				throw new UndeclaredModuleError(Names.moduleName(name), name);
+			}
+			return mod;
+		}
+
+		return current;
+	}
 	
 	public Class<IGTD> getObjectParser(String module, ISet productions) {
 		return getParser(objectParsersForModules, module, productions);

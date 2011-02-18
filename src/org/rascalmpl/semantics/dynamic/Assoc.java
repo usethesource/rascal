@@ -16,10 +16,6 @@ public abstract class Assoc extends org.rascalmpl.ast.Assoc {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -29,10 +25,6 @@ public abstract class Assoc extends org.rascalmpl.ast.Assoc {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -42,10 +34,6 @@ public abstract class Assoc extends org.rascalmpl.ast.Assoc {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -55,10 +43,6 @@ public abstract class Assoc extends org.rascalmpl.ast.Assoc {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -68,10 +52,6 @@ public abstract class Assoc extends org.rascalmpl.ast.Assoc {
 			super(__param1);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

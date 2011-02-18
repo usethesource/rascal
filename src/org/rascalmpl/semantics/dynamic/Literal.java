@@ -39,10 +39,6 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -52,13 +48,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
@@ -83,13 +75,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
@@ -110,15 +98,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
-			return this.getRegExpLiteral().__evaluate(__eval);
+			return this.getRegExpLiteral().buildMatcher(__eval);
 
 		}
 
@@ -137,13 +121,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
@@ -165,10 +145,6 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -185,10 +161,6 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -205,13 +177,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
@@ -226,7 +194,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			// To prevent infinite recursion detect non-interpolated strings
 			// first. TODO: design flaw?
 			if (lit.isNonInterpolated()) {
-				java.lang.String str = org.rascalmpl.interpreter.utils.Utils.unescape(((Lexical) lit.getConstant()).getString());
+				java.lang.String str = org.rascalmpl.interpreter.utils.StringUtils.unescape(((Lexical) lit.getConstant()).getString());
 
 				
 				IValue v;

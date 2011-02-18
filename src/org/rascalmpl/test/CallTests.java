@@ -44,7 +44,7 @@ public class CallTests extends TestFramework{
 		runTest("{ int f(){ } f();}");
 	}
 	
-	@Test(expected=StaticError.class)
+	@Ignore("can't check this anymore due to pattern dispatch") @Test(expected=StaticError.class)
 	public void callError7() {
 		runTest("{ int f(int n) {return \"a\";}  int f(value v) {return \"a\";} }");
 	}

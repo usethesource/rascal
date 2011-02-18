@@ -148,7 +148,7 @@ public class Scripting {
 		PrintWriter out = new PrintWriter(System.out);
 		
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***scripting***"));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***scripting***", ctx.getHeap()));
 		Evaluator eval = (Evaluator) ctx;
 
 		Evaluator evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, root, heap, eval.getClassLoaders(), eval.getRascalResolver());

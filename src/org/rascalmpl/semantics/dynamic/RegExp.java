@@ -21,7 +21,7 @@ public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 		}
 
 		@Override
-		public IMatchingResult __evaluate(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			if (__eval.__getDebug())
 				System.err.println("visitRegExpLexical: " + this.getString());
@@ -29,10 +29,6 @@ public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 
@@ -42,10 +38,6 @@ public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public <T> T __evaluate(NullASTVisitor<T> __eval) {
-			return null;
-		}
 
 	}
 }

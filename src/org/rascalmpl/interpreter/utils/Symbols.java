@@ -34,6 +34,7 @@ public class Symbols {
 		return null;
 	}
 
+	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
 	private static IValue symbolAST2SymbolConstructor(Sym symbol) {
 		// TODO: this has to become a parameter
 		String layout = "LAYOUTLIST";

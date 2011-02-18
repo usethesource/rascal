@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.Formal;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Tag;
@@ -36,7 +36,6 @@ import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.JavaCompilationError;
@@ -111,7 +110,7 @@ public class JavaBridge {
 	
 
 	private Class<?>[] getJavaTypes(Parameters parameters, Environment env, boolean hasReflectiveAccess) {
-		List<Formal> formals = parameters.getFormals().getFormals();
+		List<Expression> formals = parameters.getFormals().getFormals();
 		int arity = formals.size();
 		Class<?>[] classes = new Class<?>[arity + (hasReflectiveAccess ? 1 : 0)];
 		for (int i = 0; i < arity;) {
@@ -136,7 +135,7 @@ public class JavaBridge {
 		return classes;
 	}
 	
-	private Class<?> toJavaClass(Formal formal, Environment env) {
+	private Class<?> toJavaClass(Expression formal, Environment env) {
 		return toJavaClass(toValueType(formal, env));
 	}
 
@@ -144,8 +143,8 @@ public class JavaBridge {
 		return type.accept(javaClasses);
 	}
 	
-	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal, Environment env) {
-		return new TypeEvaluator(env, null).eval(formal);
+	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
+		return formal.typeOf(env);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
