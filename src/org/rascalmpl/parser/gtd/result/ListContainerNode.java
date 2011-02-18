@@ -215,17 +215,17 @@ public class ListContainerNode extends AbstractContainerNode{
 		IConstructor[] cachedPrefixResult = sharedPrefixCache.get(prefixes);
 		if(cachedPrefixResult != null){
 			int prefixResultLength = cachedPrefixResult.length;
+			IConstructor[] constructedPostFix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+			int length = constructedPostFix.length;
 			IConstructor[] newPostFix;
 			if(prefixResultLength == 1){
-				int length = postFix.length;
 				newPostFix = new IConstructor[length + 1];
-				System.arraycopy(postFix, 0, newPostFix, 1, length);
+				System.arraycopy(constructedPostFix, 0, newPostFix, 1, length);
 				newPostFix[0] = cachedPrefixResult[0];
 			}else{
-				int length = postFix.length;
 				newPostFix = new IConstructor[prefixResultLength + length];
 				System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
-				System.arraycopy(postFix, 0, newPostFix, prefixResultLength, length);
+				System.arraycopy(constructedPostFix, 0, newPostFix, prefixResultLength, length);
 			}
 			
 			gatheredAlternatives.add(newPostFix, production);
