@@ -286,8 +286,35 @@ public Grammar G0 = simple({sort("S")}, {});
 
 test first(G0) == ();
 
+// public Grammar G1 = 
+// simple({sort("Module")}, {
+  // prod([sort("Modifier"),\layouts("Module"),\iter-seps(sort("Modifier"),[\layouts("Module")])],\iter-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([sort("Modifier")],\iter-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([\iter-seps(sort("Modifier"),[\layouts("Module")])],\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([],\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\no-attrs()),
+  // prod([\iter-star-seps(sort("Modifier"),[\layouts("Module")]),\layouts("Module"),lit("x")],sort("Module"),\no-attrs()),
+  // prod([lit("@")],sort("Modifier"),\no-attrs()),
+  // prod([\char-class([range(64,64)])],lit("@"),\no-attrs()),
+  // prod([\char-class([range(120,120)])],lit("x"),\no-attrs()),
+  // prod([\iter-star(sort("WS"))],\layouts("Module"),\no-attrs()),
+  // prod([\char-class([range(32,32)])],sort("WS"),\no-attrs()),
+  // prod([],\iter-star(sort("WS")),\no-attrs()),
+  // prod([\iter(sort("WS"))],\iter-star(sort("WS")),\no-attrs()),
+  // prod([sort("WS")],\iter(sort("WS")),\no-attrs()),
+  // prod([sort("WS"),\iter(sort("WS"))],\iter(sort("WS")),\no-attrs())
+// });
+                    
+
+public Grammar G0 = grammar({sort("S")},
+{
+});
 test firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
+public Production pr(Symbol sym, list[Symbol] syms){
+  return prod(syms, sym, \no-attrs());
+}
+
+test first(G0) == ();
 private Production pr(Symbol rhs, list[Symbol] lhs) {
   return prod(lhs, rhs, \no-attrs());
 }
@@ -321,6 +348,17 @@ public SymbolUse firstLit1 = (
   lit("+"):{\char-class([range(43,43)])}
 );
 
+test first(importGrammar(G1)) ==
+	 (lit("0"):{lit("0")},
+      sort("E"):{lit("0"),lit("1")},
+      lit("1"):{lit("1")},
+      sort("B"):{lit("0"),lit("1")},
+      lit("*"):{lit("*")},
+      lit("+"):{lit("+")}
+     );
+      
+ /*                      
+public Grammar G2 = grammar({sort("E")},
 test SymbolUse F := first(G1) 
      && F[sort("E")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
      && F[sort("B")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
@@ -331,6 +369,11 @@ public Grammar G2 = simple({sort("E")},
 	pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
     pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
 	pr(sort("E"), [sort("B")]),
+	choice({pr(sort("B"), [lit("0")]),
+    	pr(sort("B"), [lit("1")])
+   		})
+});
+*/
 	pr(sort("B"), [lit("0")]),
     pr(sort("B"), [lit("1")])
 } + Lit1.productions);
@@ -356,6 +399,20 @@ public Grammar G3 = simple( {sort("E")},
 	pr(sort("F"),  [lit("id")]),
 	pr(lit("id"), [\char-class([range(105,105)]),\char-class([range(100,100)])])
 });
+/*
+public KernelGrammar K3 = importGrammar(G3);
+test first(K3) ==
+	 (sort("F"):{lit("id"),lit("(")},
+      sort("T"):{lit("id"),lit("(")},
+      sort("E"):{lit("id"),lit("(")},
+      lit("*"):{lit("*")},
+      lit("+"):{lit("+")},
+      lit("id"):{lit("id")},
+      sort("E1"):{lit("+"),empty()},
+      sort("T1"):{lit("*"),empty()},
+      lit("("): {lit("(")},
+      lit(")"): {lit(")")}
+     );
 
 private SymbolUse F3 = first(G3);
 
@@ -371,6 +428,16 @@ test F3[lit("(")] == {\char-class([range(40,40)])};
 test F3[lit(")")] == {\char-class([range(41,41)])};
      
       
+test follow(K3, first(K3)) ==
+     (sort("E"):{lit(")"), eoi()},
+      sort("E1"):{lit(")"), eoi()},
+      sort("T"):{lit("+"), lit(")"), eoi()},
+      sort("T1"):{lit("+"), lit(")"), eoi()},
+      sort("F"):{lit("+"), lit("*"), lit(")"), eoi()}
+     );
+*/
+
+public Grammar Session = grammar({sort("Session")},
 public SymbolUse Fol3 = follow(G3, first(G3));
  
 test Fol3[sort("E")] == {\char-class([range(41,41)]), eoi()};
@@ -395,6 +462,21 @@ public Grammar Session = simple({sort("Session")},
 	pr(sort("STRING"),  [lit("a")]),
 	pr(lit("a"), [\char-class([range(97,97)])])
 });
+/*
+KernelGrammar KSession = importGrammar(Session);
+
+test first(KSession) ==
+     (sort("Question"):{lit("?")},
+      sort("Session"):{lit("!"),lit("("), lit("?")},
+      sort("Facts"):{lit("!"),empty()},
+      lit("a"):{lit("a")},
+      lit("!"):{lit("!")},
+      lit("?"):{lit("?")},
+      lit("("):{lit("(")},
+      lit(")"):{lit(")")},
+      sort("STRING"):{lit("a")},
+      sort("Fact"):{lit("!")}
+     );
 
 test SymbolUse F := first(Session) 
      && F[sort("Question")] == {\char-class([range(63,63)])}
