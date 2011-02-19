@@ -1,5 +1,5 @@
 
-package org.rascalmpl.library.sdf2.syntax;
+package org.rascalmpl.library.lang.sdf2.syntax;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
