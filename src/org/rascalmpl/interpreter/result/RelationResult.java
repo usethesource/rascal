@@ -13,11 +13,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.ArityError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class RelationResult extends SetOrRelationResult<IRelation> {
@@ -29,6 +31,11 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
 			return result.addRelation(this);
+		}
+		
+		@Override
+		public <U extends IValue> Result<U> has(Name name) {
+			return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
 		}
 		
 		@Override
