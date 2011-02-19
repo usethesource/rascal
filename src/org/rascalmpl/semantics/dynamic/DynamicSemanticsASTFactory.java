@@ -2,6 +2,8 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.Expression.Has;
+import org.rascalmpl.ast.Expression.Is;
 
 public class DynamicSemanticsASTFactory extends ASTFactory {
 
@@ -9,6 +11,18 @@ public class DynamicSemanticsASTFactory extends ASTFactory {
 		return new LocationLiteral.Default(node, protocolPart, pathPart);
 	}
 
+	@Override
+	public Has makeExpressionHas(INode node,
+			org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.Name name) {
+		return new Expression.Has(node, expression, name);
+	}
+	
+	@Override
+	public Is makeExpressionIs(INode node,
+			org.rascalmpl.ast.Expression expression, org.rascalmpl.ast.Name name) {
+		return new Expression.Is(node, expression, name);
+	}
+	
 	public org.rascalmpl.ast.Tag.Default makeTagDefault(INode node, org.rascalmpl.ast.Name name, org.rascalmpl.ast.TagString contents) {
 		return new Tag.Default(node, name, contents);
 	}

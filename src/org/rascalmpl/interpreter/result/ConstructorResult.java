@@ -7,10 +7,12 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ConstructorResult extends NodeResult {
@@ -22,6 +24,16 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public IConstructor getValue() {
 		return (IConstructor)super.getValue();
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> is(Name name) {
+		return ResultFactory.bool(getValue().getName().equals(Names.name(name)), ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> has(Name name) {
+		return ResultFactory.bool(getValue().has(Names.name(name)), ctx);
 	}
 	
 	@Override

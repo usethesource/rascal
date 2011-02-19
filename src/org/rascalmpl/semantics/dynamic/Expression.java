@@ -89,6 +89,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		super(__param1);
 	}
 
+	static public class Is extends org.rascalmpl.ast.Expression.Is {
+
+		public Is(INode node, org.rascalmpl.ast.Expression expression, Name name) {
+			super(node, expression, name);
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			return getExpression().interpret(eval).is(getName());
+		}
+	}
+	
+	static public class Has extends org.rascalmpl.ast.Expression.Has {
+
+		public Has(INode node, org.rascalmpl.ast.Expression expression, Name name) {
+			super(node, expression, name);
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			return getExpression().interpret(eval).has(getName());
+		}
+	}
+	
 	static public class ReifiedType extends org.rascalmpl.ast.Expression.ReifiedType {
 
 		public ReifiedType(INode __param1, BasicType __param2, java.util.List<org.rascalmpl.ast.Expression> __param3) {
