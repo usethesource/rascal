@@ -9,11 +9,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class TupleResult extends ElementResult<ITuple> {
@@ -30,6 +32,11 @@ public class TupleResult extends ElementResult<ITuple> {
 	@Override
 	public Result<IValue> fieldSelect(int[] selectedFields) {
 		return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> has(Name name) {
+		return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
 	}
 	
 	@Override

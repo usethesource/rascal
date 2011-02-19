@@ -84,7 +84,7 @@ public class SymbolAdapter {
 	
 	public static String getLabel(IConstructor tree) {
 		if (isLabel(tree)) {
-			return ((IString) tree.get("label")).getValue();
+			return ((IString) tree.get("name")).getValue();
 		}
 		
 		throw new ImplementationError("Symbol does not have a child named \"label\" : " + tree);

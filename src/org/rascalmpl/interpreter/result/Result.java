@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -36,6 +37,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String MULTIPLICATION_STRING = "multiplication";
 	private static final String SUBTRACTION_STRING = "subtraction";
 	private static final String ADDITION_STRING = "addition";
+	private static final String IS_STRING = "is";
+	private static final String HAS_STRING = "has";
 	private static final String FIELD_ACCESS_STRING = "field access";
 	private static final String EQUALS_STRING = "equality";
 	private static final String COMPARE_STRING = "comparison";
@@ -900,6 +903,14 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
+	public <U extends IValue> Result<U> is(Name name) {
+		return undefinedError(IS_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> has(Name name) {
+		return undefinedError(HAS_STRING, this);
+	}
+	
 	public boolean isPublic() {
 		return isPublic;
 	}
@@ -915,6 +926,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public boolean hasInferredType() {
 		return inferredType;
 	}
+
+	
 
 	
 }

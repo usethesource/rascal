@@ -9,7 +9,11 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteSyntaxResult extends ConstructorResult {
@@ -17,6 +21,32 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	public ConcreteSyntaxResult(Type type, IConstructor cons,
 			IEvaluatorContext ctx) {
 		super(type, cons, ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> is(Name name) {
+		String consName = TreeAdapter.getConstructorName(getValue());
+		if (consName != null) {
+			return ResultFactory.bool(Names.name(name).equals(consName), ctx);
+		}
+		return ResultFactory.bool(false, ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> has(Name name) {
+		IConstructor prod = TreeAdapter.getProduction(getValue());
+		IList syms = ProductionAdapter.getLhs(prod);
+		String tmp = Names.name(name);
+		
+		// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+		for (IValue sym : syms) {
+			if (SymbolAdapter.isLabel((IConstructor) sym)) {
+				if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
+					return ResultFactory.bool(true, ctx);
+				}
+			}
+		}
+		return ResultFactory.bool(false, ctx); 
 	}
 	
 	@Override
