@@ -190,6 +190,10 @@ public set[Symbol] terminalSymbols(Grammar G){
    return { S | S:\char-class(_) <- usedSymbols(G)};
 }
 
+public bool isTerminalSymbol(Symbol s){
+  return \char-class(_) := s;
+}
+
 // ---------------- Compute first set -------------------------------
 
 alias SymbolUse = map[Symbol, set[Symbol]] ;
@@ -216,6 +220,24 @@ public SymbolUse first(Grammar G) {
   SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 
                   + (S : {}      | Symbol S   <- defSymbols);
 	        
+  def2lhs = {<S , lhs> | S <- defSymbols, prod(lhs, S, _) <- G.productions};
+  
+  solve (FIRST) {
+    for (<S, lhs> <- def2lhs) {
+      FIRST[S] += isEmpty(lhs) ? {empty()} : first(lhs, FIRST); //- {empty()};
+    }
+  }
+		
+  return FIRST;
+}
+
+/********* Original definition  ****
+public SymbolUse first(Grammar G) {
+  defSymbols = definedSymbols(G);
+
+  SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 
+                  + (S : {}      | Symbol S   <- defSymbols);
+	        
   solve (FIRST) {
     for (S <- defSymbols, prod(lhs, S, _) <- G.productions) {
       FIRST[S] += isEmpty(lhs) ? {empty()} : first(lhs, FIRST); //- {empty()};
@@ -224,8 +246,32 @@ public SymbolUse first(Grammar G) {
 		
   return FIRST;
 }
+******************************/
 
 public SymbolUse follow(Grammar G,  SymbolUse FIRST){
+   defSymbols = definedSymbols(G);
+   
+   rel[Symbol, Symbol] F = {<S, eoi()> | Symbol S <- G.start};
+   
+   for (Production p <- G.productions, [_*, current, symbols*] := p.lhs) {
+       if (current in defSymbols) {
+          flw =  first(symbols, FIRST);
+          if (empty() in flw || isEmpty(symbols)) {
+             flw -=  {empty()};
+             flw += {p.rhs};
+          }
+          F += {<current, s> | s <- flw};
+       }
+   }
+  
+   F = F*;
+   FOLLOW = (defSym : F[defSym] - defSymbols | Symbol defSym <- defSymbols + G.start);
+   return FOLLOW;
+}
+
+/*******  Original definition
+
+public SymbolUse follow0(Grammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
    SymbolUse FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
   
@@ -245,6 +291,8 @@ public SymbolUse follow(Grammar G,  SymbolUse FIRST){
 
    return FOLLOW;
 }
+
+***************************/
 
 public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
   // try {
