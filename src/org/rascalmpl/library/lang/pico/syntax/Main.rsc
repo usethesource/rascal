@@ -1,4 +1,4 @@
-module zoo::pico::syntax::Main
+module lang::pico::syntax::Main
 
 start syntax PROGRAM = program: "begin" DECLS decls {STATEMENT  ";"}* body "end" ;
 

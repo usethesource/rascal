@@ -1,7 +1,7 @@
-module zoo::std::Layout
+module lang::basic::Layout
 
-import zoo::std::Whitespace;
-import zoo::std::Comment;
+import zoo::basic::Whitespace;
+import zoo::basic::Comment;
 
 layout Standard = WhitespaceOrComment*;
 
