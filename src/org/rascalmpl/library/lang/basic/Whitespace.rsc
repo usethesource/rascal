@@ -1,3 +1,3 @@
-module zoo::std::Whitespace
+module lang::basic::Whitespace
 
 syntax Whitespace = lex [\ \t\n\f\r];
