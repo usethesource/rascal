@@ -97,7 +97,7 @@ public class FigurePApplet extends PApplet {
 		System.err.println("setup called");
 		System.err.println("name: " + getName());
 		if(saveFigure){
-			canvas = createGraphics(width, height, JAVA2D);
+			canvas = createGraphics(defaultWidth, defaultHeight, JAVA2D);
 			figure.bbox();
 			figureWidth = figure.width;
 			figureHeight = figure.height;

@@ -17,6 +17,7 @@ public class HCat extends Compose {
 	float hgap;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
+	private boolean useChildAnchors = false;
 	private static boolean debug = true;
 
 	public HCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
@@ -26,6 +27,14 @@ public class HCat extends Compose {
 	@Override
 	public
 	void bbox(){
+		if(useChildAnchors)
+			bbox1();
+		else
+			bbox2();
+	}
+	
+	public
+	void bbox1(){
 		width = 0;
 		height = 0;
 		topAnchor = 0;
@@ -45,6 +54,28 @@ public class HCat extends Compose {
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
 	}	
 	
+	public
+	void bbox2(){
+		width = 0;
+		height = 0;
+		
+		float vanchor = getVanchor();
+		
+		hgap = getHGapProperty();
+		for(Figure fig : figures){
+			fig.bbox();
+			width += fig.width;
+			height = max(height, fig.height);
+			if(debug)System.err.printf("hcat (loop): topAnchor=%f, bottomAnchor=%f\n", topAnchor, bottomAnchor);
+		} 
+		int ngaps = (figures.length - 1);
+		width += ngaps * hgap;
+		topAnchor = vanchor * height;
+		bottomAnchor = (1 - vanchor) * height;
+		
+		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
+	}	
+	
 	@Override
 	public
 	void draw(float left, float top){
@@ -52,11 +83,19 @@ public class HCat extends Compose {
 		this.setTop(top);
 	
 		applyProperties();
-
-		// Draw from left to right
-		for(Figure fig : figures){
-			fig.draw(left, top + topAnchor - fig.topAnchor());
-			left += fig.width + hgap;
+		if(useChildAnchors){
+			// Draw from left to right
+			for(Figure fig : figures){
+				fig.draw(left, top + topAnchor - fig.topAnchor());
+				left += fig.width + hgap;
+			}
+		} else {
+			float vanchor = getVanchor();
+			for(Figure fig : figures){
+				float vpad = vanchor * (height - fig.height);
+				fig.draw(left, top + vpad);
+				left += fig.width + hgap;
+			}
 		}
 	}
 	

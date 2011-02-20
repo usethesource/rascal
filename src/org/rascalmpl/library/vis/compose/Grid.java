@@ -24,12 +24,14 @@ public class Grid extends Compose {
 	float extLeft = 0;
 	float extRight = 0;
 	private static boolean debug = false;
+	
 
 	public Grid(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		xElem = new float[elems.length()];
 		yElem = new float[elems.length()];
 	}
+	
 	
 	@Override
 	public

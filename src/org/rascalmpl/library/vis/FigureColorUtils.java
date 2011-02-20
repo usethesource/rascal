@@ -315,6 +315,9 @@ public class FigureColorUtils {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
+	/**
+	 * @return	list of built-in color names
+	 */
 	public IList colorNames(){
 		TypeFactory types = TypeFactory.getInstance();
 		IListWriter w = vf.listWriter(types.stringType());
@@ -325,6 +328,41 @@ public class FigureColorUtils {
 		}
 		return w.done();
 	}
+	
+	/**
+	 * List of default colors for errors
+	 */
+	protected static int errorColors[] = {
+		figureColor(65,105,225), // royalblue
+		figureColor(246,211,87), // gold (like)
+		figureColor(255,0,0) 	 // red
+	};
+	
+	/**
+	 * Define a list of custom colors for errors in editor and outline
+	 * @param colors	the list of colors
+	 */
+	public static void setErrorColors(final IList colors){
+		for(int i = 0; i < colors.length() && i < errorColors.length; i++){
+			int color = ((IInteger)colors.get(i)).intValue();
+			errorColors[i] = color;
+		}		
+	}
+	
+	/**
+	 * Get an error color
+	 * @param n	the n-th color (0 <= n < 3)
+	 * @return	the corresponding color
+	 */
+	public static int getErrorColor(int n){
+		if(n >= 0 && n < errorColors.length)
+			return errorColors[n];
+		return errorColors[2];
+	}
+	
+	/**
+	 * List of default colors for highlights
+	 */
 	
 	protected static int highlightColors[] = { 
 		figureColor(255,192,203), 	// pink
@@ -350,8 +388,12 @@ public class FigureColorUtils {
 		}		
 	}
 	
+	/**
+	 * Get a highlight color
+	 * @param n	the n-th color (0 <= n < highlightColors.length)
+	 * @return	the corresponding color
+	 */
 	public static int getHighlightColor(int n){
-		
 		if(n >= 0 && n < highlightColors.length)
 			return highlightColors[n];
 		return highlightColors[0];
