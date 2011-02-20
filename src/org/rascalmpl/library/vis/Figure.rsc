@@ -10,7 +10,7 @@ import IO;
  * Declarations and library functions for Rascal Visualization
  *
  * There are several sources of ugliness in the following definitions:
- * - data declarations cannot have variadic parameters, hence we need a wrapper function for each constructor.
+ * - data declarations cannot have varyadic parameters, hence we need a wrapper function for each constructor.
  * - Alternatives of a data declaration always need a constructor, hence many constructors have to be duplicated.
  * - We are awaiting the intro of key word parameters.
  */
@@ -23,7 +23,7 @@ import IO;
  * - dashed/dotted lines
  * - ngons
  * - bitmap import and display
- * - new layouts (circuar) treemap, icecle
+ * - new layouts (circular) treemap, icecle
  * - interaction
  */
  

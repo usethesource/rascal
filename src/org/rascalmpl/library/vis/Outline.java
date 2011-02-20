@@ -57,11 +57,11 @@ public class Outline extends Figure {
 				int color;
 				
 				if(name.equals("info"))
-					color = FigureColorUtils.figureColor(65,105,225); // royalblue
+					color = FigureColorUtils.getErrorColor(0);
 				else if(name.equals("warning"))
-					color = FigureColorUtils.figureColor(246,211,87); // gold (like)
+					color = FigureColorUtils.getErrorColor(1);
 				else if(name.equals("error"))
-				color = FigureColorUtils.figureColor(255,0,0); // red
+				color = FigureColorUtils.getErrorColor(2);
 				else {
 					int highlightKind = 0;
 					

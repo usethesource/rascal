@@ -47,11 +47,11 @@ public class HVCat extends Compose {
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		for(int i = 0; i < figures.length; i++){
-			Figure ve = figures[i];
-			ve.bbox();
-			if(w + hgap + ve.width > width){
+			Figure fig = figures[i];
+			fig.bbox();
+			if(w + hgap + fig.width > width){
 				if(w == 0){
-					width = ve.width;
+					width = fig.width;
 				} else {
 					rowHeight[nrow] = hrow;
 					rowWidth[nrow] = w;
@@ -64,8 +64,8 @@ public class HVCat extends Compose {
 			leftElem[i] = w;
 			topRowElem[i] = toprow;
 			inRow[i] = nrow;
-			w += ve.width + hgap;
-			hrow = max(hrow, ve.height);
+			w += fig.width + hgap;
+			hrow = max(hrow, fig.height);
 	
 		}
 		rowHeight[nrow] = hrow;
