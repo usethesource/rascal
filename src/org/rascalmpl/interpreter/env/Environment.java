@@ -625,7 +625,4 @@ public class Environment {
 		return getRoot().getProductions();
 	}
 
-	public void setLocation(ISourceLocation location) {
-		this.callerLocation = location;
-	}
 }
