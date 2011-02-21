@@ -276,6 +276,14 @@ public Tree addNamesToTree(SymbolTable symbolTable, Tree t) {
         case (Pattern)`<QualifiedName qn>` :
             if (qn@\loc in symbolTable.itemUses)
                 insert(annotateNode(t,qn@\loc));
+                
+        case (UserType)`<QualifiedName qn>` :
+            if (qn@\loc in symbolTable.itemUses)
+                insert(annotateNode(t,qn@\loc));
+
+        case (Assignable)`<QualifiedName qn>` :
+            if (qn@\loc in symbolTable.itemUses)
+                insert(annotateNode(t,qn@\loc));
     };
 }
 
@@ -356,12 +364,14 @@ public SymbolTable addImportedItemsToScope(QualifiedName qn, RSignature signatur
 
     for (item <- signature.signatureItems) {
         switch(item) {
-            case FunctionSigItem(fn,st,at) : {
-                symbolTable = justSymbolTable(pushNewFunctionScope(fn, getFunctionReturnType(st), [ <RSimpleName(""),t,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, isVarArgsFun(st), at, symbolTable));
+            case FunctionSigItem(fn,ps,rt,at) : {
+                symbolTable = justSymbolTable(pushNewFunctionScope(fn, rt, ps, [ ], true, isVarArgsParameters(ps), at, symbolTable));
+                symbolTable = handleParametersNamesOnly(ps, symbolTable);
                 symbolTable = popScope(symbolTable);
                 // TODO: Add back in check for overlap
 //                if (!willFunctionOverlap(fn,st,symbolTable,symbolTable.topSTItemId)) {
-                    symbolTable = justSymbolTable(pushNewFunctionScopeAtTop(fn, getFunctionReturnType(st), [ <RSimpleName(""), t ,at,at> | t <- getFunctionArgumentTypes(st) ], [ ], true, isVarArgsFun(st), at, symbolTable));
+                    symbolTable = justSymbolTable(pushNewFunctionScopeAtTop(fn, rt, ps, [ ], true, isVarArgsParameters(ps), at, symbolTable));
+                    symbolTable = handleParametersNamesOnly(ps, symbolTable);
                     symbolTable = popScope(symbolTable);
 //                } 
                 // TODO: Issue a warning if the function would overlap
@@ -468,6 +478,11 @@ public SymbolTable handleModuleBodyNamesOnly(Body b, SymbolTable symbolTable) {
                 case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` :
                     symbolTable = handleFunctionNamesOnly(tgs,v,s,fb,t@\loc,symbolTable);
 
+                // Concrete (i.e., with a body) function declaration, in expression form
+// TODO: Add this back in when this case is supported by the parser                
+//                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e>;` :
+//                    symbolTable = handleFunctionExpNamesOnly(tgs,v,s,e,t@\loc,symbolTable);
+
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` :
                     symbolTable = handleAnnotationDeclarationNamesOnly(tgs,v,typ,otyp,n,t@\loc,symbolTable);
@@ -517,6 +532,11 @@ public SymbolTable handleModuleBodyFull(Body b, SymbolTable symbolTable) {
                 // Concrete (i.e., with a body) function declaration
                 case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> <FunctionBody fb>` :
                     symbolTable = handleFunction(tgs, v, s, fb, t@\loc, symbolTable);
+
+                // Concrete (i.e., with a body) function declaration, in expression form
+// TODO: Add this back in when this case is supported by the parser                
+//                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e>;` :
+//                    symbolTable = handleFunctionExp(tgs,v,s,e,t@\loc,symbolTable);
 
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` :
@@ -597,26 +617,36 @@ public SymbolTable handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, F
 }
 
 //
+// Handle standard function declarations with expressions for bodies, but
+// do NOT descend into the bodies
+//
+public SymbolTable handleFunctionExpNamesOnly(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, SymbolTable symbolTable) {
+    return handleAbstractFunctionNamesOnly(ts,v,s,l,symbolTable);       
+}
+
+//
 // Handle abstract function declarations (i.e., function declarations without bodies)
 //
 public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, SymbolTable symbolTable) {
     // Add the new function into the scope and process any parameters.
-    SymbolTable addFunction(Name n, RType retType, Parameters ps, list[RType] thrsTypes, bool isPublic, SymbolTable symbolTable) {
-        // Get back a list of tuples representing the parameters; these will actually be added into the scope
-        // in the next step
-        tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(ps, symbolTable);
-        symbolTable = paramsI.symbolTable;
-        list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
-
-        // Add a new function scope, getting back the updated scope and a list of added scope IDs
-        ResultTuple rt = pushNewFunctionScope(convertName(n), retType, params, thrsTypes, isPublic, isVarArgsParameters(ps), l, symbolTable);
-
-        // Add uses, checking for overlaps
-        // TODO: Add back in overlaop check
-        //symbolTable = justSymbolTable(checkFunctionOverlap(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])),n@\loc));
-        symbolTable = justSymbolTable(addSTItemUses(rt,([<false,l>, <true,n@\loc>] + [<true,p.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] p <- params])));
-
-        // Pop the new scope and exit
+    SymbolTable addFunction(Name n, RType retType, loc rloc, Parameters ps, list[RType] thrsTypes, bool isPublic, SymbolTable symbolTable) {
+        symbolTable = justSymbolTable(addSTItemUses(pushNewFunctionScope(convertName(n),retType,ps,thrsTypes,isPublic,isVarArgsParameters(ps),l,symbolTable),[<false,l>, <true,n@\loc>]));
+        symbolTable = handleParametersNamesOnly(ps, symbolTable);
+        
+        // Check if the return type has any type variables; if so, make sure they are in scope
+        for (tvv <- collectTypeVars(retType)) {
+            set[STItemId] tvItems = getItems(symbolTable, symbolTable.currentScope, getTypeVarName(tvv), TypeVars());
+            if (size(tvItems) == 0) {
+                symbolTable = addScopeError(symbolTable, rloc, "Type variable <prettyPrintName(tvv.varName)> used in return type not previously declared.");        
+            } else {
+               // TODO: We should just have one, check to see if we have more
+               RType tvType = symbolTable.scopeItemMap[getOneFrom(tvItems)].typeVar;
+               if (tvType.varTypeBound != tvv.varTypeBound) {
+                    symbolTable = addScopeError(symbolTable, rloc, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
+               }
+            }
+        }
+        
         return popScope(symbolTable);
     }
 
@@ -626,7 +656,7 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
         case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
             ConvertTuple ct = convertRascalType(symbolTable, t);
             RType retType = ct.rtype; symbolTable = ct.symbolTable;
-            symbolTable = addFunction(n, retType, ps, mkEmptyList(), isPublic(v), symbolTable);
+            symbolTable = addFunction(n, retType, t@\loc, ps, mkEmptyList(), isPublic(v), symbolTable);
         }
 
         case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
@@ -634,7 +664,7 @@ public SymbolTable handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signat
             RType retType = ct.rtype; symbolTable = ct.symbolTable;
             list[RType] throwsTypes = [ ];
             for (thrsi <- thrs) { ct = convertRascalType(symbolTable, thrsi); throwsTypes = throwsTypes + ct.rtype; symbolTable = ct.symbolTable; }
-            symbolTable = addFunction(n, retType, ps, throwsTypes, isPublic(v), symbolTable);
+            symbolTable = addFunction(n, retType, t@\loc, ps, throwsTypes, isPublic(v), symbolTable);
         }
     }
     return symbolTable;
@@ -651,33 +681,19 @@ public SymbolTable handleAbstractFunction(Tags ts, Visibility v, Signature s, lo
 // Handle parameter declarations. Parameters currently have no defaults, etc, so there is no other
 // version of this function (no non "NamesOnly" version).
 //
-public tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
-    list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = [];
-
-    if ((Parameters)`( <Formals f> )` := p) {
-        if ((Formals)`<{Formal ","}* fs>` := f) {
+// TODO: A current requirement is that, for varargs functions, the last parameter is just
+// a type variable pattern. Enforce that here.
+//
+public SymbolTable handleParametersNamesOnly(Parameters p, SymbolTable symbolTable) {
+    if ((Parameters)`( <Formals f> )` := p || (Parameters)`( <Formals f> ... )` := p) {
+        if ((Formals)`<{Pattern ","}* fs>` := f) {
             for (fp <- fs) {
-                if ((Formal)`<Type t> <Name n>` := fp) {
-                    ConvertTuple ct = convertRascalType(symbolTable, t);
-                    RType paramType = ct.rtype; symbolTable = ct.symbolTable;
-                    params += < convertName(n), paramType, fp@\loc, n@\loc >;
-                } 					
+                symbolTable = handlePattern(fp, symbolTable);
             }
-        }
-    } else if ((Parameters)`( <Formals f> ... )` := p) {
-        if ((Formals)`<{Formal ","}* fs>` := f) {
-            for (fp <- fs) {
-                if ((Formal)`<Type t> <Name n>` := fp) {
-                    ConvertTuple ct = convertRascalType(symbolTable, t);
-                    RType paramType = ct.rtype; symbolTable = ct.symbolTable;
-                    params += < convertName(n), paramType, fp@\loc, n@\loc>;
-                } 					
-            }
-            params[size(params)-1].ptype = makeListType(params[size(params)-1].ptype);
         }
     }
-
-    return <symbolTable, params>;
+    
+    return symbolTable;
 }
 
 //
@@ -703,6 +719,31 @@ public SymbolTable handleFunction(Tags ts, Visibility v, Signature s, FunctionBo
     }
 
     return popScope(symbolTable);	
+}
+
+//
+// Handle standard function declarations with expressions for bodies. The header has
+// already been processed, so this just enters the scope of the header and then processes the
+// function body.
+//
+public SymbolTable handleFunctionExp(Tags ts, Visibility v, Signature s, Expression e, loc l, SymbolTable symbolTable) {
+    symbolTable = handleTags(ts, symbolTable);
+
+    // First, get back the scope item at location l so we can switch into the proper function scope
+    symbolTable = pushScope(getLayerAtLocation(l, symbolTable), symbolTable);
+
+    // Now, process the function body
+    switch(s) {
+        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
+            symbolTable = handleExpression(e,symbolTable);
+        }
+
+        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
+            symbolTable = handleExpression(e,symbolTable);
+        }
+    }
+
+    return popScope(symbolTable);   
 }
 
 //
@@ -988,13 +1029,14 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
         case (Statement)`assert <Expression e> : <Expression em> ;` :
             symbolTable = handleExpression(em, handleExpression(e, symbolTable));
 
-        // return statement; we mark the return type here so we can find it during checking
+        // return statement -- we also save the ID of the associated function item, since this makes
+        // it easier for the type checker (or other anayses) to know which function this return is
+        // associated with 
         case (Statement)`return <Statement b>` : {
             symbolTable = handleStatement(b, symbolTable);
-            <inFunction, functionId> = getSurroundingFunction(symbolTable, symbolTable.currentScope);
+            <inFunction, functionLayerId> = getSurroundingFunction(symbolTable, symbolTable.currentScope);
             if (inFunction) {
-                RType funType = getTypeForItem(symbolTable, symbolTable.scopeItemMap[functionId].itemId);
-                symbolTable = markReturnType(getFunctionReturnType(funType), s, symbolTable);
+                symbolTable = markReturnFunction(symbolTable.scopeItemMap[functionLayerId].itemId, s@\loc, symbolTable);
             } else {
                 symbolTable = addScopeError(symbolTable, s@\loc, "Return statement must be given inside a function");
             }
@@ -1020,6 +1062,16 @@ public SymbolTable handleStatement(Statement s, SymbolTable symbolTable) {
             // Now, descend into the function, processing the body
             symbolTable = handleFunction(ts,v,sig,fb,s@\loc,handleTags(ts, symbolTable));
         }
+
+        // local function declaration; the called functions handle the scoping so we don't have to here
+// TODO: Add this back in when this case is supported by the parser                
+//        case (Statement) `<Tags ts> <Visibility v> <Signature sig> = <Expression e>;` : {
+//            // First get back the function signature information, creating the scope item
+//            symbolTable = handleFunctionExpNamesOnly(ts,v,sig,e,s@\loc,handleTagsNamesOnly(ts, symbolTable));
+//
+//            // Now, descend into the function, processing the body
+//            symbolTable = handleFunctionExp(ts,v,sig,e,s@\loc,handleTags(ts, symbolTable));
+//        }
 
         // local variable declaration
         case (Statement) `<Type t> <{Variable ","}+ vs> ;` :
@@ -1214,26 +1266,35 @@ public SymbolTable handleExpression(Expression exp, SymbolTable symbolTable) {
         }
 
         // Closure
+        // TODO: Should we verify that p is not varargs here?
         case (Expression)`<Type t> <Parameters p> { <Statement+ ss> }` : {
-            tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(p, symbolTable);
-            list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
-            symbolTable = paramsI.symbolTable;
-
             ConvertTuple ct = convertRascalType(symbolTable, t);
             RType retType = ct.rtype; symbolTable = ct.symbolTable;
-            ResultTuple rt = pushNewClosureScope(retType, params, exp@\loc, symbolTable);
-            symbolTable = justSymbolTable(addSTItemUses(rt,([<false,exp@\loc>, <false,exp@\loc>] + [<true,prm.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] prm <- params])));
+            symbolTable = justSymbolTable(pushNewClosureScope(retType,p,exp@\loc,symbolTable));
+            symbolTable = handleParametersNamesOnly(p, symbolTable);
+            
+            // Check if the return type has any type variables; if so, make sure they are in scope
+            for (tvv <- collectTypeVars(retType)) {
+                set[STItemId] tvItems = getItems(symbolTable, symbolTable.currentScope, getTypeVarName(tvv), TypeVars());
+                if (size(tvItems) == 0) {
+                    symbolTable = addScopeError(symbolTable, t@\loc, "Type variable <prettyPrintName(tvv.varName)> used in return type not previously declared.");        
+                } else {
+                   // TODO: We should just have one, check to see if we have more
+                   RType tvType = symbolTable.scopeItemMap[getOneFrom(tvItems)].typeVar;
+                   if (tvType.varTypeBound != tvv.varTypeBound) {
+                        symbolTable = addScopeError(symbolTable, t@\loc, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
+                   }
+                }
+            }
+            
             for (s <- ss) symbolTable = handleStatement(s, symbolTable);
             symbolTable = popScope(symbolTable);
         }
 
 		// VoidClosure
         case (Expression)`<Parameters p> { <Statement* ss> }` : {
-            tuple[SymbolTable symbolTable, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params] paramsI = handleParametersNamesOnly(p, symbolTable);
-            list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params = paramsI.params;
-            symbolTable = paramsI.symbolTable;
-            ResultTuple rt = pushNewVoidClosureScope(params, exp@\loc, symbolTable);
-            symbolTable = justSymbolTable(addSTItemUses(rt,([<false,exp@\loc>, <false,exp@\loc>] + [<true,prm.nloc> | tuple[RName pname, RType ptype, loc ploc, loc nloc] prm <- params])));
+            symbolTable = justSymbolTable(pushNewVoidClosureScope(p,exp@\loc,symbolTable));
+            symbolTable = handleParametersNamesOnly(p, symbolTable);
             for (s <- ss) symbolTable = handleStatement(s, symbolTable);
             symbolTable = popScope(symbolTable);
         }
@@ -1947,6 +2008,24 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
 		} else {
 			symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(n, t, false, pl, symbolTable), [<true,l>]));
 		}
+		
+        // Handle any type variables in the type of the parameter IF this is in a function scope
+        // (i.e., if this is a parameter declaration)
+        if (FunctionLayer(_,_) := symbolTable.scopeItemMap[symbolTable.currentScope]) {
+            for(tvv <- collectTypeVars(t)) {
+                set[STItemId] tvItems = getItems(symbolTable, symbolTable.currentScope, getTypeVarName(tvv), TypeVars());
+                if (size(tvItems) == 0) {
+                    symbolTable = justSymbolTable(addTypeVariableToScope(tvv, pl, symbolTable));
+                } else {
+                   // TODO: We should just have one, check to see if we have more
+                   RType tvType = symbolTable.scopeItemMap[getOneFrom(tvItems)].typeVar;
+                   if (tvType.varTypeBound != tvv.varTypeBound) {
+                        symbolTable = addScopeError(symbolTable, pl, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
+                   }
+                }
+            }
+        }
+        
 		return symbolTable;
 	}	
 
@@ -1983,6 +2062,9 @@ public SymbolTable handlePattern(Pattern pat, SymbolTable symbolTable) {
         }
 
         // ReifiedType
+        // TODO: How much should we enforce that pl specifies types? Or, should
+        // this all be deferred to the checker? (For instance, can this ever
+        // be size(pl) > 1?)
         case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` : {
             for (p <- pl) symbolTable = handlePattern(p, symbolTable);
         }
@@ -2191,13 +2273,13 @@ public SymbolTable handlePatternWithAction(PatternWithAction pwa, SymbolTable sy
 
 public SymbolTable handleDataTarget(DataTarget dt, SymbolTable symbolTable) {
 	if ((DataTarget)`<Name n> :` := dt) {
-		set[STItemId] items = getItems(symbolTable, symbolTable.currentScope, convertName(n), DataLabels());
+		set[STItemId] items = getItems(symbolTable, symbolTable.currentScope, convertName(n), Labels());
 		if (size(items) == 1) {
 			symbolTable = addItemUses(symbolTable, items, n@\loc);
 		} else if (size(items) == 0) {
-			symbolTable = addScopeError(symbolTable, n@\loc, "Data Label <n> has not been defined.");			
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has not been defined.");			
 		} else {
-			symbolTable = addScopeError(symbolTable, n@\loc, "Data Label <n> has multiple definitions.");
+			symbolTable = addScopeError(symbolTable, n@\loc, "Label <n> has multiple definitions.");
 		}
 	}
 	return symbolTable;

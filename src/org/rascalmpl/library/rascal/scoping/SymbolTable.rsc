@@ -20,7 +20,7 @@ import rascal::syntax::RascalRascal;
 // FCVs (functions, constructors, and variables), types, type variables,
 // annotations, rules, and tags.
 //
-data Namespace = Modules() | Labels() | FCVs() | Types() | TypeVars() | Annotations() | Rules() | Tags() | DataLabels();
+data Namespace = Modules() | Labels() | FCVs() | Types() | TypeVars() | Annotations() | Rules() | Tags() ;
 
 //
 // Each item in the symbol table is given a unique ID.
@@ -52,10 +52,9 @@ data STItem =
     | AliasItem(RType aliasType, bool isPublic, STItemId parentId)
     | AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, STItemId parentId) 
     | ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, STItemId adtParentId, STItemId parentId)
-    | FunctionItem(RName functionName, RType returnType, list[STItemId] parameters, list[RType] throwsTypes, bool isPublic, bool isVarArgs, STItemId parentId)
+    | FunctionItem(RName functionName, RType returnType, Parameters params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, STItemId parentId)
     | FormalParameterItem(RName parameterName, RType parameterType, STItemId parentId)
     | LabelItem(RName labelName, STItemId parentId)
-    | DataLabelItem(RName labelName, STItemId parentId)
     | ModuleItem(RName moduleName, STItemId parentId)
     | RuleItem(RName ruleName, STItemId parentId)
     | TypeVariableItem(RType typeVar, STItemId parentId)
@@ -69,13 +68,12 @@ data STItem =
 private rel[Namespace, str] namespaceItems = { <Modules(), "ModuleItem">, <Labels(), "LabelItem">, <FCVs(), "ConstructorItem">,
                                                <FCVs(), "FunctionItem">, <FCVs(), "FormalParameterItem">, <FCVs(), "VariableItem">,
                                                <Types(), "ADTItem">, <Types(), "AliasItem">, <TypeVars(), "TypeVariableItem">,
-                                               <Annotations(), "AnnotationItem">, <Rules(), "RuleItem">, <Tags(), "TagItem">,
-                                               <DataLabels(), "DataLabelItem"> };
+                                               <Annotations(), "AnnotationItem">, <Rules(), "RuleItem">, <Tags(), "TagItem"> };
 //
 // Named scope items.
 //
 private set[str] namedItems = { "ModuleItem", "FunctionItem", "VariableItem", "FormalParameterItem", "LabelItem", "AliasItem", 
-                                "ConstructorItem", "ADTItem", "AnnotationItem", "RuleItem", "TypeVariableItem", "DataLabelItem" };
+                                "ConstructorItem", "ADTItem", "AnnotationItem", "RuleItem", "TypeVariableItem" };
 
 //
 // Indicate if the item has a name (like a variable)
@@ -94,7 +92,6 @@ public RName getItemName(STItem item) {
         case "VariableItem" : return item.variableName;
         case "FormalParameterItem" : return item.parameterName;
         case "LabelItem" : return item.labelName;
-        case "DataLabelItem" : return item.labelName;
         case "AliasItem" : return item.aliasType.aliasName;
         case "ConstructorItem" : return item.constructorName;
         case "ADTItem" : return item.adtType.adtName;
@@ -155,7 +152,7 @@ anno set[loc] STItem@ats;
 // freshType: a counter which allows generation of "fresh" types, used by the local inferencer
 // scopeErrorMap: maps locations to errors detected at tht location
 // inferredTypeMap: map the id used in the fresh type to the type determined via inference
-// returnTypeMap: map of return locations to the type of data that they expect on return
+// returnMap: map of return locations to the function item this return is associated with
 // itBinder: used for typing of the "it" construct in reducers: keeps track of the value of "it"
 //           inside the proper scope
 // scopeStack: a stack of scope layers, allows entering and leaving scopes by pushing and popping
@@ -182,7 +179,7 @@ alias SymbolTable = tuple[
     map[loc, set[str]] scopeErrorMap, 
     ItemTypeMap inferredTypeMap,
     ItemTypeMap typeVarMap, 
-    map[loc, RType] returnTypeMap,
+    map[loc, STItemId] returnMap,
     map[loc, RType] itBinder, 
     list[STItemId] scopeStack, 
     map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap,
@@ -374,12 +371,11 @@ public str prettyPrintSI(SymbolTable st, STItem si) {
             case OrLayer(_) : return "OrLayer";
             case BlockLayer(_) : return "BlockLayer";
             case ModuleItem(x,_) : return "Module <prettyPrintName(x)>";
-            case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<prettyPrintNamedTypeList([ RNamedType(st.scopeItemMap[ag].parameterType,st.scopeItemMap[ag].parameterName) | ag <- ags])>)";
+            case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<ags>)";
             case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)>";
             case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)>";
             case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)>";
             case LabelItem(x,_) : return "Label <prettyPrintName(x)>";
-            case DataLabelItem(x,_) : return "Data Label <prettyPrintName(x)>";
             case AliasItem(atype,_,_) : return "Alias <prettyPrintType(atype)>";
             case ConstructorItem(cn,tas,_,_) : 	return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>)";
             case ADTItem(ut,_,_) : return "ADT <prettyPrintType(ut)>";
@@ -403,12 +399,11 @@ public str prettyPrintSIWLoc(SymbolTable st, STItem si) {
                 case OrLayer(_) : return "OrLayer at <si@at>";
                 case BlockLayer(_) : return "BlockLayer at <si@at>";
                 case ModuleItem(x,_) : return "Module <prettyPrintName(x)> at <si@at>";
-                case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<prettyPrintNamedTypeList([ RNamedType(st.scopeItemMap[ag].parameterType,st.scopeItemMap[ag].parameterName) | ag <- ags])>)";
+                case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<ags>)";
                 case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)> at <si@at>";
                 case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)> at <si@at>";
                 case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)> at <si@at>";
                 case LabelItem(x,_) : return "Label <prettyPrintName(x)> at <si@at>";
-                case DataLabelItem(x,_) : return "Data Label <prettyPrintName(x)> at <si@at>";
                 case AliasItem(atype,_,_) : return "Alias <prettyPrintType(atype)> at <si@at>";
                 case ConstructorItem(cn,tas,_,_) :  return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>) at <si@at>";
                 case ADTItem(ut,_,_) : return "ADT <prettyPrintType(ut)> at <si@at>";
@@ -581,16 +576,6 @@ private set[STItemId] getLabelItems(SymbolTable symbolTable, STItemId currentSco
 }
 
 //
-// Look up names associated with data labels. Data labels are only visible within the current function.
-//
-// TODO: What if we are not inside a function, but are instead at the module level when we
-// encounter the label? We probably want to limit scope to just the current statement instead.
-//
-private set[STItemId] getDataLabelItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getCurrentFunctionItems(symbolTable,currentScopeId,x,DataLabels());
-}
-
-//
 // Look up names associated with variables, constructors, and functions. Since these names can
 // shadow one another, start the lookup at the current level and continue to the top scope.
 //
@@ -652,7 +637,6 @@ private set[STItemId] getTagItems(SymbolTable symbolTable, STItemId currentScope
 private map[Namespace, set[STItemId] (SymbolTable, STItemId, RName)] lookupFunctions = (
     Modules() : getModuleItems,
     Labels() : getLabelItems,
-    DataLabels() : getDataLabelItems,
     FCVs() : getFCVItems,
     Types() : getTypeItems,
     TypeVars() : getTypeVarItems,
@@ -663,7 +647,6 @@ private map[Namespace, set[STItemId] (SymbolTable, STItemId, RName)] lookupFunct
 private map[Namespace, set[STItemId] (SymbolTable, STItemId, RName)] lookupFunctionsForConflicts = (
     Modules() : getModuleItems,
     Labels() : getLabelItems,
-    DataLabels() : getDataLabelItems,
     FCVs() : getFCVItemsForConflicts,
     Types() : getTypeItems,
     TypeVars() : getTypeVarItems,
@@ -793,76 +776,35 @@ public SymbolTable pushScope(STItemId newScope, SymbolTable symbolTable) {
 	return symbolTable;
 }
 
-public ResultTuple pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
+public ResultTuple pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
 	// Create the function layer, adding it to the scope stack and making it the current scope
 	AddedItemPair aipLayer = addScopeLayerWithParent(FunctionLayer(-1, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	aipLayer.symbolTable.scopeStack = [ aipLayer.addedId ] + aipLayer.symbolTable.scopeStack;
-	aipLayer.symbolTable.currentScope = aipLayer.addedId;
-
-	// Create scope items for each of the parameters
 	symbolTable = aipLayer.symbolTable;
-	list[STItemId] paramIds = [ ];
-	set[RName] namesSeen = hasAnonymousName ? { } : { functionName };
-	for (tuple[RName pname, RType ptype, loc ploc, loc nloc] pt <- params) {
-		if (pt.pname != RSimpleName("") && pt.pname in namesSeen) {
-			symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of <prettyPrintName(pt.pname)>. Parameter names must be different from other parameter names and from the name of the function.");
-		}
-		namesSeen += pt.pname;
-		AddedItemPair aipParam = addSTItemWithParent(FormalParameterItem(pt.pname, pt.ptype, symbolTable.currentScope)[@at=pt.ploc], symbolTable.currentScope, pt.ploc, symbolTable);
-		paramIds += aipParam.addedId; symbolTable = aipParam.symbolTable;
-		
-		// Handle any type variables in the type of the parameter
-		for(tvv <- collectTypeVars(pt.ptype)) {
-            set[STItemId] tvItems = getItems(symbolTable, symbolTable.currentScope, getTypeVarName(tvv), TypeVars());
-            if (size(tvItems) == 0) {
-               AddedItemPair aipTV = addSTItemWithParent(TypeVariableItem(tvv, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-               symbolTable = aipTV.symbolTable;
-            } else {
-               // TODO: We should just have one, check to see if we have more
-               RType tvType = symbolTable.scopeItemMap[getOneFrom(tvItems)].typeVar;
-               if (tvType.varTypeBound != tvv.varTypeBound) {
-                    symbolTable = addScopeError(symbolTable, pt.nloc, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
-               }
-            }
-        }
-	}
-
-	// Check if the return type has any type variables; if so, make sure they are in scope
-	for (tvv <- collectTypeVars(retType)) {
-        set[STItemId] tvItems = getItems(symbolTable, symbolTable.currentScope, getTypeVarName(tvv), TypeVars());
-        if (size(tvItems) == 0) {
-            symbolTable = addScopeError(symbolTable, l, "Type variable <prettyPrintName(tvv.varName)> used in return type not previously declared.");        
-        } else {
-           // TODO: We should just have one, check to see if we have more
-           RType tvType = symbolTable.scopeItemMap[getOneFrom(tvItems)].typeVar;
-           if (tvType.varTypeBound != tvv.varTypeBound) {
-                symbolTable = addScopeError(symbolTable, l, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
-           }
-        }
-	}
-
-	// Add the actual function item associated with the scope layer
-	AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, paramIds, throwsTypes, isPublic, isVarArgs, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-	aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
-	if (hasAnonymousName) aipItem.symbolTable.scopeItemMap[aipItem.addedId].functionName = "@ANONYMOUS_FUNCTION_<aipItem.addedId>";
-	
-	return <aipItem.symbolTable,[aipLayer.addedId] + [aipItem.addedId] + paramIds>;
+	symbolTable.scopeStack = [ aipLayer.addedId ] + symbolTable.scopeStack;
+	symbolTable.currentScope = aipLayer.addedId;
+    
+    // Add the actual function item associated with the scope layer
+    AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
+    aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
+    if (hasAnonymousName) aipItem.symbolTable.scopeItemMap[aipItem.addedId].functionName = "@ANONYMOUS_FUNCTION_<aipItem.addedId>";
+    
+    return <aipItem.symbolTable,[aipLayer.addedId, aipItem.addedId]>;
 }
 
-public ResultTuple pushNewFunctionScope(RName functionName, RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable) {
-	return pushNewFunctionScopeAt(false, functionName, retType, params, throwsTypes, isPublic, isVarArgs, l, symbolTable, symbolTable.currentScope);
+public ResultTuple pushNewFunctionScope(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable) {
+	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, symbolTable, symbolTable.currentScope);
 }
 
-public ResultTuple pushNewFunctionScopeAtTop(RName functionName, RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable) {
-	return pushNewFunctionScopeAt(false, functionName, retType, params, throwsTypes, isPublic, isVarArgs, l, symbolTable, symbolTable.topSTItemId);
+public ResultTuple pushNewFunctionScopeAtTop(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable) {
+	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, symbolTable, symbolTable.topSTItemId);
 } 
 
-public ResultTuple pushNewClosureScope(RType retType, list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, SymbolTable symbolTable) {
-    return pushNewFunctionScopeAt(true, "", retType, params, [], false, l, symbolTable, symbolTable.currentScope);
+public ResultTuple pushNewClosureScope(RType retType, Parameters ps, loc l, SymbolTable symbolTable) {
+    return pushNewFunctionScopeAt(true, "", retType, ps, [], false, l, symbolTable, symbolTable.currentScope);
 }
 
-public ResultTuple pushNewVoidClosureScope(list[tuple[RName pname, RType ptype, loc ploc, loc nloc]] params, loc l, SymbolTable symbolTable) {
-    return pushNewFunctionScopeAt(true, "", makeVoidType(), params, [], false, l, symbolTable, symbolTable.currentScope);
+public ResultTuple pushNewVoidClosureScope(Parameters ps, loc l, SymbolTable symbolTable) {
+    return pushNewFunctionScopeAt(true, "", makeVoidType(), ps, [], false, l, symbolTable, symbolTable.currentScope);
 }
 
 public ResultTuple addAliasToScopeAt(RType aliasType, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
@@ -972,19 +914,6 @@ public ResultTuple addLabelToTopScope(RName labelName, loc l, SymbolTable symbol
     return addLabelToScopeAt(labelName, l, symbolTable, symbolTable.topSTItemId);
 }
 
-public ResultTuple addDataLabelToScopeAt(RName labelName, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-    AddedItemPair aip = addSTItemWithParent(DataLabelItem(labelName, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-    return <aip.symbolTable,[aip.addedId]>;
-}
-
-public ResultTuple addDataLabelToScope(RName labelName, loc l, SymbolTable symbolTable) {
-    return addDataLabelToScopeAt(labelName, l, symbolTable, symbolTable.currentScope);
-}
-
-public ResultTuple addDataLabelToTopScope(RName labelName, loc l, SymbolTable symbolTable) {
-	return addDataLabelToScopeAt(labelName, l, symbolTable, symbolTable.topSTItemId);
-}
-
 // Projectors/combinators to work with result tuples
 public SymbolTable justSymbolTable(ResultTuple result) {
 	return result.symbolTable;
@@ -1010,3 +939,6 @@ public bool inBoolLayer(SymbolTable symbolTable) {
 
 
 
+public SymbolTable markReturnFunction(STItemId id, loc l, SymbolTable symbolTable) {
+    return symbolTable[returnMap = symbolTable.returnMap + ( l : id )];
+}

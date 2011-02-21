@@ -292,8 +292,13 @@ public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
             if ( (si@at)? ) rt = rt[@at = si@at];
         }
         
-        case FunctionItem(_,t,paramIds,_,_,isVarArgs,_) : {
-            rt = expandUserTypes(makeFunctionType(t,[getTypeForItem(symbolTable, paramId) | paramId <- paramIds],isVarArgs),symbolTable,si.parentId);
+        case FunctionItem(_,t,params,_,_,isVarArgs,_) : {
+            // TODO: Make this really work! (Pattern Dispatch)
+            // NOTE: This should only be called during name resolution by the functionality that
+            // tags function return statements with their return types. It would be nicer if we could
+            // just tag the return with the function scope we are inside.
+            //rt = expandUserTypes(makeFunctionType(t,[getTypeForItem(symbolTable, paramId) | paramId <- paramIds],isVarArgs),symbolTable,si.parentId);
+            rt = expandUserTypes(makeFunctionType(t,[makeValueType()],isVarArgs),symbolTable,si.parentId);
             if ( (si@at)? ) rt = rt[@at = si@at];
         }
         
@@ -510,7 +515,3 @@ public SymbolTable checkADTDefinitionsForConsistency(SymbolTable symbolTable) {
 // TODO: Field update syntax is causing problems with type derivation in the interpreter.
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
-
-public SymbolTable markReturnType(RType t, Statement s, SymbolTable symbolTable) {
-    return symbolTable[returnTypeMap = symbolTable.returnTypeMap + ( s@\loc : t )];
-}
