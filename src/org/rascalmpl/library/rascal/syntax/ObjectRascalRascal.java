@@ -356,7 +356,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.rascal.syntax.Rasc
 	private static final IConstructor prod___lit___60_Name_lit___62_NamedRegExp_attrs___lex = (IConstructor) _read("prod([lit(\"\\<\"),sort(\"Name\"),lit(\"\\>\")],sort(\"NamedRegExp\"),attrs([lex()]))", Factory.Production);
 	private static final IConstructor prod___lit_test_ShellCommand_attrs___term__cons_Test = (IConstructor) _read("prod([lit(\"test\")],sort(\"ShellCommand\"),attrs([term(cons(\"Test\"))]))", Factory.Production);
 	private static final IConstructor prod___char_class___range__92_92_char_class___range__9_9_lit___92_9_attrs___literal = (IConstructor) _read("prod([\\char-class([range(92,92)]),\\char-class([range(9,9)])],lit(\"\\\\\\t\"),attrs([literal()]))", Factory.Production);
-	private static final IConstructor prod___char_class___range__108_108_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_lit_lang_attrs___literal = (IConstructor) _read("prod([\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)])],lit(\"lang\"),attrs([literal()]))", Factory.Production);
+//	private static final IConstructor prod___char_class___range__108_108_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_lit_lang_attrs___literal = (IConstructor) _read("prod([\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(110,110)]),\\char-class([range(103,103)])],lit(\"lang\"),attrs([literal()]))", Factory.Production);
 	private static final IConstructor prod___declaration_Declaration_Toplevel_attrs___term__cons_GivenVisibility = (IConstructor) _read("prod([label(\"declaration\",sort(\"Declaration\"))],sort(\"Toplevel\"),attrs([term(cons(\"GivenVisibility\"))]))", Factory.Production);
 	private static final IConstructor prod___char_class___range__92_92_char_class___range__10_10_lit___92_10_attrs___literal = (IConstructor) _read("prod([\\char-class([range(92,92)]),\\char-class([range(10,10)])],lit(\"\\\\\\n\"),attrs([literal()]))", Factory.Production);
 	private static final IConstructor prod___lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement_Statement_attrs___term__cons_Insert = (IConstructor) _read("prod([lit(\"insert\"),layouts(\"LAYOUTLIST\"),label(\"dataTarget\",sort(\"DataTarget\")),layouts(\"LAYOUTLIST\"),label(\"statement\",sort(\"Statement\"))],sort(\"Statement\"),attrs([term(cons(\"Insert\"))]))", Factory.Production);
@@ -2563,7 +2563,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.rascal.syntax.Rasc
 		}
 		public final static AbstractStackNode[] prod___lit_lang_RascalReservedKeywords_no_attrs = new AbstractStackNode[1];
 		static{
-			prod___lit_lang_RascalReservedKeywords_no_attrs[0] = new LiteralStackNode(5224, 0, prod___char_class___range__108_108_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_lit_lang_attrs___literal , new char[] {108,97,110,103});
+//			prod___lit_lang_RascalReservedKeywords_no_attrs[0] = new LiteralStackNode(5224, 0, prod___char_class___range__108_108_char_class___range__97_97_char_class___range__110_110_char_class___range__103_103_lit_lang_attrs___literal , new char[] {108,97,110,103});
 		}
 		public final static AbstractStackNode[] prod___lit_int_RascalReservedKeywords_no_attrs = new AbstractStackNode[1];
 		static{
@@ -5702,7 +5702,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.rascal.syntax.Rasc
                 // prod([lit("alias")],sort("RascalReservedKeywords"),\no-attrs())
 	expect(prod___lit_alias_RascalReservedKeywords_no_attrs, RascalReservedKeywords.prod___lit_alias_RascalReservedKeywords_no_attrs);
                 // prod([lit("lang")],sort("RascalReservedKeywords"),\no-attrs())
-	expect(prod___lit_lang_RascalReservedKeywords_no_attrs, RascalReservedKeywords.prod___lit_lang_RascalReservedKeywords_no_attrs);
+//	expect(prod___lit_lang_RascalReservedKeywords_no_attrs, RascalReservedKeywords.prod___lit_lang_RascalReservedKeywords_no_attrs);
                 // prod([lit("int")],sort("RascalReservedKeywords"),\no-attrs())
 	expect(prod___lit_int_RascalReservedKeywords_no_attrs, RascalReservedKeywords.prod___lit_int_RascalReservedKeywords_no_attrs);
                 // prod([lit("module")],sort("RascalReservedKeywords"),\no-attrs())

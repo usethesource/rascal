@@ -240,7 +240,11 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
-		Result<IValue> var = variableEnvironment.get(name);
+		Result<IValue> var = null;
+		
+		if (variableEnvironment != null) {
+			var = variableEnvironment.get(name);
+		}
 		
 		if (var != null && var.isPublic()) {
 			return var;
@@ -250,7 +254,11 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	private OverloadedFunctionResult getLocalPublicFunctions(String name) {
-		OverloadedFunctionResult all = functionEnvironment.get(name);
+		OverloadedFunctionResult all = null;
+		
+		if (functionEnvironment != null) {
+			all = functionEnvironment.get(name);
+		}
 		OverloadedFunctionResult result = null;
 		
 		if (all == null) {

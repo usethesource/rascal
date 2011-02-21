@@ -1,5 +1,8 @@
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -34,6 +37,10 @@ import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class Statement extends org.rascalmpl.ast.Statement {
 
@@ -343,13 +350,200 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	}
 
 	static public class Switch extends org.rascalmpl.ast.Statement.Switch {
+		private final List<CaseBlock> blocks; 
 
 		public Switch(INode __param1, Label __param2, org.rascalmpl.ast.Expression __param3, List<Case> __param4) {
 			super(__param1, __param2, __param3, __param4);
+			blocks = new ArrayList<CaseBlock>(__param4.size());
+//			precompute(__param4);
+			System.err.println("switched optimized from + " + __param4.size() + " to " + blocks.size() + " alts at " + getLocation());
 		}
 
 
-		@Override
+		private void precompute(List<Case> cases) {
+			for (int i = 0; i < cases.size(); i++) {
+				Case c = cases.get(i);
+				if (isConcreteSyntaxPattern(c)) {
+					ConcreteBlock b = new ConcreteBlock();
+					b.add(c);
+					for (int j = i + 1; j < cases.size(); j++) {
+						Case d = cases.get(j);
+						if (isConcreteSyntaxPattern(d)) {
+							b.add(d);
+							i++;
+						}
+						else {
+							break;
+						}
+					}
+					blocks.add(b);
+				}
+				else if (isConstantTreePattern(c)) {
+					NodeCaseBlock b = new NodeCaseBlock();
+					b.add(c);
+					for (int j = i + 1; j < cases.size(); j++) {
+						Case d = cases.get(j);
+						if (isConstantTreePattern(d)) {
+							b.add(d);
+							i++;
+						}
+						else {
+							break;
+						}
+					}
+					blocks.add(b);
+				}
+				else {
+					blocks.add(new DefaultBlock(c));
+				}
+			}
+		}
+
+		private boolean isConcreteSyntaxPattern(Case d) {
+			if (d.isDefault()) {
+				return false;
+			}
+			
+			org.rascalmpl.ast.Expression pattern = d.getPatternWithAction().getPattern();
+			if (pattern._getType() != null && pattern._getType() instanceof NonTerminalType) {
+				return true;
+			}
+			
+			return false;
+		}
+
+
+		private boolean isConstantTreePattern(Case c) {
+			if (c.isDefault()) {
+				return false;
+			}
+			org.rascalmpl.ast.Expression pattern = c.getPatternWithAction().getPattern();
+			if (pattern.isCallOrTree()) {
+				if (pattern.getExpression().isQualifiedName()) {
+					return true;
+				}
+				if (pattern.getExpression().isLiteral()) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		private abstract class CaseBlock  {
+			public abstract boolean matchAndEval(Evaluator eval, Result<IValue> subject);
+		}
+		
+		private class ConcreteBlock extends CaseBlock {
+			private Hashtable<IConstructor, List<Case>> table = new Hashtable<IConstructor, List<Case>>();
+			
+			void add(Case c) {
+				IConstructor key = TreeAdapter.getProduction((IConstructor) c.getPatternWithAction().getPattern().getTree());
+				List<Case> same = table.get(key);
+				if (same == null) {
+					same = new LinkedList<Case>();
+					table.put(key, same);
+				}
+				same.add(c);
+			}
+			
+			public boolean matchAndEval(Evaluator eval, Result<IValue> subject) {
+				IValue value = subject.getValue();
+				org.eclipse.imp.pdb.facts.type.Type subjectType = value.getType();
+				
+				if (subjectType.isSubtypeOf(Factory.Tree)) {
+					List<Case> alts = table.get(TreeAdapter.getProduction((IConstructor) value));
+					if (alts != null) {
+						for (Case c : alts) {
+							PatternWithAction rule = c.getPatternWithAction();
+							if (eval.matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
+								return true;
+							}
+						}
+					}
+				}
+				
+				return false;
+			}
+		}
+		
+		private class NodeCaseBlock extends CaseBlock {
+			private Hashtable<String, List<Case>> table = new Hashtable<String, List<Case>>();
+
+			void add(Case c) {
+				org.rascalmpl.ast.Expression name = c.getPatternWithAction().getPattern().getExpression();
+				String key = null;
+				
+				if (name.isQualifiedName()) {
+					key = Names.name(Names.lastName(name.getQualifiedName()));
+				}
+				else if (name.isLiteral()) {
+					key = ((StringConstant.Lexical) name.getLiteral().getStringLiteral().getConstant()).getString();
+				}
+				
+				List<Case> same = table.get(key);
+				if (same == null) {
+					same = new LinkedList<Case>();
+					table.put(key, same);
+				}
+				same.add(c);
+			}
+			
+			public boolean matchAndEval(Evaluator eval, Result<IValue> subject) {
+				IValue value = subject.getValue();
+				org.eclipse.imp.pdb.facts.type.Type subjectType = value.getType();
+				
+				if (subjectType.isSubtypeOf(TF.nodeType())) {
+					List<Case> alts = table.get(((INode) value).getName());
+					if (alts != null) {
+						for (Case c : alts) {
+							PatternWithAction rule = c.getPatternWithAction();
+							if (eval.matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
+								return true;
+							}
+						}
+					}
+				}
+				
+				return false;
+			}
+		}
+		
+		private class DefaultBlock extends CaseBlock {
+			private Case theCase;
+
+			public DefaultBlock(Case c) {
+				this.theCase = c;
+			}
+
+			public boolean matchAndEval(Evaluator __eval, Result<IValue> subject) {
+				if (theCase.isDefault()) {
+						// TODO: what if the default statement uses a fail
+						// statement?
+						theCase.getStatement().interpret(__eval);
+						return true;
+				}
+				else {
+					PatternWithAction rule = theCase.getPatternWithAction();
+					return __eval.matchAndEval(subject, rule.getPattern(), rule.getStatement());
+				}
+			}
+		}
+
+
+//		@Override
+//		public Result<IValue> interpret(Evaluator __eval) {
+//			Result<IValue> subject = this.getExpression().interpret(__eval);
+//
+//			for (CaseBlock cs : blocks) {
+//				if (cs.matchAndEval(__eval, subject)) {
+//					return org.rascalmpl.interpreter.result.ResultFactory.nothing(); 
+//				}
+//			}
+//
+//			return ResultFactory.nothing();
+//		}
+		
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> subject = this.getExpression().interpret(__eval);

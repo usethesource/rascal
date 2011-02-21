@@ -59,7 +59,7 @@ public class Environment {
 	protected Map<Type, Type> typeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
-	protected final ISourceLocation callerLocation; // different from the scope location (more precise)
+	protected ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected final ISourceLocation loc;
 	protected final String name;
 
@@ -76,10 +76,6 @@ public class Environment {
 	}
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
-		this.variableEnvironment = new HashMap<String, Result<IValue>>();
-		this.functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
-		this.nameFlags = new HashMap<String, NameFlags>();
-		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
 		this.loc = loc;
 		this.name = name;
@@ -162,7 +158,11 @@ public class Environment {
 	}
 	
 	protected Result<IValue> getSimpleVariable(String name) {
-		Result<IValue> t = variableEnvironment.get(name);
+		Result<IValue> t = null;
+		
+		if (variableEnvironment != null) {
+			t = variableEnvironment.get(name);
+		}
 		
 		if (t != null) {
 			return t;
@@ -176,7 +176,11 @@ public class Environment {
 	}
 	
 	protected OverloadedFunctionResult getAllFunctions(String name) {
-		OverloadedFunctionResult result = functionEnvironment.get(name);
+		OverloadedFunctionResult result = null;
+		
+		if (functionEnvironment != null) {
+			result = functionEnvironment.get(name);
+		}
 		
 		if (isRootScope()) {
 			return result;
@@ -208,7 +212,10 @@ public class Environment {
 	}
 	
 	private boolean isNameFlagged(String name, int flags) {
-			return nameFlags.containsKey(name) && (0 != (nameFlags.get(name).getFlags() & flags));
+		if (nameFlags == null) {
+			return false;
+		}
+		return nameFlags.containsKey(name) && (0 != (nameFlags.get(name).getFlags() & flags));
 	}
 
 	public boolean isNameFinal(QualifiedName name) {
@@ -235,10 +242,15 @@ public class Environment {
 	}
 	
 	private void flagName(String name, int flags) {
-			if (nameFlags.containsKey(name))
-				nameFlags.get(name).setFlags(nameFlags.get(name).getFlags() | flags);
-			else
-				nameFlags.put(name, new NameFlags(flags));
+		if (nameFlags == null) {
+			nameFlags = new HashMap<String,NameFlags>();
+		}
+		if (nameFlags.containsKey(name)) {
+			nameFlags.get(name).setFlags(nameFlags.get(name).getFlags() | flags);
+		}
+		else {
+			nameFlags.put(name, new NameFlags(flags));
+		}
 	}
 	
 	public void markNameFinal(QualifiedName name) {
@@ -258,11 +270,17 @@ public class Environment {
 	}
 	
 	public void storeParameterType(Type par, Type type) {
+		if (typeParameters == null) {
+			typeParameters = new HashMap<Type,Type>();
+		}
 		typeParameters.put(par, type);
 	}
 
 	public Type getParameterType(Type par) {
-		return typeParameters.get(par);
+		if (typeParameters != null) {
+			return typeParameters.get(par);
+		}
+		return null;
 	}
 
 	/**
@@ -270,10 +288,12 @@ public class Environment {
 	 * scope.
 	 */
 	private Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
-		Result<IValue> r = variableEnvironment.get(name);
+		if (variableEnvironment != null) {
+			Result<IValue> r = variableEnvironment.get(name);
 
-		if (r != null) {
-			return variableEnvironment;
+			if (r != null) {
+				return variableEnvironment;
+			}
 		}
 
 		return isRootScope() ? null : parent.getVariableDefiningEnvironment(name);
@@ -284,10 +304,12 @@ public class Environment {
 	 * the module scope such that we end up in a function scope or a shell scope.
 	 */
 	private Map<String,Result<IValue>> getLocalVariableDefiningEnvironment(String name) {
-		Result<IValue> r = variableEnvironment.get(name);
+		if (variableEnvironment != null) {
+			Result<IValue> r = variableEnvironment.get(name);
 
-		if (r != null) {
-			return variableEnvironment;
+			if (r != null) {
+				return variableEnvironment;
+			}
 		}
 
 		if (parent == null || parent.isRootScope()) {
@@ -307,6 +329,9 @@ public class Environment {
 		
 		if (env == null) {
 			// an undeclared variable, which gets an inferred type
+			if (variableEnvironment == null) {
+				variableEnvironment = new HashMap<String,Result<IValue>>();
+			}
 			variableEnvironment.put(name, value);
 			//System.out.println("Inferred: " + name);
 			if (value != null) {
@@ -348,9 +373,17 @@ public class Environment {
 	}
  
 	public void storeFunction(String name, AbstractFunction function) {
-		OverloadedFunctionResult list = functionEnvironment.get(name);
+		OverloadedFunctionResult list = null;
+		
+		if (functionEnvironment != null) {
+			list = functionEnvironment.get(name);
+		}
+		
 		if (list == null || !this.isNameFlagged(name,NameFlags.OVERLOADABLE_NAME)) {
 			list = new OverloadedFunctionResult(function);
+			if (functionEnvironment == null) {
+				functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
+			}
 			functionEnvironment.put(name, list);
 		}
 
@@ -362,8 +395,13 @@ public class Environment {
 	}
 
 	public boolean declareVariable(Type type, String name) {
-		if (variableEnvironment.get(name) != null) {
-			return false;
+		if (variableEnvironment != null) {
+			if (variableEnvironment.get(name) != null) {
+				return false;
+			}
+		}
+		if (variableEnvironment == null) {
+			variableEnvironment = new HashMap<String,Result<IValue>>();
 		}
 		variableEnvironment.put(name, ResultFactory.nothing(type));
 		return true;
@@ -374,9 +412,11 @@ public class Environment {
 		Map<Type, Type> result = new HashMap<Type,Type>();
 
 		while (env != null) {
-			for (Type key : env.typeParameters.keySet()) {
-				if (!result.containsKey(key)) {
-					result.put(key, env.typeParameters.get(key));
+			if (env.typeParameters != null) {
+				for (Type key : env.typeParameters.keySet()) {
+					if (!result.containsKey(key)) {
+						result.put(key, env.typeParameters.get(key));
+					}
 				}
 			}
 			env = env.parent;
@@ -386,17 +426,24 @@ public class Environment {
 	}
 
 	public void storeTypeBindings(Map<Type, Type> bindings) {
+		if (typeParameters == null) {
+			typeParameters = new HashMap<Type, Type>();
+		}
 		typeParameters.putAll(bindings);
 	}
 
 	@Override
 	public String toString(){
 		StringBuffer res = new StringBuffer();
-		for(String name : functionEnvironment.keySet()){
-			res.append(name).append(": ").append(functionEnvironment.get(name)).append("\n");
+		if (functionEnvironment != null) {
+			for(String name : functionEnvironment.keySet()){
+				res.append(name).append(": ").append(functionEnvironment.get(name)).append("\n");
+			}
 		}
-		for(String name : variableEnvironment.keySet()){
-			res.append(name).append(": ").append(variableEnvironment.get(name)).append("\n");
+		if (variableEnvironment != null) {
+			for(String name : variableEnvironment.keySet()){
+				res.append(name).append(": ").append(variableEnvironment.get(name)).append("\n");
+			}
 		}
 		return res.toString();
 	}
@@ -520,7 +567,9 @@ public class Environment {
 		if (parent != null) {
 			vars.putAll(parent.getVariables());
 		}
-		vars.putAll(variableEnvironment);
+		if (variableEnvironment != null) {
+			vars.putAll(variableEnvironment);
+		}
 		return vars;
 	}
 
@@ -529,7 +578,9 @@ public class Environment {
 		if (parent != null) {
 			functions.addAll(parent.getFunctions());
 		}
-		functions.addAll(functionEnvironment.entrySet());
+		if (functionEnvironment != null) {
+			functions.addAll(functionEnvironment.entrySet());
+		}
 		return functions;
 	}
 	
@@ -560,9 +611,10 @@ public class Environment {
 	}
 
 	public void reset() {
-		this.variableEnvironment = new HashMap<String, Result<IValue>>();
-		this.functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
-		this.typeParameters = new HashMap<Type, Type>();
+		this.variableEnvironment = null;
+		this.functionEnvironment = null;
+		this.typeParameters = null;
+		this.nameFlags = null;
 	}
 
 	public void declareProduction(Syntax x) {
@@ -571,5 +623,9 @@ public class Environment {
 	
 	public ISet getProductions() {
 		return getRoot().getProductions();
+	}
+
+	public void setLocation(ISourceLocation location) {
+		this.callerLocation = location;
 	}
 }
