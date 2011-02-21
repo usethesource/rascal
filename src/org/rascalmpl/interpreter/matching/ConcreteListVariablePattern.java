@@ -106,9 +106,25 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 					return false;
 				}
 			}
-			if (ProductionAdapter.getRhs(TreeAdapter.getProduction(subjectTree)).isEqual(declaredType.getSymbol())) {
-				ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+			
+			// This code makes sure that the call is allowed. It verifies first that either the declared type
+			// is *, with the subject then either + or *; or that the declared type is +, with the subject
+			// then forced to be +. Second, it checks that both either use, or do not use, separators, so
+			// lists where one does and one does not use separators will not match. Finally, it makes sure
+			// both use the same iterated symbol.
+			IConstructor subjectListType = ProductionAdapter.getRhs(TreeAdapter.getProduction(subjectTree));
+			IConstructor declaredListType = declaredType.getSymbol();
+			if ( (SymbolAdapter.isStarList(declaredListType) && SymbolAdapter.isAnyList(subjectListType)) || (SymbolAdapter.isPlusList(declaredListType) && SymbolAdapter.isPlusList(subjectListType))) {
+				if (SymbolAdapter.isSepList(declaredListType) == SymbolAdapter.isSepList(subjectListType)) {
+					if (SymbolAdapter.getSymbol(subjectListType).equals(SymbolAdapter.getSymbol(declaredListType))) {
+						ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+					}
+				}
 			}
+			
+//			if (ProductionAdapter.getRhs(TreeAdapter.getProduction(subjectTree)).isEqual(declaredType.getSymbol())) {
+//				ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+//			}
 			if (debug)
 				System.err.println("matches");
 			return true;
