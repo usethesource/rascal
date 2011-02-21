@@ -688,7 +688,6 @@ syntax RascalReservedKeywords
 	| "on" 
 	| "map" 
 	| "alias" 
-	| "lang" 
 	| "any" 
 	| "module" 
 	| "bool" 

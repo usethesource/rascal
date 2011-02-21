@@ -43,4 +43,6 @@ syntax WhitespaceAndComment
    | lex "%%" ![\n]* "\n"
    ;
 
-public PROGRAM p = (PROGRAM) `begin declare; end`;
+public PROGRAM program(str s) {
+  return parse(#PROGRAM, s);
+} 
