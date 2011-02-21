@@ -150,7 +150,8 @@ anno set[loc] STItem@ats;
 // itemLocations: maps a location to the item defined in that location
 // currentScope: the identifier of the current scope layer
 // freshType: a counter which allows generation of "fresh" types, used by the local inferencer
-// scopeErrorMap: maps locations to errors detected at tht location
+// scopeErrorMap: maps locations to errors detected at the location
+// scopeWarningMap: maps locations to warning detected at the location
 // inferredTypeMap: map the id used in the fresh type to the type determined via inference
 // returnMap: map of return locations to the function item this return is associated with
 // itBinder: used for typing of the "it" construct in reducers: keeps track of the value of "it"
@@ -177,6 +178,7 @@ alias SymbolTable = tuple[
     STItemId currentScope, 
     int freshType,
     map[loc, set[str]] scopeErrorMap, 
+    map[loc, set[str]] scopeWarningMap, 
     ItemTypeMap inferredTypeMap,
     ItemTypeMap typeVarMap, 
     map[loc, STItemId] returnMap,
@@ -200,7 +202,7 @@ alias ScopeUpdatePair = tuple[SymbolTable symbolTable, STItemId oldScopeId];
 // Create an empty symbol table
 //                        
 public SymbolTable createNewSymbolTable() {
-	return < -1, -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), [ ], ( ), [], [], []>;
+	return < -1, -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), (), [ ], ( ), [], [], []>;
 }                    
 
 //
@@ -268,6 +270,14 @@ public SymbolTable addScopeError(SymbolTable symbolTable, loc l, str msg) {
         symbolTable.scopeErrorMap[l] = symbolTable.scopeErrorMap[l] + msg;
     else
         symbolTable.scopeErrorMap += (l : { msg } );
+    return symbolTable;
+}
+
+public SymbolTable addScopeWarning(SymbolTable symbolTable, loc l, str msg) {
+    if (l in symbolTable.scopeWarningMap)
+        symbolTable.scopeWarningMap[l] = symbolTable.scopeWarningMap[l] + msg;
+    else
+        symbolTable.scopeWarningMap += (l : { msg } );
     return symbolTable;
 }
 

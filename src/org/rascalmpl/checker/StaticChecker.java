@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class StaticChecker {
@@ -45,8 +46,9 @@ public class StaticChecker {
 	}
 
 	public synchronized void load() {
-		eval("import rascal::checker::Check;");
+//		eval("import rascal::checker::Check;");
 //		eval("import rascal::checker::Import;");
+		eval("import rascal::scoping::ResolveNames;");
 		loaded = true;
 	}
 
@@ -78,7 +80,7 @@ public class StaticChecker {
 	public synchronized IConstructor checkModule(IConstructor moduleParseTree) {
 		IConstructor res = moduleParseTree;
 //		res = resolveImports(res);
-		if (checkerEnabled) res = (IConstructor) eval.call("typecheckTree", res);
+		if (checkerEnabled) res = (IConstructor) eval.call("resolveTree", res);
 		return res;
 	}
 
@@ -105,5 +107,13 @@ public class StaticChecker {
 	
 	public void registerOutputResolver(IURIOutputStreamResolver resolver) {
 		eval.getResolverRegistry().registerOutput(resolver);
+	}
+
+	public URIResolverRegistry getResolverRegistry() {
+		return eval.getResolverRegistry();
+	}
+
+	public void addClassLoader(ClassLoader classLoader) {
+		eval.addClassLoader(classLoader);
 	}
 }

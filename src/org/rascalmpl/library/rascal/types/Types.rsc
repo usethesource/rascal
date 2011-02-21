@@ -182,9 +182,10 @@ anno RType Tree@rtype;
 anno loc RType@at;
 
 //
-// Annotation for adding error information to types
+// Annotations for adding error and warning information to types
 //
 anno tuple[str msg, loc at] RType@errinfo;
+anno tuple[str msg, loc at] RType@warninfo;
 
 //
 // Convert basic types into their Rascal analogs. Add error information
@@ -353,7 +354,7 @@ public RType convertFunctionType(FunctionType ft) {
             if (size(l) == 0)
                 return RFunctionType(convertType(t), [ ], false);
             else if (size(l) != size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]))
-                return RFunctionType(convertType(t),[RUnnamedType(getElementType(li)) | li <- l],false)[@errinfo=<"Names cannot be given to the arguments in a function type",ft@\loc>];
+                return RFunctionType(convertType(t),[RUnnamedType(getElementType(li)) | li <- l],false)[@warninfo=<"Names are ignored on the arguments to a function type",ft@\loc>];
             else
                 return RFunctionType(convertType(t),convertTypeArgList(tas),false);
         }

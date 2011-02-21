@@ -126,28 +126,8 @@ list[STItemId] mkEmptySIList() { return tail([3]); }
 // Run the name resolution pass over a tree.
 //
 public Tree resolveTree(Tree t) {
-    println("NAME RESOLVER: Getting Imports for Module");
-    list[Import] imports = getImports(t);
-    println("NAME RESOLVER: Got Imports");
-    
-    println("NAME RESOLVER: Generating Signature Map");
-    SignatureMap sigMap = populateSignatureMap(imports);
-    println("NAME RESOLVER: Generated Signature Map");
-    
-    println("NAME RESOLVER: Generating Symbol Table"); 
-    SymbolTable st = buildTable(t, sigMap);
-    println("NAME RESOLVER: Generated Symbol Table");
-    
-    println("NAME RESOLVER: Associating Scope Information with Names");
-    Tree t2 = addNamesToTree(st,t);
-    println("NAME RESOLVER: Associated Scope Information with Names");
-
-    println("NAME RESOLVER: Adding Information for Scope Errors");
-    if (size(st.scopeErrorMap) > 0)
-        t2 = t2[@messages = { error(l,s) | l <- st.scopeErrorMap<0>, s <- st.scopeErrorMap[l] }]; 
-    println("NAME RESOLVER: Added Information for Scope Errors");
-
-    return t2;     
+    <t2, st> = resolveTreeAux(t);
+    return t2;
 }
 
 public tuple[Tree,SymbolTable] resolveTreeAux(Tree t) {
@@ -168,8 +148,13 @@ public tuple[Tree,SymbolTable] resolveTreeAux(Tree t) {
     println("NAME RESOLVER: Associated Scope Information with Names");
 
     println("NAME RESOLVER: Adding Information for Scope Errors");
+    set[Message] msgs = { };
     if (size(st.scopeErrorMap) > 0)
-        t2 = t2[@messages = { error(l,s) | l <- st.scopeErrorMap<0>, s <- st.scopeErrorMap[l] }]; 
+        msgs = { error(l,s) | l <- st.scopeErrorMap<0>, s <- st.scopeErrorMap[l] }; 
+    if (size(st.scopeWarningMap) > 0)
+        msgs += { warning(l,s) | l <- st.scopeWarningMap<0>, s <- st.scopeWarningMap[l] };
+    if (size(msgs) > 0) 
+        t2 = t2[@messages = msgs];
     println("NAME RESOLVER: Added Information for Scope Errors");
 
     return <t2,st>;     
@@ -261,29 +246,29 @@ public Tree addNamesToTree(SymbolTable symbolTable, Tree t) {
     }
     
     return visit(t) {
-        case (Expression)`<Name n>` :
+        case tn: (Expression)`<Name n>` :
             if (n@\loc in symbolTable.itemUses)
-                insert(annotateNode(t,n@\loc));
+                insert(annotateNode(tn,n@\loc));
 
-        case (Expression)`<QualifiedName qn>` :
+        case tn: (Expression)`<QualifiedName qn>` :
             if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(t,qn@\loc));
+                insert(annotateNode(tn,qn@\loc));
 
-        case (Pattern)`<Name n>` :
+        case tn: (Pattern)`<Name n>` :
             if (n@\loc in symbolTable.itemUses)
-                insert(annotateNode(t,n@\loc));
+                insert(annotateNode(tn,n@\loc));
     
-        case (Pattern)`<QualifiedName qn>` :
+        case tn: (Pattern)`<QualifiedName qn>` :
             if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(t,qn@\loc));
+                insert(annotateNode(tn,qn@\loc));
                 
-        case (UserType)`<QualifiedName qn>` :
+        case tn: (UserType)`<QualifiedName qn>` :
             if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(t,qn@\loc));
+                insert(annotateNode(tn,qn@\loc));
 
-        case (Assignable)`<QualifiedName qn>` :
+        case tn: (Assignable)`<QualifiedName qn>` :
             if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(t,qn@\loc));
+                insert(annotateNode(tn,qn@\loc));
     };
 }
 
