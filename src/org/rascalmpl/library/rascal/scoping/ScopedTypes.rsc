@@ -372,14 +372,20 @@ public ConvertTuple convertRascalType(SymbolTable symbolTable, Type t) {
 
     // Step 2: look for any errors marked on the converted type
     list[tuple[str msg, loc at]] conversionErrors = [ ];
+    list[tuple[str msg, loc at]] conversionWarnings = [ ];
+    
     visit(rt) { 
-        case RType ct : 
+        case RType ct : {
             if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo;
+            if ( (ct@warninfo)? ) conversionWarnings = conversionWarnings + ct@warninfo;
+        }
     }
 
     // Step 3: if we found errors, add them as scope errors
     if (size(conversionErrors) > 0)
         for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+    if (size(conversionWarnings) > 0)
+        for (<cmsg,cloc> <- conversionWarnings) symbolTable = addScopeWarning(symbolTable, cloc, cmsg);
 
     // Step 4: finally return the type
     return <symbolTable, rt>;   
