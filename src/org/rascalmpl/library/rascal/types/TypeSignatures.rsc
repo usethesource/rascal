@@ -48,14 +48,14 @@ import rascal::syntax::RascalRascal;
 // Each signature item represents an item visible at the module level.
 //
 data RSignatureItem =
-	  AliasSigItem(RName aliasName, RType aliasType, loc at)
-	| FunctionSigItem(RName functionName, RType functionType, loc at)
-	| VariableSigItem(RName variableName, RType variableType, loc at)
-	| ADTSigItem(RName adtName, RType adtType, loc at)
-	| ConstructorSigItem(RName conName, RType constructorType, loc at)
-	| RuleSigItem(RName ruleName, loc at)
+      AliasSigItem(RName aliasName, RType aliasType, loc at)
+    | FunctionSigItem(RName functionName, Parameters params, RType returnType, loc at)
+    | VariableSigItem(RName variableName, RType variableType, loc at)
+    | ADTSigItem(RName adtName, RType adtType, loc at)
+    | ConstructorSigItem(RName conName, RType constructorType, loc at)
+    | RuleSigItem(RName ruleName, loc at)
     | AnnotationSigItem(RName annName, RType annType, RType onType, loc at)
-	| TagSigItem(RName tagName, RKind tagKind, list[RType] taggedTypes, loc at)
+    | TagSigItem(RName tagName, RKind tagKind, list[RType] taggedTypes, loc at)
     ;
 
 //
@@ -68,39 +68,39 @@ alias RSignature = tuple[set[RSignatureItem] signatureItems, RName moduleName, s
 // a signature is being constructed. NOTE: This currently does nothing.
 //
 private set[RName] getImportInfo(Import* imports) {
-	return { };
+    return { };
 }
 
 //
 // Add a new signature item into the given signature.
 //
 private RSignature addSignatureItem(RSignature sig, RSignatureItem item) {
-	return sig[signatureItems = sig.signatureItems + item];
+    return sig[signatureItems = sig.signatureItems + item];
 }
  
 //
 // Given a tree, representing a module, create the signature for the module.
 //
 private RSignature createRSignature(Tree t) {
-	if ((Module) `<Header h> <Body b>` := t) {
-		switch(h) {
-			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
-				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
-				sig = createModuleBodySignature(b,sig);
-				return sig;
-			}
+    if ((Module) `<Header h> <Body b>` := t) {
+        switch(h) {
+            case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
+                RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
+                sig = createModuleBodySignature(b,sig);
+                return sig;
+            }
 
-			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-				RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
-				sig = createModuleBodySignature(b,sig);
-				return sig;
-			}
+            case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+                RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
+                sig = createModuleBodySignature(b,sig);
+                return sig;
+            }
 
-			default : throw "createRSignature: unexpected module syntax <t>";
-		}
-	} else {
+            default : throw "createRSignature: unexpected module syntax <t>";
+        }
+    } else {
         throw "createRSignature: unexpected module syntax <t>";
-	}
+    }
 }
 
 //
@@ -121,56 +121,69 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
                         }
                     }
                 }
-	
+    
                 // Abstract (i.e., without a body) function declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> ;` : {
                     if ((Visibility)`public` := vis) { 
                         switch(s) {
                             case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
-                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps),isVarArgsParameters(ps)), t@\loc));
+                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
                             case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
-                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps),isVarArgsParameters(ps)), t@\loc));
+                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
                         }
                     }
                 }
-	 
-	 			// Concrete (i.e., with a body) function declaration
-				case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> <FunctionBody fb>` : {
-					if ((Visibility)`public` := vis) {
-						switch(s) {
-							case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
-								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps),isVarArgsParameters(ps)), t@\loc));
-							case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
-								sig = addSignatureItem(sig, FunctionSigItem(convertName(n), makeFunctionType(convertType(typ),getParameterTypes(ps),isVarArgsParameters(ps)), t@\loc));
-						}
-					}
-				}
-				
-				// Annotation declaration
+     
+                // Concrete (i.e., with a body) function declaration
+                case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> <FunctionBody fb>` : {
+                    if ((Visibility)`public` := vis) {
+                        switch(s) {
+                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
+                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
+                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
+                        }
+                    }
+                }
+
+// TODO: Re-add when this case is available, not in the parser yet
+//                // Concrete (i.e., with a body) function declaration, expression form
+//                case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> = <Expression exp>;` : {
+//                    if ((Visibility)`public` := vis) {
+//                        switch(s) {
+//                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
+//                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
+//                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+//                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
+//                        }
+//                    }
+//                }
+                
+                // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
 //                    if ((Visibility)`public` := vis) {
                         sig = addSignatureItem(sig, AnnotationSigItem(convertName(n), convertType(typ), convertType(otyp), t@\loc));
 //                    }
-				}
-									
-				// Tag declaration
-				case (Toplevel) `<Tags tgs> <Visibility vis> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
+                }
+                                    
+                // Tag declaration
+                case (Toplevel) `<Tags tgs> <Visibility vis> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
 //                    if ((Visibility)`public` := vis) {
-    					sig = addSignatureItem(sig, TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
+                        sig = addSignatureItem(sig, TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
 //                    }
-				}
-				
-				// Rule declaration -- we will include the rule names in the signature, but I'm not sure we actually need them
-				case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
-					sig = addSignatureItem(sig, RuleSigItem(convertName(n), t@\loc));
-				}
-				
-				// Test -- tests are not part of the signature, but we include them here so we don't throw below on unhandled cases
-				case (Toplevel) `<Test tst> ;` : {
-					sig = sig;
-				}
-								
-				// ADT without variants
+                }
+                
+                // Rule declaration -- we will include the rule names in the signature, but I'm not sure we actually need them
+                case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
+                    sig = addSignatureItem(sig, RuleSigItem(convertName(n), t@\loc));
+                }
+                
+                // Test -- tests are not part of the signature, but we include them here so we don't throw below on unhandled cases
+                case (Toplevel) `<Test tst> ;` : {
+                    sig = sig;
+                }
+                                
+                // ADT without variants
                 case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> ;` : {
 //                    if ((Visibility)`public` := vis) {
                         RType adtBaseType = convertUserType(typ);
@@ -178,8 +191,8 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
                         sig = addSignatureItem(sig, ADTSigItem(adtBaseType.typeName, adtType, t@\loc));
 //                    }
                 }
-				
-				// ADT with variants
+                
+                // ADT with variants
                 case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
 //                    if ((Visibility)`public` := vis) {
                         RType adtBaseType = convertUserType(typ);
@@ -193,39 +206,26 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 //                    }
                 }
 
-				// Alias
-				case (Toplevel) `<Tags tgs> <Visibility vis> alias <UserType typ> = <Type btyp> ;` : {
+                // Alias
+                case (Toplevel) `<Tags tgs> <Visibility vis> alias <UserType typ> = <Type btyp> ;` : {
 //                    if ((Visibility)`public` := vis) {
                         RType aliasType = convertUserType(typ);
                         RType aliasedType = convertType(btyp);
                         sig = addSignatureItem(sig, AliasSigItem(convertName(getUserTypeRawName(typ)), makeParameterizedAliasType(aliasType.typeName, aliasedType, aliasType.typeParams), t@\loc));
 //                    }
-				}
-								
-				// View
-				case (Toplevel) `<Tags tgs> <Visibility vis> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-					throw "Not yet implemented";
-				}
-								
-				default: throw "RSignature case not implemented for item <t>";
-			}
-		}
-	}
-	
-	return sig;
-}
-
-//
-// Find the types of parameter items in a function signature
-//
-private list[RType] getParameterTypes(Parameters ps) {
-	list[RType] pTypes = [ ];
-
-	if (`( <Formals f> )` := ps || `( <Formals f> ... )` := ps, (Formals)`<{Formal ","}* fs>` := f) {
-		for ((Formal)`<Type t> <Name n>` <- fs) pTypes += convertType(t);
-	}
-	
-	return pTypes;
+                }
+                                
+                // View
+                case (Toplevel) `<Tags tgs> <Visibility vis> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
+                    throw "Not yet implemented";
+                }
+                                
+                default: throw "RSignature case not implemented for item <t>";
+            }
+        }
+    }
+    
+    return sig;
 }
 
 //
@@ -242,9 +242,9 @@ public bool isVarArgsParameters(Parameters ps) {
 // new type names.
 //
 private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
-	set[RName] definedTypeNames = { };
-	for (si <- sig.signatureItems, AliasSigItem(n,_,_) := si || ADTSigItem(n,_,_) := si) definedTypeNames += n;
-	return definedTypeNames;
+    set[RName] definedTypeNames = { };
+    for (si <- sig.signatureItems, AliasSigItem(n,_,_) := si || ADTSigItem(n,_,_) := si) definedTypeNames += n;
+    return definedTypeNames;
 }
 
 //
@@ -276,12 +276,12 @@ public RType isUnknownType(RType rt) {
 }
 
 private RSignature markUndefinedTypes(RSignature sig) {
-	set[RName] localNames = getLocallyDefinedTypeNames(sig);
-	sig.signatureItems = 
-		visit(sig.signatureItems) {
-			case RType t => ((RUserType(n,_) := t) && n notin localNames) ? RUnknownType(t) : t
-		}
-	return sig;
+    set[RName] localNames = getLocallyDefinedTypeNames(sig);
+    sig.signatureItems = 
+        visit(sig.signatureItems) {
+            case RType t => ((RUserType(n,_) := t) && n notin localNames) ? RUnknownType(t) : t
+        }
+    return sig;
 }
 
 //
@@ -293,16 +293,16 @@ anno RSignature Header@sig;
 // Given a module, annotate it with its signature.
 //
 public Tree addModuleSignature(Tree t) {
-	return top-down-break visit(t) {
-		case Header h => h[@sig = markUndefinedTypes(createRSignature(t))]
-	}
+    return top-down-break visit(t) {
+        case Header h => h[@sig = markUndefinedTypes(createRSignature(t))]
+    }
 }
 
 //
 // Given a module, return its signature.
 //
 public RSignature getModuleSignature(Tree t) {
-	return markUndefinedTypes(createRSignature(t));
+    return markUndefinedTypes(createRSignature(t));
 }
 
 //
@@ -332,17 +332,17 @@ public str getNameOfImportedModule(ImportedModule im) {
 // Fill in the signature map with one signature per import.
 //
 public SignatureMap populateSignatureMap(list[Import] imports) {
-	SignatureMap sigMap = ( );
-	for (i <- imports) {
-		if ((Import)`import <ImportedModule im> ;` := i || (Import)`extend <ImportedModule im> ;` := i) {
+    SignatureMap sigMap = ( );
+    for (i <- imports) {
+        if ((Import)`import <ImportedModule im> ;` := i || (Import)`extend <ImportedModule im> ;` := i) {
             try {
-    			Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
-    			sigMap[i] = getModuleSignature(importTree);
+                Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
+                sigMap[i] = getModuleSignature(importTree);
             } catch : {
                 println("TypeSignatures: Failed to build signature for module <getNameOfImportedModule(im)>");
             }
-		} 
-	}
+        } 
+    }
 
-	return sigMap;
+    return sigMap;
 }
