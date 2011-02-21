@@ -458,7 +458,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public void setCurrentAST(AbstractAST currentAST) {
 		this.currentAST = currentAST;
-		this.currentEnvt.setLocation(currentAST.getLocation());
 	}
 
 	public AbstractAST getCurrentAST() {
