@@ -8,9 +8,11 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class NodeResult extends ElementResult<INode> {
@@ -42,6 +44,11 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result) {
 		return result.greaterThanNode(this);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> is(Name name) {
+		return ResultFactory.bool(getValue().getName().equals(Names.name(name)), ctx);
 	}
 	
 	@Override
