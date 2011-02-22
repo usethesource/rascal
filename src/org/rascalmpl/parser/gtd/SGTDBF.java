@@ -560,17 +560,17 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		if(!stack.isList()){
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-			if(levelResultStoreMap != null){
-				AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName(), getResultStoreId(stack.getId()));
-				if(resultStore != null){ // Is nullable, add the known results.
-					stacksWithNonTerminalsToReduce.push(stack, resultStore);
-				}
-			}
-			
 			ArrayList<AbstractStackNode> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges != null){
 				cachedEdges.add(stack);
+				
+				ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+				if(levelResultStoreMap != null){
+					AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName(), getResultStoreId(stack.getId()));
+					if(resultStore != null){ // Is nullable, add the known results.
+						stacksWithNonTerminalsToReduce.push(stack, resultStore);
+					}
+				}
 			}else{
 				invokeExpects(stack);
 				handleExpects(stack);
