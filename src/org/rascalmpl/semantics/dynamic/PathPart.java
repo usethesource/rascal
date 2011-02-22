@@ -1,12 +1,10 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.StringBuilder;
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PathChars;
 import org.rascalmpl.ast.PathTail;
 import org.rascalmpl.ast.PrePathChars;
@@ -32,14 +30,8 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 			Result<IValue> pre = this.getPre().interpret(__eval);
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			Result<IValue> tail = this.getTail().interpret(__eval);
-			StringBuilder result = new StringBuilder();
 
-			result.append(((IString) pre.getValue()).getValue());
-			__eval.appendToString(expr.getValue(), result);
-			result.append(((IString) tail.getValue()).getValue());
-
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(result.toString()), __eval);
-
+			return pre.add(expr).add(tail);
 		}
 
 	}

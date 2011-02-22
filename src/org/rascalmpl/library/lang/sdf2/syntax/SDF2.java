@@ -46,12 +46,16 @@ public class SDF2 extends SGTDBF {
 	}
 	
 	protected static java.lang.String _concat(String ...args) {
-		  java.lang.StringBuilder b = new java.lang.StringBuilder();
-		  for (java.lang.String s : args) {
-		    b.append(s);
-		  }
-		  return b.toString();
+		int length = 0;
+		for (java.lang.String s :args) {
+			length += s.length();
 		}
+		java.lang.StringBuilder b = new java.lang.StringBuilder(length);
+		for (java.lang.String s : args) {
+			b.append(s);
+		}
+		return b.toString();
+	}
 	
 	protected static final TypeFactory _tf = TypeFactory.getInstance();
 

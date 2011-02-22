@@ -33,7 +33,7 @@ public abstract class ProtocolChars extends org.rascalmpl.ast.ProtocolChars {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			String str = this.getString();
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(str.substring(1, str.length() - 3)),
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.stringType(), VF.string(str.substring(1, str.length() - 3)),
 					__eval);
 
 		}

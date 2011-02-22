@@ -229,7 +229,7 @@ public class String {
 	}
 	
 	public IValue escape(IString str, IMap substitutions) {
-		StringBuilder b = new StringBuilder(); 
+		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
 		char[] input = str.getValue().toCharArray();
 		
 		for (char c : input) {
