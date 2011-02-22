@@ -487,7 +487,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public String getStackTrace() {
-		StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder(1024*1024);
 		Environment env = this.currentEnvt;
 		while (env != null) {
 			ISourceLocation loc = env.getLocation();

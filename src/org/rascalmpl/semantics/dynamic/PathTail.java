@@ -1,13 +1,11 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.StringBuilder;
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidPathChars;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PostPathChars;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -27,18 +25,11 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			Result<IValue> mid = this.getMid().interpret(__eval);
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			Result<IValue> tail = this.getTail().interpret(__eval);
-			StringBuilder result = new StringBuilder();
 
-			result.append(((IString) mid.getValue()).getValue());
-			__eval.appendToString(expr.getValue(), result);
-			result.append(((IString) tail.getValue()).getValue());
-
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), __eval.__getVf().string(result.toString()), __eval);
-
+			return mid.add(expr).add(tail);
 		}
 
 	}

@@ -28,6 +28,14 @@ public class StringResult extends ElementResult<IString> {
 		return string;
 	}
 	
+	protected int length() {
+		return string.getValue().length();
+	}
+	
+	protected void yield(StringBuilder b) {
+		b.append(string.getValue());
+	}
+	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result) {
 		return result.addString(this);
@@ -69,11 +77,17 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	//////////////////////
+//	
+//	@Override
+//	protected <U extends IValue> Result<U> addString(StringResult s) {
+//		// Note the reverse concat.
+//		return makeResult(type, s.getValue().concat(getValue()), ctx);
+//	}	
 	
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult s) {
 		// Note the reverse concat.
-		return makeResult(type, s.getValue().concat(getValue()), ctx);
+		return (Result<U>) new ConcatStringResult(getType(), s, this, ctx); 
 	}	
 	
 	@Override

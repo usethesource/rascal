@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.OriginValueFactory;
 
@@ -226,12 +227,14 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 				IList list = (IList) value.getValue();
 				
 				// list is always non-empty
-				IString s = (IString)list.get(0);
+				Result<IValue> s = ResultFactory.makeResult(TF.stringType(), list.get(0), __eval);
+				
+				// lazy concat!
 				for (int i = 1; i < list.length(); i++) {
-					IValue x = list.get(i);
-					s = s.concat((IString)list.get(i));
+					s = s.add(ResultFactory.makeResult(TF.stringType(), list.get(i), __eval));
 				}
-				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), s, __eval);
+				
+				return s;
 			}
 
 

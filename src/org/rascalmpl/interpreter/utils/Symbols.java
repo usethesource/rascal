@@ -82,7 +82,7 @@ public class Symbols {
 
 	private static IValue literal2Symbol(StringConstant sep) {
 		String lit = ((StringConstant.Lexical) sep).getString();
-		StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder(lit.length());
 		
 		// TODO: did we deal with all escapes here? probably not!
 		for (int i = 1; i < lit.length() - 1; i++) {
@@ -121,7 +121,7 @@ public class Symbols {
 	
 	private static IValue ciliteral2Symbol(CaseInsensitiveStringConstant constant) {
 		String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
-		StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder(lit.length());
 		
 		for (int i = 1; i < lit.length() - 1; i++) {
 			if (lit.charAt(i) == '\\') {

@@ -2,6 +2,7 @@ package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -139,7 +140,7 @@ public class IO {
 	
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
-		StringBuilder result = new StringBuilder();
+		StringBuilder result = new StringBuilder(1024 * 1024);
 		
 		InputStream in = null;
 		try{

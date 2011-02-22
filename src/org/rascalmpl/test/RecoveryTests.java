@@ -39,7 +39,7 @@ public class RecoveryTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("recoveryOfGlobalVariable() == 0;"));
 	}
 
-	@Test
+	@Test @Ignore
 	public void testRecoveryAfterFailingRule() {
 		assertTrue(runTestInSameEvaluator("recoveryOfGlobalAfterFailingRule() == 0;"));
 	}

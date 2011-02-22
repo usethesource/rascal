@@ -85,6 +85,8 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
+	
+
 	public Expression(INode __param1) {
 		super(__param1);
 	}

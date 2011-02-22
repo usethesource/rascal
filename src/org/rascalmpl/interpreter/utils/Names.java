@@ -36,7 +36,7 @@ public class Names {
 			return name(names.get(0));
 		}
 		
-		StringBuilder tmp = new StringBuilder();
+		StringBuilder tmp = new StringBuilder(names.size() * 20);
 		Iterator<Name> iter = prefix.iterator();
 
 		while (iter.hasNext()) {
@@ -64,7 +64,7 @@ public class Names {
 			return null;
 		}
 		
-		StringBuilder tmp = new StringBuilder();
+		StringBuilder tmp = new StringBuilder(names.size() * 20);
 		Iterator<Name> iter = prefix.iterator();
 
 		while (iter.hasNext()) {

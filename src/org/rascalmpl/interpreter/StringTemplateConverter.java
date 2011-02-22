@@ -114,7 +114,7 @@ public class StringTemplateConverter {
 					}
 					else {
 						// Ensure that values that are trees are yielding the appropriate string value
-						StringBuilder sb = new StringBuilder();
+						StringBuilder sb = new StringBuilder(500);
 						__eval.appendToString(v, sb);
 						v = vf.string(sb.toString());
 					}

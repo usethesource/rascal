@@ -42,7 +42,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	}
 	
 	private String removeRascalSpecificEscapes(String s) {
-		StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder(s.length());
 		char[] chars = s.toCharArray();
 		
 		for (int i = 0; i < chars.length; i++) {
