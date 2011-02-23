@@ -381,7 +381,7 @@ public str prettyPrintSI(SymbolTable st, STItem si) {
             case OrLayer(_) : return "OrLayer";
             case BlockLayer(_) : return "BlockLayer";
             case ModuleItem(x,_) : return "Module <prettyPrintName(x)>";
-            case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<ags>)";
+            case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)><ags>";
             case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)>";
             case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)>";
             case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)>";
@@ -401,24 +401,24 @@ public str prettyPrintSIWLoc(SymbolTable st, STItem si) {
     str prettyPrintSIWLocAux(STItem si) {
         if ( (si@at)? ) {
             switch(si) {
-                case TopLayer() : return "TopLayer at <si@at>";
-                case ModuleLayer(_,_) : return "ModuleLayer at <si@at>";
-                case FunctionLayer(_,_) : return "FunctionLayer at <si@at>";
-                case PatternMatchLayer(_) : return "PatternMatchLayer at <si@at>";
-                case BooleanExpLayer(_) : return "BooleanExpLayer at <si@at>";
-                case OrLayer(_) : return "OrLayer at <si@at>";
-                case BlockLayer(_) : return "BlockLayer at <si@at>";
-                case ModuleItem(x,_) : return "Module <prettyPrintName(x)> at <si@at>";
-                case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<ags>)";
-                case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)> at <si@at>";
-                case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)> at <si@at>";
-                case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)> at <si@at>";
-                case LabelItem(x,_) : return "Label <prettyPrintName(x)> at <si@at>";
-                case AliasItem(atype,_,_) : return "Alias <prettyPrintType(atype)> at <si@at>";
-                case ConstructorItem(cn,tas,_,_) :  return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>) at <si@at>";
-                case ADTItem(ut,_,_) : return "ADT <prettyPrintType(ut)> at <si@at>";
-                case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)> at <si@at>";
-                case RuleItem(x,_) : return "Rule <prettyPrintName(x)> at <si@at>";
+                case TopLayer() : return "TopLayer defined at <si@at>";
+                case ModuleLayer(_,_) : return "ModuleLayer defined at <si@at>";
+                case FunctionLayer(_,_) : return "FunctionLayer defined at <si@at>";
+                case PatternMatchLayer(_) : return "PatternMatchLayer defined at <si@at>";
+                case BooleanExpLayer(_) : return "BooleanExpLayer defined at <si@at>";
+                case OrLayer(_) : return "OrLayer defined at <si@at>";
+                case BlockLayer(_) : return "BlockLayer defined at <si@at>";
+                case ModuleItem(x,_) : return "Module <prettyPrintName(x)> defined at <si@at>";
+                case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<ags>) defined at <si@at>";
+                case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)> defined at <si@at>";
+                case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)> defined at <si@at>";
+                case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)> defined at <si@at>";
+                case LabelItem(x,_) : return "Label <prettyPrintName(x)> defined at <si@at>";
+                case AliasItem(atype,_,_) : return "Alias <prettyPrintType(atype)> defined at <si@at>";
+                case ConstructorItem(cn,tas,_,_) :  return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>) defined at <si@at>";
+                case ADTItem(ut,_,_) : return "ADT <prettyPrintType(ut)> defined at <si@at>";
+                case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)> defined at <si@at>";
+                case RuleItem(x,_) : return "Rule <prettyPrintName(x)> defined at <si@at>";
             }
         } else {
             println(si);

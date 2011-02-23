@@ -161,6 +161,82 @@ public tuple[Tree,SymbolTable] resolveTreeAux(Tree t) {
 }
 
 //
+// Using the information gathered in the symbol table, add IDs to each name indicating which
+// symbol table item(s) the name points to
+//
+// TODO: Removing qualifiers causes an error during filtering. This needs to be fixed (I'm
+// looking at you, Jurgen!)
+//
+public Tree addNamesToTree(SymbolTable symbolTable, Tree t) {
+    bool canLink(set[STItemId] ids) {
+        if (size(ids) == 1) {
+            if ( ((symbolTable.scopeItemMap[getOneFrom(ids)])@at)? ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    loc generateLink(set[STItemId] ids) {
+        return (symbolTable.scopeItemMap[getOneFrom(ids)])@at;
+    }
+    
+    str generateDocString(set[STItemId] ids) {
+        str result = "";
+        if (size(ids) == 1) {
+            result = prettyPrintSIWLoc(symbolTable, symbolTable.scopeItemMap[getOneFrom(ids)]);
+        } else {
+            result = "Multiple Options:\n";
+// TODO: File bug report, this should work            
+//            result += joinList(toList({ symbolTable.scopeItemMap[id] | id <- ids }), prettyPrintSIWLoc, "\n", "");
+            list[str] pp = [ prettyPrintSIWLoc(symbolTable, symbolTable.scopeItemMap[id]) | id <- ids ];
+            result += joinList(pp, str(str s) { return s; }, "\n", "");             
+        }
+        
+        return result;
+    }
+    
+    Tree annotateNode(Tree tn) {
+        set[STItemId] ids = symbolTable.itemUses[tn@\loc];
+        if (canLink(ids))
+            return tn[@nameIds = ids][@doc = generateDocString(ids)][@link = generateLink(ids)];
+        else
+            return tn[@nameIds = ids][@doc = generateDocString(ids)];
+    }
+    
+    return visit(t) {
+//        case appl(prod(list[Symbol] sl*, sort("Name"), Attributes ats), list[Tree] ts*) :
+        case tn:appl(prod(_, sort("Name"), _), _) :
+            if (tn@\loc in symbolTable.itemUses)
+                insert(annotateNode(tn));
+                
+//        case (Name)`<Name n>` :
+//            if (n@\loc in symbolTable.itemUses)
+//                insert(annotateNode(n));
+
+//        case (QualifiedName)`<QualifiedName qn>` :
+//            if (qn@\loc in symbolTable.itemUses)
+//                insert(annotateNode(qn));
+
+//        case (Pattern)`<Name n>` :
+//            if (n@\loc in symbolTable.itemUses)
+//                insert(annotateNode(n,n@\loc));
+    
+//        case (Pattern)`<QualifiedName qn>` :
+//            if (qn@\loc in symbolTable.itemUses)
+//                insert(annotateNode(qn,qn@\loc));
+                
+//        case (UserType)`<QualifiedName qn>` :
+//            if (qn@\loc in symbolTable.itemUses)
+//                insert(annotateNode(qn,qn@\loc));
+
+//        case (Assignable)`<QualifiedName qn>` :
+//            if (qn@\loc in symbolTable.itemUses)
+//                insert(annotateNode(qn,qn@\loc));
+    };
+}
+
+//
 // Retrieve the list of imports from the module
 //
 public list[Import] getImports(Tree t) {
@@ -216,61 +292,6 @@ public SymbolTable buildTable(Tree t, SignatureMap signatures) {
     // NOTE: We remain inside the top scope, we don't pop that when we are done.
     return symbolTable;
 }		
-
-//
-// Using the information gathered in the symbol table, add IDs to each name indicating which
-// symbol table item(s) the name points to
-//
-// TODO: Removing qualifiers causes an error during filtering. This needs to be fixed (I'm
-// looking at you, Jurgen!)
-//
-public Tree addNamesToTree(SymbolTable symbolTable, Tree t) {
-    str generateDocString(set[STItemId] ids) {
-        str result = "";
-        if (size(ids) == 1) {
-            result = prettyPrintSIWLoc(symbolTable, symbolTable.scopeItemMap[getOneFrom(ids)]);
-        } else {
-            result = "Multiple Options:\n";
-// TODO: File bug report, this should work            
-//            result += joinList(toList({ symbolTable.scopeItemMap[id] | id <- ids }), prettyPrintSIWLoc, "\n", "");
-            list[str] pp = [ prettyPrintSIWLoc(symbolTable, symbolTable.scopeItemMap[id]) | id <- ids ];
-            result += joinList(pp, str(str s) { return s; }, "\n", "");             
-        }
-        
-        return result;
-    }
-    
-    Tree annotateNode(Tree tn, loc l) {
-        set[STItemId] ids = symbolTable.itemUses[l];
-        return tn[@nameIds = ids][@doc = generateDocString(ids)];
-    }
-    
-    return visit(t) {
-        case tn: (Expression)`<Name n>` :
-            if (n@\loc in symbolTable.itemUses)
-                insert(annotateNode(tn,n@\loc));
-
-        case tn: (Expression)`<QualifiedName qn>` :
-            if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(tn,qn@\loc));
-
-        case tn: (Pattern)`<Name n>` :
-            if (n@\loc in symbolTable.itemUses)
-                insert(annotateNode(tn,n@\loc));
-    
-        case tn: (Pattern)`<QualifiedName qn>` :
-            if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(tn,qn@\loc));
-                
-        case tn: (UserType)`<QualifiedName qn>` :
-            if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(tn,qn@\loc));
-
-        case tn: (Assignable)`<QualifiedName qn>` :
-            if (qn@\loc in symbolTable.itemUses)
-                insert(annotateNode(tn,qn@\loc));
-    };
-}
 
 //
 // Load information from the imported modules. This also checks for conflicts in the loaded information,
