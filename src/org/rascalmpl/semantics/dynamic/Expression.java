@@ -2193,7 +2193,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			return __eval.evalBooleanExpression(this);
+			return __eval.evalBooleanExpression(this).negate();
 		}
 
 		@Override
