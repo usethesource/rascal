@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.DateTimeLiteral;
 import org.rascalmpl.ast.IntegerLiteral;
@@ -20,6 +21,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.StringTemplateConverter;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.result.Result;
@@ -67,6 +69,10 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		}
 
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.realType();
+		}
 	}
 
 	static public class Integer extends org.rascalmpl.ast.Literal.Integer {
@@ -78,16 +84,17 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-
 			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
-
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			return this.getIntegerLiteral().interpret(__eval);
-
+		}
+		
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.integerType();
 		}
 
 	}
@@ -111,6 +118,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			throw new SyntaxError("regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).", this.getLocation());
 
+		}
+		
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.stringType();
 		}
 
 	}
@@ -136,6 +148,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), __eval.__getVf().bool(str.equals("true")), __eval);
 
 		}
+		
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.boolType();
+		}
 
 	}
 
@@ -151,6 +168,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			return this.getDateTimeLiteral().interpret(__eval);
 
+		}
+		
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.dateTimeType();
 		}
 
 	}
@@ -168,6 +190,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			return this.getLocationLiteral().interpret(__eval);
 
 		}
+		
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.sourceLocationType();
+		}
 
 	}
 
@@ -183,6 +210,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
 
+		}
+		
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.stringType();
 		}
 
 		@Override
