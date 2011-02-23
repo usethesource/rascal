@@ -1,7 +1,5 @@
 package org.rascalmpl.semantics.dynamic;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
