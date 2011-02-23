@@ -152,9 +152,6 @@ public class RascalFunction extends NamedFunction {
 
 			return makeResult(instantiatedReturnType, result.getValue(), eval);
 		} 
-		catch (Failure e) {
-			throw new UnguardedFailError(ast);
-		}
 		finally {
 			if (callTracing) {
 				printFinally();

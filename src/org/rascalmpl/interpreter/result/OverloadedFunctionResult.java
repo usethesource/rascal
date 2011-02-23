@@ -13,8 +13,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 
 public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -87,6 +89,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 
 	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues) {
 		Type tuple = getTypeFactory().tupleType(argTypes);
+		AbstractFunction failed = null;
 		
 		for (AbstractFunction candidate : candidates) {
 			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
@@ -97,7 +100,15 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 				catch (MatchFailed m) {
 					// could happen if pattern dispatched
 				}
+				catch (Failure e) {
+					failed = candidate;
+					// could happen if function body throws fail
+				}
 			}
+		}
+		
+		if (failed != null) {
+			throw new UnguardedFailError(failed.ast);
 		}
 		
 		return null;
