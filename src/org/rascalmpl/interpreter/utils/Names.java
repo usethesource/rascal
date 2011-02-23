@@ -5,15 +5,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.IASTVisitor;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.parser.ASTBuilder;
 
 
 public class Names {
-
+	private static ASTBuilder AB = new ASTBuilder();
+	
 	static public Name lastName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
 		return names.get(names.size() - 1);
@@ -114,7 +115,7 @@ public class Names {
 	static public QualifiedName toQualifiedName(String name) {
 		List<Name> list = new LinkedList<Name>();
 		list.add(toName(name));
-		return ASTFactoryFactory.getASTFactory().makeQualifiedNameDefault(null, list);
+		return AB.make("QualifiedName", null, list);
 	}
 	
 	static class InventedName extends Name {

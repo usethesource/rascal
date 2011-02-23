@@ -10,8 +10,6 @@ import java.util.Stack;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.ASTFactory;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -27,7 +25,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
@@ -35,10 +32,10 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.ASTBuilder;
 
 public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
@@ -61,7 +58,7 @@ public class RascalFunction extends NamedFunction {
 	this(func, eval,
 			(FunctionType) func.getSignature().typeOf(env),
 			varargs, isDefault(func),
-			Arrays.asList(new Statement[] { ASTFactoryFactory.getASTFactory().makeStatementReturn(func.getTree(), ASTFactoryFactory.getASTFactory().makeStatementExpression(func.getTree(), func.getExpression()))}),
+			Arrays.asList(new Statement[] { eval.getBuilder().makeStat("Return", func.getTree(), eval.getBuilder().makeStat("Expression", func.getTree(), func.getExpression()))}),
 			env, accumulators);
 	this.name = Names.name(func.getSignature().getName());
    }
@@ -204,10 +201,10 @@ public class RascalFunction extends NamedFunction {
 	}
 
 	private IMatchingResult[] prepareFormals(IEvaluatorContext ctx) {
-		ASTFactory af = ASTFactoryFactory.getASTFactory();
 		List<Expression> formals;
 		Parameters params;
-
+		ASTBuilder af = ctx.getBuilder();
+		
 		if (ast instanceof FunctionDeclaration) {
 			params = ((FunctionDeclaration) ast).getSignature().getParameters();
 		}
@@ -228,14 +225,14 @@ public class RascalFunction extends NamedFunction {
 			if (last.isTypedVariable()) {
 				org.rascalmpl.ast.Type oldType = last.getType();
 				INode origin = last.getTree();
-				Structured newType = af.makeTypeStructured(origin, af.makeStructuredTypeDefault(origin, af.makeBasicTypeList(origin), Arrays.<TypeArg>asList(af.makeTypeArgDefault(origin,oldType))));
-				last = af.makeExpressionTypedVariable(origin, newType, last.getName());
+				Structured newType = af.make("Type","Structured", origin, af.make("StructuredType",origin, af.make("BasicType","List", origin), Arrays.asList(af.make("TypeArg","Default", origin,oldType))));
+				last = af.make("Expression","TypedVariable",origin, newType, last.getName());
 				formals = replaceLast(formals, last);
 			}
 			else if (last.isQualifiedName()) {
 				INode origin = last.getTree();
-				org.rascalmpl.ast.Type newType = af.makeTypeStructured(origin, af.makeStructuredTypeDefault(origin, af.makeBasicTypeList(origin), Arrays.<TypeArg>asList(af.makeTypeArgDefault(origin, af.makeTypeBasic(origin, af.makeBasicTypeValue(origin))))));
-				last = af.makeExpressionTypedVariable(origin, newType, Names.lastName(last.getQualifiedName()));
+				org.rascalmpl.ast.Type newType = af.make("Type","Structured",origin, af.make("StructuredType",origin, af.make("BasicType","List", origin), Arrays.asList(af.make("TypeArg",origin, af.make("Type","Basic", origin, af.make("BasicType","Value", origin))))));
+				last = af.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
 				formals = replaceLast(formals, last);
 			}
 			else {

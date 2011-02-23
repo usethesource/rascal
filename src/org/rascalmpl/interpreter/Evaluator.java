@@ -97,6 +97,7 @@ import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 
+
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
 	private IValueFactory vf;
 	private static final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
@@ -127,7 +128,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private ITestResultListener testReporter;
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private final RascalURIResolver rascalPathResolver;
-	private final ASTBuilder builder;
+	private static final ASTBuilder builder = new ASTBuilder();
 
 	private final URIResolverRegistry resolverRegistry;
 
@@ -152,7 +153,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.parser = new Parser();
 		this.stderr = stderr;
 		this.stdout = stdout;
-		this.builder = new ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
 		this.resolverRegistry = rascalPathResolver.getRegistry();
 		this.constructorDeclaredListeners = new HashSet<IConstructorDeclared>();
 
@@ -587,7 +587,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			tree = rp.parse("start__$Command", location, command, actionExecutor);
 		}
 
-		Command stat = this.builder.buildCommand(tree);
+		Command stat = builder.buildCommand(tree);
 		if (stat == null) {
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
 		}
@@ -942,7 +942,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
 
 		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
-		Module preModule = this.builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 
 		// take care of imports and declare syntax
 		Result<IValue> name = preModule.interpret(this);
@@ -994,7 +994,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
 		try {
 			IConstructor tree = this.parseModule(java.net.URI.create("rascal:///" + name), env);
-			ASTBuilder astBuilder = new ASTBuilder(org.rascalmpl.ast.ASTFactoryFactory.getASTFactory());
+			ASTBuilder astBuilder = getBuilder();
 			Module moduleAst = astBuilder.buildModule(tree);
 
 			if (moduleAst == null) {
@@ -1004,6 +1004,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		} catch (FactTypeUseException e) {
 			throw new ImplementationError("Unexpected PDB typecheck exception", e);
 		}
+	}
+	
+	@Override
+	public ASTBuilder getBuilder() {
+		return builder;
 	}
 
 	public Module evalRascalModule(AbstractAST x, String name) {
@@ -1459,7 +1464,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public static final Name IT = org.rascalmpl.ast.ASTFactoryFactory.getASTFactory().makeNameLexical(null, "<it>");
+	public static final Name IT = builder.makeLex("Name", null, "<it>");
 	private ParserGenerator parserGenerator;
 
 	public Result<IValue> evalReducer(Expression init, Expression result, List<Expression> generators) {
