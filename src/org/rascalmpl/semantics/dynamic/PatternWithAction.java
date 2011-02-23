@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Evaluator;

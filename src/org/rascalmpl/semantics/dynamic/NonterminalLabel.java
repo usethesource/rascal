@@ -3,7 +3,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.lang.String;
 import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
-import org.rascalmpl.ast.NullASTVisitor;
 
 public abstract class NonterminalLabel extends org.rascalmpl.ast.NonterminalLabel {
 

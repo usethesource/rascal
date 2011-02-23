@@ -3,7 +3,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 
 public abstract class Catch extends org.rascalmpl.ast.Catch {

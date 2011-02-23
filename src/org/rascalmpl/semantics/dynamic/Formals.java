@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
-import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Formals extends org.rascalmpl.ast.Formals {
 

@@ -3,7 +3,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.TagString;
 
 public abstract class Tag extends org.rascalmpl.ast.Tag {

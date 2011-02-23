@@ -14,7 +14,6 @@ import org.rascalmpl.ast.TypeVar;
 import org.rascalmpl.ast.UserType;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Type extends org.rascalmpl.ast.Type {

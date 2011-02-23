@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
 

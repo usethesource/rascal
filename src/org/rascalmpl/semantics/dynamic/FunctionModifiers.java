@@ -2,7 +2,6 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.FunctionModifier;
-import org.rascalmpl.ast.NullASTVisitor;
 
 public abstract class FunctionModifiers extends org.rascalmpl.ast.FunctionModifiers {
 

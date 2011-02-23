@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.DateAndTime;
 import org.rascalmpl.ast.JustDate;
 import org.rascalmpl.ast.JustTime;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
 

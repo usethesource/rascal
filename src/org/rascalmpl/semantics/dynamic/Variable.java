@@ -4,7 +4,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 
 public abstract class Variable extends org.rascalmpl.ast.Variable {
 

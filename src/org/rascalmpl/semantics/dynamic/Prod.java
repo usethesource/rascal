@@ -5,7 +5,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.Assoc;
 import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.ProdModifier;
 import org.rascalmpl.ast.Sym;
 
