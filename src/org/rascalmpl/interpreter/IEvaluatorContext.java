@@ -8,6 +8,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 // TODO: this interface needs to be split into an external interface, for clients
@@ -25,6 +26,7 @@ public interface IEvaluatorContext {
 	
 	/** for "internal use" */
 	public Evaluator getEvaluator();
+	public ASTBuilder getBuilder();
 	public boolean isInterrupted();
 	public void interrupt();
 	public Environment getCurrentEnvt();

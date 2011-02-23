@@ -13,7 +13,6 @@ import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.parser.ASTBuilder;
 
 public class MetaRascalRascal extends ObjectRascalRascal {
@@ -77,7 +76,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
     
     protected static java.util.HashMap<IConstructor, org.rascalmpl.ast.LanguageAction> _initLanguageActions() {
       java.util.HashMap<IConstructor, org.rascalmpl.ast.LanguageAction> result = ObjectRascalRascal._initLanguageActions();
-      ASTBuilder astBuilder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
+      ASTBuilder astBuilder = new ASTBuilder();
       IMap tmp = (IMap) _read(_concat("()"), _tf.mapType(Factory.Production, Factory.Tree));
       for (IValue key : tmp) {
         result.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));

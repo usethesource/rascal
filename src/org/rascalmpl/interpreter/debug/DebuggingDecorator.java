@@ -102,6 +102,7 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluator<T> {
@@ -118,6 +119,11 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		this.debugger = debugger;
 	}
 
+	@Override
+	public ASTBuilder getBuilder() {
+		return evaluator.getBuilder();
+	}
+	
 	public IValue call(String name, IValue... args) {
 		return evaluator.getEvaluator().call(name, args);
 	}

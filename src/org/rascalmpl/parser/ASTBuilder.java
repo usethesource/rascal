@@ -1,9 +1,10 @@
 package org.rascalmpl.parser;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -16,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.ASTStatistics;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
@@ -48,8 +48,6 @@ public class ASTBuilder {
 	private static final String RASCAL_SORT_PREFIX = "_";
 	private static final String MODULE_SORT = "Module";
 	private static final String PRE_MODULE_SORT = "PreModule";
-	private ASTFactory factory;
-    private Class<? extends ASTFactory> clazz;
     
     private final Expression dummyEmptyTree;
     
@@ -61,15 +59,60 @@ public class ASTBuilder {
     private PointerEqualMappingsCache<IValue, Expression> constructorCache = new PointerEqualMappingsCache<IValue, Expression>();
     private ISourceLocation lastSuccess = null;
     
-	public ASTBuilder(ASTFactory factory) {
-		this.factory = factory;
-		this.clazz = factory.getClass();
+    private final HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
+	private final ClassLoader classLoader = getClass().getClassLoader();
+    
+	public ASTBuilder() {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		
 		// this tree should never appear in "nature", so we can use it as a dummy
-		this.dummyEmptyTree = factory.makeExpressionAmbiguity(
-				(INode) Factory.Tree_Amb.make(vf, vf.list()), 
-				Collections.<Expression>emptyList());
+		this.dummyEmptyTree = makeAmb("Expression", (INode) Factory.Tree_Amb.make(vf, vf.list())
+				, Collections.<Expression>emptyList());
+	}
+	
+	public <T extends AbstractAST> T make(String sort, INode src, Object... args) {
+		return make(sort, "Default", src, args);
+	}
+	
+	public <T extends Expression> T makeExp(String cons, INode src, Object... args) {
+		return make("Expression", cons, src, args);
+	}
+	
+	public <T extends Statement> T makeStat(String cons, INode src, Object... args) {
+		return make("Statement", cons, src, args);
+	}
+	
+	public <T extends AbstractAST> T makeAmb(String sort, INode src, Object... args) {
+		return make(sort, "Ambiguity", src, args);
+	}
+	
+	public <T extends AbstractAST> T makeLex(String sort, INode src, Object... args) {
+		return make(sort, "Lexical", src, args);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends AbstractAST> T make(String sort, String cons, INode src, Object... args) {
+		Class<?>[] formals = new Class<?>[args.length];
+		for (int i = 0; i < args.length; i++) {
+			Class<?> clazz = args[i].getClass();
+			
+			if (args[i] instanceof java.util.List) {
+				formals[i] = java.util.List.class;
+			}
+			else if (args[i] instanceof java.lang.String) {
+				formals[i] = java.lang.String.class;
+			}
+			else {
+				String pkg = clazz.getPackage().getName();
+				if (pkg.contains(".ast")) {
+					formals[i] = clazz.getSuperclass();
+				} else {
+					formals[i] = clazz.getSuperclass().getSuperclass();
+				}
+			}
+		}
+		
+		return (T) callMakerMethod(sort, cons, formals, src, args);
 	}
 
 	public ISourceLocation getLastSuccessLocation() {
@@ -89,7 +132,7 @@ public class ASTBuilder {
 				IList moduleArgs = (IList) tree.get(1);
 				IConstructor headerTree = (IConstructor) moduleArgs.get(0);
 				Header header = (Header) buildValue(headerTree);
-				return factory.makeModuleDefault(tree, header, factory.makeBodyToplevels((INode) moduleArgs.get(2), Collections.<Toplevel>emptyList())); 
+				return make("Module", tree, header, make("Body","Toplevels", (INode) moduleArgs.get(2), Collections.<Toplevel>emptyList())); 
 			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
@@ -251,16 +294,13 @@ public class ASTBuilder {
 		}
 
 		IList args = getASTArgs(tree);
-		int arity = args.length() + 1;
+		int arity = args.length();
 		Class<?> formals[] = new Class<?>[arity];
 		Object actuals[] = new Object[arity];
 
-		formals[0] = INode.class;
-		actuals[0] = tree;
-
 		ASTStatistics total = new ASTStatistics();
 
-		int i = 1;
+		int i = 0;
 		for (IValue arg : args) {
 			IConstructor argTree = (IConstructor) arg;
 
@@ -315,7 +355,7 @@ public class ASTBuilder {
 //			}
 //		}
 		
-		AbstractAST ast = callMakerMethod(sort, cons, formals, actuals);
+		AbstractAST ast = callMakerMethod(sort, cons, formals, tree, actuals);
 		
 		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should
 		// be a concrete syntax pattern, but is not recognized as such because of the
@@ -345,10 +385,10 @@ public class ASTBuilder {
 		if (sort.length() == 0) {
 			throw new ImplementationError("could not retrieve sort name for " + tree);
 		}
-		Class<?> formals[] = new Class<?>[] { INode.class, String.class };
-		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
+		Class<?> formals[] = new Class<?>[] {String.class };
+		Object actuals[] = new Object[] { new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", formals, actuals);
+		AbstractAST result = callMakerMethod(sort, "Lexical", formals, tree, actuals);
 		lexCache.putUnsafe(tree, result);
 		return result;
 	}
@@ -404,7 +444,7 @@ public class ASTBuilder {
 		Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
 		Object actuals[] = new Object[] { tree, altsOut };
 
-		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, actuals);
+		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, tree, actuals);
 		
 		ast.setStats(ref != null ? ref : new ASTStatistics());
 		
@@ -507,7 +547,7 @@ public class ASTBuilder {
 			return null;
 		}
 		
-		return factory.makeExpressionAmbiguity(antiQuote, result);
+		return makeAmb("Expression", antiQuote, result);
 	}
 
 	private AbstractAST lift(IConstructor tree, boolean match) {
@@ -648,7 +688,7 @@ public class ASTBuilder {
 			else {
 				func = makeStringExpression(source, name);
 			}
-			Expression ast = factory.makeExpressionCallOrTree(source, func, args);
+			Expression ast = makeExp("CallOrTree", source, func, args);
 			ast._setType(nonterminalType);
 
 			if (loc != null && !match) {
@@ -690,22 +730,22 @@ public class ASTBuilder {
 					result.add(ast);
 				}
 			}
-			Expression.List ast = factory.makeExpressionList(source, result);
+			Expression.List ast = makeExp("List", source, result);
 			ast.setStats(stats);
 			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
 		}
 		else if (type.isStringType()) {
-			Expression result = factory.makeExpressionLiteral(source, 
-									factory.makeLiteralString(source,
-											factory.makeStringLiteralNonInterpolated(source, 
-													factory.makeStringConstantLexical(source, pattern.toString()))));
+			Expression result = makeExp("Literal", source, 
+									make("Literal", "String", source,
+											make("StringLiteral","NonInterpolated", source, 
+													makeLex("StringConstant", source, pattern.toString()))));
 			matchCache.putUnsafe(pattern, result);
 			constructorCache.putUnsafe(pattern, result);
 			return result;
 		}
 		else if (type.isIntegerType()) {
-			Expression result = factory.makeExpressionLiteral(source, factory.makeLiteralInteger(source, factory.makeIntegerLiteralDecimalIntegerLiteral(source, factory.makeDecimalIntegerLiteralLexical(source, pattern.toString()))));
+			Expression result = makeExp("Literal", source, make("Literal","Integer", source, make("IntegerLiteral","DecimalIntegerLiteral", source, makeLex("DecimalIntegerLiteral",source, pattern.toString()))));
 			matchCache.putUnsafe(pattern, result);
 			constructorCache.putUnsafe(pattern, result);
 			return result;
@@ -735,7 +775,7 @@ public class ASTBuilder {
 				return null; // all alts filtered
 			}
 			
-			Expression.Set ast = factory.makeExpressionSet(source, result);
+			Expression.Set ast = makeExp("Set", source, result);
 			ast.setStats(ref != null ? ref : new ASTStatistics());
 			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
 			return ast;
@@ -747,7 +787,7 @@ public class ASTBuilder {
 
 	private org.rascalmpl.ast.Expression.Literal makeStringExpression(
 			IConstructor source, String name) {
-		return factory.makeExpressionLiteral(source, factory.makeLiteralString(source, factory.makeStringLiteralNonInterpolated(source, factory.makeStringConstantLexical(source, "\""+  name + "\""))));
+		return makeExp("Literal", source, make("Literal","String", source, make("StringLiteral","NonInterpolated", source, makeLex("StringConstant", source, "\""+  name + "\""))));
 	}
 
 	private Expression addLocationAnnotationSetterExpression(
@@ -759,25 +799,25 @@ public class ASTBuilder {
 		List<Expression> begin = new ArrayList<Expression>(2);
 		begin.add(createIntegerExpression(source, loc.getBeginLine()));
 		begin.add(createIntegerExpression(source, loc.getBeginColumn()));
-		positions.add(factory.makeExpressionTuple(source, begin));
+		positions.add(makeExp("Tuple", source, begin));
 		
 		List<Expression> end = new ArrayList<Expression>(2);
 		end.add(createIntegerExpression(source, loc.getEndLine()));
 		end.add(createIntegerExpression(source, loc.getEndColumn()));
-		positions.add(factory.makeExpressionTuple(source, end));
+		positions.add(makeExp("Tuple", source, end));
 		
 		String host = loc.getURI().getAuthority();
 		String uriPath = loc.getURI().getPath();
 		String path = host != null ? host : "" + "/" + uriPath != null ? uriPath : "";
-		ast = factory.makeExpressionSetAnnotation(source, ast, Names.toName("loc"), 
-				factory.makeExpressionCallOrTree(source, factory.makeExpressionLiteral(source, 
-						factory.makeLiteralLocation(source, 
-								factory.makeLocationLiteralDefault(source, 
-										factory.makeProtocolPartNonInterpolated(source, 
-												factory.makeProtocolCharsLexical(source, "|" + loc.getURI().getScheme() + "://")
+		ast = makeExp("SetAnnotation", source, ast, Names.toName("loc"), 
+				makeExp("CallOrTree", source, makeExp("Literal", source, 
+						make("Literal","Location", source, 
+								make("LocationLiteral", source, 
+										make("ProtocolPart","NonInterpolated",source, 
+												makeLex("ProtocolChars", source, "|" + loc.getURI().getScheme() + "://")
 										), 
-										factory.makePathPartNonInterpolated(source, 
-												factory.makePathCharsLexical(source, path + "|"))))),
+										make("PathPart","NonInterpolated", source, 
+												makeLex("PathChars", source, path + "|"))))),
 												positions
 												));
 //		ast._setType(ast._getType());
@@ -786,7 +826,7 @@ public class ASTBuilder {
 
 	private org.rascalmpl.ast.Expression.Literal createIntegerExpression(
 			IConstructor source, int offset) {
-		return factory.makeExpressionLiteral(source, factory.makeLiteralInteger(source, factory.makeIntegerLiteralDecimalIntegerLiteral(source, factory.makeDecimalIntegerLiteralLexical(source, Integer.toString(offset)))));
+		return makeExp("Literal", source, make("Literal","Integer",source, make("IntegerLiteral","DecimalIntegerLiteral", source, makeLex("DecimalIntegerLiteral", source, Integer.toString(offset)))));
 	}
 
 	// TODO: optimize, this can be really slowing things down
@@ -841,10 +881,10 @@ public class ASTBuilder {
 
 
 	private org.rascalmpl.ast.Expression makeQualifiedName(IConstructor node, String name) {
-		Name simple = factory.makeNameLexical(node, name);
+		Name simple = makeLex("Name",node, name);
 		List<Name> list = new ArrayList<Name>(1);
 		list.add(simple);
-		return factory.makeExpressionQualifiedName(node, factory.makeQualifiedNameDefault(node, list));
+		return makeExp("QualifiedName", node, make("QualifiedName", node, list));
 	}
 
 	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {
@@ -986,11 +1026,37 @@ public class ASTBuilder {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 
-	private AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], Object actuals[]) {
+	
+	
+	private AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], INode src, Object actuals[]) {
 		try {
-			Method make = clazz.getMethod("make" + sort + cons, formals);
-			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
-			return ast;
+			String name = sort + "$" + cons;
+			Class<?> clazz = astClasses.get(name);
+			
+			if (clazz == null) {
+				try {
+					clazz = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
+				}
+				catch (ClassNotFoundException e) {
+					// it happens
+				}
+				if (clazz == null) {
+					clazz = classLoader.loadClass("org.rascalmpl.ast." + name);
+				}
+				if (clazz == null) {
+					throw new ImplementationError("can not find AST class for " + name);
+				}
+				astClasses.put(name, clazz);
+			}
+
+			Class<?>[] realForms = new Class<?>[formals.length + 1];
+			realForms[0] = INode.class;
+			System.arraycopy(formals, 0, realForms, 1, formals.length);
+			Constructor<?> make = clazz.getConstructor(realForms);
+			Object[] params = new Object[actuals.length + 1];
+			params[0] = src;
+			System.arraycopy(actuals, 0, params, 1, actuals.length);
+			return (AbstractAST) make.newInstance(params);
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (NoSuchMethodException e) {
@@ -1000,6 +1066,10 @@ public class ASTBuilder {
 		} catch (IllegalAccessException e) {
 			throw unexpectedError(e);
 		} catch (InvocationTargetException e) {
+			throw unexpectedError(e);
+		} catch (ClassNotFoundException e) {
+			throw unexpectedError(e);
+		} catch (InstantiationException e) {
 			throw unexpectedError(e);
 		}
 	}

@@ -18,6 +18,7 @@ import org.rascalmpl.ast.StringLiteral;
 import org.rascalmpl.ast.StringConstant.Lexical;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.StringTemplateConverter;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
@@ -216,8 +217,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 				}
 				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), v, __eval);
 					
-			} else {
-				Statement stat = org.rascalmpl.interpreter.StringTemplateConverter.convert(lit);
+			} else {  
+				Statement stat = new StringTemplateConverter(__eval.getBuilder()).convert(lit);
 				Result<IValue> value = stat.interpret(__eval);
 				if (!value.getType().isListType()) {
 					throw new ImplementationError("template eval returns non-list");

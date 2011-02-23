@@ -18,6 +18,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult> {
@@ -25,6 +26,11 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 	private final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
 	private final PatternEvaluator pe;
 
+	@Override
+	public ASTBuilder getBuilder() {
+		return ctx.getBuilder();
+	}
+	
 	public BooleanEvaluator(IEvaluatorContext ctx) {
 		this.ctx = ctx;
 		this.pe = new PatternEvaluator(ctx);

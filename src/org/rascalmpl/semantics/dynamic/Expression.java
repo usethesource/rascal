@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Label;
@@ -82,6 +81,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
@@ -1389,7 +1389,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			IMatchingResult pat = this.getPattern().buildMatcher(__eval);
 			LinkedList<Name> names = new LinkedList<Name>();
 			names.add(this.getName());
-			IMatchingResult var = new QualifiedNamePattern(__eval.__getCtx(), this, org.rascalmpl.ast.ASTFactoryFactory.getASTFactory().makeQualifiedNameDefault(this.getTree(), names));
+			ASTBuilder AB = __eval.getBuilder();
+			IMatchingResult var = new QualifiedNamePattern(__eval.__getCtx(), this, AB.<org.rascalmpl.ast.QualifiedName>make("QualifiedName","Default",this.getTree(), names));
 			return new VariableBecomesPattern(__eval.__getCtx(), this, var, pat);
 
 		}
@@ -2193,7 +2194,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			return __eval.evalBooleanExpression(this).negate();
+			return __eval.evalBooleanExpression(this);
 		}
 
 		@Override
@@ -2497,20 +2498,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	}
 
 	static public class NonEmptyBlock extends org.rascalmpl.ast.Expression.NonEmptyBlock {
-
 		public NonEmptyBlock(INode __param1, java.util.List<Statement> __param2) {
 			super(__param1, __param2);
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			ASTFactory factory = org.rascalmpl.ast.ASTFactoryFactory.getASTFactory();
-			return factory.makeStatementNonEmptyBlock(this.getTree(), factory.makeLabelEmpty(this.getTree()), this.getStatements()).interpret(__eval);
-
+			ASTBuilder AB = __eval.getBuilder();
+			return AB.make("Statement", "NonEmptyBlock", this.getTree(), AB.make("Label","Empty", this.getTree()), this.getStatements()).interpret(__eval);
 		}
-
-
 	}
 
 	static public class Any extends org.rascalmpl.ast.Expression.Any {

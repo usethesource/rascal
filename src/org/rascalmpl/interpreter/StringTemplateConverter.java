@@ -9,8 +9,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.ast.ASTFactory;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
@@ -31,50 +29,55 @@ import org.rascalmpl.ast.StringTemplate.While;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-
+  
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
+	private final ASTBuilder factory;
 	
-	private static Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
-		ASTFactory factory = ASTFactoryFactory.getASTFactory();
-		Name dummy = factory.makeNameLexical(src, "_");
-		Expression var = factory.makeExpressionQualifiedName(src, factory.makeQualifiedNameDefault(src, Arrays.asList(dummy)));
-		Expression truth = factory.makeExpressionLiteral(src, factory.makeLiteralBoolean(src, factory.makeBooleanLiteralLexical(src, "true")));
-		Expression list = factory.makeExpressionList(src, Arrays.asList(truth));
-		Expression enumerator = factory.makeExpressionEnumerator(src, var, list);
-		Statement stat = factory.makeStatementFor(src, factory.makeLabelDefault(src, label), Arrays.asList(enumerator), body);
+	public StringTemplateConverter(ASTBuilder builder) {
+		this.factory = builder;
+	}
+	
+	private Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
+		Name dummy = factory.make("Name","Lexical",src, "_");
+		Expression var = factory.make("Expression","QualifiedName",src, factory.make("QualifiedName", src, Arrays.asList(dummy)));
+		Expression truth = factory.make("Expression","Literal",src, factory.make("Literal","Boolean",src, factory.make("BooleanLiteral","Lexical",src, "true")));
+		Expression list = factory.make("Expression","List", src, Arrays.asList(truth));
+		Expression enumerator = factory.make("Expression","Enumerator",src, var, list);
+		Statement stat = factory.make("Statement","For",src, factory.make("Label","Default", src, label), Arrays.asList(enumerator), body);
 		return stat;
 	}
 
 
-	public static Statement convert(org.rascalmpl.ast.StringLiteral str) {
-		final Name label= ASTFactoryFactory.getASTFactory().makeNameLexical(null, "#" + labelCounter);
+	public Statement convert(org.rascalmpl.ast.StringLiteral str) {
+		final Name label= factory.make("Name","Lexical", str.getTree(), "#" + labelCounter);
 		labelCounter++;
-		return surroundWithSingleIterForLoop(str.getTree(), label, str.accept(new Visitor(label)));
+		return surroundWithSingleIterForLoop(str.getTree(), label, str.accept(new Visitor(label, factory)));
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
-		
 		private final Name label;
+		private final ASTBuilder factory;
 
-		public Visitor(Name label) {
+		public Visitor(Name label, ASTBuilder factory) {
 			this.label = label;
+			this.factory = factory;
 		}
 
-		private static Statement makeBlock(INode src, Statement ...stats) {
+		private Statement makeBlock(INode src, Statement ...stats) {
 			return makeBlock(src, Arrays.asList(stats));
 		}
 		
-		private static Statement makeBlock(INode src, List<Statement> stats) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
-			return factory.makeStatementNonEmptyBlock(src, factory.makeLabelEmpty(src),
+		private Statement makeBlock(INode src, List<Statement> stats) {
+			return factory.make("Statement","NonEmptyBlock",src, factory.make("Label", "Empty", src),
 					stats);
 		}
 
 		
-		private static class MyAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
+		private class MyAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 
 			public MyAppend(INode __param1, DataTarget __param2,
 					Statement __param3) {
@@ -129,12 +132,11 @@ public class StringTemplateConverter {
 		}
 		
 		private Statement makeAppend(Expression exp) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
-			return new MyAppend(exp.getTree(), factory.makeDataTargetLabeled(null, label),
-					factory.makeStatementExpression(exp.getTree(), exp)); 
+			return new MyAppend(exp.getTree(), factory.<DataTarget>make("DataTarget","Labeled", null, label),
+					factory.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
 		}
 		
-		private static Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
+		private  Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
 			List<Statement> stats = new ArrayList<Statement>();
 			stats.addAll(pre);
 			stats.add(body);
@@ -143,15 +145,14 @@ public class StringTemplateConverter {
 		}
 		
 		
-		private static Expression makeLit(INode src, String str) {
+		private Expression makeLit(INode src, String str) {
 			// Note: we don't unescape here this happens
 			// in the main evaluator; also, we pretend 
 			// "...< etc. to be "..." stringliterals...
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
-			return factory.makeExpressionLiteral(src, 
-					factory.makeLiteralString(src, 
-							factory.makeStringLiteralNonInterpolated(src, 
-									factory.makeStringConstantLexical(src, str))));
+			return factory.makeExp("Literal",src, 
+					factory.make("Literal","String", src, 
+							factory.make("StringLiteral", "NonInterpolated", src, 
+									factory.make("StringConstant","Lexical", src, str))));
 		}
 		
 		
@@ -181,35 +182,31 @@ public class StringTemplateConverter {
 	
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return factory.makeStatementDoWhile(x.getTree(), factory.makeLabelEmpty(x.getTree()), 
+			return factory.makeStat("DoWhile", x.getTree(), factory.make("Label","Empty", x.getTree()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
 
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return factory.makeStatementFor(x.getTree(), factory.makeLabelEmpty(x.getTree()), x.getGenerators(), 
+			return factory.makeStat("For", x.getTree(), factory.make("Label","Empty", x.getTree()), x.getGenerators(), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThen(IfThen x) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return factory.makeStatementIfThen(x.getTree(), factory.makeLabelEmpty(x.getTree()), x.getConditions(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), null);
+			return factory.makeStat("IfThen", x.getTree(), factory.make("Label", "Empty", x.getTree()), x.getConditions(), 
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), factory.make("NoElseMayFollow", x.getTree()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThenElse(IfThenElse x) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement t = x.getThenString().accept(this);
 			Statement e = x.getElseString().accept(this);
-			return factory.makeStatementIfThenElse(x.getTree(), factory.makeLabelEmpty(x.getTree()), 
+			return factory.makeStat("IfThenElse", x.getTree(), factory.make("Label","Empty",x.getTree()), 
 					x.getConditions(), 
 						combinePreBodyPost(x.getTree(), x.getPreStatsThen(), t, x.getPostStatsThen()),
 						combinePreBodyPost(x.getTree(), x.getPreStatsElse(), e, x.getPostStatsElse()));
@@ -217,9 +214,8 @@ public class StringTemplateConverter {
 
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
-			ASTFactory factory = ASTFactoryFactory.getASTFactory();
 			Statement body = x.getBody().accept(this);
-			return factory.makeStatementWhile(x.getTree(), factory.makeLabelEmpty(x.getTree()), Collections.singletonList(x.getCondition()), 
+			return factory.makeStat("While", x.getTree(), factory.make("Label","Empty", x.getTree()), Collections.singletonList(x.getCondition()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 

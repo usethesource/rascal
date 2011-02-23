@@ -1,25 +1,20 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
-import java.lang.String;
-import java.lang.StringBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.interpreter.Accumulator;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -27,6 +22,7 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements IEvaluator<IMatchingResult> {
@@ -216,6 +212,10 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	public PrintWriter getStdOut() {
 		return null;
+	}
+
+	public ASTBuilder getBuilder() {
+		return __getCtx().getBuilder();
 	}
 
 }

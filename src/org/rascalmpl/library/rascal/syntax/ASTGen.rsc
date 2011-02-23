@@ -43,37 +43,9 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
 public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
   model = grammarToASTModel(pkg, g);
   grammarToVisitor(outdir, pkg, model);
-  grammarToASTFactory(outdir, pkg, model);
   grammarToASTClasses(outdir, pkg, model);
 }
 
-public void grammarToASTFactory(loc outdir, str pkg, set[AST] asts) {
-  fact =  "
-package <pkg>;
-import org.eclipse.imp.pdb.facts.INode;
-
-public class ASTFactory {
-<for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
-      public <sn>.<cn> make<sn><cn>(INode node <signature(args)>) {
-         return new <sn>.<cn>(node <actuals(args)>);
-      }
-<}>
-
-<for (leaf(sn) <- asts) { >
-  public <sn>.Lexical make<sn>Lexical(INode node, String string) {
-    return new <sn>.Lexical(node, string); 
-  }
-<}>
-
-<for (sn <- {a.name | a <- asts}) {>
-  public <sn>.Ambiguity make<sn>Ambiguity(INode node, java.util.List\<<sn>\> alternatives) {
-    return new <sn>.Ambiguity(node, alternatives);
-  }
-<}>
-}
-";
-  loggedWriteFile(outdir + "/ASTFactory.java", fact);
-}
 
 
 public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {

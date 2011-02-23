@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.interpreter.BoxEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
@@ -34,7 +33,8 @@ public class MakeBox {
 
 	private final String varName = "boxData";
 	private final String moduleName = "moduleName";
-
+	private final ASTBuilder AB = new ASTBuilder();
+	
 	private final IValueFactory values;
 
 	public MakeBox(IValueFactory values) {
@@ -187,9 +187,7 @@ public class MakeBox {
 			IConstructor moduleTree = commandEvaluator.parseModule(uri, null);
 			IList z = TreeAdapter.getArgs(moduleTree);
 			// System.err.println("computeBox: parsed");
-			ASTBuilder astBuilder = new ASTBuilder(
-					ASTFactoryFactory.getASTFactory());
-			Module moduleAst = astBuilder.buildModule(moduleTree);
+			Module moduleAst = AB.buildModule(moduleTree);
 			// System.err.println("computeBox: build");
 			commandEvaluator.getHeap().clear();
 			if (moduleAst != null)
