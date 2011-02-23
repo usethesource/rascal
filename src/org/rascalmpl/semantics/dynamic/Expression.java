@@ -2237,10 +2237,49 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(Evaluator eval) {
+			org.rascalmpl.ast.Expression init = getInit();
+			org.rascalmpl.ast.Expression result = getResult();
+			java.util.List<org.rascalmpl.ast.Expression> generators = getGenerators();
+			int size = generators.size();
+			IBooleanResult[] gens = new IBooleanResult[size];
+			Environment[] olds = new Environment[size];
+			Environment old = eval.getCurrentEnvt();
+			int i = 0;
 
-			return __eval.evalReducer(this.getInit(), this.getResult(), this
-					.getGenerators());
+			Result<IValue> it = init.interpret(eval);
+
+			try {
+				gens[0] = eval.makeBooleanResult(generators.get(0));
+				gens[0].init();
+				olds[0] = eval.getCurrentEnvt();
+				eval.pushEnv();
+
+				while (i >= 0 && i < size) {
+					if (eval.__getInterrupt())
+						throw new InterruptException(eval.getStackTrace());
+					if (gens[i].hasNext() && gens[i].next()) {
+						if (i == size - 1) {
+							eval.getCurrentEnvt().storeVariable(Evaluator.IT, it);
+							it = result.interpret(eval);
+							eval.unwind(olds[i]);
+							eval.pushEnv();
+						} else {
+							i++;
+							gens[i] = eval.makeBooleanResult(generators.get(i));
+							gens[i].init();
+							olds[i] = eval.getCurrentEnvt();
+							eval.pushEnv();
+						}
+					} else {
+						eval.unwind(olds[i]);
+						i--;
+					}
+				}
+			} finally {
+				eval.unwind(old);
+			}
+			return it;
 
 		}
 
@@ -2498,11 +2537,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			for (int i = 0; i < nSubs; i++) {
 				org.rascalmpl.ast.Expression subsExpr = this.getSubscripts()
 						.get(i);
-				subscripts[i] = __eval.isWildCard(subsExpr.toString()) ? null
+				subscripts[i] = isWildCard(subsExpr.toString()) ? null
 						: subsExpr.interpret(__eval);
 			}
 			return expr.subscript(subscripts);
 
+		}
+		
+		private boolean isWildCard(String fieldName) {
+			return fieldName.equals("_");
 		}
 
 	}

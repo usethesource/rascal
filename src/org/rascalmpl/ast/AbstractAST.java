@@ -10,12 +10,14 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.ASTBuilder;
@@ -36,6 +38,10 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public Type _getType() {
 	  return _type;
+	}
+	
+	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
+		return ResultFactory.makeResult(declaredType, value, ctx);
 	}
 	
 	public void _setType(Type nonterminalType) {
