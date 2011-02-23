@@ -465,7 +465,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					
 					if (!registeredCacheHandler) {
 						__eval.getEvaluator().registerConstructorDeclaredListener(new IConstructorDeclared() {
-							@Override
 							public void handleConstructorDeclaredEvent() {
 								cachedPrefix = null;
 							}
@@ -510,7 +509,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				if (this.cachedPrefix != null && !registeredCacheHandler) {
 					__eval.getEvaluator().registerConstructorDeclaredListener(new IConstructorDeclared() {
-						@Override
 						public void handleConstructorDeclaredEvent() {
 							cachedPrefix = null;
 						}
