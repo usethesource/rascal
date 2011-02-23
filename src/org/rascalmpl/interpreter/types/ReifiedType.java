@@ -30,6 +30,11 @@ public class ReifiedType extends Type {
 	}
 	
 	@Override
+	public boolean isNodeType() {
+		return true;
+	}
+	
+	@Override
 	public String getName() {
 		return "type";
 	}
@@ -47,7 +52,7 @@ public class ReifiedType extends Type {
 				return arg.isSubtypeOf(((ReifiedType) other).arg);
 			}
 		}
-		if (other.isNodeType()) {
+		else if (other.isNodeType()) {
 			return true;
 		}
 		return super.isSubtypeOf(other);
