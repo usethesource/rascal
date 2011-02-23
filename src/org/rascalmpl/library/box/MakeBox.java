@@ -98,7 +98,7 @@ public class MakeBox {
 		commandEvaluator.eval(s, URI.create("box:///"));
 	}
 
-	private IValue launchRascalProgram(String resultName) {
+	private IValue launchRascalProgram(String resultName, boolean richText) {
 		execute("import box::Box2Text;");
 		try {
 			IValue v = new PBFReader().read(
@@ -108,7 +108,10 @@ public class MakeBox {
 				execute("main(" + varName + ");");
 				return null;
 			}
-			execute(resultName + "=box2data(" + varName + ");");
+			if (richText)
+				execute(resultName + "=box2data(" + varName + ");");
+			else
+				execute(resultName + "=box2text(" + varName + ");");
 			IValue r = fetch(resultName);
 			data.close();
 			return r;
@@ -177,7 +180,6 @@ public class MakeBox {
 			org.rascalmpl.interpreter.IEvaluatorContext c) {
 		return computeBox(loc.getURI());
 	}
-
 
 	public IConstructor computeBox(URI uri) {
 		try {
@@ -254,8 +256,20 @@ public class MakeBox {
 			IValue box = computeBox(uri);
 			data = new Data();
 			new PBFWriter().write(box, data, ts);
-			return text2String(launchRascalProgram("c"));
+			return text2String(launchRascalProgram("c", true));
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public String box2String(IValue box) {
+		data = new Data();
+		try {
+			new PBFWriter().write(box, data, ts);
+			return text2String(launchRascalProgram("c", false));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
