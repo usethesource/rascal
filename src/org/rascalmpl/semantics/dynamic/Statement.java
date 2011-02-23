@@ -1,5 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -953,30 +955,57 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			return __eval.evalStatementTry(this.getBody(), this.getHandlers(),
-					null);
-
+			return evalStatementTry(__eval, this.getBody(), this.getHandlers(), null);
 		}
+		
+		static public Result<IValue> evalStatementTry(Evaluator eval, org.rascalmpl.ast.Statement body, java.util.List<Catch> handlers, org.rascalmpl.ast.Statement finallyBody) {
+			Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
+			try {
+				res = body.interpret(eval);
+			} catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
+				IValue eValue = e.getException();
+
+				boolean handled = false;
+
+				for (Catch c : handlers) {
+					if (c.isDefault()) {
+						res = c.getBody().interpret(eval);
+						handled = true;
+						break;
+					}
+
+					// TODO: Throw should contain Result<IValue> instead of IValue
+					if (eval.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern(), c.getBody())) {
+						handled = true;
+						break;
+					}
+				}
+
+				if (!handled)
+					throw e;
+			} finally {
+				if (finallyBody != null) {
+					finallyBody.interpret(eval);
+				}
+			}
+			return res;
+		}
 	}
 
 	static public class TryFinally extends
 			org.rascalmpl.ast.Statement.TryFinally {
 
 		public TryFinally(INode __param1, org.rascalmpl.ast.Statement __param2,
-				List<Catch> __param3, org.rascalmpl.ast.Statement __param4) {
+				List<org.rascalmpl.ast.Catch> __param3, org.rascalmpl.ast.Statement __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			return __eval.evalStatementTry(this.getBody(), this.getHandlers(),
+			return org.rascalmpl.semantics.dynamic.Statement.Try.evalStatementTry(__eval, this.getBody(), this.getHandlers(),
 					this.getFinallyBody());
-
 		}
-
 	}
 
 	static public class VariableDeclaration extends

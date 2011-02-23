@@ -22,10 +22,14 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			__eval.visitImports(this.getImports());
+			visitImports(__eval, this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
+		}
+		
+		public static void visitImports(Evaluator eval, List<Import> imports) {
+			for (Import i : imports) {
+				i.interpret(eval);
+			}
 		}
 
 	}
@@ -40,10 +44,8 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			__eval.visitImports(this.getImports());
+			org.rascalmpl.semantics.dynamic.Header.Default.visitImports(__eval, this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}

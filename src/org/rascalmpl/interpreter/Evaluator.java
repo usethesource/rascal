@@ -25,9 +25,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.joda.time.DateTime;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Expression;
@@ -38,7 +36,6 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
-import org.rascalmpl.ast.DateAndTime.Lexical;
 import org.rascalmpl.ast.Expression.Ambiguity;
 import org.rascalmpl.ast.Import.Default;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
@@ -59,7 +56,6 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -1047,52 +1043,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return name;
 	}
 
-	public void visitImports(List<Import> imports) {
-		for (Import i : imports) {
-			i.interpret(this);
-		}
-	}
-
-	
-
-	public boolean isWildCard(String fieldName) {
-		return fieldName.equals("_");
-	}
-
-	public Result<IValue> evalStatementTry(Statement body, List<Catch> handlers, Statement finallyBody) {
-		Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
-		try {
-			res = body.interpret(this);
-		} catch (Throw e) {
-			IValue eValue = e.getException();
-
-			boolean handled = false;
-
-			for (Catch c : handlers) {
-				if (c.isDefault()) {
-					res = c.getBody().interpret(this);
-					handled = true;
-					break;
-				}
-
-				// TODO: Throw should contain Result<IValue> instead of IValue
-				if (this.matchAndEval(org.rascalmpl.interpreter.result.ResultFactory.makeResult(eValue.getType(), eValue, this), c.getPattern(), c.getBody())) {
-					handled = true;
-					break;
-				}
-			}
-
-			if (!handled)
-				throw e;
-		} finally {
-			if (finallyBody != null) {
-				finallyBody.interpret(this);
-			}
-		}
-		return res;
-	}
-
 	public IBooleanResult makeBooleanResult(Expression pat) {
 		if (pat instanceof Ambiguity) {
 			// TODO: wrong exception here.
@@ -1118,58 +1068,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return org.rascalmpl.interpreter.result.ResultFactory.bool(false, this);
 	}
 
-	public Result<IValue> createVisitedDateTime(String datePart, String timePart, Lexical x) {
-		String isoDate = datePart;
-		if (-1 == datePart.indexOf("-")) {
-			isoDate = datePart.substring(0, 4) + "-" + datePart.substring(4, 6) + "-" + datePart.substring(6);
-		}
-		String isoTime = timePart;
-		if (-1 == timePart.indexOf(":")) {
-			isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2, 4) + ":" + timePart.substring(4);
-		}
-		String isoDateTime = isoDate + "T" + isoTime;
-		try {
-			DateTime dateAndTime = org.joda.time.format.ISODateTimeFormat.dateTimeParser().parseDateTime(isoDateTime);
-			int hourOffset = dateAndTime.getZone().getOffset(dateAndTime.getMillis()) / 3600000;
-			int minuteOffset = (dateAndTime.getZone().getOffset(dateAndTime.getMillis()) / 60000) % 60;
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					org.rascalmpl.interpreter.Evaluator.__getTf().dateTimeType(),
-					this.__getVf().datetime(dateAndTime.getYear(), dateAndTime.getMonthOfYear(), dateAndTime.getDayOfMonth(), dateAndTime.getHourOfDay(), dateAndTime.getMinuteOfHour(),
-							dateAndTime.getSecondOfMinute(), dateAndTime.getMillisOfSecond(), hourOffset, minuteOffset), this);
-		} catch (IllegalArgumentException iae) {
-			throw new DateTimeParseError("$" + datePart + "T" + timePart, x.getLocation());
-		}
-	}
-
-	public Result<IValue> createVisitedDate(String datePart, org.rascalmpl.ast.JustDate.Lexical x) {
-		String isoDate = datePart;
-		if (-1 == datePart.indexOf("-")) {
-			isoDate = datePart.substring(0, 4) + "-" + datePart.substring(4, 6) + "-" + datePart.substring(6);
-		}
-		try {
-			DateTime justDate = org.joda.time.format.ISODateTimeFormat.dateParser().parseDateTime(isoDate);
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().dateTimeType(),
-					this.__getVf().date(justDate.getYear(), justDate.getMonthOfYear(), justDate.getDayOfMonth()), this);
-		} catch (IllegalArgumentException iae) {
-			throw new DateTimeParseError("$" + datePart, x.getLocation());
-		}
-	}
-
-	public Result<IValue> createVisitedTime(String timePart, org.rascalmpl.ast.JustTime.Lexical x) {
-		String isoTime = timePart;
-		if (-1 == timePart.indexOf(":")) {
-			isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2, 4) + ":" + timePart.substring(4);
-		}
-		try {
-			DateTime justTime = org.joda.time.format.ISODateTimeFormat.timeParser().parseDateTime(isoTime);
-			int hourOffset = justTime.getZone().getOffset(justTime.getMillis()) / 3600000;
-			int minuteOffset = (justTime.getZone().getOffset(justTime.getMillis()) / 60000) % 60;
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().dateTimeType(),
-					this.__getVf().time(justTime.getHourOfDay(), justTime.getMinuteOfHour(), justTime.getSecondOfMinute(), justTime.getMillisOfSecond(), hourOffset, minuteOffset), this);
-		} catch (IllegalArgumentException iae) {
-			throw new DateTimeParseError("$T" + timePart, x.getLocation());
-		}
-	}
+	
 
 	public boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat) {
 		boolean debug = false;
@@ -1246,48 +1145,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public static final Name IT = builder.makeLex("Name", null, "<it>");
 	private ParserGenerator parserGenerator;
 
-	public Result<IValue> evalReducer(Expression init, Expression result, List<Expression> generators) {
-		int size = generators.size();
-		IBooleanResult[] gens = new IBooleanResult[size];
-		Environment[] olds = new Environment[size];
-		Environment old = this.getCurrentEnvt();
-		int i = 0;
-
-		Result<IValue> it = init.interpret(this);
-
-		try {
-			gens[0] = this.makeBooleanResult(generators.get(0));
-			gens[0].init();
-			olds[0] = this.getCurrentEnvt();
-			this.pushEnv();
-
-			while (i >= 0 && i < size) {
-				if (this.__getInterrupt())
-					throw new InterruptException(this.getStackTrace());
-				if (gens[i].hasNext() && gens[i].next()) {
-					if (i == size - 1) {
-						this.getCurrentEnvt().storeVariable(Evaluator.IT, it);
-						it = result.interpret(this);
-						this.unwind(olds[i]);
-						this.pushEnv();
-					} else {
-						i++;
-						gens[i] = this.makeBooleanResult(generators.get(i));
-						gens[i].init();
-						olds[i] = this.getCurrentEnvt();
-						this.pushEnv();
-					}
-				} else {
-					this.unwind(olds[i]);
-					i--;
-				}
-			}
-		} finally {
-			this.unwind(old);
-		}
-		return it;
-
-	}
+	
 
 	
 	public void updateProperties() {
