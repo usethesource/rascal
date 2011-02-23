@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionBody;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Signature;
@@ -66,6 +67,33 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 
 	}
 
+	static public class Expression extends org.rascalmpl.ast.FunctionDeclaration.Expression {
+
+		public Expression(INode node, Tags tags, Visibility visibility,
+				Signature signature, org.rascalmpl.ast.Expression expression) {
+			super(node, tags, visibility, signature, expression);
+		}
+		 
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			AbstractFunction lambda;
+			boolean varArgs = this.getSignature().getParameters().isVarArgs();
+
+			if (hasJavaModifier(this)) {
+				throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null, this);
+			}
+
+			lambda = new RascalFunction(eval, this, varArgs, eval.getCurrentEnvt(), eval.__getAccumulators());
+
+			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+
+			lambda.setPublic(this.getVisibility().isPublic());
+			return lambda;
+		}
+		
+	}
 	static public class Default extends org.rascalmpl.ast.FunctionDeclaration.Default {
 
 		public Default(INode __param1, Tags __param2, Visibility __param3, Signature __param4, FunctionBody __param5) {

@@ -93,6 +93,12 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitLabelDefault(Label.Default x) { return null; }
   
+      public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x) { return null; }
+  
+      public T visitFunctionDeclarationExpression(FunctionDeclaration.Expression x) { return null; }
+  
+      public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x) { return null; }
+  
       public T visitModuleParametersDefault(ModuleParameters.Default x) { return null; }
   
       public T visitModuleDefault(Module.Default x) { return null; }
@@ -608,10 +614,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitTypeArgNamed(TypeArg.Named x) { return null; }
   
       public T visitTypeArgDefault(TypeArg.Default x) { return null; }
-  
-      public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x) { return null; }
-  
-      public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x) { return null; }
   
       public T visitPathPartNonInterpolated(PathPart.NonInterpolated x) { return null; }
   

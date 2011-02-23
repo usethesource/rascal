@@ -101,6 +101,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(Evaluator eval) {
 			return getExpression().interpret(eval).is(getName());
 		}
+		
+		@Override
+		public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
+			return new BasicBooleanResult(eval.__getCtx(), this);
+		}
 	}
 	
 	static public class Has extends org.rascalmpl.ast.Expression.Has {
@@ -112,6 +117,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(Evaluator eval) {
 			return getExpression().interpret(eval).has(getName());
+		}
+		
+		@Override
+		public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
+			return new BasicBooleanResult(eval.__getCtx(), this);
 		}
 	}
 	
