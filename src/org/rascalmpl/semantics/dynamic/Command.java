@@ -13,22 +13,6 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Command extends org.rascalmpl.ast.Command {
 
-	static public class Ambiguity extends org.rascalmpl.ast.Command.Ambiguity {
-
-		public Ambiguity(INode __param1,
-				List<org.rascalmpl.ast.Command> __param2) {
-			super(__param1, __param2);
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			throw new Ambiguous((IConstructor) this.getTree());
-
-		}
-
-	}
-
 	static public class Declaration extends
 			org.rascalmpl.ast.Command.Declaration {
 

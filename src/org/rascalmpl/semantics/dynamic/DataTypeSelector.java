@@ -17,16 +17,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 public abstract class DataTypeSelector extends
 		org.rascalmpl.ast.DataTypeSelector {
 
-	static public class Ambiguity extends
-			org.rascalmpl.ast.DataTypeSelector.Ambiguity {
-
-		public Ambiguity(INode __param1,
-				List<org.rascalmpl.ast.DataTypeSelector> __param2) {
-			super(__param1, __param2);
-		}
-
-	}
-
 	static public class Selector extends
 			org.rascalmpl.ast.DataTypeSelector.Selector {
 

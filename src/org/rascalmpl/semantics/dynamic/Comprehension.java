@@ -10,16 +10,6 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 
-	static public class Ambiguity extends
-			org.rascalmpl.ast.Comprehension.Ambiguity {
-
-		public Ambiguity(INode __param1,
-				java.util.List<org.rascalmpl.ast.Comprehension> __param2) {
-			super(__param1, __param2);
-		}
-
-	}
-
 	static public class List extends org.rascalmpl.ast.Comprehension.List {
 
 		public List(INode __param1, java.util.List<Expression> __param2,
