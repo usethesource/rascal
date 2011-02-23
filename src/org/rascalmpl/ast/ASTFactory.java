@@ -184,6 +184,18 @@ public class ASTFactory {
          return new Label.Default(node , name);
       }
 
+      public FunctionDeclaration.Abstract makeFunctionDeclarationAbstract(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature) {
+         return new FunctionDeclaration.Abstract(node , tags, visibility, signature);
+      }
+
+      public FunctionDeclaration.Expression makeFunctionDeclarationExpression(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression) {
+         return new FunctionDeclaration.Expression(node , tags, visibility, signature, expression);
+      }
+
+      public FunctionDeclaration.Default makeFunctionDeclarationDefault(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
+         return new FunctionDeclaration.Default(node , tags, visibility, signature, body);
+      }
+
       public ModuleParameters.Default makeModuleParametersDefault(INode node , java.util.List<org.rascalmpl.ast.TypeVar> parameters) {
          return new ModuleParameters.Default(node , parameters);
       }
@@ -1214,14 +1226,6 @@ public class ASTFactory {
 
       public TypeArg.Default makeTypeArgDefault(INode node , org.rascalmpl.ast.Type type) {
          return new TypeArg.Default(node , type);
-      }
-
-      public FunctionDeclaration.Abstract makeFunctionDeclarationAbstract(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature) {
-         return new FunctionDeclaration.Abstract(node , tags, visibility, signature);
-      }
-
-      public FunctionDeclaration.Default makeFunctionDeclarationDefault(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
-         return new FunctionDeclaration.Default(node , tags, visibility, signature, body);
       }
 
       public PathPart.NonInterpolated makePathPartNonInterpolated(INode node , org.rascalmpl.ast.PathChars pathChars) {

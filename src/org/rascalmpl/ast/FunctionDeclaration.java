@@ -27,6 +27,14 @@ public abstract class FunctionDeclaration extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
+  public boolean hasExpression() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
+
   public boolean hasSignature() {
     return false;
   }
@@ -131,6 +139,92 @@ public Abstract(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Vis
      
      @Override
      public boolean hasSignature() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isExpression() {
+    return false;
+  }
+  
+static public class Expression extends FunctionDeclaration {
+  // Production: sig("Expression",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Signature","signature"),arg("org.rascalmpl.ast.Expression","expression")])
+
+  
+     private final org.rascalmpl.ast.Tags tags;
+  
+     private final org.rascalmpl.ast.Visibility visibility;
+  
+     private final org.rascalmpl.ast.Signature signature;
+  
+     private final org.rascalmpl.ast.Expression expression;
+  
+
+  
+public Expression(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression) {
+  super(node);
+  
+    this.tags = tags;
+  
+    this.visibility = visibility;
+  
+    this.signature = signature;
+  
+    this.expression = expression;
+  
+}
+
+
+  @Override
+  public boolean isExpression() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitFunctionDeclarationExpression(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Tags getTags() {
+        return this.tags;
+     }
+     
+     @Override
+     public boolean hasTags() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Visibility getVisibility() {
+        return this.visibility;
+     }
+     
+     @Override
+     public boolean hasVisibility() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Signature getSignature() {
+        return this.signature;
+     }
+     
+     @Override
+     public boolean hasSignature() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Expression getExpression() {
+        return this.expression;
+     }
+     
+     @Override
+     public boolean hasExpression() {
         return true;
      }
   	

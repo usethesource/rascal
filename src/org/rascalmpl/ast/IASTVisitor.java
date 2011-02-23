@@ -93,6 +93,12 @@ public interface IASTVisitor<T> {
   
       public T visitLabelDefault(Label.Default x);
   
+      public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x);
+  
+      public T visitFunctionDeclarationExpression(FunctionDeclaration.Expression x);
+  
+      public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x);
+  
       public T visitModuleParametersDefault(ModuleParameters.Default x);
   
       public T visitModuleDefault(Module.Default x);
@@ -608,10 +614,6 @@ public interface IASTVisitor<T> {
       public T visitTypeArgNamed(TypeArg.Named x);
   
       public T visitTypeArgDefault(TypeArg.Default x);
-  
-      public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x);
-  
-      public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x);
   
       public T visitPathPartNonInterpolated(PathPart.NonInterpolated x);
   

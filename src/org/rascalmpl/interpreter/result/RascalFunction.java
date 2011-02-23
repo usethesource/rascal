@@ -47,7 +47,7 @@ public class RascalFunction extends NamedFunction {
 	private final IMatchingResult[] matchers;
 	private final boolean isDefault;
 
-	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env,
+	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				(FunctionType) func.getSignature().typeOf(env),
@@ -55,6 +55,16 @@ public class RascalFunction extends NamedFunction {
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 	}
+	
+	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
+			Stack<Accumulator> accumulators) {
+	this(func, eval,
+			(FunctionType) func.getSignature().typeOf(env),
+			varargs, isDefault(func),
+			Arrays.asList(new Statement[] { ASTFactoryFactory.getASTFactory().makeStatementReturn(func.getTree(), ASTFactoryFactory.getASTFactory().makeStatementExpression(func.getTree(), func.getExpression()))}),
+			env, accumulators);
+	this.name = Names.name(func.getSignature().getName());
+   }
 	
 	
 

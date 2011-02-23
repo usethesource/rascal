@@ -1256,6 +1256,11 @@ public class DynamicSemanticsASTFactory extends ASTFactory {
 			org.rascalmpl.ast.Signature signature, org.rascalmpl.ast.FunctionBody body) {
 		return new FunctionDeclaration.Default(node, tags, visibility, signature, body);
 	}
+	
+	public org.rascalmpl.ast.FunctionDeclaration.Expression makeFunctionDeclarationExpression(INode node, org.rascalmpl.ast.Tags tags, org.rascalmpl.ast.Visibility visibility,
+			org.rascalmpl.ast.Signature signature, org.rascalmpl.ast.Expression expr) {
+		return new FunctionDeclaration.Expression(node, tags, visibility, signature, expr);
+	}
 
 	public org.rascalmpl.ast.PathPart.NonInterpolated makePathPartNonInterpolated(INode node, org.rascalmpl.ast.PathChars pathChars) {
 		return new PathPart.NonInterpolated(node, pathChars);

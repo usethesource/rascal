@@ -355,7 +355,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Switch(INode __param1, Label __param2, org.rascalmpl.ast.Expression __param3, List<Case> __param4) {
 			super(__param1, __param2, __param3, __param4);
 			blocks = new ArrayList<CaseBlock>(__param4.size());
-//			precompute(__param4);
+			precompute(__param4);
 			System.err.println("switched optimized from + " + __param4.size() + " to " + blocks.size() + " alts at " + getLocation());
 		}
 
@@ -507,7 +507,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				
 				return false;
 			}
-		}
+		}  
 		
 		private class DefaultBlock extends CaseBlock {
 			private Case theCase;
@@ -531,20 +531,20 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 
-//		@Override
-//		public Result<IValue> interpret(Evaluator __eval) {
-//			Result<IValue> subject = this.getExpression().interpret(__eval);
-//
-//			for (CaseBlock cs : blocks) {
-//				if (cs.matchAndEval(__eval, subject)) {
-//					return org.rascalmpl.interpreter.result.ResultFactory.nothing(); 
-//				}
-//			}
-//
-//			return ResultFactory.nothing();
-//		}
-		
+		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+			Result<IValue> subject = this.getExpression().interpret(__eval);
+
+			for (CaseBlock cs : blocks) {
+				if (cs.matchAndEval(__eval, subject)) {
+					return org.rascalmpl.interpreter.result.ResultFactory.nothing(); 
+				}
+			}
+
+			return ResultFactory.nothing();
+		}
+		
+		public Result<IValue> interpret2(Evaluator __eval) {
 
 			Result<IValue> subject = this.getExpression().interpret(__eval);
 
@@ -745,9 +745,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			throw new Ambiguous((IConstructor) this.getTree());
-
 		}
 
 	}
