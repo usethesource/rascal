@@ -33,23 +33,6 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
-	static public class Ambiguity extends
-			org.rascalmpl.ast.Assignable.Ambiguity {
-
-		public Ambiguity(INode __param1,
-				List<org.rascalmpl.ast.Assignable> __param2) {
-			super(__param1, __param2);
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			throw new Ambiguous((IConstructor) this.getTree());
-
-		}
-
-	}
-
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 

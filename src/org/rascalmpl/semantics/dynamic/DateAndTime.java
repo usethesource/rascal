@@ -11,16 +11,6 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 
-	static public class Ambiguity extends
-			org.rascalmpl.ast.DateAndTime.Ambiguity {
-
-		public Ambiguity(INode __param1,
-				List<org.rascalmpl.ast.DateAndTime> __param2) {
-			super(__param1, __param2);
-		}
-
-	}
-
 	static public class Lexical extends org.rascalmpl.ast.DateAndTime.Lexical {
 
 		public Lexical(INode __param1, String __param2) {

@@ -16,26 +16,6 @@ import org.rascalmpl.values.uptr.Factory;
 
 public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
-	static public class Ambiguity extends org.rascalmpl.ast.BasicType.Ambiguity {
-		public Ambiguity(INode __param1,
-				java.util.List<org.rascalmpl.ast.BasicType> __param2) {
-			super(__param1, __param2);
-		}
-
-		@Override
-		public Type __evaluate(BasicTypeEvaluator __eval) {
-			throw new ImplementationError("Detected ambiguity in BasicType",
-					this.getLocation());
-
-		}
-
-		@Override
-		public Type typeOf(Environment __eval) {
-			throw new ImplementationError("Ambiguity detected in BasicType",
-					this.getLocation());
-		}
-	}
-
 	static public class Bag extends org.rascalmpl.ast.BasicType.Bag {
 
 		public Bag(INode __param1) {
