@@ -245,6 +245,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	private AbstractAST currentAST;
 
 	private boolean isFunctionName;
+	
+	final private int SMALLCOMMENTSIZE = 40;
 
 	final private int UNITLENGTH = 70;
 
@@ -1225,7 +1227,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitHexIntegerLiteralLexical(
 			org.rascalmpl.ast.HexIntegerLiteral.Lexical x) {
-		return L(x.getClass().toString());
+		/* lex [0] [X x] [0-9 A-F a-f]+ */
+		return NM(x.getString());
 	}
 
 	public IValue visitHexLongLiteralAmbiguity(
@@ -1283,11 +1286,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitIntegerLiteralHexIntegerLiteral(HexIntegerLiteral x) {
-		return L(x.getClass().toString());
+		return eX(x.getHex());
 	}
 
 	public IValue visitIntegerLiteralOctalIntegerLiteral(OctalIntegerLiteral x) {
-		return L(x.getClass().toString());
+		return eX(x.getOctal());
 	}
 
 	public IValue visitJustDateAmbiguity(org.rascalmpl.ast.JustDate.Ambiguity x) {
@@ -1437,11 +1440,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitLongLiteralHexLongLiteral(HexLongLiteral x) {
-		return L(x.getClass().toString());
+		return eX(x.getHexLong());
 	}
 
 	public IValue visitLongLiteralOctalLongLiteral(OctalLongLiteral x) {
-		return L(x.getClass().toString());
+		return eX(x.getOctalLong());
 	}
 
 	public IValue visitMapping_ExpressionDefault(
@@ -1560,7 +1563,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitOctalIntegerLiteralLexical(
 			org.rascalmpl.ast.OctalIntegerLiteral.Lexical x) {
-		return L(x.getClass().toString());
+		return NM(x.getString());
 	}
 
 	public IValue visitOctalLongLiteralAmbiguity(
@@ -2865,20 +2868,26 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	@SuppressWarnings("rawtypes")
 	private IValue eXs0(java.util.List conditions, IList tree) {
 		IList s = BoxADT.getEmptyList();
-		// System.err.println("eXs0:"+conditions.size());
 		int i = 1, n = tree.length();
 		for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
 			AbstractAST expression = (AbstractAST) iterator.next();
 			// System.err.println("eXs0:"+expression);
 			IValue q = eX(expression);
-			// if (q==null) {i+=2; continue;}
-			// System.err.println("q:"+q);
 			if (q.getType().isListType())
 				s = s.concat(((IList) q));
 			else
 				s = s.append(q);
-			if (i < n)
-				s = s.concat(getComment(tree, i));
+			if (i < n) {
+				IList t = getComment(tree, i);
+				final int m= width(t);
+				if (m>0 && m<SMALLCOMMENTSIZE) {
+					IValue g = s.get(s.length()-1);
+					s = s.delete(s.length()-1);
+					s = s.append(H(1, g, t));
+				}
+				else
+				s = s.concat(t);
+			}
 			i += 2;
 		}
 		// System.err.println("eXs2:"+s);
