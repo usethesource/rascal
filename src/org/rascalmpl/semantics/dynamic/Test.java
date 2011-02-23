@@ -1,6 +1,5 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
@@ -11,16 +10,12 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Test extends org.rascalmpl.ast.Test {
 
-	public Test(INode __param1) {
-		super(__param1);
-	}
-
 	static public class Labeled extends org.rascalmpl.ast.Test.Labeled {
 
-		public Labeled(INode __param1, Tags __param2, Expression __param3, StringLiteral __param4) {
+		public Labeled(INode __param1, Tags __param2, Expression __param3,
+				StringLiteral __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
-
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -29,15 +24,6 @@ public abstract class Test extends org.rascalmpl.ast.Test {
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
-
-	}
-
-	static public class Ambiguity extends org.rascalmpl.ast.Test.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Test> __param2) {
-			super(__param1, __param2);
-		}
-
 
 	}
 
@@ -47,7 +33,6 @@ public abstract class Test extends org.rascalmpl.ast.Test {
 			super(__param1, __param2, __param3);
 		}
 
-
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -56,5 +41,9 @@ public abstract class Test extends org.rascalmpl.ast.Test {
 
 		}
 
+	}
+
+	public Test(INode __param1) {
+		super(__param1);
 	}
 }

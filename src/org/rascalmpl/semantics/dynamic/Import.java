@@ -1,7 +1,5 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
-import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.ImportedModule;
@@ -13,34 +11,11 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
 
-	public Import(INode __param1) {
-		super(__param1);
-	}
-
-	static public class Extend extends org.rascalmpl.ast.Import.Extend {
-
-		public Extend(INode __param1, ImportedModule __param2) {
-			super(__param1, __param2);
-		}
-
-
-	}
-
-	static public class Ambiguity extends org.rascalmpl.ast.Import.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Import> __param2) {
-			super(__param1, __param2);
-		}
-
-
-	}
-
 	static public class Default extends org.rascalmpl.ast.Import.Default {
 
 		public Default(INode __param1, ImportedModule __param2) {
 			super(__param1, __param2);
 		}
-
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -77,16 +52,20 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			__eval.__getTypeDeclarator().declareSyntaxType(this.getSyntax().getDefined(), __eval.getCurrentEnvt());
+			__eval.__getTypeDeclarator().declareSyntaxType(
+					this.getSyntax().getDefined(), __eval.getCurrentEnvt());
 			__eval.getCurrentEnvt().declareProduction(this);
 			__eval.loadParseTreeModule(this);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
 
+	}
+
+	public Import(INode __param1) {
+		super(__param1);
 	}
 }

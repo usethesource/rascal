@@ -1,7 +1,5 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -31,113 +29,17 @@ import org.rascalmpl.values.OriginValueFactory;
 
 public abstract class Literal extends org.rascalmpl.ast.Literal {
 
-	public Literal(INode __param1) {
-		super(__param1);
-	}
-
-	static public class Ambiguity extends org.rascalmpl.ast.Literal.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Literal> __param2) {
-			super(__param1, __param2);
-		}
-
-
-	}
-
-	static public class Real extends org.rascalmpl.ast.Literal.Real {
-
-		public Real(INode __param1, RealLiteral __param2) {
-			super(__param1, __param2);
-		}
-
-
-		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
-
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			java.lang.String str = this.getRealLiteral().toString();
-			if (str.toLowerCase().endsWith("d")) {
-				str = str.substring(0, str.length() - 1);
-			}
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().realType(), __eval.__getVf().real(str), __eval);
-
-		}
-
-		@Override
-		public Type typeOf(Environment env) {
-			return TF.realType();
-		}
-	}
-
-	static public class Integer extends org.rascalmpl.ast.Literal.Integer {
-
-		public Integer(INode __param1, IntegerLiteral __param2) {
-			super(__param1, __param2);
-		}
-
-
-		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-			return this.getIntegerLiteral().interpret(__eval);
-		}
-		
-		@Override
-		public Type typeOf(Environment env) {
-			return TF.integerType();
-		}
-
-	}
-
-	static public class RegExp extends org.rascalmpl.ast.Literal.RegExp {
-
-		public RegExp(INode __param1, RegExpLiteral __param2) {
-			super(__param1, __param2);
-		}
-
-
-		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-
-			return this.getRegExpLiteral().buildMatcher(__eval);
-
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			throw new SyntaxError("regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).", this.getLocation());
-
-		}
-		
-		@Override
-		public Type typeOf(Environment env) {
-			return TF.stringType();
-		}
-
-	}
-
 	static public class Boolean extends org.rascalmpl.ast.Literal.Boolean {
 
 		public Boolean(INode __param1, BooleanLiteral __param2) {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
+					__eval.__getCtx().getEvaluator()).getValue());
 
 		}
 
@@ -145,10 +47,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			java.lang.String str = this.getBooleanLiteral().toString();
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().boolType(), __eval.__getVf().bool(str.equals("true")), __eval);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
+					org.rascalmpl.interpreter.Evaluator.__getTf().boolType(),
+					__eval.__getVf().bool(str.equals("true")), __eval);
 
 		}
-		
+
 		@Override
 		public Type typeOf(Environment env) {
 			return TF.boolType();
@@ -162,17 +66,40 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			return this.getDateTimeLiteral().interpret(__eval);
 
 		}
-		
+
 		@Override
 		public Type typeOf(Environment env) {
 			return TF.dateTimeType();
+		}
+
+	}
+
+	static public class Integer extends org.rascalmpl.ast.Literal.Integer {
+
+		public Integer(INode __param1, IntegerLiteral __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
+					__eval.__getCtx().getEvaluator()).getValue());
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+			return this.getIntegerLiteral().interpret(__eval);
+		}
+
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.integerType();
 		}
 
 	}
@@ -183,17 +110,78 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			return this.getLocationLiteral().interpret(__eval);
 
 		}
-		
+
 		@Override
 		public Type typeOf(Environment env) {
 			return TF.sourceLocationType();
+		}
+
+	}
+
+	static public class Real extends org.rascalmpl.ast.Literal.Real {
+
+		public Real(INode __param1, RealLiteral __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
+					__eval.__getCtx().getEvaluator()).getValue());
+
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+
+			java.lang.String str = this.getRealLiteral().toString();
+			if (str.toLowerCase().endsWith("d")) {
+				str = str.substring(0, str.length() - 1);
+			}
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
+					org.rascalmpl.interpreter.Evaluator.__getTf().realType(),
+					__eval.__getVf().real(str), __eval);
+
+		}
+
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.realType();
+		}
+	}
+
+	static public class RegExp extends org.rascalmpl.ast.Literal.RegExp {
+
+		public RegExp(INode __param1, RegExpLiteral __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+
+			return this.getRegExpLiteral().buildMatcher(__eval);
+
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+
+			throw new SyntaxError(
+					"regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).",
+					this.getLocation());
+
+		}
+
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.stringType();
 		}
 
 	}
@@ -204,17 +192,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
+					__eval.__getCtx().getEvaluator()).getValue());
 
-		}
-		
-		@Override
-		public Type typeOf(Environment env) {
-			return TF.stringType();
 		}
 
 		@Override
@@ -222,54 +205,66 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 			StringLiteral lit = this.getStringLiteral();
 			IValueFactory vf = __eval.__getVf();
-			
+
 			// To prevent infinite recursion detect non-interpolated strings
 			// first. TODO: design flaw?
 			if (lit.isNonInterpolated()) {
-				java.lang.String str = org.rascalmpl.interpreter.utils.StringUtils.unescape(((Lexical) lit.getConstant()).getString());
+				java.lang.String str = org.rascalmpl.interpreter.utils.StringUtils
+						.unescape(((Lexical) lit.getConstant()).getString());
 
-				
 				IValue v;
 				if (vf instanceof OriginValueFactory) {
-					OriginValueFactory of = (OriginValueFactory)vf;
+					OriginValueFactory of = (OriginValueFactory) vf;
 
-					ISourceLocation loc = ((Lexical)lit.getConstant()).getLocation();
+					ISourceLocation loc = ((Lexical) lit.getConstant())
+							.getLocation();
 
 					// Remove quotes from location
-					loc = of.sourceLocation(loc.getURI(), 
-							loc.getOffset() + 1, 
-							loc.getLength() - 2,
-							loc.getBeginLine(), loc.getEndLine(), 
-							loc.getBeginColumn() + 1, 
+					loc = of.sourceLocation(loc.getURI(), loc.getOffset() + 1,
+							loc.getLength() - 2, loc.getBeginLine(), loc
+									.getEndLine(), loc.getBeginColumn() + 1,
 							loc.getEndColumn() - 1);
 					v = of.literal(loc, str);
-				}
-				else {
+				} else {
 					v = vf.string(str);
 				}
-				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().stringType(), v, __eval);
-					
-			} else {  
-				Statement stat = new StringTemplateConverter(__eval.getBuilder()).convert(lit);
+				return org.rascalmpl.interpreter.result.ResultFactory
+						.makeResult(org.rascalmpl.interpreter.Evaluator
+								.__getTf().stringType(), v, __eval);
+
+			} else {
+				Statement stat = new StringTemplateConverter(__eval
+						.getBuilder()).convert(lit);
 				Result<IValue> value = stat.interpret(__eval);
 				if (!value.getType().isListType()) {
-					throw new ImplementationError("template eval returns non-list");
+					throw new ImplementationError(
+							"template eval returns non-list");
 				}
 				IList list = (IList) value.getValue();
-				
+
 				// list is always non-empty
-				Result<IValue> s = ResultFactory.makeResult(TF.stringType(), list.get(0), __eval);
-				
+				Result<IValue> s = ResultFactory.makeResult(TF.stringType(),
+						list.get(0), __eval);
+
 				// lazy concat!
 				for (int i = 1; i < list.length(); i++) {
-					s = s.add(ResultFactory.makeResult(TF.stringType(), list.get(i), __eval));
+					s = s.add(ResultFactory.makeResult(TF.stringType(), list
+							.get(i), __eval));
 				}
-				
+
 				return s;
 			}
 
-
 		}
 
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.stringType();
+		}
+
+	}
+
+	public Literal(INode __param1) {
+		super(__param1);
 	}
 }

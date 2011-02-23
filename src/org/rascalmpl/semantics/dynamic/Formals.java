@@ -10,24 +10,12 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 
 public abstract class Formals extends org.rascalmpl.ast.Formals {
 
-	public Formals(INode __param1) {
-		super(__param1);
-	}
-
-	static public class Ambiguity extends org.rascalmpl.ast.Formals.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Formals> __param2) {
-			super(__param1, __param2);
-		}
-
-	}
-
 	static public class Default extends org.rascalmpl.ast.Formals.Default {
 
-		public Default(INode __param1, List<org.rascalmpl.ast.Expression> __param2) {
+		public Default(INode __param1,
+				List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
-
 
 		@Override
 		public Type typeOf(Environment env) {
@@ -47,5 +35,9 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 			return TypeFactory.getInstance().tupleType(types);
 		}
 
+	}
+
+	public Formals(INode __param1) {
+		super(__param1);
 	}
 }

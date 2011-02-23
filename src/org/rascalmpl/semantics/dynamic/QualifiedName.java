@@ -13,16 +13,6 @@ import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 
-	public QualifiedName(INode __param1) {
-		super(__param1);
-	}
-
-	static public class Ambiguity extends org.rascalmpl.ast.QualifiedName.Ambiguity {
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.QualifiedName> __param2) {
-			super(__param1, __param2);
-		}
-	}
-
 	static public class Default extends org.rascalmpl.ast.QualifiedName.Default {
 		private static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -32,10 +22,10 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 
 		@Override
 		public Type typeOf(Environment env) {
-			if (getNames().size() == 1 && Names.name(getNames().get(0)).equals("_")) {
+			if (getNames().size() == 1
+					&& Names.name(getNames().get(0)).equals("_")) {
 				return TF.valueType();
-			}
-			else {
+			} else {
 				Result<IValue> varRes = env.getVariable(this);
 				if (varRes == null || varRes.getType() == null) {
 					return TF.valueType();
@@ -44,6 +34,9 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 				}
 			}
 		}
+	}
 
+	public QualifiedName(INode __param1) {
+		super(__param1);
 	}
 }

@@ -1,6 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -9,25 +10,22 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Strategy;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.TraversalEvaluator;
+import org.rascalmpl.interpreter.TraverseResult;
 import org.rascalmpl.interpreter.TraversalEvaluator.DIRECTION;
 import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
 import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
-import org.rascalmpl.interpreter.TraverseResult;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Visit extends org.rascalmpl.ast.Visit {
 
-	public Visit(INode __param1) {
-		super(__param1);
-	}
+	static public class DefaultStrategy extends
+			org.rascalmpl.ast.Visit.DefaultStrategy {
 
-	static public class DefaultStrategy extends org.rascalmpl.ast.Visit.DefaultStrategy {
-
-		public DefaultStrategy(INode __param1, Expression __param2, List<Case> __param3) {
+		public DefaultStrategy(INode __param1, Expression __param2,
+				List<Case> __param3) {
 			super(__param1, __param2, __param3);
 		}
-
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -36,19 +34,25 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			List<Case> cases = this.getCases();
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
 
-			TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), DIRECTION.BottomUp, PROGRESS.Continuing, FIXEDPOINT.No);
+			TraverseResult tr = te.traverse(subject.getValue(),
+					te.new CasesOrRules(cases), DIRECTION.BottomUp,
+					PROGRESS.Continuing, FIXEDPOINT.No);
 			Type t = tr.value.getType();
 			IValue val = tr.value;
-			org.rascalmpl.interpreter.TraverseResultFactory.freeTraverseResult(tr);
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t, val, __eval);
+			org.rascalmpl.interpreter.TraverseResultFactory
+					.freeTraverseResult(tr);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
+					val, __eval);
 
 		}
 
 	}
 
-	static public class GivenStrategy extends org.rascalmpl.ast.Visit.GivenStrategy {
+	static public class GivenStrategy extends
+			org.rascalmpl.ast.Visit.GivenStrategy {
 
-		public GivenStrategy(INode __param1, Strategy __param2, Expression __param3, List<Case> __param4) {
+		public GivenStrategy(INode __param1, Strategy __param2,
+				Expression __param3, List<Case> __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
 
@@ -93,23 +97,21 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			}
 
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
-			TraverseResult tr = te.traverse(subject.getValue(), te.new CasesOrRules(cases), direction, progress, fixedpoint);
+			TraverseResult tr = te
+					.traverse(subject.getValue(), te.new CasesOrRules(cases),
+							direction, progress, fixedpoint);
 			Type t = tr.value.getType();
 			IValue val = tr.value;
-			org.rascalmpl.interpreter.TraverseResultFactory.freeTraverseResult(tr);
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t, val, __eval);
+			org.rascalmpl.interpreter.TraverseResultFactory
+					.freeTraverseResult(tr);
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
+					val, __eval);
 
 		}
-
 
 	}
 
-	static public class Ambiguity extends org.rascalmpl.ast.Visit.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.Visit> __param2) {
-			super(__param1, __param2);
-		}
-
-
+	public Visit(INode __param1) {
+		super(__param1);
 	}
 }
