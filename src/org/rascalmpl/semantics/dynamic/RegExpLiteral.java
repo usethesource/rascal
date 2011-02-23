@@ -1,11 +1,10 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
-import java.lang.StringBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -15,36 +14,25 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 
 public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 
-	public RegExpLiteral(INode __param1) {
-		super(__param1);
-	}
-
-	static public class Ambiguity extends org.rascalmpl.ast.RegExpLiteral.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.RegExpLiteral> __param2) {
-			super(__param1, __param2);
-		}
-
-
-	}
-
 	static public class Lexical extends org.rascalmpl.ast.RegExpLiteral.Lexical {
 
 		public Lexical(INode __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
-			if (__eval.__getDebug())
-				System.err.println("visitRegExpLiteralLexical: " + this.getString());
+			if (__eval.__getDebug()) {
+				System.err.println("visitRegExpLiteralLexical: "
+						+ this.getString());
+			}
 
 			String subjectPat = this.getString();
 
 			if (subjectPat.charAt(0) != '/') {
-				throw new SyntaxError("Malformed Regular expression: " + subjectPat, this.getLocation());
+				throw new SyntaxError("Malformed Regular expression: "
+						+ subjectPat, this.getLocation());
 			}
 
 			int start = 1;
@@ -56,14 +44,16 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			String modifiers = subjectPat.substring(end + 1);
 
 			if (subjectPat.charAt(end) != '/') {
-				throw new SyntaxError("Regular expression does not end with /", this.getLocation());
+				throw new SyntaxError("Regular expression does not end with /",
+						this.getLocation());
 			}
 
 			// The resulting regexp that we are constructing
 			StringBuffer resultRegExp = new StringBuffer();
 
-			if (modifiers.length() > 0)
+			if (modifiers.length() > 0) {
 				resultRegExp.append("(?").append(modifiers).append(")");
+			}
 
 			/*
 			 * Find all pattern variables. There are two cases: (1) <X:regexp> -
@@ -84,9 +74,11 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			String NR3 = "(?:\\\\)";
 			String NR4 = "(?:<" + Name + ">)";
 
-			String NamedRegexp = "(?:" + NR1 + "|" + NR2 + "|" + NR3 + "|" + NR4 + ")";
+			String NamedRegexp = "(?:" + NR1 + "|" + NR2 + "|" + NR3 + "|"
+					+ NR4 + ")";
 
-			String RE = "(?:(?<!\\\\)|(?<=\\\\\\\\))<(" + Name + ")(?:\\s*:\\s*(" + NamedRegexp + "*))?" + ">";
+			String RE = "(?:(?<!\\\\)|(?<=\\\\\\\\))<(" + Name
+					+ ")(?:\\s*:\\s*(" + NamedRegexp + "*))?" + ">";
 			// | |
 			// group 1 2
 			// variable name regular expression to be matched
@@ -102,36 +94,43 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 				String varName = m.group(1);
 
 				resultRegExp.append(subjectPat.substring(start, m.start(0))); // add
-																				// regexp
-																				// before
-																				// <
-																				// ...
-																				// >
+				// regexp
+				// before
+				// <
+				// ...
+				// >
 
 				if (m.end(2) > -1) { /* case (1): <X:regexp> */
 
-					if (patternVars.contains(varName))
+					if (patternVars.contains(varName)) {
 						throw new RedeclaredVariableError(varName, this);
+					}
 					patternVars.add(varName);
-					resultRegExp.append("(").append(__eval.interpolate(m.group(2))).append(")");
+					resultRegExp.append("(").append(
+							__eval.interpolate(m.group(2))).append(")");
 				} else { /* case (2): <X> */
 					int varIndex = patternVars.indexOf(varName);
 					if (varIndex >= 0) {
 						/* Generate reference to previous occurrence */
-						resultRegExp.append("(?:\\").append(1 + varIndex).append(")");
+						resultRegExp.append("(?:\\").append(1 + varIndex)
+								.append(")");
 					} else {
 						resultRegExp.append(__eval.getValueAsString(varName)); // TODO:
-																				// escape
-																				// special
-																				// chars?
+						// escape
+						// special
+						// chars?
 					}
 				}
 				start = m.end(0);
 			}
 			resultRegExp.append(subjectPat.substring(start, end));
-			return new RegExpPatternValue(__eval.__getCtx(), this, resultRegExp.toString(), patternVars);
+			return new RegExpPatternValue(__eval.__getCtx(), this, resultRegExp
+					.toString(), patternVars);
 
 		}
+	}
 
+	public RegExpLiteral(INode __param1) {
+		super(__param1);
 	}
 }

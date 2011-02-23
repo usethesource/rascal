@@ -1,9 +1,8 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.lang.String;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -15,11 +14,8 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral {
 
-	public LocationLiteral(INode __param1) {
-		super(__param1);
-	}
-
-	static public class Default extends org.rascalmpl.ast.LocationLiteral.Default {
+	static public class Default extends
+			org.rascalmpl.ast.LocationLiteral.Default {
 
 		public Default(INode __param1, ProtocolPart __param2, PathPart __param3) {
 			super(__param1, __param2, __param3);
@@ -28,30 +24,30 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			Result<IValue> protocolPart = this.getProtocolPart().interpret(__eval);
+			Result<IValue> protocolPart = this.getProtocolPart().interpret(
+					__eval);
 			Result<IValue> pathPart = this.getPathPart().interpret(__eval);
 
-			String uri = ((IString) protocolPart.getValue()).getValue() + "://" + ((IString) pathPart.getValue()).getValue();
+			String uri = ((IString) protocolPart.getValue()).getValue() + "://"
+					+ ((IString) pathPart.getValue()).getValue();
 
 			try {
 				URI url = new URI(uri);
 				ISourceLocation r = __eval.__getVf().sourceLocation(url);
-				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf().sourceLocationType(), r, __eval);
+				return org.rascalmpl.interpreter.result.ResultFactory
+						.makeResult(org.rascalmpl.interpreter.Evaluator
+								.__getTf().sourceLocationType(), r, __eval);
 			} catch (URISyntaxException e) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.malformedURI(uri, this, __eval.getStackTrace());
+				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+						.malformedURI(uri, this, __eval.getStackTrace());
 			}
 
 		}
 
-
 	}
 
-	static public class Ambiguity extends org.rascalmpl.ast.LocationLiteral.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.LocationLiteral> __param2) {
-			super(__param1, __param2);
-		}
-
-
+	public LocationLiteral(INode __param1) {
+		super(__param1);
 	}
+
 }

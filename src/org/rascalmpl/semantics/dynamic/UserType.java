@@ -6,17 +6,11 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 
 public abstract class UserType extends org.rascalmpl.ast.UserType {
-	private static final TypeFactory TF = TypeFactory.getInstance();
-
-	public UserType(INode __param1) {
-		super(__param1);
-	}
 
 	static public class Name extends org.rascalmpl.ast.UserType.Name {
 
@@ -24,11 +18,12 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 			super(__param1, __param2);
 		}
 
-
 		@Override
 		public Type typeOf(Environment __eval) {
-			Environment theEnv = __eval.getHeap().getEnvironmentForName(getName(), __eval);
-			String name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
+			Environment theEnv = __eval.getHeap().getEnvironmentForName(
+					getName(), __eval);
+			String name = org.rascalmpl.interpreter.utils.Names.typeName(this
+					.getName());
 
 			if (theEnv != null) {
 				Type type = theEnv.lookupAlias(name);
@@ -56,18 +51,11 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 	}
 
-	static public class Ambiguity extends org.rascalmpl.ast.UserType.Ambiguity {
+	static public class Parametric extends
+			org.rascalmpl.ast.UserType.Parametric {
 
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.UserType> __param2) {
-			super(__param1, __param2);
-		}
-
-
-	}
-
-	static public class Parametric extends org.rascalmpl.ast.UserType.Parametric {
-
-		public Parametric(INode __param1, QualifiedName __param2, List<org.rascalmpl.ast.Type> __param3) {
+		public Parametric(INode __param1, QualifiedName __param2,
+				List<org.rascalmpl.ast.Type> __param3) {
 			super(__param1, __param2, __param3);
 		}
 
@@ -75,9 +63,11 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		public Type typeOf(Environment __eval) {
 			String name;
 			Type type = null;
-			Environment theEnv = __eval.getHeap().getEnvironmentForName(this.getName(), __eval);
+			Environment theEnv = __eval.getHeap().getEnvironmentForName(
+					this.getName(), __eval);
 
-			name = org.rascalmpl.interpreter.utils.Names.typeName(this.getName());
+			name = org.rascalmpl.interpreter.utils.Names.typeName(this
+					.getName());
 
 			if (theEnv != null) {
 				type = theEnv.lookupAlias(name);
@@ -109,6 +99,9 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 		}
 
+	}
 
+	public UserType(INode __param1) {
+		super(__param1);
 	}
 }

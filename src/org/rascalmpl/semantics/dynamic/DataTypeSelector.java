@@ -14,27 +14,25 @@ import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 
-public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelector {
+public abstract class DataTypeSelector extends
+		org.rascalmpl.ast.DataTypeSelector {
 
-	public DataTypeSelector(INode __param1) {
-		super(__param1);
-	}
+	static public class Ambiguity extends
+			org.rascalmpl.ast.DataTypeSelector.Ambiguity {
 
-	static public class Ambiguity extends org.rascalmpl.ast.DataTypeSelector.Ambiguity {
-
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.DataTypeSelector> __param2) {
+		public Ambiguity(INode __param1,
+				List<org.rascalmpl.ast.DataTypeSelector> __param2) {
 			super(__param1, __param2);
 		}
 
-
 	}
 
-	static public class Selector extends org.rascalmpl.ast.DataTypeSelector.Selector {
+	static public class Selector extends
+			org.rascalmpl.ast.DataTypeSelector.Selector {
 
 		public Selector(INode __param1, QualifiedName __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
-
 
 		@Override
 		public Type typeOf(Environment env) {
@@ -44,10 +42,14 @@ public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelecto
 
 			if (org.rascalmpl.interpreter.utils.Names.isQualified(sort)) {
 				GlobalEnvironment heap = env.getHeap();
-				ModuleEnvironment mod = heap.getModule(org.rascalmpl.interpreter.utils.Names.moduleName(sort));
+				ModuleEnvironment mod = heap
+						.getModule(org.rascalmpl.interpreter.utils.Names
+								.moduleName(sort));
 
 				if (mod == null) {
-					throw new UndeclaredModuleError(org.rascalmpl.interpreter.utils.Names.moduleName(sort), sort);
+					throw new UndeclaredModuleError(
+							org.rascalmpl.interpreter.utils.Names
+									.moduleName(sort), sort);
 				}
 
 				adt = mod.lookupAbstractDataType(name);
@@ -59,18 +61,24 @@ public abstract class DataTypeSelector extends org.rascalmpl.ast.DataTypeSelecto
 				throw new UndeclaredTypeError(name, this);
 			}
 
-			String constructor = org.rascalmpl.interpreter.utils.Names.name(this.getProduction());
+			String constructor = org.rascalmpl.interpreter.utils.Names
+					.name(this.getProduction());
 			Set<Type> constructors = env.lookupConstructor(adt, constructor);
 
 			if (constructors.size() == 0) {
 				throw new UndeclaredTypeError(name + "." + constructor, this);
 			} else if (constructors.size() > 1) {
-				throw new AmbiguousFunctionReferenceError(name + "." + constructor, this);
+				throw new AmbiguousFunctionReferenceError(name + "."
+						+ constructor, this);
 			} else {
 				return constructors.iterator().next();
 			}
 
 		}
 
+	}
+
+	public DataTypeSelector(INode __param1) {
+		super(__param1);
 	}
 }

@@ -89,7 +89,7 @@ public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.INode"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.INode","org.rascalmpl.interpreter.asserts.Ambiguous"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -184,6 +184,26 @@ return "static public class Ambiguity extends <name> {
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Result<IValue> typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List\<<pkg>.<name>\> getAlternatives() {
    return alternatives;
   }

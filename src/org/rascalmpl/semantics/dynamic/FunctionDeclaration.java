@@ -19,30 +19,16 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
 
-public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDeclaration {
+public abstract class FunctionDeclaration extends
+		org.rascalmpl.ast.FunctionDeclaration {
 
-	
-	public FunctionDeclaration(INode __param1) {
-		super(__param1);
-	}
-	
-	private static boolean hasJavaModifier(org.rascalmpl.ast.FunctionDeclaration func) {
-		List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
-		for (FunctionModifier m : mods) {
-			if (m.isJava()) {
-				return true;
-			}
-		}
+	static public class Abstract extends
+			org.rascalmpl.ast.FunctionDeclaration.Abstract {
 
-		return false;
-	}
-
-	static public class Abstract extends org.rascalmpl.ast.FunctionDeclaration.Abstract {
-
-		public Abstract(INode __param1, Tags __param2, Visibility __param3, Signature __param4) {
+		public Abstract(INode __param1, Tags __param2, Visibility __param3,
+				Signature __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
-
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -53,8 +39,10 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 				throw new MissingModifierError("java", this);
 			}
 
-			AbstractFunction lambda = new JavaMethod(__eval, this, varArgs, __eval.getCurrentEnvt(), __eval.__getJavaBridge());
-			String name = org.rascalmpl.interpreter.utils.Names.name(this.getSignature().getName());
+			AbstractFunction lambda = new JavaMethod(__eval, this, varArgs,
+					__eval.getCurrentEnvt(), __eval.__getJavaBridge());
+			String name = org.rascalmpl.interpreter.utils.Names.name(this
+					.getSignature().getName());
 			__eval.getCurrentEnvt().storeFunction(name, lambda);
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
@@ -66,39 +54,13 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 
 	}
 
-	static public class Expression extends org.rascalmpl.ast.FunctionDeclaration.Expression {
+	static public class Default extends
+			org.rascalmpl.ast.FunctionDeclaration.Default {
 
-		public Expression(INode node, Tags tags, Visibility visibility,
-				Signature signature, org.rascalmpl.ast.Expression expression) {
-			super(node, tags, visibility, signature, expression);
-		}
-		 
-		@Override
-		public Result<IValue> interpret(Evaluator eval) {
-			AbstractFunction lambda;
-			boolean varArgs = this.getSignature().getParameters().isVarArgs();
-
-			if (hasJavaModifier(this)) {
-				throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null, this);
-			}
-
-			lambda = new RascalFunction(eval, this, varArgs, eval.getCurrentEnvt(), eval.__getAccumulators());
-
-			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
-
-			lambda.setPublic(this.getVisibility().isPublic());
-			return lambda;
-		}
-		
-	}
-	static public class Default extends org.rascalmpl.ast.FunctionDeclaration.Default {
-
-		public Default(INode __param1, Tags __param2, Visibility __param3, Signature __param4, FunctionBody __param5) {
+		public Default(INode __param1, Tags __param2, Visibility __param3,
+				Signature __param4, FunctionBody __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
-
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -107,14 +69,17 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
-				throw new JavaMethodLinkError("may not use java modifier with a function that has a body", null, this);
+				throw new JavaMethodLinkError(
+						"may not use java modifier with a function that has a body",
+						null, this);
 			}
 
 			if (!this.getBody().isDefault()) {
 				throw new MissingModifierError("java", this);
 			}
 
-			lambda = new RascalFunction(__eval, this, varArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, this, varArgs, __eval
+					.getCurrentEnvt(), __eval.__getAccumulators());
 
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
@@ -134,12 +99,52 @@ public abstract class FunctionDeclaration extends org.rascalmpl.ast.FunctionDecl
 
 	}
 
-	static public class Ambiguity extends org.rascalmpl.ast.FunctionDeclaration.Ambiguity {
+	static public class Expression extends
+			org.rascalmpl.ast.FunctionDeclaration.Expression {
 
-		public Ambiguity(INode __param1, List<org.rascalmpl.ast.FunctionDeclaration> __param2) {
-			super(__param1, __param2);
+		public Expression(INode node, Tags tags, Visibility visibility,
+				Signature signature, org.rascalmpl.ast.Expression expression) {
+			super(node, tags, visibility, signature, expression);
 		}
 
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			AbstractFunction lambda;
+			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
+			if (hasJavaModifier(this)) {
+				throw new JavaMethodLinkError(
+						"may not use java modifier with a function that has a body",
+						null, this);
+			}
+
+			lambda = new RascalFunction(eval, this, varArgs, eval
+					.getCurrentEnvt(), eval.__getAccumulators());
+
+			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+
+			lambda.setPublic(this.getVisibility().isPublic());
+			return lambda;
+		}
+
+	}
+
+	private static boolean hasJavaModifier(
+			org.rascalmpl.ast.FunctionDeclaration func) {
+		List<FunctionModifier> mods = func.getSignature().getModifiers()
+				.getModifiers();
+		for (FunctionModifier m : mods) {
+			if (m.isJava()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public FunctionDeclaration(INode __param1) {
+		super(__param1);
 	}
 }
