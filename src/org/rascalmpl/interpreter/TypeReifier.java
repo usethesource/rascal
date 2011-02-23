@@ -55,7 +55,7 @@ data type[&T] =
   \adt(str name,  list[constructor] constructors, list[tuple[Type,Type]] bindings) |
   \parameter(str name, Type bound) |
   \loc() |
-  \alias(str name, list[Type] parameters, Type aliased) |
+  \alias(str name, Type aliased, list[tuple[Type,Type]] bindings) |
   \reified(Type reified)
 
 data constructor[&T] = 
@@ -156,6 +156,14 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		Type formals = adtDefinition.getTypeParameters();
 		Type actuals = type.getTypeParameters();
 		
+		IList bindingList = computeBindingList(formals, actuals);
+		
+		result = staticType.make(vf, vf.string(name),  constructorList, bindingList);
+		
+		return makeResult(staticType.getAbstractDataType(), result, ctx);
+	}
+
+	private IList computeBindingList(Type formals, Type actuals) {
 		IListWriter bindingRepresentation = vf.listWriter(tupleType);
 		int i = 0;
 		if (! formals.isVoidType()) {
@@ -165,10 +173,8 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 				bindingRepresentation.append(vf.tuple(keyRep.getValue(), value.getValue()));
 			}
 		}
-		
-		result = staticType.make(vf, vf.string(name),  constructorList, bindingRepresentation.done());
-		
-		return makeResult(staticType.getAbstractDataType(), result, ctx);
+		IList bindingList = bindingRepresentation.done();
+		return bindingList;
 	}
 
 	private IList getTypeParameterList(Type params) {
@@ -198,9 +204,12 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 		Type params = type.getTypeParameters();
 		Map<Type,Type> bindings = bind(type);
 		Result<IValue> aliased = type.getAliased().accept(this);
+		Type formals = store.getAlias(name).getTypeParameters();
 		
-		Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "alias", tf.stringType(), "name", tf.listType(valueAdt), "parameters", aliased.getType(), "aliased");
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(name), getTypeParameterList(params), aliased.getValue()), ctx);
+		IList bindingList = computeBindingList(formals, params);
+		
+		Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "alias", tf.stringType(), "name", aliased.getType(), "aliased", bindingType, "bindings");
+		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(name), aliased.getValue(), bindingList), ctx);
 	}
 
 	public Result<IValue> visitBool(Type boolType) {
