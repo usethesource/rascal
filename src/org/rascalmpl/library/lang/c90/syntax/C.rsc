@@ -1,4 +1,4 @@
-module C
+module lang::c90::syntax::C
 
 syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
