@@ -503,7 +503,7 @@ syntax Visit
 
 start syntax Command
 	= Expression: Expression expression {
-	  if (appl(prod(_,sort("Expression"),attrs([term(cons("NonEmptyBlock"))])),_) := expression) { 
+	  if (expression is NonEmptyBlock) { 
 	    fail;
 	  }
 	}
@@ -511,8 +511,7 @@ start syntax Command
 	| Shell: ":" ShellCommand command 
 	| Statement: Statement statement {
 	  // local variable declarations would be ambiguous with the "global" declarations defined above
-	  if (appl(prod(_,sort("Statement"),attrs([term(cons("VariableDeclaration"))])),_) := statement
-	    ||appl(prod(_,sort("Statement"),attrs([term(cons("FunctionDeclaration"))])),_) := statement ) { 
+	  if (statement is VariableDeclaration || statement is FunctionDeclaration || statement is Visit) { 
 	    fail;
 	  }
 	}
@@ -575,8 +574,7 @@ syntax Statement
 	= Assert: "assert" Expression expression ";" 
 	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
 	| Expression: Expression expression ";" {
-	   if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("NonEmptyBlock")),_*])),_) := expression
-	     ||appl(prod(_,sort("Expression"),attrs([_*,term(cons("Visit")),_*])),_) := expression ) { 
+	   if (expression is NonEmptyBlock || expression is Visit) { 
 	    fail;
 	  }
 	}
@@ -713,10 +711,10 @@ syntax Type
 	| Selector: DataTypeSelector selector 
 	| Variable: TypeVar typeVar 
 	| Symbol: Sym symbol {
-	   if (appl(prod(_,_,attrs([_*,term(cons("Nonterminal")),_*])),_) := symbol
-	     ||appl(prod(_,_,attrs([_*,term(cons("Labeled")),_*])),_) := symbol
-	     ||appl(prod(_,_,attrs([_*,term(cons("Parametrized")),_*])),_) := symbol
-	     ||appl(prod(_,_,attrs([_*,term(cons("Parameter")),_*])),_) := symbol) {
+	   if (symbol is Nonterminal
+	     ||symbol is Labeled
+	     ||symbol is Parametrized
+	     ||symbol is Parameter) {
 	    fail;
 	   }
 	} 
@@ -856,7 +854,7 @@ syntax PrePathChars
 
 syntax Mapping[&T]
 	= Default: &T from ":" &T to {
-	  if (appl(prod(_,sort("Expression"),attrs([_*,term(cons("IfDefinedOtherwise")),_*])),_) := from) {
+	  if (from is IfDefinedOtherwise) {
 	    fail;
 	  }
 	} 

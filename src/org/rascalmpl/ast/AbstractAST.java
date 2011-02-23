@@ -12,6 +12,7 @@ import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -101,25 +102,22 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	public Result<IValue> interpret(Evaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotYetImplemented(this);
 	}
 
 	public Result<IValue> assignment(AssignableEvaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotYetImplemented(this);
 	}
 
 	/**
 	 * Computes internal type representations for type literals and patterns. 
 	 */
 	public Type typeOf(Environment env) {
-		throw new ImplementationError("typeOf is not implemented for " + getClass().getCanonicalName());
+		throw new NotYetImplemented(this);
 	}
 
 	public Type __evaluate(org.rascalmpl.interpreter.BasicTypeEvaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotYetImplemented(this);
 	}
 
 	public IMatchingResult buildMatcher(PatternEvaluator eval) {
@@ -127,8 +125,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotYetImplemented(this);
 	}
 	
 }

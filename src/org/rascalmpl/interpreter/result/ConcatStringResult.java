@@ -1,23 +1,24 @@
 package org.rascalmpl.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class ConcatStringResult extends StringResult {
-	private StringResult left;
-	private StringResult right;
+	private final StringResult left;
+	private final StringResult right;
+	private final int length;
 	
 	/*package*/ ConcatStringResult(Type type, StringResult left, StringResult right, IEvaluatorContext ctx) {
 		super(type, null, ctx);
 		this.left = left;
 		this.right = right;
+		this.length = left.length() + right.length();
 	}
 	
 	@Override
 	protected int length() {
-		return left.length() + right.length();
+		return length;
 	}
 	
 	@Override
@@ -28,8 +29,7 @@ public class ConcatStringResult extends StringResult {
 
 	@Override
 	public IString getValue() {
-		// we assume that it is cheaper to know the size!
-		StringBuilder builder = new StringBuilder(length());
+		StringBuilder builder = new StringBuilder(length);
 		yield(builder);
 		return getValueFactory().string(builder.toString());
 	}
