@@ -3658,19 +3658,16 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return eX(x.getTag());
 	}
 
-	@Override
 	public IValue visitExpressionHas(Has x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitExpressionIs(Is x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitFunctionModifierDefault(
 			org.rascalmpl.ast.FunctionModifier.Default x) {
 		// TODO Auto-generated method stub

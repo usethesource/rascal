@@ -148,12 +148,10 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 					private final Iterator<AbstractFunction> primary = primaryCandidates.iterator();
 					private final Iterator<AbstractFunction> defaults = defaultCandidates.iterator();
 					
-					@Override
 					public boolean hasNext() {
 						return primary.hasNext() || defaults.hasNext();
 					}
 
-					@Override
 					public AbstractFunction next() {
 						if (primary.hasNext()) {
 							return primary.next();
@@ -161,7 +159,6 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 						return defaults.next();
 					}
 
-					@Override
 					public void remove() {
 						throw new UnsupportedOperationException();
 					}
