@@ -3673,8 +3673,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
+	
 	public IValue visitFunctionDeclarationExpression(
 			org.rascalmpl.ast.FunctionDeclaration.Expression x) {
 		// TODO Auto-generated method stub
