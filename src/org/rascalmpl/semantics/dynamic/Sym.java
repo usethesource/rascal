@@ -7,7 +7,6 @@ import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Class;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.NonterminalLabel;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.ParameterizedNonterminal;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.env.Environment;

@@ -3,7 +3,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.rascalmpl.ast.Assoc;
-import org.rascalmpl.ast.NullASTVisitor;
 
 public abstract class ProdModifier extends org.rascalmpl.ast.ProdModifier {
 

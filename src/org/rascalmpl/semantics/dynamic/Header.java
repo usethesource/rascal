@@ -5,7 +5,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.ModuleParameters;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.Evaluator;

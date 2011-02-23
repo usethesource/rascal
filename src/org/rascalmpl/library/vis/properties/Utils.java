@@ -10,7 +10,6 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.FigureLibrary;
 import org.rascalmpl.library.vis.FigurePApplet;
 
 public class Utils {

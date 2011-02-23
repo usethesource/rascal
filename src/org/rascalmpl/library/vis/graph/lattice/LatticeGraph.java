@@ -109,7 +109,6 @@ public class LatticeGraph extends Figure implements
 			for (int i = cut; i < o2.x.length; i++)
 				for (int j = 0; j < o2.x[i].length; j++) {
 					x[i][j] = o2.x[i][j];
-					;
 				}
 			set();
 			// fitness = LatticeGraph.this.Y() - LatticeGraph.this.C();
@@ -422,7 +421,7 @@ public class LatticeGraph extends Figure implements
 				i++;
 			}
 		return r / i;
-	};
+	}
 
 	private float Y() {
 		float r = 0;

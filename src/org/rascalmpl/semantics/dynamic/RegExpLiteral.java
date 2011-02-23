@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.imp.pdb.facts.INode;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;

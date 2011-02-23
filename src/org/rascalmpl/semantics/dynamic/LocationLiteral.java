@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PathPart;
 import org.rascalmpl.ast.ProtocolPart;
 import org.rascalmpl.interpreter.Evaluator;
