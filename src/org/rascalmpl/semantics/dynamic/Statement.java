@@ -807,8 +807,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3, __param4);
 			blocks = new ArrayList<CaseBlock>(__param4.size());
 			precompute(__param4);
-			System.err.println("switched optimized from + " + __param4.size()
-					+ " to " + blocks.size() + " alts at " + getLocation());
+			//System.err.println("switched optimized from + " + __param4.size()
+			//		+ " to " + blocks.size() + " alts at " + getLocation());
 		}
 
 		@Override
