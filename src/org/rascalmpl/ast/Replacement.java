@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Replacement extends AbstractAST {
-  public Replacement(INode node) {
-    super(node);
+  public Replacement(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -31,11 +43,31 @@ public abstract class Replacement extends AbstractAST {
 static public class Ambiguity extends Replacement {
   private final java.util.List<org.rascalmpl.ast.Replacement> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Replacement> getAlternatives() {
    return alternatives;
   }
@@ -61,8 +93,8 @@ static public class Unconditional extends Replacement {
   
 
   
-public Unconditional(INode node , org.rascalmpl.ast.Expression replacementExpression) {
-  super(node);
+public Unconditional(ISourceLocation loc, org.rascalmpl.ast.Expression replacementExpression) {
+  super(loc);
   
     this.replacementExpression = replacementExpression;
   
@@ -107,8 +139,8 @@ static public class Conditional extends Replacement {
   
 
   
-public Conditional(INode node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
-  super(node);
+public Conditional(ISourceLocation loc, org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+  super(loc);
   
     this.replacementExpression = replacementExpression;
   

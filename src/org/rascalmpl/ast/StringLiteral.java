@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class StringLiteral extends AbstractAST {
-  public StringLiteral(INode node) {
-    super(node);
+  public StringLiteral(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -55,11 +67,31 @@ public abstract class StringLiteral extends AbstractAST {
 static public class Ambiguity extends StringLiteral {
   private final java.util.List<org.rascalmpl.ast.StringLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringLiteral> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.StringLiteral> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.StringLiteral> getAlternatives() {
    return alternatives;
   }
@@ -85,8 +117,8 @@ static public class NonInterpolated extends StringLiteral {
   
 
   
-public NonInterpolated(INode node , org.rascalmpl.ast.StringConstant constant) {
-  super(node);
+public NonInterpolated(ISourceLocation loc, org.rascalmpl.ast.StringConstant constant) {
+  super(loc);
   
     this.constant = constant;
   
@@ -133,8 +165,8 @@ static public class Template extends StringLiteral {
   
 
   
-public Template(INode node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
-  super(node);
+public Template(ISourceLocation loc, org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+  super(loc);
   
     this.pre = pre;
   
@@ -205,8 +237,8 @@ static public class Interpolated extends StringLiteral {
   
 
   
-public Interpolated(INode node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
-  super(node);
+public Interpolated(ISourceLocation loc, org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+  super(loc);
   
     this.pre = pre;
   

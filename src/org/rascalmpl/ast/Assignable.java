@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Assignable extends AbstractAST {
-  public Assignable(INode node) {
-    super(node);
+  public Assignable(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -95,11 +107,31 @@ public abstract class Assignable extends AbstractAST {
 static public class Ambiguity extends Assignable {
   private final java.util.List<org.rascalmpl.ast.Assignable> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Assignable> getAlternatives() {
    return alternatives;
   }
@@ -125,8 +157,8 @@ static public class Tuple extends Assignable {
   
 
   
-public Tuple(INode node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
-  super(node);
+public Tuple(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Assignable> elements) {
+  super(loc);
   
     this.elements = elements;
   
@@ -169,8 +201,8 @@ static public class Variable extends Assignable {
   
 
   
-public Variable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-  super(node);
+public Variable(ISourceLocation loc, org.rascalmpl.ast.QualifiedName qualifiedName) {
+  super(loc);
   
     this.qualifiedName = qualifiedName;
   
@@ -215,8 +247,8 @@ static public class IfDefinedOrDefault extends Assignable {
   
 
   
-public IfDefinedOrDefault(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
-  super(node);
+public IfDefinedOrDefault(ISourceLocation loc, org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
+  super(loc);
   
     this.receiver = receiver;
   
@@ -273,8 +305,8 @@ static public class Subscript extends Assignable {
   
 
   
-public Subscript(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
-  super(node);
+public Subscript(ISourceLocation loc, org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
+  super(loc);
   
     this.receiver = receiver;
   
@@ -329,8 +361,8 @@ static public class Bracket extends Assignable {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Assignable arg) {
-  super(node);
+public Bracket(ISourceLocation loc, org.rascalmpl.ast.Assignable arg) {
+  super(loc);
   
     this.arg = arg;
   
@@ -375,8 +407,8 @@ static public class FieldAccess extends Assignable {
   
 
   
-public FieldAccess(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
-  super(node);
+public FieldAccess(ISourceLocation loc, org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
+  super(loc);
   
     this.receiver = receiver;
   
@@ -433,8 +465,8 @@ static public class Constructor extends Assignable {
   
 
   
-public Constructor(INode node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
-  super(node);
+public Constructor(ISourceLocation loc, org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
+  super(loc);
   
     this.name = name;
   
@@ -491,8 +523,8 @@ static public class Annotation extends Assignable {
   
 
   
-public Annotation(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
-  super(node);
+public Annotation(ISourceLocation loc, org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
+  super(loc);
   
     this.receiver = receiver;
   

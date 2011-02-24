@@ -21,6 +21,18 @@ import Integer;
 } 
 public Grammar module2grammar(Module mod) {
   return syntax2grammar(collect(mod));
+}
+
+public Grammar join(set[Grammar] grammars) {
+  set[Production] empty = {};
+  Grammar result = grammar({},());
+  for (Grammar g <- grammars) {
+    result.start += g.start;
+    for (s <- g.rules) {
+      result[s]?empty() += g.rules[s];
+    }
+  }
+  return result;
 } 
   
 public Grammar imports2grammar(set[Import] imports) {

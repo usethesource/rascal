@@ -1,8 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
-
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.joda.time.DateTime;
@@ -16,7 +14,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 
 	static public class Lexical extends org.rascalmpl.ast.DateAndTime.Lexical {
 
-		public Lexical(INode __param1, String __param2) {
+		public Lexical(ISourceLocation __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
@@ -60,7 +58,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 
 	}
 
-	public DateAndTime(INode __param1) {
+	public DateAndTime(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

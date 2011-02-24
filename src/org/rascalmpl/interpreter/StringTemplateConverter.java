@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -41,7 +41,7 @@ public class StringTemplateConverter {
 		this.factory = builder;
 	}
 	
-	private Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
+	private Statement surroundWithSingleIterForLoop(ISourceLocation src, Name label, Statement body) {
 		Name dummy = factory.make("Name","Lexical",src, "_");
 		Expression var = factory.make("Expression","QualifiedName",src, factory.make("QualifiedName", src, Arrays.asList(dummy)));
 		Expression truth = factory.make("Expression","Literal",src, factory.make("Literal","Boolean",src, factory.make("BooleanLiteral","Lexical",src, "true")));
@@ -53,9 +53,9 @@ public class StringTemplateConverter {
 
 
 	public Statement convert(org.rascalmpl.ast.StringLiteral str) {
-		final Name label= factory.make("Name","Lexical", str.getTree(), "#" + labelCounter);
+		final Name label= factory.make("Name","Lexical", str.getLocation(), "#" + labelCounter);
 		labelCounter++;
-		return surroundWithSingleIterForLoop(str.getTree(), label, str.accept(new Visitor(label, factory)));
+		return surroundWithSingleIterForLoop(str.getLocation(), label, str.accept(new Visitor(label, factory)));
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
@@ -67,11 +67,11 @@ public class StringTemplateConverter {
 			this.factory = factory;
 		}
 
-		private Statement makeBlock(INode src, Statement ...stats) {
+		private Statement makeBlock(ISourceLocation src, Statement ...stats) {
 			return makeBlock(src, Arrays.asList(stats));
 		}
 		
-		private Statement makeBlock(INode src, List<Statement> stats) {
+		private Statement makeBlock(ISourceLocation src, List<Statement> stats) {
 			return factory.make("Statement","NonEmptyBlock",src, factory.make("Label", "Empty", src),
 					stats);
 		}
@@ -79,7 +79,7 @@ public class StringTemplateConverter {
 		
 		private class MyAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 
-			public MyAppend(INode __param1, DataTarget __param2,
+			public MyAppend(ISourceLocation __param1, DataTarget __param2,
 					Statement __param3) {
 				super(__param1, __param2, __param3);
 			}
@@ -132,11 +132,11 @@ public class StringTemplateConverter {
 		}
 		
 		private Statement makeAppend(Expression exp) {
-			return new MyAppend(exp.getTree(), factory.<DataTarget>make("DataTarget","Labeled", null, label),
-					factory.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
+			return new MyAppend(exp.getLocation(), factory.<DataTarget>make("DataTarget","Labeled", null, label),
+					factory.<Statement>make("Statement","Expression", exp.getLocation(), exp)); 
 		}
 		
-		private  Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
+		private  Statement combinePreBodyPost(ISourceLocation src, List<Statement> pre, Statement body, List<Statement> post) {
 			List<Statement> stats = new ArrayList<Statement>();
 			stats.addAll(pre);
 			stats.add(body);
@@ -145,7 +145,7 @@ public class StringTemplateConverter {
 		}
 		
 		
-		private Expression makeLit(INode src, String str) {
+		private Expression makeLit(ISourceLocation src, String str) {
 			// Note: we don't unescape here this happens
 			// in the main evaluator; also, we pretend 
 			// "...< etc. to be "..." stringliterals...
@@ -162,12 +162,12 @@ public class StringTemplateConverter {
 			Statement pre = x.getPre().accept(this);
 			Statement exp = makeAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), pre, exp, tail);
+			return makeBlock(x.getLocation(), pre, exp, tail);
 		}
 		
 		@Override
 		public Statement visitStringLiteralNonInterpolated(NonInterpolated x) {
-			return makeAppend(makeLit(x.getTree(), ((StringConstant.Lexical)x.getConstant()).getString()));
+			return makeAppend(makeLit(x.getLocation(), ((StringConstant.Lexical)x.getConstant()).getString()));
 		}
 		
 		@Override
@@ -176,47 +176,47 @@ public class StringTemplateConverter {
 			Statement pre = x.getPre().accept(this);
 			Statement template = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), pre, template, tail);
+			return makeBlock(x.getLocation(), pre, template, tail);
 		}
 		
 	
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("DoWhile", x.getTree(), factory.make("Label","Empty", x.getTree()), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
+			return factory.makeStat("DoWhile", x.getLocation(), factory.make("Label","Empty", x.getLocation()), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
 
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("For", x.getTree(), factory.make("Label","Empty", x.getTree()), x.getGenerators(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
+			return factory.makeStat("For", x.getLocation(), factory.make("Label","Empty", x.getLocation()), x.getGenerators(), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThen(IfThen x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("IfThen", x.getTree(), factory.make("Label", "Empty", x.getTree()), x.getConditions(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), factory.make("NoElseMayFollow", x.getTree()));
+			return factory.makeStat("IfThen", x.getLocation(), factory.make("Label", "Empty", x.getLocation()), x.getConditions(), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()), factory.make("NoElseMayFollow", x.getLocation()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThenElse(IfThenElse x) {
 			Statement t = x.getThenString().accept(this);
 			Statement e = x.getElseString().accept(this);
-			return factory.makeStat("IfThenElse", x.getTree(), factory.make("Label","Empty",x.getTree()), 
+			return factory.makeStat("IfThenElse", x.getLocation(), factory.make("Label","Empty",x.getLocation()), 
 					x.getConditions(), 
-						combinePreBodyPost(x.getTree(), x.getPreStatsThen(), t, x.getPostStatsThen()),
-						combinePreBodyPost(x.getTree(), x.getPreStatsElse(), e, x.getPostStatsElse()));
+						combinePreBodyPost(x.getLocation(), x.getPreStatsThen(), t, x.getPostStatsThen()),
+						combinePreBodyPost(x.getLocation(), x.getPreStatsElse(), e, x.getPostStatsElse()));
 		}
 
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("While", x.getTree(), factory.make("Label","Empty", x.getTree()), Collections.singletonList(x.getCondition()), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
+			return factory.makeStat("While", x.getLocation(), factory.make("Label","Empty", x.getLocation()), Collections.singletonList(x.getCondition()), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
@@ -224,7 +224,7 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement exp = makeAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, exp, tail);
+			return makeBlock(x.getLocation(), mid, exp, tail);
 		}
 
 		@Override
@@ -232,7 +232,7 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement tmp = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, tmp, tail);
+			return makeBlock(x.getLocation(), mid, tmp, tail);
 		}
 		
 		@Override
@@ -242,19 +242,19 @@ public class StringTemplateConverter {
 
 		@Override
 		public Statement visitMidStringCharsLexical(Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makeAppend(makeLit(x.getLocation(), x.getString()));
 		}
 
 		@Override
 		public Statement visitPreStringCharsLexical(
 				org.rascalmpl.ast.PreStringChars.Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makeAppend(makeLit(x.getLocation(), x.getString()));
 		}
 		
 		@Override
 		public Statement visitPostStringCharsLexical(
 				org.rascalmpl.ast.PostStringChars.Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makeAppend(makeLit(x.getLocation(), x.getString()));
 		}
 
 		@Override
@@ -263,13 +263,13 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement exp = makeAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, exp, tail);
+			return makeBlock(x.getLocation(), mid, exp, tail);
 		}
 
 		@Override
 		public Statement visitStringConstantLexical(
 				org.rascalmpl.ast.StringConstant.Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makeAppend(makeLit(x.getLocation(), x.getString()));
 		}
 		
 		@Override
@@ -278,7 +278,7 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement template = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, template, tail);
+			return makeBlock(x.getLocation(), mid, template, tail);
 		}
 		
 		@Override

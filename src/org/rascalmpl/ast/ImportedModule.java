@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ImportedModule extends AbstractAST {
-  public ImportedModule(INode node) {
-    super(node);
+  public ImportedModule(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -39,11 +51,31 @@ public abstract class ImportedModule extends AbstractAST {
 static public class Ambiguity extends ImportedModule {
   private final java.util.List<org.rascalmpl.ast.ImportedModule> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ImportedModule> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.ImportedModule> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.ImportedModule> getAlternatives() {
    return alternatives;
   }
@@ -71,8 +103,8 @@ static public class Renamings extends ImportedModule {
   
 
   
-public Renamings(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
-  super(node);
+public Renamings(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
+  super(loc);
   
     this.name = name;
   
@@ -131,8 +163,8 @@ static public class ActualsRenaming extends ImportedModule {
   
 
   
-public ActualsRenaming(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals,  org.rascalmpl.ast.Renamings renamings) {
-  super(node);
+public ActualsRenaming(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals,  org.rascalmpl.ast.Renamings renamings) {
+  super(loc);
   
     this.name = name;
   
@@ -199,8 +231,8 @@ static public class Default extends ImportedModule {
   
 
   
-public Default(INode node , org.rascalmpl.ast.QualifiedName name) {
-  super(node);
+public Default(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name) {
+  super(loc);
   
     this.name = name;
   
@@ -245,8 +277,8 @@ static public class Actuals extends ImportedModule {
   
 
   
-public Actuals(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals) {
-  super(node);
+public Actuals(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals) {
+  super(loc);
   
     this.name = name;
   

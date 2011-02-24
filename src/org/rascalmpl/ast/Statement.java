@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Statement extends AbstractAST {
-  public Statement(INode node) {
-    super(node);
+  public Statement(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -223,11 +235,31 @@ public abstract class Statement extends AbstractAST {
 static public class Ambiguity extends Statement {
   private final java.util.List<org.rascalmpl.ast.Statement> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Statement> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Statement> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Statement> getAlternatives() {
    return alternatives;
   }
@@ -253,8 +285,8 @@ static public class VariableDeclaration extends Statement {
   
 
   
-public VariableDeclaration(INode node , org.rascalmpl.ast.LocalVariableDeclaration declaration) {
-  super(node);
+public VariableDeclaration(ISourceLocation loc, org.rascalmpl.ast.LocalVariableDeclaration declaration) {
+  super(loc);
   
     this.declaration = declaration;
   
@@ -299,8 +331,8 @@ static public class GlobalDirective extends Statement {
   
 
   
-public GlobalDirective(INode node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.QualifiedName> names) {
-  super(node);
+public GlobalDirective(ISourceLocation loc, org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.QualifiedName> names) {
+  super(loc);
   
     this.type = type;
   
@@ -359,8 +391,8 @@ static public class For extends Statement {
   
 
   
-public For(INode node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
-  super(node);
+public For(ISourceLocation loc, org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
+  super(loc);
   
     this.label = label;
   
@@ -431,8 +463,8 @@ static public class Solve extends Statement {
   
 
   
-public Solve(INode node , java.util.List<org.rascalmpl.ast.QualifiedName> variables,  org.rascalmpl.ast.Bound bound,  org.rascalmpl.ast.Statement body) {
-  super(node);
+public Solve(ISourceLocation loc, java.util.List<org.rascalmpl.ast.QualifiedName> variables,  org.rascalmpl.ast.Bound bound,  org.rascalmpl.ast.Statement body) {
+  super(loc);
   
     this.variables = variables;
   
@@ -503,8 +535,8 @@ static public class While extends Statement {
   
 
   
-public While(INode node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement body) {
-  super(node);
+public While(ISourceLocation loc, org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement body) {
+  super(loc);
   
     this.label = label;
   
@@ -573,8 +605,8 @@ static public class AssertWithMessage extends Statement {
   
 
   
-public AssertWithMessage(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Expression message) {
-  super(node);
+public AssertWithMessage(ISourceLocation loc, org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Expression message) {
+  super(loc);
   
     this.expression = expression;
   
@@ -629,8 +661,8 @@ static public class Expression extends Statement {
   
 
   
-public Expression(INode node , org.rascalmpl.ast.Expression expression) {
-  super(node);
+public Expression(ISourceLocation loc, org.rascalmpl.ast.Expression expression) {
+  super(loc);
   
     this.expression = expression;
   
@@ -677,8 +709,8 @@ static public class DoWhile extends Statement {
   
 
   
-public DoWhile(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Statement body,  org.rascalmpl.ast.Expression condition) {
-  super(node);
+public DoWhile(ISourceLocation loc, org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Statement body,  org.rascalmpl.ast.Expression condition) {
+  super(loc);
   
     this.label = label;
   
@@ -749,8 +781,8 @@ static public class Assignment extends Statement {
   
 
   
-public Assignment(INode node , org.rascalmpl.ast.Assignable assignable,  org.rascalmpl.ast.Assignment operator,  org.rascalmpl.ast.Statement statement) {
-  super(node);
+public Assignment(ISourceLocation loc, org.rascalmpl.ast.Assignable assignable,  org.rascalmpl.ast.Assignment operator,  org.rascalmpl.ast.Statement statement) {
+  super(loc);
   
     this.assignable = assignable;
   
@@ -817,8 +849,8 @@ static public class Return extends Statement {
   
 
   
-public Return(INode node , org.rascalmpl.ast.Statement statement) {
-  super(node);
+public Return(ISourceLocation loc, org.rascalmpl.ast.Statement statement) {
+  super(loc);
   
     this.statement = statement;
   
@@ -861,8 +893,8 @@ static public class Fail extends Statement {
   
 
   
-public Fail(INode node , org.rascalmpl.ast.Target target) {
-  super(node);
+public Fail(ISourceLocation loc, org.rascalmpl.ast.Target target) {
+  super(loc);
   
     this.target = target;
   
@@ -905,8 +937,8 @@ static public class Break extends Statement {
   
 
   
-public Break(INode node , org.rascalmpl.ast.Target target) {
-  super(node);
+public Break(ISourceLocation loc, org.rascalmpl.ast.Target target) {
+  super(loc);
   
     this.target = target;
   
@@ -955,8 +987,8 @@ static public class IfThenElse extends Statement {
   
 
   
-public IfThenElse(INode node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement,  org.rascalmpl.ast.Statement elseStatement) {
-  super(node);
+public IfThenElse(ISourceLocation loc, org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement,  org.rascalmpl.ast.Statement elseStatement) {
+  super(loc);
   
     this.label = label;
   
@@ -1041,8 +1073,8 @@ static public class IfThen extends Statement {
   
 
   
-public IfThen(INode node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement,  org.rascalmpl.ast.NoElseMayFollow noElseMayFollow) {
-  super(node);
+public IfThen(ISourceLocation loc, org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement,  org.rascalmpl.ast.NoElseMayFollow noElseMayFollow) {
+  super(loc);
   
     this.label = label;
   
@@ -1121,8 +1153,8 @@ static public class FunctionDeclaration extends Statement {
   
 
   
-public FunctionDeclaration(INode node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
-  super(node);
+public FunctionDeclaration(ISourceLocation loc, org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+  super(loc);
   
     this.functionDeclaration = functionDeclaration;
   
@@ -1169,8 +1201,8 @@ static public class Switch extends Statement {
   
 
   
-public Switch(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Case> cases) {
-  super(node);
+public Switch(ISourceLocation loc, org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Case> cases) {
+  super(loc);
   
     this.label = label;
   
@@ -1239,8 +1271,8 @@ static public class Append extends Statement {
   
 
   
-public Append(INode node , org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
-  super(node);
+public Append(ISourceLocation loc, org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
+  super(loc);
   
     this.dataTarget = dataTarget;
   
@@ -1297,8 +1329,8 @@ static public class Insert extends Statement {
   
 
   
-public Insert(INode node , org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
-  super(node);
+public Insert(ISourceLocation loc, org.rascalmpl.ast.DataTarget dataTarget,  org.rascalmpl.ast.Statement statement) {
+  super(loc);
   
     this.dataTarget = dataTarget;
   
@@ -1353,8 +1385,8 @@ static public class Throw extends Statement {
   
 
   
-public Throw(INode node , org.rascalmpl.ast.Statement statement) {
-  super(node);
+public Throw(ISourceLocation loc, org.rascalmpl.ast.Statement statement) {
+  super(loc);
   
     this.statement = statement;
   
@@ -1399,8 +1431,8 @@ static public class NonEmptyBlock extends Statement {
   
 
   
-public NonEmptyBlock(INode node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-  super(node);
+public NonEmptyBlock(ISourceLocation loc, org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+  super(loc);
   
     this.label = label;
   
@@ -1459,8 +1491,8 @@ static public class TryFinally extends Statement {
   
 
   
-public TryFinally(INode node , org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers,  org.rascalmpl.ast.Statement finallyBody) {
-  super(node);
+public TryFinally(ISourceLocation loc, org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers,  org.rascalmpl.ast.Statement finallyBody) {
+  super(loc);
   
     this.body = body;
   
@@ -1527,8 +1559,8 @@ static public class Assert extends Statement {
   
 
   
-public Assert(INode node , org.rascalmpl.ast.Expression expression) {
-  super(node);
+public Assert(ISourceLocation loc, org.rascalmpl.ast.Expression expression) {
+  super(loc);
   
     this.expression = expression;
   
@@ -1569,8 +1601,8 @@ static public class EmptyStatement extends Statement {
   
 
   
-public EmptyStatement(INode node ) {
-  super(node);
+public EmptyStatement(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -1603,8 +1635,8 @@ static public class Try extends Statement {
   
 
   
-public Try(INode node , org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers) {
-  super(node);
+public Try(ISourceLocation loc, org.rascalmpl.ast.Statement body,  java.util.List<org.rascalmpl.ast.Catch> handlers) {
+  super(loc);
   
     this.body = body;
   
@@ -1661,8 +1693,8 @@ static public class Visit extends Statement {
   
 
   
-public Visit(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-  super(node);
+public Visit(ISourceLocation loc, org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+  super(loc);
   
     this.label = label;
   
@@ -1717,8 +1749,8 @@ static public class Continue extends Statement {
   
 
   
-public Continue(INode node , org.rascalmpl.ast.Target target) {
-  super(node);
+public Continue(ISourceLocation loc, org.rascalmpl.ast.Target target) {
+  super(loc);
   
     this.target = target;
   

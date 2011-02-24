@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Kind extends AbstractAST {
-  public Kind(INode node) {
-    super(node);
+  public Kind(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -15,11 +27,31 @@ public abstract class Kind extends AbstractAST {
 static public class Ambiguity extends Kind {
   private final java.util.List<org.rascalmpl.ast.Kind> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Kind> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Kind> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Kind> getAlternatives() {
    return alternatives;
   }
@@ -43,8 +75,8 @@ static public class Module extends Kind {
   
 
   
-public Module(INode node ) {
-  super(node);
+public Module(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -73,8 +105,8 @@ static public class Rule extends Kind {
   
 
   
-public Rule(INode node ) {
-  super(node);
+public Rule(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -103,8 +135,8 @@ static public class Variable extends Kind {
   
 
   
-public Variable(INode node ) {
-  super(node);
+public Variable(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -133,8 +165,8 @@ static public class Anno extends Kind {
   
 
   
-public Anno(INode node ) {
-  super(node);
+public Anno(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -163,8 +195,8 @@ static public class Function extends Kind {
   
 
   
-public Function(INode node ) {
-  super(node);
+public Function(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -193,8 +225,8 @@ static public class Data extends Kind {
   
 
   
-public Data(INode node ) {
-  super(node);
+public Data(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -223,8 +255,8 @@ static public class Tag extends Kind {
   
 
   
-public Tag(INode node ) {
-  super(node);
+public Tag(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -253,8 +285,8 @@ static public class View extends Kind {
   
 
   
-public View(INode node ) {
-  super(node);
+public View(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -283,8 +315,8 @@ static public class Alias extends Kind {
   
 
   
-public Alias(INode node ) {
-  super(node);
+public Alias(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -313,8 +345,8 @@ static public class All extends Kind {
   
 
   
-public All(INode node ) {
-  super(node);
+public All(ISourceLocation loc) {
+  super(loc);
   
 }
 

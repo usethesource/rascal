@@ -1,6 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -9,7 +9,7 @@ public abstract class MidPathChars extends org.rascalmpl.ast.MidPathChars {
 
 	static public class Lexical extends org.rascalmpl.ast.MidPathChars.Lexical {
 
-		public Lexical(INode __param1, String __param2) {
+		public Lexical(ISourceLocation __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
@@ -24,7 +24,7 @@ public abstract class MidPathChars extends org.rascalmpl.ast.MidPathChars {
 
 	}
 
-	public MidPathChars(INode __param1) {
+	public MidPathChars(ISourceLocation __param1) {
 		super(__param1);
 	}
 

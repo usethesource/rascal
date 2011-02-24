@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class DateTimeLiteral extends AbstractAST {
-  public DateTimeLiteral(INode node) {
-    super(node);
+  public DateTimeLiteral(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -39,11 +51,31 @@ public abstract class DateTimeLiteral extends AbstractAST {
 static public class Ambiguity extends DateTimeLiteral {
   private final java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.DateTimeLiteral> getAlternatives() {
    return alternatives;
   }
@@ -69,8 +101,8 @@ static public class DateAndTimeLiteral extends DateTimeLiteral {
   
 
   
-public DateAndTimeLiteral(INode node , org.rascalmpl.ast.DateAndTime dateAndTime) {
-  super(node);
+public DateAndTimeLiteral(ISourceLocation loc, org.rascalmpl.ast.DateAndTime dateAndTime) {
+  super(loc);
   
     this.dateAndTime = dateAndTime;
   
@@ -113,8 +145,8 @@ static public class TimeLiteral extends DateTimeLiteral {
   
 
   
-public TimeLiteral(INode node , org.rascalmpl.ast.JustTime time) {
-  super(node);
+public TimeLiteral(ISourceLocation loc, org.rascalmpl.ast.JustTime time) {
+  super(loc);
   
     this.time = time;
   
@@ -157,8 +189,8 @@ static public class DateLiteral extends DateTimeLiteral {
   
 
   
-public DateLiteral(INode node , org.rascalmpl.ast.JustDate date) {
-  super(node);
+public DateLiteral(ISourceLocation loc, org.rascalmpl.ast.JustDate date) {
+  super(loc);
   
     this.date = date;
   

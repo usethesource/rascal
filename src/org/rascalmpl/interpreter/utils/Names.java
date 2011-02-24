@@ -4,8 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
-import org.rascalmpl.ast.IASTVisitor;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -83,9 +81,6 @@ public class Names {
 		if (name instanceof Name.Lexical) {
 			s = ((Name.Lexical) name).getString();
 		}
-		else if (name instanceof InventedName) {
-			s = ((InventedName) name).toString();
-		}
 		else {
 			throw new ImplementationError("unexpected type of name found: " + name);
 		}
@@ -109,36 +104,12 @@ public class Names {
 	}
 	
 	static public Name toName(String name) {
-		return new InventedName(name);
+		return AB.make("Name", "Lexical", null, name);
 	}
 	
 	static public QualifiedName toQualifiedName(String name) {
 		List<Name> list = new LinkedList<Name>();
 		list.add(toName(name));
 		return AB.make("QualifiedName", null, list);
-	}
-	
-	static class InventedName extends Name {
-		private final String fName;
-		
-		public InventedName(String name) {
-			super(null);
-			fName = name;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> v) {
-			throw new ImplementationError("Can not visit invented name");
-		}
-		
-		@Override
-		public String toString() {
-			return fName;
-		}
-		
-		@Override
-		public INode getTree() {
-			throw new ImplementationError("Invented name does not have a node");
-		}
 	}
 }

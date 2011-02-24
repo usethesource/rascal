@@ -2,12 +2,23 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Type extends AbstractAST {
-  public Type(INode node) {
-    super(node);
+  public Type(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -79,11 +90,31 @@ public abstract class Type extends AbstractAST {
 static public class Ambiguity extends Type {
   private final java.util.List<org.rascalmpl.ast.Type> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Type> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Type> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Type> getAlternatives() {
    return alternatives;
   }
@@ -109,8 +140,8 @@ static public class Basic extends Type {
   
 
   
-public Basic(INode node , org.rascalmpl.ast.BasicType basic) {
-  super(node);
+public Basic(ISourceLocation loc, org.rascalmpl.ast.BasicType basic) {
+  super(loc);
   
     this.basic = basic;
   
@@ -153,8 +184,8 @@ static public class Function extends Type {
   
 
   
-public Function(INode node , org.rascalmpl.ast.FunctionType function) {
-  super(node);
+public Function(ISourceLocation loc, org.rascalmpl.ast.FunctionType function) {
+  super(loc);
   
     this.function = function;
   
@@ -197,8 +228,8 @@ static public class Structured extends Type {
   
 
   
-public Structured(INode node , org.rascalmpl.ast.StructuredType structured) {
-  super(node);
+public Structured(ISourceLocation loc, org.rascalmpl.ast.StructuredType structured) {
+  super(loc);
   
     this.structured = structured;
   
@@ -241,8 +272,8 @@ static public class Bracket extends Type {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Type type) {
-  super(node);
+public Bracket(ISourceLocation loc, org.rascalmpl.ast.Type type) {
+  super(loc);
   
     this.type = type;
   
@@ -285,8 +316,8 @@ static public class Variable extends Type {
   
 
   
-public Variable(INode node , org.rascalmpl.ast.TypeVar typeVar) {
-  super(node);
+public Variable(ISourceLocation loc, org.rascalmpl.ast.TypeVar typeVar) {
+  super(loc);
   
     this.typeVar = typeVar;
   
@@ -329,8 +360,8 @@ static public class Selector extends Type {
   
 
   
-public Selector(INode node , org.rascalmpl.ast.DataTypeSelector selector) {
-  super(node);
+public Selector(ISourceLocation loc, org.rascalmpl.ast.DataTypeSelector selector) {
+  super(loc);
   
     this.selector = selector;
   
@@ -373,8 +404,8 @@ static public class Symbol extends Type {
   
 
   
-public Symbol(INode node , org.rascalmpl.ast.Sym symbol) {
-  super(node);
+public Symbol(ISourceLocation loc, org.rascalmpl.ast.Sym symbol) {
+  super(loc);
   
     this.symbol = symbol;
   
@@ -417,8 +448,8 @@ static public class User extends Type {
   
 
   
-public User(INode node , org.rascalmpl.ast.UserType user) {
-  super(node);
+public User(ISourceLocation loc, org.rascalmpl.ast.UserType user) {
+  super(loc);
   
     this.user = user;
   

@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class BasicType extends AbstractAST {
-  public BasicType(INode node) {
-    super(node);
+  public BasicType(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -15,11 +27,31 @@ public abstract class BasicType extends AbstractAST {
 static public class Ambiguity extends BasicType {
   private final java.util.List<org.rascalmpl.ast.BasicType> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.BasicType> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.BasicType> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.BasicType> getAlternatives() {
    return alternatives;
   }
@@ -43,8 +75,8 @@ static public class Map extends BasicType {
   
 
   
-public Map(INode node ) {
-  super(node);
+public Map(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -73,8 +105,8 @@ static public class Relation extends BasicType {
   
 
   
-public Relation(INode node ) {
-  super(node);
+public Relation(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -103,8 +135,8 @@ static public class Real extends BasicType {
   
 
   
-public Real(INode node ) {
-  super(node);
+public Real(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -133,8 +165,8 @@ static public class List extends BasicType {
   
 
   
-public List(INode node ) {
-  super(node);
+public List(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -163,8 +195,8 @@ static public class Lex extends BasicType {
   
 
   
-public Lex(INode node ) {
-  super(node);
+public Lex(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -193,8 +225,8 @@ static public class ReifiedAdt extends BasicType {
   
 
   
-public ReifiedAdt(INode node ) {
-  super(node);
+public ReifiedAdt(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -223,8 +255,8 @@ static public class ReifiedReifiedType extends BasicType {
   
 
   
-public ReifiedReifiedType(INode node ) {
-  super(node);
+public ReifiedReifiedType(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -253,8 +285,8 @@ static public class DateTime extends BasicType {
   
 
   
-public DateTime(INode node ) {
-  super(node);
+public DateTime(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -283,8 +315,8 @@ static public class Void extends BasicType {
   
 
   
-public Void(INode node ) {
-  super(node);
+public Void(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -313,8 +345,8 @@ static public class ReifiedTypeParameter extends BasicType {
   
 
   
-public ReifiedTypeParameter(INode node ) {
-  super(node);
+public ReifiedTypeParameter(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -343,8 +375,8 @@ static public class ReifiedFunction extends BasicType {
   
 
   
-public ReifiedFunction(INode node ) {
-  super(node);
+public ReifiedFunction(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -373,8 +405,8 @@ static public class String extends BasicType {
   
 
   
-public String(INode node ) {
-  super(node);
+public String(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -403,8 +435,8 @@ static public class ReifiedNonTerminal extends BasicType {
   
 
   
-public ReifiedNonTerminal(INode node ) {
-  super(node);
+public ReifiedNonTerminal(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -433,8 +465,8 @@ static public class Value extends BasicType {
   
 
   
-public Value(INode node ) {
-  super(node);
+public Value(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -463,8 +495,8 @@ static public class ReifiedType extends BasicType {
   
 
   
-public ReifiedType(INode node ) {
-  super(node);
+public ReifiedType(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -493,8 +525,8 @@ static public class Int extends BasicType {
   
 
   
-public Int(INode node ) {
-  super(node);
+public Int(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -523,8 +555,8 @@ static public class Bag extends BasicType {
   
 
   
-public Bag(INode node ) {
-  super(node);
+public Bag(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -553,8 +585,8 @@ static public class Tuple extends BasicType {
   
 
   
-public Tuple(INode node ) {
-  super(node);
+public Tuple(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -583,8 +615,8 @@ static public class Bool extends BasicType {
   
 
   
-public Bool(INode node ) {
-  super(node);
+public Bool(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -613,8 +645,8 @@ static public class Num extends BasicType {
   
 
   
-public Num(INode node ) {
-  super(node);
+public Num(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -643,8 +675,8 @@ static public class Loc extends BasicType {
   
 
   
-public Loc(INode node ) {
-  super(node);
+public Loc(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -673,8 +705,8 @@ static public class Set extends BasicType {
   
 
   
-public Set(INode node ) {
-  super(node);
+public Set(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -703,8 +735,8 @@ static public class ReifiedConstructor extends BasicType {
   
 
   
-public ReifiedConstructor(INode node ) {
-  super(node);
+public ReifiedConstructor(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -733,8 +765,8 @@ static public class Node extends BasicType {
   
 
   
-public Node(INode node ) {
-  super(node);
+public Node(ISourceLocation loc) {
+  super(loc);
   
 }
 

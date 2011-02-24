@@ -2,13 +2,13 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 
 	static public class Addition extends org.rascalmpl.ast.Assignment.Addition {
 
-		public Addition(INode __param1) {
+		public Addition(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -17,7 +17,7 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 	static public class Ambiguity extends
 			org.rascalmpl.ast.Assignment.Ambiguity {
 
-		public Ambiguity(INode __param1,
+		public Ambiguity(ISourceLocation __param1,
 				List<org.rascalmpl.ast.Assignment> __param2) {
 			super(__param1, __param2);
 		}
@@ -26,7 +26,7 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 
 	static public class Default extends org.rascalmpl.ast.Assignment.Default {
 
-		public Default(INode __param1) {
+		public Default(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -34,7 +34,7 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 
 	static public class Division extends org.rascalmpl.ast.Assignment.Division {
 
-		public Division(INode __param1) {
+		public Division(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -43,7 +43,7 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 	static public class IfDefined extends
 			org.rascalmpl.ast.Assignment.IfDefined {
 
-		public IfDefined(INode __param1) {
+		public IfDefined(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -52,7 +52,7 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 	static public class Intersection extends
 			org.rascalmpl.ast.Assignment.Intersection {
 
-		public Intersection(INode __param1) {
+		public Intersection(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -60,7 +60,7 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 
 	static public class Product extends org.rascalmpl.ast.Assignment.Product {
 
-		public Product(INode __param1) {
+		public Product(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -69,13 +69,13 @@ public abstract class Assignment extends org.rascalmpl.ast.Assignment {
 	static public class Subtraction extends
 			org.rascalmpl.ast.Assignment.Subtraction {
 
-		public Subtraction(INode __param1) {
+		public Subtraction(ISourceLocation __param1) {
 			super(__param1);
 		}
 
 	}
 
-	public Assignment(INode __param1) {
+	public Assignment(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

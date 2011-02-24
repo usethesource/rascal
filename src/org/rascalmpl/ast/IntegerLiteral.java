@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class IntegerLiteral extends AbstractAST {
-  public IntegerLiteral(INode node) {
-    super(node);
+  public IntegerLiteral(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -39,11 +51,31 @@ public abstract class IntegerLiteral extends AbstractAST {
 static public class Ambiguity extends IntegerLiteral {
   private final java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.IntegerLiteral> getAlternatives() {
    return alternatives;
   }
@@ -69,8 +101,8 @@ static public class OctalIntegerLiteral extends IntegerLiteral {
   
 
   
-public OctalIntegerLiteral(INode node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
-  super(node);
+public OctalIntegerLiteral(ISourceLocation loc, org.rascalmpl.ast.OctalIntegerLiteral octal) {
+  super(loc);
   
     this.octal = octal;
   
@@ -113,8 +145,8 @@ static public class HexIntegerLiteral extends IntegerLiteral {
   
 
   
-public HexIntegerLiteral(INode node , org.rascalmpl.ast.HexIntegerLiteral hex) {
-  super(node);
+public HexIntegerLiteral(ISourceLocation loc, org.rascalmpl.ast.HexIntegerLiteral hex) {
+  super(loc);
   
     this.hex = hex;
   
@@ -157,8 +189,8 @@ static public class DecimalIntegerLiteral extends IntegerLiteral {
   
 
   
-public DecimalIntegerLiteral(INode node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
-  super(node);
+public DecimalIntegerLiteral(ISourceLocation loc, org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
+  super(loc);
   
     this.decimal = decimal;
   

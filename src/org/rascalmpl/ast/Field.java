@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Field extends AbstractAST {
-  public Field(INode node) {
-    super(node);
+  public Field(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -31,11 +43,31 @@ public abstract class Field extends AbstractAST {
 static public class Ambiguity extends Field {
   private final java.util.List<org.rascalmpl.ast.Field> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Field> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Field> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Field> getAlternatives() {
    return alternatives;
   }
@@ -61,8 +93,8 @@ static public class Name extends Field {
   
 
   
-public Name(INode node , org.rascalmpl.ast.Name fieldName) {
-  super(node);
+public Name(ISourceLocation loc, org.rascalmpl.ast.Name fieldName) {
+  super(loc);
   
     this.fieldName = fieldName;
   
@@ -105,8 +137,8 @@ static public class Index extends Field {
   
 
   
-public Index(INode node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
-  super(node);
+public Index(ISourceLocation loc, org.rascalmpl.ast.IntegerLiteral fieldIndex) {
+  super(loc);
   
     this.fieldIndex = fieldIndex;
   

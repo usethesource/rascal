@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Class extends AbstractAST {
-  public Class(INode node) {
-    super(node);
+  public Class(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -55,11 +67,31 @@ public abstract class Class extends AbstractAST {
 static public class Ambiguity extends Class {
   private final java.util.List<org.rascalmpl.ast.Class> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Class> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Class> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Class> getAlternatives() {
    return alternatives;
   }
@@ -87,8 +119,8 @@ static public class Union extends Class {
   
 
   
-public Union(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
-  super(node);
+public Union(ISourceLocation loc, org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -145,8 +177,8 @@ static public class Difference extends Class {
   
 
   
-public Difference(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
-  super(node);
+public Difference(ISourceLocation loc, org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -201,8 +233,8 @@ static public class SimpleCharclass extends Class {
   
 
   
-public SimpleCharclass(INode node , java.util.List<org.rascalmpl.ast.Range> ranges) {
-  super(node);
+public SimpleCharclass(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Range> ranges) {
+  super(loc);
   
     this.ranges = ranges;
   
@@ -247,8 +279,8 @@ static public class Intersection extends Class {
   
 
   
-public Intersection(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
-  super(node);
+public Intersection(ISourceLocation loc, org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -303,8 +335,8 @@ static public class Complement extends Class {
   
 
   
-public Complement(INode node , org.rascalmpl.ast.Class charClass) {
-  super(node);
+public Complement(ISourceLocation loc, org.rascalmpl.ast.Class charClass) {
+  super(loc);
   
     this.charClass = charClass;
   
@@ -347,8 +379,8 @@ static public class Bracket extends Class {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Class charclass) {
-  super(node);
+public Bracket(ISourceLocation loc, org.rascalmpl.ast.Class charclass) {
+  super(loc);
   
     this.charclass = charclass;
   

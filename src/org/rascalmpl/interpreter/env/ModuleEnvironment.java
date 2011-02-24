@@ -2,13 +2,13 @@ package org.rascalmpl.interpreter.env;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -20,7 +20,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Test;
-import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -46,11 +45,11 @@ public class ModuleEnvironment extends Environment {
 	protected Map<String, ModuleEnvironment> importedModules;
 	protected Map<Type, List<Type>> extensions;
 	protected TypeStore typeStore;
-	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
 	protected List<Test> tests;
 	private boolean initialized;
 	private boolean bootstrap;
+	private IConstructor grammar;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -60,7 +59,6 @@ public class ModuleEnvironment extends Environment {
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
-		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
 		this.initialized = false;
@@ -74,31 +72,14 @@ public class ModuleEnvironment extends Environment {
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
-		this.productions = new HashSet<IValue>();
 		this.initialized = false;
+		this.grammar = null;
 		this.bootstrap = false;
 	}
 	
 	@Override
 	public GlobalEnvironment getHeap() {
 		return heap;
-	}
-	
-	@Override
-	public void declareProduction(Syntax x) {
-		productions.add(x.getTree());
-	}
-	
-	@Override
-	public ISet getProductions() {
-		ISetWriter w = ValueFactoryFactory.getValueFactory().setWriter();
-		w.insertAll(productions);
-		
-		for (String i : importedModules.keySet()) {
-			ModuleEnvironment m = importedModules.get(i);
-			w.insertAll(m.productions);
-		}
-		return w.done();
 	}
 	
 	public boolean isModuleEnvironment() {
@@ -487,13 +468,37 @@ public class ModuleEnvironment extends Environment {
 		this.initialized = init;
 	}
 
-	
-
 	public void setBootstrap(boolean needBootstrapParser) {
 		this.bootstrap = needBootstrapParser;
 	}
 	
 	public boolean getBootstrap() {
 		return bootstrap;
+	}
+
+	public void storeGrammar(IConstructor grammar) {
+		if (((IMap) grammar.get("rules")).isEmpty()) {
+			this.grammar = null;
+		}
+		else {
+			this.grammar = grammar;
+		}
+	}
+	
+	public ISet getGrammars() {
+		ISetWriter set = ValueFactoryFactory.getValueFactory().setWriter();
+		
+		if (grammar != null) {
+			set.insert(grammar);
+		}
+		
+		for (String s : getImports()) {
+			ModuleEnvironment mod = getImport(s);
+			if (mod.grammar != null) {
+				set.insert(mod.grammar);
+			}
+		}
+	
+		return set.done();
 	}
 }

@@ -2,7 +2,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Formals;
 import org.rascalmpl.interpreter.env.Environment;
@@ -11,14 +11,14 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	static public class Ambiguity extends
 			org.rascalmpl.ast.Parameters.Ambiguity {
-		public Ambiguity(INode __param1,
+		public Ambiguity(ISourceLocation __param1,
 				List<org.rascalmpl.ast.Parameters> __param2) {
 			super(__param1, __param2);
 		}
 	}
 
 	static public class Default extends org.rascalmpl.ast.Parameters.Default {
-		public Default(INode __param1, Formals __param2) {
+		public Default(ISourceLocation __param1, Formals __param2) {
 			super(__param1, __param2);
 		}
 
@@ -31,7 +31,7 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	static public class VarArgs extends org.rascalmpl.ast.Parameters.VarArgs {
 
-		public VarArgs(INode __param1, Formals __param2) {
+		public VarArgs(ISourceLocation __param1, Formals __param2) {
 			super(__param1, __param2);
 		}
 
@@ -58,7 +58,7 @@ public abstract class Parameters extends org.rascalmpl.ast.Parameters {
 
 	}
 
-	public Parameters(INode __param1) {
+	public Parameters(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

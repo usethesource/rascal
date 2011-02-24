@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Strategy extends AbstractAST {
-  public Strategy(INode node) {
-    super(node);
+  public Strategy(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -15,11 +27,31 @@ public abstract class Strategy extends AbstractAST {
 static public class Ambiguity extends Strategy {
   private final java.util.List<org.rascalmpl.ast.Strategy> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Strategy> getAlternatives() {
    return alternatives;
   }
@@ -43,8 +75,8 @@ static public class Outermost extends Strategy {
   
 
   
-public Outermost(INode node ) {
-  super(node);
+public Outermost(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -73,8 +105,8 @@ static public class TopDownBreak extends Strategy {
   
 
   
-public TopDownBreak(INode node ) {
-  super(node);
+public TopDownBreak(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -103,8 +135,8 @@ static public class Innermost extends Strategy {
   
 
   
-public Innermost(INode node ) {
-  super(node);
+public Innermost(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -133,8 +165,8 @@ static public class BottomUpBreak extends Strategy {
   
 
   
-public BottomUpBreak(INode node ) {
-  super(node);
+public BottomUpBreak(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -163,8 +195,8 @@ static public class BottomUp extends Strategy {
   
 
   
-public BottomUp(INode node ) {
-  super(node);
+public BottomUp(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -193,8 +225,8 @@ static public class TopDown extends Strategy {
   
 
   
-public TopDown(INode node ) {
-  super(node);
+public TopDown(ISourceLocation loc) {
+  super(loc);
   
 }
 

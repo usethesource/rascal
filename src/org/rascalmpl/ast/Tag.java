@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Tag extends AbstractAST {
-  public Tag(INode node) {
-    super(node);
+  public Tag(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -39,11 +51,31 @@ public abstract class Tag extends AbstractAST {
 static public class Ambiguity extends Tag {
   private final java.util.List<org.rascalmpl.ast.Tag> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Tag> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Tag> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Tag> getAlternatives() {
    return alternatives;
   }
@@ -71,8 +103,8 @@ static public class Default extends Tag {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.TagString contents) {
-  super(node);
+public Default(ISourceLocation loc, org.rascalmpl.ast.Name name,  org.rascalmpl.ast.TagString contents) {
+  super(loc);
   
     this.name = name;
   
@@ -129,8 +161,8 @@ static public class Expression extends Tag {
   
 
   
-public Expression(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
-  super(node);
+public Expression(ISourceLocation loc, org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
+  super(loc);
   
     this.name = name;
   
@@ -185,8 +217,8 @@ static public class Empty extends Tag {
   
 
   
-public Empty(INode node , org.rascalmpl.ast.Name name) {
-  super(node);
+public Empty(ISourceLocation loc, org.rascalmpl.ast.Name name) {
+  super(loc);
   
     this.name = name;
   
