@@ -17,7 +17,7 @@ public class ConstantColorProperty implements IColorPropertyValue {
 		return value;
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return false;
 	}
 

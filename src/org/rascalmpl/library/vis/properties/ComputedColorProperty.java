@@ -45,7 +45,7 @@ public class ComputedColorProperty  implements IColorPropertyValue  {
 		return value;
 	}
 	
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return true;
 	}
 

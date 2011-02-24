@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -118,6 +119,10 @@ public class FigureFactory {
 	
 	private static IPropertyManager extendProperties(FigurePApplet fpa, IConstructor c, IPropertyManager pm, IEvaluatorContext ctx){		
 		IList props = (IList) c.get(c.arity()-1);
+		
+		for(IValue prop: props){
+			System.err.println("prop: " + prop.toString());	
+		}
 		return pm == null ? new DefaultPropertyManager(fpa)
 		                  : ((props == null || props.equals(emptyList)) ? pm
 								                          : new PropertyManager(fpa, pm, props, ctx));

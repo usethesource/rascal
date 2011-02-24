@@ -36,7 +36,7 @@ public abstract class Container extends Figure {
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
 		} else
 			this.innerFig = null;
-		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
+		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public abstract class Container extends Figure {
 		} 
 		width += 2*lw;
 		height += 2*lw;
-		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchor(), getVanchor());
+		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public abstract class Container extends Figure {
 		this.setTop(top);
 	
 		applyProperties();
-		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHanchor(), getVanchor());
+		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHanchorProperty(), getVanchorProperty());
 
 		if(height > 0 && width > 0){
 			drawContainer();
@@ -90,8 +90,8 @@ public abstract class Container extends Figure {
 			innerDrawWithMouseOver(left, top);
 		Figure mo = getMouseOverFigure();
 		if(mo != null && mo.isVisibleInMouseOver()){
-			mo.drawWithMouseOver(max(0, left + mo.getHanchor()*(width  - mo.width)),
-			    				 max(0, top  + mo.getVanchor()*(height - mo.height)));
+			mo.drawWithMouseOver(max(0, left + mo.getHanchorProperty()*(width  - mo.width)),
+			    				 max(0, top  + mo.getVanchorProperty()*(height - mo.height)));
 		}
 	}
 	
@@ -108,16 +108,16 @@ public abstract class Container extends Figure {
 	void innerDraw(){
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
-		innerFig.draw(max(0, getLeft() + hgap + innerFig.getHanchor()*(width  - innerFig.width  - 2 * hgap)),
-			    	  max(0, getTop() + vgap + innerFig.getVanchor()*(height - innerFig.height - 2 * vgap)));
+		innerFig.draw(max(0, getLeft() + hgap + innerFig.getHanchorProperty()*(width  - innerFig.width  - 2 * hgap)),
+			    	  max(0, getTop()  + vgap + innerFig.getVanchorProperty()*(height - innerFig.height - 2 * vgap)));
 	}
 	
 	void innerDrawWithMouseOver(float left, float top){
 		if(innerFig != null){
 			float hgap = getHGapProperty();
 			float vgap = getVGapProperty();
-			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHanchor()*(width  - innerFig.width  - 2 * hgap)),
-			    	  max(0, top + vgap + innerFig.getVanchor()*(height - innerFig.height - 2 * vgap)));
+			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHanchorProperty()*(width  - innerFig.width  - 2 * hgap)),
+			    	                   max(0, top  + vgap + innerFig.getVanchorProperty()*(height - innerFig.height - 2 * vgap)));
 		}
 	}
 	

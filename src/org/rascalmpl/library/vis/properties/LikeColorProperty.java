@@ -25,7 +25,7 @@ public class LikeColorProperty implements IColorPropertyValue {
 		return fig.properties.getIntegerProperty(property);
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return false;
 	}
 

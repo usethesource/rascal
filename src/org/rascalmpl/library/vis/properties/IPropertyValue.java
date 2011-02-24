@@ -4,6 +4,6 @@ public interface IPropertyValue {
 	
 	public Property getProperty();
 
-	public boolean usesTrigger();
+	public boolean isCallBack();
 
 }

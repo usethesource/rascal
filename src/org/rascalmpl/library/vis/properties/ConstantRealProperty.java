@@ -17,7 +17,7 @@ public class ConstantRealProperty implements IRealPropertyValue {
 		return value;
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return false;
 	}
 

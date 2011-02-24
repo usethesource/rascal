@@ -7,7 +7,9 @@ import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
- * Horizontal composition of elements, using their vertical anchor for alignment
+ * Horizontal composition of elements:
+ * - when alignAnchors==true, using their vertical anchor for alignment
+ * - otherwise using current alignment settings
  * 
  * @author paulk
  *
@@ -17,8 +19,8 @@ public class HCat extends Compose {
 	float hgap;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
-	private boolean useChildAnchors = false;
-	private static boolean debug = true;
+	private boolean alignAnchors = false;
+	private static boolean debug = false;
 
 	public HCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
@@ -27,14 +29,15 @@ public class HCat extends Compose {
 	@Override
 	public
 	void bbox(){
-		if(useChildAnchors)
-			bbox1();
+		alignAnchors = getAlignAnchorsProperty();
+		if(alignAnchors)
+			bboxAlignAnchors();
 		else
-			bbox2();
+			bboxStandard();
 	}
 	
 	public
-	void bbox1(){
+	void bboxAlignAnchors(){
 		width = 0;
 		height = 0;
 		topAnchor = 0;
@@ -55,11 +58,11 @@ public class HCat extends Compose {
 	}	
 	
 	public
-	void bbox2(){
+	void bboxStandard(){
 		width = 0;
 		height = 0;
 		
-		float vanchor = getVanchor();
+		float valign = getValignProperty();
 		
 		hgap = getHGapProperty();
 		for(Figure fig : figures){
@@ -70,8 +73,8 @@ public class HCat extends Compose {
 		} 
 		int ngaps = (figures.length - 1);
 		width += ngaps * hgap;
-		topAnchor = vanchor * height;
-		bottomAnchor = (1 - vanchor) * height;
+		topAnchor = valign * height;
+		bottomAnchor = (1 - valign) * height;
 		
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
 	}	
@@ -83,16 +86,16 @@ public class HCat extends Compose {
 		this.setTop(top);
 	
 		applyProperties();
-		if(useChildAnchors){
+		if(alignAnchors){
 			// Draw from left to right
 			for(Figure fig : figures){
 				fig.draw(left, top + topAnchor - fig.topAnchor());
 				left += fig.width + hgap;
 			}
 		} else {
-			float vanchor = getVanchor();
+			float valign = getValignProperty();
 			for(Figure fig : figures){
-				float vpad = vanchor * (height - fig.height);
+				float vpad = valign * (height - fig.height);
 				fig.draw(left, top + vpad);
 				left += fig.width + hgap;
 			}
@@ -108,4 +111,5 @@ public class HCat extends Compose {
 	public float bottomAnchor(){
 		return bottomAnchor;
 	}
+	
 }

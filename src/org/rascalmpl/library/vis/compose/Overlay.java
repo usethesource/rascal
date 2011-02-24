@@ -9,7 +9,9 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * 
- * Overlay elements by stacking them (aligned around their anchor point).
+ * Overlay elements by stacking them:
+ * - when alignAnchors==true aligned around their anchor point
+ * - otherwise aligned according to current alignment settings.
  * 
  * @author paulk
  *
@@ -17,6 +19,7 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 public class Overlay extends Compose {
 	
 	private static boolean debug = false;
+	private boolean alignAnchors = false;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
 	float leftAnchor = 0;
@@ -27,8 +30,15 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	public
-	void bbox(){
+	public void bbox(){
+		alignAnchors = getAlignAnchorsProperty();
+		if(alignAnchors)
+			bboxAlignAnchors();
+		else
+			bboxStandard();
+	}
+	
+	public void bboxAlignAnchors(){
 		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
@@ -44,18 +54,38 @@ public class Overlay extends Compose {
 		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
 	}
 	
+	public void bboxStandard(){
+		width = height = 0;
+		
+		for(Figure fig : figures){
+			fig.bbox();
+			width = max(width, fig.width);
+			height = max(height, fig.height);
+		}
+		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
+	}
+	
+	
 	@Override
-	public
-	void draw(float left, float top) {
+	public void draw(float left, float top) {
 		this.setLeft(left);
 		this.setTop(top);
 		
 		applyProperties();
 		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
-		for(Figure ve : figures){	
-			//ve.drawAnchor(left + leftAnchor, top + topAnchor);
-			ve.draw(left + leftAnchor - ve.leftAnchor(), top + topAnchor - ve.topAnchor());
+		if(alignAnchors){
+			for(Figure fig : figures){	
+				fig.draw(left + leftAnchor - fig.leftAnchor(), top + topAnchor - fig.topAnchor());
+			}
+		} else {
+			float halign = getHalignProperty();
+			float valign = getValignProperty();
+			
+			for(Figure fig : figures){	
+				float hpad = halign * (width - fig.width);
+				float vpad = valign * (height - fig.height);
+				fig.draw(left + hpad, top + vpad);
+			}
 		}
 	}
-
 }

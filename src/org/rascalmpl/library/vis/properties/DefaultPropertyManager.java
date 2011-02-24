@@ -15,6 +15,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		return fpa;
 	}
 	
+	public boolean getAlignAnchors(){
+		return false;
+	}
+	
 	public int getDOI() {
 		return 1000000;
 	}
@@ -37,6 +41,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 
 	public float getFromAngle() {
 		return 0;
+	}
+	
+	public float getHalign() {
+		return 0.5f;
 	}
 	
 	public float getHanchor() {
@@ -87,6 +95,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		return 0;
 	}
 
+	public float getValign() {
+		return 0.5f;
+	}
+
 	public float getVanchor() {
 		return 0.5f;
 	}
@@ -115,26 +127,25 @@ public final class DefaultPropertyManager implements IPropertyManager {
 	public boolean isDraggable() {
 		return false;
 	}
-	/*
-	 * p
-
-	public Figure getMouseOver();
-	public IValue getOnClick();
-	public boolean isShapeClosed();
-	public boolean isShapeConnected();
-	public boolean isShapeCurved();
 	
-	public boolean isDraggable();
-	 */
+	public boolean getBooleanProperty(Property property) {
+		switch(property){
+		case ALIGN_ANCHORS:	return getAlignAnchors();
+		case SHAPE_CLOSED:	return isShapeClosed();
+		case SHAPE_CONNECTED:return isShapeConnected();
+		case SHAPE_CURVED:	return isShapeCurved();
+		default:
+				return false;
+		}
+	}
 
 	public int getIntegerProperty(Property property) {
-		// TODO Auto-generated method stub
 		switch(property){
 		case DOI:		return getDOI();
-		case FILLCOLOR: return getFillColor();
-		case FONTCOLOR:	return getFontColor();
-		case FONTSIZE: 	return getFontSize();
-		case LINECOLOR:	return getLineColor();
+		case FILL_COLOR: return getFillColor();
+		case FONT_COLOR:	return getFontColor();
+		case FONT_SIZE: 	return getFontSize();
+		case LINE_COLOR:	return getLineColor();
 		default:
 						return -1;
 		}
@@ -142,14 +153,16 @@ public final class DefaultPropertyManager implements IPropertyManager {
 
 	public float getRealProperty(Property property) {
 		switch(property){
-		case FROMANGLE: 	return getFromAngle();
+		case FROM_ANGLE: 	return getFromAngle();
+		case HALIGN:		return getHalign();
 		case HANCHOR:		return getHanchor();
 		case HGAP:			return getHGap();
 		case HEIGHT:		return getHeight();
 		case INNERRADIUS:	return getInnerRadius();
-		case LINEWIDTH:		return getLineWidth();
-		case TEXTANGLE:		return getTextAngle();
-		case TOANGLE:		return getToAngle();
+		case LINE_WIDTH:		return getLineWidth();
+		case TEXT_ANGLE:		return getTextAngle();
+		case TO_ANGLE:		return getToAngle();
+		case VALIGN:		return getValign();
 		case VANCHOR:		return getVanchor();
 		case VGAP:			return getVGap();
 		case WIDTH:			return getWidth();
