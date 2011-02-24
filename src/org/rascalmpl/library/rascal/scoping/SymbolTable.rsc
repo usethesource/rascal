@@ -796,7 +796,7 @@ public ResultTuple pushNewFunctionScopeAt(bool hasAnonymousName, RName functionN
     // Add the actual function item associated with the scope layer
     AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
     aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
-    if (hasAnonymousName) aipItem.symbolTable.scopeItemMap[aipItem.addedId].functionName = "@ANONYMOUS_FUNCTION_<aipItem.addedId>";
+    if (hasAnonymousName) aipItem.symbolTable.scopeItemMap[aipItem.addedId].functionName = RSimpleName("@ANONYMOUS_FUNCTION_<aipItem.addedId>");
     
     return <aipItem.symbolTable,[aipLayer.addedId, aipItem.addedId]>;
 }
@@ -810,11 +810,11 @@ public ResultTuple pushNewFunctionScopeAtTop(RName functionName, RType retType, 
 } 
 
 public ResultTuple pushNewClosureScope(RType retType, Parameters ps, loc l, SymbolTable symbolTable) {
-    return pushNewFunctionScopeAt(true, "", retType, ps, [], false, l, symbolTable, symbolTable.currentScope);
+    return pushNewFunctionScopeAt(true, RSimpleName(""), retType, ps, [], false, false, l, symbolTable, symbolTable.currentScope);
 }
 
 public ResultTuple pushNewVoidClosureScope(Parameters ps, loc l, SymbolTable symbolTable) {
-    return pushNewFunctionScopeAt(true, "", makeVoidType(), ps, [], false, l, symbolTable, symbolTable.currentScope);
+    return pushNewFunctionScopeAt(true, RSimpleName(""), makeVoidType(), ps, [], false, false, l, symbolTable, symbolTable.currentScope);
 }
 
 public ResultTuple addAliasToScopeAt(RType aliasType, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
