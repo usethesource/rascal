@@ -103,6 +103,9 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	@Override
+	/**
+	 * For debugging purposes
+	 */
 	public String toString() {
 		return TreeAdapter.yield((IConstructor) node);
 	}
