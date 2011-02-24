@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Module extends AbstractAST {
-  public Module(INode node) {
-    super(node);
+  public Module(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -31,11 +43,31 @@ public abstract class Module extends AbstractAST {
 static public class Ambiguity extends Module {
   private final java.util.List<org.rascalmpl.ast.Module> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Module> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Module> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Module> getAlternatives() {
    return alternatives;
   }
@@ -63,8 +95,8 @@ static public class Default extends Module {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Body body) {
-  super(node);
+public Default(ISourceLocation loc, org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Body body) {
+  super(loc);
   
     this.header = header;
   

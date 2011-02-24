@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ProdModifier extends AbstractAST {
-  public ProdModifier(INode node) {
-    super(node);
+  public ProdModifier(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -31,11 +43,31 @@ public abstract class ProdModifier extends AbstractAST {
 static public class Ambiguity extends ProdModifier {
   private final java.util.List<org.rascalmpl.ast.ProdModifier> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProdModifier> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.ProdModifier> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.ProdModifier> getAlternatives() {
    return alternatives;
   }
@@ -61,8 +93,8 @@ static public class Associativity extends ProdModifier {
   
 
   
-public Associativity(INode node , org.rascalmpl.ast.Assoc associativity) {
-  super(node);
+public Associativity(ISourceLocation loc, org.rascalmpl.ast.Assoc associativity) {
+  super(loc);
   
     this.associativity = associativity;
   
@@ -105,8 +137,8 @@ static public class Tag extends ProdModifier {
   
 
   
-public Tag(INode node , org.rascalmpl.ast.Tag tag) {
-  super(node);
+public Tag(ISourceLocation loc, org.rascalmpl.ast.Tag tag) {
+  super(loc);
   
     this.tag = tag;
   
@@ -147,8 +179,8 @@ static public class Bracket extends ProdModifier {
   
 
   
-public Bracket(INode node ) {
-  super(node);
+public Bracket(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -177,8 +209,8 @@ static public class Lexical extends ProdModifier {
   
 
   
-public Lexical(INode node ) {
-  super(node);
+public Lexical(ISourceLocation loc) {
+  super(loc);
   
 }
 

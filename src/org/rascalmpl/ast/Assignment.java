@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Assignment extends AbstractAST {
-  public Assignment(INode node) {
-    super(node);
+  public Assignment(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -15,11 +27,31 @@ public abstract class Assignment extends AbstractAST {
 static public class Ambiguity extends Assignment {
   private final java.util.List<org.rascalmpl.ast.Assignment> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignment> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Assignment> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Assignment> getAlternatives() {
    return alternatives;
   }
@@ -43,8 +75,8 @@ static public class Addition extends Assignment {
   
 
   
-public Addition(INode node ) {
-  super(node);
+public Addition(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -73,8 +105,8 @@ static public class IfDefined extends Assignment {
   
 
   
-public IfDefined(INode node ) {
-  super(node);
+public IfDefined(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -103,8 +135,8 @@ static public class Division extends Assignment {
   
 
   
-public Division(INode node ) {
-  super(node);
+public Division(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -133,8 +165,8 @@ static public class Product extends Assignment {
   
 
   
-public Product(INode node ) {
-  super(node);
+public Product(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -163,8 +195,8 @@ static public class Intersection extends Assignment {
   
 
   
-public Intersection(INode node ) {
-  super(node);
+public Intersection(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -193,8 +225,8 @@ static public class Subtraction extends Assignment {
   
 
   
-public Subtraction(INode node ) {
-  super(node);
+public Subtraction(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -223,8 +255,8 @@ static public class Default extends Assignment {
   
 
   
-public Default(INode node ) {
-  super(node);
+public Default(ISourceLocation loc) {
+  super(loc);
   
 }
 

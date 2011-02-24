@@ -1,6 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.DecimalIntegerLiteral.Lexical;
 import org.rascalmpl.interpreter.Evaluator;
@@ -11,7 +11,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 	static public class DecimalIntegerLiteral extends
 			org.rascalmpl.ast.IntegerLiteral.DecimalIntegerLiteral {
 
-		public DecimalIntegerLiteral(INode __param1,
+		public DecimalIntegerLiteral(ISourceLocation __param1,
 				org.rascalmpl.ast.DecimalIntegerLiteral __param2) {
 			super(__param1, __param2);
 		}
@@ -30,7 +30,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 	static public class HexIntegerLiteral extends
 			org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral {
 
-		public HexIntegerLiteral(INode __param1,
+		public HexIntegerLiteral(ISourceLocation __param1,
 				org.rascalmpl.ast.HexIntegerLiteral __param2) {
 			super(__param1, __param2);
 		}
@@ -45,7 +45,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 	static public class OctalIntegerLiteral extends
 			org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral {
 
-		public OctalIntegerLiteral(INode __param1,
+		public OctalIntegerLiteral(ISourceLocation __param1,
 				org.rascalmpl.ast.OctalIntegerLiteral __param2) {
 			super(__param1, __param2);
 		}
@@ -57,7 +57,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 
 	}
 
-	public IntegerLiteral(INode __param1) {
+	public IntegerLiteral(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

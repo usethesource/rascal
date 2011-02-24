@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Declaration extends AbstractAST {
-  public Declaration(INode node) {
-    super(node);
+  public Declaration(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -159,11 +171,31 @@ public abstract class Declaration extends AbstractAST {
 static public class Ambiguity extends Declaration {
   private final java.util.List<org.rascalmpl.ast.Declaration> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Declaration> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Declaration> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Declaration> getAlternatives() {
    return alternatives;
   }
@@ -195,8 +227,8 @@ static public class Alias extends Declaration {
   
 
   
-public Alias(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.Type base) {
-  super(node);
+public Alias(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.Type base) {
+  super(loc);
   
     this.tags = tags;
   
@@ -281,8 +313,8 @@ static public class Data extends Declaration {
   
 
   
-public Data(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  java.util.List<org.rascalmpl.ast.Variant> variants) {
-  super(node);
+public Data(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  java.util.List<org.rascalmpl.ast.Variant> variants) {
+  super(loc);
   
     this.tags = tags;
   
@@ -369,8 +401,8 @@ static public class Annotation extends Declaration {
   
 
   
-public Annotation(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type annoType,  org.rascalmpl.ast.Type onType,  org.rascalmpl.ast.Name name) {
-  super(node);
+public Annotation(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type annoType,  org.rascalmpl.ast.Type onType,  org.rascalmpl.ast.Name name) {
+  super(loc);
   
     this.tags = tags;
   
@@ -461,8 +493,8 @@ static public class Function extends Declaration {
   
 
   
-public Function(INode node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
-  super(node);
+public Function(ISourceLocation loc, org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+  super(loc);
   
     this.functionDeclaration = functionDeclaration;
   
@@ -509,8 +541,8 @@ static public class Rule extends Declaration {
   
 
   
-public Rule(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.PatternWithAction patternAction) {
-  super(node);
+public Rule(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.PatternWithAction patternAction) {
+  super(loc);
   
     this.tags = tags;
   
@@ -581,8 +613,8 @@ static public class DataAbstract extends Declaration {
   
 
   
-public DataAbstract(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user) {
-  super(node);
+public DataAbstract(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user) {
+  super(loc);
   
     this.tags = tags;
   
@@ -655,8 +687,8 @@ static public class Variable extends Declaration {
   
 
   
-public Variable(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
-  super(node);
+public Variable(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
+  super(loc);
   
     this.tags = tags;
   
@@ -735,8 +767,8 @@ static public class Test extends Declaration {
   
 
   
-public Test(INode node , org.rascalmpl.ast.Test test) {
-  super(node);
+public Test(ISourceLocation loc, org.rascalmpl.ast.Test test) {
+  super(loc);
   
     this.test = test;
   
@@ -787,8 +819,8 @@ static public class Tag extends Declaration {
   
 
   
-public Tag(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Kind kind,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Type> types) {
-  super(node);
+public Tag(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Kind kind,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Type> types) {
+  super(loc);
   
     this.tags = tags;
   
@@ -887,8 +919,8 @@ static public class View extends Declaration {
   
 
   
-public View(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Name view,  org.rascalmpl.ast.Name superType,  java.util.List<org.rascalmpl.ast.Alternative> alts) {
-  super(node);
+public View(ISourceLocation loc, org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Name view,  org.rascalmpl.ast.Name superType,  java.util.List<org.rascalmpl.ast.Alternative> alts) {
+  super(loc);
   
     this.tags = tags;
   

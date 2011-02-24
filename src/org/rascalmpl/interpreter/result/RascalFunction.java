@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -16,7 +16,6 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.Type.Structured;
@@ -58,7 +57,7 @@ public class RascalFunction extends NamedFunction {
 	this(func, eval,
 			(FunctionType) func.getSignature().typeOf(env),
 			varargs, isDefault(func),
-			Arrays.asList(new Statement[] { eval.getBuilder().makeStat("Return", func.getTree(), eval.getBuilder().makeStat("Expression", func.getTree(), func.getExpression()))}),
+			Arrays.asList(new Statement[] { eval.getBuilder().makeStat("Return", func.getLocation(), eval.getBuilder().makeStat("Expression", func.getLocation(), func.getExpression()))}),
 			env, accumulators);
 	this.name = Names.name(func.getSignature().getName());
    }
@@ -224,13 +223,13 @@ public class RascalFunction extends NamedFunction {
 			Expression last = formals.get(formals.size() - 1);
 			if (last.isTypedVariable()) {
 				org.rascalmpl.ast.Type oldType = last.getType();
-				INode origin = last.getTree();
+				ISourceLocation origin = last.getLocation();
 				Structured newType = af.make("Type","Structured", origin, af.make("StructuredType",origin, af.make("BasicType","List", origin), Arrays.asList(af.make("TypeArg","Default", origin,oldType))));
 				last = af.make("Expression","TypedVariable",origin, newType, last.getName());
 				formals = replaceLast(formals, last);
 			}
 			else if (last.isQualifiedName()) {
-				INode origin = last.getTree();
+				ISourceLocation origin = last.getLocation();
 				org.rascalmpl.ast.Type newType = af.make("Type","Structured",origin, af.make("StructuredType",origin, af.make("BasicType","List", origin), Arrays.asList(af.make("TypeArg",origin, af.make("Type","Basic", origin, af.make("BasicType","Value", origin))))));
 				last = af.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
 				formals = replaceLast(formals, last);

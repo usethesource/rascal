@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Sym extends AbstractAST {
-  public Sym(INode node) {
-    super(node);
+  public Sym(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -95,11 +107,31 @@ public abstract class Sym extends AbstractAST {
 static public class Ambiguity extends Sym {
   private final java.util.List<org.rascalmpl.ast.Sym> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Sym> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Sym> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Sym> getAlternatives() {
    return alternatives;
   }
@@ -123,8 +155,8 @@ static public class StartOfLine extends Sym {
   
 
   
-public StartOfLine(INode node ) {
-  super(node);
+public StartOfLine(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -155,8 +187,8 @@ static public class Nonterminal extends Sym {
   
 
   
-public Nonterminal(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
-  super(node);
+public Nonterminal(ISourceLocation loc, org.rascalmpl.ast.Nonterminal nonterminal) {
+  super(loc);
   
     this.nonterminal = nonterminal;
   
@@ -199,8 +231,8 @@ static public class Optional extends Sym {
   
 
   
-public Optional(INode node , org.rascalmpl.ast.Sym symbol) {
-  super(node);
+public Optional(ISourceLocation loc, org.rascalmpl.ast.Sym symbol) {
+  super(loc);
   
     this.symbol = symbol;
   
@@ -243,8 +275,8 @@ static public class Parameter extends Sym {
   
 
   
-public Parameter(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
-  super(node);
+public Parameter(ISourceLocation loc, org.rascalmpl.ast.Nonterminal nonterminal) {
+  super(loc);
   
     this.nonterminal = nonterminal;
   
@@ -287,8 +319,8 @@ static public class CaseInsensitiveLiteral extends Sym {
   
 
   
-public CaseInsensitiveLiteral(INode node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
-  super(node);
+public CaseInsensitiveLiteral(ISourceLocation loc, org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
+  super(loc);
   
     this.cistring = cistring;
   
@@ -331,8 +363,8 @@ static public class CharacterClass extends Sym {
   
 
   
-public CharacterClass(INode node , org.rascalmpl.ast.Class charClass) {
-  super(node);
+public CharacterClass(ISourceLocation loc, org.rascalmpl.ast.Class charClass) {
+  super(loc);
   
     this.charClass = charClass;
   
@@ -377,8 +409,8 @@ static public class Labeled extends Sym {
   
 
   
-public Labeled(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
-  super(node);
+public Labeled(ISourceLocation loc, org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+  super(loc);
   
     this.symbol = symbol;
   
@@ -433,8 +465,8 @@ static public class IterStar extends Sym {
   
 
   
-public IterStar(INode node , org.rascalmpl.ast.Sym symbol) {
-  super(node);
+public IterStar(ISourceLocation loc, org.rascalmpl.ast.Sym symbol) {
+  super(loc);
   
     this.symbol = symbol;
   
@@ -479,8 +511,8 @@ static public class Parametrized extends Sym {
   
 
   
-public Parametrized(INode node , org.rascalmpl.ast.ParameterizedNonterminal pnonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
-  super(node);
+public Parametrized(ISourceLocation loc, org.rascalmpl.ast.ParameterizedNonterminal pnonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
+  super(loc);
   
     this.pnonterminal = pnonterminal;
   
@@ -535,8 +567,8 @@ static public class Iter extends Sym {
   
 
   
-public Iter(INode node , org.rascalmpl.ast.Sym symbol) {
-  super(node);
+public Iter(ISourceLocation loc, org.rascalmpl.ast.Sym symbol) {
+  super(loc);
   
     this.symbol = symbol;
   
@@ -577,8 +609,8 @@ static public class EndOfLine extends Sym {
   
 
   
-public EndOfLine(INode node ) {
-  super(node);
+public EndOfLine(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -611,8 +643,8 @@ static public class IterStarSep extends Sym {
   
 
   
-public IterStarSep(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
-  super(node);
+public IterStarSep(ISourceLocation loc, org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
+  super(loc);
   
     this.symbol = symbol;
   
@@ -667,8 +699,8 @@ static public class Literal extends Sym {
   
 
   
-public Literal(INode node , org.rascalmpl.ast.StringConstant string) {
-  super(node);
+public Literal(ISourceLocation loc, org.rascalmpl.ast.StringConstant string) {
+  super(loc);
   
     this.string = string;
   
@@ -711,8 +743,8 @@ static public class Column extends Sym {
   
 
   
-public Column(INode node , org.rascalmpl.ast.IntegerLiteral column) {
-  super(node);
+public Column(ISourceLocation loc, org.rascalmpl.ast.IntegerLiteral column) {
+  super(loc);
   
     this.column = column;
   
@@ -757,8 +789,8 @@ static public class IterSep extends Sym {
   
 
   
-public IterSep(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
-  super(node);
+public IterSep(ISourceLocation loc, org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
+  super(loc);
   
     this.symbol = symbol;
   

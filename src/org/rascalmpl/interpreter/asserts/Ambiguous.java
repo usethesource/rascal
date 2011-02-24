@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.asserts;
 import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 
 public final class Ambiguous extends AssertionError {
@@ -10,6 +11,10 @@ public final class Ambiguous extends AssertionError {
 
 	public Ambiguous(IConstructor tree) {
 		super("Unexpected ambiguity: " + getValueString(tree));
+	}
+	
+	public Ambiguous(ISourceLocation loc) {
+		super("Unexpected ambiguity: " + loc);
 	}
 
 	private static String getValueString(IConstructor tree) {

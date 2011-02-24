@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Command extends AbstractAST {
-  public Command(INode node) {
-    super(node);
+  public Command(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -55,11 +67,31 @@ public abstract class Command extends AbstractAST {
 static public class Ambiguity extends Command {
   private final java.util.List<org.rascalmpl.ast.Command> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Command> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Command> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Command> getAlternatives() {
    return alternatives;
   }
@@ -85,8 +117,8 @@ static public class Shell extends Command {
   
 
   
-public Shell(INode node , org.rascalmpl.ast.ShellCommand command) {
-  super(node);
+public Shell(ISourceLocation loc, org.rascalmpl.ast.ShellCommand command) {
+  super(loc);
   
     this.command = command;
   
@@ -129,8 +161,8 @@ static public class Import extends Command {
   
 
   
-public Import(INode node , org.rascalmpl.ast.Import imported) {
-  super(node);
+public Import(ISourceLocation loc, org.rascalmpl.ast.Import imported) {
+  super(loc);
   
     this.imported = imported;
   
@@ -173,8 +205,8 @@ static public class Expression extends Command {
   
 
   
-public Expression(INode node , org.rascalmpl.ast.Expression expression) {
-  super(node);
+public Expression(ISourceLocation loc, org.rascalmpl.ast.Expression expression) {
+  super(loc);
   
     this.expression = expression;
   
@@ -217,8 +249,8 @@ static public class Statement extends Command {
   
 
   
-public Statement(INode node , org.rascalmpl.ast.Statement statement) {
-  super(node);
+public Statement(ISourceLocation loc, org.rascalmpl.ast.Statement statement) {
+  super(loc);
   
     this.statement = statement;
   
@@ -261,8 +293,8 @@ static public class Declaration extends Command {
   
 
   
-public Declaration(INode node , org.rascalmpl.ast.Declaration declaration) {
-  super(node);
+public Declaration(ISourceLocation loc, org.rascalmpl.ast.Declaration declaration) {
+  super(loc);
   
     this.declaration = declaration;
   

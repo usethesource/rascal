@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Literal extends AbstractAST {
-  public Literal(INode node) {
-    super(node);
+  public Literal(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -71,11 +83,31 @@ public abstract class Literal extends AbstractAST {
 static public class Ambiguity extends Literal {
   private final java.util.List<org.rascalmpl.ast.Literal> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Literal> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Literal> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Literal> getAlternatives() {
    return alternatives;
   }
@@ -101,8 +133,8 @@ static public class Location extends Literal {
   
 
   
-public Location(INode node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
-  super(node);
+public Location(ISourceLocation loc, org.rascalmpl.ast.LocationLiteral locationLiteral) {
+  super(loc);
   
     this.locationLiteral = locationLiteral;
   
@@ -145,8 +177,8 @@ static public class String extends Literal {
   
 
   
-public String(INode node , org.rascalmpl.ast.StringLiteral stringLiteral) {
-  super(node);
+public String(ISourceLocation loc, org.rascalmpl.ast.StringLiteral stringLiteral) {
+  super(loc);
   
     this.stringLiteral = stringLiteral;
   
@@ -189,8 +221,8 @@ static public class RegExp extends Literal {
   
 
   
-public RegExp(INode node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
-  super(node);
+public RegExp(ISourceLocation loc, org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
+  super(loc);
   
     this.regExpLiteral = regExpLiteral;
   
@@ -233,8 +265,8 @@ static public class Real extends Literal {
   
 
   
-public Real(INode node , org.rascalmpl.ast.RealLiteral realLiteral) {
-  super(node);
+public Real(ISourceLocation loc, org.rascalmpl.ast.RealLiteral realLiteral) {
+  super(loc);
   
     this.realLiteral = realLiteral;
   
@@ -277,8 +309,8 @@ static public class Boolean extends Literal {
   
 
   
-public Boolean(INode node , org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
-  super(node);
+public Boolean(ISourceLocation loc, org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
+  super(loc);
   
     this.booleanLiteral = booleanLiteral;
   
@@ -321,8 +353,8 @@ static public class DateTime extends Literal {
   
 
   
-public DateTime(INode node , org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
-  super(node);
+public DateTime(ISourceLocation loc, org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
+  super(loc);
   
     this.dateTimeLiteral = dateTimeLiteral;
   
@@ -365,8 +397,8 @@ static public class Integer extends Literal {
   
 
   
-public Integer(INode node , org.rascalmpl.ast.IntegerLiteral integerLiteral) {
-  super(node);
+public Integer(ISourceLocation loc, org.rascalmpl.ast.IntegerLiteral integerLiteral) {
+  super(loc);
   
     this.integerLiteral = integerLiteral;
   

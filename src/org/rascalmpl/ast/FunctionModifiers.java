@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class FunctionModifiers extends AbstractAST {
-  public FunctionModifiers(INode node) {
-    super(node);
+  public FunctionModifiers(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -23,11 +35,31 @@ public abstract class FunctionModifiers extends AbstractAST {
 static public class Ambiguity extends FunctionModifiers {
   private final java.util.List<org.rascalmpl.ast.FunctionModifiers> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionModifiers> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.FunctionModifiers> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.FunctionModifiers> getAlternatives() {
    return alternatives;
   }
@@ -53,8 +85,8 @@ static public class List extends FunctionModifiers {
   
 
   
-public List(INode node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
-  super(node);
+public List(ISourceLocation loc, java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
+  super(loc);
   
     this.modifiers = modifiers;
   

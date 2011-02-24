@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Comprehension extends AbstractAST {
-  public Comprehension(INode node) {
-    super(node);
+  public Comprehension(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -47,11 +59,31 @@ public abstract class Comprehension extends AbstractAST {
 static public class Ambiguity extends Comprehension {
   private final java.util.List<org.rascalmpl.ast.Comprehension> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Comprehension> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Comprehension> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Comprehension> getAlternatives() {
    return alternatives;
   }
@@ -79,8 +111,8 @@ static public class Set extends Comprehension {
   
 
   
-public Set(INode node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-  super(node);
+public Set(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+  super(loc);
   
     this.results = results;
   
@@ -139,8 +171,8 @@ static public class Map extends Comprehension {
   
 
   
-public Map(INode node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-  super(node);
+public Map(ISourceLocation loc, org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+  super(loc);
   
     this.from = from;
   
@@ -209,8 +241,8 @@ static public class List extends Comprehension {
   
 
   
-public List(INode node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
-  super(node);
+public List(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+  super(loc);
   
     this.results = results;
   

@@ -69,6 +69,7 @@ import org.rascalmpl.interpreter.strategy.StrategyContextStack;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
@@ -97,6 +98,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private final GlobalEnvironment heap;
 	private boolean interrupt = false;
+	private boolean bootstrapped = false;
 
 	private final JavaBridge javaBridge;
 
@@ -129,6 +131,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
 	}
 
+	/**
+	 * @param bootstrapped When true, it prevents further loading of Rascal modules in nested Evaluators (like for parser generation)
+	 */
+	public void setBootstrapped(boolean bootstrapped) {
+		this.bootstrapped = bootstrapped;
+	}
+	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalURIResolver rascalURIResolver) {
 		this.__setVf(f);
 		this.__setPatternEvaluator(new PatternEvaluator(this));
@@ -384,7 +393,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return new ObjectRascalRascal();
 		}
 		ParserGenerator pg = this.getParserGenerator();
-		ISet productions = currentModule.getProductions();
+		ISet productions = currentModule.getGrammars();
 		Class<IGTD> parser = this.getHeap().getObjectParser(currentModule.getName(), productions);
 
 		if (parser == null) {
@@ -412,8 +421,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		ParserGenerator pg = this.getParserGenerator();
 		ISourceLocation loc = this.__getVf().sourceLocation(input);
 		IGTD objectParser = this.getObjectParser(env, loc);
-		ISet productions = env.getProductions();
-		Class<IGTD> parser = this.getHeap().getRascalParser(env.getName(), productions);
+		ISet grammars = env.getGrammars();
+		Class<IGTD> parser = this.getHeap().getRascalParser(env.getName(), grammars);
 
 		if (parser == null) {
 			String parserName;
@@ -423,8 +432,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = env.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getRascalParser(loc, parserName, productions, objectParser);
-			this.getHeap().storeRascalParser(env.getName(), productions, parser);
+			parser = pg.getRascalParser(loc, parserName, grammars, objectParser);
+			this.getHeap().storeRascalParser(env.getName(), grammars, parser);
 		}
 
 		try {
@@ -648,7 +657,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return r;
 		}
 
-		throw new ImplementationError("Not yet implemented: " + imp.getTree());
+		throw new ImplementationError("Not yet implemented: " + imp.getLocation());
 	}
 
 	public void doImport(String string) {
@@ -933,16 +942,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
 
 		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
-		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+		IConstructor start = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1);
+		Module preModule = builder.buildModule(start);
 
-		// take care of imports and declare syntax
+		// take care of imports 
 		Result<IValue> name = preModule.interpret(this);
 
 		if (env == null) {
 			env = this.__getHeap().getModule(((IString) name.getValue()).getValue());
 		}
+		
+		// collect syntax definitions (this will never terminate if not guarded by the bootstrapParser
+		if (!bootstrapped && !this.needBootstrapParser(preModule)){ 
+			env.storeGrammar(getParserGenerator().getGrammar(start));
+		}
 
-		ISet prods = env.getProductions();
+		// TODO: this may always return some set of empty grammars...
+		ISet prods = env.getGrammars();
 		if (prods.isEmpty() || !containsBackTick(data)) {
 			return this.__getParser().parseModule(location, data, actionExecutor);
 		}
@@ -1035,17 +1051,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public String getModuleName(Module module) {
-		String name = module.getHeader().getName().toString();
-		if (name.startsWith("\\")) {
-			name = name.substring(1);
-		}
-		return name;
+		return Names.fullName(module.getHeader().getName());
 	}
 
 	public IBooleanResult makeBooleanResult(Expression pat) {
 		if (pat instanceof Ambiguity) {
 			// TODO: wrong exception here.
-			throw new Ambiguous((IConstructor) pat.getTree());
+			throw new Ambiguous((IConstructor) pat.getLocation());
 		}
 
 		BooleanEvaluator pe = new BooleanEvaluator(this);

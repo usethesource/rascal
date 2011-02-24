@@ -2,7 +2,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -16,7 +16,7 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 	static public class Default extends org.rascalmpl.ast.QualifiedName.Default {
 		private static final TypeFactory TF = TypeFactory.getInstance();
 
-		public Default(INode __param1, List<Name> __param2) {
+		public Default(ISourceLocation __param1, List<Name> __param2) {
 			super(__param1, __param2);
 		}
 
@@ -34,9 +34,10 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 				}
 			}
 		}
+		
 	}
 
-	public QualifiedName(INode __param1) {
+	public QualifiedName(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

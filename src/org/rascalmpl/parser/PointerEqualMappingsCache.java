@@ -177,4 +177,9 @@ public class PointerEqualMappingsCache<K, V>{
 			this.next = next;
 		}
 	}
+
+	public void clear() {
+		data = (Entry<K, V>[]) new Entry[data.length];
+		load = 0;
+	}
 }

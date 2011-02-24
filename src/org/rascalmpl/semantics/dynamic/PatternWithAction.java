@@ -1,6 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
@@ -21,7 +21,7 @@ public abstract class PatternWithAction extends
 	static public class Arbitrary extends
 			org.rascalmpl.ast.PatternWithAction.Arbitrary {
 
-		public Arbitrary(INode __param1, Expression __param2, Statement __param3) {
+		public Arbitrary(ISourceLocation __param1, Expression __param2, Statement __param3) {
 			super(__param1, __param2, __param3);
 		}
 
@@ -63,7 +63,7 @@ public abstract class PatternWithAction extends
 	static public class Replacing extends
 			org.rascalmpl.ast.PatternWithAction.Replacing {
 
-		public Replacing(INode __param1, Expression __param2,
+		public Replacing(ISourceLocation __param1, Expression __param2,
 				Replacement __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -99,7 +99,7 @@ public abstract class PatternWithAction extends
 
 	}
 
-	public PatternWithAction(INode __param1) {
+	public PatternWithAction(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

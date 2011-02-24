@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class TypeVar extends AbstractAST {
-  public TypeVar(INode node) {
-    super(node);
+  public TypeVar(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -31,11 +43,31 @@ public abstract class TypeVar extends AbstractAST {
 static public class Ambiguity extends TypeVar {
   private final java.util.List<org.rascalmpl.ast.TypeVar> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeVar> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.TypeVar> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.TypeVar> getAlternatives() {
    return alternatives;
   }
@@ -61,8 +93,8 @@ static public class Free extends TypeVar {
   
 
   
-public Free(INode node , org.rascalmpl.ast.Name name) {
-  super(node);
+public Free(ISourceLocation loc, org.rascalmpl.ast.Name name) {
+  super(loc);
   
     this.name = name;
   
@@ -107,8 +139,8 @@ static public class Bounded extends TypeVar {
   
 
   
-public Bounded(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Type bound) {
-  super(node);
+public Bounded(ISourceLocation loc, org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Type bound) {
+  super(loc);
   
     this.name = name;
   

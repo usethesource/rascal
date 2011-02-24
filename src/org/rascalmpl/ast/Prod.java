@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Prod extends AbstractAST {
-  public Prod(INode node) {
-    super(node);
+  public Prod(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -95,11 +107,31 @@ public abstract class Prod extends AbstractAST {
 static public class Ambiguity extends Prod {
   private final java.util.List<org.rascalmpl.ast.Prod> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.Prod> getAlternatives() {
    return alternatives;
   }
@@ -127,8 +159,8 @@ static public class All extends Prod {
   
 
   
-public All(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
-  super(node);
+public All(ISourceLocation loc, org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -185,8 +217,8 @@ static public class Follow extends Prod {
   
 
   
-public Follow(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
-  super(node);
+public Follow(ISourceLocation loc, org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -243,8 +275,8 @@ static public class First extends Prod {
   
 
   
-public First(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
-  super(node);
+public First(ISourceLocation loc, org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -301,8 +333,8 @@ static public class Unlabeled extends Prod {
   
 
   
-public Unlabeled(INode node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
-  super(node);
+public Unlabeled(ISourceLocation loc, java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
+  super(loc);
   
     this.modifiers = modifiers;
   
@@ -361,8 +393,8 @@ static public class Labeled extends Prod {
   
 
   
-public Labeled(INode node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> args) {
-  super(node);
+public Labeled(ISourceLocation loc, java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> args) {
+  super(loc);
   
     this.modifiers = modifiers;
   
@@ -431,8 +463,8 @@ static public class Action extends Prod {
   
 
   
-public Action(INode node , org.rascalmpl.ast.Prod prod,  org.rascalmpl.ast.LanguageAction action) {
-  super(node);
+public Action(ISourceLocation loc, org.rascalmpl.ast.Prod prod,  org.rascalmpl.ast.LanguageAction action) {
+  super(loc);
   
     this.prod = prod;
   
@@ -487,8 +519,8 @@ static public class Reference extends Prod {
   
 
   
-public Reference(INode node , org.rascalmpl.ast.Name referenced) {
-  super(node);
+public Reference(ISourceLocation loc, org.rascalmpl.ast.Name referenced) {
+  super(loc);
   
     this.referenced = referenced;
   
@@ -533,8 +565,8 @@ static public class Reject extends Prod {
   
 
   
-public Reject(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
-  super(node);
+public Reject(ISourceLocation loc, org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+  super(loc);
   
     this.lhs = lhs;
   
@@ -587,8 +619,8 @@ static public class Others extends Prod {
   
 
   
-public Others(INode node ) {
-  super(node);
+public Others(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -621,8 +653,8 @@ static public class AssociativityGroup extends Prod {
   
 
   
-public AssociativityGroup(INode node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
-  super(node);
+public AssociativityGroup(ISourceLocation loc, org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
+  super(loc);
   
     this.associativity = associativity;
   

@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ShellCommand extends AbstractAST {
-  public ShellCommand(INode node) {
-    super(node);
+  public ShellCommand(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -31,11 +43,31 @@ public abstract class ShellCommand extends AbstractAST {
 static public class Ambiguity extends ShellCommand {
   private final java.util.List<org.rascalmpl.ast.ShellCommand> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ShellCommand> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.ShellCommand> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.ShellCommand> getAlternatives() {
    return alternatives;
   }
@@ -61,8 +93,8 @@ static public class Unimport extends ShellCommand {
   
 
   
-public Unimport(INode node , org.rascalmpl.ast.QualifiedName name) {
-  super(node);
+public Unimport(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name) {
+  super(loc);
   
     this.name = name;
   
@@ -103,8 +135,8 @@ static public class Quit extends ShellCommand {
   
 
   
-public Quit(INode node ) {
-  super(node);
+public Quit(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -135,8 +167,8 @@ static public class Edit extends ShellCommand {
   
 
   
-public Edit(INode node , org.rascalmpl.ast.QualifiedName name) {
-  super(node);
+public Edit(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name) {
+  super(loc);
   
     this.name = name;
   
@@ -177,8 +209,8 @@ static public class ListModules extends ShellCommand {
   
 
   
-public ListModules(INode node ) {
-  super(node);
+public ListModules(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -207,8 +239,8 @@ static public class History extends ShellCommand {
   
 
   
-public History(INode node ) {
-  super(node);
+public History(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -237,8 +269,8 @@ static public class ListDeclarations extends ShellCommand {
   
 
   
-public ListDeclarations(INode node ) {
-  super(node);
+public ListDeclarations(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -267,8 +299,8 @@ static public class Help extends ShellCommand {
   
 
   
-public Help(INode node ) {
-  super(node);
+public Help(ISourceLocation loc) {
+  super(loc);
   
 }
 
@@ -301,8 +333,8 @@ static public class SetOption extends ShellCommand {
   
 
   
-public SetOption(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
-  super(node);
+public SetOption(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
+  super(loc);
   
     this.name = name;
   
@@ -357,8 +389,8 @@ static public class Undeclare extends ShellCommand {
   
 
   
-public Undeclare(INode node , org.rascalmpl.ast.QualifiedName name) {
-  super(node);
+public Undeclare(ISourceLocation loc, org.rascalmpl.ast.QualifiedName name) {
+  super(loc);
   
     this.name = name;
   
@@ -399,8 +431,8 @@ static public class Test extends ShellCommand {
   
 
   
-public Test(INode node ) {
-  super(node);
+public Test(ISourceLocation loc) {
+  super(loc);
   
 }
 

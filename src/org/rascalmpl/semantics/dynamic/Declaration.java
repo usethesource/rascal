@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -23,7 +23,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Alias extends org.rascalmpl.ast.Declaration.Alias {
 
-		public Alias(INode __param1, Tags __param2, Visibility __param3,
+		public Alias(ISourceLocation __param1, Tags __param2, Visibility __param3,
 				UserType __param4, org.rascalmpl.ast.Type __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
@@ -42,7 +42,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 	static public class Annotation extends
 			org.rascalmpl.ast.Declaration.Annotation {
 
-		public Annotation(INode __param1, Tags __param2, Visibility __param3,
+		public Annotation(ISourceLocation __param1, Tags __param2, Visibility __param3,
 				org.rascalmpl.ast.Type __param4,
 				org.rascalmpl.ast.Type __param5, Name __param6) {
 			super(__param1, __param2, __param3, __param4, __param5, __param6);
@@ -65,7 +65,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Data extends org.rascalmpl.ast.Declaration.Data {
 
-		public Data(INode __param1, Tags __param2, Visibility __param3,
+		public Data(ISourceLocation __param1, Tags __param2, Visibility __param3,
 				UserType __param4, List<Variant> __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
@@ -84,7 +84,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 	static public class DataAbstract extends
 			org.rascalmpl.ast.Declaration.DataAbstract {
 
-		public DataAbstract(INode __param1, Tags __param2, Visibility __param3,
+		public DataAbstract(ISourceLocation __param1, Tags __param2, Visibility __param3,
 				UserType __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -102,7 +102,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Function extends org.rascalmpl.ast.Declaration.Function {
 
-		public Function(INode __param1, FunctionDeclaration __param2) {
+		public Function(ISourceLocation __param1, FunctionDeclaration __param2) {
 			super(__param1, __param2);
 		}
 
@@ -117,7 +117,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Rule extends org.rascalmpl.ast.Declaration.Rule {
 
-		public Rule(INode __param1, Tags __param2, Name __param3,
+		public Rule(ISourceLocation __param1, Tags __param2, Name __param3,
 				PatternWithAction __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -133,7 +133,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Test extends org.rascalmpl.ast.Declaration.Test {
 
-		public Test(INode __param1, org.rascalmpl.ast.Test __param2) {
+		public Test(ISourceLocation __param1, org.rascalmpl.ast.Test __param2) {
 			super(__param1, __param2);
 		}
 
@@ -146,7 +146,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Variable extends org.rascalmpl.ast.Declaration.Variable {
 
-		public Variable(INode __param1, Tags __param2, Visibility __param3,
+		public Variable(ISourceLocation __param1, Tags __param2, Visibility __param3,
 				org.rascalmpl.ast.Type __param4,
 				List<org.rascalmpl.ast.Variable> __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
@@ -209,7 +209,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	}
 
-	public Declaration(INode __param1) {
+	public Declaration(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

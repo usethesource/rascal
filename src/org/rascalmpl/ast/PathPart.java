@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class PathPart extends AbstractAST {
-  public PathPart(INode node) {
-    super(node);
+  public PathPart(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -47,11 +59,31 @@ public abstract class PathPart extends AbstractAST {
 static public class Ambiguity extends PathPart {
   private final java.util.List<org.rascalmpl.ast.PathPart> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PathPart> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.PathPart> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.PathPart> getAlternatives() {
    return alternatives;
   }
@@ -77,8 +109,8 @@ static public class NonInterpolated extends PathPart {
   
 
   
-public NonInterpolated(INode node , org.rascalmpl.ast.PathChars pathChars) {
-  super(node);
+public NonInterpolated(ISourceLocation loc, org.rascalmpl.ast.PathChars pathChars) {
+  super(loc);
   
     this.pathChars = pathChars;
   
@@ -125,8 +157,8 @@ static public class Interpolated extends PathPart {
   
 
   
-public Interpolated(INode node , org.rascalmpl.ast.PrePathChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
-  super(node);
+public Interpolated(ISourceLocation loc, org.rascalmpl.ast.PrePathChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
+  super(loc);
   
     this.pre = pre;
   

@@ -1,6 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.joda.time.DateTime;
 import org.rascalmpl.interpreter.Evaluator;
@@ -11,7 +11,7 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 
 	static public class Lexical extends org.rascalmpl.ast.JustDate.Lexical {
 
-		public Lexical(INode __param1, String __param2) {
+		public Lexical(ISourceLocation __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
@@ -38,7 +38,7 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 
 	}
 
-	public JustDate(INode __param1) {
+	public JustDate(ISourceLocation __param1) {
 		super(__param1);
 	}
 

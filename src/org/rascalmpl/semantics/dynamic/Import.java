@@ -1,6 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.SyntaxDefinition;
@@ -13,7 +13,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	static public class Default extends org.rascalmpl.ast.Import.Default {
 
-		public Default(INode __param1, ImportedModule __param2) {
+		public Default(ISourceLocation __param1, ImportedModule __param2) {
 			super(__param1, __param2);
 		}
 
@@ -48,7 +48,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	static public class Syntax extends org.rascalmpl.ast.Import.Syntax {
 
-		public Syntax(INode __param1, SyntaxDefinition __param2) {
+		public Syntax(ISourceLocation __param1, SyntaxDefinition __param2) {
 			super(__param1, __param2);
 		}
 
@@ -57,7 +57,6 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 			__eval.__getTypeDeclarator().declareSyntaxType(
 					this.getSyntax().getDefined(), __eval.getCurrentEnvt());
-			__eval.getCurrentEnvt().declareProduction(this);
 			__eval.loadParseTreeModule(this);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
@@ -65,7 +64,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	}
 
-	public Import(INode __param1) {
+	public Import(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

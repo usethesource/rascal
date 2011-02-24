@@ -32,6 +32,7 @@ public class ParserGenerator {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("***parsergenerator***", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
+		this.evaluator.setBootstrapped(true);
 		this.vf = factory;
 		this.out = out;
 		evaluator.doImport("rascal::syntax::Generator");
@@ -48,11 +49,11 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
-	public Class<IGTD> getParser(ISourceLocation loc, String name, ISet imports) {
+	public Class<IGTD> getParser(ISourceLocation loc, String name, ISet grammars) {
 		try {
 			// TODO: add caching
 			out.println("Importing and normalizing grammar");
-			IConstructor grammar = getGrammar(imports);
+			IConstructor grammar = getGrammar(grammars);
 			String normName = name.replaceAll("\\.", "_");
 			out.println("Generating java source code for parser");
 			IString classString = (IString) evaluator.call("generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
@@ -73,10 +74,10 @@ public class ParserGenerator {
 	 * Note that this method works under the assumption that a normal parser was generated before!
 	 * The class that this parser generates will inherit from that previously generated parser.
 	 */
-	public Class<IGTD> getRascalParser(ISourceLocation loc, String name, ISet imports, IGTD objectParser) {
+	public Class<IGTD> getRascalParser(ISourceLocation loc, String name, ISet grammars, IGTD objectParser) {
 		try {
 			out.println("Importing and normalizing grammar");
-			IConstructor grammar = getGrammar(imports);
+			IConstructor grammar = getGrammar(grammars);
 			String normName = name.replaceAll("\\.", "_");
 			out.println("Generating java source code for Rascal parser");
 			IString classString = (IString) evaluator.call("generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
@@ -112,6 +113,10 @@ public class ParserGenerator {
 	}
 	
 	public IConstructor getGrammar(ISet imports) {
-		return (IConstructor) evaluator.call("imports2grammar", imports);
+		return (IConstructor) evaluator.call("join", imports);
+	}
+	
+	public IConstructor getGrammar(IConstructor module) {
+		return (IConstructor) evaluator.call("module2grammar", module);
 	}
 }

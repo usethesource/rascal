@@ -617,12 +617,8 @@ public class Environment {
 		this.nameFlags = null;
 	}
 
-	public void declareProduction(Syntax x) {
-		getRoot().declareProduction(x);
-	}
-	
-	public ISet getProductions() {
-		return getRoot().getProductions();
+	public ISet getGrammars() {
+		return getRoot().getGrammars();
 	}
 
 }

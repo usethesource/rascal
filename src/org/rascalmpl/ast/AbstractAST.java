@@ -1,7 +1,6 @@
 package org.rascalmpl.ast;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -20,28 +19,39 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
-	protected final INode node;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
+	protected IConstructor _production = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	protected final ISourceLocation _location;
 	
-	AbstractAST(INode node) {
-		this.node = node;
+	AbstractAST(ISourceLocation loc) {
+		this._location = loc;
+	}
+	
+	IConstructor getTree() {
+		throw new NotYetImplemented("should reconstruct parse tree from AST for debugging purposes");
+	}
+	
+	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
+		return ResultFactory.makeResult(declaredType, value, ctx);
 	}
 	
 	public Type _getType() {
 	  return _type;
 	}
+
+	public void _setProduction(IConstructor production) {
+		this._production = production;
+	}
 	
-	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
-		return ResultFactory.makeResult(declaredType, value, ctx);
+	public IConstructor _getProduction() {
+		return _production;
 	}
 	
 	public void _setType(Type nonterminalType) {
@@ -61,7 +71,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	public ISourceLocation getLocation() {
-		return TreeAdapter.getLocation((IConstructor) node);
+		return _location;
 	}
 
 	public ASTStatistics getStats() {
@@ -80,31 +90,22 @@ public abstract class AbstractAST implements IVisitable {
 			}
 
 			AbstractAST other = (AbstractAST) obj;
-
-			if (other.node == node) {
-				return true;
-			}
-
-			if (other.node.equals(node)) {
-				return other.node.getAnnotation("loc").isEqual(
-						node.getAnnotation("loc"));
-			}
+			return other.getLocation().isEqual(getLocation());
 		}
 		return false;
 	}
 
-	public INode getTree() {
-		return node;
-	}
-
 	@Override
 	public int hashCode() {
-		return node.hashCode();
+		return 7 + 23 * _location.hashCode() + 17 * getClass().hashCode();
 	}
 
 	@Override
+	/**
+	 * For debugging purposes
+	 */
 	public String toString() {
-		return TreeAdapter.yield((IConstructor) node);
+		return "TODO: write a better toString for AST nodes";
 	}
 
 	public Result<IValue> interpret(Evaluator eval) {

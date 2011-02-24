@@ -2,12 +2,24 @@
 package org.rascalmpl.ast;
 
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class LongLiteral extends AbstractAST {
-  public LongLiteral(INode node) {
-    super(node);
+  public LongLiteral(ISourceLocation loc) {
+    super(loc);
   }
   
 
@@ -39,11 +51,31 @@ public abstract class LongLiteral extends AbstractAST {
 static public class Ambiguity extends LongLiteral {
   private final java.util.List<org.rascalmpl.ast.LongLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LongLiteral> alternatives) {
-    super(node);
+  public Ambiguity(ISourceLocation loc, java.util.List<org.rascalmpl.ast.LongLiteral> alternatives) {
+    super(loc);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
 
+  @Override
+  public Result<IValue> interpret(Evaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public Type typeOf(Environment env) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
+  @Override
+  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+
+  @Override
+  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+    throw new Ambiguous((IConstructor) this.getTree());
+  }
+  
   public java.util.List<org.rascalmpl.ast.LongLiteral> getAlternatives() {
    return alternatives;
   }
@@ -69,8 +101,8 @@ static public class OctalLongLiteral extends LongLiteral {
   
 
   
-public OctalLongLiteral(INode node , org.rascalmpl.ast.OctalLongLiteral octalLong) {
-  super(node);
+public OctalLongLiteral(ISourceLocation loc, org.rascalmpl.ast.OctalLongLiteral octalLong) {
+  super(loc);
   
     this.octalLong = octalLong;
   
@@ -113,8 +145,8 @@ static public class DecimalLongLiteral extends LongLiteral {
   
 
   
-public DecimalLongLiteral(INode node , org.rascalmpl.ast.DecimalLongLiteral decimalLong) {
-  super(node);
+public DecimalLongLiteral(ISourceLocation loc, org.rascalmpl.ast.DecimalLongLiteral decimalLong) {
+  super(loc);
   
     this.decimalLong = decimalLong;
   
@@ -157,8 +189,8 @@ static public class HexLongLiteral extends LongLiteral {
   
 
   
-public HexLongLiteral(INode node , org.rascalmpl.ast.HexLongLiteral hexLong) {
-  super(node);
+public HexLongLiteral(ISourceLocation loc, org.rascalmpl.ast.HexLongLiteral hexLong) {
+  super(loc);
   
     this.hexLong = hexLong;
   

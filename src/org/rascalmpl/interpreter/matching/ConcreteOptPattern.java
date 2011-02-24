@@ -30,7 +30,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-		this.production = TreeAdapter.getProduction((IConstructor) getAST().getTree());
+		this.production = getAST()._getProduction();
 		
 		if (list.size() == 0) {
 			type = Opt.NotExist;

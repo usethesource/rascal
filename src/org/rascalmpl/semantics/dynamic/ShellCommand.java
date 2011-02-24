@@ -1,6 +1,6 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
@@ -12,7 +12,7 @@ import org.rascalmpl.interpreter.result.Result;
 public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Edit extends org.rascalmpl.ast.ShellCommand.Edit {
-		public Edit(INode __param1, QualifiedName __param2) {
+		public Edit(ISourceLocation __param1, QualifiedName __param2) {
 			super(__param1, __param2);
 		}
 
@@ -24,7 +24,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Help extends org.rascalmpl.ast.ShellCommand.Help {
 
-		public Help(INode __param1) {
+		public Help(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -41,7 +41,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class History extends org.rascalmpl.ast.ShellCommand.History {
 
-		public History(INode __param1) {
+		public History(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -50,7 +50,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class ListDeclarations extends
 			org.rascalmpl.ast.ShellCommand.ListDeclarations {
 
-		public ListDeclarations(INode __param1) {
+		public ListDeclarations(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -63,7 +63,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Quit extends org.rascalmpl.ast.ShellCommand.Quit {
 
-		public Quit(INode __param1) {
+		public Quit(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -77,7 +77,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class SetOption extends
 			org.rascalmpl.ast.ShellCommand.SetOption {
 
-		public SetOption(INode __param1, QualifiedName __param2,
+		public SetOption(ISourceLocation __param1, QualifiedName __param2,
 				Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -101,7 +101,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class Test extends org.rascalmpl.ast.ShellCommand.Test {
 
-		public Test(INode __param1) {
+		public Test(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -116,7 +116,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class Unimport extends
 			org.rascalmpl.ast.ShellCommand.Unimport {
 
-		public Unimport(INode __param1, QualifiedName __param2) {
+		public Unimport(ISourceLocation __param1, QualifiedName __param2) {
 			super(__param1, __param2);
 		}
 
@@ -131,7 +131,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	}
 
-	public ShellCommand(INode __param1) {
+	public ShellCommand(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

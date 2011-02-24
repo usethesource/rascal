@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -18,7 +19,6 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
@@ -36,7 +36,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 
-		public Annotation(INode __param1,
+		public Annotation(ISourceLocation __param1,
 				org.rascalmpl.ast.Assignable __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -99,7 +99,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Bracket extends org.rascalmpl.ast.Assignable.Bracket {
 
-		public Bracket(INode __param1, org.rascalmpl.ast.Assignable __param2) {
+		public Bracket(ISourceLocation __param1, org.rascalmpl.ast.Assignable __param2) {
 			super(__param1, __param2);
 		}
 
@@ -108,7 +108,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Constructor extends
 			org.rascalmpl.ast.Assignable.Constructor {
 
-		public Constructor(INode __param1, Name __param2,
+		public Constructor(ISourceLocation __param1, Name __param2,
 				List<org.rascalmpl.ast.Assignable> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -209,7 +209,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class FieldAccess extends
 			org.rascalmpl.ast.Assignable.FieldAccess {
 
-		public FieldAccess(INode __param1,
+		public FieldAccess(ISourceLocation __param1,
 				org.rascalmpl.ast.Assignable __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -343,7 +343,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class IfDefinedOrDefault extends
 			org.rascalmpl.ast.Assignable.IfDefinedOrDefault {
 
-		public IfDefinedOrDefault(INode __param1,
+		public IfDefinedOrDefault(ISourceLocation __param1,
 				org.rascalmpl.ast.Assignable __param2, Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -385,7 +385,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Subscript extends
 			org.rascalmpl.ast.Assignable.Subscript {
 
-		public Subscript(INode __param1, org.rascalmpl.ast.Assignable __param2,
+		public Subscript(ISourceLocation __param1, org.rascalmpl.ast.Assignable __param2,
 				Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -559,7 +559,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Tuple extends org.rascalmpl.ast.Assignable.Tuple {
 
-		public Tuple(INode __param1, List<org.rascalmpl.ast.Assignable> __param2) {
+		public Tuple(ISourceLocation __param1, List<org.rascalmpl.ast.Assignable> __param2) {
 			super(__param1, __param2);
 		}
 
@@ -613,7 +613,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Variable extends org.rascalmpl.ast.Assignable.Variable {
 
-		public Variable(INode __param1, QualifiedName __param2) {
+		public Variable(ISourceLocation __param1, QualifiedName __param2) {
 			super(__param1, __param2);
 		}
 
@@ -663,7 +663,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	}
 
-	public Assignable(INode __param1) {
+	public Assignable(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

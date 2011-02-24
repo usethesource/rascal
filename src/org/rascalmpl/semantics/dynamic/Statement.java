@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Assignable;
@@ -46,7 +47,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Append extends org.rascalmpl.ast.Statement.Append {
 
-		public Append(INode __param1, DataTarget __param2,
+		public Append(ISourceLocation __param1, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -84,7 +85,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Assert extends org.rascalmpl.ast.Statement.Assert {
 
-		public Assert(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Assert(ISourceLocation __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -112,7 +113,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class AssertWithMessage extends
 			org.rascalmpl.ast.Statement.AssertWithMessage {
 
-		public AssertWithMessage(INode __param1,
+		public AssertWithMessage(ISourceLocation __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -147,7 +148,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class Assignment extends
 			org.rascalmpl.ast.Statement.Assignment {
 
-		public Assignment(INode __param1, Assignable __param2,
+		public Assignment(ISourceLocation __param1, Assignable __param2,
 				org.rascalmpl.ast.Assignment __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -167,7 +168,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Break extends org.rascalmpl.ast.Statement.Break {
 
-		public Break(INode __param1, Target __param2) {
+		public Break(ISourceLocation __param1, Target __param2) {
 			super(__param1, __param2);
 		}
 
@@ -182,7 +183,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Continue extends org.rascalmpl.ast.Statement.Continue {
 
-		public Continue(INode __param1, Target __param2) {
+		public Continue(ISourceLocation __param1, Target __param2) {
 			super(__param1, __param2);
 		}
 
@@ -197,7 +198,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class DoWhile extends org.rascalmpl.ast.Statement.DoWhile {
 
-		public DoWhile(INode __param1, Label __param2,
+		public DoWhile(ISourceLocation __param1, Label __param2,
 				org.rascalmpl.ast.Statement __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -244,7 +245,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class EmptyStatement extends
 			org.rascalmpl.ast.Statement.EmptyStatement {
 
-		public EmptyStatement(INode __param1) {
+		public EmptyStatement(ISourceLocation __param1) {
 			super(__param1);
 		}
 
@@ -260,7 +261,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class Expression extends
 			org.rascalmpl.ast.Statement.Expression {
 
-		public Expression(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Expression(ISourceLocation __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -282,7 +283,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Fail extends org.rascalmpl.ast.Statement.Fail {
 
-		public Fail(INode __param1, Target __param2) {
+		public Fail(ISourceLocation __param1, Target __param2) {
 			super(__param1, __param2);
 		}
 
@@ -301,7 +302,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class For extends org.rascalmpl.ast.Statement.For {
 
-		public For(INode __param1, Label __param2,
+		public For(ISourceLocation __param1, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -386,7 +387,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class FunctionDeclaration extends
 			org.rascalmpl.ast.Statement.FunctionDeclaration {
 
-		public FunctionDeclaration(INode __param1,
+		public FunctionDeclaration(ISourceLocation __param1,
 				org.rascalmpl.ast.FunctionDeclaration __param2) {
 			super(__param1, __param2);
 		}
@@ -403,7 +404,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class GlobalDirective extends
 			org.rascalmpl.ast.Statement.GlobalDirective {
 
-		public GlobalDirective(INode __param1, Type __param2,
+		public GlobalDirective(ISourceLocation __param1, Type __param2,
 				List<QualifiedName> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -419,7 +420,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class IfThen extends org.rascalmpl.ast.Statement.IfThen {
 
-		public IfThen(INode __param1, Label __param2,
+		public IfThen(ISourceLocation __param1, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4, NoElseMayFollow __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
@@ -477,7 +478,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class IfThenElse extends
 			org.rascalmpl.ast.Statement.IfThenElse {
 
-		public IfThenElse(INode __param1, Label __param2,
+		public IfThenElse(ISourceLocation __param1, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4,
 				org.rascalmpl.ast.Statement __param5) {
@@ -538,7 +539,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Insert extends org.rascalmpl.ast.Statement.Insert {
 
-		public Insert(INode __param1, DataTarget __param2,
+		public Insert(ISourceLocation __param1, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -556,7 +557,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class NonEmptyBlock extends
 			org.rascalmpl.ast.Statement.NonEmptyBlock {
 
-		public NonEmptyBlock(INode __param1, Label __param2,
+		public NonEmptyBlock(ISourceLocation __param1, Label __param2,
 				List<org.rascalmpl.ast.Statement> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -585,7 +586,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Return extends org.rascalmpl.ast.Statement.Return {
 
-		public Return(INode __param1, org.rascalmpl.ast.Statement __param2) {
+		public Return(ISourceLocation __param1, org.rascalmpl.ast.Statement __param2) {
 			super(__param1, __param2);
 		}
 
@@ -602,7 +603,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Solve extends org.rascalmpl.ast.Statement.Solve {
 
-		public Solve(INode __param1, List<QualifiedName> __param2,
+		public Solve(ISourceLocation __param1, List<QualifiedName> __param2,
 				Bound __param3, org.rascalmpl.ast.Statement __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -698,8 +699,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			private final Hashtable<IConstructor, List<Case>> table = new Hashtable<IConstructor, List<Case>>();
 
 			void add(Case c) {
-				IConstructor key = TreeAdapter.getProduction((IConstructor) c
-						.getPatternWithAction().getPattern().getTree());
+				IConstructor key = c.getPatternWithAction().getPattern()._getProduction();
 				List<Case> same = table.get(key);
 				if (same == null) {
 					same = new LinkedList<Case>();
@@ -802,13 +802,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		private final List<CaseBlock> blocks;
 
-		public Switch(INode __param1, Label __param2,
+		public Switch(ISourceLocation __param1, Label __param2,
 				org.rascalmpl.ast.Expression __param3, List<Case> __param4) {
 			super(__param1, __param2, __param3, __param4);
 			blocks = new ArrayList<CaseBlock>(__param4.size());
 			precompute(__param4);
-			//System.err.println("switched optimized from + " + __param4.size()
-			//		+ " to " + blocks.size() + " alts at " + getLocation());
+//			System.err.println("switched optimized from + " + __param4.size()
+//					+ " to " + blocks.size() + " alts at " + getLocation());
 		}
 
 		@Override
@@ -929,7 +929,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Throw extends org.rascalmpl.ast.Statement.Throw {
 
-		public Throw(INode __param1, org.rascalmpl.ast.Statement __param2) {
+		public Throw(ISourceLocation __param1, org.rascalmpl.ast.Statement __param2) {
 			super(__param1, __param2);
 		}
 
@@ -946,7 +946,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Try extends org.rascalmpl.ast.Statement.Try {
 
-		public Try(INode __param1, org.rascalmpl.ast.Statement __param2,
+		public Try(ISourceLocation __param1, org.rascalmpl.ast.Statement __param2,
 				List<Catch> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -994,7 +994,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class TryFinally extends
 			org.rascalmpl.ast.Statement.TryFinally {
 
-		public TryFinally(INode __param1, org.rascalmpl.ast.Statement __param2,
+		public TryFinally(ISourceLocation __param1, org.rascalmpl.ast.Statement __param2,
 				List<org.rascalmpl.ast.Catch> __param3, org.rascalmpl.ast.Statement __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -1009,7 +1009,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 	static public class VariableDeclaration extends
 			org.rascalmpl.ast.Statement.VariableDeclaration {
 
-		public VariableDeclaration(INode __param1,
+		public VariableDeclaration(ISourceLocation __param1,
 				LocalVariableDeclaration __param2) {
 			super(__param1, __param2);
 		}
@@ -1025,7 +1025,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Visit extends org.rascalmpl.ast.Statement.Visit {
 
-		public Visit(INode __param1, Label __param2,
+		public Visit(ISourceLocation __param1, Label __param2,
 				org.rascalmpl.ast.Visit __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1041,7 +1041,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class While extends org.rascalmpl.ast.Statement.While {
 
-		public While(INode __param1, Label __param2,
+		public While(ISourceLocation __param1, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -1116,7 +1116,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	}
 
-	public Statement(INode __param1) {
+	public Statement(ISourceLocation __param1) {
 		super(__param1);
 	}
 }

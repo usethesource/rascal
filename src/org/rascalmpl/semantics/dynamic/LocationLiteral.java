@@ -3,7 +3,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -17,7 +16,7 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 	static public class Default extends
 			org.rascalmpl.ast.LocationLiteral.Default {
 
-		public Default(INode __param1, ProtocolPart __param2, PathPart __param3) {
+		public Default(ISourceLocation __param1, ProtocolPart __param2, PathPart __param3) {
 			super(__param1, __param2, __param3);
 		}
 
@@ -46,7 +45,7 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 
 	}
 
-	public LocationLiteral(INode __param1) {
+	public LocationLiteral(ISourceLocation __param1) {
 		super(__param1);
 	}
 

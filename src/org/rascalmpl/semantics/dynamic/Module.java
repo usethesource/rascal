@@ -2,7 +2,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Header;
@@ -17,7 +17,7 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 
 	static public class Default extends org.rascalmpl.ast.Module.Default {
 
-		public Default(INode __param1, Header __param2, Body __param3) {
+		public Default(ISourceLocation __param1, Header __param2, Body __param3) {
 			super(__param1, __param2, __param3);
 		}
 
@@ -70,7 +70,7 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 
 	}
 
-	public Module(INode __param1) {
+	public Module(ISourceLocation __param1) {
 		super(__param1);
 	}
 }
