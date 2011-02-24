@@ -26,7 +26,6 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 	private final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
 	private final PatternEvaluator pe;
 
-	@Override
 	public ASTBuilder getBuilder() {
 		return ctx.getBuilder();
 	}
