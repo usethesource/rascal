@@ -25,24 +25,28 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public <U extends IValue> Result<U> is(Name name) {
-		String consName = TreeAdapter.getConstructorName(getValue());
-		if (consName != null) {
-			return ResultFactory.bool(Names.name(name).equals(consName), ctx);
+		if (TreeAdapter.isAppl(getValue())) {
+			String consName = TreeAdapter.getConstructorName(getValue());
+			if (consName != null) {
+				return ResultFactory.bool(Names.name(name).equals(consName), ctx);
+			}
 		}
 		return ResultFactory.bool(false, ctx);
 	}
 	
 	@Override
 	public <U extends IValue> Result<U> has(Name name) {
-		IConstructor prod = TreeAdapter.getProduction(getValue());
-		IList syms = ProductionAdapter.getLhs(prod);
-		String tmp = Names.name(name);
-		
-		// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-		for (IValue sym : syms) {
-			if (SymbolAdapter.isLabel((IConstructor) sym)) {
-				if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
-					return ResultFactory.bool(true, ctx);
+		if (TreeAdapter.isAppl(getValue())) {
+			IConstructor prod = TreeAdapter.getProduction(getValue());
+			IList syms = ProductionAdapter.getLhs(prod);
+			String tmp = Names.name(name);
+			
+			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+			for (IValue sym : syms) {
+				if (SymbolAdapter.isLabel((IConstructor) sym)) {
+					if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
+						return ResultFactory.bool(true, ctx);
+					}
 				}
 			}
 		}
