@@ -119,7 +119,6 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		this.debugger = debugger;
 	}
 
-	@Override
 	public ASTBuilder getBuilder() {
 		return evaluator.getBuilder();
 	}
