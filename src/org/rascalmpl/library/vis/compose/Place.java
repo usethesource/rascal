@@ -37,21 +37,21 @@ public class Place extends Figure {
 		bottomFigure.bbox();
 		topFigure.bbox();
 		
-		float hanchor = properties.getHanchor();
-		float vanchor = properties.getVanchor();
-		width = max(bottomFigure.width, hanchor * refFigure.width + topFigure.width/2);
-		height = max(bottomFigure.height, vanchor * refFigure.height + topFigure.height/2);
+		float halign = properties.getHalign();
+		float valign = properties.getValign();
+		width = max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
+		height = max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
 	}
 
 	@Override
 	public void draw(float left, float top) {
 		setLeft(left);
 		setTop(top);
-		float hanchor = properties.getHanchor();
-		float vanchor = properties.getVanchor();
+		float halign = properties.getHalign();
+		float valign = properties.getValign();
 		bottomFigure.draw(left, top);
-		topFigure.draw(refFigure.getLeft() + hanchor * refFigure.width - topFigure.width/2,
-				       refFigure.getTop()  + vanchor * refFigure.height - topFigure.height/2);
+		topFigure.draw(refFigure.getLeft() + halign * refFigure.width - topFigure.width/2,
+				       refFigure.getTop()  + valign * refFigure.height - topFigure.height/2);
 	}
 
 	@Override
