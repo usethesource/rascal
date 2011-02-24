@@ -441,8 +441,8 @@ public class ASTBuilder {
 		// Concrete syntax is lifted to Expression
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 
-		Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
-		Object actuals[] = new Object[] { tree, altsOut };
+		Class<?> formals[] = new Class<?>[]  { List.class };
+		Object actuals[] = new Object[] {  altsOut };
 
 		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, tree, actuals);
 		

@@ -227,6 +227,9 @@ static public class Lexical extends <name> {
   public java.lang.String getString() {
     return string;
   }
+  public java.lang.String toString() {
+    return string;
+  }
   public \<T\> T accept(IASTVisitor\<T\> v) {
     return v.visit<name>Lexical(this);
   }
