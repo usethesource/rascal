@@ -89,7 +89,7 @@ public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.INode","org.rascalmpl.interpreter.asserts.Ambiguous"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.INode","org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IConstructor","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.BooleanEvaluator","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.PatternEvaluator","org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.matching.IBooleanResult","org.rascalmpl.interpreter.matching.IMatchingResult","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -185,12 +185,12 @@ return "static public class Ambiguity extends <name> {
   }
 
   @Override
-  public Result<IValue> interpret(Evaluator __eval) {
+  public Result\<IValue\> interpret(Evaluator __eval) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
   
   @Override
-  public Result<IValue> typeOf(Environment env) {
+  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
   
