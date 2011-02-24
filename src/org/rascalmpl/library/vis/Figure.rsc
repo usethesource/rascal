@@ -130,6 +130,35 @@ public list[str] java fontNames();
  */
  
  public FProperty left(){
+   return halign(0.0);
+ }
+ 
+ public FProperty hcenter(){
+   return halign(0.5);
+ }
+ 
+ public FProperty right(){
+   return halign(1.0);
+ }
+ 
+ public FProperty top(){
+   return valign(0.0);
+ }
+ 
+ public FProperty vcenter(){
+   return valign(0.5);
+ }
+ 
+ public FProperty bottom(){
+   return valign(1.0);
+ }
+ 
+ public FProperty center(){
+   return align(0.5, 0.5);
+}
+   
+ /*
+ public FProperty left(){
    return hanchor(0.0);
  }
  
@@ -156,7 +185,9 @@ public list[str] java fontNames();
  public FProperty center(){
    return anchor(0.5, 0.5);
  }
+ */
  
+ alias computedBool = bool();
  alias computedInt	= int();
  alias computedReal = real();
  alias computedNum 	= num();
@@ -198,10 +229,23 @@ data FProperty =
    | vgap(computedNum cHeight)
    | vgap(Like other)
    
-/* alignment */
-   | anchor(num hor, num vert)				// horizontal (0=left; 1=right) & vertical anchor (0=top,1=bottom)
- //  | anchor(computedNum cHor, computedNum cVert) 
- 
+/* alignment -- used by composition operators hcat, vcat, etc. */
+   | align(num hor, num vert)
+   
+   | halign(num hor)
+   | halign(computedNum cHor)
+   | halign(Like other)
+   
+   | valign(num vert)
+   | valign(computedNum cVert)
+   | valign(Like other)
+   
+   | alignAnchors(bool b)
+   | alignAnchors(computedBool cAlg)
+   | alignAnchors(Like other)
+   
+/* anchoring -- inherent property of a figure; only used when alignAnchors is set */
+   | anchor(num hor, num vert)
    | hanchor(num hor)
    | hanchor(computedNum cHor)
    | hanchor(Like other)
@@ -239,9 +283,17 @@ data FProperty =
    | innerRadius(Like other)
 
 /* shape properties */
-   | shapeConnected()                   // shapes consist of connected points
-   | shapeClosed()    		 		    // closed shapes
-   | shapeCurved()                      // use curves instead of straight lines
+   | shapeConnected(bool b)              // shapes consist of connected points
+   | shapeConnected(computedBool cB)
+   | shapeConnected(Like other)
+   
+   | shapeClosed(bool b)    		 	// closed shapes
+   | shapeClosed(computedBool cB)
+   | shapeClosed(Like other)
+   
+   | shapeCurved(bool b)                // use curves instead of straight lines
+   | shapeCurved(computedBool cB)
+   | shapeCurved(Like other)
  
 /* font and text properties */
    | font(str fontName)             	// named font
@@ -263,18 +315,20 @@ data FProperty =
    
 /* interaction properties */  
    | mouseOver(Figure inner)            // add figure when mouse is over current figure
+   
    | onClick(void() handler)            // handler for mouse clicks
-   | contentsHidden()                   // contents of container is hidden
-   | contentsVisible()                  // contents of container is visible
-   | pinned()                           // position pinned-down, cannot be dragged
+   
    | doi(int d)                         // limit visibility to nesting level d
    | doi(computedInt ciD) 
    
 /* other properties */
    | id(str name)                       // name of elem (used in edges and various layouts)
    | id(computedStr cName)
+   | id(Like other)
+   
    | hint(str name)                     // hint for various compositions
    | hint(computedStr cName)
+   | hint(Like other)
    ;
 
 /*

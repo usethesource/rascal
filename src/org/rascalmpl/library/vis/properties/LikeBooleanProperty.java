@@ -5,11 +5,11 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigurePApplet;
 
-public class LikeStringProperty implements IStringPropertyValue {
+public class LikeBooleanProperty implements IBooleanPropertyValue {
 	final private Property property;
 	final private Figure fig;
 
-	public LikeStringProperty(Property prop, String id, FigurePApplet fpa, IEvaluatorContext ctx){
+	public LikeBooleanProperty(Property prop, String id, FigurePApplet fpa, IEvaluatorContext ctx){
 		this.property = prop;
 		this.fig = fpa.getRegisteredId(id);
 		if(this.fig == null)
@@ -21,8 +21,8 @@ public class LikeStringProperty implements IStringPropertyValue {
 		return property;
 	}
 	
-	public String getValue() {
-		return fig.properties.getStringProperty(property);
+	public boolean getValue() {
+		return fig.properties.getBooleanProperty(property);
 	}
 
 	public boolean isCallBack() {

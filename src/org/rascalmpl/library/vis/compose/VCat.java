@@ -8,7 +8,9 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
  * 
- * Vertical composition of elements using their horizontal anchor for alignment.
+ * Vertical composition of elements:
+ * - when alignAnchors==true, using their horizontal anchor for alignment.
+ * - otherwise using current alignment settings
  * 
  * @author paulk
  *
@@ -18,6 +20,7 @@ public class VCat extends Compose {
 	float vgap;
 	float leftAnchor = 0;
 	float rightAnchor = 0;
+	private boolean alignAnchors = false;
 	private static boolean debug = false;
 
 	public VCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
@@ -27,7 +30,15 @@ public class VCat extends Compose {
 	@Override
 	public
 	void bbox(){
-
+		alignAnchors = getAlignAnchorsProperty();
+		if(alignAnchors)
+			bboxAlignAnchors();
+		else
+			bboxStandard();
+	}
+	
+	public
+	void bboxAlignAnchors(){
 		width = 0;
 		height = 0;
 		leftAnchor = 0;
@@ -48,23 +59,52 @@ public class VCat extends Compose {
 		if(debug)System.err.printf("vcat: width=%f, height=%f, leftAnchor=%f, rightAnchor=%f\n", width, height, leftAnchor, rightAnchor);
 	}
 	
+	public void bboxStandard(){
+		width = 0;
+		height = 0;
+
+		float halign = getHalignProperty();
+		vgap = getVGapProperty();
+		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
+		for(Figure fig : figures){
+			fig.bbox();
+			width = max(width, fig.width);
+			height += fig.height;
+		}
+		int ngaps = (figures.length - 1);
+		height += ngaps * vgap;
+		leftAnchor = halign * width;
+		rightAnchor = (1 - halign) * width;
+		
+		if(debug)System.err.printf("vcat: width=%f, height=%f, leftAnchor=%f, rightAnchor=%f\n", width, height, leftAnchor, rightAnchor);
+	}
+	
 	@Override
 	public
 	void draw(float left, float top){
 		this.setLeft(left);
 		this.setTop(top);
-		
+
 		applyProperties();
+		if(alignAnchors){
+			float bottom = top + height;
 
-		float bottom = top + height;
-
-		// Draw from top to bottom
-		for(int i = figures.length-1; i >= 0; i--){
-			if(debug)System.err.printf("vertical.draw: i=%d, vgap=%f, bottom=%f\n", i, vgap, bottom);
-			Figure fig = figures[i];
-			float h = fig.height;
-			fig.draw(left + leftAnchor - fig.leftAnchor(), bottom - h);
-			bottom -= h + vgap;
+			// Draw from top to bottom
+			for(int i = figures.length-1; i >= 0; i--){
+				if(debug)System.err.printf("vertical.draw: i=%d, vgap=%f, bottom=%f\n", i, vgap, bottom);
+				Figure fig = figures[i];
+				float h = fig.height;
+				fig.draw(left + leftAnchor - fig.leftAnchor(), bottom - h);
+				bottom -= h + vgap;
+			}
+		} else {
+			float currentTop = top;
+			float halign = getHalignProperty();
+			for(Figure fig : figures){
+				float hpad = halign * (width - fig.width);
+				fig.draw(left + hpad, currentTop);
+				currentTop += fig.height + vgap;
+			}
 		}
 	}
 	

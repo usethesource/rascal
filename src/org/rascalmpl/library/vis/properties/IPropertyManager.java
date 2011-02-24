@@ -11,35 +11,41 @@ public interface IPropertyManager {
 	
 	static final HashMap<String, Property> propertyNames = new HashMap<String, Property>() {
 		{
+			put("align",			Property.ALIGN);
+			put("alignAnchors",		Property.ALIGN_ANCHORS);
 			put("anchor",			Property.ANCHOR);
 			put("doi",       		Property.DOI);
-			put("fillColor", 		Property.FILLCOLOR);
+			put("fillColor", 		Property.FILL_COLOR);
 			put("font", 			Property.FONT);
-			put("fontColor", 		Property.FONTCOLOR);
-			put("fontSize", 		Property.FONTSIZE);
-			put("fromAngle", 		Property.FROMANGLE);
+			put("fontColor", 		Property.FONT_COLOR);
+			put("fontSize", 		Property.FONT_SIZE);
+			put("fromAngle", 		Property.FROM_ANGLE);
 			put("gap", 				Property.GAP);
+			put("halign",			Property.HALIGN);
 			put("hanchor", 			Property.HANCHOR);
 			put("height", 			Property.HEIGHT);
 			put("hgap",				Property.HGAP);                  // Only used internally
 			put("hint", 			Property.HINT);
 			put("id", 				Property.ID);
 			put("innerRadius", 		Property.INNERRADIUS);
-			put("lineColor", 		Property.LINECOLOR);
-			put("lineWidth", 		Property.LINEWIDTH);
+			put("lineColor", 		Property.LINE_COLOR);
+			put("lineWidth", 		Property.LINE_WIDTH);
 			put("mouseOver", 		Property.MOUSEOVER);
 			put("onClick",			Property.ONCLICK);
-			put("shapeClosed", 		Property.SHAPECLOSED);
-			put("shapeConnected", 	Property.SHAPECONNECTED);
-			put("shapeCurved", 		Property.SHAPECURVED);
+			put("shapeClosed", 		Property.SHAPE_CLOSED);
+			put("shapeConnected", 	Property.SHAPE_CONNECTED);
+			put("shapeCurved", 		Property.SHAPE_CURVED);
 			put("size", 			Property.SIZE);
-			put("textAngle", 		Property.TEXTANGLE);
-			put("toAngle", 			Property.TOANGLE);
+			put("textAngle", 		Property.TEXT_ANGLE);
+			put("toAngle", 			Property.TO_ANGLE);
+			put("valign", 			Property.VALIGN);
 			put("vanchor", 			Property.VANCHOR);
 			put("vgap", 			Property.VGAP);                 // Only used internally
 			put("width", 			Property.WIDTH);
 		}
 	};
+	
+	public boolean getBooleanProperty(Property property);
 	
 	public int getIntegerProperty(Property property);
 	public float getRealProperty(Property property);
@@ -47,12 +53,14 @@ public interface IPropertyManager {
 	
 	public FigurePApplet getFPA();
 	
+	public boolean getAlignAnchors();
 	public int getDOI();
 	public int getFillColor();
 	public String getFont();
 	public int getFontColor();
 	public int getFontSize();
 	public float getFromAngle();
+	public float getHalign();
 	public float getHanchor();
 	public float getHGap();
 	public float getHeight();
@@ -68,6 +76,7 @@ public interface IPropertyManager {
 	public boolean isShapeCurved();
 	public float getTextAngle();
 	public float getToAngle();
+	public float getValign();
 	public float getVanchor();
 	public float getVGap();
 	public float getWidth();

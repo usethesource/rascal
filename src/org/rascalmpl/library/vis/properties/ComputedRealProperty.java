@@ -48,7 +48,7 @@ public class ComputedRealProperty implements IRealPropertyValue {
 		return value;
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return true;
 	}
 

@@ -17,7 +17,7 @@ public class ConstantBooleanProperty implements IBooleanPropertyValue {
 		return value;
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return false;
 	}
 

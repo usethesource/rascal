@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis.properties;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -8,16 +9,16 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.FigurePApplet;
 
-public class ComputedIntegerProperty implements IIntegerPropertyValue {
+public class ComputedBooleanProperty implements IBooleanPropertyValue {
 	Property property;
 	String tname;
 	IValue fun;
 	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
 	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
-	int value;
+	boolean value;
 	private Object fpa;
 
-	public ComputedIntegerProperty(Property prop, IValue fun, FigurePApplet fpa){
+	public ComputedBooleanProperty(Property prop, IValue fun, FigurePApplet fpa){
 		this.property = prop;
 		this.fun = fun;
 		this.fpa = fpa;
@@ -27,7 +28,7 @@ public class ComputedIntegerProperty implements IIntegerPropertyValue {
 		return property;
 	}
 	
-	public synchronized int getValue() {
+	public synchronized boolean getValue() {
 		Result<IValue> res;
 		synchronized(fpa){
 			if(fun instanceof RascalFunction)
@@ -36,7 +37,7 @@ public class ComputedIntegerProperty implements IIntegerPropertyValue {
 				res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
 		}
 		
-		value = ((IInteger) res.getValue()).intValue();
+		value = ((IBool) res.getValue()).getValue();
 	
 		return value;
 	}

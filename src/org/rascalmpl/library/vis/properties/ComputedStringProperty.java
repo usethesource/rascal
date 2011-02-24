@@ -43,7 +43,7 @@ public class ComputedStringProperty implements IStringPropertyValue {
 		return value;
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return true;
 	}
 

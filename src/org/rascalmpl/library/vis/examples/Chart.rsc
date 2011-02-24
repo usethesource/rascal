@@ -1,5 +1,6 @@
 module vis::examples::Chart
 
+import vis::Figure;
 import vis::Render;
 import vis::Chart;
 
@@ -7,6 +8,87 @@ import Number;
 import List;
 import Set;
 import IO;
+
+// Simple bar charts
+
+public void bar1(){
+    dt1 = [10, 12, 17, 0, 15, 7, 20, 40, 60];  
+    colors = colorScale(dt1, color("blue"), color("red"));  
+	b = hcat( [ box([height(d * 8), fillColor(colors(d))]) | d <- dt1 ],	
+                lineColor(0),
+                lineWidth(1),
+	            fillColor(125),
+	            width(10),
+	            bottom()
+               );
+    render(b);
+}
+
+public void bar2(){
+    d1 = [10, 12, 17, 15, 7]; 
+    d2 = [ 5,  6,  9,  7, 3, 20];
+    m = max(size(d1), size(d2));   
+    bars = [ hcat( [ box(fillColor("green"), height((d1[i] ? 0) * 8)),
+                     box(fillColor("red"), height((d2[i] ? 0) * 8))
+                   ],
+                   gap(5), top())
+           | int i <- [0 .. m]
+           ];
+    
+	b = hcat(bars,
+             lineColor(0),
+             lineWidth(1),
+	         width(10),
+	         top(),
+	         gap(10)
+             );
+    render(b);
+}
+
+public void bar3(){ 
+    d1 = [10, 12, 17, 15, 7]; 
+    d2 = [ 5,  6,  9,  7, 3, 20];
+    m = max(size(d1), size(d2));   
+    bars = [vcat( [ box(fillColor("green"), height((d1[i] ? 0) * 8)),
+                    box(fillColor("red"), height((d2[i] ? 0) * 8))
+                  ],
+                  gap(0))
+           | int i <- [0 .. m]
+           ];
+           
+	b = hcat(bars, 
+             lineColor(0),
+             lineWidth(1),
+	         width(10),
+	         gap(5),
+	         bottom()
+            );
+    render(b);
+}
+
+// Barchart: Horizontal composition of vertically stacked boxes
+public void bar4(){ 
+    d1 = [10, 12, 17, 15, 7]; 
+    d2 = [ 5,  6,  9,  7, 3, 20];
+    m = max(size(d1), size(d2));   
+    bars = [vcat( [ box(fillColor("green"), height((d1[i] ? 0) * 8)),
+                    box(fillColor("red"), height((d2[i] ? 0) * 8))
+                  ],
+                  gap(0))
+           | int i <- [0 .. m]
+           ];
+           
+	b = hcat(bars,
+             lineColor(0),
+             lineWidth(1),
+	         width(10),
+	         gap(5),
+	         bottom()
+            );
+    render(b);
+}
+
+
 
 private list[NamedPairSeries] pdata =
         [ <"f", [<0, 50>, <10,50>, <20,50>, <30, 50>, <40, 50>, <50, 50>, <60,50>]>, 

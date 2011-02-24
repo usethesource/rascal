@@ -110,6 +110,10 @@ public abstract class Figure implements Comparable<Figure> {
 				properties.getFontSize()));
 		fpa.fill(properties.getFontColor());
 	}
+	
+	protected boolean getAlignAnchorsProperty(){
+		return properties.getAlignAnchors();
+	}
 
 	protected float getHeightProperty() {
 		return properties.getHeight();
@@ -138,24 +142,52 @@ public abstract class Figure implements Comparable<Figure> {
 	protected float getLineWidthProperty() {
 		return properties.getLineWidth();
 	}
+	
+	// Alignment
+	
+	public float getHalignProperty() {
+		return properties.getHalign();
+	}
 
-	public float getHanchor() {
+	public float getValignProperty() {
+		return properties.getValign();
+	}
+	
+	public float leftAlign() {
+		float res= (properties.getHalign() * width);
+		return res;
+	}
+
+	public float rightAlign() {
+		float res =  (width - properties.getHalign() * width);
+		return res;
+	}
+
+	public float topAlign() {
+		return (properties.getValign() * height);
+	}
+
+	public float bottomAlign() {
+		return (height - properties.getValign() * height);
+	}
+	
+	// Anchors
+
+	public float getHanchorProperty() {
 		return properties.getHanchor();
 	}
 
-	public float getVanchor() {
+	public float getVanchorProperty() {
 		return properties.getVanchor();
 	}
 
 	public float leftAnchor() {
 		float res= (properties.getHanchor() * width);
-		if (debug) System.err.println(this + ".leftAnchor = " + res);
 		return res;
 	}
 
 	public float rightAnchor() {
 		float res =  (width - properties.getHanchor() * width);
-		if (debug) System.err.println(this + ".rightAnchor = " + res);
 		return res;
 	}
 

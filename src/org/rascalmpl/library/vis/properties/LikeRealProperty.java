@@ -25,7 +25,7 @@ public class LikeRealProperty implements IRealPropertyValue {
 		return fig.properties.getRealProperty(property);
 	}
 
-	public boolean usesTrigger() {
+	public boolean isCallBack() {
 		return false;
 	}
 

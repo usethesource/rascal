@@ -4,33 +4,36 @@
 package org.rascalmpl.library.vis.properties;
 
 public enum Property {
+	ALIGN,			// Internally represented by HALIGN and VALIGN
+	ALIGN_ANCHORS,	// boolean
 	ANCHOR,         // Internally represented by HANCHOR and VANCHOR
 	DOI,            // int, degree of interest
-	FILLCOLOR,      // color
+	FILL_COLOR,      // color
 	FONT,           // str
-	FONTCOLOR,      // color
-	FONTSIZE,       // int
-	FROMANGLE,      // int
+	FONT_COLOR,      // color
+	FONT_SIZE,       // int
+	FROM_ANGLE,      // int
 	GAP,            // Internally represented by HGAP and VGAP
 	HANCHOR,        // float
+	HALIGN,			// float
 	HEIGHT, 		// float
 	HGAP, 			// float
 	HINT,			// str
 	ID, 			// str
 	INNERRADIUS, 	// float
-	LINECOLOR, 		// color
-	LINEWIDTH, 		// float
+	LINE_COLOR, 		// color
+	LINE_WIDTH, 		// float
 	ONCLICK,		// function/closure
 	MOUSEOVER, 		// figure
-	SHAPECLOSED, 	// boolean
-	SHAPECONNECTED,	// boolean
-	SHAPECURVED,	// boolean
+	SHAPE_CLOSED, 	// boolean
+	SHAPE_CONNECTED,	// boolean
+	SHAPE_CURVED,	// boolean
 	SIZE, 			// Internally represented by WIDTH and HEIGHT
-	TEXTANGLE, 		// float
-	TOANGLE,		// float
+	TEXT_ANGLE, 		// float
+	TO_ANGLE,		// float
+	VALIGN,			// float
 	VANCHOR,		// float
 	VGAP, 			// float
 	WIDTH,			// float
-	
 	TEXT			// str, used to represent text arguments
 }
