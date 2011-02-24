@@ -1,4 +1,4 @@
-module experiments::JVMBytecode::SerializeClass
+module lang::jvm::ast::Level1
 
 /*
  * TODO:
@@ -236,11 +236,3 @@ data TryCatchBlock = tryCatchBlock(int startLabelIndex, int endLabelIndex, int h
 				   | finallyBlock(int startLabelIndex, int endLabelIndex, int handlerLabelIndex);
 
 data LocalVariable = localVariable(str name, str description, str signature, int startLabelIndex, int endLabelIndex, int index);
-
-@javaClass{org.rascalmpl.library.experiments.JVMBytecode.SerializeClass}
-public void java serialize(Class class, loc path)
-throws PathNotFound(loc), IOError(str msg), JavaBytecodeError(str msg);
-
-@javaClass{org.rascalmpl.library.experiments.JVMBytecode.Rascalify}
-public void java deserializeToDisk(loc source, loc destination, str moduleName)
-throws PathNotFound(loc), IOError(str msg), JavaBytecodeError(str msg);

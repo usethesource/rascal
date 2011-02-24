@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.JVMBytecode;
+package org.rascalmpl.library.lang.jvm.transform;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
