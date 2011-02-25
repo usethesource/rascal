@@ -76,8 +76,37 @@ public void txt9(){
    
    render(grid(words, width(100), fillColor("black"), gap(40), bottom(), left()));
  }
+ 
+public void txt10(){
+   render(text("a\nbb\nccc\ndddd"));
+}
+
+public void txt10l(){
+   render(text("a\nbb\nccc\ndddd", left()));
+}
+
+public void txt10r(){
+   render(text("a\nbb\nccc\ndddd", right()));
+}
+
+// TODO: Fix alignment of rotated, multi-iline text.
+
+public void txt11(){
+   render(text("a\nbb\nccc\ndddd", textAngle(-90)));
+}
+
+public void txt11l(){
+   render(text("a\nbb\nccc\ndddd", textAngle(-90), left()));
+}
+
+public void txt11r(){
+   render(text("a\nbb\nccc\ndddd", textAngle(-90), right()));
+}
+
+ 
+ 
  //TODO
- public void txt10(){
+ public void txt12(){
    words = [ text("aappp"), text("noot"), text("mies"), text("wim"), text("zus") ];
    
    render(grid(words, width(100), fillColor("black"), gap(40), bottom(), left(), textAngle(-90)));
