@@ -4,13 +4,11 @@ package org.rascalmpl.library.lang.sdf2.syntax;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -20,10 +18,8 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.parser.gtd.SGTDBF;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CharStackNode;
@@ -3448,28 +3444,45 @@ private static class Symbol {
                 }
           }
 	
-      private final static int ITERATIONS = 1000;
+      private final static int ITERATIONS = 100;
       public static void main(String[] args) throws Exception{
-    	  File inputFile = new File("/Users/jurgenv/Sources/Meta/pgen/grammar/Sdf2.def");
-
-    	  NonTerminalStackNode START = new NonTerminalStackNode(-1, 0, "SDF");
-    	  START.setProduction(new AbstractStackNode[]{START});
-
-    	  int inputFileLength = (int) inputFile.length();
-    	  char[] input = new char[inputFileLength];
-    	  Reader in = new BufferedReader(new FileReader(inputFile));
-    	  try{
-    		  in.read(input, 0, inputFileLength);
-    	  }finally{
-    		  in.close();
+    	  	File inputFile = new File("/ufs/lankamp/drowzee/SDFGrammars/Sdf2.def");
+    	  	
+    	  	NonTerminalStackNode START = new NonTerminalStackNode(-1, 0, "SDF");
+    	  	START.setProduction(new AbstractStackNode[]{START});
+    	  
+    	  	int inputFileLength = (int) inputFile.length();
+	  		char[] input = new char[inputFileLength];
+	  		Reader in = new BufferedReader(new FileReader(inputFile));
+	  		try{
+	  			in.read(input, 0, inputFileLength);
+	  		}finally{
+	  			in.close();
+	  		}
+    	  
+    	  for(int i = 19; i >= 0; --i){
+        	  SDF2 parser = new SDF2();
+	    	  parser.parse(START, null, input, new VoidActionExecutor());
     	  }
-
-    	  SDF2 parser = new SDF2();
-    	  IConstructor tree = parser.parse(START, URI.create("file:///dev/null"), input, new VoidActionExecutor());
-
+    	  
     	  ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
-
-
-    	  tmxb.wait();
+    	  
+    	  long total = 0;
+    	  long lowest = Long.MAX_VALUE;
+    	  for(int i = ITERATIONS - 1; i >= 0; --i){
+        	  long start = tmxb.getCurrentThreadCpuTime();
+	    	  SDF2 parser = new SDF2();
+	    	  parser.parse(START, null, input, new VoidActionExecutor());
+	    	  long end = tmxb.getCurrentThreadCpuTime();
+	    	  
+	    	  long time = (end - start) / 1000000;
+	    	  if(time < lowest) lowest = time;
+	    	  total += time;
+    	  }
+    	  
+    	  long average = (total / ITERATIONS);
+    	  System.out.println("Average: "+average+"ms");
+    	  System.out.println("Lowest: "+lowest+"ms");
+    	  System.out.println((inputFileLength * 1000 / average)+" - "+(inputFileLength * 1000 / lowest)+" character/sec");
       }
 }
