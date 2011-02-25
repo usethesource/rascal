@@ -8,10 +8,17 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -32,6 +39,90 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			}
 		}
 		return ResultFactory.bool(false, ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
+		IConstructor tree = getValue();
+		
+		if (TreeAdapter.isAppl(tree)) {
+			int found = -1;
+			IConstructor foundType = null;
+			IConstructor prod = TreeAdapter.getProduction(tree);
+			IList syms = ProductionAdapter.getLhs(prod);
+			
+			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+			for (int i = 0; i < syms.length(); i++) {
+				IConstructor sym = (IConstructor) syms.get(i);
+				if (SymbolAdapter.isLabel(sym)) {
+					if (SymbolAdapter.getLabel(sym).equals(name)) {
+						found = i;
+						foundType = SymbolAdapter.delabel(sym);
+					}
+				}
+			}
+			
+			if (found != -1) {
+				Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
+				IValue child = TreeAdapter.getArgs(tree).get(found);
+				return makeResult(nont, child, ctx);
+			}
+			
+			if (Factory.Tree_Appl.hasField(name)) {
+				return makeResult(Factory.Tree_Appl.getFieldType(name), tree.get(name), ctx);
+			}
+
+			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		else throw new UnsupportedOperationError("field access", ctx.getCurrentAST());
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
+			String name, Result<V> repl, TypeStore store) {
+		IConstructor tree = getValue();
+		
+		if (TreeAdapter.isAppl(tree)) {
+			int found = -1;
+			IConstructor foundType = null;
+			IConstructor prod = TreeAdapter.getProduction(tree);
+			IList syms = ProductionAdapter.getLhs(prod);
+			
+			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+			for (int i = 0; i < syms.length(); i++) {
+				IConstructor sym = (IConstructor) syms.get(i);
+				if (SymbolAdapter.isLabel(sym)) {
+					if (SymbolAdapter.getLabel(sym).equals(name)) {
+						found = i;
+						foundType = SymbolAdapter.delabel(sym);
+					}
+				}
+			}
+			
+			if (found != -1) {
+				Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
+				if (repl.getType().isSubtypeOf(nont)) {
+					IList args = TreeAdapter.getArgs(tree).put(found, repl.getValue());
+					return makeResult(nont, tree.set("args", args), ctx);
+				}
+				else {
+					throw new UnexpectedTypeError(nont, repl.getType(), ctx.getCurrentAST());
+				}
+			}
+			
+			if (Factory.Tree_Appl.hasField(name)) {
+				Type fieldType = Factory.Tree_Appl.getFieldType(name);
+				if (repl.getType().isSubtypeOf(fieldType)) {
+					return makeResult(Factory.Tree, tree.set(name, repl.getValue()), ctx);
+				}
+				else {
+					throw new UnexpectedTypeError(fieldType, repl.getType(), ctx.getCurrentAST());
+				}
+			}
+
+			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		else throw new UnsupportedOperationError("field update", ctx.getCurrentAST());
 	}
 	
 	@Override

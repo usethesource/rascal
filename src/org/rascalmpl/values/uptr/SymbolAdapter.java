@@ -11,7 +11,7 @@ public class SymbolAdapter {
 		super();
 	}
 	
-	private static IConstructor delabel(IConstructor sym) {
+	public static IConstructor delabel(IConstructor sym) {
 		if (isLabel(sym)) {
 			return (IConstructor) sym.get("symbol"); // do not use getSymbol() here!
 		}
