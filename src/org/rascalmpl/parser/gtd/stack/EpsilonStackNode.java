@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.EpsilonNode;
@@ -25,7 +24,7 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		return true;
 	}
 	

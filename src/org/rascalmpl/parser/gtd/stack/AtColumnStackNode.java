@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.AtColumnNode;
@@ -35,7 +34,7 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 		this.positionStore = positionStore;
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		return positionStore.isAtColumn(startLocation, column);
 	}
 	

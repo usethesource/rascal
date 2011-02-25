@@ -1,10 +1,7 @@
 package org.rascalmpl.parser.gtd.result;
 
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -16,19 +13,11 @@ import org.rascalmpl.values.uptr.Factory;
 public class LiteralNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	protected final URI input;
-	protected final int offset;
-	protected final int endOffset;
-	
 	private final IConstructor production;
 	private final char[] content;
 	
-	public LiteralNode(URI input, int offset, int endOffset, IConstructor production, char[] content){
+	public LiteralNode(IConstructor production, char[] content){
 		super();
-		
-		this.input = input;
-		this.offset = offset;
-		this.endOffset = endOffset;
 		
 		this.production = production;
 		this.content = content;
@@ -90,16 +79,6 @@ public class LiteralNode extends AbstractNode{
 			listWriter.append(vf.constructor(Factory.Tree_Char, vf.integer(CharNode.getNumericCharValue(content[i]))));
 		}
 		
-		IConstructor result = vf.constructor(Factory.Tree_Appl, production, listWriter.done());
-		
-		if(input != null){
-			int beginLine = positionStore.findLine(offset);
-			int endLine = positionStore.findLine(endOffset);
-			ISourceLocation sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
-			
-			return result.setAnnotation(Factory.Location, sourceLocation);
-		}
-		
-		return result;
+		return vf.constructor(Factory.Tree_Appl, production, listWriter.done());
 	}
 }

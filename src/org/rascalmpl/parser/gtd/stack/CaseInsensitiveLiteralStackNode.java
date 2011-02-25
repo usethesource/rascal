@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -61,7 +60,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		int literalLength = ciLiteral.length;
 		char[] resultLiteral = new char[literalLength];
 		OUTER : for(int i = literalLength - 1; i >= 0; --i){
@@ -76,7 +75,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 			return false; // Did not match.
 		}
 		
-		result = new LiteralNode(inputURI, startLocation, startLocation + literalLength, production, resultLiteral);
+		result = new LiteralNode(production, resultLiteral);
 		return true;
 	}
 	

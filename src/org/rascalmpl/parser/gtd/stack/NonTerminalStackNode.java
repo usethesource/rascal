@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
@@ -34,7 +33,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
 	
