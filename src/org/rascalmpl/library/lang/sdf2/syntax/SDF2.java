@@ -4,11 +4,13 @@ package org.rascalmpl.library.lang.sdf2.syntax;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -18,8 +20,10 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.parser.gtd.SGTDBF;
+import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CharStackNode;
@@ -1279,6 +1283,7 @@ private static class Symbol {
 		public final static AbstractStackNode[] prod___iter_star__LAYOUT_layouts_LAYOUTLIST_no_attrs = new AbstractStackNode[1];
 		static{
 			prod___iter_star__LAYOUT_layouts_LAYOUTLIST_no_attrs[0] = new ListStackNode(1680, 0, regular__iter_star__LAYOUT_no_attrs , new NonTerminalStackNode(1682, 0 , "LAYOUT"), false);
+			prod___iter_star__LAYOUT_layouts_LAYOUTLIST_no_attrs[0].markAsLayout();
 		}
 	}
 	
@@ -3445,7 +3450,7 @@ private static class Symbol {
 	
       private final static int ITERATIONS = 1000;
       public static void main(String[] args) throws Exception{
-    	  	File inputFile = new File("/ufs/lankamp/drowzee/SDFGrammars/Sdf2.def");
+    	  	File inputFile = new File("/Users/jurgenv/Sources/Meta/pgen/grammar/Sdf2.def");
     	  	
     	  	NonTerminalStackNode START = new NonTerminalStackNode(-1, 0, "SDF");
     	  	START.setProduction(new AbstractStackNode[]{START});
@@ -3459,29 +3464,16 @@ private static class Symbol {
 	  			in.close();
 	  		}
     	  
-    	  for(int i = 19; i >= 0; --i){
         	  SDF2 parser = new SDF2();
-	    	  parser.parse(START, null, input, new VoidActionExecutor());
-    	  }
+	    IConstructor tree = parser.parse(START, URI.create("file:///dev/null"), input, new VoidActionExecutor());
+	    
+	    parser.vf = null;
+	    parser = null;
+	    AbstractNode.vf = null;
     	  
     	  ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
     	  
-    	  long total = 0;
-    	  long lowest = Long.MAX_VALUE;
-    	  for(int i = ITERATIONS - 1; i >= 0; --i){
-        	  long start = tmxb.getCurrentThreadCpuTime();
-	    	  SDF2 parser = new SDF2();
-	    	  parser.parse(START, null, input, new VoidActionExecutor());
-	    	  long end = tmxb.getCurrentThreadCpuTime();
-	    	  
-	    	  long time = (end - start) / 1000000;
-	    	  if(time < lowest) lowest = time;
-	    	  total += time;
-    	  }
-    	  
-    	  long average = (total / ITERATIONS);
-    	  System.out.println("Average: "+average+"ms");
-    	  System.out.println("Lowest: "+lowest+"ms");
-    	  System.out.println((inputFileLength * 1000 / average)+" - "+(inputFileLength * 1000 / lowest)+" character/sec");
+    	 
+    	  tmxb.wait();
       }
 }
