@@ -20,6 +20,10 @@ public class Text extends Figure {
 	private float bottomAnchor = 0;
 	private float leftAnchor;
 	private float rightAnchor;
+	private float hfill = 0;
+	private float vfill = 0;
+	
+	private int textAlignH = PConstants.CENTER;	
 
 	public Text(FigurePApplet fpa, IPropertyManager properties, IStringPropertyValue text) {
 		super(fpa, properties);
@@ -30,12 +34,28 @@ public class Text extends Figure {
 	@Override
 	public
 	void bbox(){
+		float halign = getHalignProperty();
+		textAlignH = (halign < 0.5f) ? PConstants.LEFT : (halign > 0.5f) ? PConstants.RIGHT : PConstants.CENTER;
+
 		applyFontProperties();
 		topAnchor = fpa.textAscent() ;
 		bottomAnchor = fpa.textDescent();
 		
-		height = topAnchor + bottomAnchor;
-		width = fpa.textWidth(txt.getValue());
+		String [] lines = txt.getValue().split("\n");
+		int nlines = lines.length;
+		width = 0;
+		for(int i = 0; i < nlines; i++)
+			width = max(width, fpa.textWidth(lines[i]));
+		
+		if(nlines > 1){
+			hfill = textAlignH == PConstants.LEFT ? 0 : textAlignH == PConstants.RIGHT ? width : width/2;
+			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
+			topAnchor = bottomAnchor = getVanchorProperty() * height;
+		} else {
+			hfill = width/2;
+			height = topAnchor + bottomAnchor;
+		}
+		
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
 			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt, width, height, getTextAngleProperty());
@@ -57,6 +77,12 @@ public class Text extends Figure {
 			topAnchor = h1/height;
 			bottomAnchor = h2/height;
 			
+			hfill = width/2;
+			if(nlines > 1){
+				vfill = textAlignH == PConstants.LEFT ? height : textAlignH == PConstants.RIGHT ? 0 : height/2;
+			} else {
+				vfill = height/2;
+			}
 			
 			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
 		}
@@ -75,15 +101,15 @@ public class Text extends Figure {
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 
-			fpa.textAlign(PConstants.CENTER,PConstants.CENTER);
+			fpa.textAlign(textAlignH,PConstants.CENTER);
 			if(angle != 0){
 				fpa.pushMatrix();
-				fpa.translate(left + width/2, top + height/2);
+				fpa.translate(left + hfill, top + vfill);
 				fpa.rotate(PApplet.radians(angle));
 				fpa.text(txt.getValue(), 0, 0);
 				fpa.popMatrix();
 			} else {
-				fpa.text(txt.getValue(), left + width/2, top + height/2);
+				fpa.text(txt.getValue(), left + hfill, top + height/2);
 //				vlp.rectMode(PConstants.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}
