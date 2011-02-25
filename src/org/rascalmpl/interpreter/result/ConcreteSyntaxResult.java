@@ -113,7 +113,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			if (Factory.Tree_Appl.hasField(name)) {
 				Type fieldType = Factory.Tree_Appl.getFieldType(name);
 				if (repl.getType().isSubtypeOf(fieldType)) {
-					return makeResult(Factory.Tree, tree.set(name, repl.getValue()), ctx);
+					throw new UnsupportedOperationError("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}
 				else {
 					throw new UnexpectedTypeError(fieldType, repl.getType(), ctx.getCurrentAST());

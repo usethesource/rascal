@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
@@ -243,7 +244,16 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						org.rascalmpl.interpreter.result.ResultFactory
 								.makeResult(receiver.getType(), result, __eval
 										.__getEval()));
-			} else if (receiver.getType().isConstructorType()
+			} 
+			else if (receiver.getType() instanceof NonTerminalType) {
+				Result<IValue> result = receiver.fieldUpdate(label, __eval.__getValue(), __eval.getCurrentEnvt().getStore());
+				
+				if (!result.getType().isSubtypeOf(receiver.getType())) {
+					throw new UnexpectedTypeError(receiver.getType(), result.getType(), __eval.getCurrentAST());
+				}
+				return __eval.recur(this, result);
+			}
+			else if (receiver.getType().isConstructorType()
 					|| receiver.getType().isAbstractDataType()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
