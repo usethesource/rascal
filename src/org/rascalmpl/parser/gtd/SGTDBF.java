@@ -532,7 +532,7 @@ public abstract class SGTDBF implements IGTD{
 			if(endLocation <= input.length){
 				if(stack.isLocatable()) stack.setPositionStore(positionStore); // Ugly, but necessary.
 				
-				if(!stack.match(inputURI, input)) return;
+				if(!stack.match(input)) return;
 				
 				// Filtering
 				if(stack.isReductionFiltered(input, endLocation)) return;

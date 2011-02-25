@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -63,7 +62,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
 	

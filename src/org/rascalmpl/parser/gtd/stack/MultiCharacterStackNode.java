@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -35,7 +34,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		int nrOfCharacters = characters.length;
 		char[] resultArray = new char[nrOfCharacters];
 		
@@ -53,7 +52,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 			return false;
 		}
 		
-		result = new LiteralNode(inputURI, startLocation, startLocation + nrOfCharacters, production, resultArray);
+		result = new LiteralNode(production, resultArray);
 		
 		return true;
 	}

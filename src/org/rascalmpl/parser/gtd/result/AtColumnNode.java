@@ -9,6 +9,7 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class AtColumnNode extends AbstractNode{
 	private final static String ATCOLUMN = "at-column()";
+	
 	private final IConstructor result;
 	
 	public AtColumnNode(int column){

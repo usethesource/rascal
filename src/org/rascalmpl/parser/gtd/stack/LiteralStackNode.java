@@ -1,7 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
@@ -11,13 +9,15 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 	private final char[] literal;
 	private final IConstructor production;
 	
-	private LiteralNode result;
+	private final LiteralNode result;
 	
 	public LiteralStackNode(int id, int dot, IConstructor production, char[] literal){
 		super(id, dot);
 		
 		this.literal = literal;
 		this.production = production;
+		
+		result = new LiteralNode(production, literal);
 	}
 	
 	public LiteralStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, char[] literal){
@@ -25,6 +25,8 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		
 		this.literal = literal;
 		this.production = production;
+		
+		result = new LiteralNode(production, literal);
 	}
 	
 	private LiteralStackNode(LiteralStackNode original){
@@ -44,12 +46,10 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		for(int i = literal.length - 1; i >= 0; --i){
 			if(literal[i] != input[startLocation + i]) return false; // Did not match.
 		}
-		
-		result = new LiteralNode(inputURI, startLocation, startLocation + literal.length, production, literal);
 		
 		return true;
 	}

@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
@@ -31,7 +30,7 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		char next = input[startLocation];
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];

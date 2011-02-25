@@ -1,6 +1,5 @@
 package org.rascalmpl.parser.gtd.stack;
 
-import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.EndOfLineNode;
@@ -27,7 +26,7 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 		this.positionStore = positionStore;
 	}
 	
-	public boolean match(URI inputURI, char[] input){
+	public boolean match(char[] input){
 		return positionStore.endsLine(startLocation);
 	}
 	
