@@ -3450,30 +3450,26 @@ private static class Symbol {
 	
       private final static int ITERATIONS = 1000;
       public static void main(String[] args) throws Exception{
-    	  	File inputFile = new File("/Users/jurgenv/Sources/Meta/pgen/grammar/Sdf2.def");
-    	  	
-    	  	NonTerminalStackNode START = new NonTerminalStackNode(-1, 0, "SDF");
-    	  	START.setProduction(new AbstractStackNode[]{START});
-    	  
-    	  	int inputFileLength = (int) inputFile.length();
-	  		char[] input = new char[inputFileLength];
-	  		Reader in = new BufferedReader(new FileReader(inputFile));
-	  		try{
-	  			in.read(input, 0, inputFileLength);
-	  		}finally{
-	  			in.close();
-	  		}
-    	  
-        	  SDF2 parser = new SDF2();
-	    IConstructor tree = parser.parse(START, URI.create("file:///dev/null"), input, new VoidActionExecutor());
-	    
-	    parser.vf = null;
-	    parser = null;
-	    AbstractNode.vf = null;
-    	  
+    	  File inputFile = new File("/Users/jurgenv/Sources/Meta/pgen/grammar/Sdf2.def");
+
+    	  NonTerminalStackNode START = new NonTerminalStackNode(-1, 0, "SDF");
+    	  START.setProduction(new AbstractStackNode[]{START});
+
+    	  int inputFileLength = (int) inputFile.length();
+    	  char[] input = new char[inputFileLength];
+    	  Reader in = new BufferedReader(new FileReader(inputFile));
+    	  try{
+    		  in.read(input, 0, inputFileLength);
+    	  }finally{
+    		  in.close();
+    	  }
+
+    	  SDF2 parser = new SDF2();
+    	  IConstructor tree = parser.parse(START, URI.create("file:///dev/null"), input, new VoidActionExecutor());
+
     	  ThreadMXBean tmxb = ManagementFactory.getThreadMXBean();
-    	  
-    	 
+
+
     	  tmxb.wait();
       }
 }
