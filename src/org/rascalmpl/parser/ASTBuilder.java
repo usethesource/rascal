@@ -70,6 +70,14 @@ public class ASTBuilder {
 				, Collections.<Expression>emptyList());
 	}
 	
+	private void clear() {
+		ambCache.clear();
+		sortCache.clear();
+		lexCache.clear();
+		matchCache.clear();
+		constructorCache.clear();
+	}
+	
 	public <T extends AbstractAST> T make(String sort, INode src, Object... args) {
 		return make(sort, "Default", src, args);
 	}
@@ -182,6 +190,8 @@ public class ASTBuilder {
 	
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
+		clear();
+		
 		if (TreeAdapter.isAppl(parseTree)) {
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(parseTree).get(1);
 			

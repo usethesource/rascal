@@ -177,4 +177,11 @@ public class PointerEqualMappingsCache<K, V>{
 			this.next = next;
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	public void clear() {
+		// the current length is a reasonable prediction for what is needed the next time
+		data = (Entry<K, V>[]) new Entry[data.length];
+		load = 0;
+	}
 }
