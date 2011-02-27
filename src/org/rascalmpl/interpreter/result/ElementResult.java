@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -107,14 +108,16 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
 				Type annoType = env.getAnnotationType(getType(), annoName);
 			
-				if (annoType == null) {
-					throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
-				}
-				if (!anno.getType().isSubtypeOf(annoType)){
-					throw new UnexpectedTypeError(annoType, anno.getType(), ctx.getCurrentAST());
+				if (getType() != getTypeFactory().nodeType()) {
+					if (getType() != getTypeFactory().nodeType() && annoType == null) {
+						throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
+					}
+					if (!anno.getType().isSubtypeOf(annoType)){
+						throw new UnexpectedTypeError(annoType, anno.getType(), ctx.getCurrentAST());
+					}
 				}
 			
-				IValue annotatedBase = ((IConstructor)getValue()).setAnnotation(annoName, anno.getValue());
+				IValue annotatedBase = ((INode)getValue()).setAnnotation(annoName, anno.getValue());
 				
 				// TODO: applyRuels?
 				return makeResult(getType(), annotatedBase, ctx);
