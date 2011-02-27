@@ -65,13 +65,18 @@ anno loc Tree@\loc;
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
-@reflect{uses information about imported SDF modules at call site}
+@reflect{uses information about syntax definitions at call site}
 public &T<:Tree java parse(type[&T<:Tree] start, loc input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
-@reflect{uses information about imported SDF modules at call site}
+@reflect{uses information about syntax definitions at call site}
 public &T<:Tree java parse(type[&T<:Tree] start, str input);
+
+@doc{Parse a string and return a parse tree.}
+@javaClass{org.rascalmpl.library.ParseTree}
+@reflect{uses information about syntax definitions at call site}
+public &T<:Tree java parse(type[&T<:Tree] start, str input, loc origin);
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}

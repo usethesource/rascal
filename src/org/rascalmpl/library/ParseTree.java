@@ -57,6 +57,21 @@ public class ParseTree {
 		return pt;
 	}
 	
+	public IValue parse(IConstructor start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+		Type reified = start.getType();
+		IConstructor startSort = checkPreconditions(start, reified);
+		
+		IConstructor pt = ctx.getEvaluator().parseObject(startSort, input.getValue(), loc);
+		
+		if (TreeAdapter.isAppl(pt)) {
+			if (SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))) {
+				pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+			}
+		}
+		
+		return pt;
+	}
+	
 	public IString unparse(IConstructor tree) {
 		return values.string(TreeAdapter.yield(tree));
 	}
