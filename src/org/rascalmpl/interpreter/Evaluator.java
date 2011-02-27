@@ -374,6 +374,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
 		return parser.parse(name, inputURI, input, exec);
 	}
+	
+	public IConstructor parseObject(IConstructor startSort, String input, ISourceLocation loc) {
+		IGTD parser = this.getObjectParser(loc);
+		String name = "";
+		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
+			name = "start__";
+			startSort = org.rascalmpl.values.uptr.SymbolAdapter.getStart(startSort);
+		}
+		if (org.rascalmpl.values.uptr.SymbolAdapter.isSort(startSort)) {
+			name += org.rascalmpl.values.uptr.SymbolAdapter.getName(startSort);
+		}
+		this.__setInterrupt(false);
+		IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
+		return parser.parse(name, loc.getURI(), input, exec);
+	}
 
 	private IGTD getObjectParser(ISourceLocation loc) {
 		return this.getObjectParser((ModuleEnvironment) this.getCurrentEnvt().getRoot(), loc);

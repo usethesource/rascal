@@ -55,8 +55,11 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 					.getName());
 
 			Type onType = getOnType().typeOf(__eval.getCurrentEnvt());
-			__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
-					name, annoType);
+			
+			if (onType.isAbstractDataType() || onType.isConstructorType()) {
+				__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
+						name, annoType);
+			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
