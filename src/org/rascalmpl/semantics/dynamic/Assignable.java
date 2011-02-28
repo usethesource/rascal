@@ -248,6 +248,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			else if (receiver.getType() instanceof NonTerminalType) {
 				Result<IValue> result = receiver.fieldUpdate(label, __eval.__getValue(), __eval.getCurrentEnvt().getStore());
 				
+				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()), __eval
+						.__getValue()));
+				
 				if (!result.getType().isSubtypeOf(receiver.getType())) {
 					throw new UnexpectedTypeError(receiver.getType(), result.getType(), __eval.getCurrentAST());
 				}
