@@ -95,6 +95,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					if (SymbolAdapter.getLabel(sym).equals(name)) {
 						found = i;
 						foundType = SymbolAdapter.delabel(sym);
+						break;
 					}
 				}
 			}
@@ -103,7 +104,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
 				if (repl.getType().isSubtypeOf(nont)) {
 					IList args = TreeAdapter.getArgs(tree).put(found, repl.getValue());
-					return makeResult(nont, tree.set("args", args), ctx);
+					return makeResult(getType(), tree.set("args", args), ctx);
 				}
 				else {
 					throw new UnexpectedTypeError(nont, repl.getType(), ctx.getCurrentAST());
