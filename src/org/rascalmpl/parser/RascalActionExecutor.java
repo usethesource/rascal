@@ -37,9 +37,11 @@ public class RascalActionExecutor implements IActionExecutor{
 	}
 	
 	public IConstructor filterProduction(IConstructor forest){
-		LanguageAction action = info.getAction(TreeAdapter.getProduction(forest));
-		if(action != null){
-			return call(forest, action);
+		if (TreeAdapter.isAppl(forest)){ 
+			LanguageAction action = info.getAction(TreeAdapter.getProduction(forest));
+			if(action != null){
+				return call(forest, action);
+			}
 		}
 		
 		return forest;
