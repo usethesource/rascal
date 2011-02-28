@@ -671,13 +671,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public void reloadModules(Set<String> names, URI errorLocation) {
+		Set<String> onHeap = new HashSet<String>();
+		
 		for (String mod : names) {
 			if (this.__getHeap().existsModule(mod)) {
+				onHeap.add(mod);
 				this.__getHeap().removeModule(this.__getHeap().getModule(mod));
 			}
 		}
 		
-		for (String mod : names) {
+		for (String mod : onHeap) {
 			if (!heap.existsModule(mod)) {
 				reloadModule(mod, errorLocation);
 			}
