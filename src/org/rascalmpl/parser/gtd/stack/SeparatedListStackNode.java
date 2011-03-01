@@ -71,6 +71,10 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return new AbstractStackNode[]{listNode, empty};
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public String getName(){
 		return name;
 	}

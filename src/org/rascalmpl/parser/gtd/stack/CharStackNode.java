@@ -22,6 +22,10 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		ranges = original.ranges;
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

@@ -25,6 +25,10 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		expectIdentifier = original.expectIdentifier;
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public String getName(){
 		return expectIdentifier;
 	}

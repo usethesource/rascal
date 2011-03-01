@@ -26,6 +26,10 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 		result = original.result;
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return true;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

@@ -26,6 +26,10 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		characters = original.characters;
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

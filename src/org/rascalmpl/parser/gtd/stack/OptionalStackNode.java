@@ -54,6 +54,10 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		return new AbstractStackNode[]{child, empty};
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public String getName(){
 		return name;
 	}

@@ -18,6 +18,10 @@ public class EndOfLineStackNode extends AbstractStackNode implements IMatchableS
 		super(original);
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return true;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

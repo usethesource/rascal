@@ -18,6 +18,10 @@ public class StartOfLineStackNode extends AbstractStackNode implements IMatchabl
 		super(original);
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return true;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

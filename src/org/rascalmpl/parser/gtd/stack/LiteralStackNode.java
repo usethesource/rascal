@@ -38,6 +38,10 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		result = original.result;
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return literal.length == 0;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

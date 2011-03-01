@@ -59,6 +59,10 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		return new AbstractStackNode[]{listNode, empty};
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public String getName(){
 		return name;
 	}
