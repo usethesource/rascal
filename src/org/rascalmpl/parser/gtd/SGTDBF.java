@@ -291,12 +291,12 @@ public abstract class SGTDBF implements IGTD{
 			propagated.add(node.getId(), touched);
 		}
 		
-		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult, potentialNewEdges, touched);
-		if(nrOfAddedEdges == 0) return;
-		
 		if(next.isEndNode()){
 			propagateReductions(node, nodeResult, next, nextResult, potentialNewEdges, touched);
 		}
+		
+		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult, potentialNewEdges, touched);
+		if(nrOfAddedEdges == 0) return;
 		
 		if(next.hasNext()){
 			// Proceed with the tail of the production.
