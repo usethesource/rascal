@@ -693,7 +693,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			for (String imp : todo) {
 				if (names.contains(imp)) {
 					env.unImport(imp);
-					env.addImport(imp, heap.getModule(imp));
+					ModuleEnvironment imported = heap.getModule(imp);
+					if (imported != null) {
+						env.addImport(imp, imported);
+					}
 				}
 			}
 		}
