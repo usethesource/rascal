@@ -59,9 +59,6 @@ public abstract class SGTDBF implements IGTD{
 	private final DoubleStack<AbstractStackNode, AbstractNode> stacksWithNonTerminalsToReduce;
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
-	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
-	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
-	
 	private final HashMap<String, ArrayList<AbstractStackNode>> cachedEdgesForExpect;
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
@@ -75,6 +72,11 @@ public abstract class SGTDBF implements IGTD{
 	
 	private final HashMap<String, Method> methodCache;
 	
+	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
+	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
+	
+	private final LinearIntegerKeyedMap<IntegerList> propagated;
+	
 	public SGTDBF(){
 		super();
 		
@@ -84,8 +86,6 @@ public abstract class SGTDBF implements IGTD{
 		stacksWithNonTerminalsToReduce = new DoubleStack<AbstractStackNode, AbstractNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
-		sharedLastExpects = new LinearIntegerKeyedMap<AbstractStackNode>();
-		sharedPrefixNext = new LinearIntegerKeyedMap<AbstractStackNode>();
 		cachedEdgesForExpect = new HashMap<String, ArrayList<AbstractStackNode>>();
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
@@ -96,6 +96,11 @@ public abstract class SGTDBF implements IGTD{
 		shiftedLevel = false;
 		
 		methodCache = new HashMap<String, Method>();
+		
+		sharedLastExpects = new LinearIntegerKeyedMap<AbstractStackNode>();
+		sharedPrefixNext = new LinearIntegerKeyedMap<AbstractStackNode>();
+		
+		propagated = new LinearIntegerKeyedMap<IntegerList>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -162,14 +167,19 @@ public abstract class SGTDBF implements IGTD{
 	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
 		AbstractStackNode alternative = sharedNextNodes.get(next.getId());
 		if(alternative != null){
-			if(alternative.isEndNode()){
-				if(result.isEmpty() && !node.isMatchable() && !next.isMatchable()){
-					if(alternative.getId() != node.getId() && !(alternative.isSeparator() || node.isSeparator())){ // (Separated) list cycle fix.
+			if(result.isEmpty()){
+				if(alternative.getId() != node.getId() && !(alternative.isSeparator() || node.isSeparator())){ // (Separated) list cycle fix.
+					if(alternative.isMatchable()){
+						if(alternative.isEmptyLeafNode()){
+							propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size());
+							return alternative;
+						}
+					}else{
 						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-						AbstractContainerNode resultStore = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
-						if(resultStore != null){
-							// Encountered self recursive epsilon cycle; update the prefixes.
-							if(updatePrefixes(alternative.getParentProduction(), node, result, resultStore)) return alternative;
+						AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
+						if(nextResult != null){
+							propagateEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size());
+							return alternative;
 						}
 					}
 				}
@@ -190,10 +200,30 @@ public abstract class SGTDBF implements IGTD{
 		return next;
 	}
 	
-	private void updateAlternativeNextNode(AbstractStackNode next, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private void updateAlternativeNextNode(AbstractStackNode node, AbstractStackNode next, AbstractNode result, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		int id = next.getId();
 		AbstractStackNode alternative = sharedNextNodes.get(id);
 		if(alternative != null){
+			if(result.isEmpty()){
+				if(alternative.getId() != node.getId() && !(alternative.isSeparator() || node.isSeparator())){ // (Separated) list cycle fix.
+					if(alternative.isMatchable()){
+						if(alternative.isEmptyLeafNode()){
+							// Encountered stack 'overtake'.
+							propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), edgesMap.size(), edgesMap, prefixesMap);
+							return;
+						}
+					}else{
+						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+						AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
+						if(nextResult != null){
+							// Encountered stack 'overtake'.
+							propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, edgesMap.size(), edgesMap, prefixesMap);
+							return;
+						}
+					}
+				}
+			}
+			
 			alternative.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		}else{
 			next = next.getCleanCopy();
@@ -205,41 +235,210 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
-	private boolean updatePrefixes(IConstructor production, AbstractStackNode node, AbstractNode nodeResultStore, AbstractNode nextResultStore){
+	private void propagateReductions(AbstractStackNode node, AbstractNode nodeResultStore, AbstractStackNode next, AbstractNode nextResultStore, int potentialNewEdges, IntegerList touched){
+		IConstructor production = next.getParentProduction();
+
+		IntegerList filteredParents = getFilteredParents(next.getId());
+		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixes = node.getPrefixesMap();
 		
-		for(int i = edgesMap.size() - 1; i >= 0; --i){
-			int startPosition = edgesMap.getKey(i);
+		int fromIndex = edgesMap.size() - potentialNewEdges;
+		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
 			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startPosition);
-			if(levelResultStoreMap == null) return false;
-			Link prefix = constructPrefixesFor(edgesMap, prefixes, nodeResultStore, startPosition);
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
+			Link prefix = constructPrefixesFor(i, prefixes, nodeResultStore);
 			edgePrefixes.add(prefix);
 			
 			ArrayList<String> firstTimeReductions = new ArrayList<String>();
 			for(int j = edgesPart.size() - 1; j >= 0; --j){
-				AbstractStackNode edge = edgesPart.get(0);
+				AbstractStackNode edge = edgesPart.get(j);
 				String edgeName = edge.getName();
 				int resultStoreId = getResultStoreId(edge.getId());
 				
 				if(!firstTimeReductions.contains(edgeName)){
 					firstTimeReductions.add(edgeName);
 					
-					AbstractContainerNode resultStore = levelResultStoreMap.get(edgeName, resultStoreId);
-					if(resultStore == null) return false;
-					resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
+					if(filteredParents == null || !filteredParents.contains(edge.getId())){
+						int startLocation = edgesMap.getKey(i);
+						
+						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
+						
+						AbstractContainerNode resultStore = levelResultStoreMap.get(edgeName, resultStoreId);
+						if(resultStore == null){ // If there are no previous reductions to this level, handle this.
+							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							levelResultStoreMap.putUnsafe(edge.getName(), getResultStoreId(edge.getId()), resultStore);
+						}
+						resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
+					}
 				}
 			}
 		}
+	}
+	
+	private void propagateEdgesAndPrefixes(AbstractStackNode node, AbstractNode nodeResult, AbstractStackNode next, AbstractNode nextResult, int potentialNewEdges){
+		IntegerList touched = propagated.findValue(node.getId());
+		if(touched == null){
+			touched = new IntegerList();
+			propagated.add(node.getId(), touched);
+		}
 		
-		return true;
+		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult, potentialNewEdges, touched);
+		if(nrOfAddedEdges == 0) return;
+		
+		if(next.isEndNode()){
+			propagateReductions(node, nodeResult, next, nextResult, potentialNewEdges, touched);
+		}
+		
+		if(next.hasNext()){
+			// Proceed with the tail of the production.
+			int nextDot = next.getDot() + 1;
+			AbstractStackNode[] prod = node.getProduction();
+			AbstractStackNode nextNext = prod[nextDot];
+			AbstractStackNode nextNextAlternative = sharedNextNodes.get(nextNext.getId());
+			if(nextNextAlternative == null) return;
+	
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+			if(nextNextAlternative.isMatchable()){
+				if(nextNextAlternative.isEmptyLeafNode()){
+					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
+				}else{
+					nextNextAlternative.updateNode(next, nextResult);
+				}
+			}else{
+				AbstractContainerNode nextNextResultStore = levelResultStoreMap.get(nextNextAlternative.getName(), getResultStoreId(nextNextAlternative.getId()));
+				if(nextNextResultStore != null){
+					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextResultStore, nrOfAddedEdges);
+				}else{
+					nextNextAlternative.updateNode(next, nextResult);
+				}
+			}
+			
+			// Handle alternative nexts (and prefix sharing).
+			ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
+			if(alternateProds != null){
+				sharedPrefixNext.dirtyClear();
+				
+				sharedPrefixNext.add(next.getId(), next);
+				
+				LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
+				ArrayList<Link>[] nextPrefixesMap = next.getPrefixesMap();
+				
+				for(int i = alternateProds.size() - 1; i >= 0; --i){
+					prod = alternateProds.get(i);
+					if(nextDot == prod.length) continue;
+					AbstractStackNode alternativeNext = prod[nextDot];
+					int alternativeNextId = alternativeNext.getId();
+					
+					AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
+					if(sharedNext == null){
+						AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
+						if(nextNextAltAlternative.isEmptyLeafNode()){
+							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), potentialNewEdges, nextEdgesMap, nextPrefixesMap);
+						}else{
+							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
+							if(nextAltResultStore != null){
+								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, potentialNewEdges, nextEdgesMap, nextPrefixesMap);
+							}else{
+								nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
+							}
+						}
+						
+						sharedPrefixNext.add(alternativeNextId, alternativeNext);
+					}
+				}
+			}
+		}
+	}
+	
+	private void propagateAlternativeEdgesAndPrefixes(AbstractStackNode node, AbstractNode nodeResult, AbstractStackNode next, AbstractNode nextResult, int potentialNewEdges, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+		IntegerList touched = propagated.findValue(node.getId());
+		if(touched == null){
+			touched = new IntegerList();
+			propagated.add(node.getId(), touched);
+		}
+		
+		next.updatePrefixSharedNode(edgesMap, prefixesMap);
+		
+		if(next.isEndNode()){
+			propagateReductions(node, nodeResult, next, nextResult, potentialNewEdges, touched);
+		}
+		
+		if(potentialNewEdges != 0 && next.hasNext()){
+			// Proceed with the tail of the production.
+			int nextDot = next.getDot() + 1;
+			AbstractStackNode[] prod = node.getProduction();
+			AbstractStackNode nextNext = prod[nextDot];
+			AbstractStackNode nextNextAlternative = sharedNextNodes.get(nextNext.getId());
+			if(nextNextAlternative == null) return;
+
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+			if(nextNextAlternative.isMatchable()){
+				if(nextNextAlternative.isEmptyLeafNode()){
+					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), potentialNewEdges);
+				}else{
+					nextNextAlternative.updateNode(next, nextResult);
+				}
+			}else{
+				AbstractContainerNode nextResultStore = levelResultStoreMap.get(nextNextAlternative.getName(), getResultStoreId(nextNextAlternative.getId()));
+				if(nextResultStore != null){
+					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextResultStore, potentialNewEdges);
+				}else{
+					nextNextAlternative.updateNode(next, nextResult);
+				}
+			}
+
+			// Handle alternative nexts (and prefix sharing).
+			ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
+			if(alternateProds != null){
+				sharedPrefixNext.dirtyClear();
+				
+				sharedPrefixNext.add(next.getId(), next);
+				
+				LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
+				ArrayList<Link>[] nextPrefixesMap = next.getPrefixesMap();
+				
+				for(int i = alternateProds.size() - 1; i >= 0; --i){
+					prod = alternateProds.get(i);
+					if(nextDot == prod.length) continue;
+					AbstractStackNode alternativeNext = prod[nextDot];
+					int alternativeNextId = alternativeNext.getId();
+					
+					AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
+					if(sharedNext == null){
+						AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
+						
+						if(nextNextAltAlternative.isEmptyLeafNode()){
+							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), potentialNewEdges, nextEdgesMap, nextPrefixesMap);
+						}else{
+							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
+							if(nextAltResultStore != null){
+								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, potentialNewEdges, nextEdgesMap, nextPrefixesMap);
+							}else{
+								nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
+							}
+						}
+						
+						sharedPrefixNext.add(alternativeNextId, alternativeNext);
+					}
+				}
+			}
+		}
+	}
+	
+	private Link constructPrefixesFor(int index, ArrayList<Link>[] prefixesMap, AbstractNode result){
+		if(prefixesMap == null){
+			return new Link(null, result);
+		}
+		
+		return new Link(prefixesMap[index], result);
 	}
 	
 	private void updateEdges(AbstractStackNode node, AbstractNode result){
 		IConstructor production = node.getParentProduction();
+		
+		IntegerList filteredParents = getFilteredParents(node.getId());
 		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
@@ -257,8 +456,6 @@ public abstract class SGTDBF implements IGTD{
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
-			IntegerList filteredParents = getFilteredParents(node.getId());
-			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
@@ -267,9 +464,8 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
-					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
-					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
+						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore != null){
 							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 						}else{
@@ -331,6 +527,52 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
+	private void moveToNext(AbstractStackNode node, AbstractNode result){
+		int nextDot = node.getDot() + 1;
+
+		AbstractStackNode[] prod = node.getProduction();
+		AbstractStackNode next = prod[nextDot];
+		next.setProduction(prod);
+		next = updateNextNode(next, node, result);
+		
+		ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
+		if(alternateProds != null){
+			int nextNextDot = nextDot + 1;
+			
+			// Handle alternative nexts (and prefix sharing).
+			sharedPrefixNext.dirtyClear();
+			
+			sharedPrefixNext.add(next.getId(), next);
+			
+			LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
+			ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
+			
+			for(int i = alternateProds.size() - 1; i >= 0; --i){
+				prod = alternateProds.get(i);
+				if(nextDot == prod.length) continue;
+				AbstractStackNode alternativeNext = prod[nextDot];
+				int alternativeNextId = alternativeNext.getId();
+				
+				AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
+				if(sharedNext == null){
+					alternativeNext.setProduction(prod);
+					updateAlternativeNextNode(node, alternativeNext, result, edgesMap, prefixesMap);
+					
+					sharedPrefixNext.add(alternativeNextId, alternativeNext);
+				}else if(nextNextDot < prod.length){
+					if(alternativeNext.isEndNode()){
+						sharedNext.markAsEndNode();
+						sharedNext.setParentProduction(alternativeNext.getParentProduction());
+						sharedNext.setFollowRestriction(alternativeNext.getFollowRestriction());
+						sharedNext.setReject(alternativeNext.isReject());
+					}
+					
+					sharedNext.addProduction(prod);
+				}
+			}
+		}
+	}
+	
 	private void move(AbstractStackNode node, AbstractNode result){
 		if(node.isEndNode()){
 			if(!result.isRejected()){
@@ -341,61 +583,10 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}
 		}
-
-		if(node.hasNext()){
-			int nextDot = node.getDot() + 1;
-
-			AbstractStackNode[] prod = node.getProduction();
-			AbstractStackNode next = prod[nextDot];
-			next.setProduction(prod);
-			next = updateNextNode(next, node, result);
-			
-			ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
-			if(alternateProds != null){
-				int nextNextDot = nextDot + 1;
-				
-				// Handle alternative nexts (and prefix sharing).
-				sharedPrefixNext.dirtyClear();
-				
-				sharedPrefixNext.add(next.getId(), next);
-				
-				LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
-				ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
-				
-				for(int i = alternateProds.size() - 1; i >= 0; --i){
-					prod = alternateProds.get(i);
-					if(nextDot == prod.length) continue;
-					AbstractStackNode alternativeNext = prod[nextDot];
-					int alternativeNextId = alternativeNext.getId();
-					
-					AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
-					if(sharedNext == null){
-						alternativeNext.setProduction(prod);
-						updateAlternativeNextNode(alternativeNext, edgesMap, prefixesMap);
-						
-						sharedPrefixNext.add(alternativeNextId, alternativeNext);
-					}else if(nextNextDot < prod.length){
-						if(alternativeNext.isEndNode()){
-							sharedNext.markAsEndNode();
-							sharedNext.setParentProduction(alternativeNext.getParentProduction());
-							sharedNext.setFollowRestriction(alternativeNext.getFollowRestriction());
-							sharedNext.setReject(alternativeNext.isReject());
-						}
-						
-						sharedNext.addProduction(prod);
-					}
-				}
-			}
-		}
-	}
-	
-	private Link constructPrefixesFor(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap, AbstractNode result, int startLocation){
-		if(prefixesMap == null){
-			return new Link(null, result);
-		}
 		
-		int index = edgesMap.findKey(startLocation);
-		return new Link(prefixesMap[index], result);
+		if(node.hasNext()){
+			moveToNext(node, result);
+		}
 	}
 	
 	private void reduceTerminal(AbstractStackNode terminal){
@@ -657,6 +848,7 @@ public abstract class SGTDBF implements IGTD{
 						sharedNextNodes.clear();
 						resultStoreCache.clear();
 						cachedEdgesForExpect.clear();
+						propagated.dirtyClear();
 					}
 					
 					reduce();

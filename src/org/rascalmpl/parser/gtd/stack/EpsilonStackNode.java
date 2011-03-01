@@ -16,6 +16,10 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		super(original);
 	}
 	
+	public boolean isEmptyLeafNode(){
+		return true;
+	}
+	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}

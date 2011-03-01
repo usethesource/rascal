@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
@@ -111,6 +112,8 @@ public abstract class AbstractStackNode{
 	public final boolean isList(){
 		return (this instanceof IListStackNode);
 	}
+	
+	public abstract boolean isEmptyLeafNode();
 	
 	public abstract String getName();
 	
@@ -356,6 +359,64 @@ public abstract class AbstractStackNode{
 				}
 			}
 		}
+	}
+	
+	public int updateOvertakenNode(AbstractStackNode predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
+		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
+		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
+		
+		int edgesMapSize = edgesMap.size();
+		int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		if(prefixesMap == null){
+			prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+		}else{
+			if(prefixesMap.length < possibleMaxSize){
+				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+			}
+		}
+		
+		int nrOfAddedEdges = 0;
+		if(prefixesMapToAdd == null){
+			int startLocation = predecessor.getStartLocation();
+			if(touched.contains(startLocation)) return 0;
+			
+			int index = edgesMap.findKey(startLocation);
+			if(index == -1){
+				addPrefix(new Link(null, result), edgesMap.size());
+				edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
+				touched.add(startLocation);
+				nrOfAddedEdges = 1;
+			}else{
+				addPrefix(new Link(null, result), index);
+			}
+		}else{
+			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
+			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
+				int startLocation = edgesMapToAdd.getKey(i);
+				if(touched.contains(startLocation)) continue;
+				
+				int index = edgesMap.findKey(startLocation);
+				ArrayList<Link> prefixes;
+				if(index == -1){
+					index = edgesMap.size();
+					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+					touched.add(startLocation);
+					
+					prefixes = new ArrayList<Link>(1);
+					prefixesMap[index] = prefixes;
+					
+					++nrOfAddedEdges;
+				}else{
+					prefixes = prefixesMap[index];
+				}
+				
+				prefixes.add(new Link(prefixesMapToAdd[i], result));
+			}
+		}
+		
+		return nrOfAddedEdges;
 	}
 	
 	public void updatePrefixSharedNode(LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
