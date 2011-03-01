@@ -245,6 +245,11 @@ public abstract class SGTDBF implements IGTD{
 		
 		int fromIndex = edgesMap.size() - potentialNewEdges;
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
+			int startLocation = edgesMap.getKey(i);
+			
+			if(touched.contains(startLocation)) continue;
+			touched.add(startLocation);
+			
 			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
@@ -261,8 +266,6 @@ public abstract class SGTDBF implements IGTD{
 					firstTimeReductions.add(edgeName);
 					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
-						int startLocation = edgesMap.getKey(i);
-						
 						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 						
 						AbstractContainerNode resultStore = levelResultStoreMap.get(edgeName, resultStoreId);
