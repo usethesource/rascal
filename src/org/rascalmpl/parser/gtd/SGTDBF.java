@@ -250,6 +250,12 @@ public abstract class SGTDBF implements IGTD{
 			if(touched.contains(startLocation)) continue;
 			touched.add(startLocation);
 			
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
+			if(levelResultStoreMap == null){
+				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+				resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
+			}
+			
 			ArrayList<AbstractStackNode> edgesPart = edgesMap.getValue(i);
 			
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
@@ -266,8 +272,6 @@ public abstract class SGTDBF implements IGTD{
 					firstTimeReductions.add(edgeName);
 					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
-						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
-						
 						AbstractContainerNode resultStore = levelResultStoreMap.get(edgeName, resultStoreId);
 						if(resultStore == null){ // If there are no previous reductions to this level, handle this.
 							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
