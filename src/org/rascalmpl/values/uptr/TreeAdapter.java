@@ -272,26 +272,15 @@ public class TreeAdapter {
 		return null;
 	}
 
+	/**
+	 * This finds the most specific (smallest) annotated tree which has its yield around the given offset.
+	 */
 	public static IConstructor locateAnnotatedTree(IConstructor tree, String label, int offset) {
 		ISourceLocation l = TreeAdapter.getLocation(tree);
 
 		if (l == null) {
 			throw new IllegalArgumentException(
 					"locate assumes position information on the tree");
-		}
-
-		if (TreeAdapter.isLexical(tree)) {
-			if (l.getOffset() <= offset
-					&& offset < l.getOffset() + l.getLength()) {
-				if (tree.hasAnnotation(label)) {
-					return tree;
-				}
-				
-				// we are in position, but no annotation, so zoom out
-			}
-
-			// we're at a leaf, but not in position (so zoom out)
-			return null;
 		}
 
 		if (TreeAdapter.isAmb(tree)) {
@@ -302,7 +291,7 @@ public class TreeAdapter {
 			return null;
 		}
 
-		if (TreeAdapter.isAppl(tree)) {
+		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
 			IList children = TreeAdapter.getASTArgs(tree);
 
 			for (IValue child : children) {
@@ -322,15 +311,12 @@ public class TreeAdapter {
 					}
 				}
 			}
-
-			if (l.getOffset() <= offset
-					&& l.getOffset() + l.getLength() >= offset) {
-				if (tree.hasAnnotation(label)) {
-					return tree;
-				}
-				
-				// in scope, but no annotation, so zoom out
-				return null;
+		}
+		
+		if (l.getOffset() <= offset
+				&& l.getOffset() + l.getLength() >= offset) {
+			if (tree.hasAnnotation(label)) {
+				return tree;
 			}
 		}
 
