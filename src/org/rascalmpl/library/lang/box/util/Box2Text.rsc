@@ -59,7 +59,7 @@ public text box2latex(Box b) {
 
 @doc{Converts boxes into html}       
 public text box2html(Box b) {
-    println("Start box2html");
+    //println("Start box2html");
     text q = [];
     if (box2textmap[b]?) q = box2textmap[b];
     else {
@@ -67,7 +67,7 @@ public text box2html(Box b) {
         box2textmap+=(b:q);
         }
     text t = readFileLines(|std:///lang/box/util/Start.html|)+text2html(q)+readFileLines(|std:///lang/box/util/End.html|);    
-    println("End box2html");
+    //println("End box2html");
     return t;
     }
 
@@ -508,13 +508,13 @@ public void main(Box b) {
 
 
 public text box2data(Box b) {
-    println("BEGIN box2data");
+    //println("BEGIN box2data");
     // println(b);
     b = removeHV(b);
     b = removeHOV(b);
     text t = O(b, V([]), oDefault, maxWidth);
     // println(t);
-    println("END box2data");
+    //println("END box2data");
     return t;
     }
     
