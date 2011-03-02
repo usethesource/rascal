@@ -3,6 +3,7 @@ package org.rascalmpl.parser.gtd.result;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -291,10 +292,11 @@ public class ListContainerNode extends AbstractContainerNode{
 			
 			int nrOfAmbSubLists = ambSublist.size();
 			if(nrOfAmbSubLists == 1){ // Filtered and no longer ambiguous; flatten it.
-				int nrOfChildren = lastAlternativeSubList.arity();
+				IList childrenList = (IList) lastAlternativeSubList.get(1);
+				int nrOfChildren = childrenList.length();
 				IConstructor[] children = new IConstructor[nrOfChildren];
 				for(int i = nrOfChildren - 1; i >= 0; --i){
-					children[i] = (IConstructor) lastAlternativeSubList.get(i);
+					children[i] = (IConstructor) childrenList.get(i);
 				}
 				
 				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
