@@ -4,7 +4,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -32,7 +31,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class MakeBox {
 
 	private final String varName = "boxData";
-	private final String moduleName = "moduleName";
 	private final ASTBuilder AB = new ASTBuilder();
 	
 	private final IValueFactory values;
@@ -99,7 +97,7 @@ public class MakeBox {
 	}
 
 	private IValue launchRascalProgram(String resultName, boolean richText) {
-		execute("import box::Box2Text;");
+		execute("import lang::box::util::Box2Text;");
 		try {
 			IValue v = new PBFReader().read(
 					ValueFactoryFactory.getValueFactory(), ts, adt, data.get());
@@ -122,7 +120,7 @@ public class MakeBox {
 	}
 
 	private IValue launchRascalProgram(String cmd, URI src, URI dest) {
-		execute("import box::Box2Text;");
+		execute("import lang::box::util::Box2Text;");
 		try {
 			IValue d = new PBFReader().read(values, ts, adt, data.get());
 			store(d, "d");
@@ -142,7 +140,7 @@ public class MakeBox {
 
 	private IValue launchConcreteProgram(String cmd, URI src, URI dest,
 			String ext) {
-		execute("import box::" + ext + "::Default;");
+		execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(src), w = values
 				.sourceLocation(dest);
 		store(v, "v");
@@ -154,7 +152,7 @@ public class MakeBox {
 
 	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
 		// System.err.println("Start launch concrete"+uri);
-		execute("import box::" + ext + "::Default;");
+		execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(uri);
 		store(v, "v");
 		execute("c=" + cmd + "(v);");
@@ -162,19 +160,7 @@ public class MakeBox {
 		return r;
 	}
 
-	private IValue launchTemplateProgram(URI uri, String s) {
-		final String resultName = "c";
-		execute("import box::" + s + ";");
-		ISourceLocation v = values.sourceLocation(uri);
-		store(v, varName);
-		String name = new File(uri.getPath()).getName();
-		name = name.substring(0, name.lastIndexOf('.'));
-		IString w = values.string(name);
-		store(w, moduleName);
-		execute(resultName + "=toStr(" + varName + "," + moduleName + ");");
-		IValue r = fetch(resultName);
-		return r;
-	}
+	
 
 	public IValue makeBox(ISourceLocation loc,
 			org.rascalmpl.interpreter.IEvaluatorContext c) {
@@ -198,6 +184,21 @@ public class MakeBox {
 		return null;
 	}
 
+	/*
+	private IValue launchTemplateProgram(URI uri, String s) {
+		final String resultName = "c";
+		execute("import box::" + s + ";");
+		ISourceLocation v = values.sourceLocation(uri);
+		store(v, varName);
+		String name = new File(uri.getPath()).getName();
+		name = name.substring(0, name.lastIndexOf('.'));
+		IString w = values.string(name);
+		store(w, moduleName);
+		execute(resultName + "=toStr(" + varName + "," + moduleName + ");");
+		IValue r = fetch(resultName);
+		return r;
+	}
+	
 	public IValue toSrc(URI uri) {
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
@@ -205,6 +206,7 @@ public class MakeBox {
 		s = s.substring(0, 1).toUpperCase() + s.substring(1);
 		return launchTemplateProgram(uri, s);
 	}
+	*/
 
 	public String text2String(IValue v) {
 		IList rules = (IList) v;
