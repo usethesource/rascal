@@ -682,6 +682,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		for (String mod : onHeap) {
 			if (!heap.existsModule(mod)) {
+				stderr.print("Reloading module " + mod);
 				reloadModule(mod, errorLocation);
 			}
 		}
@@ -949,6 +950,38 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return this.parseModule(data, location, env);
 	}
 
+	public Module preParseModule(URI location, ISourceLocation cause) {
+		char[] data;
+
+		InputStream inputStream = null;
+		try {
+			inputStream = this.resolverRegistry.getInputStream(location);
+			data = this.readModule(inputStream);
+		} catch (IOException e) {
+			throw new ModuleLoadError(location.toString(), e.getMessage(), cause);
+		} 
+		finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					throw new ModuleLoadError(location.toString(), e.getMessage(), cause);
+				}
+			}
+		}
+
+		URI resolved = this.rascalPathResolver.resolve(location);
+		if (resolved != null) {
+			location = resolved;
+		}
+		
+		this.__setInterrupt(false);
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+
+		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
+		return builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+	}
+	
 	public IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
 		this.__setInterrupt(false);
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
@@ -957,19 +990,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 
 		// take care of imports and declare syntax
-		Result<IValue> name = preModule.interpret(this);
+		String name = preModule.declareSyntax(this, true);
 
 		if (env == null) {
-			env = this.__getHeap().getModule(((IString) name.getValue()).getValue());
+			env = this.__getHeap().getModule(name);
+			env.setBootstrap(needBootstrapParser(preModule));
 		}
 
 		ISet prods = env.getProductions();
-		if (prods.isEmpty() || !containsBackTick(data)) {
+		if (this.needBootstrapParser(preModule)) {
+			return new MetaRascalRascal().parse(Parser.START_MODULE, location, data, actionExecutor);
+		}
+		else if (prods.isEmpty() || !containsBackTick(data)) {
 			return this.__getParser().parseModule(location, data, actionExecutor);
 		}
-
-		IGTD mp = this.needBootstrapParser(preModule) ? new MetaRascalRascal() : this.getRascalParser(env, location);
-		return mp.parse(Parser.START_MODULE, location, data, actionExecutor);
+		else {
+			return this.getRascalParser(env, location).parse(Parser.START_MODULE, location, data, actionExecutor);
+		}
 	}
 
 	public static boolean containsBackTick(char[] data) {
@@ -1037,6 +1074,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
+
+//				env.setInitialized(true);
+				if (!env.getSyntaxDefined()) {
+					module.declareSyntax(this, true);
+				}
 				module.interpret(this);
 				return module;
 			}

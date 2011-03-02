@@ -50,6 +50,7 @@ public class ModuleEnvironment extends Environment {
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
 	protected List<Test> tests;
 	private boolean initialized;
+	private boolean syntaxDefined;
 	private boolean bootstrap;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -65,6 +66,7 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.initialized = false;
 		this.bootstrap = false;
+		this.syntaxDefined = false;
 	}
 	
 	public void reset() {
@@ -76,12 +78,21 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
+		this.syntaxDefined = false;
 		this.bootstrap = false;
 	}
 	
 	@Override
 	public GlobalEnvironment getHeap() {
 		return heap;
+	}
+	
+	public void setSyntaxDefined(boolean syntaxDefined) {
+		this.syntaxDefined = syntaxDefined;
+	}
+	
+	public boolean getSyntaxDefined() {
+		return syntaxDefined;
 	}
 	
 	@Override

@@ -62,27 +62,6 @@ public class TypeDeclarationEvaluator {
 		declareConstructors(constructorDecls);
 	}
 	
-	public void evaluateSyntaxDefinitions(List<Import> imports,
-			Environment env) {
-		for (Import i : imports) {
-			if (i.isSyntax()) {
-				// TODO: declare all the embedded regular symbols as well
-				declareSyntaxType(i.getSyntax().getDefined(), env);
-			}
-		}
-	}
-
-	public void declareSyntaxType(Sym type, Environment env) {
-		IValueFactory vf = eval.getValueFactory();
-		
-		if (type.isNonterminal()) {
-			String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-		
-			env.concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
-		}
-		// do nothing
-	}
-
 	private void declareConstructors(Set<Data> constructorDecls) {
 		for (Data data : constructorDecls) {
 			declareConstructor(data, env);
