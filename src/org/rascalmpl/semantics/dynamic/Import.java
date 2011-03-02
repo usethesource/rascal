@@ -1,13 +1,19 @@
 package org.rascalmpl.semantics.dynamic;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.ImportedModule;
+import org.rascalmpl.ast.Nonterminal;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.uptr.Factory;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
 
@@ -18,11 +24,34 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			String name = eval.getUnescapedModuleName(this);
 
+			GlobalEnvironment heap = eval.__getHeap();
+			if (!heap.existsModule(name)) {
+				// deal with a fresh module that needs initialization
+				heap.addModule(new ModuleEnvironment(name, heap));
+			}
+			org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
+			eval.addImportToCurrentModule(this, name);
+			if (withImports) {
+				Environment old = eval.getCurrentEnvt();
+				try {
+					eval.setCurrentEnvt(heap.getModule(name));
+					mod.declareSyntax(eval, false);
+				}
+				finally {
+					eval.setCurrentEnvt(old);
+				}
+			}
+
+			return null;
+		}
+		
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
 			// TODO support for full complexity of import declarations
 			String name = __eval.getUnescapedModuleName(this);
-
 			GlobalEnvironment heap = __eval.__getHeap();
 			if (!heap.existsModule(name)) {
 				// deal with a fresh module that needs initialization
@@ -37,6 +66,9 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			} else {
 				// otherwise simply add the current imported name to the imports
 				// of the current module
+				if (!heap.getModule(name).isInitialized()) {
+					__eval.evalRascalModule(this, name);
+				}
 				__eval.addImportToCurrentModule(this, name);
 			}
 
@@ -53,14 +85,24 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			__eval.__getTypeDeclarator().declareSyntaxType(
-					this.getSyntax().getDefined(), __eval.getCurrentEnvt());
+		public String declareSyntax(Evaluator __eval, boolean withImports) {
+			Sym type = this.getSyntax().getDefined();
+			IValueFactory vf = __eval.getValueFactory();
+			
+			if (type.isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+				__eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
+			}
+			
 			__eval.getCurrentEnvt().declareProduction(this);
-			__eval.loadParseTreeModule(this);
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
+			return null;
+		}
+		
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			eval.loadParseTreeModule(this);
+			declareSyntax(eval, false);
+			return nothing();
 		}
 
 	}

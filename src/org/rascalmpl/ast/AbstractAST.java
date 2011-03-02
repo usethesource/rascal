@@ -14,6 +14,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
@@ -42,6 +43,10 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
 		return ResultFactory.makeResult(declaredType, value, ctx);
+	}
+	
+	public static Result<IValue> nothing() {
+		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
 	
 	public void _setType(Type nonterminalType) {
@@ -115,6 +120,10 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	public Result<IValue> assignment(AssignableEvaluator eval) {
+		throw new NotYetImplemented(this);
+	}
+	
+	public String declareSyntax(Evaluator eval, boolean withImports) {
 		throw new NotYetImplemented(this);
 	}
 
