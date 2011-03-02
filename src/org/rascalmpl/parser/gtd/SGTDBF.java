@@ -880,7 +880,7 @@ public abstract class SGTDBF implements IGTD{
 					int column = positionStore.getColumn(filteringTracker.offset, line);
 					int endLine = positionStore.findLine(filteringTracker.endOffset);
 					int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, filteringTracker.offset, (filteringTracker.endOffset - filteringTracker.offset), line + 1, endLine + 1, column, endColumn));
+					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, filteringTracker.offset - 1, (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
 				}
 			}
 		}
@@ -889,7 +889,7 @@ public abstract class SGTDBF implements IGTD{
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
-		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column));
+		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
