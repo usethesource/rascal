@@ -291,12 +291,12 @@ public abstract class SGTDBF implements IGTD{
 			propagated.add(node.getId(), touched);
 		}
 		
-		if(next.isEndNode()){
-			propagateReductions(node, nodeResult, next, nextResult, potentialNewEdges, touched);
-		}
-		
 		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult, potentialNewEdges, touched);
 		if(nrOfAddedEdges == 0) return;
+		
+		if(next.isEndNode()){
+			propagateReductions(node, nodeResult, next, nextResult, nrOfAddedEdges, touched);
+		}
 		
 		if(next.hasNext()){
 			// Proceed with the tail of the production.
@@ -342,11 +342,11 @@ public abstract class SGTDBF implements IGTD{
 					if(sharedNext == null){
 						AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
 						if(nextNextAltAlternative.isEmptyLeafNode()){
-							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), potentialNewEdges, nextEdgesMap, nextPrefixesMap);
+							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
 						}else{
 							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
 							if(nextAltResultStore != null){
-								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, potentialNewEdges, nextEdgesMap, nextPrefixesMap);
+								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
 							}else{
 								nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
 							}
@@ -481,9 +481,8 @@ public abstract class SGTDBF implements IGTD{
 							resultStore.addAlternative(production, resultLink);
 							
 							stacksWithNonTerminalsToReduce.push(edge, resultStore);
-							
-							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
+						firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 					}
 				}else{
 					stacksWithNonTerminalsToReduce.push(edge, resultStore);
