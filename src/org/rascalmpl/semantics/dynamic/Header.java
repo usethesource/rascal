@@ -21,6 +21,16 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 
 		@Override
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			if (withImports) {
+				for (Import i : getImports()) {
+					i.declareSyntax(eval, withImports);
+				}
+			}
+			return null;
+		}
+		
+		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			visitImports(__eval, this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -42,6 +52,16 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
+		@Override
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			if (withImports) {
+				for (Import i : getImports()) {
+					i.declareSyntax(eval, withImports);
+				}
+			}
+			return null;
+		}
+		
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			org.rascalmpl.semantics.dynamic.Header.Default.visitImports(__eval, this.getImports());

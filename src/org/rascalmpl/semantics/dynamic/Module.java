@@ -12,6 +12,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Module extends org.rascalmpl.ast.Module {
 
@@ -21,6 +22,39 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 			super(__param1, __param2, __param3);
 		}
 
+		@Override
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			String name = eval.getModuleName(this);
+
+			GlobalEnvironment heap = eval.__getHeap();
+			ModuleEnvironment env = heap.getModule(name);
+
+			if (env == null) {
+				env = new ModuleEnvironment(name, heap);
+				heap.addModule(env);
+			}
+
+			env.setBootstrap(eval.needBootstrapParser(this));
+			if(!env.getSyntaxDefined()) {
+				Environment oldEnv = eval.getCurrentEnvt();
+				eval.setCurrentEnvt(env); 
+
+				env.setSyntaxDefined(true);
+				try {
+					this.getHeader().declareSyntax(eval, withImports);
+				}
+				catch (RuntimeException e) {
+					env.setSyntaxDefined(false);
+					throw e;
+				}
+				finally {
+					eval.setCurrentEnvt(oldEnv);
+				}
+			}
+			
+			return Names.fullName(getHeader().getName());
+		}
+		
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -35,8 +69,9 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 			}
 
 			env.setBootstrap(__eval.needBootstrapParser(this));
-
+			
 			if (!env.isInitialized()) {
+				env.setInitialized(true);
 				Environment oldEnv = __eval.getCurrentEnvt();
 				__eval.setCurrentEnvt(env); // such that declarations end up in
 				// the module scope
@@ -44,20 +79,18 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 					this.getHeader().interpret(__eval);
 
 					List<Toplevel> decls = this.getBody().getToplevels();
-					__eval.__getTypeDeclarator().evaluateSyntaxDefinitions(
-							this.getHeader().getImports(),
-							__eval.getCurrentEnvt());
 					__eval.__getTypeDeclarator().evaluateDeclarations(decls,
 							__eval.getCurrentEnvt());
-
+					
 					for (Toplevel l : decls) {
 						l.interpret(__eval);
 					}
-
-					// only after everything was successful mark the module
-					// initialized
-					env.setInitialized();
-				} finally {
+				}
+				catch (RuntimeException e) {
+					env.setInitialized(false);
+					throw e;
+				}
+				finally {
 					__eval.setCurrentEnvt(oldEnv);
 				}
 			}

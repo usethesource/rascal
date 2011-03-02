@@ -15,7 +15,7 @@ import Set;
 import Map;
 import IO;
 import Exception;
-
+  
 private data Item = item(Production production, int index);
 
 // TODO: replace this complex data structure with several simple ones
@@ -252,8 +252,8 @@ public class <name> extends <super> implements IParserInfo {
 		<for(Production alt <- alts){
 		list[Item] lhses = alts[alt];>
 		public final static AbstractStackNode[] <value2id(alt)> = new AbstractStackNode[<size(lhses)>];
-		static{<for (Item i <- lhses) {>
-			<value2id(i.production)>[<((i.index != -1) ? i.index : 0)>] = <items[i].new>;<}>
+		static{<for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
+			<pi>[<ii>] = <items[i].new>;<}>
 		}<}>
 	}<}>
 	
