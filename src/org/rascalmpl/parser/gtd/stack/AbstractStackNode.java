@@ -11,7 +11,6 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public abstract class AbstractStackNode{
 	public final static int START_SYMBOL_ID = -1;
-	protected final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
 	
 	protected AbstractStackNode[] production;
 	protected ArrayList<AbstractStackNode[]> alternateProductions;

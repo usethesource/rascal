@@ -26,6 +26,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.IListStackNode;
 import org.rascalmpl.parser.gtd.stack.IMatchableStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -571,8 +572,8 @@ public abstract class SGTDBF implements IGTD{
 			int startLocation = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
 			
-			//if(touched.contains(startLocation)) continue;
-			//touched.add(startLocation);
+			if(touched.contains(startLocation)) continue;
+			touched.add(startLocation);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 			
@@ -628,8 +629,8 @@ public abstract class SGTDBF implements IGTD{
 			int startLocation = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
 
-			//if(touched.contains(startLocation)) continue;
-			//touched.add(startLocation);
+			if(touched.contains(startLocation)) continue;
+			touched.add(startLocation);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 			
@@ -720,13 +721,13 @@ public abstract class SGTDBF implements IGTD{
 		if(node.isEndNode()){
 			if(!result.isRejected()){
 				if(!node.isReject()){
-					if(!result.isEmpty()){
+					if(!result.isEmpty() || node.getId() == IListStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
 						updateEdges(node, result);
 					}else{
 						updateNullableEdges(node, result);
 					}
 				}else{
-					if(!result.isEmpty()){
+					if(!result.isEmpty() || node.getId() == IListStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
 						updateRejects(node);
 					}else{
 						updateNullableRejects(node);
