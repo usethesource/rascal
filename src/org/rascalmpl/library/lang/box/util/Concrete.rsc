@@ -456,31 +456,7 @@ Box walkThroughSymbols(list[Symbol] y, list[Tree] z,bool hv,bool doIndent,int sp
 
 map[Tree,Box] aux=() ;
 
-public Box toBox(Tree a) {
-     Box q=NULL();
-     if (aux[a]?) q=aux[a]; 
-     else {
-          q = evPt(a);
-          aux+=(a:q);
-          }
-      return q;
-      }
 
-public text toLatex(Tree a) {
-     return box2latex(toBox(a));
-     }
-     
-public text toHtml(Tree a) {
-     return box2html(toBox(a));
-     }
-
-public text toText(Tree a) {
-     return box2text(toBox(a));
-     }
-
-public text toRichText(Tree a) {
-     return box2data(toBox(a));
-     }
      
 public void concrete(Tree a) {
      Box out=evPt(a);
@@ -497,27 +473,8 @@ public list[Box] getArgs(Tree g) {
      if (isEmpty(tl)) return [];
      list[Box] r=[evPt(t)|Tree t<-tl];
      r = [b|Box b<-r, COMM(_)!:=b || (COMM(L(str s)):=b && (size(s)>0))];
-     /*
-     list[Box] aux = [b|Box b<-r, COMM(L(str s)):=b && (size(s)>0)];
-     println("getArgs:<aux>");
-     */
      return r; 
      }
-/*    
-public list[Box] getArgsSep(Tree g) {
-     list[Box] r = getArgs(g);
-     r = [b|Box b<-r, COMM(_)!:=b]; 
-     if (isEmpty(r)) return r;
-     Box first = r[0];
-     r = delete(r, 0);
-     if (isEmpty(r)) return [first];
-     list[Box] q =[first];
-     for (int i<-[0,2..size(r)-1]) {
-          q += H(1, [r[i], r[i+1]]);
-          }
-     return q;
-     } 
- */ 
  
  public list[Box] getArgsSep(Tree g) {
      list[Box] r = getArgs(g);
@@ -565,15 +522,10 @@ public Box V(int space,list[Box] bs) {
      if (space>=0) r@vs=space;
      return r;
      }
+          
+public Box treeToBox(Tree a) {
+      return evPt(a);
+      }
 
-public void writeData(loc asf,text r,str suffix) {
-     str s=baseName(asf.path);
-     loc g=|file://<s><suffix>|;
-     println("Written <suffix> content in file:\"<g>\"");
-     writeFile(g);
-     for (str q<-r) appendToFile(g,"<q>\n");
-     }
-     
-public void toExport(loc src, loc dest, text r,str suffix) {
-     writeData(src, dest, r, suffix);
-     }
+
+

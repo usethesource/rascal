@@ -119,16 +119,19 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchRascalProgram(String cmd, URI src, URI dest) {
+	private IValue launchRascalProgramExport(String cmd, URI src, URI dest) {
 		execute("import lang::box::util::Box2Text;");
 		try {
 			IValue d = new PBFReader().read(values, ts, adt, data.get());
 			store(d, "d");
 			ISourceLocation v = values.sourceLocation(src), w = values
 					.sourceLocation(dest);
+			IString x = values.string(".rsc");
 			store(v, "v");
 			store(w, "w");
-			execute("c=" + cmd + "(d, v, w);");
+			store(x, "x");
+			execute("c=" + cmd + "(d);");
+			execute("toExport(v, w, c, x)");
 			IValue r = fetch("c");
 			data.close();
 			return r;
@@ -138,24 +141,28 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchConcreteProgram(String cmd, URI src, URI dest,
-			String ext) {
+	private IValue launchConcreteProgramExport(URI src, URI dest, String ext, String cmd, String ext2) {
+		execute("import lang::box::util::Box2Text;");
 		execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(src), w = values
 				.sourceLocation(dest);
+		IString x = values.string(ext2);
 		store(v, "v");
 		store(w, "w");
-		execute("c=" + cmd + "(v, w);");
+		store(x, "x");
+		execute("c="+cmd+"(toBox(v));");
+		execute("toExport(v, w, c, x)");
 		IValue r = fetch("c");
 		return r;
 	}
 
-	private IValue launchConcreteProgram(String cmd, URI uri, String ext) {
+	private IValue launchConcreteProgram(URI uri, String ext) {
 		// System.err.println("Start launch concrete"+uri);
+		execute("import lang::box::util::Box2Text;");
 		execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(uri);
 		store(v, "v");
-		execute("c=" + cmd + "(v);");
+		execute("c=box2data(toBox(v));");
 		IValue r = fetch("c");
 		return r;
 	}
@@ -184,29 +191,6 @@ public class MakeBox {
 		return null;
 	}
 
-	/*
-	private IValue launchTemplateProgram(URI uri, String s) {
-		final String resultName = "c";
-		execute("import box::" + s + ";");
-		ISourceLocation v = values.sourceLocation(uri);
-		store(v, varName);
-		String name = new File(uri.getPath()).getName();
-		name = name.substring(0, name.lastIndexOf('.'));
-		IString w = values.string(name);
-		store(w, moduleName);
-		execute(resultName + "=toStr(" + varName + "," + moduleName + ");");
-		IValue r = fetch(resultName);
-		return r;
-	}
-	
-	public IValue toSrc(URI uri) {
-		start();
-		int tail = uri.getPath().lastIndexOf('.');
-		String s = uri.getPath().substring(tail + 1);
-		s = s.substring(0, 1).toUpperCase() + s.substring(1);
-		return launchTemplateProgram(uri, s);
-	}
-	*/
 
 	public String text2String(IValue v) {
 		IList rules = (IList) v;
@@ -219,26 +203,29 @@ public class MakeBox {
 	}
 
 	public String toPrint(String cmd, URI uri) {
+		return "";
+		/*
 		start();
 		int tail = uri.getPath().lastIndexOf('.');
 		String ext = uri.getPath().substring(tail + 1);
 		return text2String(launchConcreteProgram(cmd, uri, ext));
+		*/
 	}
 
-	public String toPrint(String cmd, URI uri1, URI uri2) {
+	public String toExport(String cmd, String ext2, URI uri1, URI uri2) {
 		start();
 		int tail = uri1.getPath().lastIndexOf('.');
-		String ext = uri1.getPath().substring(tail + 1);
-		return text2String(launchConcreteProgram(cmd, uri1, uri2, ext));
+		String ext1 = uri1.getPath().substring(tail + 1);
+		return text2String(launchConcreteProgramExport(uri1, uri2, ext1, cmd, ext2));
 	}
 
-	public IValue rascalToPrint(String cmd, URI src, URI dest) {
+	public IValue rascalToExport(String cmd, URI src, URI dest) {
 		start();
 		try {
 			IValue box = computeBox(src);
 			data = new Data();
 			new PBFWriter().write(box, data, ts);
-			return launchRascalProgram(cmd, src, dest);
+			return launchRascalProgramExport(cmd, src, dest);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -247,7 +234,7 @@ public class MakeBox {
 
 	public String toRichText(URI uri, String ext) {
 		start();
-		return text2String(launchConcreteProgram("toRichText", uri, ext));
+		return text2String(launchConcreteProgram(uri, ext));
 	}
 
 	public String toRichText(URI uri) {
