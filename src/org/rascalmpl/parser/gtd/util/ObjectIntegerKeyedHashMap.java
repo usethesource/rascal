@@ -148,6 +148,20 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		return null;
 	}
 	
+	public boolean contains(K key, int key2){
+		int hash = key.hashCode() ^ (key2 << 5);
+		int position = hash & hashMask;
+		
+		Entry<K, V> entry = entries[position];
+		while(entry != null){
+			if(hash == entry.hash && key2 == entry.key2 && key.equals(entry.key)) return true;
+			
+			entry = entry.next;
+		}
+		
+		return false;
+	}
+	
 	public void clear(){
 		entries = (Entry<K, V>[]) new Entry[entries.length];
 		

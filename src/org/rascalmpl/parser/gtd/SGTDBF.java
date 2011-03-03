@@ -36,6 +36,7 @@ import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -270,19 +271,23 @@ public abstract class SGTDBF implements IGTD{
 			Link prefix = constructPrefixesFor(i, prefixes, nodeResultStore);
 			edgePrefixes.add(prefix);
 			
-			ArrayList<String> firstTimeReductions = new ArrayList<String>();
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashSet<String> firstTimeRegistration = new ObjectIntegerKeyedHashSet<String>();
 			for(int j = edgesPart.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgesPart.get(j);
-				String edgeName = edge.getName();
+				String nodeName = edge.getName();
 				int resultStoreId = getResultStoreId(edge.getId());
 				
-				if(!firstTimeReductions.contains(edgeName)){
+				if(!firstTimeReductions.contains(nodeName, resultStoreId)){
+					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
+					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
+					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
-						AbstractContainerNode resultStore = levelResultStoreMap.get(edgeName, resultStoreId);
+						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore == null){ // If there are no previous reductions to this level, handle this.
 							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-							levelResultStoreMap.putUnsafe(edge.getName(), getResultStoreId(edge.getId()), resultStore);
-							firstTimeReductions.add(edgeName);
+							levelResultStoreMap.putUnsafe(nodeName, getResultStoreId(edge.getId()), resultStore);
+							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
 						resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
 					}
@@ -471,6 +476,7 @@ public abstract class SGTDBF implements IGTD{
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashSet<String> firstTimeRegistration = new ObjectIntegerKeyedHashSet<String>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
@@ -478,6 +484,9 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
+					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
+					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
+					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
 						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore != null){
@@ -515,6 +524,7 @@ public abstract class SGTDBF implements IGTD{
 			IntegerList filteredParents = getFilteredParents(node.getId());
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashSet<String> firstTimeRegistration = new ObjectIntegerKeyedHashSet<String>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
@@ -522,6 +532,9 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
+					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
+					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
+					
 					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
@@ -558,8 +571,8 @@ public abstract class SGTDBF implements IGTD{
 			int startLocation = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
 			
-			if(touched.contains(startLocation)) continue;
-			touched.add(startLocation);
+			//if(touched.contains(startLocation)) continue;
+			//touched.add(startLocation);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 			
@@ -571,6 +584,7 @@ public abstract class SGTDBF implements IGTD{
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashSet<String> firstTimeRegistration = new ObjectIntegerKeyedHashSet<String>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
@@ -578,6 +592,9 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
+					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
+					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
+					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
 						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore != null){
@@ -611,8 +628,8 @@ public abstract class SGTDBF implements IGTD{
 			int startLocation = edgesMap.getKey(i);
 			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
 
-			if(touched.contains(startLocation)) continue;
-			touched.add(startLocation);
+			//if(touched.contains(startLocation)) continue;
+			//touched.add(startLocation);
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 			
@@ -624,6 +641,7 @@ public abstract class SGTDBF implements IGTD{
 			IntegerList filteredParents = getFilteredParents(node.getId());
 			
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashSet<String> firstTimeRegistration = new ObjectIntegerKeyedHashSet<String>();
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
@@ -631,6 +649,9 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
+					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
+					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
+					
 					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
@@ -699,17 +720,17 @@ public abstract class SGTDBF implements IGTD{
 		if(node.isEndNode()){
 			if(!result.isRejected()){
 				if(!node.isReject()){
-					//if(!result.isEmpty()){
+					if(!result.isEmpty()){
 						updateEdges(node, result);
-					//}else{
-					//	updateNullableEdges(node, result);
-					//}
+					}else{
+						updateNullableEdges(node, result);
+					}
 				}else{
-					//if(!result.isEmpty()){
+					if(!result.isEmpty()){
 						updateRejects(node);
-					//}else{
-					//	updateNullableRejects(node);
-					//}
+					}else{
+						updateNullableRejects(node);
+					}
 				}
 			}
 		}
