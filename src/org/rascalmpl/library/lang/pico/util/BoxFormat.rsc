@@ -40,56 +40,11 @@ void setUserRules() {
     setCompact(isCompact);
     setKeyword(isKeyword);
     } 
-    
 
+/* --- Interface -- */  
      
-public text toText(loc src, loc dest){
-     PROGRAM a = parse(#PROGRAM, src);
-     setUserRules();
-     text r = toText(a);
-     toExport(src, dest, r, ".txt");
-     return r;
-     }
-     
- public text toHtml(loc src, loc dest){
-     PROGRAM a = parse(#PROGRAM, src);
-     setUserRules();
-     text r = toHtml(a);
-     toExport(src, dest, r, ".html");
-     return r;
-     }  
-     
-public text toLatex(loc src, loc dest){
-     PROGRAM a = parse(#PROGRAM, src);
-     // rawPrintln(a);
-     setUserRules();
-     text r = toLatex(a);
-     toExport(src, dest, r, ".tex");
-     return r;
-     } 
-
-public text toRichText(loc asf){
-     PROGRAM a = parse(#PROGRAM, asf);
-     setUserRules();
-     text r = toRichText(a);
-     return r;
-     } 
-          
-public Box toBox(loc asf) {
-     Tree a = parse(#PROGRAM, asf);
-     setUserRules();
-     return toBox(a);
-     }  
-
-// Don't change this part 
-
-public Box extraRules(Tree q) {  
-   /*
-   for (Box(Tree t) userDefinedFilter<-userDefinedFilters) {
-           Box b = userDefinedFilter(q);
-           if (b!=NULL()) return b;
-           }
-     */
-    return NULL();
+public Box toBox(loc src) {
+    PROGRAM a = parse(#PROGRAM, src);
+    setUserRules();
+    return treeToBox(a);
     }
-    

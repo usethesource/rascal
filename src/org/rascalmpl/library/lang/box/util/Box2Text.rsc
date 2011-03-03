@@ -491,19 +491,7 @@ return innermost visit(b) {
       };
 }
 
-public void main(Box b) {
-  // str s = box2text(b, 0);
-  value t = toList(b);
-  boxView(t); 
-/*
-  for (str r<-t) {
-      if  (!isBlank(r)) {
-          println(r);
-         //  appendToFile(|file:///ufs/bertl/box/big.txt|, r);
-        }
-   } 
-*/
-}
+
 
 
 
@@ -640,19 +628,25 @@ void tst() {
 } 
 
 public str baseName(str input) {
+     str s = input;
+     str find = "/";
      if (/^<pre:.*>\.<post:.*?>$/:=input) {
-          return "<pre>";
+          s = "<pre>";
+           if(/^<pre:.*><find><post:.*?>$/ := s) {	
+               s = post;
+               }
           }
-     return input;
+     return s;
      }
 
-public void writeData(loc asf,loc dest, text r,str suffix) {
-     str s=baseName(asf.path);
-     str find = "/";
-     if(/^<pre:.*><find><post:.*?>$/ := s) {	
-       loc g=|file://<dest.path><find><post><suffix>|;
-       println("Written <suffix> content in file:\"<g>\"");
-       writeFile(g);
-       for (str q<-r) appendToFile(g,"<q>\n");
-       }
+public void toExport(loc src,loc dest, text r,str suffix) {
+     str s=baseName(src.path);
+     loc g=|file://<dest.path>/<s><suffix>|;
+     println("Written <suffix> content in file:\"<g>\"");
+     writeFile(g);
+     for (str q<-r) appendToFile(g,"<q>\n");
      }
+ 
+ public void main(Box b) {
+  fprintln(b);
+  }    
