@@ -880,7 +880,7 @@ public abstract class SGTDBF implements IGTD{
 					int column = positionStore.getColumn(filteringTracker.offset, line);
 					int endLine = positionStore.findLine(filteringTracker.endOffset);
 					int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, filteringTracker.offset - 1, (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
+					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, Math.max(0, filteringTracker.offset - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
 				}
 			}
 		}
