@@ -189,5 +189,8 @@ anno str Tree@doc;
 @doc{provides a documentation string for certain locations}
 anno map[loc,str] Tree@docs;
 
-@doc{provides the target of a link}
+@doc{provides the target of a reference}
 anno loc Tree@link;
+
+@doc{provides multiple targets of a references}
+anno set[loc] Tree@links;
