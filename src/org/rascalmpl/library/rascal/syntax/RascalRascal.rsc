@@ -26,6 +26,7 @@ syntax Marker =
               # "syntax"
               # "start"
               # "layout"
+              # "extend"
               ;
 
 syntax Rest = Word*;

@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.eclipse.imp.pdb.facts.IValue;
 
-
 import org.rascalmpl.interpreter.BooleanEvaluator;
 
 import org.rascalmpl.interpreter.Evaluator;

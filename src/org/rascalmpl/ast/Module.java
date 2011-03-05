@@ -5,12 +5,11 @@ package org.rascalmpl.ast;
 import org.eclipse.imp.pdb.facts.INode;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.eclipse.imp.pdb.facts.IValue;
-
-import org.eclipse.imp.pdb.facts.type.Type;
 
 import org.rascalmpl.interpreter.BooleanEvaluator;
 
@@ -66,7 +65,7 @@ static public class Ambiguity extends Module {
   }
   
   @Override
-  public Type typeOf(Environment env) {
+  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
   
@@ -148,6 +147,14 @@ public Default(INode node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.
         return true;
      }
   	
+}
+
+
+
+
+
+public Result<IValue> interpretInCurrentEnv(Evaluator evaluator) {
+	throw new ImplementationError("implement this in subclasses");
 }
 
 
