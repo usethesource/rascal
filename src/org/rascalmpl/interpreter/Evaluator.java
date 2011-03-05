@@ -912,7 +912,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ((ModuleEnvironment) this.currentEnvt);
 	}
 
-	public String getUnescapedModuleName(Default x) {
+	public String getUnescapedModuleName(Import x) {
 		return org.rascalmpl.interpreter.utils.Names.fullName(x.getModule().getName());
 	}
 
@@ -1058,7 +1058,32 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public ASTBuilder getBuilder() {
 		return builder;
 	}
+	
+	public Module extendCurrentModule(AbstractAST x, String name) {
+		ModuleEnvironment env = this.getCurrentModuleEnvironment();
+		try {
+			Module module = this.loadModule(name, env);
 
+			if (module != null) {
+				if (!this.getModuleName(module).equals(name)) {
+					throw new ModuleNameMismatchError(this.getModuleName(module), name, x);
+				}
+				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
+				env.setInitialized(false);
+				module.interpretInCurrentEnv(this);
+				return module;
+			}
+		} catch (StaticError e) {
+			throw e;
+		} catch (Throw e) {
+			throw e;
+		} catch (IOException e) {
+			throw new ModuleLoadError(name, e.getMessage(), x);
+		}
+
+		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
+	}
+	
 	public Module evalRascalModule(AbstractAST x, String name) {
 		ModuleEnvironment env = this.__getHeap().getModule(name);
 		if (env == null) {

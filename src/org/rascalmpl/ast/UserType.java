@@ -10,8 +10,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.eclipse.imp.pdb.facts.IValue;
 
-import org.eclipse.imp.pdb.facts.type.Type;
-
 import org.rascalmpl.interpreter.BooleanEvaluator;
 
 import org.rascalmpl.interpreter.Evaluator;
@@ -66,7 +64,7 @@ static public class Ambiguity extends UserType {
   }
   
   @Override
-  public Type typeOf(Environment env) {
+  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
   

@@ -56,6 +56,41 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 		}
 		
 		@Override
+		public Result<IValue> interpretInCurrentEnv(Evaluator __eval) {
+			String name = __eval.getModuleName(this);
+			Environment env = __eval.getCurrentModuleEnvironment();
+
+			// ????
+			//env.setBootstrap(__eval.needBootstrapParser(this));
+			
+			Environment oldEnv = __eval.getCurrentEnvt();
+			__eval.setCurrentEnvt(env); // such that declarations end up in
+			// the module scope
+			try {
+				this.getHeader().interpret(__eval);
+
+				List<Toplevel> decls = this.getBody().getToplevels();
+				__eval.__getTypeDeclarator().evaluateDeclarations(decls,
+						__eval.getCurrentEnvt());
+
+				for (Toplevel l : decls) {
+					l.interpret(__eval);
+				}
+			}
+			catch (RuntimeException e) {
+				throw e;
+			}
+			finally {
+				__eval.setCurrentEnvt(oldEnv);
+			}
+
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
+					org.rascalmpl.interpreter.Evaluator.__getTf().stringType(),
+					__eval.__getVf().string(name), __eval);
+
+		}
+		
+		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			String name = __eval.getModuleName(this);

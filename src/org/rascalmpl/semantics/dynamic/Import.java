@@ -16,6 +16,33 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.uptr.Factory;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
+	
+	static public class Extend extends org.rascalmpl.ast.Import.Extend {
+
+		public Extend(INode node, ImportedModule module) {
+			super(node, module);
+		}
+		
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+			String name = __eval.getUnescapedModuleName(this);
+			__eval.extendCurrentModule(this, name);
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+		}
+		
+		
+		@Override
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			String name = eval.getUnescapedModuleName(this);
+
+			org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
+			if (withImports) {
+				mod.declareSyntax(eval, false);
+			}
+
+			return null;
+		}
+	}
 
 	static public class Default extends org.rascalmpl.ast.Import.Default {
 
