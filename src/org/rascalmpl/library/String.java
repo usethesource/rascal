@@ -56,6 +56,10 @@ public class String {
 	{
 	  return values.bool(s.getValue().endsWith(suffix.getValue()));
 	}
+	
+	public IString trim(IString s) {
+		return values.string(s.getValue().trim());
+	}
 
 	public IValue format(IString s, IString dir, IInteger n, IString pad)
 	//@doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
@@ -133,6 +137,9 @@ public class String {
 	}
 
 	public IValue substring(IString s, IInteger begin) {
+		if (s instanceof OriginValueFactory.TString) {
+			return ((OriginValueFactory.TString)s).substring(begin.intValue(), ((OriginValueFactory.TString)s).length());
+		}
 		try {
 			return values.string(s.getValue().substring(begin.intValue()));
 		} catch (IndexOutOfBoundsException e) {
@@ -141,6 +148,9 @@ public class String {
 	}
 	
 	public IValue substring(IString s, IInteger begin, IInteger end) {
+		if (s instanceof OriginValueFactory.TString) {
+			return ((OriginValueFactory.TString)s).substring(begin.intValue(), end.intValue());
+		}
 		try {
 			return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
 		} catch (IndexOutOfBoundsException e) {
@@ -225,6 +235,9 @@ public class String {
 	public IValue toUpperCase(IString s)
 	//@doc{toUpperCase -- convert all characters in string s to uppercase.}
 	{
+		if (s instanceof OriginValueFactory.TString) {
+			return ((OriginValueFactory.TString)s).toUpperCase();
+		}
 	  return values.string(s.getValue().toUpperCase());
 	}
 	
