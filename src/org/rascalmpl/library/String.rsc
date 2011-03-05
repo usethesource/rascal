@@ -18,6 +18,10 @@ public int java charAt(str s, int i) throws out_of_range(str msg);
 @javaClass{org.rascalmpl.library.String}
 public bool java endsWith(str s, str suffix);
 
+@doc{Returns string with leading and trailing whitespace removed.}
+@javaClass{org.rascalmpl.library.String}
+public str java trim(str s);
+
 @doc{Return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 @javaClass{org.rascalmpl.library.String}
 private str java format(str s, str dir, int n, str pad);
@@ -133,4 +137,4 @@ public str java toUpperCase(str s);
 public str java escape(str s, map[str,str] mapping);
 
 @javaClass{org.rascalmpl.library.String}
-public list[tuple[str string, Origin origin]] java origins(str s);
+public list[tuple[str string, node origin]] java origins(str s);
