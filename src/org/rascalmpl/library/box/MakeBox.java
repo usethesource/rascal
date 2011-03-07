@@ -32,7 +32,7 @@ public class MakeBox {
 
 	private final String varName = "boxData";
 	private final ASTBuilder AB = new ASTBuilder();
-	
+
 	private final IValueFactory values;
 
 	public MakeBox(IValueFactory values) {
@@ -119,14 +119,14 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchRascalProgramExport(String cmd, URI src, URI dest) {
+	private IValue launchRascalProgramExport(String cmd, URI src, URI dest, String ext2) {
 		execute("import lang::box::util::Box2Text;");
 		try {
 			IValue d = new PBFReader().read(values, ts, adt, data.get());
 			store(d, "d");
 			ISourceLocation v = values.sourceLocation(src), w = values
 					.sourceLocation(dest);
-			IString x = values.string(".rsc");
+			IString x = values.string(ext2);
 			store(v, "v");
 			store(w, "w");
 			store(x, "x");
@@ -141,16 +141,20 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchConcreteProgramExport(URI src, URI dest, String ext, String cmd, String ext2) {
+	private IValue launchConcreteProgramExport(URI src, URI dest, String ext,
+			String cmd, String ext2) {
 		execute("import lang::box::util::Box2Text;");
-		execute("import lang::" + ext + "::util::BoxFormat;");
+		if (ext.equals("oberon0"))
+			execute("import box::" + ext + "::Default;");
+		else
+			execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(src), w = values
 				.sourceLocation(dest);
 		IString x = values.string(ext2);
 		store(v, "v");
 		store(w, "w");
 		store(x, "x");
-		execute("c="+cmd+"(toBox(v));");
+		execute("c=" + cmd + "(toBox(v));");
 		execute("toExport(v, w, c, x)");
 		IValue r = fetch("c");
 		return r;
@@ -159,15 +163,16 @@ public class MakeBox {
 	private IValue launchConcreteProgram(URI uri, String ext) {
 		// System.err.println("Start launch concrete"+uri);
 		execute("import lang::box::util::Box2Text;");
-		execute("import lang::" + ext + "::util::BoxFormat;");
+		if (ext.equals("oberon0"))
+			execute("import box::" + ext + "::Default;");
+		else
+			execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(uri);
 		store(v, "v");
 		execute("c=box2data(toBox(v));");
 		IValue r = fetch("c");
 		return r;
 	}
-
-	
 
 	public IValue makeBox(ISourceLocation loc,
 			org.rascalmpl.interpreter.IEvaluatorContext c) {
@@ -191,7 +196,6 @@ public class MakeBox {
 		return null;
 	}
 
-
 	public String text2String(IValue v) {
 		IList rules = (IList) v;
 		StringBuffer b = new StringBuffer();
@@ -205,27 +209,27 @@ public class MakeBox {
 	public String toPrint(String cmd, URI uri) {
 		return "";
 		/*
-		start();
-		int tail = uri.getPath().lastIndexOf('.');
-		String ext = uri.getPath().substring(tail + 1);
-		return text2String(launchConcreteProgram(cmd, uri, ext));
-		*/
+		 * start(); int tail = uri.getPath().lastIndexOf('.'); String ext =
+		 * uri.getPath().substring(tail + 1); return
+		 * text2String(launchConcreteProgram(cmd, uri, ext));
+		 */
 	}
 
 	public String toExport(String cmd, String ext2, URI uri1, URI uri2) {
 		start();
 		int tail = uri1.getPath().lastIndexOf('.');
 		String ext1 = uri1.getPath().substring(tail + 1);
-		return text2String(launchConcreteProgramExport(uri1, uri2, ext1, cmd, ext2));
+		return text2String(launchConcreteProgramExport(uri1, uri2, ext1, cmd,
+				ext2));
 	}
 
-	public IValue rascalToExport(String cmd, URI src, URI dest) {
+	public IValue rascalToExport(String cmd, String ext2, URI src, URI dest) {
 		start();
 		try {
 			IValue box = computeBox(src);
 			data = new Data();
 			new PBFWriter().write(box, data, ts);
-			return launchRascalProgramExport(cmd, src, dest);
+			return launchRascalProgramExport(cmd, src, dest, ext2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -237,7 +241,7 @@ public class MakeBox {
 		return text2String(launchConcreteProgram(uri, ext));
 	}
 
-	public String toRichText(URI uri) {
+	public String toRichTextRascal(URI uri) {
 		start();
 		try {
 			IValue box = computeBox(uri);
