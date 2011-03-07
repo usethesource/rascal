@@ -1,6 +1,5 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.INode;

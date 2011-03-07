@@ -1,7 +1,5 @@
 package org.rascalmpl.semantics.dynamic;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IList;
