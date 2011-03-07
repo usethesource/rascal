@@ -94,8 +94,8 @@ public class LatticeGraphNode {
 								figure.getCenterX(), figure.getCenterY()) + " "
 						+ figure.getClass());
 			return figure.mouseOver(mousex, mousey, mouseInParent);
-		} else
-			figure.fpa.unRegisterMouseOver(this.figure);
+		}
+		figure.fpa.unRegisterMouseOver(this.figure);
 		return false;
 	}
 

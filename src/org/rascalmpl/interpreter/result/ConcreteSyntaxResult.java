@@ -73,7 +73,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		else throw new UnsupportedOperationError("field access", ctx.getCurrentAST());
+		throw new UnsupportedOperationError("field access", ctx.getCurrentAST());
 	}
 	
 	@Override
@@ -105,9 +105,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					IList args = TreeAdapter.getArgs(tree).put(found, repl.getValue());
 					return makeResult(getType(), tree.set("args", args), ctx);
 				}
-				else {
-					throw new UnexpectedTypeError(nont, repl.getType(), ctx.getCurrentAST());
-				}
+				throw new UnexpectedTypeError(nont, repl.getType(), ctx.getCurrentAST());
 			}
 			
 			if (Factory.Tree_Appl.hasField(name)) {
@@ -115,14 +113,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				if (repl.getType().isSubtypeOf(fieldType)) {
 					throw new UnsupportedOperationError("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}
-				else {
-					throw new UnexpectedTypeError(fieldType, repl.getType(), ctx.getCurrentAST());
-				}
+				throw new UnexpectedTypeError(fieldType, repl.getType(), ctx.getCurrentAST());
 			}
 
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		else throw new UnsupportedOperationError("field update", ctx.getCurrentAST());
+		throw new UnsupportedOperationError("field update", ctx.getCurrentAST());
 	}
 	
 	@Override
