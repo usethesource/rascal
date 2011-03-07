@@ -32,7 +32,7 @@ public class OriginValueFactory extends ValueFactory {
 			return v.visitString(this);
 		}
 		
-		public IString concat(IString other) {
+		public TString concat(IString other) {
 			return new Concat(this, (TString)other);
 		}
 		
@@ -52,9 +52,13 @@ public class OriginValueFactory extends ValueFactory {
 			return 0;
 		}
 		
-		protected abstract int length();
+		public abstract int length();
 		
 		public abstract IList getOrigins();
+		
+		public abstract TString substring(int begin, int end);
+		
+		public abstract TString toUpperCase();
 		
 		@Override
 		public boolean equals(Object obj) {
@@ -66,24 +70,23 @@ public class OriginValueFactory extends ValueFactory {
 	}
 	
 	private abstract class Unit extends TString {
-		private final String value;
+		protected final String value;
 		
 		public Unit(String value) {
 			this.value = value;
 		}
 		
-		protected int length() {
+		public int length() {
 			return value.length();
 		}
 		
 		public String getValue() {
 			return value;
 		}
-
 	}
 	
 	private abstract class OrgUnit extends Unit {
-		private final ISourceLocation origin;
+		protected final ISourceLocation origin;
 		
 		protected OrgUnit(ISourceLocation origin, String value) {
 			super(value);
@@ -96,45 +99,72 @@ public class OriginValueFactory extends ValueFactory {
 		
 	}
 	
-	private class Expression extends OrgUnit {
-		protected Expression(ISourceLocation origin, String value) {
+	private class Expression extends OrgUnit{
+		
+		protected Expression(ISourceLocation origin, String value){
 			super(origin, value);
 		}
 
-		public IList getOrigins() {
+		public IList getOrigins(){
 			return list(tuple(this, constructor(Factory.Origin_expression, getOrigin())));
 		}
 		
+		public TString substring(int begin, int end){
+			// You lose line and column information if you do this.
+			ISourceLocation updatedOrigin = sourceLocation(origin.getURI(), origin.getOffset() + begin, end - begin, -1, -1, -1, -1);
+			
+			return new Expression(updatedOrigin, value.substring(begin, end));
+		}
+		
+		public TString toUpperCase(){
+			return new Expression(origin, value.toUpperCase());
+		}
 	}
 	
-	private class Literal extends OrgUnit {
-		protected Literal(ISourceLocation origin, String value) {
+	private class Literal extends OrgUnit{
+		
+		protected Literal(ISourceLocation origin, String value){
 			super(origin, value);
 		}
-
-		@Override
-		public IList getOrigins() {
+		
+		public IList getOrigins(){
 			return list(tuple(this, constructor(Factory.Origin_literal, getOrigin())));
 		}
 		
+		public TString substring(int begin, int end){
+			// You lose line and column information if you do this.
+			ISourceLocation updatedOrigin = sourceLocation(origin.getURI(), origin.getOffset() + begin, end - begin, -1, -1, -1, -1);
+			
+			return new Literal(updatedOrigin, value.substring(begin, end));
+		}
+		
+		public TString toUpperCase(){
+			return new Literal(origin, value.toUpperCase());
+		}
 	}
 	
-	private class Anonymous extends Unit {
-		protected Anonymous(String value) {
+	private class Anonymous extends Unit{
+		
+		protected Anonymous(String value){
 			super(value);
 		}
-
-		@Override
-		public IList getOrigins() {
+		
+		public IList getOrigins(){
 			return list(tuple(this, constructor(Factory.Origin_none)));
 		}
 		
+		public TString substring(int begin, int end){
+			return new Anonymous(value.substring(begin, end));
+		}
+		
+		public TString toUpperCase(){
+			return new Anonymous(value.toUpperCase());
+		}
 	}
 	
 	
 	
 	private class Concat extends TString {
-
 		private final TString lhs;
 		private final TString rhs;
 		private final int length;
@@ -146,7 +176,7 @@ public class OriginValueFactory extends ValueFactory {
 		}
 
 		@Override
-		protected int length() {
+		public int length() {
 			return length;
 		}
 		
@@ -159,6 +189,22 @@ public class OriginValueFactory extends ValueFactory {
 			return lhs.getOrigins().concat(rhs.getOrigins());
 		}
 		
+		public TString substring(int begin, int end){
+			int lhsLength = lhs.length();
+			if(lhsLength >= begin){
+				if(lhsLength >= end){
+					return new Concat(lhs.substring(begin, end), rhs);
+				}
+				
+				return new Concat(lhs.substring(begin, lhsLength), rhs.substring(0, end - lhsLength));
+			}
+			
+			return new Concat(lhs, rhs.substring(begin - lhsLength, end - lhsLength));
+		}
+		
+		public TString toUpperCase(){
+			return new Concat(lhs.toUpperCase(), rhs.toUpperCase());
+		}
 	}
 	
 	@Override
