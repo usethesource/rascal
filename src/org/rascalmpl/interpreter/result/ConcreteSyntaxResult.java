@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;

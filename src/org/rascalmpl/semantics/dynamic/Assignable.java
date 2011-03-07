@@ -18,7 +18,6 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;

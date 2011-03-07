@@ -16,7 +16,6 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.Type.Structured;

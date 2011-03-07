@@ -1,12 +1,9 @@
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.joda.time.DateTime;
-import org.rascalmpl.ast.DateAndTime.Lexical;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;

@@ -5,19 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Declaration;
-import org.rascalmpl.ast.Import;
-import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
@@ -36,7 +31,6 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredTypeError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.values.uptr.Factory;
 
 
 public class TypeDeclarationEvaluator {

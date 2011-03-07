@@ -1,10 +1,6 @@
 
 package org.rascalmpl.library.rascal.syntax;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -12,8 +8,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.stack.*;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
