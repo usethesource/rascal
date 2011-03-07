@@ -20,7 +20,7 @@ public class LayeredGraphEdge extends Figure {
 	private LayeredGraphNode to;
 	Figure toArrow;
 	Figure fromArrow;
-	private boolean inverted = false;
+	boolean reversed = false;
 	private static boolean debug = true;
 	
 	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
@@ -69,57 +69,73 @@ public class LayeredGraphEdge extends Figure {
 	}
 	
 	LayeredGraphNode getFrom() {
-		return inverted ? to : from;
+		return reversed ? to : from;
+	}
+	
+	LayeredGraphNode getFromOrg() {
+		return from;
 	}
 
 	LayeredGraphNode getTo() {
-		return inverted? from : to;
+		return reversed? from : to;
+	}
+	
+	LayeredGraphNode getToOrg() {
+		return to;
 	}
 	
 	Figure getFromArrow(){
-		return inverted ? toArrow : fromArrow;
+		return fromArrow;
 	}
 	
 	Figure getToArrow(){
-		return inverted ? fromArrow : toArrow;
+		return toArrow;
 	}
 
-	void invert(){
-		inverted = true;
+	void reverse(){
+		reversed = true;
+		from.out.remove(to);
+		to.in.remove(from);
+		from.in.add(to);
+		to.out.add(from);
 	}
 	
-	boolean isInverted(){
-		return inverted;
+	boolean isReversed(){
+		return reversed;
 	}
 	
 	@Override
 	public
 	void draw(float left, float top) {
 		applyProperties();
+		
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
-								                 to.name + ": " + to.x + "," + to.y + ")");
+								                 getTo().name + ": " + getTo().x + "," + getTo().y + ")");
 		if(getFrom().isVirtual()){
 			//System.err.println("Ignore");
 			return;
 		}
 		if(getTo().isVirtual()){
-			System.err.println("Drawing a shape");
+			System.err.println("Drawing a shape, inverted=" + reversed);
 			LayeredGraphNode currentNode = getTo();
 			
 			float dx = currentNode.figX() - getFrom().figX();
-			float dy = currentNode.figY() - currentNode.layerHeight/2 - getFrom().figY();
+			//float dy = currentNode.figY() - currentNode.layerHeight/2 - getFrom().figY();
+			float dy = 0.5f * (currentNode.figY() - getFrom().figY());
 			float midX = getFrom().figX() + dx/2;
 			float midY = getFrom().figY() + dy/2;
 			System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
 					getFrom().figX(), getFrom().figY(),
 					currentNode.figX(), currentNode.figY(), midX, midY);
 			
-			if(getFromArrow() != null){
-				System.err.println("Drawing from arrow");
+			Figure fromArrow = getFromArrow();
+			
+			if(fromArrow != null){
+				System.err.println("Drawing from arrow from " + getFrom().name);
 				getFrom().figure.connectFrom(left, top, 
 						getFrom().figX(), getFrom().figY(), 
 						midX, midY,
-						getFromArrow()
+						fromArrow
 				);
 				
 			} else
@@ -128,10 +144,10 @@ public class LayeredGraphEdge extends Figure {
 			fpa.noFill();
 			
 			fpa.beginShape();
-			fpa.vertex(left + midX, top + midY);      									// V1
-			fpa.bezierVertex(left + currentNode.figX(), 	  top + midY + dy/2, 		// C1
-					 left + currentNode.figX(),    top + currentNode.figY() - dy/4,     // C2
-					 left + currentNode.figX(),    top + currentNode.figY()      		// V2
+			fpa.vertex(		 left + midX, 				top + midY);      					// V1
+			fpa.bezierVertex(left + currentNode.figX(), top + midY + dy/2, 					// C1
+					         left + currentNode.figX(), top + currentNode.figY() - dy/5,    // C2
+					         left + currentNode.figX(), top + currentNode.figY()      		// V2
 			);
 			
             
@@ -141,11 +157,11 @@ public class LayeredGraphEdge extends Figure {
 				System.err.println("Add vertex for " + currentNode.name);
 				LayeredGraphNode nextNode = currentNode.out.get(0);
 				dx = currentNode.figX() - prevNode.figX();
-				dy = currentNode.figY() + currentNode.layerHeight/2 - prevNode.figY();
+				dy = 0.3f * (currentNode.figY() + prevNode.figY());
 				if(nextNode.isVirtual()){
-						fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY() - 100,
-								left + currentNode.figX(), top + currentNode.figY(),
-								left + currentNode.figX(), top + currentNode.figY()
+						fpa.bezierVertex(left + prevNode.figX(), 	top + prevNode.figY(),		//C1
+										 left + currentNode.figX(), top + currentNode.figY(),	//C2
+										 left + currentNode.figX(), top + currentNode.figY()	// C2
 								);
 				}
 				//else{
@@ -161,7 +177,7 @@ public class LayeredGraphEdge extends Figure {
 			drawLastSegment(prevNode, currentNode);
 			
 		} else {
-			//System.err.println("Drawing a line");
+			System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
 			if(getTo() == getFrom()){  // Drawing a self edge
 				LayeredGraphNode node = getTo();
 				float h = node.figure.height;
@@ -180,28 +196,57 @@ public class LayeredGraphEdge extends Figure {
 				fpa.curveVertex(left + node.figX() + w/2,        top + node.figY());
 				fpa.endShape();
 			}
-			if(getToArrow() != null){
-				getTo().figure.connectFrom(left, top, 
-						getTo().figX(), getTo().figY(), 
-						getFrom().figX(), getFrom().figY(),
-						getToArrow()
-				);
-
-				if(getFromArrow() != null)
-					getFrom().figure.connectFrom(left, top, 
+			
+			
+			if(fromArrow != null || toArrow != null){
+				if(reversed){
+					
+					if(toArrow != null)
+						System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
+						getFrom().figure.connectFrom(left, top, 
+								getFrom().figX(), getFrom().figY(),
+								getTo().figX(), getTo().figY(), 
+								toArrow
+					);
+						
+					if(fromArrow != null){
+						System.err.println("[reversed] Drawing to arrow to " + getToOrg().name);
+						getTo().figure.connectFrom(left, top, 
+								getTo().figX(), getTo().figY(),
+								getFrom().figX(), getFrom().figY(), 
+								fromArrow
+						);
+					}
+					
+					
+					
+				} else {
+					System.err.println("Drawing to arrow to " + getToOrg().name);
+					getTo().figure.connectFrom(left, top, 
+							getTo().figX(), getTo().figY(), 
+							getFrom().figX(), getFrom().figY(),
+							toArrow
+					);
+					if(fromArrow != null)
+						System.err.println("Drawing from arrow from " + getFrom().name);
+					   getFrom().figure.connectFrom(left, top, 
 							getFrom().figX(), getFrom().figY(), 
 							getTo().figX(), getTo().figY(),
-							getFromArrow()
+							fromArrow
 					);
-			} else 
+			}
+			} else {
+				System.err.println("Drawing lines without arrows");
 				fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
 						left + getTo().figX(), top + getTo().figY());
+				
+			}
 		}
 	}
 	
 	private void drawLastSegment(LayeredGraphNode prevNode, LayeredGraphNode currentNode){
 		float dx = currentNode.figX() - prevNode.figX();
-		float dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
+		float dy = 0.1f * (currentNode.figY() - prevNode.figY());
 		float midX = prevNode.figX() + dx/2;
 		float midY = prevNode.figY() + dy/2;
 		
@@ -209,12 +254,19 @@ public class LayeredGraphEdge extends Figure {
 				prevNode.figX(), prevNode.figY(),
 				currentNode.figX(), currentNode.figY(), midX, midY);
 		
-		if(getToArrow() != null){
+		Figure toArrow = getToArrow();
+		if(toArrow != null){
 			
-			fpa.bezierVertex(getLeft() + prevNode.figX(), getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C1
-					 		getLeft() + prevNode.figX(), getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C2
-					 		getLeft() + midX, getTop() + midY	    // V	
-			);
+//			fpa.bezierVertex(getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C1
+//					 	 	 getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C2
+//					 		 getLeft() + 1.06f*midX, 				getTop() + midY	 +  prevNode.layerHeight								   // V	
+//			);
+			
+			
+			fpa.bezierVertex(getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C1
+			 	 	 getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C2
+			 		 getLeft() + midX, 				getTop() + midY	    								   // V	
+	);
 			
 			fpa.endShape();
 			
@@ -222,7 +274,7 @@ public class LayeredGraphEdge extends Figure {
 			currentNode.figure.connectFrom(getLeft(), getTop(), 
 					currentNode.figX(), currentNode.figY(), 
 					midX, midY,
-					getToArrow());
+					toArrow);
 		} else {
 			dx = currentNode.figX() - prevNode.figX();
 			dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
@@ -231,13 +283,8 @@ public class LayeredGraphEdge extends Figure {
 			
 			fpa.bezierVertex(getLeft() + prevNode.figX(), getTop() + prevNode.figY() + dy/2,   // C1
 							 getLeft() + prevNode.figX(), getTop() + prevNode.figY() + dy/2,   // C2
-							getLeft() + currentNode.figX(), getTop() + currentNode.figY()	    // V	
+							 getLeft() + currentNode.figX(), getTop() + currentNode.figY()	    // V	
 			);
-//			fpa.bezierVertex(left + prevNode.figX(), top + prevNode.figY(), // C1
-//					left + midX, top +  midY,                              // C2
-//					left + currentNode.figX(), top + currentNode.figY()	    // V	
-//			);
-			
 			fpa.endShape();
 		}
 	}

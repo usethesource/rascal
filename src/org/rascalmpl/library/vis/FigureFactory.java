@@ -120,9 +120,9 @@ public class FigureFactory {
 	private static IPropertyManager extendProperties(FigurePApplet fpa, IConstructor c, IPropertyManager pm, IEvaluatorContext ctx){		
 		IList props = (IList) c.get(c.arity()-1);
 		
-		for(IValue prop: props){
-			System.err.println("prop: " + prop.toString());	
-		}
+		//for(IValue prop: props){
+		//	System.err.println("prop: " + prop.toString());	
+		//}
 		return pm == null ? new DefaultPropertyManager(fpa)
 		                  : ((props == null || props.equals(emptyList)) ? pm
 								                          : new PropertyManager(fpa, pm, props, ctx));
