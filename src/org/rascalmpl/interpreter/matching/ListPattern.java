@@ -157,7 +157,9 @@ public class ListPattern extends AbstractMatchingResult  {
 					listVarOccurrences[i] = 1;
 					nListVar++;
 				} else {
-					throw new UnexpectedTypeError(childType, listSubject.getType(), getAST());
+					hasNext = false;
+					return;
+//					throw new UnexpectedTypeError(childType, listSubject.getType(), getAST());
 				}
 			} 
 			else if(child instanceof MultiVariablePattern){
@@ -216,7 +218,9 @@ public class ListPattern extends AbstractMatchingResult  {
 				        		isBindingVar[i] = varRes.getValue() == null;
 				        		nListVar++;			        		
 				        	} else {
-				        		throw new UnexpectedTypeError(listSubjectType,varType, getAST());
+				        		hasNext = false;
+				        		return;
+//				        		throw new UnexpectedTypeError(listSubjectType,varType, getAST());
 				        	}
 				        } else {
 				        	if(varType instanceof NonTerminalType){
@@ -224,7 +228,9 @@ public class ListPattern extends AbstractMatchingResult  {
 				        		// TODO: this should be done better
 				        	} else
 				        	if(!varType.comparable(staticListSubjectElementType)){
-				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
+				        		hasNext = false;
+				        		return;
+//				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
 				        	}
 				        }
 					}
@@ -243,7 +249,9 @@ public class ListPattern extends AbstractMatchingResult  {
 			    // TODO: pattern matching should be specialized such that matching appl(prod...)'s does not
 				// need to use list matching on the fixed arity children of the application of a production
 				if(!(childType instanceof NonTerminalType) && !childType.comparable(staticListSubjectElementType)){
-					throw new UnexpectedTypeError(staticListSubjectElementType,childType, getAST());
+					hasNext = false;
+					return;
+//					throw new UnexpectedTypeError(staticListSubjectElementType,childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
