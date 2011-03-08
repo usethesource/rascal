@@ -284,7 +284,7 @@ public Box evLayout(Tree g) {
 public Box evPt(Tree q,bool doIndent) {
      Box b=userDefined(q);
      if (b!=NULL()) return b;
-     // rawPrintln(q);
+     // rawPrintln(q); println(q);
      switch (q) {
           case appl ( prod(list[Symbol] s, Symbol r, Attributes att),list[Tree] t ) : {  
                        // println(q);
@@ -481,10 +481,16 @@ public list[Box] getArgs(Tree g) {
      r = [b|Box b<-r, COMM(_)!:=b]; 
      if (isEmpty(r)) return r;
      list[Box] q = [];
+     if (size(r)%2==0)
+     for (int i<-[0,2..size(r)-1]) {
+          q += H(0, [r[i], r[i+1]]);
+          }
+     else {
      for (int i<-[0,2..size(r)-3]) {
           q += H(0, [r[i], r[i+1]]);
           }
      q+=H(0, [r[size(r)-1]]);
+     }
      return q;
      }
 

@@ -1,14 +1,28 @@
 
 module lang::box::syntax::Box
 
-start syntax Box
+start syntax Main = Boxx WhitespaceAndComment*;
+
+syntax Boxx
         = StrCon
-        | BoxOperator operator "[" Box* list "]"
-        | "LBL" "[" StrCon "," Box "]"
-        | "REF" "[" StrCon "," Box "]"
+        | BoxOperator operator "[" Boxx* list "]"
+        | FontOperator operator "[" Boxx* list "]"
+        | "LBL" "[" StrCon "," Boxx "]"
+        | "REF" "[" StrCon "," Boxx "]"
         | "CNT" "[" StrCon "," StrCon "]"
-        | "O" SOptions "[" Box BoxString Box "]"
+       /* | "O" SOptions "[" Boxx BoxString Boxx "]" */
  ;
+ 
+
+syntax StrCon
+	= lex [\"] StrChar* chars [\"] ;
+	
+syntax StrChar
+    = lex "\\" [\" \' \< \> \\ b f n r t] 
+    | lex ![\" \' \< \> \\] ;
+	
+
+syntax NatCon = lex [0-9]+ ;
 
 syntax BoxOperator
         = "A" AlignmentOptions alignments SpaceOption* options
@@ -20,10 +34,23 @@ syntax BoxOperator
         | "I" SpaceOption* options
         | "WD"
         | "COMM"
+        /*
         | "F" FontOption* options
         | "G" GroupOption* options
         | "SL" GroupOption* options
+        */
  ;
+ 
+ syntax FontOperator
+        = "KW"
+        | "VAR"
+        | "NUM"
+        | "MATH"
+        | "ESC"
+        | "COMM"
+        | "STRING"
+ ;
+ 
 syntax AlignmentOption
         = "l" SpaceOption* options
         | "c" SpaceOption* options
@@ -48,6 +75,7 @@ syntax Context
         = "H"
         | "V"
  ;
+/*
 syntax FontValue
         = NatCon
         | FontId
@@ -64,16 +92,20 @@ syntax FontParam
         | "sz"
         | "cl"
  ;
-syntax FontOperator
-        = "KW"
-        | "VAR"
-        | "NUM"
-        | "MATH"
-        | "ESC"
-        | "COMM"
-        | "STRING"
- ;
+
+ */
 syntax GroupOption
         = "gs" "=" NatCon
         | "op" "=" BoxOperator
  ;
+ 
+ layout WhiteSpace =
+            WhitespaceAndComment*
+            #[\ \t\n\r]
+            #"%"
+            ;
+            
+syntax WhitespaceAndComment= lex [\ \t\n\r]
+                           | lex "%" [!%]* "%"
+                           | lex "%%" [!\n]* "\n"
+                           ;
