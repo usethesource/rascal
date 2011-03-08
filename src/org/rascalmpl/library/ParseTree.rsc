@@ -2,20 +2,25 @@ module ParseTree
 
 import Message;
 
-data Tree =
-     appl(Production prod, list[Tree] args) |
-	 cycle(Symbol symbol, int cycleLength) |
-	 amb(set[Tree] alternatives) | 
-	 char(int character) |
-	 error(list[Tree] args);
-
+@doc{These are the trees normally found after parsing}
+data Tree 
+  = appl(Production prod, list[Tree] args) 
+  | cycle(Symbol symbol, int cycleLength) 
+  | amb(set[Tree] alternatives)  
+  | char(int character)
+  ;
+  
+@doc{These trees constructors are used additionally in error trees}
+data Tree 
+  = error(Production prod, list[Tree] args, list[Tree] rest)
+  | expected(Symbol symbol) 
+  ;
+  
 data Production =
      prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
      regular(Symbol rhs, Attributes attributes);
 
 data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
-
-// data Term = \lex() | \literal() | \cons(value \constructor);
 
 data Attr =
      \assoc(Associativity \assoc) | 
@@ -27,8 +32,6 @@ data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
 
 data CharRange = range(int start, int end);
-
-// data Constructor = cons(str name);
 
 alias CharClass = list[CharRange];
 
