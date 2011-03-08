@@ -48,25 +48,28 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			int found = -1;
 			IConstructor foundType = null;
 			IConstructor prod = TreeAdapter.getProduction(tree);
-			IList syms = ProductionAdapter.getLhs(prod);
 			
-			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-			for (int i = 0; i < syms.length(); i++) {
-				IConstructor sym = (IConstructor) syms.get(i);
-				if (SymbolAdapter.isLabel(sym)) {
-					if (SymbolAdapter.getLabel(sym).equals(name)) {
-						found = i;
-						foundType = SymbolAdapter.delabel(sym);
+			if (!ProductionAdapter.isRegular(prod)) {
+				IList syms = ProductionAdapter.getLhs(prod);
+
+				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+				for (int i = 0; i < syms.length(); i++) {
+					IConstructor sym = (IConstructor) syms.get(i);
+					if (SymbolAdapter.isLabel(sym)) {
+						if (SymbolAdapter.getLabel(sym).equals(name)) {
+							found = i;
+							foundType = SymbolAdapter.delabel(sym);
+						}
 					}
 				}
+
+				if (found != -1) {
+					Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
+					IValue child = TreeAdapter.getArgs(tree).get(found);
+					return makeResult(nont, child, ctx);
+				}
 			}
-			
-			if (found != -1) {
-				Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
-				IValue child = TreeAdapter.getArgs(tree).get(found);
-				return makeResult(nont, child, ctx);
-			}
-			
+
 			if (Factory.Tree_Appl.hasField(name)) {
 				return makeResult(Factory.Tree_Appl.getFieldType(name), tree.get(name), ctx);
 			}
