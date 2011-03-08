@@ -197,3 +197,24 @@ anno loc Tree@link;
 
 @doc{provides multiple targets of a references}
 anno set[loc] Tree@links;
+
+@doc{result type for treeAt()}
+public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
+
+@doc{selects the innermost Tree of type t which location encloses l}
+public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) {
+	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+		for (arg <- a.args, r:treeFound(_) := treeAt(t, l, arg)) {
+			return r;
+		}
+		
+		if (&T<:Tree tree := a) {
+			return treeFound(tree);
+		}
+	}
+	return treeNotFound();
+}
+
+public TreeSearchResult[&T<:Tree] default treeAt(type[&T<:Tree] t, loc l, Tree root) {
+	return treeNotFound();
+}
