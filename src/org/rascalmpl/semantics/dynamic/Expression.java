@@ -2722,8 +2722,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-			Type type = getType().typeOf(__eval.getCurrentEnvt());
+			Environment env = __eval.getCurrentEnvt();
+			Type type = getType().typeOf(env);
 
+			type = type.instantiate(env.getTypeBindings());
+			
 			if (type instanceof NonTerminalType) {
 				NonTerminalType cType = (NonTerminalType) type;
 				if (cType.isConcreteListType()) {
