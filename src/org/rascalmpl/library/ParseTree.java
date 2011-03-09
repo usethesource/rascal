@@ -96,7 +96,7 @@ public class ParseTree {
 		}
 		
 		if (TreeAdapter.isLexical(tree)) {
-			java.lang.String constructorName = TreeAdapter.getConstructorName(tree);
+			java.lang.String constructorName = unescapedConsName(tree);
 			java.lang.String yield = TreeAdapter.yield(tree);
 			if (type.isAbstractDataType() && constructorName != null) {
 				// make a single argument constructor  with yield as argument
@@ -194,7 +194,7 @@ public class ParseTree {
 			IList args = TreeAdapter.getASTArgs(tree);
 			int length = args.length();
 
-			java.lang.String constructorName = TreeAdapter.getConstructorName(tree);			
+			java.lang.String constructorName = unescapedConsName(tree);			
 			
 			if (constructorName == null) {
 				if (length == 1) {
@@ -230,6 +230,14 @@ public class ParseTree {
 		}
 		
 		throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+	}
+
+	private java.lang.String unescapedConsName(IConstructor tree) {
+		java.lang.String x = TreeAdapter.getConstructorName(tree);
+		if (x != null) {
+			x = x.replaceAll("\\\\", "");
+		}
+		return x;
 	}
 	
 	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
