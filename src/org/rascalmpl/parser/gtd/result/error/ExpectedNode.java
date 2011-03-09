@@ -1,8 +1,11 @@
-package org.rascalmpl.parser.gtd.result;
+package org.rascalmpl.parser.gtd.result.error;
 
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
+import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
