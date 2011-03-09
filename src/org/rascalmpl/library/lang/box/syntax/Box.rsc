@@ -33,8 +33,8 @@ syntax BoxOperator
         | "HOV" SpaceOption* options
         | "I" SpaceOption* options
         | "WD"
-        | "COMM"
         /*
+        | "COMM"
         | "F" FontOption* options
         | "G" GroupOption* options
         | "SL" GroupOption* options
