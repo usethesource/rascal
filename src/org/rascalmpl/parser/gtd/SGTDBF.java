@@ -78,7 +78,7 @@ public abstract class SGTDBF implements IGTD{
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
 	
 	private final LinearIntegerKeyedMap<IntegerList> propagatedPrefixes;
-	private final LinearIntegerKeyedMap<IntegerList> propagatedReductions;
+	private final LinearIntegerKeyedMap<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
 	
 	public SGTDBF(){
 		super();
