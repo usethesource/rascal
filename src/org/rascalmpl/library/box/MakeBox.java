@@ -119,7 +119,8 @@ public class MakeBox {
 		}
 	}
 
-	private IValue launchRascalProgramExport(String cmd, URI src, URI dest, String ext2) {
+	private IValue launchRascalProgramExport(String cmd, URI src, URI dest,
+			String ext2) {
 		execute("import lang::box::util::Box2Text;");
 		try {
 			IValue d = new PBFReader().read(values, ts, adt, data.get());
@@ -145,7 +146,7 @@ public class MakeBox {
 			String cmd, String ext2) {
 		execute("import lang::box::util::Box2Text;");
 		if (ext.equals("oberon0"))
-			execute("import box::" + ext + "::Default;");
+			execute("import lang::" + ext + "::utils::BoxFormat;");
 		else
 			execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(src), w = values
@@ -164,7 +165,7 @@ public class MakeBox {
 		// System.err.println("Start launch concrete"+uri);
 		execute("import lang::box::util::Box2Text;");
 		if (ext.equals("oberon0"))
-			execute("import box::" + ext + "::Default;");
+			execute("import lang::" + ext + "::utils::BoxFormat;");
 		else
 			execute("import lang::" + ext + "::util::BoxFormat;");
 		ISourceLocation v = values.sourceLocation(uri);

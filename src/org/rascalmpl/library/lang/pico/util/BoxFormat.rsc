@@ -48,3 +48,9 @@ public Box toBox(loc src) {
     setUserRules();
     return treeToBox(a);
     }
+    
+public Box BoxToBox(str src) {
+    PROGRAM a = parse(#PROGRAM, src);
+    setUserRules();
+    return treeToBox(a);
+    }

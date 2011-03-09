@@ -23,7 +23,7 @@ int maxWidth = 80;
 int hv2h_crit = 70;
 
 alias options = map [str, int];
-options  oDefault = ("h":1,"v":0, "i":2);
+options  oDefault = ("h":1,"v":0, "i":2, "t":10);
 
 @doc{Print boxes}   
 public void fprint(Box b) {
