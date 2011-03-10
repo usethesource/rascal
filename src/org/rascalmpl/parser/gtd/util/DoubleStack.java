@@ -50,7 +50,7 @@ public class DoubleStack<E, F>{
 		return secondData[size - 1];
 	}
 	
-	public E pop(){
+	public E popFirst(){
 		E first = firstData[--size];
 		firstData[size] = null;
 		secondData[size] = null;
