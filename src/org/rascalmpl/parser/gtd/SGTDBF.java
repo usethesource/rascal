@@ -80,6 +80,9 @@ public abstract class SGTDBF implements IGTD{
 	private final LinearIntegerKeyedMap<IntegerList> propagatedPrefixes;
 	private final LinearIntegerKeyedMap<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
 	
+	// Error reporting.
+	private final Stack<AbstractStackNode> unexpandableNodes;
+	
 	public SGTDBF(){
 		super();
 		
@@ -105,6 +108,8 @@ public abstract class SGTDBF implements IGTD{
 		
 		propagatedPrefixes = new LinearIntegerKeyedMap<IntegerList>();
 		propagatedReductions = new LinearIntegerKeyedMap<IntegerList>();
+		
+		unexpandableNodes = new Stack<AbstractStackNode>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -813,7 +818,13 @@ public abstract class SGTDBF implements IGTD{
 		
 		ArrayList<AbstractStackNode> cachedEdges = null;
 		
-		for(int i = lastExpects.size() - 1; i >= 0; --i){
+		int nrOfExpects = lastExpects.size();
+		if(nrOfExpects == 0){ // Error reporting.
+			unexpandableNodes.push(stackBeingWorkedOn);
+			return;
+		}
+		
+		for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
 			
 			AbstractStackNode last = expectedNodes[expectedNodes.length - 1];
@@ -989,15 +1000,18 @@ public abstract class SGTDBF implements IGTD{
 		if(findFirstStackToReduce()){
 			do{
 				lookAheadChar = (location < input.length) ? input[location] : 0;
-				do{
-					if(shiftedLevel){ // Nullable fix.
-						sharedNextNodes.clear();
-						resultStoreCache.clear();
-						cachedEdgesForExpect.clear();
-						propagatedPrefixes.dirtyClear();
-						propagatedReductions.dirtyClear();
-					}
+				if(shiftedLevel){ // Nullable fix.
+					sharedNextNodes.clear();
+					resultStoreCache.clear();
+					cachedEdgesForExpect.clear();
 					
+					propagatedPrefixes.dirtyClear();
+					propagatedReductions.dirtyClear();
+					
+					unexpandableNodes.dirtyClear();
+				}
+				
+				do{
 					reduce();
 					
 					expand();
