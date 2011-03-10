@@ -1059,27 +1059,6 @@ public abstract class SGTDBF implements IGTD{
 		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
 	}
 	
-	private IConstructor buildErrorTree(){
-		// TODO Implement.
-		
-		while(!unexpandableNodes.isEmpty()){
-			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
-			
-		}
-		
-		while(!unmatchableNodes.isEmpty()){
-			AbstractStackNode unmatchableNode = unmatchableNodes.pop();
-			
-		}
-		
-		while(!filteredNodes.isEmpty()){
-			AbstractStackNode filteredNode = filteredNodes.pop();
-			
-		}
-		
-		return null; // Temp.
-	}
-	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
 		return parse(startNode, inputURI, inputString.toCharArray(), actionExecutor);
 	}
