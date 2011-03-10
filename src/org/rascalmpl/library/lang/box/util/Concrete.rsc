@@ -114,16 +114,13 @@ str getName(list[Symbol] b) {
 
 bool isTerminal(Symbol s,str c) {
      if (\lit(str a):=s) {
-          // if (c=="=\>") println("<a> <c> <a==c>");
           if (a==c) return true;
           }
      return false;
      }
      
 bool isNonTerminal(Symbol s,str c) {
-     // println(s);
      if (\sort(str a):=s) {
-          // println("<a> <c>");
           if (a==c) return true;
           }
      return false;
@@ -246,8 +243,7 @@ Box makeString(Symbol a, Tree t, Attributes att) {
       if (isString(a)) {
                b=STRING(L("<t>"));
                }
-      // println("makeString:<att>");
-      else if (/lex():=att || /literal():=att) {
+      else if (/\lex():=att || /literal():=att) {
                     str s="<t>";
                     if (endsWith(s,"\n")) s=replaceLast(s,"\n","");
                     b=(isKeyword(a)?KW(L(s)):L(s));
@@ -261,7 +257,6 @@ public Box C(Tree t, int idx) {
       Box b = evLayout(getA(g)[0]);
       if (COMM(Box d):=b) {
            if (d!=NULL()) {
-             // println("C:<d>");
              return b;
              }
            }
