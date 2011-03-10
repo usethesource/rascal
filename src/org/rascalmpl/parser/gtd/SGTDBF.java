@@ -82,6 +82,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	// Error reporting.
 	private final Stack<AbstractStackNode> unexpandableNodes;
+	private final Stack<AbstractStackNode> unmatchableStackNodes;
 	
 	public SGTDBF(){
 		super();
@@ -110,6 +111,7 @@ public abstract class SGTDBF implements IGTD{
 		propagatedReductions = new LinearIntegerKeyedMap<IntegerList>();
 		
 		unexpandableNodes = new Stack<AbstractStackNode>();
+		unmatchableStackNodes = new Stack<AbstractStackNode>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -880,7 +882,10 @@ public abstract class SGTDBF implements IGTD{
 			if(endLocation <= input.length){
 				if(stack.isLocatable()) stack.setPositionStore(positionStore); // Ugly, but necessary.
 				
-				if(!stack.match(input)) return;
+				if(!stack.match(input)){
+					unmatchableStackNodes.push(stack);
+					return;
+				}
 				
 				// Filtering
 				if(stack.isReductionFiltered(input, endLocation)) return;
