@@ -63,4 +63,8 @@ public class Stack<E>{
 		data = (E[]) new Object[data.length];
 		size = 0;
 	}
+	
+	public void dirtyClear(){
+		size = 0;
+	}
 }
