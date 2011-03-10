@@ -373,12 +373,6 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	private void propagateAlternativeEdgesAndPrefixes(AbstractStackNode node, AbstractNode nodeResult, AbstractStackNode next, AbstractNode nextResult, int potentialNewEdges, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
-		IntegerList touched = propagatedPrefixes.findValue(node.getId());
-		if(touched == null){
-			touched = new IntegerList();
-			propagatedPrefixes.add(node.getId(), touched);
-		}
-		
 		next.updatePrefixSharedNode(edgesMap, prefixesMap);
 		
 		if(next.isEndNode()){
