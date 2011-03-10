@@ -82,7 +82,8 @@ public abstract class SGTDBF implements IGTD{
 	
 	// Error reporting.
 	private final Stack<AbstractStackNode> unexpandableNodes;
-	private final Stack<AbstractStackNode> unmatchableStackNodes;
+	private final Stack<AbstractStackNode> unmatchableNodes;
+	private final Stack<AbstractStackNode> filteredNodes;
 	
 	public SGTDBF(){
 		super();
@@ -111,7 +112,8 @@ public abstract class SGTDBF implements IGTD{
 		propagatedReductions = new LinearIntegerKeyedMap<IntegerList>();
 		
 		unexpandableNodes = new Stack<AbstractStackNode>();
-		unmatchableStackNodes = new Stack<AbstractStackNode>();
+		unmatchableNodes = new Stack<AbstractStackNode>();
+		filteredNodes = new Stack<AbstractStackNode>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -748,7 +750,10 @@ public abstract class SGTDBF implements IGTD{
 	
 	private void reduceNonTerminal(AbstractStackNode nonTerminal, AbstractNode result){
 		// Filtering
-		if(nonTerminal.isReductionFiltered(input, location)) return;
+		if(nonTerminal.isReductionFiltered(input, location)){
+			filteredNodes.push(nonTerminal);
+			return;
+		}
 		
 		move(nonTerminal, result);
 	}
@@ -883,7 +888,7 @@ public abstract class SGTDBF implements IGTD{
 				if(stack.isLocatable()) stack.setPositionStore(positionStore); // Ugly, but necessary.
 				
 				if(!stack.match(input)){
-					unmatchableStackNodes.push(stack);
+					unmatchableNodes.push(stack);
 					return;
 				}
 				
@@ -1014,6 +1019,8 @@ public abstract class SGTDBF implements IGTD{
 					propagatedReductions.dirtyClear();
 					
 					unexpandableNodes.dirtyClear();
+					unmatchableNodes.dirtyClear();
+					filteredNodes.dirtyClear();
 				}
 				
 				do{
