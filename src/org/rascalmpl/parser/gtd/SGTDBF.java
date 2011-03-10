@@ -1047,7 +1047,7 @@ public abstract class SGTDBF implements IGTD{
 					int column = positionStore.getColumn(filteringTracker.offset, line);
 					int endLine = positionStore.findLine(filteringTracker.endOffset);
 					int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, Math.max(0, filteringTracker.offset - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
+					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, Math.min(filteringTracker.offset, input.length - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
 				}
 			}
 		}
@@ -1057,6 +1057,27 @@ public abstract class SGTDBF implements IGTD{
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
 		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
+	}
+	
+	private IConstructor buildErrorTree(){
+		// TODO Implement.
+		
+		while(!unexpandableNodes.isEmpty()){
+			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
+			
+		}
+		
+		while(!unmatchableNodes.isEmpty()){
+			AbstractStackNode unmatchableNode = unmatchableNodes.pop();
+			
+		}
+		
+		while(!filteredNodes.isEmpty()){
+			AbstractStackNode filteredNode = filteredNodes.pop();
+			
+		}
+		
+		return null; // Temp.
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
