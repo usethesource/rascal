@@ -2458,13 +2458,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
 			Result<IValue> anno = this.getValue().interpret(__eval);
 			return base.setAnnotation(annoName, anno, __eval.getCurrentEnvt());
-
 		}
 
 	}

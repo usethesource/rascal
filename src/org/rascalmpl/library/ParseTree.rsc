@@ -21,7 +21,7 @@ data Production =
      regular(Symbol rhs, Attributes attributes);
 
 data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
-
+  
 data Attr =
      \assoc(Associativity \assoc) | 
      \term(value \term) |  
