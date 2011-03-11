@@ -5,10 +5,15 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -168,6 +173,39 @@ public class Scripting {
 		
 		throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
 	}
+	
+	public void popupMessage(IString message) {
+		JOptionPane.showMessageDialog(null, message.getValue());
+	}
+	
+	public IString popupInputString(IString message){
+		java.lang.String result = JOptionPane.showInputDialog(message.getValue());
+		return ValueFactoryFactory.getValueFactory().string(result);
+	}
+
+	public IInteger popupInputInt(IString message){
+		 while(true){
+	          try{
+	        	int result = new Scanner(JOptionPane.showInputDialog(message.getValue())).nextInt();
+	        	return ValueFactoryFactory.getValueFactory().integer(result);
+	          } catch(Exception e){ JOptionPane.showMessageDialog(null, "Error parsing int, try again:"  + message.getValue());}
+	      }
+	}
+
+	public IReal popupInputReal(IString message){
+		 while(true){
+	          try{
+	        	double result = new Scanner(JOptionPane.showInputDialog(message.getValue())).nextDouble();
+	        	return ValueFactoryFactory.getValueFactory().real(result);
+	          } catch(Exception e){ JOptionPane.showMessageDialog(null, "Error parsing real, try again:" + message.getValue());}
+	      }
+	}
+	public IBool popupInputBool(IString message){
+		int result = JOptionPane.showConfirmDialog(null, message.getValue(), "Rascal question", JOptionPane.YES_NO_OPTION);
+		return ValueFactoryFactory.getValueFactory().bool(result == JOptionPane.YES_OPTION);
+	}
+
+
 
 	class Timer extends Thread {
 		private final int timeout;
