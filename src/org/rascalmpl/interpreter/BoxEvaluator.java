@@ -245,7 +245,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	private AbstractAST currentAST;
 
 	private boolean isFunctionName;
-	
+
 	final private int SMALLCOMMENTSIZE = 40;
 
 	final private int UNITLENGTH = 70;
@@ -2763,11 +2763,13 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitExpressionReducer(Reducer x) {
 		/*
-		 * init:Expression "|" result:Expression "|" generators:{Expression
-		 * ","}+
+		 * "(" Expression init "|" Expression result "|" {Expression ","}+
+		 * generators ")"
 		 */
-		return list(eX(x.getInit()), BoxADT.VBAR, eX(x.getResult()),
-				BoxADT.VBAR, eXs(x.getGenerators()));
+
+		return list(BoxADT.LPAR, eX(x.getInit()), BoxADT.VBAR,
+				eX(x.getResult()), BoxADT.VBAR, eXs(x.getGenerators()),
+				BoxADT.RPAR);
 	}
 
 	// IValue EmptyBlock(org.rascalmpl.ast.Statement statement) {
@@ -2879,14 +2881,13 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				s = s.append(q);
 			if (i < n) {
 				IList t = getComment(tree, i);
-				final int m= width(t);
-				if (m>0 && m<SMALLCOMMENTSIZE) {
-					IValue g = s.get(s.length()-1);
-					s = s.delete(s.length()-1);
+				final int m = width(t);
+				if (m > 0 && m < SMALLCOMMENTSIZE) {
+					IValue g = s.get(s.length() - 1);
+					s = s.delete(s.length() - 1);
 					s = s.append(H(1, g, t));
-				}
-				else
-				s = s.concat(t);
+				} else
+					s = s.concat(t);
 			}
 			i += 2;
 		}
@@ -2971,8 +2972,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		IList r = list();
 		for (IValue t : c) {
 			String s = TreeAdapter.yield((IConstructor) t);
-			if (s.endsWith("\n") && r.length() == c.length() - 1)
-				s = s.substring(0, s.length() - 1);
+			if (s.endsWith("\n") && r.length() == c.length() - 1)	
+	        s = s.substring(0, s.length() - 1);
+			if (s.startsWith("//")) r = r.append(V(0, COMM(s), BoxADT.EMPTY));
+			else
 			r = r.append(COMM(s));
 		}
 		if (c.length() >= 2)
@@ -3486,7 +3489,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 					return V(
 							0,
 							H(1, eX(x.getStart()), KW("syntax"),
-									eX(x.getDefined()), V(BoxADT.ASSIGN, vs)));
+									eX(x.getDefined()),
+									V(BoxADT.ASSIGN, vs, BoxADT.SEMICOLON)),
+							BoxADT.SPACE);
 				else {
 					IValue v = H(1, BoxADT.ASSIGN, vs.get(0));
 					vs = vs.delete(0);
@@ -3517,7 +3522,8 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 					return V(
 							0,
 							H(1, KW("layout"), eX(x.getDefined()),
-									V(BoxADT.ASSIGN, vs)));
+									V(BoxADT.ASSIGN, vs, BoxADT.SEMICOLON)),
+							BoxADT.SPACE);
 				else {
 					IValue v = H(1, BoxADT.ASSIGN, vs.get(0));
 					vs = vs.delete(0);
@@ -3531,7 +3537,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return V(
 				0,
 				H(1, KW("layout"), eX(x.getDefined()), BoxADT.ASSIGN, w,
-						BoxADT.SEMICOLON));
+						BoxADT.SEMICOLON), BoxADT.SPACE);
 
 	}
 
@@ -3682,7 +3688,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	public IValue visitFunctionDeclarationExpression(
 			org.rascalmpl.ast.FunctionDeclaration.Expression x) {
 		// TODO Auto-generated method stub
