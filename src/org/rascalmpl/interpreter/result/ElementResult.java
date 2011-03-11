@@ -106,22 +106,21 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
-				Type annoType = env.getAnnotationType(getType(), annoName);
-			
-				if (getType() != getTypeFactory().nodeType()) {
-					if (getType() != getTypeFactory().nodeType() && annoType == null) {
-						throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
-					}
-					if (!anno.getType().isSubtypeOf(annoType)){
-						throw new UnexpectedTypeError(annoType, anno.getType(), ctx.getCurrentAST());
-					}
-				}
-			
-				IValue annotatedBase = ((INode)getValue()).setAnnotation(annoName, anno.getValue());
-				
-				// TODO: applyRuels?
-				return makeResult(getType(), annotatedBase, ctx);
+		Type annoType = env.getAnnotationType(getType(), annoName);
+
+		if (getType() != getTypeFactory().nodeType()) {
+			if (getType() != getTypeFactory().nodeType() && annoType == null) {
+				throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
 			}
+			if (!anno.getType().isSubtypeOf(annoType)){
+				throw new UnexpectedTypeError(annoType, anno.getType(), ctx.getCurrentAST());
+			}
+		}
+
+		IValue annotatedBase = ((INode)getValue()).setAnnotation(annoName, anno.getValue());
+
+		return makeResult(getType(), annotatedBase, ctx);
+	}
 
 	@Override
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
