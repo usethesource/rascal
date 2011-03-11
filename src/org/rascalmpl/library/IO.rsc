@@ -2,23 +2,44 @@ module IO
 
 import Exception;
 
-@doc{Print a list of values on the output stream.}
+@doc{Print a value on the output stream and add a newline.}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
 public void java println(value arg);
 
-@doc{Print and return true, for debugging complex expressions}
+@doc{Print a value on the output stream.}
+@javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
-public bool print(value arg) 
+public void java print(value arg);
+
+@doc{Print and return true, for debugging complex Boolean expressions or comprehensions}
+public bool bprintln(value arg) 
 {
   println(arg);
   return true;
 }
+
+@doc{Print a in indented representation of a value and add a newline at the end}
+@reflect{for getting IO streams}
+@javaClass{org.rascalmpl.library.IO}
+public bool java iprintln(value arg); 
+
+@doc{Print and return true, for debugging complex Boolean expressions or comprehensions}
+public bool bprint(value arg) 
+{
+  print(arg);
+  return true;
+}
     
-@doc{Print a list of values on the output stream, but do not convert parse trees or remove quotes from strings}
+@doc{Print a value on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
-public void java rawPrintln(value arg);
+public void java rprintln(value arg);
+
+@doc{Print a value on the output stream, but do not convert parse trees or remove quotes from strings}
+@javaClass{org.rascalmpl.library.IO}
+@reflect{for getting IO streams}
+public void java rprint(value arg);
 
 @doc{Read a named file as list of strings.}
 @deprecated{Use @see str readFile(loc file)}
