@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -32,4 +33,9 @@ public class Reflective {
 			throw RuntimeExceptionFactory.moduleNotFound(modulePath, null, null);
 		}
 	}
+	
+	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
+		return ctx.getEvaluator().parseCommand(str.getValue(), loc.getURI());
+	}
+	
 }
