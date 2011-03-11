@@ -24,6 +24,11 @@ public bool bprintln(value arg)
 @javaClass{org.rascalmpl.library.IO}
 public bool java iprintln(value arg); 
 
+@doc{Print a in indented representation of a value}
+@reflect{for getting IO streams}
+@javaClass{org.rascalmpl.library.IO}
+public bool java iprint(value arg); 
+
 @doc{Print and return true, for debugging complex Boolean expressions or comprehensions}
 public bool bprint(value arg) 
 {
