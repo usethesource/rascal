@@ -222,8 +222,11 @@ text VV(list[Box] b, Box c, options o, int m) {
     text r = [];
     b = reverse(b);
     for (a<-b) {
-          text t = O(a, V([]), o, m);
-          r = vv(t, vv_(vskip(v), r));
+        if (V(_)!:=c || L("")!:=a)
+            {
+            text t = O(a, V([]), o, m);
+            r = vv(t, vv_(vskip(v), r));
+            }
     }
     return r;
    }

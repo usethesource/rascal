@@ -1,14 +1,14 @@
 module lang::box::util::Parse
 import lang::box::syntax::Box;
 import lang::box::util::Box;
-import lang::box::util::BoxFormat;
+// import lang::box::util::BoxFormat;
 import lang::box::util::Concrete;
 import IO;
 import List;
 import String;
 import ParseTree;
-void annotateBox(Box b,list[Tree] tl) {
-  for (Tree t<-ts) {
+Box annotateBox(Box b,list[Tree] tl) {
+  for (Tree t<-tl) {
     if (SpaceOption so:=t) {
       if (`<SpaceSymbol sp> = <NatCon n>`:=so) {
         switch (sp) {
@@ -89,9 +89,9 @@ str toString(Box c) {
     }
   }
 
-Box unparse(Box b) { return BoxToBox(toString(b)); }
+public Box unparse(Box b) { return BoxToBox(toString(b)); }
 
-Box parse(loc src) {
+public Box parse(loc src) {
   Main a = parse(#Main,src);
   setUserDefined(getUserDefined);
   return treeToBox(a);
