@@ -26,6 +26,7 @@ syntax Marker =
               # "syntax"
               # "start"
               # "layout"
+              # "lexical"
               # "extend"
               ;
 
@@ -90,21 +91,34 @@ syntax HexLongLiteral
 	# [0-9 A-Z _ a-z] ;
 
 syntax Sym
-	= Iter: Sym symbol "+" 
-	| IterSep: "{" Sym symbol StringConstant sep "}" "+" 
-	| Column: "@" IntegerLiteral column 
+	= Nonterminal: Nonterminal nonterminal
+	| Parameter: "&" Nonterminal nonterminal 
+	| Parametrized: ParameterizedNonterminal pnonterminal "[" {Sym ","}+ parameters "]"
+	| Keyword: "keyword" "[" Nonterminal nonterminal "]"
+	| Start: "start" "[" Nonterminal nonterminal "]"
+	| Layout: "layout" "[" Nonterminal nonterminal "]"
 	| CharacterClass: Class charClass 
 	| Literal: StringConstant string 
-	| EndOfLine: "$" 
 	| Labeled: Sym symbol NonterminalLabel label 
-	| Nonterminal: Nonterminal nonterminal 
-	| Parameter: "&" Nonterminal nonterminal 
+	| CaseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
+	| Iter: Sym symbol "+" 
 	| IterStar: Sym symbol "*" 
-	| Parametrized: ParameterizedNonterminal pnonterminal "[" {Sym ","}+ parameters "]" 
-	| Optional: Sym symbol "?" 
+	| IterSep: "{" Sym symbol StringConstant sep "}" "+" 
 	| IterStarSep: "{" Sym symbol StringConstant sep "}" "*" 
-	| CaseInsensitiveLiteral: CaseInsensitiveStringConstant cistring 
-	| StartOfLine: "^" ;
+	| Optional: Sym symbol "?" 
+	| Alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
+	| Sequence: "(" Sym first Sym+ sequence ")"
+	| Empty: "(" ")"
+	| Column: "@" IntegerLiteral column
+	| EndOfLine: "$"
+	| StartOfLine: "^" 
+	> non-assoc ( Follow:     Sym symbol "\>\>" Sym match
+	            | NotFollow:  Sym symbol "!\>\>" Sym match
+	            | Precede:    Sym match "\<\<" Sym symbol
+	            | NotPrecede: Sym match "!\<\<" Sym symbol
+	            | Unequal:    Sym symbol "!=" Sym match
+	            )
+	;
 
 syntax TimePartNoTZ
 	= lex [0-2] [0-9] [0-5] [0-9] [0-5] [0-9]
@@ -136,7 +150,9 @@ syntax Name
 	# [0-9 A-Z _ a-z] ;
 
 syntax SyntaxDefinition
-	= Layout: "layout" Sym defined "=" Prod production ";" 
+	= Layout  : "layout"  Sym defined "=" Prod production ";" 
+	| Lexical : "lexical" Sym defined "=" Prod production ";" 
+	| Keyword : "keyword" Sym defined "=" Prod production ";"
 	| Language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
 syntax Kind
@@ -263,7 +279,9 @@ syntax URLChars
 	= lex ![\t-\n \r \  \< |]* ;
 
 syntax LanguageAction
-	= Build: "=\>" Expression expression 
+	= Replace: "=\>" Expression expression ";"
+	| When: "when" {Expression ","}+ conditions ";"
+	| ReplaceWhen: "=\>" Expression expression "when" {Expression ","}+ conditions ";" 
 	| Action: "{" Statement* statements "}" ;
 
 syntax TimeZonePart
@@ -277,11 +295,11 @@ syntax ProtocolPart
 	| Interpolated: PreProtocolChars pre Expression expression ProtocolTail tail ;
 
 syntax StringTemplate
-	= IfThen: "if" "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| IfThenElse: "if" "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
-	| For: "for" "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| DoWhile: "do" "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
-	| While: "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
+	= IfThen    : "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
+	| IfThenElse: "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
+	| For       : "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
+	| DoWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
+	| While     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
 
 syntax PreStringChars
 	= @category="Constant" lex [\"] StringCharacter* [\<] ;
@@ -371,6 +389,9 @@ syntax Replacement
 
 syntax ParameterizedNonterminal
 	= lex [A-Z] [0-9 A-Z _ a-z]* 
+	- "start"
+	- "keyword"
+	- "layout"
 	# ![\[] ;
 
 syntax TagChar
