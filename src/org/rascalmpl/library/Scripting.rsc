@@ -72,3 +72,12 @@ public str java evalType(str command, int duration) throws Timeout;
 @reflect
 public str java evalType(list[str] commands, int duration) throws Timeout;
 
+@javaClass{org.rascalmpl.library.Scripting}
+@doc{Pop up a messagebox with the desired string}
+public void java popupMessage(str message);
+
+@javaClass{org.rascalmpl.library.Scripting}
+@doc{Pop up a inputbox where the user can type in a string}
+public &T java popupInput(type[&T] t, str message);
+
+
