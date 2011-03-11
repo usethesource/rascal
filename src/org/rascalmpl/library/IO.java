@@ -60,15 +60,9 @@ public class IO {
 		
 		synchronized(currentOutStream){
 			try{
-				if (arg.getType().isStringType()){
-					currentOutStream.print(((IString) arg).getValue().toString());
-				} else if(arg.getType().isSubtypeOf(Factory.Tree)){
-					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-				} else{
-					ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
-					w.write(arg, bytes);
-					currentOutStream.print(bytes.toString());
-				}
+				ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
+				w.write(arg, bytes);
+				currentOutStream.print(bytes.toString());
 			} catch (IOException e) {
 				// does not happen in byte array outputstreams
 			}finally{
@@ -83,16 +77,10 @@ public class IO {
 		
 		synchronized(currentOutStream){
 			try{
-				if (arg.getType().isStringType()){
-					currentOutStream.print(((IString) arg).getValue().toString());
-				} else if(arg.getType().isSubtypeOf(Factory.Tree)){
-					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-				} else{
-					ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
-					w.write(arg, bytes);
-					currentOutStream.print(bytes.toString());
-					currentOutStream.println();
-				}
+				ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
+				w.write(arg, bytes);
+				currentOutStream.print(bytes.toString());
+				currentOutStream.println();
 			} catch (IOException e) {
 				// does not happen in byte array outputstreams
 			}finally{
