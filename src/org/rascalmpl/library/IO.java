@@ -2,6 +2,7 @@ package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -32,6 +34,71 @@ public class IO {
 	public IO(IValueFactory values){
 		super();
 		this.values = values;
+	}
+	
+	public void print(IValue arg, IEvaluatorContext eval){
+		PrintWriter currentOutStream = eval.getStdOut();
+		
+		synchronized(currentOutStream){
+			try{
+				if(arg.getType().isStringType()){
+					currentOutStream.print(((IString) arg).getValue().toString());
+				}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+				}else{
+					currentOutStream.print(arg.toString());
+				}
+			}finally{
+				currentOutStream.flush();
+			}
+		}
+	}
+	
+	public void iprint(IValue arg, IEvaluatorContext eval){
+		PrintWriter currentOutStream = eval.getStdOut();
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		
+		synchronized(currentOutStream){
+			try{
+				if (arg.getType().isStringType()){
+					currentOutStream.print(((IString) arg).getValue().toString());
+				} else if(arg.getType().isSubtypeOf(Factory.Tree)){
+					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+				} else{
+					ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
+					w.write(arg, bytes);
+					currentOutStream.print(bytes.toString());
+				}
+			} catch (IOException e) {
+				// does not happen in byte array outputstreams
+			}finally{
+				currentOutStream.flush();
+			}
+		}
+	}
+	
+	public void iprintln(IValue arg, IEvaluatorContext eval){
+		PrintWriter currentOutStream = eval.getStdOut();
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		
+		synchronized(currentOutStream){
+			try{
+				if (arg.getType().isStringType()){
+					currentOutStream.print(((IString) arg).getValue().toString());
+				} else if(arg.getType().isSubtypeOf(Factory.Tree)){
+					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+				} else{
+					ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
+					w.write(arg, bytes);
+					currentOutStream.print(bytes.toString());
+					currentOutStream.println();
+				}
+			} catch (IOException e) {
+				// does not happen in byte array outputstreams
+			}finally{
+				currentOutStream.flush();
+			}
+		}
 	}
 	
 	public void println(IValue arg, IEvaluatorContext eval){
@@ -53,13 +120,25 @@ public class IO {
 		}
 	}
 	
-	public void rawPrintln(IValue arg, IEvaluatorContext eval){
+	public void rprintln(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
 		synchronized(currentOutStream){
 			try{
 				currentOutStream.print(arg.toString());
 				currentOutStream.println();
+			}finally{
+				currentOutStream.flush();
+			}
+		}
+	}
+	
+	public void rprint(IValue arg, IEvaluatorContext eval){
+		PrintWriter currentOutStream = eval.getStdOut();
+		
+		synchronized(currentOutStream){
+			try{
+				currentOutStream.print(arg.toString());
 			}finally{
 				currentOutStream.flush();
 			}
