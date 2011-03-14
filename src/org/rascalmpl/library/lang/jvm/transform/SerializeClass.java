@@ -5,6 +5,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,27 +40,31 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SerializeClass {
-
-	private final static URIResolverRegistry _resolver;
-	
-	
-	static {
-		_resolver = new URIResolverRegistry();
-		_resolver.registerInputOutput(new FileURIResolver());
-	}
 	
 	public SerializeClass(IValueFactory values) {
 		super();
 	}
 	
-	public void serialize(IConstructor c, ISourceLocation path){
-		new SerializeClassImplementation().serialize(c, path);
+	public void serialize(IConstructor c, ISourceLocation path,IEvaluatorContext ctx){
+		try {
+			OutputStream output = ctx.getResolverRegistry().getOutputStream(path.getURI(), false);
+			new SerializeClassImplementation().serialize(c, output);
+		} catch (FileNotFoundException e) {
+			throw RuntimeExceptionFactory.pathNotFound(path, null, null);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+		} catch(Exception e){
+			System.err.print(e.getMessage());
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+		}
+		
 	}
 	
 	
@@ -70,22 +75,12 @@ public class SerializeClass {
 			_labels = new  HashMap<Integer, LabelNode>();
 		}
 		
-		void serialize(IConstructor c, ISourceLocation path) {
-			try {
+		void serialize(IConstructor c,OutputStream output) throws IOException {
 			ClassNode cn = buildClass(c);
 			ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
 			cn.accept(cw);
-				OutputStream output = _resolver.getOutputStream(path.getURI(), false);
-				output.write(cw.toByteArray());
-				output.close();
-			} catch (FileNotFoundException e) {
-				throw RuntimeExceptionFactory.pathNotFound(path, null, null);
-			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
-			} catch(Exception e){
-				System.err.print(e.getMessage());
-				throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
-			}
+			output.write(cw.toByteArray());
+			output.close();
 		}
 
 		ClassNode buildClass(IConstructor c) {
