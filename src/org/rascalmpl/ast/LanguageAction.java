@@ -49,6 +49,14 @@ public abstract class LanguageAction extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
+  public boolean hasConditions() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+    throw new UnsupportedOperationException();
+  }
+
 
 static public class Ambiguity extends LanguageAction {
   private final java.util.List<org.rascalmpl.ast.LanguageAction> alternatives;
@@ -91,50 +99,6 @@ static public class Ambiguity extends LanguageAction {
 
 
 
-  public boolean isBuild() {
-    return false;
-  }
-  
-static public class Build extends LanguageAction {
-  // Production: sig("Build",[arg("org.rascalmpl.ast.Expression","expression")])
-
-  
-     private final org.rascalmpl.ast.Expression expression;
-  
-
-  
-public Build(INode node , org.rascalmpl.ast.Expression expression) {
-  super(node);
-  
-    this.expression = expression;
-  
-}
-
-
-  @Override
-  public boolean isBuild() { 
-    return true; 
-  }
-
-  @Override
-  public <T> T accept(IASTVisitor<T> visitor) {
-    return visitor.visitLanguageActionBuild(this);
-  }
-  
-  
-     @Override
-     public org.rascalmpl.ast.Expression getExpression() {
-        return this.expression;
-     }
-     
-     @Override
-     public boolean hasExpression() {
-        return true;
-     }
-  	
-}
-
-
   public boolean isAction() {
     return false;
   }
@@ -173,6 +137,152 @@ public Action(INode node , java.util.List<org.rascalmpl.ast.Statement> statement
      
      @Override
      public boolean hasStatements() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isWhen() {
+    return false;
+  }
+  
+static public class When extends LanguageAction {
+  // Production: sig("When",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
+
+  
+     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
+  
+
+  
+public When(INode node , java.util.List<org.rascalmpl.ast.Expression> conditions) {
+  super(node);
+  
+    this.conditions = conditions;
+  
+}
+
+
+  @Override
+  public boolean isWhen() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitLanguageActionWhen(this);
+  }
+  
+  
+     @Override
+     public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+        return this.conditions;
+     }
+     
+     @Override
+     public boolean hasConditions() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isReplace() {
+    return false;
+  }
+  
+static public class Replace extends LanguageAction {
+  // Production: sig("Replace",[arg("org.rascalmpl.ast.Expression","expression")])
+
+  
+     private final org.rascalmpl.ast.Expression expression;
+  
+
+  
+public Replace(INode node , org.rascalmpl.ast.Expression expression) {
+  super(node);
+  
+    this.expression = expression;
+  
+}
+
+
+  @Override
+  public boolean isReplace() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitLanguageActionReplace(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Expression getExpression() {
+        return this.expression;
+     }
+     
+     @Override
+     public boolean hasExpression() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isReplaceWhen() {
+    return false;
+  }
+  
+static public class ReplaceWhen extends LanguageAction {
+  // Production: sig("ReplaceWhen",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
+
+  
+     private final org.rascalmpl.ast.Expression expression;
+  
+     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
+  
+
+  
+public ReplaceWhen(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+  super(node);
+  
+    this.expression = expression;
+  
+    this.conditions = conditions;
+  
+}
+
+
+  @Override
+  public boolean isReplaceWhen() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitLanguageActionReplaceWhen(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Expression getExpression() {
+        return this.expression;
+     }
+     
+     @Override
+     public boolean hasExpression() {
+        return true;
+     }
+  
+     @Override
+     public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+        return this.conditions;
+     }
+     
+     @Override
+     public boolean hasConditions() {
         return true;
      }
   	

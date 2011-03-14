@@ -117,6 +117,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private ITestResultListener testReporter;
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
+	private Stack<Integer> indentStack = new Stack<Integer>();
 	private final RascalURIResolver rascalPathResolver;
 	private static final ASTBuilder builder = new ASTBuilder();
 
@@ -307,6 +308,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public RascalURIResolver getRascalResolver() {
 		return this.rascalPathResolver;
+	}
+	
+	public void indent(int n) {
+		indentStack.push(n);
+	}
+	
+	public void unindent() {
+		indentStack.pop();
+	}
+	
+	public int getCurrentIndent() {
+		return indentStack.peek();
 	}
 
 	/**
@@ -1069,7 +1082,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
-				module.interpretInCurrentEnv(this);
+				((org.rascalmpl.semantics.dynamic.Module.Default)module).interpretInCurrentEnv(this);
 				return module;
 			}
 		} catch (StaticError e) {
@@ -1230,7 +1243,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public static final Name IT = builder.makeLex("Name", null, "<it>");
 	private ParserGenerator parserGenerator;
-
 	
 
 	

@@ -5,7 +5,6 @@ package org.rascalmpl.ast;
 import org.eclipse.imp.pdb.facts.INode;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
@@ -147,14 +146,6 @@ public Default(INode node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.
         return true;
      }
   	
-}
-
-
-
-
-
-public Result<IValue> interpretInCurrentEnv(Evaluator evaluator) {
-	throw new ImplementationError("implement this in subclasses");
 }
 
 
