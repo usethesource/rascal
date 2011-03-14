@@ -76,7 +76,9 @@ public class RascalActionExecutor implements IActionExecutor{
 			eval.pushEnv();
 			assignItAndFields(tree);
 			
-			if(action.isBuild()){
+			// TODO: replace when
+			// TODO: when
+			if(action.isReplace()){
 				// TODO add type checking
 				eval.setCurrentAST(action.getExpression());
 				return (IConstructor) action.getExpression().interpret(eval).getValue();

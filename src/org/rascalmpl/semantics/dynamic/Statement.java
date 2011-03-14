@@ -51,6 +51,23 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1, __param2, __param3);
 		}
 
+		protected Accumulator getTarget(Evaluator __eval) {
+			if (__eval.__getAccumulators().empty()) { 
+				throw new AppendWithoutLoop(this);
+			}
+			if (!this.getDataTarget().isEmpty()) {
+				String label = org.rascalmpl.interpreter.utils.Names.name(this.getDataTarget().getLabel());
+				for (Accumulator accu : __eval.__getAccumulators()) {
+					if (accu.hasLabel(label)) {
+						return accu;
+					}
+				}
+				throw new AppendWithoutLoop(this); // TODO: better error
+			} else {
+				return __eval.__getAccumulators().peek();
+			}
+		}
+		
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 

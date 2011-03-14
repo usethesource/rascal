@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
@@ -17,6 +19,7 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.StringLiteral.NonInterpolated;
+import org.rascalmpl.ast.StringMiddle.Ambiguity;
 import org.rascalmpl.ast.StringMiddle.Interpolated;
 import org.rascalmpl.ast.StringMiddle.Mid;
 import org.rascalmpl.ast.StringMiddle.Template;
@@ -26,9 +29,10 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
+import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -55,7 +59,8 @@ public class StringTemplateConverter {
 	public Statement convert(org.rascalmpl.ast.StringLiteral str) {
 		final Name label= factory.make("Name","Lexical", str.getTree(), "#" + labelCounter);
 		labelCounter++;
-		return surroundWithSingleIterForLoop(str.getTree(), label, str.accept(new Visitor(label, factory)));
+		Statement stat = str.accept(new Visitor(label, factory));
+		return surroundWithSingleIterForLoop(str.getTree(), label, stat);
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
@@ -77,37 +82,18 @@ public class StringTemplateConverter {
 		}
 
 		
-		private class MyAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
+		private class IndentingAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 
-			public MyAppend(INode __param1, DataTarget __param2,
+			public IndentingAppend(INode __param1, DataTarget __param2,
 					Statement __param3) {
 				super(__param1, __param2, __param3);
-			}
+			} 
 			
-			
-			// Ugh, this is the same as normal Statement.Append
-			// but wraps already converts to origined strings
 			@Override
 			public Result<IValue> interpret(Evaluator __eval) {
-				Accumulator target = null;
-				if (__eval.__getAccumulators().empty()) {
-					throw new AppendWithoutLoop(this);
-				}
-				if (!this.getDataTarget().isEmpty()) {
-					String label = org.rascalmpl.interpreter.utils.Names.name(this.getDataTarget().getLabel());
-					for (Accumulator accu : __eval.__getAccumulators()) {
-						if (accu.hasLabel(label)) {
-							target = accu;
-							break;
-						}
-					}
-					if (target == null) {
-						throw new AppendWithoutLoop(this); // TODO: better error
-															// message
-					}
-				} else {
-					target = __eval.__getAccumulators().peek();
-				}
+				Accumulator target = getTarget(__eval);
+				
+				// TODO refactor this: pull up to Append
 				Result<IValue> result = this.getStatement().interpret(__eval);
 				IValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
@@ -122,17 +108,151 @@ public class StringTemplateConverter {
 						v = vf.string(sb.toString());
 					}
 				}
+				int indent = __eval.getCurrentIndent();
+				char[] arr = new char[indent];
+				Arrays.fill(arr, ' ');
+				java.lang.String fill = new java.lang.String(arr);
+				java.lang.String content = ((IString)v).getValue();
+				content = content.replaceAll("\n", "\n" + fill);
+				v = vf.string(content);
+//				__eval.unindent();
+
 				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
 				target.append(result);
 				return result;
-
 			}
-
 			
 		}
 		
-		private Statement makeAppend(Expression exp) {
-			return new MyAppend(exp.getTree(), factory.<DataTarget>make("DataTarget","Labeled", null, label),
+		private static class ConstAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
+			private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
+			protected final IString str;
+
+			public ConstAppend(INode __param1, DataTarget __param2, String arg) {
+				super(__param1, __param2, null);
+				str = initString(preprocess(arg));
+			}
+			
+			protected IString initString(String preprocessedString) {
+				return makeValue(removeMargins(preprocessedString));
+			}
+			
+			private IString makeValue(String arg) {
+				IValueFactory vf = ValueFactoryFactory.getValueFactory();
+				return vf.string(arg);
+			}
+			
+			private String removeMargins(String arg) {
+				arg = MARGIN.matcher(arg).replaceAll("");
+				return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
+			}
+			
+			private String preprocess(String arg) {
+				arg = org.rascalmpl.interpreter.utils.StringUtils.unquote(arg);
+				// don't unescape ' yet
+				arg = org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(arg);
+				return arg;
+			}
+			
+			@Override
+			public Result<IValue> interpret(Evaluator __eval) {
+				Result<IValue> result = ResultFactory.makeResult(str.getType(), str, __eval);
+				getTarget(__eval).append(result);
+				return result;
+			}
+			
+		}
+		
+		
+		private abstract static class IndentingStringFragmentAppend extends ConstAppend {
+			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'[^']*$");
+			private int indent;
+			
+			public IndentingStringFragmentAppend(INode __param1, DataTarget __param2, String arg) {
+				super(__param1, __param2, arg);
+			}
+			
+			@Override
+			protected IString initString(String arg) {
+				indent = computeIndent(arg);
+				return super.initString(arg);
+			}
+
+			private int computeIndent(String arg) {
+				Matcher m = INDENT.matcher(arg);
+				if (m.find()) {
+					return m.group().length() - 1;
+				}
+				return 0;
+			}
+			
+			protected int getIndent() {
+				return indent;
+			}
+			
+		}
+
+		private static class PreAppend extends IndentingStringFragmentAppend {
+			public PreAppend(INode __param1, DataTarget __param2, String arg) {
+				super(__param1, __param2, arg);
+			}
+			
+			@Override
+			public Result<IValue> interpret(Evaluator __eval) {
+				__eval.indent(getIndent());
+				return super.interpret(__eval);
+			}
+		
+		}
+
+		private static class MidAppend extends IndentingStringFragmentAppend {
+
+			public MidAppend(INode __param1, DataTarget __param2, String arg) {
+				super(__param1, __param2, arg);
+			}
+			
+			@Override
+			public Result<IValue> interpret(Evaluator __eval) {
+				__eval.unindent();
+				__eval.indent(getIndent());
+				return super.interpret(__eval);
+			}
+		
+		}
+
+		private static class PostAppend extends ConstAppend {
+			public PostAppend(INode __param1, DataTarget __param2, String arg) {
+				super(__param1, __param2, arg);
+			}
+			
+			@Override
+			public Result<IValue> interpret(Evaluator __eval) {
+				__eval.unindent();
+				return super.interpret(__eval);
+			}
+
+			
+		}		
+		
+		
+		private Statement makeConstAppend(INode tree, String str) {
+			return new ConstAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		}
+
+		private Statement makePostAppend(INode tree, String str) {
+			return new PostAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		}
+
+		private Statement makePreAppend(INode tree, String str) {
+			return new PreAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		}
+
+		private Statement makeMidAppend(INode tree, String str) {
+			return new MidAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		}
+
+		private Statement makeIndentingAppend(Expression exp) {
+			return new IndentingAppend(exp.getTree(), factory.<DataTarget>make("DataTarget","Labeled", null, label),
 					factory.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
 		}
 		
@@ -144,30 +264,18 @@ public class StringTemplateConverter {
 			return makeBlock(src, stats);
 		}
 		
-		
-		private Expression makeLit(INode src, String str) {
-			// Note: we don't unescape here this happens
-			// in the main evaluator; also, we pretend 
-			// "...< etc. to be "..." stringliterals...
-			return factory.makeExp("Literal",src, 
-					factory.make("Literal","String", src, 
-							factory.make("StringLiteral", "NonInterpolated", src, 
-									factory.make("StringConstant","Lexical", src, str))));
-		}
-		
-		
 		@Override
 		public Statement visitStringLiteralInterpolated(
 				org.rascalmpl.ast.StringLiteral.Interpolated x) {
 			Statement pre = x.getPre().accept(this);
-			Statement exp = makeAppend(x.getExpression());
+			Statement exp = makeIndentingAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
 			return makeBlock(x.getTree(), pre, exp, tail);
 		}
 		
 		@Override
 		public Statement visitStringLiteralNonInterpolated(NonInterpolated x) {
-			return makeAppend(makeLit(x.getTree(), ((StringConstant.Lexical)x.getConstant()).getString()));
+			return makeConstAppend(x.getTree(), ((StringConstant.Lexical)x.getConstant()).getString());
 		}
 		
 		@Override
@@ -186,7 +294,6 @@ public class StringTemplateConverter {
 			return factory.makeStat("DoWhile", x.getTree(), factory.make("Label","Empty", x.getTree()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
-
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
@@ -222,7 +329,7 @@ public class StringTemplateConverter {
 		@Override
 		public Statement visitStringMiddleInterpolated(Interpolated x) {
 			Statement mid = x.getMid().accept(this);
-			Statement exp = makeAppend(x.getExpression());
+			Statement exp = makeIndentingAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
 			return makeBlock(x.getTree(), mid, exp, tail);
 		}
@@ -242,26 +349,26 @@ public class StringTemplateConverter {
 
 		@Override
 		public Statement visitMidStringCharsLexical(Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makeMidAppend(x.getTree(), x.getString());
 		}
 
 		@Override
 		public Statement visitPreStringCharsLexical(
 				org.rascalmpl.ast.PreStringChars.Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makePreAppend(x.getTree(), x.getString());
 		}
 		
 		@Override
 		public Statement visitPostStringCharsLexical(
 				org.rascalmpl.ast.PostStringChars.Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makePostAppend(x.getTree(), x.getString());
 		}
 
 		@Override
 		public Statement visitStringTailMidInterpolated(
 				org.rascalmpl.ast.StringTail.MidInterpolated x) {
 			Statement mid = x.getMid().accept(this);
-			Statement exp = makeAppend(x.getExpression());
+			Statement exp = makeIndentingAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
 			return makeBlock(x.getTree(), mid, exp, tail);
 		}
@@ -269,7 +376,7 @@ public class StringTemplateConverter {
 		@Override
 		public Statement visitStringConstantLexical(
 				org.rascalmpl.ast.StringConstant.Lexical x) {
-			return makeAppend(makeLit(x.getTree(), x.getString()));
+			return makeConstAppend(x.getTree(), x.getString());
 		}
 		
 		@Override
@@ -285,7 +392,37 @@ public class StringTemplateConverter {
 		public Statement visitStringTailPost(Post x) {
 			return x.getPost().accept(this);
 		}
-		
 	
+		@Override
+		public Statement visitStringMiddleAmbiguity(Ambiguity x) {
+			throw new ImplementationError("ambiguous middle string: " + x);
+		}
+	
+		@Override
+		public Statement visitStringTailAmbiguity(org.rascalmpl.ast.StringTail.Ambiguity x) {
+			throw new ImplementationError("ambiguous string tail: " + x);
+		}
+		
+		@Override
+		public Statement visitStringTemplateAmbiguity(org.rascalmpl.ast.StringTemplate.Ambiguity x) {
+			throw new ImplementationError("ambiguous string template: " + x);
+		}
+		
+		@Override
+		public Statement visitMidStringCharsAmbiguity(
+				org.rascalmpl.ast.MidStringChars.Ambiguity x) {
+			throw new ImplementationError("ambiguous mid string chars: " + x);
+		}
+		
+		@Override
+		public Statement visitPreStringCharsAmbiguity(
+				org.rascalmpl.ast.PreStringChars.Ambiguity x) {
+			throw new ImplementationError("ambiguous pre string chars: " + x);
+		}
+		
+		@Override
+		public Statement visitPostStringCharsAmbiguity(org.rascalmpl.ast.PostStringChars.Ambiguity x) {
+			throw new ImplementationError("ambiguous post string chars: " + x);
+		}
 	}
 }

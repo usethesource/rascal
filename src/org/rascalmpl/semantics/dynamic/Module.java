@@ -55,7 +55,6 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 			return Names.fullName(getHeader().getName());
 		}
 		
-		@Override
 		public Result<IValue> interpretInCurrentEnv(Evaluator __eval) {
 			String name = __eval.getModuleName(this);
 			Environment env = __eval.getCurrentModuleEnvironment();

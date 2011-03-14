@@ -107,16 +107,45 @@ public final class StringUtils {
 		return result.toString();
 	}
 	
-	public static String unescape(String str) {
+	public static String unescapeSingleQuoteAndBackslash(String str) {
 		char[] chars = str.toCharArray();
 		StringBuffer result = new StringBuffer();
 		
-		for (int i = 1; i < chars.length - 1; i++) {
+		
+		for (int i = 0; i < chars.length; i++) {
 			char b = chars[i];
 			switch (b) {
 			case '\\':
 				switch (chars[++i]) {
 				case '\\':
+					b = '\\'; 
+					break;
+				case '\'':
+					b = '\''; 
+					break;
+				}
+			}
+			result.append(b);
+		}
+		return result.toString();
+	}
+	
+	
+	public static String unquote(String str) {
+		return str.substring(1, str.length() - 1);
+	}
+
+	public static String unescapeBase(String str) {
+		char[] chars = str.toCharArray();
+		StringBuffer result = new StringBuffer();
+		
+		for (int i = 0; i < chars.length; i++) {
+			char b = chars[i];
+			switch (b) {
+			case '\\':
+				switch (chars[++i]) {
+				case '\\':
+					result.append('\\');
 					b = '\\'; 
 					break;
 				case 'n':
@@ -126,6 +155,7 @@ public final class StringUtils {
 					b = '"'; 
 					break;
 				case '\'':
+					result.append('\\');
 					b = '\'';
 					break;
 				case 't':
@@ -140,12 +170,14 @@ public final class StringUtils {
 				case 'r':
 					b = '\r'; 
 					break;
+
 				case '<':
 					b = '<'; 
 					break;
 				case '>':
 					b = '>';
 					break;
+				
 				case '0':
 				case '1':
 				case '2':

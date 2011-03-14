@@ -135,40 +135,6 @@ public interface IASTVisitor<T> {
   
       public T visitLongLiteralHexLongLiteral(LongLiteral.HexLongLiteral x);
   
-      public T visitSymStartOfLine(Sym.StartOfLine x);
-  
-      public T visitSymNonterminal(Sym.Nonterminal x);
-  
-      public T visitSymOptional(Sym.Optional x);
-  
-      public T visitSymParameter(Sym.Parameter x);
-  
-      public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
-  
-      public T visitSymCharacterClass(Sym.CharacterClass x);
-  
-      public T visitSymLabeled(Sym.Labeled x);
-  
-      public T visitSymIterStar(Sym.IterStar x);
-  
-      public T visitSymParametrized(Sym.Parametrized x);
-  
-      public T visitSymIter(Sym.Iter x);
-  
-      public T visitSymEndOfLine(Sym.EndOfLine x);
-  
-      public T visitSymIterStarSep(Sym.IterStarSep x);
-  
-      public T visitSymLiteral(Sym.Literal x);
-  
-      public T visitSymColumn(Sym.Column x);
-  
-      public T visitSymIterSep(Sym.IterSep x);
-  
-      public T visitSyntaxDefinitionLanguage(SyntaxDefinition.Language x);
-  
-      public T visitSyntaxDefinitionLayout(SyntaxDefinition.Layout x);
-  
       public T visitAssocRight(Assoc.Right x);
   
       public T visitAssocNonAssociative(Assoc.NonAssociative x);
@@ -281,6 +247,14 @@ public interface IASTVisitor<T> {
   
       public T visitVisitGivenStrategy(Visit.GivenStrategy x);
   
+      public T visitSyntaxDefinitionKeyword(SyntaxDefinition.Keyword x);
+  
+      public T visitSyntaxDefinitionLanguage(SyntaxDefinition.Language x);
+  
+      public T visitSyntaxDefinitionLayout(SyntaxDefinition.Layout x);
+  
+      public T visitSyntaxDefinitionLexical(SyntaxDefinition.Lexical x);
+  
       public T visitVisibilityPublic(Visibility.Public x);
   
       public T visitVisibilityDefault(Visibility.Default x);
@@ -288,6 +262,58 @@ public interface IASTVisitor<T> {
       public T visitVisibilityPrivate(Visibility.Private x);
   
       public T visitTagsDefault(Tags.Default x);
+  
+      public T visitSymNotFollow(Sym.NotFollow x);
+  
+      public T visitSymLayout(Sym.Layout x);
+  
+      public T visitSymSequence(Sym.Sequence x);
+  
+      public T visitSymNonterminal(Sym.Nonterminal x);
+  
+      public T visitSymKeyword(Sym.Keyword x);
+  
+      public T visitSymParameter(Sym.Parameter x);
+  
+      public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
+  
+      public T visitSymAlternative(Sym.Alternative x);
+  
+      public T visitSymStart(Sym.Start x);
+  
+      public T visitSymNotPrecede(Sym.NotPrecede x);
+  
+      public T visitSymIter(Sym.Iter x);
+  
+      public T visitSymIterStarSep(Sym.IterStarSep x);
+  
+      public T visitSymStartOfLine(Sym.StartOfLine x);
+  
+      public T visitSymEmpty(Sym.Empty x);
+  
+      public T visitSymOptional(Sym.Optional x);
+  
+      public T visitSymFollow(Sym.Follow x);
+  
+      public T visitSymCharacterClass(Sym.CharacterClass x);
+  
+      public T visitSymLabeled(Sym.Labeled x);
+  
+      public T visitSymIterStar(Sym.IterStar x);
+  
+      public T visitSymParametrized(Sym.Parametrized x);
+  
+      public T visitSymEndOfLine(Sym.EndOfLine x);
+  
+      public T visitSymLiteral(Sym.Literal x);
+  
+      public T visitSymColumn(Sym.Column x);
+  
+      public T visitSymIterSep(Sym.IterSep x);
+  
+      public T visitSymUnequal(Sym.Unequal x);
+  
+      public T visitSymPrecede(Sym.Precede x);
   
       public T visitKindModule(Kind.Module x);
   
@@ -422,10 +448,6 @@ public interface IASTVisitor<T> {
       public T visitHeaderParameters(Header.Parameters x);
   
       public T visitHeaderDefault(Header.Default x);
-  
-      public T visitLanguageActionBuild(LanguageAction.Build x);
-  
-      public T visitLanguageActionAction(LanguageAction.Action x);
   
       public T visitExpressionProduct(Expression.Product x);
   
@@ -614,6 +636,14 @@ public interface IASTVisitor<T> {
       public T visitTypeArgNamed(TypeArg.Named x);
   
       public T visitTypeArgDefault(TypeArg.Default x);
+  
+      public T visitLanguageActionAction(LanguageAction.Action x);
+  
+      public T visitLanguageActionWhen(LanguageAction.When x);
+  
+      public T visitLanguageActionReplace(LanguageAction.Replace x);
+  
+      public T visitLanguageActionReplaceWhen(LanguageAction.ReplaceWhen x);
   
       public T visitPathPartNonInterpolated(PathPart.NonInterpolated x);
   

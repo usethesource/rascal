@@ -406,7 +406,9 @@ syntax StringCharacter
 	= lex "\\" [\" \' \< \> \\ b f n r t] 
 	| lex UnicodeEscape 
 	| lex OctalEscapeSequence 
-	| lex ![\" \' \< \> \\] ;
+	| lex ![\" \' \< \> \\]
+	| lex [\n][\ \t]* [\'] // margin 
+	;
 
 syntax JustTime
 	= lex "$T" TimePartNoTZ TimeZonePart? ;

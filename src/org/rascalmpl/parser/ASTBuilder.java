@@ -114,8 +114,11 @@ public class ASTBuilder {
 				String pkg = clazz.getPackage().getName();
 				if (pkg.contains(".ast")) {
 					formals[i] = clazz.getSuperclass();
-				} else {
+				} else if (pkg.contains(".dynamic")) {
 					formals[i] = clazz.getSuperclass().getSuperclass();
+				}
+				else {
+					formals[i] = clazz.getSuperclass().getSuperclass().getSuperclass();
 				}
 			}
 		}

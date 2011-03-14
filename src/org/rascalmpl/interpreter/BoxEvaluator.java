@@ -141,7 +141,18 @@ import org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral;
 import org.rascalmpl.ast.Kind.Anno;
 import org.rascalmpl.ast.LanguageAction.Action;
-import org.rascalmpl.ast.LanguageAction.Build;
+import org.rascalmpl.ast.LanguageAction.Replace;
+import org.rascalmpl.ast.LanguageAction.ReplaceWhen;
+import org.rascalmpl.ast.LanguageAction.When;
+import org.rascalmpl.ast.Sym.Alternative;
+import org.rascalmpl.ast.Sym.NotFollow;
+import org.rascalmpl.ast.Sym.NotPrecede;
+import org.rascalmpl.ast.Sym.Precede;
+import org.rascalmpl.ast.Sym.Sequence;
+import org.rascalmpl.ast.Sym.Start;
+import org.rascalmpl.ast.Sym.Unequal;
+import org.rascalmpl.ast.SyntaxDefinition.Keyword;
+//import org.rascalmpl.ast.LanguageAction.Build;
 import org.rascalmpl.ast.Literal.Boolean;
 import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.Literal.Location;
@@ -3226,10 +3237,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitLanguageActionBuild(Build x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
+//	public IValue visitLanguageActionBuild(Build x) {
+//		// TODO Auto-generated method stub
+//		return L(x.getClass().toString());
+//	}
 
 	public IValue visitNonterminalAmbiguity(
 			org.rascalmpl.ast.Nonterminal.Ambiguity x) {
@@ -3691,6 +3702,103 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitFunctionDeclarationExpression(
 			org.rascalmpl.ast.FunctionDeclaration.Expression x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSyntaxDefinitionKeyword(Keyword x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSyntaxDefinitionLexical(
+			org.rascalmpl.ast.SyntaxDefinition.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymNotFollow(NotFollow x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymLayout(org.rascalmpl.ast.Sym.Layout x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymSequence(Sequence x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymKeyword(org.rascalmpl.ast.Sym.Keyword x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymAlternative(Alternative x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymStart(Start x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymNotPrecede(NotPrecede x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymEmpty(org.rascalmpl.ast.Sym.Empty x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymFollow(org.rascalmpl.ast.Sym.Follow x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymUnequal(Unequal x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitSymPrecede(Precede x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitLanguageActionWhen(When x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitLanguageActionReplace(Replace x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitLanguageActionReplaceWhen(ReplaceWhen x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

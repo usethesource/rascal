@@ -99,6 +99,64 @@ static public class Ambiguity extends SyntaxDefinition {
 
 
 
+  public boolean isKeyword() {
+    return false;
+  }
+  
+static public class Keyword extends SyntaxDefinition {
+  // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+
+  
+     private final org.rascalmpl.ast.Sym defined;
+  
+     private final org.rascalmpl.ast.Prod production;
+  
+
+  
+public Keyword(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+  super(node);
+  
+    this.defined = defined;
+  
+    this.production = production;
+  
+}
+
+
+  @Override
+  public boolean isKeyword() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSyntaxDefinitionKeyword(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Sym getDefined() {
+        return this.defined;
+     }
+     
+     @Override
+     public boolean hasDefined() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Prod getProduction() {
+        return this.production;
+     }
+     
+     @Override
+     public boolean hasProduction() {
+        return true;
+     }
+  	
+}
+
+
   public boolean isLanguage() {
     return false;
   }
@@ -203,6 +261,64 @@ public Layout(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Pro
   @Override
   public <T> T accept(IASTVisitor<T> visitor) {
     return visitor.visitSyntaxDefinitionLayout(this);
+  }
+  
+  
+     @Override
+     public org.rascalmpl.ast.Sym getDefined() {
+        return this.defined;
+     }
+     
+     @Override
+     public boolean hasDefined() {
+        return true;
+     }
+  
+     @Override
+     public org.rascalmpl.ast.Prod getProduction() {
+        return this.production;
+     }
+     
+     @Override
+     public boolean hasProduction() {
+        return true;
+     }
+  	
+}
+
+
+  public boolean isLexical() {
+    return false;
+  }
+  
+static public class Lexical extends SyntaxDefinition {
+  // Production: sig("Lexical",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+
+  
+     private final org.rascalmpl.ast.Sym defined;
+  
+     private final org.rascalmpl.ast.Prod production;
+  
+
+  
+public Lexical(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+  super(node);
+  
+    this.defined = defined;
+  
+    this.production = production;
+  
+}
+
+
+  @Override
+  public boolean isLexical() { 
+    return true; 
+  }
+
+  @Override
+  public <T> T accept(IASTVisitor<T> visitor) {
+    return visitor.visitSyntaxDefinitionLexical(this);
   }
   
   

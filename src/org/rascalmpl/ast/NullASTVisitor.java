@@ -135,40 +135,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitLongLiteralHexLongLiteral(LongLiteral.HexLongLiteral x) { return null; }
   
-      public T visitSymStartOfLine(Sym.StartOfLine x) { return null; }
-  
-      public T visitSymNonterminal(Sym.Nonterminal x) { return null; }
-  
-      public T visitSymOptional(Sym.Optional x) { return null; }
-  
-      public T visitSymParameter(Sym.Parameter x) { return null; }
-  
-      public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x) { return null; }
-  
-      public T visitSymCharacterClass(Sym.CharacterClass x) { return null; }
-  
-      public T visitSymLabeled(Sym.Labeled x) { return null; }
-  
-      public T visitSymIterStar(Sym.IterStar x) { return null; }
-  
-      public T visitSymParametrized(Sym.Parametrized x) { return null; }
-  
-      public T visitSymIter(Sym.Iter x) { return null; }
-  
-      public T visitSymEndOfLine(Sym.EndOfLine x) { return null; }
-  
-      public T visitSymIterStarSep(Sym.IterStarSep x) { return null; }
-  
-      public T visitSymLiteral(Sym.Literal x) { return null; }
-  
-      public T visitSymColumn(Sym.Column x) { return null; }
-  
-      public T visitSymIterSep(Sym.IterSep x) { return null; }
-  
-      public T visitSyntaxDefinitionLanguage(SyntaxDefinition.Language x) { return null; }
-  
-      public T visitSyntaxDefinitionLayout(SyntaxDefinition.Layout x) { return null; }
-  
       public T visitAssocRight(Assoc.Right x) { return null; }
   
       public T visitAssocNonAssociative(Assoc.NonAssociative x) { return null; }
@@ -281,6 +247,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitVisitGivenStrategy(Visit.GivenStrategy x) { return null; }
   
+      public T visitSyntaxDefinitionKeyword(SyntaxDefinition.Keyword x) { return null; }
+  
+      public T visitSyntaxDefinitionLanguage(SyntaxDefinition.Language x) { return null; }
+  
+      public T visitSyntaxDefinitionLayout(SyntaxDefinition.Layout x) { return null; }
+  
+      public T visitSyntaxDefinitionLexical(SyntaxDefinition.Lexical x) { return null; }
+  
       public T visitVisibilityPublic(Visibility.Public x) { return null; }
   
       public T visitVisibilityDefault(Visibility.Default x) { return null; }
@@ -288,6 +262,58 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitVisibilityPrivate(Visibility.Private x) { return null; }
   
       public T visitTagsDefault(Tags.Default x) { return null; }
+  
+      public T visitSymNotFollow(Sym.NotFollow x) { return null; }
+  
+      public T visitSymLayout(Sym.Layout x) { return null; }
+  
+      public T visitSymSequence(Sym.Sequence x) { return null; }
+  
+      public T visitSymNonterminal(Sym.Nonterminal x) { return null; }
+  
+      public T visitSymKeyword(Sym.Keyword x) { return null; }
+  
+      public T visitSymParameter(Sym.Parameter x) { return null; }
+  
+      public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x) { return null; }
+  
+      public T visitSymAlternative(Sym.Alternative x) { return null; }
+  
+      public T visitSymStart(Sym.Start x) { return null; }
+  
+      public T visitSymNotPrecede(Sym.NotPrecede x) { return null; }
+  
+      public T visitSymIter(Sym.Iter x) { return null; }
+  
+      public T visitSymIterStarSep(Sym.IterStarSep x) { return null; }
+  
+      public T visitSymStartOfLine(Sym.StartOfLine x) { return null; }
+  
+      public T visitSymEmpty(Sym.Empty x) { return null; }
+  
+      public T visitSymOptional(Sym.Optional x) { return null; }
+  
+      public T visitSymFollow(Sym.Follow x) { return null; }
+  
+      public T visitSymCharacterClass(Sym.CharacterClass x) { return null; }
+  
+      public T visitSymLabeled(Sym.Labeled x) { return null; }
+  
+      public T visitSymIterStar(Sym.IterStar x) { return null; }
+  
+      public T visitSymParametrized(Sym.Parametrized x) { return null; }
+  
+      public T visitSymEndOfLine(Sym.EndOfLine x) { return null; }
+  
+      public T visitSymLiteral(Sym.Literal x) { return null; }
+  
+      public T visitSymColumn(Sym.Column x) { return null; }
+  
+      public T visitSymIterSep(Sym.IterSep x) { return null; }
+  
+      public T visitSymUnequal(Sym.Unequal x) { return null; }
+  
+      public T visitSymPrecede(Sym.Precede x) { return null; }
   
       public T visitKindModule(Kind.Module x) { return null; }
   
@@ -422,10 +448,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitHeaderParameters(Header.Parameters x) { return null; }
   
       public T visitHeaderDefault(Header.Default x) { return null; }
-  
-      public T visitLanguageActionBuild(LanguageAction.Build x) { return null; }
-  
-      public T visitLanguageActionAction(LanguageAction.Action x) { return null; }
   
       public T visitExpressionProduct(Expression.Product x) { return null; }
   
@@ -614,6 +636,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitTypeArgNamed(TypeArg.Named x) { return null; }
   
       public T visitTypeArgDefault(TypeArg.Default x) { return null; }
+  
+      public T visitLanguageActionAction(LanguageAction.Action x) { return null; }
+  
+      public T visitLanguageActionWhen(LanguageAction.When x) { return null; }
+  
+      public T visitLanguageActionReplace(LanguageAction.Replace x) { return null; }
+  
+      public T visitLanguageActionReplaceWhen(LanguageAction.ReplaceWhen x) { return null; }
   
       public T visitPathPartNonInterpolated(PathPart.NonInterpolated x) { return null; }
   

@@ -2,7 +2,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -14,7 +14,6 @@ import org.rascalmpl.ast.RealLiteral;
 import org.rascalmpl.ast.RegExpLiteral;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringLiteral;
-import org.rascalmpl.ast.StringConstant.Lexical;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.StringTemplateConverter;
@@ -25,7 +24,6 @@ import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.values.OriginValueFactory;
 
 public abstract class Literal extends org.rascalmpl.ast.Literal {
 
@@ -206,33 +204,33 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			StringLiteral lit = this.getStringLiteral();
 			IValueFactory vf = __eval.__getVf();
 
-			// To prevent infinite recursion detect non-interpolated strings
-			// first. TODO: design flaw?
-			if (lit.isNonInterpolated()) {
-				java.lang.String str = org.rascalmpl.interpreter.utils.StringUtils
-						.unescape(((Lexical) lit.getConstant()).getString());
-
-				IValue v;
-				if (vf instanceof OriginValueFactory) {
-					OriginValueFactory of = (OriginValueFactory) vf;
-
-					ISourceLocation loc = ((Lexical) lit.getConstant())
-							.getLocation();
-
-					// Remove quotes from location
-					loc = of.sourceLocation(loc.getURI(), loc.getOffset() + 1,
-							loc.getLength() - 2, loc.getBeginLine(), loc
-									.getEndLine(), loc.getBeginColumn() + 1,
-							loc.getEndColumn() - 1);
-					v = of.literal(loc, str);
-				} else {
-					v = vf.string(str);
-				}
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(org.rascalmpl.interpreter.Evaluator
-								.__getTf().stringType(), v, __eval);
-
-			} else {
+//			// To prevent infinite recursion detect non-interpolated strings
+//			// first. TODO: design flaw?
+//			if (lit.isNonInterpolated()) {
+//				java.lang.String base = ((Lexical) lit.getConstant()).getString();
+//				// No escaping here; is done in appends. Sigh. This part needs serious refactoring
+//				
+//				IValue v;
+//				if (vf instanceof OriginValueFactory) {
+//					OriginValueFactory of = (OriginValueFactory) vf;
+//
+//					ISourceLocation loc = ((Lexical) lit.getConstant())
+//							.getLocation();
+//
+//					// Remove quotes from location
+//					loc = of.sourceLocation(loc.getURI(), loc.getOffset() + 1,
+//							loc.getLength() - 2, loc.getBeginLine(), loc
+//									.getEndLine(), loc.getBeginColumn() + 1,
+//							loc.getEndColumn() - 1);
+//					v = of.literal(loc, base);
+//				} else {
+//					v = vf.string(base);
+//				}
+//				return org.rascalmpl.interpreter.result.ResultFactory
+//						.makeResult(org.rascalmpl.interpreter.Evaluator
+//								.__getTf().stringType(), v, __eval);
+//
+//			} else {
 				Statement stat = new StringTemplateConverter(__eval
 						.getBuilder()).convert(lit);
 				Result<IValue> value = stat.interpret(__eval);
@@ -248,12 +246,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 				// lazy concat!
 				for (int i = 1; i < list.length(); i++) {
-					s = s.add(ResultFactory.makeResult(TF.stringType(), list
-							.get(i), __eval));
+					IString str = (IString) list.get(i);
+					s = s.add(ResultFactory.makeResult(TF.stringType(), str, __eval));
 				}
 
 				return s;
-			}
+//			}
 
 		}
 
