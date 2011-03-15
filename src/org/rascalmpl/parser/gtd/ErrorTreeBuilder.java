@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.error;
+package org.rascalmpl.parser.gtd;
 
 import java.net.URI;
 
@@ -18,11 +18,11 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-// TODO Handle priorities somehow.
 public class ErrorTreeBuilder{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static IList EMPTY_LIST = VF.list();
 	
+	private final SGTDBF parser;
 	private final char[] input;
 	private final int location;
 	private final URI inputURI;
@@ -30,9 +30,10 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
-	public ErrorTreeBuilder(char[] input, int location, URI inputURI){
+	public ErrorTreeBuilder(SGTDBF parser, char[] input, int location, URI inputURI){
 		super();
 		
+		this.parser = parser;
 		this.input = input;
 		this.location = location;
 		this.inputURI = inputURI;
