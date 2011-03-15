@@ -85,4 +85,8 @@ public class DoubleStack<E, F>{
 		secondData = (F[]) new Object[secondData.length];
 		size = 0;
 	}
+	
+	public void dirtyClear(){
+		size = 0;
+	}
 }

@@ -8,8 +8,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.ListContainerNode;
-import org.rascalmpl.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
+import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -17,19 +18,26 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
+import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorTreeBuilder{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static IList EMPTY_LIST = VF.list();
 	
 	private final SGTDBF parser;
+	private final AbstractStackNode startNode;
+	private final PositionStore positionStore;
+	private final IActionExecutor actionExecutor;
+	
 	private final char[] input;
 	private final int location;
 	private final URI inputURI;
@@ -39,10 +47,14 @@ public class ErrorTreeBuilder{
 	
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
 	
-	public ErrorTreeBuilder(SGTDBF parser, char[] input, int location, URI inputURI){
+	public ErrorTreeBuilder(SGTDBF parser, AbstractStackNode startNode, PositionStore positionStore, IActionExecutor actionExecutor, char[] input, int location, URI inputURI){
 		super();
 		
 		this.parser = parser;
+		this.startNode = startNode;
+		this.positionStore = positionStore;
+		this.actionExecutor = actionExecutor;
+		
 		this.input = input;
 		this.location = location;
 		this.inputURI = inputURI;
@@ -63,7 +75,7 @@ public class ErrorTreeBuilder{
 		return next;
 	}
 	
-	private void updateAlternativeNextNode(AbstractStackNode next, AbstractNode result, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private void updateAlternativeNextNode(AbstractStackNode next, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		next = next.getCleanCopy();
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		next.setStartLocation(location);
@@ -100,7 +112,7 @@ public class ErrorTreeBuilder{
 				AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
 				if(sharedNext == null){
 					alternativeNext.setProduction(prod);
-					updateAlternativeNextNode(alternativeNext, result, edgesMap, prefixesMap);
+					updateAlternativeNextNode(alternativeNext, edgesMap, prefixesMap);
 					
 					sharedPrefixNext.add(alternativeNextId, alternativeNext);
 				}else if(nextNextDot < prod.length){
@@ -186,12 +198,24 @@ public class ErrorTreeBuilder{
 		}
 	}
 	
-	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, Stack<AbstractStackNode> filteredNodes){
+	private IConstructor getParentSymbol(AbstractStackNode node){
+		AbstractStackNode[] production = node.getProduction();
+		AbstractStackNode last = production[production.length - 1];
+		return ProductionAdapter.getRhs(last.getParentProduction());
+	}
+	
+	private IList getProductionElements(AbstractStackNode node){
+		AbstractStackNode[] production = node.getProduction();
+		AbstractStackNode last = production[production.length - 1];
+		return ProductionAdapter.getLhs(last.getParentProduction());
+	}
+	
+	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
-			// TODO Get the right symbol.
-			AbstractNode resultStore = new ExpectedNode(null, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
+			IConstructor symbol = getParentSymbol(unexpandableNode);
+			AbstractNode resultStore = new ExpectedNode(symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
 			
 			errorNodes.push(unexpandableNode, resultStore);
 		}
@@ -212,11 +236,8 @@ public class ErrorTreeBuilder{
 		}
 		
 		while(!filteredNodes.isEmpty()){
-			AbstractStackNode filteredNode = filteredNodes.pop();
-			
-			AbstractNode resultStore = (!filteredNode.isList()) ? new ErrorSortContainerNode(EMPTY_LIST, inputURI, filteredNode.getStartLocation(), location, filteredNode.isSeparator(), filteredNode.isLayout()) : new ErrorListContainerNode(EMPTY_LIST, inputURI, filteredNode.getStartLocation(), location, filteredNode.isSeparator(), filteredNode.isLayout());
-			
-			// TODO Set children.
+			AbstractStackNode filteredNode = filteredNodes.peekFirst();
+			AbstractNode resultStore = filteredNodes.popSecond();
 			
 			errorNodes.push(filteredNode, resultStore);
 		}
@@ -228,6 +249,12 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
-		return null; // Temp.
+		// TODO Handle reject and action filtering mess.
+		
+		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
+		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
+		FilteringTracker filteringTracker = new FilteringTracker();
+		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
+		return resultTree;
 	}
 }
