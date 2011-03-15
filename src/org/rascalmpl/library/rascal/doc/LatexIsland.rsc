@@ -20,11 +20,11 @@ syntax Content
 	= lex ![\\{}]+
 	| "{" Content* "}"
 	| lex [\\][{}]
-	| Backslash
+	| lex Backslash
 	;
 
 syntax Backslash
-	= [\\]
+	= lex [\\]
 	# [{}]
 	# "end{rascal}"
 	;
