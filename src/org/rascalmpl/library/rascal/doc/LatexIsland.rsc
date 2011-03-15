@@ -1,10 +1,6 @@
 module rascal::doc::LatexIsland
 
 syntax Water
-	= Char
-	;
-
-syntax Char
 	= lex ![\\]
 	| lex WBackslash
 	;
@@ -12,15 +8,19 @@ syntax Char
 syntax WBackslash
 	= [\\]
 	# "begin{rascal}"
-	# "rascal{"
+	# "irascal{"
 	;
 	
 
 syntax Content
 	= lex ![\\{}]+
-	| "{" Content* "}"
+	| [{] Content* [}]
 	| lex [\\][{}]
-	| lex Backslash
+	| Backslash
+	| "\\\\begin{rascal}"
+	| "\\\\end{rascal}"
+	| "\\\\irascal{"
+	| "\\\\}"
 	;
 
 syntax Backslash
@@ -38,7 +38,7 @@ syntax End
 	; 
 
 syntax IBegin
-	= lex [\\] "rascal{"
+	= lex [\\] "irascal{"
 	;
 	
 syntax IEnd
