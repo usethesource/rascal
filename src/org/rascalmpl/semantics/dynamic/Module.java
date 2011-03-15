@@ -35,6 +35,7 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 			}
 
 			env.setBootstrap(eval.needBootstrapParser(this));
+			env.setCachedParser(eval.getCachedParser(this));
 			if(!env.getSyntaxDefined()) {
 				Environment oldEnv = eval.getCurrentEnvt();
 				eval.setCurrentEnvt(env); 
