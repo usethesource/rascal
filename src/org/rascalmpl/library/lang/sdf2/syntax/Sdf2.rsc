@@ -1,5 +1,5 @@
 @bootstrapParser // Stop generating because we have a "`" in here!!!!
-module sdf2::syntax::Sdf2
+module lang::sdf2::syntax::Sdf2
 
 syntax Sort = lex OneChar: [A-Z] |
               lex MoreChars: [A-Z] [A-Za-z0-9\-]* [A-Za-z0-9]
@@ -154,8 +154,8 @@ layout LAYOUTLIST = LAYOUT*
                     ;
 
 syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
-                lex Line: "%%" ![\n]* [\n] |
-                lex Nested: "%" ![%\n] "%"
+                lex @category="Comment" Line: "%%" ![\n]* [\n] |
+                lex @category="Comment" Nested: "%" ![%\n] "%"
                 ;
 
 syntax Alias = Alias: Symbol "-\>" Symbol
