@@ -83,6 +83,8 @@ public abstract class SGTDBF implements IGTD{
 	private final LinearIntegerKeyedMap<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
 	
 	// Error reporting.
+	private boolean parseErrorOccured;
+	
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
@@ -1058,6 +1060,8 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		// Parse error.
+		parseErrorOccured = true;
+		
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
@@ -1065,6 +1069,7 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	public IConstructor buildErrorTree(){
+		if(!parseErrorOccured) throw new RuntimeException("No parse error occured.");
 		ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, positionStore, actionExecutor, input, location, inputURI);
 		return errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
 	}
