@@ -1,6 +1,8 @@
 package org.rascalmpl.interpreter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -13,7 +15,9 @@ import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -27,6 +31,7 @@ import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -202,7 +207,7 @@ public class RascalShell {
 		return true;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		if (args.length == 0) {
 			// interactive mode
 			try {
@@ -214,8 +219,49 @@ public class RascalShell {
 				System.exit(1);
 			} 
 		}
+		if (args[0].equals("-latex")) {
+			toLatex(args[1]);
+		}
 	}
+
+	private static void toLatex(String fileName) throws IOException {
+		GlobalEnvironment heap = new GlobalEnvironment();
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
+		PrintWriter stderr = new PrintWriter(System.err);
+		PrintWriter stdout = new PrintWriter(System.out);
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
+		evaluator.doImport("rascal::doc::ToLatex");
+		File file = new File(fileName);
+		String name = file.getName();
+		int pos = name.lastIndexOf('.');
+		if (pos < 0) {
+			System.err.println("No extension in file " + fileName);
+			System.exit(1);
+		}
+		String ext = name.substring(pos + 1);
+		
+		if (ext.equals("ltx")) {
+			System.err.println("Using output extension ltx, but source file has the same extension");
+			System.exit(1);
+		}
+		final String destExt = ".ltx";
+		File dest = new File(file.getParent(), name.substring(0, pos) + destExt); 
+		
+		System.err.println("Formatting Rascal snippets in " + file + "; outputting to " + dest + "...");
+		ISourceLocation loc = vf.sourceLocation(file.getAbsolutePath());
+		IString str = (IString) evaluator.call("rascalDoc2Latex", loc);
+		FileWriter writer = new FileWriter(dest);
+		writer.write(str.getValue());
+		writer.close();
+		System.err.println("Done.");
+	}
+	
+	
+	
 }
+
+
 
 /**  
  * Adapter for a Writer to behave like a PrintStream. 
