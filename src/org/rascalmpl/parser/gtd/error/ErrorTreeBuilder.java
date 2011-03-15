@@ -12,13 +12,13 @@ import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.CharStackNode;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+// TODO Handle priorities somehow.
 public class ErrorTreeBuilder{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static IList EMPTY_LIST = VF.list();
@@ -69,7 +69,7 @@ public class ErrorTreeBuilder{
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
-			// TODO Get the symbol.
+			// TODO Get the right symbol.
 			AbstractNode resultStore = new ExpectedNode(null, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
 			
 			errorNodes.push(unexpandableNode, resultStore);
