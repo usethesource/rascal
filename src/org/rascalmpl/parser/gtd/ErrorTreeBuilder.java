@@ -11,9 +11,12 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
+import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -30,6 +33,8 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
+	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
+	
 	public ErrorTreeBuilder(SGTDBF parser, char[] input, int location, URI inputURI){
 		super();
 		
@@ -40,14 +45,76 @@ public class ErrorTreeBuilder{
 		
 		errorNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 		errorResultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String,AbstractContainerNode>>();
+
+		sharedPrefixNext = new LinearIntegerKeyedMap<AbstractStackNode>();
 	}
 	
-	private void followEdges(AbstractStackNode node, AbstractNode result){
+	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
+		next = next.getCleanCopy();
+		next.setStartLocation(location);
+		next.updateNode(node, result);
 		
+		// TODO Add to queue.
+		
+		return next;
+	}
+	
+	private void updateAlternativeNextNode(AbstractStackNode node, AbstractStackNode next, AbstractNode result, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+		next = next.getCleanCopy();
+		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
+		next.setStartLocation(location);
+		
+		// TODO Add to queue.
 	}
 	
 	private void moveToNext(AbstractStackNode node, AbstractNode result){
+		int nextDot = node.getDot() + 1;
+
+		AbstractStackNode[] prod = node.getProduction();
+		AbstractStackNode next = prod[nextDot];
+		next.setProduction(prod);
+		next = updateNextNode(next, node, result);
 		
+		ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
+		if(alternateProds != null){
+			int nextNextDot = nextDot + 1;
+			
+			// Handle alternative nexts (and prefix sharing).
+			sharedPrefixNext.dirtyClear();
+			
+			sharedPrefixNext.add(next.getId(), next);
+			
+			LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
+			ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
+			
+			for(int i = alternateProds.size() - 1; i >= 0; --i){
+				prod = alternateProds.get(i);
+				if(nextDot == prod.length) continue;
+				AbstractStackNode alternativeNext = prod[nextDot];
+				int alternativeNextId = alternativeNext.getId();
+				
+				AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
+				if(sharedNext == null){
+					alternativeNext.setProduction(prod);
+					updateAlternativeNextNode(node, alternativeNext, result, edgesMap, prefixesMap);
+					
+					sharedPrefixNext.add(alternativeNextId, alternativeNext);
+				}else if(nextNextDot < prod.length){
+					if(alternativeNext.isEndNode()){
+						sharedNext.markAsEndNode();
+						sharedNext.setParentProduction(alternativeNext.getParentProduction());
+						sharedNext.setFollowRestriction(alternativeNext.getFollowRestriction());
+						sharedNext.setReject(alternativeNext.isReject());
+					}
+					
+					sharedNext.addProduction(prod);
+				}
+			}
+		}
+	}
+	
+	private void followEdges(AbstractStackNode node, AbstractNode result){
+		// TODO Implement.
 	}
 	
 	private void move(AbstractStackNode node, AbstractNode result){
