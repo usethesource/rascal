@@ -3706,98 +3706,81 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
-	@Override
 	public IValue visitSyntaxDefinitionKeyword(Keyword x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSyntaxDefinitionLexical(
 			org.rascalmpl.ast.SyntaxDefinition.Lexical x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymNotFollow(NotFollow x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymLayout(org.rascalmpl.ast.Sym.Layout x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymSequence(Sequence x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
 	public IValue visitSymKeyword(org.rascalmpl.ast.Sym.Keyword x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymAlternative(Alternative x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymStart(Start x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymNotPrecede(NotPrecede x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymEmpty(org.rascalmpl.ast.Sym.Empty x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymFollow(org.rascalmpl.ast.Sym.Follow x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymUnequal(Unequal x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitSymPrecede(Precede x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitLanguageActionWhen(When x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitLanguageActionReplace(Replace x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitLanguageActionReplaceWhen(ReplaceWhen x) {
 		// TODO Auto-generated method stub
 		return null;
