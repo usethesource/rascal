@@ -1029,7 +1029,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (this.needBootstrapParser(preModule)) {
 			return new MetaRascalRascal().parse(Parser.START_MODULE, location, data, actionExecutor);
 		}
-		else if (prods.isEmpty() || !containsBackTick(data)) {
+		else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 			return this.__getParser().parseModule(location, data, actionExecutor);
 		}
 		else {
@@ -1037,8 +1037,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public static boolean containsBackTick(char[] data) {
-		for (int i = data.length - 1; i >= 0; --i) {
+	public static boolean containsBackTick(char[] data, int offset) {
+		for (int i = data.length - 1; i >= offset; --i) {
 			if (data[i] == '`')
 				return true;
 		}
