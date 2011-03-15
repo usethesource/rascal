@@ -49,8 +49,10 @@ public abstract class SGTDBF implements IGTD{
 	
 	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
+	private AbstractStackNode startNode;
 	private URI inputURI;
 	private char[] input;
+	private IActionExecutor actionExecutor;
 	private final PositionStore positionStore;
 	
 	private Stack<AbstractStackNode>[] todoLists;
@@ -994,8 +996,11 @@ public abstract class SGTDBF implements IGTD{
 	
 	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
 		// Initialize.
+		this.startNode = startNode;
 		this.inputURI = inputURI;
 		this.input = input;
+		this.actionExecutor = actionExecutor;
+		
 		positionStore.index(input);
 		
 		todoLists = (Stack<AbstractStackNode>[]) new Stack[DEFAULT_TODOLIST_CAPACITY];
@@ -1057,6 +1062,11 @@ public abstract class SGTDBF implements IGTD{
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
 		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
+	}
+	
+	public IConstructor buildErrorTree(){
+		ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, positionStore, actionExecutor, input, location, inputURI);
+		return errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
