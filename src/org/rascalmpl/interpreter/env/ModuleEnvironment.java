@@ -52,6 +52,7 @@ public class ModuleEnvironment extends Environment {
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
+	private String cachedParser;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -506,5 +507,18 @@ public class ModuleEnvironment extends Environment {
 	
 	public boolean getBootstrap() {
 		return bootstrap;
+	}
+
+	// todo: bootstrap must go and use this
+	public void setCachedParser(String cachedParser) {
+		this.cachedParser = cachedParser;
+	}
+	
+	public String getCachedParser() {
+		return cachedParser;
+	}
+
+	public boolean hasCachedParser() {
+		return cachedParser != null;
 	}
 }
