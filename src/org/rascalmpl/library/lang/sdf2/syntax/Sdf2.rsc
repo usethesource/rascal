@@ -1,4 +1,3 @@
-@bootstrapParser // Stop generating because we have a "`" in here!!!!
 module lang::sdf2::syntax::Sdf2
 
 syntax Sort = lex OneChar: [A-Z] |
@@ -7,8 +6,8 @@ syntax Sort = lex OneChar: [A-Z] |
               # [A-Za-z0-9]
               ;
 
-syntax Symbols = Symbol*
-                 - StrCon "(" {Symbol ","}* ")"
+syntax Syms = Sym*
+                 - StrCon "(" {Sym ","}* ")"
                  ;
 
 syntax NatCon = lex Digits: [0-9]+
@@ -34,8 +33,8 @@ syntax ShortChar = lex Regular: [a-zA-Z0-9] |
                    lex Escaped: [\\] ![A-Za-mo-qsu-z0-9] // -\0-\31
                    ;
 
-syntax Renaming = Symbol: Symbol "=\>" Symbol |
-                  production: Production "=\>" Production
+syntax Renaming = Sym: Sym "=\>" Sym |
+                  production: Prod "=\>" Prod
                   ;
 
 syntax Renamings = Renamings: "[" Renaming* "]"
@@ -45,25 +44,25 @@ syntax IdCon = lex Default: [A-Za-z] [A-Za-z\-0-9]*
                # [A-Za-z\-0-9]
                ;
 
-syntax CharClass = SimpleCharClass: "[" OptCharRanges "]" |
-                   Bracket: "(" CharClass ")" |
-                   Comp: "~" CharClass >
-                   Diff: CharClass "/" CharClass >
-                   ISect: CharClass "/\\" CharClass >
-                   Union: CharClass "\\/" CharClass
+syntax Class = SimpleCharClass: "[" OptRanges "]" |
+                   Bracket: "(" Class ")" |
+                   Comp: "~" Class >
+                   Diff: Class "/" Class >
+                   ISect: Class "/\\" Class >
+                   Union: Class "\\/" Class
                    ;
 
-syntax CharRange = Character |
+syntax Range = Character |
                    Range: Character "-" Character
                    ;
 
-syntax CharRanges = CharRange |
-                    right Conc: CharRanges CharRanges |
-                    Bracket: "(" CharRanges ")"
+syntax Ranges = Range |
+                    right Conc: Ranges Ranges |
+                    Bracket: "(" Ranges ")"
                     ;
 
-syntax OptCharRanges = Absent: |
-                       Present: CharRanges
+syntax OptRanges = Absent: |
+                       Present: Ranges
                        ;
 
 syntax Attribute = Id: "id" "(" ModuleName ")" |
@@ -72,11 +71,11 @@ syntax Attribute = Id: "id" "(" ModuleName ")" |
                    Prefer: "prefer" |
                    Avoid: "avoid" |
                    Bracket: "bracket" |
-                   Assoc: Associativity
+                   Asso: Asso
                    ;
 
 syntax ATermAttribute = Default: ATerm
-                        - Associativity
+                        - Asso
                         - "reject"
                         - "prefer"
                         - "avoid"
@@ -88,29 +87,29 @@ syntax Attributes = Attrs: "{" {Attribute ","}* "}" |
                     NoAttrs: 
                     ;
 
-syntax Production = Prod: Symbols "-\>" Symbol Attributes |
-                    PrefixFun: FunctionName "(" {Symbol ","}* ")" Attributes // Avoid
+syntax Prod = Prod: Syms "-\>" Sym Attributes |
+                    PrefixFun: FunctionName "(" {Sym ","}* ")" Attributes // Avoid
                     ;
 
-syntax Productions = Production*
+syntax Prods = Prod*
                      ;
 
 syntax Grammar = Bracket: "(" Grammar ")" |
                  Aliases: "aliases" Aliases |
-                 Sorts: "sorts" Symbols |
+                 Sorts: "sorts" Syms |
                  ImpSection: ImpSection |
-                 Syntax: "syntax" Productions |
-                 KernalStartSymbols: "start-symbols" Symbols |
-                 Variables: "variables" Productions |
+                 Syntax: "syntax" Prods |
+                 KernalStartSyms: "start-symbols" Syms |
+                 Variables: "variables" Prods |
                  Priorities: "priorities" Priorities |
                  Restrictions: "restrictions" Restrictions |
-                 LexicalSyntax: "lexical" "syntax" Productions |
-                 LexicalStartSymbols: "lexical" "start-symbols" Symbols |
-                 LexicalVariables: "lexical" "variables" Productions |
+                 LexicalSyntax: "lexical" "syntax" Prods |
+                 LexicalStartSyms: "lexical" "start-symbols" Syms |
+                 LexicalVariables: "lexical" "variables" Prods |
                  LexicalPriorities: "lexical" "priorities" Priorities |
                  LexicalRestrictions: "lexical" "restrictions" Restrictions |
-                 ContextFreeSyntax: "context-free" "syntax" Productions |
-                 ContextFreeStartSymbols: "context-free" "start-symbols" Symbols |
+                 ContextFreeSyntax: "context-free" "syntax" Prods |
+                 ContextFreeStartSyms: "context-free" "start-symbols" Syms |
                  ContextFreePriorities: "context-free" "priorities" Priorities |
                  ContextFreeRestrictions: "context-free" "restrictions" Restrictions |
                  EmptyGrammar: "(/)" |
@@ -119,34 +118,34 @@ syntax Grammar = Bracket: "(" Grammar ")" |
 
 syntax Label = Quoted: StrCon |
                IdCon: IdCon
-               - Associativity
+               - Asso
                ;
 
-syntax Symbol = Sort: Sort |
+syntax Sym = Sort: Sort |
                 Lit: StrCon |
                 CILit: SingleQuotedStrCon |
-                CharClass: CharClass |
+                Class: Class |
                 Layout: "LAYOUT" |
-                Lifting: "`" Symbol "`" |
+                Lifting: "`" Sym "`" |
                 Empty: "(" ")" |
-                Bracket: "(" Symbol ")" |
-                Seq: "(" Symbol Symbol+ ")" |
-                Strategy: "(" Symbol "-\>" Symbol ")" |
-                Func: "(" Symbols "=\>" Symbol ")" |
-                Opt: Symbol "?" |
-                Iter: Symbol "+" |
-                IterStar: Symbol "*" |
-                IterSep: "{" Symbol Symbol "}" "+" |
-                IterStarSep: "{" Symbol Symbol "}" "*" |
+                Bracket: "(" Sym ")" |
+                Seq: "(" Sym Sym+ ")" |
+                Strategy: "(" Sym "-\>" Sym ")" |
+                Func: "(" Syms "=\>" Sym ")" |
+                Opt: Sym "?" |
+                Iter: Sym "+" |
+                IterStar: Sym "*" |
+                IterSep: "{" Sym Sym "}" "+" |
+                IterStarSep: "{" Sym Sym "}" "*" |
                 Start: "\<START\>" |
                 FileStart: "\<Start\>" |
-                CF: "\<" Symbol "-CF" "\>" |
-                Lex: "\<" Symbol "-LEX" "\>" |
-                Varsym: "\<" Symbol "-VAR" "\>" |
-                Tuple: "\<" Symbol "," {Symbol ","}+ "\>" |
-                ParameterizedSort: Sort "[[" {Symbol ","}+ "]]" >
-                right Alt: Symbol "|" Symbol >
-                Label ":" Symbol
+                CF: "\<" Sym "-CF" "\>" |
+                Lex: "\<" Sym "-LEX" "\>" |
+                Varsym: "\<" Sym "-VAR" "\>" |
+                Tuple: "\<" Sym "," {Sym ","}+ "\>" |
+                ParameterizedSort: Sort "[[" {Sym ","}+ "]]" >
+                right Alt: Sym "|" Sym >
+                Label ":" Sym
                 ;
 
 layout LAYOUTLIST = LAYOUT*
@@ -158,7 +157,7 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 lex @category="Comment" Nested: "%" ![%\n] "%"
                 ;
 
-syntax Alias = Alias: Symbol "-\>" Symbol
+syntax Alias = Alias: Sym "-\>" Sym
                ;
 
 syntax Aliases = Alias*
@@ -201,7 +200,7 @@ start syntax Module = Module: "module" ModuleName ImpSection* Sections
                       ;
 
 syntax ModuleName = Unparameterized: ModuleId |
-                    Parameterized: ModuleId "[" Symbols "]"
+                    Parameterized: ModuleId "[" Syms "]"
                     - "aliases"
                     - "lexical"
                     - "priorities"
@@ -254,8 +253,8 @@ syntax ImpSection = Imports: "imports" Imports
 syntax Definition = Module*
                     ;
 
-syntax Lookahead = CharClass: CharClass |
-                   Seq: CharClass "." Lookaheads
+syntax Lookahead = Class: Class |
+                   Seq: Class "." Lookaheads
                    ;
 
 syntax Lookaheads = Single: Lookahead |
@@ -264,30 +263,31 @@ syntax Lookaheads = Single: Lookahead |
                     List: "[[" {Lookahead ","}* "]]"
                     ;
 
-syntax Restriction = Follow: Symbols "-/-" Lookaheads
+syntax Restriction = Follow: Syms "-/-" Lookaheads
                      ;
 
-syntax Restrictions = Restriction*
-                      ;
-
-syntax Associativity = Left: "left" |
+syntax Asso = Left: "left" |
                        Right: "right" |
                        NonAssoc: "non-assoc" |
-                       Assoc: "assoc"
+                       Asso: "assoc"
                        ;
+                       
+syntax Restrictions = Default: Restriction* ;
+
+
 
 syntax ArgumentIndicator = Default: "\<" {NatCon ","}+ "\>"
                            ;
 
 syntax Group = non-assoc WithArguments: Group ArgumentIndicator |
                non-assoc NonTransitive: Group "." |
-               ProdsGroup: "{" Productions "}" |
-               AssocGroup: "{" Associativity ":" Productions "}" |
-               SimpleGroup: Production
+               ProdsGroup: "{" Prods "}" |
+               AssocGroup: "{" Asso ":" Prods "}" |
+               SimpleGroup: Prod
                ;
 
 syntax Priority = Chain: {Group "\>"}+ |
-                  Assoc: Group Associativity Group
+                  Asso: Group Asso Group
                   ;
 
 syntax Priorities = {Priority ","}*
