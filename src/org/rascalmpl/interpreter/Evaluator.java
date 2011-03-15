@@ -410,6 +410,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (currentModule.getBootstrap()) {
 			return new ObjectRascalRascal();
 		}
+		
+		if (currentModule.hasCachedParser()) {
+			String className = currentModule.getCachedParser();
+			Class<?> clazz;
+			try {
+				clazz = Class.forName(className);
+				return (IGTD)clazz.newInstance();
+			} catch (ClassNotFoundException e) {
+				throw new ImplementationError("class for cached parser " + className + " could not be found", e);
+			} catch (InstantiationException e) {
+				throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
+			} catch (IllegalAccessException e) {
+				throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+			}
+		}
+
 		ParserGenerator pg = this.getParserGenerator();
 		ISet productions = currentModule.getProductions();
 		Class<IGTD> parser = this.getHeap().getObjectParser(currentModule.getName(), productions);
@@ -463,7 +479,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	private ParserGenerator getParserGenerator() {
+	public ParserGenerator getParserGenerator() {
 		if (this.parserGenerator == null) {
 			this.parserGenerator = new ParserGenerator(this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
@@ -1038,6 +1054,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		return false;
 	}
+	
+	public String getCachedParser(Module preModule) {
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((org.rascalmpl.ast.Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
+				String tagString = ((org.rascalmpl.ast.TagString.Lexical)tag.getContents()).getString();
+				return tagString.substring(1, tagString.length() - 1);
+			}
+		}
+		return null;
+	}
 
 	private char[] readModule(InputStream inputStream) throws IOException {
 		char[] buffer = new char[8192];
@@ -1347,5 +1373,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			b.append(value.toString());
 		}
 	}
+
+	
 
 }
