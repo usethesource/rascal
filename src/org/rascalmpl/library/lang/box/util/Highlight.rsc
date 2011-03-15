@@ -9,7 +9,7 @@ import IO;
 anno str Tree@math;
 
 public Tree annotateMathOps(Tree tree, map[str, str] subst) {
-	return visit (tree) {
+	return top-down-break visit (tree) {
 		case a:appl(prod(_, lit(str s), _), _) => a[@math=subst[s]] when subst[s]? && !((a@math)?)
 	}
 }
