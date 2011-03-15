@@ -2,8 +2,6 @@ module lang::logic::syntax::Booleans
 
 import lang::basic::Whitespace;
 
-layout Booleans = [\ \t\n\r]*;
-
 syntax Formula
   = \true :  "true"
   | \false: "false"
