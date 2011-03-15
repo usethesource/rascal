@@ -2,6 +2,8 @@ module lang::logic::syntax::Booleans
 
 import lang::basic::Whitespace;
 
+layout Booleans = [\ \t\n\r]*;
+
 syntax Formula
   = \true :  "true"
   | \false: "false"
@@ -11,6 +13,6 @@ syntax Formula
   > non-assoc ( right \if   : Formula lhs "=\>" Formula rhs
               | left  \fi   : Formula lhs "\<=" Formula rhs
   )
-  > non-assoc \iff  : Term lhs "\<=\>" Term rhs
+  > non-assoc \iff  : Formula lhs "\<=\>" Formula rhs
   ;  
   
