@@ -70,7 +70,12 @@ public class ErrorTreeBuilder{
 		next.setStartLocation(location);
 		next.updateNode(node, result);
 		
-		// TODO Add to queue.
+		int dot = next.getDot();
+		IList productionElements = getProductionElements(next);
+		IConstructor nextSymbol = (IConstructor) productionElements.get(dot);
+		AbstractNode resultStore = new ExpectedNode(nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
+		
+		errorNodes.push(next, resultStore);
 		
 		return next;
 	}
@@ -80,7 +85,12 @@ public class ErrorTreeBuilder{
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		next.setStartLocation(location);
 		
-		// TODO Add to queue.
+		int dot = next.getDot();
+		IList productionElements = getProductionElements(next);
+		IConstructor nextSymbol = (IConstructor) productionElements.get(dot);
+		AbstractNode resultStore = new ExpectedNode(nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
+		
+		errorNodes.push(next, resultStore);
 	}
 	
 	private void moveToNext(AbstractStackNode node, AbstractNode result){
@@ -230,9 +240,10 @@ public class ErrorTreeBuilder{
 				children[i] = new CharNode(input[startLocation - i]);
 			}
 			
-			// TODO Construct proper node.
 			
-			errorNodes.push(unmatchableNode, null); // TODO Use the proper result store.
+			// TODO Construct the proper result store.
+			
+			errorNodes.push(unmatchableNode, null);
 		}
 		
 		while(!filteredNodes.isEmpty()){
