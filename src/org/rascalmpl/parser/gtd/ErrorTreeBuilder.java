@@ -240,8 +240,22 @@ public class ErrorTreeBuilder{
 				children[i] = new CharNode(input[startLocation - i]);
 			}
 			
-			
 			// TODO Construct the proper result store.
+			
+			// Literal
+			
+			// Case insensitive literal
+			
+			// Character
+			
+			// Epsilon
+			
+			// Start-of-line
+			
+			// End-of-line
+			
+			// At-column
+			
 			
 			errorNodes.push(unmatchableNode, null);
 		}
@@ -260,7 +274,7 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
-		// TODO Handle reject and action filtering mess.
+		// TODO Handle the post-parse reject and action filtering mess.
 		
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
 		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
