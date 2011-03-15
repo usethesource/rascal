@@ -1,6 +1,8 @@
 module lang::logic::syntax::Booleans
 
 import lang::std::Whitespace;
+import lang::std::Layout;
+import lang::std::Comment;
 
 syntax Formula
   = \true :  "true"
@@ -13,4 +15,3 @@ syntax Formula
   )
   > non-assoc \iff  : Formula lhs "\<=\>" Formula rhs
   ;  
-  
