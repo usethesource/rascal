@@ -69,7 +69,7 @@ private str rascalToLatex(str snip, loc l) {
 }
 
 private Tree annotateSpecials(Tree pt) {
-	return visit (pt) {
+	return top-down-break visit (pt) {
 		
 		// tuples
 		case appl(p:prod([lit("\<"), _*, lit("\>")], _, _), [lt, a*, gt]) =>
