@@ -1,5 +1,7 @@
 module rascal::doc::Document
 
+import ParseTree;
+
 start syntax Document
 	= Chunk*
 	;
@@ -18,11 +20,11 @@ syntax Water
 	;
 
 syntax Block
-	= Begin Content End
+	= lex Begin Content+ End
 	;
 
 syntax Inline
-	= IBegin Content IEnd
+	= lex IBegin Content+ IEnd
 	;
 
 syntax Snippet
