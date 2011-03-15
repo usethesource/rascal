@@ -32,7 +32,6 @@ import org.rascalmpl.ast.StringTemplate.While;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
