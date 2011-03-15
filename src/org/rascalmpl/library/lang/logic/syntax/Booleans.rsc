@@ -1,6 +1,6 @@
 module lang::logic::syntax::Booleans
 
-import lang::basic::Whitespace;
+import lang::std::Whitespace;
 
 syntax Formula
   = \true :  "true"
