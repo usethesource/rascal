@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Reflective {
@@ -32,6 +33,13 @@ public class Reflective {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.moduleNotFound(modulePath, null, null);
 		}
+	}
+	
+	public IConstructor getModuleGrammar(ISourceLocation loc, IEvaluatorContext ctx) {
+		ParserGenerator pgen = ctx.getEvaluator().getParserGenerator();
+		URI uri = loc.getURI();
+		ModuleEnvironment env = ctx.getHeap().getModule(uri.getAuthority());
+		return pgen.getGrammar(env.getProductions());
 	}
 	
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
