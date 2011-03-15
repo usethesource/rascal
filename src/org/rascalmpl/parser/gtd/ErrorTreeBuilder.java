@@ -8,6 +8,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
+import org.rascalmpl.parser.gtd.result.ListContainerNode;
+import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -16,8 +18,10 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -59,7 +63,7 @@ public class ErrorTreeBuilder{
 		return next;
 	}
 	
-	private void updateAlternativeNextNode(AbstractStackNode node, AbstractStackNode next, AbstractNode result, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private void updateAlternativeNextNode(AbstractStackNode next, AbstractNode result, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		next = next.getCleanCopy();
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		next.setStartLocation(location);
@@ -96,7 +100,7 @@ public class ErrorTreeBuilder{
 				AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
 				if(sharedNext == null){
 					alternativeNext.setProduction(prod);
-					updateAlternativeNextNode(node, alternativeNext, result, edgesMap, prefixesMap);
+					updateAlternativeNextNode(alternativeNext, result, edgesMap, prefixesMap);
 					
 					sharedPrefixNext.add(alternativeNextId, alternativeNext);
 				}else if(nextNextDot < prod.length){
@@ -114,7 +118,56 @@ public class ErrorTreeBuilder{
 	}
 	
 	private void followEdges(AbstractStackNode node, AbstractNode result){
-		// TODO Implement.
+		IConstructor production = node.getParentProduction();
+		
+		IntegerList filteredParents = parser.getFilteredParents(node.getId());
+		
+		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
+		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
+		
+		for(int i = edgesMap.size() - 1; i >= 0; --i){
+			int startLocation = edgesMap.getKey(i);
+			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
+			
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(startLocation);
+			
+			if(levelResultStoreMap == null){
+				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+				errorResultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
+			}
+			
+			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
+			
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> firstTimeReductions = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+			ObjectIntegerKeyedHashSet<String> firstTimeRegistration = new ObjectIntegerKeyedHashSet<String>();
+			for(int j = edgeList.size() - 1; j >= 0; --j){
+				AbstractStackNode edge = edgeList.get(j);
+				String nodeName = edge.getName();
+				int resultStoreId = parser.getResultStoreId(edge.getId());
+				
+				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
+				if(resultStore == null){
+					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
+					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
+					
+					if(filteredParents == null || !filteredParents.contains(edge.getId())){
+						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+						if(resultStore != null){
+							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
+						}else{
+							resultStore = (!edge.isList()) ? new ErrorSortContainerNode(EMPTY_LIST, inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(EMPTY_LIST, inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
+							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
+							resultStore.addAlternative(production, resultLink);
+							
+							errorNodes.push(edge, resultStore);
+							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
+						}
+					}
+				}else{
+					errorNodes.push(edge, resultStore);
+				}
+			}
+		}
 	}
 	
 	private void move(AbstractStackNode node, AbstractNode result){
@@ -123,7 +176,7 @@ public class ErrorTreeBuilder{
 				if(!node.isReject()){
 					followEdges(node, result);
 				}else{
-					// Ignore rejects for now.
+					// Ignore rejects.
 				}
 			}
 		}
