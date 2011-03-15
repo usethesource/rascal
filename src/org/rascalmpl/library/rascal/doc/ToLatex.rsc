@@ -28,8 +28,8 @@ public map[str,str] mathLiterals = (
 		"==\>": 	"\\Rightarrow",
 		"\<=\>": 	"\\Leftrightarrow",
 		"=\>": 		"\\mapsto",
-		":=": 		"\\simeq",
-		"!:=": 		"\\not\\simeq"
+		":=": 		"\\cong",
+		"!:=": 		"\\not\\cong"
 
 );
 
@@ -43,17 +43,25 @@ public str rascalDoc2Latex(loc l) {
 
 private str formatBlock(Tree t, loc l) {
 	snip = unquote("<t>", "\\begin{rascal}", "\\end{rascal}"); 
-	return "\\begin{alltt}<rascalToLatex(snip, l)>\\end{alltt}";
+	return "\\begin{rascalf}<rascalToLatex(snip, l)>\\end{rascalf}";
 }		
 
 private str formatInline(Tree t, loc l) {
 	snip = unquote("<t>", "\\rascal{", "}");
-	return "{<rascalToLatex(snip, l)>}";
+	return "\\rascalf{<rascalToLatex(snip, l)>}";
 }
 
 private str rascalToLatex(str snip, loc l) {
-	pt = annotateMathOps(parseCommand(snip, l), mathLiterals);
+	pt = annotateTuples(parseCommand(snip, l));
+	pt = annotateMathOps(pt, mathLiterals);
 	return highlight2latex(highlight(pt));
+}
+
+private Tree annotateTuples(Tree pt) {
+	return visit (pt) {
+		case appl(p:prod([lit("\<"), _*, lit("\>")], _, _), [lt, a*, gt]) =>
+			appl(p, [lt[@math="\\langle"], a, gt[@math="\\rangle"]]) 
+	}
 }
 
 private str unquote(str src, str bq, str eq) {

@@ -10,7 +10,7 @@ anno str Tree@math;
 
 public Tree annotateMathOps(Tree tree, map[str, str] subst) {
 	return visit (tree) {
-		case a:appl(prod(_, lit(str s), _), _) => a[@math=subst[s]] when subst[s]?
+		case a:appl(prod(_, lit(str s), _), _) => a[@math=subst[s]] when subst[s]? && !((a@math)?)
 	}
 }
 
