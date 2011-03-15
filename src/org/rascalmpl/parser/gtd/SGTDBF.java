@@ -83,7 +83,7 @@ public abstract class SGTDBF implements IGTD{
 	// Error reporting.
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
-	private final Stack<AbstractStackNode> filteredNodes;
+	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
 	
 	public SGTDBF(){
 		super();
@@ -113,7 +113,7 @@ public abstract class SGTDBF implements IGTD{
 		
 		unexpandableNodes = new Stack<AbstractStackNode>();
 		unmatchableNodes = new Stack<AbstractStackNode>();
-		filteredNodes = new Stack<AbstractStackNode>();
+		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -751,7 +751,7 @@ public abstract class SGTDBF implements IGTD{
 	private void reduceNonTerminal(AbstractStackNode nonTerminal, AbstractNode result){
 		// Filtering
 		if(nonTerminal.isReductionFiltered(input, location)){
-			filteredNodes.push(nonTerminal);
+			filteredNodes.push(nonTerminal, result);
 			return;
 		}
 		
