@@ -142,8 +142,10 @@ public class ErrorTreeBuilder{
 		}
 	}
 	
-	private void followEdges(AbstractStackNode node, AbstractNode result){
+	private boolean followEdges(AbstractStackNode node, AbstractNode result){
 		IConstructor production = node.getParentProduction();
+		
+		boolean wasListChild = ProductionAdapter.isRegular(production);
 		
 		IntegerList filteredParents = parser.getFilteredParents(node.getId());
 		
@@ -193,20 +195,23 @@ public class ErrorTreeBuilder{
 				}
 			}
 		}
+		
+		return wasListChild;
 	}
 	
 	private void move(AbstractStackNode node, AbstractNode result){
+		boolean handleNexts = true;
 		if(node.isEndNode()){
 			if(!result.isRejected()){
 				if(!node.isReject()){
-					followEdges(node, result);
+					handleNexts = !followEdges(node, result);
 				}else{
 					// Ignore rejects.
 				}
 			}
 		}
 		
-		if(node.hasNext()){
+		if(handleNexts && node.hasNext()){
 			moveToNext(node, result);
 		}
 	}
