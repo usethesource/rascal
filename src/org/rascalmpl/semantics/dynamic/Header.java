@@ -22,8 +22,11 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
-			if (withImports) {
-				for (Import i : getImports()) {
+			for (Import i : getImports()) {
+				if (i.isSyntax()) {
+					i.declareSyntax(eval, withImports);
+				}
+				else if (i.isDefault() && withImports) {
 					i.declareSyntax(eval, withImports);
 				}
 			}
