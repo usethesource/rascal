@@ -291,13 +291,14 @@ public class ErrorTreeBuilder{
 			rest.insert(new CharNode(input[i]).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor));
 		}
 		
-		// TODO Handle the post-parse reject and action filtering mess.
-		
+		// Find the top node.
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
 		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
 		
-		// Update the top node with the rest of the string.
+		// Update the top node with the rest of the string (it will always be a sort node).
 		((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
+		
+		// TODO Handle the post-parse reject and action filtering mess.
 		
 		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
 		return resultTree;
