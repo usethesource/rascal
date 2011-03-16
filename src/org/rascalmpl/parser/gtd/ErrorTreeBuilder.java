@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -29,6 +30,7 @@ import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ErrorTreeBuilder{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -218,7 +220,29 @@ public class ErrorTreeBuilder{
 	private IList getProductionElements(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
-		return ProductionAdapter.getLhs(last.getParentProduction());
+		
+		IConstructor prod = last.getParentProduction();
+		if(!ProductionAdapter.isRegular(prod)){
+			return ProductionAdapter.getLhs(prod);
+		}
+		
+		// Regular
+		IConstructor rhs = ProductionAdapter.getRhs(prod);
+		IConstructor symbol = (IConstructor) rhs.get("symbol");
+		if(SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)){
+			IList separators = (IList) rhs.get("separators");
+			
+			IListWriter listChildrenWriter = VF.listWriter();
+			listChildrenWriter.insert(symbol);
+			for(int i = separators.length(); i >= 0; --i){
+				listChildrenWriter.insert(separators.get(i));
+			}
+			listChildrenWriter.insert(symbol);
+			
+			return listChildrenWriter.done();
+		}
+		
+		return VF.list(symbol);
 	}
 	
 	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
