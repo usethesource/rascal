@@ -20,14 +20,14 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorSortContainerNode extends AbstractContainerNode{
-	private final IList unmatchedSymbols;
+	private final IList unmatchedInput;
 	
 	private IConstructor cachedResult;
 	
-	public ErrorSortContainerNode(IList unmatchedSymbols, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ErrorSortContainerNode(IList unmatchedInput, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, false, isSeparator, isLayout);
 		
-		this.unmatchedSymbols = unmatchedSymbols;
+		this.unmatchedInput = unmatchedInput;
 	}
 	
 	protected static void gatherAlternatives(Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
@@ -76,7 +76,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			childrenListWriter.insert(children[i]);
 		}
 		
-		return vf.constructor(Factory.Tree_Error, production, childrenListWriter.done(), unmatchedSymbols);
+		return vf.constructor(Factory.Tree_Error, production, childrenListWriter.done(), unmatchedInput);
 	}
 	
 	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){

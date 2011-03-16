@@ -3,6 +3,7 @@ package org.rascalmpl.parser.gtd.result.error;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -11,6 +12,7 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ExpectedNode extends AbstractNode{
+	private final AbstractNode[] mismatchedChildren;
 	private final IConstructor symbol;
 	
 	private final URI input;
@@ -22,9 +24,10 @@ public class ExpectedNode extends AbstractNode{
 	
 	private IConstructor cachedResult;
 	
-	public ExpectedNode(IConstructor symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ExpectedNode(AbstractNode[] mismatchedChildren, IConstructor symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super();
 		
+		this.mismatchedChildren = mismatchedChildren;
 		this.symbol = symbol;
 		
 		this.input = input;
@@ -62,7 +65,12 @@ public class ExpectedNode extends AbstractNode{
 	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		if(cachedResult != null) return cachedResult;
 		
-		IConstructor result = vf.constructor(Factory.Tree_Expected, symbol);
+		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
+		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
+			childrenListWriter.insert(mismatchedChildren[i].toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor));
+		}
+		
+		IConstructor result = vf.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
 		if(!(isLayout || input == null)){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
