@@ -58,6 +58,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
@@ -71,6 +72,7 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.rascal.syntax.ObjectRascalRascal;
+import org.rascalmpl.library.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
@@ -1041,6 +1043,43 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		else {
 			return this.getRascalParser(env, location).parse(Parser.START_MODULE, location, data, actionExecutor);
 		}
+	}
+	
+	public IConstructor parseModuleWithErrorTree(char[] data, URI location, ModuleEnvironment env) {
+		this.__setInterrupt(false);
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+
+		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
+		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+
+		// take care of imports and declare syntax
+		String name = preModule.declareSyntax(this, true);
+
+		if (env == null) {
+			env = this.__getHeap().getModule(name);
+			env.setBootstrap(needBootstrapParser(preModule));
+		}
+
+		ISet prods = env.getProductions();
+		IGTD parser = null;
+		IConstructor result;
+		try{
+			if(this.needBootstrapParser(preModule)){
+				parser = new MetaRascalRascal();
+				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+			}else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+				parser = new RascalRascal();
+				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+			}else{
+				parser = getRascalParser(env, location);
+				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+			}
+		}catch(SyntaxError se){
+			result = parser.buildErrorTree();
+			if(result == null) throw se; // Rethrow the exception if building the error tree fails.
+		}
+		
+		return result;
 	}
 
 	public static boolean containsBackTick(char[] data, int offset) {

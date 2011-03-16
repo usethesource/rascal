@@ -216,7 +216,14 @@ public class TreeAdapter {
 			}
 			return arg;
 		}
+		
+		public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
+			throw new UnsupportedOperationException("Can't unparse error tree.");
+		}
 
+		public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
+			throw new UnsupportedOperationException("Can't unparse expected tree.");
+		}
 	}
 
 	public static IConstructor locateLexical(IConstructor tree, int offset) {
