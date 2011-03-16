@@ -92,4 +92,12 @@ public class AsfixWriter extends IdentityTreeVisitor {
 	public IValue visitExternal(IExternalValue externalValue) {
 		throw new UnsupportedOperationException();
 	}
+	
+	public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
+		throw new UnsupportedOperationException();
+	}
+	
+	public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
+		throw new UnsupportedOperationException();
+	}
 }

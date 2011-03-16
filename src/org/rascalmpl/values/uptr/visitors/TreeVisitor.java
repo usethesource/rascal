@@ -17,19 +17,19 @@ public abstract class TreeVisitor extends IdentityVisitor {
 		if (o.getType() == Factory.Tree) {
 			Type alt = o.getConstructorType();
 			
-			if (alt == Factory.Tree_Appl) {
+			if(alt == Factory.Tree_Appl){
 				return visitTreeAppl(o);
-			}
-			else if (alt == Factory.Tree_Amb) {
+			}else if (alt == Factory.Tree_Amb){
 				return visitTreeAmb(o);
-			}
-			else if (alt == Factory.Tree_Char) {
+			}else if (alt == Factory.Tree_Char){
 				return visitTreeChar(o);
-			}
-			else if (alt == Factory.Tree_Cycle) {
+			}else if (alt == Factory.Tree_Cycle){
 				return visitTreeCycle(o);
-			}
-			else {
+			}else if(alt == Factory.Tree_Error){
+				return visitTreeError(o);
+			}else if(alt == Factory.Tree_Expected){
+				return visitTreeExpected(o);
+			}else{
 				throw new ImplementationError("TreeVisitor does not implement: " + alt);
 			}
 		}
@@ -41,4 +41,6 @@ public abstract class TreeVisitor extends IdentityVisitor {
 	public abstract IConstructor visitTreeAmb(IConstructor arg) throws VisitorException;
 	public abstract IConstructor visitTreeChar(IConstructor arg) throws VisitorException;
 	public abstract IConstructor visitTreeCycle(IConstructor arg) throws VisitorException;
+	public abstract IConstructor visitTreeError(IConstructor arg) throws VisitorException;
+	public abstract IConstructor visitTreeExpected(IConstructor arg) throws VisitorException;
 }
