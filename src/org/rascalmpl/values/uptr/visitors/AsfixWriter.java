@@ -14,13 +14,12 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class AsfixWriter extends IdentityTreeVisitor {
 
 	private Writer writer;
-	int nesting = 0;
+	//int nesting = 0;
 
 	public AsfixWriter(Writer writer) {
 		this.writer = writer;
-		this.nesting = 0;
+		//this.nesting = 0;
 	}
-	
 	
 	@Override
 	public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
@@ -34,7 +33,7 @@ public class AsfixWriter extends IdentityTreeVisitor {
 				if (i < len - 1) {
 					writer.write(",\n");
 				}
-				i++;
+				++i;
 			}
 			writer.write("])");
 		} catch (IOException e) {
@@ -46,29 +45,27 @@ public class AsfixWriter extends IdentityTreeVisitor {
 
 	@Override
 	public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
-		arg = arg.removeAnnotations();
-		try {
+		try{
 			writer.write("appl(");
 			writer.write(TreeAdapter.getProduction(arg).toString());
 			writer.write(", [");
 			IList list = TreeAdapter.getArgs(arg);
 			int len = list.length();
 			int i = 0;
-			nesting++;
+//			++nesting;
 			for (IValue x: list) {
-				for (int j = 0; j < nesting; j++) {
+//				for (int j = 0; j < nesting; ++j) {
 //					writer.write(" ");
-				}
+//				}
 				x.accept(this);
 				if (i < len - 1) {
 					writer.write(", \n");
 				}
 				i++;
 			}
-			nesting--;
+//			--nesting;
 			writer.write("])");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		}catch(IOException e){
 			e.printStackTrace();
 		}		
 		return null;
@@ -85,21 +82,92 @@ public class AsfixWriter extends IdentityTreeVisitor {
 	}
 
 	@Override
-	public IConstructor visitTreeCycle(IConstructor arg)  throws VisitorException {
-		throw new UnsupportedOperationException("no support for cycles");
+	public IConstructor visitTreeCycle(IConstructor arg)  throws VisitorException{
+		try{
+			writer.write("cycle(");
+			writer.write(arg.get("symbol").toString());
+			writer.write(arg.get("cycleLength").toString());
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	public IValue visitExternal(IExternalValue externalValue) {
+	public IValue visitExternal(IExternalValue externalValue){
 		throw new UnsupportedOperationException();
 	}
 	
 	public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
-		// TODO Implement, so error trees are unparseable.
-		throw new UnsupportedOperationException();
+		try{
+			writer.write("error(");
+			writer.write(TreeAdapter.getProduction(arg).toString());
+			writer.write(", [");
+			
+			IList list = TreeAdapter.getArgs(arg);
+			int len = list.length();
+			int i = 0;
+//			++nesting;
+			for(IValue x: list){
+//				for (int j = 0; j < nesting; ++j) {
+//					writer.write(" ");
+//				}
+				x.accept(this);
+				if(i < len - 1){
+					writer.write(", \n");
+				}
+				i++;
+			}
+//			--nesting;
+			writer.write("], [");
+//			++nesting;
+			IList rest = (IList) arg.get("rest");
+			len = rest.length();
+			i = 0;
+			for(IValue x: rest){
+//				for (int j = 0; j < nesting; ++j) {
+//					writer.write(" ");
+//				}
+				x.accept(this);
+				if(i < len - 1){
+					writer.write(", \n");
+				}
+				i++;
+			}
+//			--nesting;
+			writer.write("])");
+		}catch(IOException e){
+			e.printStackTrace();
+		}		
+		return null;
 	}
 	
 	public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
-		// Don't write anything.
+		try{
+			writer.write("expected(");
+			writer.write(arg.get("symbol").toString());
+			writer.write(", [");
+	
+	//		--nesting;
+			writer.write("], [");
+	//		++nesting;
+			IList rest = (IList) arg.get("rest");
+			int len = rest.length();
+			int i = 0;
+			for (IValue x: rest) {
+	//			for (int j = 0; j < nesting; ++j) {
+	//				writer.write(" ");
+	//			}
+				x.accept(this);
+				if (i < len - 1) {
+					writer.write(", \n");
+				}
+				i++;
+			}
+	//		--nesting;
+			writer.write("])");
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		return null;
 	}
 }

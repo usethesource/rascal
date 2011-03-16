@@ -190,15 +190,13 @@ public class TreeAdapter {
 		}
 
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg)
-				throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 			((ISet) arg.get("alternatives")).iterator().next().accept(this);
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg)
-				throws VisitorException {
+		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 			try {
 				fStream.write(((IInteger) arg.get("character")).intValue());
 				return arg;
@@ -208,8 +206,7 @@ public class TreeAdapter {
 		}
 
 		@Override
-		public IConstructor visitTreeAppl(IConstructor arg)
-				throws VisitorException {
+		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
 			IList children = (IList) arg.get("args");
 			for (IValue child : children) {
 				child.accept(this);
@@ -218,11 +215,16 @@ public class TreeAdapter {
 		}
 		
 		public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
-			throw new UnsupportedOperationException("Can't unparse error tree.");
+			IList children = (IList) arg.get("args");
+			for(IValue child : children){
+				child.accept(this);
+			}
+			return arg;
 		}
 
 		public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
-			throw new UnsupportedOperationException("Can't unparse expected tree.");
+			// Don't do anything.
+			return arg;
 		}
 	}
 
