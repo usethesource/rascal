@@ -7,7 +7,7 @@ syntax Sort = lex OneChar: [A-Z] |
               ;
 
 syntax Syms = Sym*
-                 - StrCon "(" {Sym ","}* ")"
+                 //- StrCon "(" {Sym ","}* ")" 
                  ;
 
 syntax NatCon = lex Digits: [0-9]+
@@ -71,11 +71,10 @@ syntax Attribute = Id: "id" "(" ModuleName ")" |
                    Prefer: "prefer" |
                    Avoid: "avoid" |
                    Bracket: "bracket" |
-                   Asso: Asso
+                   Assoc: Assoc
                    ;
 
-syntax ATermAttribute = Default: ATerm
-                        - Asso
+syntax ATermAttribute = Default: ATerm a  
                         - "reject"
                         - "prefer"
                         - "avoid"
@@ -118,7 +117,10 @@ syntax Grammar = Bracket: "(" Grammar ")" |
 
 syntax Label = Quoted: StrCon |
                IdCon: IdCon
-               - Asso
+               - "left"
+               - "right"
+               - "assoc"
+               - "non-assoc"
                ;
 
 syntax Sym = Sort: Sort |
@@ -266,10 +268,10 @@ syntax Lookaheads = Single: Lookahead |
 syntax Restriction = Follow: Syms "-/-" Lookaheads
                      ;
 
-syntax Asso = Left: "left" |
+syntax Assoc = Left: "left" |
                        Right: "right" |
                        NonAssoc: "non-assoc" |
-                       Asso: "assoc"
+                       Assoc: "assoc"
                        ;
                        
 syntax Restrictions = Default: Restriction* ;
@@ -282,12 +284,12 @@ syntax ArgumentIndicator = Default: "\<" {NatCon ","}+ "\>"
 syntax Group = non-assoc WithArguments: Group ArgumentIndicator |
                non-assoc NonTransitive: Group "." |
                ProdsGroup: "{" Prods "}" |
-               AssocGroup: "{" Asso ":" Prods "}" |
+               AssocGroup: "{" Assoc ":" Prods "}" |
                SimpleGroup: Prod
                ;
 
 syntax Priority = Chain: {Group "\>"}+ |
-                  Asso: Group Asso Group
+                  Assoc: Group Assoc Group
                   ;
 
 syntax Priorities = {Priority ","}*
@@ -295,6 +297,10 @@ syntax Priorities = {Priority ","}*
 
 syntax AFun = Quoted: StrCon |
               Unquoted: IdCon
+              - "left" 
+              - "right" 
+              - "assoc" 
+              - "non-assoc"
               ;
 
 syntax ATerm = Int: IntCon |
