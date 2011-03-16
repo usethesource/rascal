@@ -12,7 +12,6 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -32,6 +31,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
+// TODO add the rest of the input to the top node.
 public class ErrorTreeBuilder{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static IList EMPTY_LIST = VF.list();
@@ -298,7 +298,7 @@ public class ErrorTreeBuilder{
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
 		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
 		FilteringTracker filteringTracker = new FilteringTracker();
-		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, new VoidActionExecutor());
+		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
 		return resultTree;
 	}
 }
