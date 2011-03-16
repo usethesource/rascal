@@ -1,15 +1,16 @@
-@cachedParser{org.rascalmpl.library.rascal.doc.ToLatex}
 module rascal::doc::ToLatex
 
-import rascal::doc::Document;
-import rascal::doc::LatexIsland;
-import rascal::syntax::Generator;
-import ParseTree;
-import String;
 import lang::box::util::Highlight;
 import lang::box::util::HighlightToLatex;
 import Reflective;
+import ParseTree;
+import String;
 import IO;
+
+data Chunk
+	= block(str s)
+	| inline(str s)
+	| water(str s);
 
 public map[str,str] mathLiterals = (
 		"o": 		"\\circ",
@@ -36,31 +37,14 @@ public map[str,str] mathLiterals = (
 
 );
 
-public void generateParser() {
-	int uniqueItem = -3; // -1 and -2 are reserved by the SGTDBF implementation
- 	int newItem() { uniqueItem -= 1; return uniqueItem; };
-  	gr = getModuleGrammar(|rascal://rascal::doc::ToLatex|);
-  	parser = generate("org.rascalmpl.library.rascal.doc", "ToLatex", "org.rascalmpl.parser.gtd.SGTDBF", newItem, false, true, {}, gr);
-  	writeFile(|boot:///src/org/rascalmpl/library/rascal/doc/ToLatex.java|, parser);
+public str rascalDoc2Latex(loc l) {
+	return rascalDoc2Latex(readFile(l), l);
 }
 
 public str rascalDoc2Latex(str s, loc l) {
-	return expand(parse(#Document, s), l, formatBlock, formatInline);
+	return expand(myParse(s), l);
 }
 
-public str rascalDoc2Latex(loc l) {
-	return expand(parse(#Document, l), l, formatBlock, formatInline);
-}
-
-private str formatBlock(Tree t, loc l) {
-	snip = unquote("<t>", "\\begin{rascal}", "\\end{rascal}"); 
-	return "\\begin{rascaldoc}<rascalToLatex(snip, l)>\\end{rascaldoc}";
-}		
-
-private str formatInline(Tree t, loc l) {
-	snip = unquote("<t>", "\\irascal{", "}");
-	return "\\irascaldoc{<rascalToLatex(snip, l)>}";
-}
 
 private str rascalToLatex(str snip, loc l) {
 	pt = annotateSpecials(parseCommand(snip, l));
@@ -68,7 +52,9 @@ private str rascalToLatex(str snip, loc l) {
 	return highlight2latex(highlight(pt));
 }
 
+
 private Tree annotateSpecials(Tree pt) {
+	println("Annotating specials...");
 	return top-down-break visit (pt) {
 		
 		// tuples
@@ -84,6 +70,77 @@ private Tree annotateSpecials(Tree pt) {
 private str unquote(str src, str bq, str eq) {
 	return substring(src, size(bq), size(src) - size(eq));
 }
+
+public str expand(list[Chunk] doc, loc l) {
+	result = "";
+	for (c <- doc) {
+		switch (c) {
+			case inline(str s): result += "\\irascaldoc{<rascalToLatex(s, l)>}";
+			case block(str s):  result += "\\begin{rascaldoc}<rascalToLatex(s, l)>\\end{rascaldoc}";
+			case water(str s): 	result += s;
+		}
+	}
+	return result;
+}
+
+
+public list[Chunk] parseInlines(str s) {
+	// does not support \n in s
+	result = [];
+	int i = 0;
+	while (s != "", /^<pre:.*>\\rascal\{/ := s) {
+		off = size(pre) + 8;
+		s = (off < size(s)) ? substring(s, off) : "";
+		result += [water(pre)];
+		i = 0;
+		nest = 1;
+		ile = inline("");
+		while (nest > 0, i < size(s)) {
+			if (stringChar(charAt(s, i)) == "{") {
+				nest += 1;
+			}
+			if (stringChar(charAt(s, i)) == "}") {
+				nest -= 1;
+			}
+			if (nest > 0) {
+				ile.s += stringChar(charAt(s, i));
+			}
+			i += 1;
+		}
+		result += [ile];
+	}
+	result += [water(substring(s, i))];
+	return result;
+}
+	
+public list[Chunk] myParse(str s) {
+	println("Parsing...");
+	ile = block("");
+	eau = water("");
+	result = [];
+	inIsland = false;
+	begin = true;
+	while (s != "", /^<line:.*>/ := s) {
+		off = size(line);
+		s = (off < size(s)) ? substring(s, off + 1) : "";
+		if (!inIsland, /^\\begin\{rascal\}$/ := line) {
+			inIsland = true;
+			ile.s = "";
+		}
+		else if (inIsland, /^\\end\{rascal\}$/ := line) {
+			inIsland = false;
+			result += [ile];
+		}
+		else if (inIsland) {
+			ile.s += "<line>\n";
+		}
+		else {
+			result += parseInlines("<line>\n");
+		}
+	}
+	println("Done parsing.");
+	return result;
+} 
 
 
 

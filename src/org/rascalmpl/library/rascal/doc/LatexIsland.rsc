@@ -1,47 +1,87 @@
 module rascal::doc::LatexIsland
 
-syntax Water
-	= lex ![\\]
-	| lex WBackslash
+start syntax Document
+	= PreB Snippet TailB
+	| PreI Snippet TailI
+	| Stuff
 	;
 
-syntax WBackslash
-	= [\\]
-	# "begin{rascal}"
-	# "irascal{"
+syntax Snippet
+	= Content+ 
 	;
 	
-
 syntax Content
 	= lex ![\\{}]+
-	| [{] Content* [}]
+	| "{" Content* "}"
 	| lex [\\][{}]
-	| Backslash
-	| "\\\\begin{rascal}"
-	| "\\\\end{rascal}"
-	| "\\\\irascal{"
-	| "\\\\}"
+	| CBS
 	;
 
-syntax Backslash
-	= lex [\\]
+syntax CBS
+	= [\\]
 	# [{}]
-	# "end{rascal}"
 	;
-	
-syntax Begin
-	= lex [\\] "begin{rascal}"
-	;
-	
-syntax End
-	= lex [\\] "end{rascal}"
-	; 
 
-syntax IBegin
-	= lex [\\] "irascal{"
+
+syntax PreB
+	= lex Char* [\\] "begin{rascal}"
 	;
 	
-syntax IEnd
-	= lex "}"
+syntax TailB
+	= MidBI Snippet TailI
+	| MidBB Snippet TailB
+	| PostB
 	;
 	
+syntax MidBI
+	= lex [\\] "end{rascal}" Char* [\\] "rascal{"
+	;
+
+syntax MidBB
+	= lex [\\] "end{rascal}" Char* [\\] "begin{rascal}"
+	;
+
+syntax PreI
+	= lex Char* [\\] "rascal{"
+	;	
+
+syntax TailI
+	= MidII Snippet TailI
+	| MidIB Snippet TailB
+	| PostI
+	;
+
+syntax MidII
+	= lex "}" Char* [\\] "rascal{"
+	;
+
+syntax MidIB
+	= lex "}" Char* [\\] "begin{rascal}"
+	;
+
+
+
+syntax PostB
+	= lex [\\] "end{rascal}" Char*
+	;
+
+syntax PostI
+	= lex "}" Char*
+	;
+
+syntax Stuff
+	= lex Char*
+	;
+
+	
+syntax Char
+	= lex ![\\]
+	| lex BS
+	;
+
+syntax BS
+	= lex [\\]
+	# "begin{rascal}"
+	# "rascal{"
+	;
+
