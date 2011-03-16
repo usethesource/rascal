@@ -1,13 +1,13 @@
 module lang::sdf2::util::SDF2Grammar
-    
+     
 // Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
-
+   
 // Todo List:
 // - Some tests are marked with @ignore (and commented out) since they trigger a Rascal bug:
 //   . The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
 //   . The test (Class) `[]` == \char-class([]);  // gives unsupported operation
 // - Introduce aliases (needs alias resolution in concrete fragments; this does not work yet)
- 
+    
 import IO;
 import String;
 import Integer;
@@ -33,7 +33,7 @@ public Grammar sdf2grammar(SDF definition) {
                  getProductions(definition) 
                  + {prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())});
 }
-
+ 
 test sdf2grammar(
         `definition 
          module X
@@ -648,7 +648,7 @@ public int getCharacter(Character c) {
     default: throw "missed a case <c>";
   }
 }
-
+ 
 test getCharacter((Character) `a`)    == charAt("a", 0);
 test getCharacter((Character) `\\`)   == charAt("\\", 0);
 test getCharacter((Character) `\'`)   == charAt("\'", 0);
@@ -701,23 +701,23 @@ public Attr getAttribute(Attribute m) {
 test getAttribute((Attribute) `left`)        == \assoc(left());
 test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
  
-private Associativity getAssociativity(Asso as){
+private Associativity getAssociativity(Assoc as){
   switch (as) {
-    case (Asso) `left`:       
+    case (Assoc) `left`:        
     	return \left();
-    //case (Asso) `right`:
-    //	return \right();
-    //case (Asso) `non-assoc`:
-    //	return \non-assoc();
-    //case (Asso) `assoc`:
-    //	return \assoc();
+    case (Assoc) `right`:
+    	return \right();
+    case (Assoc) `non-assoc`:
+    	return \non-assoc();
+    case (Assoc) `assoc`:
+    	return \assoc();
     default:
     	throw "missed a case <as>";
   }
 }
  
-//test getAssociativity((Asso) `left`) == left();
+test getAssociativity((Assoc) `left`) == left();
 
-// private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex) {
-//  return [ getSymbol(s, isLex) | Sym s <- args ];
-//}
+private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex) {
+  return [ getSymbol(s, isLex) | Sym s <- args ];
+}
