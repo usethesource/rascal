@@ -219,6 +219,16 @@ public class TreeAdapter {
 			for(IValue child : children){
 				child.accept(this);
 			}
+			
+			IList rest = (IList) arg.get("rest");
+			try{
+				for(IValue character : rest){
+					fStream.write(((IInteger) character).intValue());
+				}
+			}catch(IOException ioex){
+				throw new VisitorException(ioex);
+			}
+			
 			return arg;
 		}
 
