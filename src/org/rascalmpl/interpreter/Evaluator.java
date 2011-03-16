@@ -1015,15 +1015,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
 
 		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
+		
 		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
-
-		// take care of imports and declare syntax
-		String name = preModule.declareSyntax(this, true);
-
+		String name = getModuleName(preModule);
+		
 		if (env == null) {
 			env = this.__getHeap().getModule(name);
+			if (env == null) {
+				env = new ModuleEnvironment(name, heap);
+				heap.addModule(env);
+			}
 			env.setBootstrap(needBootstrapParser(preModule));
 		}
+		
+		// take care of imports and declare syntax
+		preModule.declareSyntax(this, true);
 
 		ISet prods = env.getProductions();
 		if (this.needBootstrapParser(preModule)) {
@@ -1137,11 +1143,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
-
-//				env.setInitialized(true);
-				if (!env.getSyntaxDefined()) {
-					module.declareSyntax(this, true);
-				}
+				module.declareSyntax(this, true);
 				module.interpret(this);
 				return module;
 			}
