@@ -11,6 +11,7 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -73,7 +74,7 @@ public class ErrorTreeBuilder{
 		int dot = next.getDot();
 		IList productionElements = getProductionElements(next);
 		IConstructor nextSymbol = (IConstructor) productionElements.get(dot);
-		AbstractNode resultStore = new ExpectedNode(nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
+		AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
 		
@@ -88,7 +89,7 @@ public class ErrorTreeBuilder{
 		int dot = next.getDot();
 		IList productionElements = getProductionElements(next);
 		IConstructor nextSymbol = (IConstructor) productionElements.get(dot);
-		AbstractNode resultStore = new ExpectedNode(nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
+		AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
 	}
@@ -225,7 +226,7 @@ public class ErrorTreeBuilder{
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
 			IConstructor symbol = getParentSymbol(unexpandableNode);
-			AbstractNode resultStore = new ExpectedNode(symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
+			AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
 			
 			errorNodes.push(unexpandableNode, resultStore);
 		}
@@ -240,24 +241,13 @@ public class ErrorTreeBuilder{
 				children[i] = new CharNode(input[startLocation - i]);
 			}
 			
-			// TODO Construct the proper result store.
+			int dot = unmatchableNode.getDot();
+			IList productionElements = getProductionElements(unmatchableNode);
+			IConstructor symbol = (IConstructor) productionElements.get(dot);
 			
-			// Literal
+			AbstractNode result = new ExpectedNode(children, symbol, inputURI, startLocation, location, unmatchableNode.isSeparator(), unmatchableNode.isLayout());
 			
-			// Case insensitive literal
-			
-			// Character
-			
-			// Epsilon
-			
-			// Start-of-line
-			
-			// End-of-line
-			
-			// At-column
-			
-			
-			errorNodes.push(unmatchableNode, null);
+			errorNodes.push(unmatchableNode, result);
 		}
 		
 		while(!filteredNodes.isEmpty()){
@@ -279,7 +269,7 @@ public class ErrorTreeBuilder{
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
 		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
 		FilteringTracker filteringTracker = new FilteringTracker();
-		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
+		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, new VoidActionExecutor());
 		return resultTree;
 	}
 }
