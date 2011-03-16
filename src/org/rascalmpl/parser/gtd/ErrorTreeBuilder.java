@@ -5,7 +5,6 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
@@ -28,14 +27,11 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-// TODO add the rest of the input to the top node.
 public class ErrorTreeBuilder{
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-	private final static IList EMPTY_LIST = VF.list();
-	
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
 	private final PositionStore positionStore;
@@ -73,9 +69,7 @@ public class ErrorTreeBuilder{
 		next.setStartLocation(location);
 		next.updateNode(node, result);
 		
-		int dot = next.getDot();
-		IList productionElements = getProductionElements(next);
-		IConstructor nextSymbol = (IConstructor) productionElements.get(dot);
+		IConstructor nextSymbol = findSymbol(next);
 		AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
@@ -88,9 +82,7 @@ public class ErrorTreeBuilder{
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		next.setStartLocation(location);
 		
-		int dot = next.getDot();
-		IList productionElements = getProductionElements(next);
-		IConstructor nextSymbol = (IConstructor) productionElements.get(dot);
+		IConstructor nextSymbol = findSymbol(next);
 		AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
@@ -182,7 +174,7 @@ public class ErrorTreeBuilder{
 						if(resultStore != null){
 							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 						}else{
-							resultStore = (!edge.isList()) ? new ErrorSortContainerNode(EMPTY_LIST, inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(EMPTY_LIST, inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isList()) ? new ErrorSortContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.addAlternative(production, resultLink);
 							
@@ -222,32 +214,32 @@ public class ErrorTreeBuilder{
 		return ProductionAdapter.getRhs(last.getParentProduction());
 	}
 	
-	private IList getProductionElements(AbstractStackNode node){
+	private IConstructor findSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
 		
+		int dot = node.getDot();
+		
 		IConstructor prod = last.getParentProduction();
 		if(!ProductionAdapter.isRegular(prod)){
-			return ProductionAdapter.getLhs(prod);
+			IList lhs = ProductionAdapter.getLhs(prod);
+			return (IConstructor) lhs.get(dot);
 		}
 		
 		// Regular
 		IConstructor rhs = ProductionAdapter.getRhs(prod);
 		IConstructor symbol = (IConstructor) rhs.get("symbol");
+		if(dot == 0){
+			return symbol;
+		}
+		
 		if(SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)){
 			IList separators = (IList) rhs.get("separators");
 			
-			IListWriter listChildrenWriter = VF.listWriter();
-			listChildrenWriter.insert(symbol);
-			for(int i = separators.length(); i >= 0; --i){
-				listChildrenWriter.insert(separators.get(i));
-			}
-			listChildrenWriter.insert(symbol);
-			
-			return listChildrenWriter.done();
+			return (IConstructor) separators.get(dot - 1);
 		}
 		
-		return VF.list(symbol);
+		throw new RuntimeException("Unknown type of production: "+prod);
 	}
 	
 	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
@@ -270,9 +262,7 @@ public class ErrorTreeBuilder{
 				children[i] = new CharNode(input[startLocation - i]);
 			}
 			
-			int dot = unmatchableNode.getDot();
-			IList productionElements = getProductionElements(unmatchableNode);
-			IConstructor symbol = (IConstructor) productionElements.get(dot);
+			IConstructor symbol = findSymbol(unmatchableNode);
 			
 			AbstractNode result = new ExpectedNode(children, symbol, inputURI, startLocation, location, unmatchableNode.isSeparator(), unmatchableNode.isLayout());
 			
@@ -293,11 +283,22 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
+		FilteringTracker filteringTracker = new FilteringTracker();
+		
+		// Construct the rest of the input as separate character nodes.
+		IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
+		for(int i = input.length - 1; i >= location; --i){
+			rest.insert(new CharNode(input[i]).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor));
+		}
+		
 		// TODO Handle the post-parse reject and action filtering mess.
 		
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
 		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
-		FilteringTracker filteringTracker = new FilteringTracker();
+		
+		// Update the top node with the rest of the string.
+		((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
+		
 		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
 		return resultTree;
 	}
