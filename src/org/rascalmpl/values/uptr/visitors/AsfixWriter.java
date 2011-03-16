@@ -94,10 +94,12 @@ public class AsfixWriter extends IdentityTreeVisitor {
 	}
 	
 	public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
+		// TODO Implement, so error trees are unparseable.
 		throw new UnsupportedOperationException();
 	}
 	
 	public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
-		throw new UnsupportedOperationException();
+		// Don't write anything.
+		return null;
 	}
 }
