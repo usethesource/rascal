@@ -20,13 +20,19 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorSortContainerNode extends AbstractContainerNode{
-	private final IList unmatchedInput;
+	private final static IList EMPTY_LIST = vf.list();
+	
+	private IList unmatchedInput;
 	
 	private IConstructor cachedResult;
 	
-	public ErrorSortContainerNode(IList unmatchedInput, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ErrorSortContainerNode(URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, false, isSeparator, isLayout);
 		
+		this.unmatchedInput = EMPTY_LIST;
+	}
+	
+	public void setUnmatchedInput(IList unmatchedInput){
 		this.unmatchedInput = unmatchedInput;
 	}
 	

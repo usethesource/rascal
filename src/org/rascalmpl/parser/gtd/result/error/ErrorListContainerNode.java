@@ -21,14 +21,12 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorListContainerNode extends AbstractContainerNode{
-	private final IList unmatchedInput;
+	private final static IList EMPTY_LIST = vf.list();
 	
 	private IConstructor cachedResult;
 	
-	public ErrorListContainerNode(IList unmatchedInput, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ErrorListContainerNode(URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, false, isSeparator, isLayout);
-		
-		this.unmatchedInput = unmatchedInput;
 	}
 	
 	private static class CycleNode extends AbstractNode{
@@ -381,7 +379,7 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 			childrenListWriter.insert(children[i]);
 		}
 		
-		return vf.constructor(Factory.Tree_Error, production, childrenListWriter.done(), unmatchedInput);
+		return vf.constructor(Factory.Tree_Error, production, childrenListWriter.done(), EMPTY_LIST);
 	}
 	
 	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
