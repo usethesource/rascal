@@ -95,7 +95,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
-			cycle = actionExecutor.filterProduction(cycle);
+			cycle = actionExecutor.filterCycle(cycle);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);

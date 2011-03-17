@@ -6,4 +6,6 @@ public interface IActionExecutor{
 	IConstructor filterProduction(IConstructor tree);
 	
 	IConstructor filterAmbiguity(IConstructor ambCluster);
+	
+	IConstructor filterCycle(IConstructor cycle);
 }

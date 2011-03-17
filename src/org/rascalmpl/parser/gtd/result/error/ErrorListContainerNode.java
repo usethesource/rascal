@@ -126,7 +126,7 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 	
 	private static IConstructor[] constructCycle(IConstructor[] convertedCycle, IConstructor production, IActionExecutor actionExecutor){
 		IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1));
-		cycle = actionExecutor.filterProduction(cycle);
+		cycle = actionExecutor.filterCycle(cycle);
 		if(cycle == null){
 			return convertedCycle;
 		}
@@ -405,7 +405,7 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
-			cycle = actionExecutor.filterProduction(cycle);
+			cycle = actionExecutor.filterCycle(cycle);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);

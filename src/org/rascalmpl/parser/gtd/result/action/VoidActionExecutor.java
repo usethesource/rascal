@@ -8,11 +8,15 @@ public class VoidActionExecutor implements IActionExecutor{
 		super();
 	}
 	
+	public IConstructor filterProduction(IConstructor tree){
+		return tree;
+	}
+	
 	public IConstructor filterAmbiguity(IConstructor ambCluster){
 		return ambCluster;
 	}
 	
-	public IConstructor filterProduction(IConstructor tree){
-		return tree;
+	public IConstructor filterCycle(IConstructor cycle){
+		return cycle;
 	}
 }
