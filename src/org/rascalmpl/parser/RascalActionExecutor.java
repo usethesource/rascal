@@ -51,6 +51,11 @@ public class RascalActionExecutor implements IActionExecutor{
 		// TODO Implement.
 		return ambCluster;
 	}
+	
+	public IConstructor filterCycle(IConstructor cycle){
+		// TODO Implement.
+		return cycle;
+	}
 
 	/**
 	 * call takes care of executing an action and knowing whether something changed, and the scope management.
