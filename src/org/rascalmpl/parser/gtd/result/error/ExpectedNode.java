@@ -62,12 +62,12 @@ public class ExpectedNode extends AbstractNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, boolean buildErrorTree){
 		if(cachedResult != null) return cachedResult;
 		
 		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
 		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
-			childrenListWriter.insert(mismatchedChildren[i].toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor));
+			childrenListWriter.insert(mismatchedChildren[i].toTerm(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, buildErrorTree));
 		}
 		
 		IConstructor result = vf.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());

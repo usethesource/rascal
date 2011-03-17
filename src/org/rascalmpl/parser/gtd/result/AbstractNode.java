@@ -33,7 +33,7 @@ public abstract class AbstractNode{
 	
 	public abstract boolean isRejected();
 	
-	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor);
+	public abstract IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, boolean buildErrorTree);
 	
 	public static class CycleMark{
 		public int depth = Integer.MAX_VALUE;
