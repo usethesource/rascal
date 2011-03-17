@@ -84,6 +84,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	// Error reporting.
 	private boolean parseErrorOccured;
+	private boolean filterErrorOccured;
 	
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
@@ -1050,6 +1051,8 @@ public abstract class SGTDBF implements IGTD{
 					}
 					
 					// Filtering error.
+					filterErrorOccured = true;
+					
 					int line = positionStore.findLine(filteringTracker.offset);
 					int column = positionStore.getColumn(filteringTracker.offset, line);
 					int endLine = positionStore.findLine(filteringTracker.endOffset);
@@ -1069,9 +1072,20 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	public IConstructor buildErrorTree(){
-		if(!parseErrorOccured) throw new RuntimeException("No parse error occured.");
-		ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, positionStore, actionExecutor, input, location, inputURI);
-		return errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
+		if(parseErrorOccured){
+			ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, positionStore, actionExecutor, input, location, inputURI);
+			return errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
+		}
+		
+		// TODO Enable when the feature is fully implemented.
+		if(false && filterErrorOccured){
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
+			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
+			FilteringTracker filteringTracker = new FilteringTracker();
+			return result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true);
+		}
+		
+		throw new RuntimeException("No parse error occured.");
 	}
 	
 	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
