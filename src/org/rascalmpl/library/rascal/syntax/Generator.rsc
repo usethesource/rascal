@@ -104,169 +104,164 @@ public str generate(str package, str name, str super, int () newItem, bool callS
    
     println("printing the source code of the parser class");
     
-    return 
-"
-package <package>;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.stack.*;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.IntegerList;
-import org.rascalmpl.parser.gtd.util.IntegerMap;
-import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.IParserInfo;
-
-public class <name> extends <super> implements IParserInfo {
-    <if (isRoot) {>
-	protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
-		try{
-			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
-		}catch(FactTypeUseException e){
-			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-		}catch(IOException e){
-			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-		}
-	}
-	
-	protected static final TypeFactory _tf = TypeFactory.getInstance();
-	
-	protected static java.lang.String _concat(String ...args) {
-		int length = 0;
-		for (java.lang.String s :args) {
-			length += s.length();
-		}
-		java.lang.StringBuilder b = new java.lang.StringBuilder(length);
-		for (java.lang.String s : args) {
-			b.append(s);
-		}
-		return b.toString();
-	}
-    <}>
-
-    private static final IntegerMap _resultStoreIdMappings;
-    private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
-	private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
-	
-	private static void _putDontNest(IntegerKeyedHashMap\<IntegerList\> result, int parentId, int childId) {
-    	IntegerList donts = result.get(childId);
-    	if(donts == null){
-    		donts = new IntegerList();
-    		result.put(childId, donts);
-    	}
-    	donts.add(parentId);
-    }
-    
-    protected static void _putResultStoreIdMapping(IntegerMap result, int parentId, int resultStoreId){
-       result.putUnsafe(parentId, resultStoreId);
-    }
-    
-    protected int getResultStoreId(int parentId){
-       return _resultStoreIdMappings.get(parentId);
-    }
-    
-    protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
-      IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
-    
-      for (IValue e : (IRelation) _read(_concat(<split("<dontNest>")>), _tf.relType(_tf.integerType(),_tf.integerType()))) {
-        ITuple t = (ITuple) e;
-        _putDontNest(result, ((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
-      }
-      
-      return result;
-    }
-    
-    protected static IntegerMap _initDontNestGroups() {
-      IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
-      int resultStoreId = result.size();
-    
-      for (IValue t : (IRelation) _read(_concat(<split("<dontNestGroups>")>), _tf.relType(_tf.setType(_tf.integerType()),_tf.setType(_tf.integerType())))) {
-        ++resultStoreId;
-
-        ISet parentIds = (ISet) ((ITuple) t).get(1);
-        for (IValue pid : parentIds) {
-          _putResultStoreIdMapping(result, ((IInteger) pid).intValue(), resultStoreId);
-        }
-      }
-      
-      return result;
-    }
-    
-    protected IntegerList getFilteredParents(int childId) {
-		return _dontNest.get(childId);
-	}
-    
-    public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
-      return _languageActions.get(prod);
-    }
-    
-    protected static java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _initLanguageActions() {
-      java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> result = <if (!isRoot) {><super>._initLanguageActions()<} else {>new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>()<}>;
-      ASTBuilder astBuilder = new ASTBuilder();
-      IMap tmp = (IMap) _read(_concat(<split("<actions>")>), _tf.mapType(Factory.Production, Factory.Tree));
-      for (IValue key : tmp) {
-        result.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));
-      }
-      
-      return result;
-    }
-    
-    // initialize priorities and actions    
-    static {
-      _languageActions = _initLanguageActions();
-      _dontNest = _initDontNest();
-      _resultStoreIdMappings = _initDontNestGroups();
-    }
-    
-    // Production declarations
-	<for (p <- uniqueProductions) {>
-	private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<unmeta(p)>")>\", Factory.Production);<}>
-    
-	// Item declarations
-	<for (Symbol s <- newItems, isNonterminal(s)) {
-	items = newItems[s];
-	map[Production, list[Item]] alts = ();
-	for(Item item <- items){
-		Production prod = item.production;
-		if(prod in alts){
-			alts[prod] = alts[prod] + item;
-		}else{
-			alts[prod] = [item];
-		}
-	}
-	>
-	
-	private static class <value2id(s)> {
-		<for(Production alt <- alts){
-		list[Item] lhses = alts[alt];>
-		public final static AbstractStackNode[] <value2id(alt)> = new AbstractStackNode[<size(lhses)>];
-		static{<for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
-			<pi>[<ii>] = <items[i].new>;<}>
-		}<}>
-	}<}>
-	
-	public <name>(){
-		super();
-	}
-	
-	// Parse methods    
-	<for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
-      <generateParseMethod(newItems, callSuper, choice(nont, gr.rules[nont]))>
-	<}>
-}
-";
+    return "package <package>;
+           '
+           'import java.io.ByteArrayInputStream;
+           'import java.io.IOException;
+           '
+           'import org.eclipse.imp.pdb.facts.type.TypeFactory;
+           'import org.eclipse.imp.pdb.facts.IConstructor;
+           'import org.eclipse.imp.pdb.facts.IValue;
+           'import org.eclipse.imp.pdb.facts.IMap;
+           'import org.eclipse.imp.pdb.facts.ISet;
+           'import org.eclipse.imp.pdb.facts.IRelation;
+           'import org.eclipse.imp.pdb.facts.ITuple;
+           'import org.eclipse.imp.pdb.facts.IInteger;
+           'import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+           'import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+           'import org.rascalmpl.parser.gtd.stack.*;
+           'import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+           'import org.rascalmpl.parser.gtd.util.IntegerList;
+           'import org.rascalmpl.parser.gtd.util.IntegerMap;
+           'import org.rascalmpl.values.uptr.Factory;
+           'import org.rascalmpl.parser.ASTBuilder;
+           'import org.rascalmpl.parser.IParserInfo;
+           '
+           'public class <name> extends <super> implements IParserInfo {
+           '<if (isRoot) {>
+           '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
+           '		try {
+           '			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+           '		} catch(FactTypeUseException e) {
+           '			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+           '		} catch(IOException e) {
+           '			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+           '		}
+           '	  }
+           '	
+           '	  protected static final TypeFactory _tf = TypeFactory.getInstance();
+           '	
+           '  protected static java.lang.String _concat(String ...args) {
+           '		int length = 0;
+           '		for (java.lang.String s :args) {
+           '			length += s.length();
+           '		}
+           '		java.lang.StringBuilder b = new java.lang.StringBuilder(length);
+           '		for (java.lang.String s : args) {
+           '			b.append(s);
+           '		}
+           '		return b.toString();
+           '	  }
+           '<}>
+           '
+           '  private static final IntegerMap _resultStoreIdMappings;
+           '  private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
+           '  private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
+           '	
+           '  private static void _putDontNest(IntegerKeyedHashMap\<IntegerList\> result, int parentId, int childId) {
+           '    	IntegerList donts = result.get(childId);
+           '    if (donts == null){
+           '      donts = new IntegerList();
+           '      result.put(childId, donts);
+           '    }
+           '    donts.add(parentId);
+           '  }
+           '    
+           '  protected static void _putResultStoreIdMapping(IntegerMap result, int parentId, int resultStoreId){
+           '    result.putUnsafe(parentId, resultStoreId);
+           '  }
+           '    
+           '  protected int getResultStoreId(int parentId){
+           '    return _resultStoreIdMappings.get(parentId);
+           '  }
+           '    
+           '  protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
+           '    IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
+           '    
+           '    for (IValue e : (IRelation) _read(_concat(<split("<dontNest>")>), _tf.relType(_tf.integerType(),_tf.integerType()))) {
+           '      ITuple t = (ITuple) e;
+           '      _putDontNest(result, ((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
+           '    }
+           '      
+           '    return result;
+           '  }
+           '    
+           '  protected static IntegerMap _initDontNestGroups() {
+           '    IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
+           '    int resultStoreId = result.size();
+           '    
+           '    for (IValue t : (IRelation) _read(_concat(<split("<dontNestGroups>")>), _tf.relType(_tf.setType(_tf.integerType()),_tf.setType(_tf.integerType())))) {
+           '      ++resultStoreId;
+           '
+           '      ISet parentIds = (ISet) ((ITuple) t).get(1);
+           '      for (IValue pid : parentIds) {
+           '        _putResultStoreIdMapping(result, ((IInteger) pid).intValue(), resultStoreId);
+           '      }
+           '    }
+           '      
+           '    return result;
+           '  }
+           '    
+           '  protected IntegerList getFilteredParents(int childId) {
+           '		return _dontNest.get(childId);
+           '  }
+           '    
+           '  public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
+           '    return _languageActions.get(prod);
+           '  }
+           '    
+           '  protected static java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _initLanguageActions() {
+           '    java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> result = <if (!isRoot) {><super>._initLanguageActions()<} else {>new java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\>()<}>;
+           '    ASTBuilder astBuilder = new ASTBuilder();
+           '    IMap tmp = (IMap) _read(_concat(<split("<actions>")>), _tf.mapType(Factory.Production, Factory.Tree));
+           '    for (IValue key : tmp) {
+           '      result.put((IConstructor) key, (org.rascalmpl.ast.LanguageAction) astBuilder.buildValue(tmp.get(key)));
+           '    }
+           '      
+           '    return result;
+           '  }
+           '    
+           '  // initialize priorities and actions    
+           '  static {
+           '    _languageActions = _initLanguageActions();
+           '    _dontNest = _initDontNest();
+           '    _resultStoreIdMappings = _initDontNestGroups();
+           '  }
+           '    
+           '  // Production declarations
+           '	<for (p <- uniqueProductions) {>
+           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<unmeta(p)>")>\", Factory.Production);<}>
+           '    
+           '  // Item declarations
+           '	<for (Symbol s <- newItems, isNonterminal(s)) {
+	           items = newItems[s];
+	           map[Production, list[Item]] alts = ();
+	           for(Item item <- items) {
+		         Production prod = item.production;
+		         if (prod in alts) {
+			       alts[prod] = alts[prod] + item;
+		         } else {
+			     alts[prod] = [item];
+		       }
+	         }>
+           '	
+           '  private static class <value2id(s)> {
+           '    <for(Production alt <- alts) { 
+                list[Item] lhses = alts[alt];>
+           '	    public final static AbstractStackNode[] <value2id(alt)> = new AbstractStackNode[<size(lhses)>];
+           '	    static {<for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
+           '	      <pi>[<ii>] = <items[i].new>;<}>
+           '	    }<}>
+           '	  }<}>
+           '	
+           '  public <name>() {
+           '    super();
+           '	  }
+           '	
+           '  // Parse methods    
+           '	  <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
+           '  <generateParseMethod(newItems, callSuper, choice(nont, gr.rules[nont]))><}>
+           '}";
 }  
 
 public &T <: value unmeta(&T <: value p) {
@@ -334,9 +329,9 @@ private bool isNonterminal(Symbol s) {
 
 public str generateParseMethod(Items items, bool callSuper, Production p) {
   return "public void <sym2name(p.rhs)>() {
-            <if (callSuper) {>super.<sym2name(p.rhs)>();<}>
-            <generateExpect(items, p, false)>
-          }";
+         '  <if (callSuper) {>super.<sym2name(p.rhs)>();<}>
+         '  <generateExpect(items, p, false)>
+         '}";
 }
 
 public str generateExpect(Items items, Production p, bool reject){
@@ -351,25 +346,25 @@ public str generateExpect(Items items, Production p, bool reject){
 	       return ""; 
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
-                  <generateExpect(items, q, reject)>
-               }";
+               '  <generateExpect(items, q, reject)>
+               '}";
       case choice(_, {l:lookahead(_, _, q)}) :
         return generateExpect(items, l, reject);
       case choice(_, {lookahead(_, classes, Production q), set[Production] rest}) :
         return "if (<generateClassConditional(classes)>) {
-                  <generateExpect(items, q, reject)>
-                } else {
-                  <generateExpect(items, choice(q.rhs, rest), reject)>
-                }";
+               '  <generateExpect(items, q, reject)>
+               '} else {
+               '  <generateExpect(items, choice(q.rhs, rest), reject)>
+               '}";
       case choice(_, set[Production] ps) :
-        return "<for (Production q <- ps){><generateExpect(items, q, reject)>
-                <}>";
+        return "<for (Production q <- ps){>
+               '<generateExpect(items, q, reject)><}>";
       case restrict(_, Production q, set[Production] restrictions) : 
         return generateExpect(items, q, reject);
       case diff(_, Production n, set[Production] rejects) :
-        return "<for (Production q <- rejects){><generateExpect(items, q, true)>
-                <}>
-                <generateExpect(items, n, false)>";
+        return "<for (Production q <- rejects){>
+               '<generateExpect(items, q, true)><}>
+               '<generateExpect(items, n, false)>";
       case first(_, list[Production] ps) : 
         return generateExpect(items, choice(p.rhs, { q | q <- ps }), reject);
       case \assoc(_,_,set[Production] ps) :
