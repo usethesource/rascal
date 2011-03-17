@@ -1045,6 +1045,7 @@ public abstract class SGTDBF implements IGTD{
 				AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 				if(result != null){
 					FilteringTracker filteringTracker = new FilteringTracker();
+					// Invoke the forest flattener, a.k.a. "the bulldozer".
 					IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, false);
 					if(resultTree != null){
 						return resultTree; // Success.
@@ -1082,6 +1083,7 @@ public abstract class SGTDBF implements IGTD{
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			FilteringTracker filteringTracker = new FilteringTracker();
+			// Invoke "the bulldozer" that constructs errors while it's flattening the forest.
 			return result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true);
 		}
 		
