@@ -71,7 +71,7 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, boolean buildErrorTree){
 		int numberOfCharacters = content.length;
 		
 		IListWriter listWriter = vf.listWriter(Factory.Tree);

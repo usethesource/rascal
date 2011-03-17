@@ -3,10 +3,13 @@ package org.rascalmpl.parser.gtd.result;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public abstract class AbstractContainerNode extends AbstractNode{
+	protected final static IList EMPTY_LIST = vf.list();
+	
 	protected final URI input;
 	protected final int offset;
 	protected final int endOffset;

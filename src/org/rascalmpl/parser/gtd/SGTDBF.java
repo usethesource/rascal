@@ -1044,7 +1044,7 @@ public abstract class SGTDBF implements IGTD{
 				AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 				if(result != null){
 					FilteringTracker filteringTracker = new FilteringTracker();
-					IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
+					IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, false);
 					if(resultTree != null){
 						return resultTree; // Success.
 					}

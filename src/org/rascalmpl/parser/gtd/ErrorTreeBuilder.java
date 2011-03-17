@@ -288,7 +288,7 @@ public class ErrorTreeBuilder{
 		// Construct the rest of the input as separate character nodes.
 		IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
 		for(int i = input.length - 1; i >= location; --i){
-			rest.insert(new CharNode(input[i]).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor));
+			rest.insert(new CharNode(input[i]).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true));
 		}
 		
 		// Find the top node.
@@ -300,7 +300,6 @@ public class ErrorTreeBuilder{
 		
 		// TODO Handle the post-parse reject and action filtering mess.
 		
-		IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
-		return resultTree;
+		return result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true);
 	}
 }
