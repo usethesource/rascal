@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNode extends AbstractContainerNode{
-	protected IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
+	protected IConstructor cachedResult;
 	
 	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -77,12 +77,14 @@ public class SortContainerNode extends AbstractContainerNode{
 			cycleMark.reset();
 		}
 		
-		if(cachedResult != null && (depth <= cycleMark.depth)){
-			return cachedResult;
+		if(cachedResult != null){
+			if(cachedResult == FILTERED_RESULT) return null;
+			if(depth <= cycleMark.depth) return cachedResult;
 		}
 		
 		if(rejected){
 			filteringTracker.setLastFilered(offset, endOffset);
+			cachedResult = FILTERED_RESULT;
 			return null;
 		}
 		
@@ -155,7 +157,10 @@ public class SortContainerNode extends AbstractContainerNode{
 			}else{
 				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				result = actionExecutor.filterAmbiguity(result);
-				if(result == null) return null;
+				if(result == null){
+					cachedResult = FILTERED_RESULT;
+					return null;
+				}
 				
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
@@ -163,7 +168,13 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		stack.dirtyPurge(); // Pop.
 		
-		return (depth < cycleMark.depth) ? (cachedResult = result) : result;
+		if(result == null){
+			cachedResult = FILTERED_RESULT;
+		}else if(depth < cycleMark.depth){
+			cachedResult = result;
+		}
+		
+		return result;
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
