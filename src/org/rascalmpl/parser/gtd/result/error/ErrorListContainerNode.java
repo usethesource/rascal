@@ -389,10 +389,11 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 	}
 
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+		if(depth == cycleMark.depth){
+			cycleMark.reset();
+		}
+		
 		if(cachedResult != null && (depth <= cycleMark.depth)){
-			if(depth == cycleMark.depth){
-				cycleMark.reset();
-			}
 			return cachedResult;
 		}
 		
@@ -479,6 +480,6 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		
 		stack.dirtyPurge(); // Pop.
 		
-		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
+		return (depth < cycleMark.depth) ? (cachedResult = result) : result;
 	}
 }

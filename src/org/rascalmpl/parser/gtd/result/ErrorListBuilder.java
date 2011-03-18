@@ -7,13 +7,13 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
-public class ErrorListWrapper{
+public class ErrorListBuilder{
 	
-	private ErrorListWrapper(){
+	private ErrorListBuilder(){
 		super();
 	}
 	
-	static IConstructor toErrorListTree(ListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public static IConstructor toErrorListTree(ListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		// TODO Implement.
 		return node.toTree(stack, depth, cycleMark, positionStore, new FilteringTracker(), actionExecutor); // Temp.
 	}

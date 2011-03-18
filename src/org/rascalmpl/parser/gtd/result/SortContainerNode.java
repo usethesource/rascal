@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNode extends AbstractContainerNode{
-	protected IConstructor cachedResult;
+	protected IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
 	
 	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -73,10 +73,11 @@ public class SortContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+		if(depth == cycleMark.depth){
+			cycleMark.reset();
+		}
+		
 		if(cachedResult != null && (depth <= cycleMark.depth)){
-			if(depth == cycleMark.depth){
-				cycleMark.reset();
-			}
 			return cachedResult;
 		}
 		
@@ -162,10 +163,10 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		stack.dirtyPurge(); // Pop.
 		
-		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
+		return (depth < cycleMark.depth) ? (cachedResult = result) : result;
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		return ErrorSortWrapper.toErrorSortTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
+		return ErrorSortBuilder.toErrorSortTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
 	}
 }

@@ -19,7 +19,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ListContainerNode extends AbstractContainerNode{
-	protected IConstructor cachedResult;
+	protected IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
 	
 	public ListContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -383,10 +383,11 @@ public class ListContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+		if(depth == cycleMark.depth){
+			cycleMark.reset();
+		}
+		
 		if(cachedResult != null && (depth <= cycleMark.depth)){
-			if(depth == cycleMark.depth){
-				cycleMark.reset();
-			}
 			return cachedResult;
 		}
 		
@@ -473,10 +474,10 @@ public class ListContainerNode extends AbstractContainerNode{
 		
 		stack.dirtyPurge(); // Pop.
 		
-		return (depth <= cycleMark.depth) ? (cachedResult = result) : result;
+		return (depth < cycleMark.depth) ? (cachedResult = result) : result;
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		return ErrorListWrapper.toErrorListTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
+		return ErrorListBuilder.toErrorListTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
 	}
 }
