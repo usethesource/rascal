@@ -1046,7 +1046,7 @@ public abstract class SGTDBF implements IGTD{
 				if(result != null){
 					FilteringTracker filteringTracker = new FilteringTracker();
 					// Invoke the forest flattener, a.k.a. "the bulldozer".
-					IConstructor resultTree = result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, false);
+					IConstructor resultTree = result.toTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
 					if(resultTree != null){
 						return resultTree; // Success.
 					}
@@ -1084,7 +1084,7 @@ public abstract class SGTDBF implements IGTD{
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			FilteringTracker filteringTracker = new FilteringTracker();
 			// Invoke "the bulldozer" that constructs errors while it's flattening the forest.
-			return result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true);
+			return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor);
 		}
 		
 		throw new RuntimeException("No parse error occured.");

@@ -71,7 +71,18 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IConstructor toTerm(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, boolean buildErrorTree){
+	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+		int numberOfCharacters = content.length;
+		
+		IListWriter listWriter = vf.listWriter(Factory.Tree);
+		for(int i = 0; i < numberOfCharacters; ++i){
+			listWriter.append(vf.constructor(Factory.Tree_Char, vf.integer(CharNode.getNumericCharValue(content[i]))));
+		}
+		
+		return vf.constructor(Factory.Tree_Appl, production, listWriter.done());
+	}
+	
+	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		int numberOfCharacters = content.length;
 		
 		IListWriter listWriter = vf.listWriter(Factory.Tree);

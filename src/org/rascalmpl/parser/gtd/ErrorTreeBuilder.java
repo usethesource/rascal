@@ -9,7 +9,6 @@ import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
-import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
@@ -283,12 +282,10 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
-		FilteringTracker filteringTracker = new FilteringTracker();
-		
 		// Construct the rest of the input as separate character nodes.
 		IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
 		for(int i = input.length - 1; i >= location; --i){
-			rest.insert(new CharNode(input[i]).toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true));
+			rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor));
 		}
 		
 		// Find the top node.
@@ -298,8 +295,7 @@ public class ErrorTreeBuilder{
 		// Update the top node with the rest of the string (it will always be a sort node).
 		((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
 		
-		// TODO Handle the post-parse reject and action filtering mess.
-		
-		return result.toTerm(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, true);
+		// Flatten error tree.
+		return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor);
 	}
 }
