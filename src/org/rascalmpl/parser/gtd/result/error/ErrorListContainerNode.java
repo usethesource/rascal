@@ -21,7 +21,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorListContainerNode extends AbstractContainerNode{
-	private IConstructor cachedResult;
+	private IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
 	
 	public ErrorListContainerNode(URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, false, isSeparator, isLayout);
@@ -393,12 +393,14 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 			cycleMark.reset();
 		}
 		
-		if(cachedResult != null && (depth <= cycleMark.depth)){
-			return cachedResult;
+		if(cachedResult != null){
+			if(cachedResult == FILTERED_RESULT) return null;
+			if(depth <= cycleMark.depth) return cachedResult;
 		}
 		
 		if(rejected){
 			// TODO Handle filtering.
+			cachedResult = FILTERED_RESULT;
 			return null;
 		}
 		
@@ -472,7 +474,10 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 			}else{
 				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				result = actionExecutor.filterAmbiguity(result);
-				if(result == null) return null;
+				if(result == null){
+					cachedResult = FILTERED_RESULT;
+					return null;
+				}
 				
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
@@ -480,6 +485,12 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		
 		stack.dirtyPurge(); // Pop.
 		
-		return (depth < cycleMark.depth) ? (cachedResult = result) : result;
+		if(result == null){
+			cachedResult = FILTERED_RESULT;
+		}else if(depth < cycleMark.depth){
+			cachedResult = result;
+		}
+		
+		return result;
 	}
 }
