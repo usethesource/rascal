@@ -16,7 +16,7 @@ import rascal::syntax::RascalRascal;
 // the pattern, including creating constraints to represent type assignments
 // to pattern variables.
 //
-public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable st, RType rt, Pattern pat) {
+public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, STBuilder st, RType rt, Pattern pat) {
     //
     // Literals in patterns: we should have a bool type and a bool pattern, int type and int pattern,
     // etc. If so, add a constraint saying the tree is of that pattern type.
@@ -57,8 +57,8 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable 
     if ((Pattern)`_` := pat) {
         <cs, t1> = makeFreshType(cs);
         cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t1);
-        if (pat@\loc in st.itemUses) {
-            cs.constraints = cs.constraints + DefinedBy(t1,(st.itemUses)[pat@\loc],pat@\loc);
+        if (pat@\loc in st.itemUses<0>) {
+            cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[pat@\loc],pat@\loc);
         }
         cs.constraints = cs.constraints + SubtypeOf(rt,t1,pat@\loc);   
     }
@@ -66,8 +66,8 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable 
     if ((Pattern)`<Name n>` := pat) {
         <cs, t1> = makeFreshType(cs);
         cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t1);
-        if (n@\loc in st.itemUses) {
-            cs.constraints = cs.constraints + DefinedBy(t1,(st.itemUses)[n@\loc],n@\loc);
+        if (n@\loc in st.itemUses<0>) {
+            cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
         }
         cs.constraints = cs.constraints + SubtypeOf(rt,t1,n@\loc);   
     }
@@ -75,8 +75,8 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable 
     if ((Pattern)`<QualifiedName qn>` := pat) {
         <cs, t1> = makeFreshType(cs);
         cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t1);
-        if (qn@\loc in st.itemUses) {
-            cs.constraints = cs.constraints + DefinedBy(t1,(st.itemUses)[qn@\loc],qn@\loc);
+        if (qn@\loc in st.itemUses<0>) {
+            cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[qn@\loc],qn@\loc);
         }
         cs.constraints = cs.constraints + SubtypeOf(rt,t1,qn@\loc);   
     }
@@ -205,11 +205,11 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable 
         
         // Multi Variable patterns, _* and QualifiedName*
         case (Pattern)`_ *` : {
-            return bindInferredTypesToMV(rt, getTypeForNameLI(globalSymbolTable,RSimpleName("_"),pat@\loc), pat);
+            return bindInferredTypesToMV(rt, getTypeForNameLI(globalSTBuilder,RSimpleName("_"),pat@\loc), pat);
         }
         
         case (Pattern) `<QualifiedName qn> *` : {
-            return bindInferredTypesToMV(rt, getTypeForNameLI(globalSymbolTable,convertName(qn),qn@\loc), pat);
+            return bindInferredTypesToMV(rt, getTypeForNameLI(globalSTBuilder,convertName(qn),qn@\loc), pat);
         }
 
         // Descendant
@@ -227,16 +227,16 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable 
         // picking apart.
         case (Pattern) `/ <Pattern p>` : {
             if ( isInferredType(p@rtype) ) {
-                    set[RType] rts = reachableTypes(globalSymbolTable, rt);
+                    set[RType] rts = reachableTypes(globalSTBuilder, rt);
                 RType bt = bindInferredTypesToPattern(lubSet(rts), p);
                 return isFailType(bt) ? bt : rt;
             } else if ( (! isInferredType(p@rtype)) && (hasDeferredTypes(p@rtype))) {
-                    set[RType] rts = reachableTypes(globalSymbolTable, rt);
+                    set[RType] rts = reachableTypes(globalSTBuilder, rt);
                 rts = { rtsi | rtsi <- rts, subtypeOf(rtsi, p@rtype)};
                 RType bt = bindInferredTypesToPattern(lubSet(rts), p);
                 return isFailType(bt) ? bt : rt;
             } else {
-                    set[RType] rts = reachableTypes(globalSymbolTable, rt);
+                    set[RType] rts = reachableTypes(globalSTBuilder, rt);
                 if (p@rtype in rts) return rt;
                 return makeFailType("Pattern type <prettyPrintType(p@rtype)> cannot appear in type <prettyPrintType(rt)>", pat@\loc);
             }
@@ -246,8 +246,8 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, SymbolTable 
         case (Pattern) `<Name n> : <Pattern p>` : {
             RType boundType = bindInferredTypesToPattern(rt, p);
             if (! isFailType(boundType)) {
-                    RType nType = getTypeForNameLI(globalSymbolTable,convertName(n),n@\loc);
-                    RType t = (isInferredType(nType)) ? globalSymbolTable.inferredTypeMap[getInferredTypeIndex(nType)] : nType;
+                    RType nType = getTypeForNameLI(globalSTBuilder,convertName(n),n@\loc);
+                    RType t = (isInferredType(nType)) ? globalSTBuilder.inferredTypeMap[getInferredTypeIndex(nType)] : nType;
                     if (isInferredType(t)) {
                         updateInferredTypeMappings(t,boundType);
                         return boundType;
@@ -349,17 +349,17 @@ public RType bindInferredTypesToMV(RType rt, RType pt, Pattern pat) {
             if (isContainerType(pt)) {
                     elementIsInferred = (isInferredType(getContainerElementType(pt))) ? true : false;
             elementType = (isInferredType(getContainerElementType(pt))) ?
-                    globalSymbolTable.inferredTypeMap[getInferredTypeIndex(getContainerElementType(pt))] :
+                    globalSTBuilder.inferredTypeMap[getInferredTypeIndex(getContainerElementType(pt))] :
                 getContainerElementType(pt);
         } else if (isListType(pt)) {
             elementIsInferred = (isInferredType(getListElementType(pt))) ? true : false;
             elementType = (isInferredType(getListElementType(pt))) ?
-                    globalSymbolTable.inferredTypeMap[getInferredTypeIndex(getListElementType(pt))] : 
+                    globalSTBuilder.inferredTypeMap[getInferredTypeIndex(getListElementType(pt))] : 
                     getListElementType(pt);
         } else if (isSetType(pt)) {
             elementIsInferred = (isInferredType(getSetElementType(pt))) ? true : false;
             elementType = (isInferredType(getSetElementType(pt))) ?
-                    globalSymbolTable.inferredTypeMap[getInferredTypeIndex(getSetElementType(pt))] : 
+                    globalSTBuilder.inferredTypeMap[getInferredTypeIndex(getSetElementType(pt))] : 
                 getSetElementType(pt);
         }
 

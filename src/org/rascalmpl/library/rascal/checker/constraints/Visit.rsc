@@ -13,7 +13,7 @@ import rascal::syntax::RascalRascal;
 //
 // TODO: Add type rule!
 //
-public ConstraintBase gatherVisitConstraints(SymbolTable symbolTable, ConstraintBase constraintBase, Visit v) {
+public ConstraintBase gatherVisitConstraints(STBuilder stBuilder, ConstraintBase constraintBase, Visit v) {
     if (`visit (<Expression se>) { <Case+ cs> }` := v || `<Strategy st> visit (<Expression se>) { <Case+ cs> }` := v) {
         <constraintBase, t1> = makeFreshType(constraintBase);
         

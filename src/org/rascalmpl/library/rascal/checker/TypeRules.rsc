@@ -491,8 +491,8 @@ public bool typeAllowsFields(RType rt) {
 	return (isADTType(rt) || isTupleType(rt) || isRelType(rt) || isLocType(rt) || isDateTimeType(rt) || isMapType(rt));
 }
 
-public bool typeHasField(RType rt, RName fn, SymbolTable symbolTable) {
-	if (isADTType(rt)) return adtHasField(rt, fn, symbolTable);
+public bool typeHasField(RType rt, RName fn, STBuilder stBuilder) {
+	if (isADTType(rt)) return adtHasField(rt, fn, stBuilder);
 	if (isTupleType(rt)) return tupleHasField(rt, fn);
 	if (isRelType(rt)) return relHasField(rt, fn);
 	if (isLocType(rt)) return locHasField(fn);
@@ -502,23 +502,23 @@ public bool typeHasField(RType rt, RName fn, SymbolTable symbolTable) {
 	throw "Type <prettyPrintType(rt)> does not allow fields.";
 }
 
-public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
-	if (isADTType(rt) && typeHasField(rt,fn,symbolTable)) return getADTFieldType(rt, fn, symbolTable);
+public RType getFieldType(RType rt, RName fn, STBuilder stBuilder, loc l) {
+	if (isADTType(rt) && typeHasField(rt,fn,stBuilder)) return getADTFieldType(rt, fn, stBuilder);
 	if (isADTType(rt)) return makeFailType("ADT <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isTupleType(rt) && typeHasField(rt,fn,symbolTable)) return getTupleFieldType(rt, fn);
+	if (isTupleType(rt) && typeHasField(rt,fn,stBuilder)) return getTupleFieldType(rt, fn);
 	if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isRelType(rt) && typeHasField(rt,fn,symbolTable)) return getRelFieldType(rt, fn);
+	if (isRelType(rt) && typeHasField(rt,fn,stBuilder)) return getRelFieldType(rt, fn);
 	if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isMapType(rt) && typeHasField(rt,fn,symbolTable)) return getMapFieldType(rt, fn);
+	if (isMapType(rt) && typeHasField(rt,fn,stBuilder)) return getMapFieldType(rt, fn);
 	if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isLocType(rt) && typeHasField(rt,fn,symbolTable)) return typeForField(rt, prettyPrintName(fn));
+	if (isLocType(rt) && typeHasField(rt,fn,stBuilder)) return typeForField(rt, prettyPrintName(fn));
 	if (isLocType(rt)) return makeFailType("Location <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-	if (isDateTimeType(rt) && typeHasField(rt,fn,symbolTable)) return typeForField(rt, prettyPrintName(fn));
+	if (isDateTimeType(rt) && typeHasField(rt,fn,stBuilder)) return typeForField(rt, prettyPrintName(fn));
 	if (isDateTimeType(rt)) return makeFailType("DateTime <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 	
 	return makeFailType("Type <prettyType(rt)> does not have fields", l);
@@ -559,9 +559,9 @@ public list[RNamedType] getRelFieldsWithNames(RType t) {
 }
 
 @doc{Check to see if an ADT defines a field.}
-public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
+public bool adtHasField(RType t, RName fn, STBuilder stBuilder) {
        if (isADTType(t)) {
-		for (ci <- symbolTable.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+		for (ci <- stBuilder.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := stBuilder.scopeItemMap[ci]) {
 			for (ta <- cts) {
 				if (RNamedType(_,fn) := ta) return true;
 			}	
@@ -577,13 +577,13 @@ public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
 // find on a constructor.
 //
 @doc{Return the type of a field on an ADT.}
-public RType getADTFieldType(RType t, RName fn, SymbolTable symbolTable) {
+public RType getADTFieldType(RType t, RName fn, STBuilder stBuilder) {
 	if (isADTType(t)) {
-		for (ci <- symbolTable.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+		for (ci <- stBuilder.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := stBuilder.scopeItemMap[ci]) {
 			for (ta <- cts) {
 				// See if we have a match on the field name
 				if (RNamedType(ft,fn) := ta) {
-					return markUserTypes(ft,symbolTable,symbolTable.scopeItemMap[ci].parentId);
+					return markUserTypes(ft,stBuilder,stBuilder.scopeItemMap[ci].parentId);
 				}
 			}	
 		}

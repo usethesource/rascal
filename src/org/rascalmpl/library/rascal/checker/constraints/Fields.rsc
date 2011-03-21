@@ -3,7 +3,15 @@ module rascal::checker::constraints::Fields
 import rascal::types::Types;
 import rascal::scoping::SymbolTable;
 
-// TODO: Guessing at type of children in loc, not implemented yet
+//
+// TODOs:
+//
+// 1. Set proper type for field children in loc in fieldMap once this is implemented
+//
+
+//
+// This contains the types of fields predefined on the built-in Rascal types.
+//
 private map[RType,map[str,RType]] fieldMap =
     ( RLocType() :
         ( "scheme" : RStrType(), "authority" : RStrType(), "host" : RStrType(), "path" : RStrType(), "parent" : RStrType(),
@@ -19,6 +27,9 @@ private map[RType,map[str,RType]] fieldMap =
         )
     );
 
+//
+// Look up the type of a predefined field based on the field name
+//
 public RType typeForField(RType source, str fieldName) {
     if (source in fieldMap) {
         if (fieldName in fieldMap[source])
@@ -27,22 +38,41 @@ public RType typeForField(RType source, str fieldName) {
     throw "Invalid looking: field <fieldName> for type <prettyPrintType(source)> not in field type map.";
 }
 
+//
+// Does the datetime type support field fieldName?
+//
 public bool dateTimeHasField(RName fieldName) {
     str fn = prettyPrintName(fieldName);
     return (fn in fieldMap[RDateTimeType()]);
 }
 
+//
+// Does the loc type support field fieldName?
+//
 public bool locHasField(RName fieldName) {
     str fn = prettyPrintName(fieldName);
     return (fn in fieldMap[RLocType()]);
 }
 
+//
+// Does type rt support field access?
+//
 public bool typeAllowsFields(RType rt) {
     return (isADTType(rt) || isTupleType(rt) || isRelType(rt) || isLocType(rt) || isDateTimeType(rt) || isMapType(rt));
 }
 
-public bool typeHasField(RType rt, RName fn, SymbolTable symbolTable) {
-    if (isADTType(rt)) return adtHasField(rt, fn, symbolTable);
+//
+// Does type rt support field update access? (i.e., writes through field names)
+//
+public bool typeAllowsUpdatableFields(RType rt) {
+    return (isADTType(rt) || isTupleType(rt) || isLocType(rt) || isDateTimeType(rt) || isMapType(rt));
+}
+
+//
+// Does type rt provide field fn?
+//
+public bool typeHasField(RType rt, RName fn, STBuilder stBuilder) {
+    if (isADTType(rt)) return adtHasField(rt, fn, stBuilder);
     if (isTupleType(rt)) return tupleHasField(rt, fn);
     if (isRelType(rt)) return relHasField(rt, fn);
     if (isLocType(rt)) return locHasField(fn);
@@ -52,15 +82,21 @@ public bool typeHasField(RType rt, RName fn, SymbolTable symbolTable) {
     throw "Type <prettyPrintType(rt)> does not allow fields.";
 }
 
-public bool typeHasField(RType rt, int fn, SymbolTable symbolTable) {
-    if (isTupleType(rt)) return tupleHasField(rt, fn);
-    if (isRelType(rt)) return relHasField(rt, fn);
-    if (isMapType(rt)) return mapHasField(rt, fn);
+//
+// Does type rt have a field at integer index idx?
+//
+public bool typeHasField(RType rt, int idx, STBuilder stBuilder) {
+    if (isTupleType(rt)) return tupleHasField(rt, idx);
+    if (isRelType(rt)) return relHasField(rt, idx);
+    if (isMapType(rt)) return mapHasField(rt, idx);
 
     throw "Type <prettyPrintType(rt)> does not allow integer-indexed fields.";
 }
 
-public bool typeHasFieldNames(RType rt, SymbolTable symbolTable) {
+//
+// Does type rt include field names?
+//
+public bool typeHasFieldNames(RType rt, STBuilder stBuilder) {
     if (isTupleType(rt)) return tupleHasFieldNames(rt);
     if (isRelType(rt)) return tupleHasFieldNames(getRelElementType(rt));
     if (isMapType(rt)) return mapHasFieldNames(rt);
@@ -71,7 +107,10 @@ public bool typeHasFieldNames(RType rt, SymbolTable symbolTable) {
     throw "Type <prettyPrintType(rt)> does not allow integer-indexed fields.";
 }
 
-public bool getFieldName(RType rt, int idx, SymbolTable symbolTable) {
+//
+// Get the name of the field at index idx from type rt
+//
+public str getFieldName(RType rt, int idx, STBuilder stBuilder) {
     if (isTupleType(rt)) return getTupleFieldName(rt,idx);
     if (isRelType(rt)) return getRelFieldName(rt,idx);
     if (isMapType(rt)) return getMapFieldName(rt,idx);
@@ -82,37 +121,43 @@ public bool getFieldName(RType rt, int idx, SymbolTable symbolTable) {
     throw "Type <prettyPrintType(rt)> does not allow integer-indexed fields.";
 }
 
-public RType getFieldType(RType rt, RName fn, SymbolTable symbolTable, loc l) {
-    if (isADTType(rt) && typeHasField(rt,fn,symbolTable)) return getADTFieldType(rt, fn, symbolTable);
+//
+// Get the type of field fn on type rt; loc l is used in any error messages.
+//
+public RType getFieldType(RType rt, RName fn, STBuilder stBuilder, loc l) {
+    if (isADTType(rt) && typeHasField(rt,fn,stBuilder)) return getADTFieldType(rt, fn, stBuilder);
     if (isADTType(rt)) return makeFailType("ADT <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-    if (isTupleType(rt) && typeHasField(rt,fn,symbolTable)) return getTupleFieldType(rt, fn);
+    if (isTupleType(rt) && typeHasField(rt,fn,stBuilder)) return getTupleFieldType(rt, fn);
     if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-    if (isRelType(rt) && typeHasField(rt,fn,symbolTable)) return getRelFieldType(rt, fn);
+    if (isRelType(rt) && typeHasField(rt,fn,stBuilder)) return getRelFieldType(rt, fn);
     if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-    if (isMapType(rt) && typeHasField(rt,fn,symbolTable)) return getMapFieldType(rt, fn);
+    if (isMapType(rt) && typeHasField(rt,fn,stBuilder)) return getMapFieldType(rt, fn);
     if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-    if (isLocType(rt) && typeHasField(rt,fn,symbolTable)) return typeForField(rt, prettyPrintName(fn));
+    if (isLocType(rt) && typeHasField(rt,fn,stBuilder)) return typeForField(rt, prettyPrintName(fn));
     if (isLocType(rt)) return makeFailType("Location <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
 
-    if (isDateTimeType(rt) && typeHasField(rt,fn,symbolTable)) return typeForField(rt, prettyPrintName(fn));
+    if (isDateTimeType(rt) && typeHasField(rt,fn,stBuilder)) return typeForField(rt, prettyPrintName(fn));
     if (isDateTimeType(rt)) return makeFailType("DateTime <prettyPrintType(rt)> does not define field <prettyPrintName(fn)>", l);
     
     return makeFailType("Type <prettyType(rt)> does not have fields", l);
 }
 
-public RType getFieldType(RType rt, int fn, SymbolTable symbolTable, loc l) {
-    if (isTupleType(rt) && typeHasField(rt,fn,symbolTable)) return getTupleFieldType(rt, fn);
-    if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define a field at index <fn>", l);
+//
+// Get the type of field at index idx in type rt; loc l is used in any error messages.
+//
+public RType getFieldType(RType rt, int idx, STBuilder stBuilder, loc l) {
+    if (isTupleType(rt) && typeHasField(rt,idx,stBuilder)) return getTupleFieldType(rt, idx);
+    if (isTupleType(rt)) return makeFailType("Tuple <prettyPrintType(rt)> does not define a field at index <idx>", l);
 
-    if (isRelType(rt) && typeHasField(rt,fn,symbolTable)) return getRelFieldType(rt, fn);
-    if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define a field at index <fn>", l);
+    if (isRelType(rt) && typeHasField(rt,idx,stBuilder)) return getRelFieldType(rt, idx);
+    if (isRelType(rt)) return makeFailType("Relation <prettyPrintType(rt)> does not define a field at index <idx>", l);
 
-    if (isMapType(rt) && typeHasField(rt,fn,symbolTable)) return getMapFieldType(rt, fn);
-    if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define a field at index <fn>", l);
+    if (isMapType(rt) && typeHasField(rt,idx,stBuilder)) return getMapFieldType(rt, idx);
+    if (isMapType(rt)) return makeFailType("Map <prettyPrintType(rt)> does not define a field at index <idx>", l);
 
     return makeFailType("Type <prettyType(rt)> does not have integer-indexed fields", l);
 }
@@ -182,9 +227,9 @@ public RName getRelFieldName(RType t, int idx) {
 }
 
 @doc{Check to see if an ADT defines a field.}
-public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
+public bool adtHasField(RType t, RName fn, STBuilder stBuilder) {
     if (isADTType(t)) {
-        for (ci <- symbolTable.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+        for (ci <- stBuilder.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := stBuilder.scopeItemMap[ci]) {
             for (ta <- cts) {
                 if (RNamedType(_,fn) := ta) return true;
             }   
@@ -200,13 +245,13 @@ public bool adtHasField(RType t, RName fn, SymbolTable symbolTable) {
 // find on a constructor.
 //
 @doc{Return the type of a field on an ADT.}
-public RType getADTFieldType(RType t, RName fn, SymbolTable symbolTable) {
+public RType getADTFieldType(RType t, RName fn, STBuilder stBuilder) {
     if (isADTType(t)) {
-        for (ci <- symbolTable.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := symbolTable.scopeItemMap[ci]) {
+        for (ci <- stBuilder.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := stBuilder.scopeItemMap[ci]) {
             for (ta <- cts) {
                 // See if we have a match on the field name
                 if (RNamedType(ft,fn) := ta) {
-                    return markUserTypes(ft,symbolTable,symbolTable.scopeItemMap[ci].parentId);
+                    return markUserTypes(ft,stBuilder,stBuilder.scopeItemMap[ci].parentId);
                 }
             }   
         }

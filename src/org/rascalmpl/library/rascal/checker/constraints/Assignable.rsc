@@ -73,7 +73,7 @@ public RType checkFieldAccessAssignable(Assignable ap, Assignable a, Name n) {
     if (checkForFail({a@rtype})) return collapseFailTypes({a@rtype});
     RType partType = getPartType(a@rtype); // The "part" of a which contains the field
     RType wholeType = getWholeType(a@rtype); // The overall type of all of a
-    RType fieldType = getFieldType(partType, convertName(n), globalSymbolTable, ap@\loc);
+    RType fieldType = getFieldType(partType, convertName(n), globalSTBuilder, ap@\loc);
     if (isFailType(fieldType)) return fieldType;
     return makeAssignableType(wholeType, fieldType); 
 }
@@ -106,7 +106,7 @@ public RType checkAnnotationAssignable(Assignable ap, Assignable a, Name n) {
     if (isFailType(a@rtype)) return collapseFailTypes({ a@rtype });
     RType partType = getPartType(a@rtype);
     RType wholeType = getWholeType(a@rtype);
-    RType rt = getTypeForName(globalSymbolTable, convertName(n), n@\loc);
+    RType rt = getTypeForName(globalSTBuilder, convertName(n), n@\loc);
     if (isFailType(rt)) return rt;
     return makeAssignableType(wholeType, rt);
 }
@@ -142,13 +142,13 @@ public RType checkAssignable(Assignable a) {
     switch(a) {
         // Variable _
         case (Assignable)`_` : {
-            RType rt = getTypeForName(globalSymbolTable, RSimpleName("_"), a@\loc);
+            RType rt = getTypeForName(globalSTBuilder, RSimpleName("_"), a@\loc);
             return makeAssignableType(rt,rt); 
         }
 
         // Variable with an actual name
         case (Assignable)`<QualifiedName qn>` : {
-            RType rt = getTypeForName(globalSymbolTable, convertName(qn), qn@\loc);
+            RType rt = getTypeForName(globalSTBuilder, convertName(qn), qn@\loc);
             return makeAssignableType(rt,rt); 
         }
         
@@ -203,9 +203,9 @@ public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
             // When assigning into _, we make sure that either the type assigned to _ is still open or that the type we are
         // assigning is a subtype. Realistically, it should always be open, since each instance of _ is distinct.
         case (Assignable)`_` : {
-                RType varType = getTypeForNameLI(globalSymbolTable, RSimpleName("_"), a@\loc);
+                RType varType = getTypeForNameLI(globalSTBuilder, RSimpleName("_"), a@\loc);
                 if (isInferredType(varType)) {
-                    RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(varType)];
+                    RType t = globalSTBuilder.inferredTypeMap[getInferredTypeIndex(varType)];
                 if (isInferredType(t)) {
                         updateInferredTypeMappings(t,rt);
                     return rt;
@@ -231,9 +231,9 @@ public RType bindInferredTypesToAssignable(RType rt, Assignable a) {
         // is not sound, so we need to instead divise a better way to handle this, for instance by using constraint systems.
         // so, TODO: Fix this!
         case (Assignable)`<QualifiedName qn>` : {
-                RType varType = getTypeForNameLI(globalSymbolTable,convertName(qn),qn@\loc);
+                RType varType = getTypeForNameLI(globalSTBuilder,convertName(qn),qn@\loc);
             if (isInferredType(varType)) {
-                RType t = globalSymbolTable.inferredTypeMap[getInferredTypeIndex(varType)];
+                RType t = globalSTBuilder.inferredTypeMap[getInferredTypeIndex(varType)];
                 if (isInferredType(t)) {
                     updateInferredTypeMappings(t,rt);
                     return rt;
@@ -349,11 +349,11 @@ public list[RType] getParameterTypes(Parameters p) {
 
     if (`( <Formals f> )` := p && (Formals)`<{Formal ","}* fs>` := f) {
         for ((Formal)`<Type t> <Name n>` <- fs) {
-                pTypes += getTypeForName(globalSymbolTable,convertName(n),n@\loc);
+                pTypes += getTypeForName(globalSTBuilder,convertName(n),n@\loc);
         }
     } else if (`( <Formals f> ... )` := p && (Formals)`<{Formal ","}* fs>` := f) {
         for ((Formal)`<Type t> <Name n>` <- fs) {
-                pTypes += getTypeForName(globalSymbolTable,convertName(n),n@\loc);
+                pTypes += getTypeForName(globalSTBuilder,convertName(n),n@\loc);
         }
         // For varargs, mark the last parameter as the variable size parameter; if we have no
         // parameters, then we add one, a varargs which accepts anything

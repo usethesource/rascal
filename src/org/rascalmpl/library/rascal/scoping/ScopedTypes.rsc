@@ -8,6 +8,7 @@ import Relation;
 import Map;
 import ParseTree;
 import Node;
+import Message;
 
 import rascal::types::Types;
 import rascal::types::TypeSignatures;
@@ -23,120 +24,120 @@ import rascal::syntax::RascalRascal;
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-public RType expandValueType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandValueType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandLocType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandLocType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandNodeType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandNodeType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandNumType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandNumType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandReifiedType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeReifiedType(expandUserTypes(getReifiedType(rt),symbolTable,currentScope));
+public RType expandReifiedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeReifiedType(expandUserTypes(getReifiedType(rt),stBuilder,currentScope));
 }
 
-public RType expandBagType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeBagType(expandUserTypes(getBagElementType(rt),symbolTable,currentScope));
+public RType expandBagType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeBagType(expandUserTypes(getBagElementType(rt),stBuilder,currentScope));
 }
 
-public RType expandIntType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandIntType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandRelType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeRelTypeFromTuple(expandUserTypes(getRelElementType(rt),symbolTable,currentScope));
+public RType expandRelType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeRelTypeFromTuple(expandUserTypes(getRelElementType(rt),stBuilder,currentScope));
 }
 
-public RType expandTypeVarType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeTypeVarWithBound(getTypeVarName(rt),expandUserTypes(getTypeVarBound(rt),symbolTable,currentScope));
+public RType expandTypeVarType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeTypeVarWithBound(getTypeVarName(rt),expandUserTypes(getTypeVarBound(rt),stBuilder,currentScope));
 }
 
-public RType expandRealType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandRealType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandFunctionType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeFunctionTypeFromTuple(expandUserTypes(getFunctionReturnType(rt),symbolTable,currentScope), 
-        expandUserTypes(getFunctionArgumentTypesAsTuple(rt),symbolTable,currentScope),
+public RType expandFunctionType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeFunctionTypeFromTuple(expandUserTypes(getFunctionReturnType(rt),stBuilder,currentScope), 
+        expandUserTypes(getFunctionArgumentTypesAsTuple(rt),stBuilder,currentScope),
         isVarArgsFun(rt));
 }
 
-public RType expandTupleType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeTupleTypeWithNames( [ expandUserTypesForNamedType(p,symbolTable,currentScope) | p <- getTupleFieldsWithNames(rt) ]);
+public RType expandTupleType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeTupleTypeWithNames( [ expandUserTypesForNamedType(p,stBuilder,currentScope) | p <- getTupleFieldsWithNames(rt) ]);
 }
 
-public RType expandStrType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandStrType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandBoolType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandBoolType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandReifiedReifiedType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandReifiedReifiedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnimplementedRType(t1);
 }
 
-public RType expandVoidType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandVoidType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandNonTerminalType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandNonTerminalType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     // TODO: Add implementation, we may need to change the representation of this type
     return rt;
 }
 
-public RType expandDateTimeType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandDateTimeType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return rt;
 }
 
-public RType expandSetType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeSetType(expandUserTypes(getSetElementType(rt),symbolTable,currentScope));
+public RType expandSetType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeSetType(expandUserTypes(getSetElementType(rt),stBuilder,currentScope));
 }
 
-public RType expandMapType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeMapTypeFromTuple(expandUserTypes(getMapFieldsAsTuple(rt),symbolTable,currentScope));
+public RType expandMapType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeMapTypeFromTuple(expandUserTypes(getMapFieldsAsTuple(rt),stBuilder,currentScope));
 }
 
-public RType expandConstructorType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandConstructorType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     return makeConstructorTypeFromTuple(getConstructorName(rt),
-        expandUserTypes(getConstructorResultType(rt),symbolTable,currentScope),
-        expandUserTypes(getConstructorArgumentTypesAsTuple(rt),symbolTable,currentScope));
+        expandUserTypes(getConstructorResultType(rt),stBuilder,currentScope),
+        expandUserTypes(getConstructorArgumentTypesAsTuple(rt),stBuilder,currentScope));
 }
 
-public RType expandListType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeListType(expandUserTypes(getListElementType(rt),symbolTable,currentScope));
+public RType expandListType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeListType(expandUserTypes(getListElementType(rt),stBuilder,currentScope));
 }
 
-public RType expandADTType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeParameterizedADTType(getADTName(rt), [ expandUserType(p,symbolTable,currentScope) | p <- getADTTypeParameters(rt)]);
+public RType expandADTType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeParameterizedADTType(getADTName(rt), [ expandUserType(p,stBuilder,currentScope) | p <- getADTTypeParameters(rt)]);
 }
 
-public RType expandLexType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandLexType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnexpectedRType(t1);
 }
 
-public RType expandUserType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     RName tn = getUserTypeName(rt);
-    list[RType] params = [ expandUserTypes(tp,symbolTable,currentScope) | tp <- getUserTypeParameters(rt)];
+    list[RType] params = [ expandUserTypes(tp,stBuilder,currentScope) | tp <- getUserTypeParameters(rt)];
     
-    set[STItemId] userTypes = getItems(symbolTable,currentScope,tn,Types());
-    set[STItemId] aliasItems = { pi | pi <- userTypes, AliasItem(_,_,_) := symbolTable.scopeItemMap[pi] };
-    set[STItemId] adtItems = { pi | pi <- userTypes, ADTItem(_,_,_) := symbolTable.scopeItemMap[pi] };
+    set[ItemId] userTypes = getItems(stBuilder,currentScope,tn,Types());
+    set[ItemId] aliasItems = { pi | pi <- userTypes, Alias(_,_,_) := stBuilder.scopeItemMap[pi] };
+    set[ItemId] adtItems = { pi | pi <- userTypes, ADT(_,_,_) := stBuilder.scopeItemMap[pi] };
     
     if (size(userTypes - aliasItems - adtItems) > 0) 
-        throw "Unexpected case, got a user type that is not an alias or an adt, example: <symbolTable.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
+        throw "Unexpected case, got a user type that is not an alias or an adt, example: <stBuilder.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
 
     if (size(aliasItems) > 0 && size(adtItems) > 0)
-        throw "Unexpected case, got a user type that is both an alias and an adt, examples: <symbolTable.scopeItemMap[getOneFrom(aliasItems)]> and <symbolTable.scopeItemMap[getOneFrom(adtItems)]>";
+        throw "Unexpected case, got a user type that is both an alias and an adt, examples: <stBuilder.scopeItemMap[getOneFrom(aliasItems)]> and <stBuilder.scopeItemMap[getOneFrom(adtItems)]>";
     
     // TODO: Maybe throw an exception here, and catch it in the RUnknownType case?
     if (size(aliasItems) == 0 && size(adtItems) == 0)
@@ -144,7 +145,7 @@ public RType expandUserType(RType rt, SymbolTable symbolTable, STItemId currentS
         
     // TODO: It should be fine to have more than 1 here, but verify (they should all be the same).        
     if (size(adtItems) > 0) {
-        RType resultType = getTypeForItem(symbolTable, getOneFrom(adtItems));
+        RType resultType = getTypeForItem(stBuilder, getOneFrom(adtItems));
         list[RType] adtParameters = getADTTypeParameters(resultType);
         if (size(params) > 0) {
             if (size(params) != size(adtParameters)) {
@@ -159,7 +160,7 @@ public RType expandUserType(RType rt, SymbolTable symbolTable, STItemId currentS
     
     // TODO: Can we ever have more than 1 here? That would be a name clash.
     if (size(aliasItems) > 0) {
-        RType resultType = getTypeForItem(symbolTable, getOneFrom(aliasItems));
+        RType resultType = getTypeForItem(stBuilder, getOneFrom(aliasItems));
         list[RType] aliasParameters = getAliasTypeParameters(resultType);
         if (size(params) > 0) {
             if (size(params) != size(aliasParameters)) {
@@ -175,40 +176,40 @@ public RType expandUserType(RType rt, SymbolTable symbolTable, STItemId currentS
     }
 }
 
-public RType expandAliasType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    return makeParameterizedAliasType(getAliasName(rt), expandUserTypes(getAliasedType(rt), symbolTable, currentScope), 
-        [expandUserTypes(rti, symbolTable, currentScope) | rti <- getAliasTypeParameters(rt)]);
+public RType expandAliasType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    return makeParameterizedAliasType(getAliasName(rt), expandUserTypes(getAliasedType(rt), stBuilder, currentScope), 
+        [expandUserTypes(rti, stBuilder, currentScope) | rti <- getAliasTypeParameters(rt)]);
 }
 
-public RType expandDataTypeSelectorType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandDataTypeSelectorType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnexpectedRType(t1);
 }
 
-public RType expandFailType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandFailType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnexpectedRType(t1);
 }
 
-public RType expandInferredType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandInferredType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnexpectedRType(t1);
 }
 
-public RType expandOverloadedType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandOverloadedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnexpectedRType(t1);
 }
 
-public RType expandStatementType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandStatementType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     throw UnexpectedRType(t1);
 }
 
-public RType expandUnknownType(RType rt, SymbolTable symbolTable, STItemId currentScope) {
-    RType utRes = expandUserTypes(getUnknownType(rt), symbolTable, currentScope);
+public RType expandUnknownType(RType rt, STBuilder stBuilder, ItemId currentScope) {
+    RType utRes = expandUserTypes(getUnknownType(rt), stBuilder, currentScope);
     return (utRes != getUnknownType(rt)) ? utRes : rt; // If the type changed, we at least partially resolved it, return that
 }
 
 //
 // Main lub routine
 //
-private map[str,RType(RType,SymbolTable,STItemId)] expandHandlers = (
+private map[str,RType(RType,STBuilder,ItemId)] expandHandlers = (
     "RValueType" : expandValueType,
     "RLocType" : expandLocType,
     "RNodeType" : expandNodeType,
@@ -243,19 +244,19 @@ private map[str,RType(RType,SymbolTable,STItemId)] expandHandlers = (
     "RUnknownType" : expandUnknownType
 );
 
-public RNamedType expandUserTypesForNamedType(RNamedType nt, SymbolTable symbolTable, STItemId currentScope) {
+public RNamedType expandUserTypesForNamedType(RNamedType nt, STBuilder stBuilder, ItemId currentScope) {
     if (RUnnamedType(rt) := nt) {
-        return RUnnamedType(expandUserTypes(rt,symbolTable,currentScope));
+        return RUnnamedType(expandUserTypes(rt,stBuilder,currentScope));
     } else if (RNamedType(rt,tn) := nt) {
-        return RNamedType(expandUserTypes(rt, symbolTable, currentScope), tn);
+        return RNamedType(expandUserTypes(rt, stBuilder, currentScope), tn);
     } else {
         throw "expandUserTypesForNamedType given unexpected type <nt>";
     }
 }
 
-public RType expandUserTypes(RType rt, SymbolTable symbolTable, STItemId currentScope) {
+public RType expandUserTypes(RType rt, STBuilder stBuilder, ItemId currentScope) {
     if (getName(rt) in expandHandlers) { 
-        RType expandedType = (expandHandlers[getName(rt)])(rt, symbolTable, currentScope);
+        RType expandedType = (expandHandlers[getName(rt)])(rt, stBuilder, currentScope);
         if ( (rt@at)? ) expandedType = expandedType[@at=rt@at];
         return expandedType;        
     } else {
@@ -269,47 +270,43 @@ public RType expandUserTypes(RType rt, SymbolTable symbolTable, STItemId current
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
-    if (itemId notin symbolTable.scopeItemMap) throw "Error, id <itemId> is not in the scopeItemMap";
+public RType getTypeForItem(STBuilder stBuilder, ItemId itemId) {
+    if (itemId notin stBuilder.scopeItemMap) throw "Error, id <itemId> is not in the scopeItemMap";
     
-    STItem si = symbolTable.scopeItemMap[itemId];
+    Item si = stBuilder.scopeItemMap[itemId];
     RType rt = makeVoidType();
     
     // NOTE: For those items that introduce a new type, we bring over the location information
     switch(si) {
-        case ADTItem(ut,_,_) : { 
-            rt = expandUserTypes(ut,symbolTable,si.parentId);
-            if ( (si@at)? ) rt = rt[@at = si@at];
+        case ADT(ut,_,_) : { 
+            rt = expandUserTypes(ut,stBuilder,si.parentId)[@at = si.definedAt];
         }
         
-        case AliasItem(ut,_,_) : { 
-            rt = expandUserTypes(ut,symbolTable,si.parentId); 
-            if ( (si@at)? ) rt = rt[@at = si@at];
+        case Alias(ut,_,_) : { 
+            rt = expandUserTypes(ut,stBuilder,si.parentId)[@at = si.definedAt]; 
         }
         
-        case ConstructorItem(n,tas,adtParentId,_) : {
-            rt = expandUserTypes(makeConstructorType(n,getTypeForItem(symbolTable,adtParentId),tas),symbolTable,si.parentId);
-            if ( (si@at)? ) rt = rt[@at = si@at];
+        case Constructor(n,tas,adtParentId,_) : {
+            rt = expandUserTypes(makeConstructorType(n,getTypeForItem(stBuilder,adtParentId),tas),stBuilder,si.parentId)[@at = si.definedAt];
         }
         
-        case FunctionItem(_,t,params,_,_,isVarArgs,_) : {
+        case Function(_,t,params,_,_,isVarArgs,_) : {
             // TODO: Make this really work! (Pattern Dispatch)
             // NOTE: This should only be called during name resolution by the functionality that
             // tags function return statements with their return types. It would be nicer if we could
             // just tag the return with the function scope we are inside.
-            //rt = expandUserTypes(makeFunctionType(t,[getTypeForItem(symbolTable, paramId) | paramId <- paramIds],isVarArgs),symbolTable,si.parentId);
-            rt = expandUserTypes(makeFunctionType(t,[makeValueType()],isVarArgs),symbolTable,si.parentId);
-            if ( (si@at)? ) rt = rt[@at = si@at];
+            //rt = expandUserTypes(makeFunctionType(t,[getTypeForItem(stBuilder, paramId) | paramId <- paramIds],isVarArgs),stBuilder,si.parentId);
+            rt = expandUserTypes(makeFunctionType(t,[makeValueType()],isVarArgs),stBuilder,si.parentId)[@at = si.definedAt];
         }
         
-        case FormalParameterItem(_,t,_) : 
-            rt = expandUserTypes(t,symbolTable,si.parentId);
+        case FormalParameter(_,t,_) : 
+            rt = expandUserTypes(t,stBuilder,si.parentId);
         
-        case TypeVariableItem(t,_) : 
-            rt = expandUserTypes(t,symbolTable,si.parentId);
+        case TypeVariable(t,_) : 
+            rt = expandUserTypes(t,stBuilder,si.parentId);
         
-        case VariableItem(_,t,_) : 
-            rt = expandUserTypes(t,symbolTable,si.parentId);
+        case Variable(_,t,_) : 
+            rt = expandUserTypes(t,stBuilder,si.parentId);
         
         default : 
             throw "No Match!!! <si>"; 
@@ -318,24 +315,25 @@ public RType getTypeForItem(SymbolTable symbolTable, STItemId itemId) {
     return rt;
 }
 
-public bool hasRType(SymbolTable symbolTable, loc l) {
-    if (l in symbolTable.itemUses || l in symbolTable.scopeErrorMap) return true;
+public bool hasRType(STBuilder stBuilder, loc l) {
+	if (l in stBuilder.itemUses<0>) return true;
+	if (size({ m | m:error(_,_) <- stBuilder.messages[l] }) > 0) return true;
     return false;
 }
 
-public RType getRType(SymbolTable symbolTable, loc l) {
-    set[STItemId] itemIds = (l in symbolTable.itemUses) ? symbolTable.itemUses[l] : { };
-    set[str] scopeErrors = (l in symbolTable.scopeErrorMap) ? symbolTable.scopeErrorMap[l] : { };
+public RType getRType(STBuilder stBuilder, loc l) {
+    set[ItemId] itemIds = stBuilder.itemUses[l];
+    set[str] scopeErrors = { s | error(s,_) <- stBuilder.messages[l] };
     
     if (size(scopeErrors) == 0) {
         if (size(itemIds) == 0) {
             return makeFailType("Error, attemting to find type of item at location <l>, but not item found",l);
         } else {
-            if (size({ getTypeForItem(symbolTable, itemId) | itemId <- itemIds }) > 1) {
+            if (size({ getTypeForItem(stBuilder, itemId) | itemId <- itemIds }) > 1) {
                 // TODO: Should we verify this is a function or constructor type?
-                return ROverloadedType({ getTypeForItem(symbolTable,itemId) | itemId <- itemIds });
+                return ROverloadedType({ getTypeForItem(stBuilder,itemId) | itemId <- itemIds });
             } else {
-                return getTypeForItem(symbolTable, getOneFrom(itemIds));
+                return getTypeForItem(stBuilder, getOneFrom(itemIds));
             }
         }
     } else {
@@ -363,10 +361,10 @@ public RType getRType(SymbolTable symbolTable, loc l) {
 // in Types).
 //
 
-alias ConvertTuple = tuple[SymbolTable symbolTable, RType rtype];
-alias ConvertTupleN = tuple[SymbolTable symbolTable, RNamedType rtype];
+alias ConvertTuple = tuple[STBuilder stBuilder, RType rtype];
+alias ConvertTupleN = tuple[STBuilder stBuilder, RNamedType rtype];
 
-public ConvertTuple convertRascalType(SymbolTable symbolTable, Type t) {
+public ConvertTuple convertRascalType(STBuilder stBuilder, Type t) {
     // Step 1: convert the type
     RType rt = convertType(t);
 
@@ -383,15 +381,15 @@ public ConvertTuple convertRascalType(SymbolTable symbolTable, Type t) {
 
     // Step 3: if we found errors, add them as scope errors
     if (size(conversionErrors) > 0)
-        for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+        for (<cmsg,cloc> <- conversionErrors) stBuilder = addScopeError(stBuilder, cloc, cmsg);
     if (size(conversionWarnings) > 0)
-        for (<cmsg,cloc> <- conversionWarnings) symbolTable = addScopeWarning(symbolTable, cloc, cmsg);
+        for (<cmsg,cloc> <- conversionWarnings) stBuilder = addScopeWarning(stBuilder, cloc, cmsg);
 
     // Step 4: finally return the type
-    return <symbolTable, rt>;   
+    return <stBuilder, rt>;   
 }
 
-public ConvertTuple convertRascalUserType(SymbolTable symbolTable, UserType t) {
+public ConvertTuple convertRascalUserType(STBuilder stBuilder, UserType t) {
     // Step 1: convert the type
     RType rt = convertUserType(t);
 
@@ -401,13 +399,13 @@ public ConvertTuple convertRascalUserType(SymbolTable symbolTable, UserType t) {
 
     // Step 3: if we found errors, add them as scope errors
     if (size(conversionErrors) > 0)
-        for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+        for (<cmsg,cloc> <- conversionErrors) stBuilder = addScopeError(stBuilder, cloc, cmsg);
 
     // Step 4: finally return the type
-    return <symbolTable, rt>;   
+    return <stBuilder, rt>;   
 }
 
-public ConvertTupleN convertRascalTypeArg(SymbolTable symbolTable, TypeArg t) {
+public ConvertTupleN convertRascalTypeArg(STBuilder stBuilder, TypeArg t) {
     // Step 1: convert the type
     RNamedType rt = convertTypeArg(t);
 
@@ -417,10 +415,10 @@ public ConvertTupleN convertRascalTypeArg(SymbolTable symbolTable, TypeArg t) {
 
     // Step 3: if we found errors, add them as scope errors
     if (size(conversionErrors) > 0)
-        for (<cmsg,cloc> <- conversionErrors) symbolTable = addScopeError(symbolTable, cloc, cmsg);
+        for (<cmsg,cloc> <- conversionErrors) stBuilder = addScopeError(stBuilder, cloc, cmsg);
 
     // Step 4: finally return the type
-    return <symbolTable, rt>;   
+    return <stBuilder, rt>;   
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -430,93 +428,93 @@ public ConvertTupleN convertRascalTypeArg(SymbolTable symbolTable, TypeArg t) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-public SymbolTable consolidateADTDefinitions(SymbolTable symbolTable, RName moduleName) {
+public STBuilder consolidateADTDefinitions(STBuilder stBuilder, RName moduleName) {
     // Get back the ID for the name of the module being checked -- there should be only one matching
     // item. TODO: We may want to verify that here.
-    STItemId moduleItemId = getOneFrom(getModuleItemsForName(symbolTable, moduleName));
-    STItemId moduleLayerId = moduleItemId.parentId;
-    return consolidateADTDefinitionsForLayer(symbolTable, moduleLayerId, true);
+    ItemId moduleItemId = getOneFrom(getModuleItemsForName(stBuilder, moduleName));
+    ItemId moduleLayerId = moduleItemId.parentId;
+    return consolidateADTDefinitionsForLayer(stBuilder, moduleLayerId, true);
 }
 
-public SymbolTable consolidateADTDefinitionsForLayer(SymbolTable symbolTable, STItemId layerId, bool includeTopLayer) {
+public STBuilder consolidateADTDefinitionsForLayer(STBuilder stBuilder, ItemId layerId, bool includeTopScope) {
     // Step 1: Pick out all ADT definitions in the loaded scope information (i.e., all ADTs defined
     // in either the loaded module or its direct imports)
-    set[STItemId] adtIDs = { sid | sid <- symbolTable.scopeRel[layerId], ADTItem(_,_,_) := symbolTable.scopeItemMap[sid] };
-    if (includeTopLayer) {
-        adtIDs = adtIDs + { sid | sid <- symbolTable.scopeRel[symbolTable.topSTItemId], ADTItem(_,_,_) := symbolTable.scopeItemMap[sid] };
+    set[ItemId] adtIDs = { sid | sid <- stBuilder.scopeRel[layerId], ADT(_,_,_) := stBuilder.scopeItemMap[sid] };
+    if (includeTopScope) {
+        adtIDs = adtIDs + { sid | sid <- stBuilder.scopeRel[last(stBuilder.scopeStack)], ADT(_,_,_) := stBuilder.scopeItemMap[sid] };
     }
                               
     // Step 2: Group these based on the name of the ADT
-    rel[RName adtName, STItemId adtItemId] nameXADTItem = { < getADTName(n), sid > | sid <- adtIDs, ADTItem(n,_,_) := symbolTable.scopeItemMap[sid] };
+    rel[RName adtName, ItemId adtItemId] nameXADTItem = { < getADTName(n), sid > | sid <- adtIDs, ADT(n,_,_) := stBuilder.scopeItemMap[sid] };
     
     // Step 3: Gather together all the constructors for the ADTs
-    rel[STItemId adtItemId, STItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(symbolTable.scopeItemMap), ConstructorItem(_,_,sid,_) := symbolTable.scopeItemMap[cid] };
+    rel[ItemId adtItemId, ItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(stBuilder.scopeItemMap), Constructor(_,_,sid,_) := stBuilder.scopeItemMap[cid] };
      
     // Step 4: Now, directly relate the ADT names to the available constructors
-    rel[RName adtName, STItemId consItemId] nameXConsItem = nameXADTItem o adtItemXConsItem;
+    rel[RName adtName, ItemId consItemId] nameXConsItem = nameXADTItem o adtItemXConsItem;
     
     // Step 5: Put these into the needed form for the internal ADT map
     for (n <- domain(nameXADTItem))
-        symbolTable.adtMap[n] = < { sid | sid <- nameXADTItem[n] }, { cid | cid <- nameXConsItem[n] } >;
+        stBuilder.adtMap[n] = < { sid | sid <- nameXADTItem[n] }, { cid | cid <- nameXConsItem[n] } >;
         
     // Finally, return the scopeinfo with the consolidated ADT information
-    return symbolTable;
+    return stBuilder;
 }
 
-public SymbolTable checkADTDefinitionsForConsistency(SymbolTable symbolTable) {
-    <inModule, moduleLayerId> = getSurroundingModule(symbolTable, symbolTable.currentScope); 
-    loc moduleLoc = symbolTable.scopeItemMap[moduleLayerId]@at;
+public STBuilder checkADTDefinitionsForConsistency(STBuilder stBuilder) {
+    <inModule, moduleLayerId> = getSurroundingModule(stBuilder, head(stBuilder.scopeStack)); 
+    loc moduleLoc = stBuilder.scopeItemMap[moduleLayerId].definedAt;
     
     // Check each ADT individually for field type consistency
-    for (n <- domain(symbolTable.adtMap)) {
+    for (n <- domain(stBuilder.adtMap)) {
         map[RName fieldName, RType fieldType] fieldMap = ( );
 
         // First check imported constructors. If we get errors, we would rather have them on the constructors
         // defined in the current module, since they are easier to fix -- checking them later preferences the
         // types assigned to field in imported types.
-        for (ci <- symbolTable.adtMap[n].consItems, ci in symbolTable.scopeRel[symbolTable.topSTItemId]) {
-            RType consType = getTypeForItem(symbolTable, ci);
+        for (ci <- stBuilder.adtMap[n].consItems, ci in stBuilder.scopeRel[last(stBuilder.scopeStack)]) {
+            RType consType = getTypeForItem(stBuilder, ci);
             if (isConstructorType(consType)) {
                 list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
                 for (RNamedType(nt,nn) <- argTypes) {
                     if (nn notin fieldMap) {
                         fieldMap[nn] = nt;
                     } else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
-                        symbolTable = addScopeError(symbolTable, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
+                        stBuilder = addScopeError(stBuilder, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
                     }
                 }
             } else {
-                throw "checkADTDefinitionsForConsistency, unexpected constructor item <symbolTable.scopeItemMap[ci]>";
+                throw "checkADTDefinitionsForConsistency, unexpected constructor item <stBuilder.scopeItemMap[ci]>";
             }
         }
         
         // Now check the fields on the ADTs defined in the current module.
         // TODO: May be good to refactor out identical checking code
-        for (ci <- symbolTable.adtMap[n].consItems, ci in symbolTable.scopeRel[symbolTable.topSTItemId]) {
-            RType consType = getTypeForItem(symbolTable, ci);
+        for (ci <- stBuilder.adtMap[n].consItems, ci in stBuilder.scopeRel[last(stBuilder.scopeStack)]) {
+            RType consType = getTypeForItem(stBuilder, ci);
             if (isConstructorType(consType)) {
                 list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
                 for (RNamedType(nt,nn) <- argTypes) {
                     if (nn notin fieldMap) {
                         fieldMap[nn] = nt;
                     } else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
-                        symbolTable = addScopeError(symbolTable, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
+                        stBuilder = addScopeError(stBuilder, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
                     }
                 }               
             } else {
-                throw "checkADTDefinitionsForConsistency, unexpected constructor item <symbolTable.scopeItemMap[ci]>";
+                throw "checkADTDefinitionsForConsistency, unexpected constructor item <stBuilder.scopeItemMap[ci]>";
             }
         }
     }
     
-    return symbolTable; 
+    return stBuilder; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Scoping convenience functions that deal with types
 //
-// TODO: See which of these should be moved into SymbolTable directly.
+// TODO: See which of these should be moved into STBuilder directly.
 //
 // TODO: Field update syntax is causing problems with type derivation in the interpreter.
 //

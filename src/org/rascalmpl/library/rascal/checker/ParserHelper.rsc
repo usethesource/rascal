@@ -14,5 +14,15 @@ public Tree parseExpression(str toParse) {
 }
 
 public bool doIMatch(Tree t) {
-    return (Expression)`<Expression e1> ( <{Expression ","}* el> )` := t;
+    return (Expression)`<Name n>` := t;
 }
+
+public Tree whatMatched(Tree t) {
+    if((Expression)`<Name n>` := t) return n;
+    return t;
+}
+
+public Tree parseDeclaration(str toParse) {
+	return parse(#Declaration,toParse);
+}
+
