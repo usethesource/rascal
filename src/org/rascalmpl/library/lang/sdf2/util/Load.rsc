@@ -23,11 +23,12 @@ public SDF loadSDF2Module(str name, list[loc] path) {
     }
   }
 
-  mods = (Module*) ``;
-  for (Module m <- modules) {
-    mods = (Module*) `<[Module] m> <[Module*] mods>`;
-  }
-  return (SDF) `definition <[Module*] mods>`;
+  def = "definition
+         '
+         '<for (Module m <- modules) {>
+         '<m><}>";
+  
+  return parse(#SDF, def);
 }
 
 public set[str] getImports(Module mod) {
