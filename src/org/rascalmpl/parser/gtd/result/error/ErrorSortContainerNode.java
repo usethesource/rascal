@@ -88,7 +88,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 	}
 
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		if(depth == cycleMark.depth){
+		if(depth <= cycleMark.depth){
 			cycleMark.reset();
 		}
 		
