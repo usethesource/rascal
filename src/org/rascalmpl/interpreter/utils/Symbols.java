@@ -89,6 +89,12 @@ public class Symbols {
 			if (lit.charAt(i) == '\\') {
 				i++;
 				switch (lit.charAt(i)) {
+				case 'b':
+					builder.append('\b');
+					break;
+				case 'f':
+					builder.append('\f');
+					break;
 				case 'n':
 					builder.append('\n');
 					break;
@@ -104,7 +110,22 @@ public class Symbols {
 				case '\"':
 					builder.append('\"');
 					break;
+				case '>':
+					builder.append('>');
+					break;
+				case '<':
+					builder.append('<');
+					break;
+				case '\'':
+					builder.append('\'');
+					break;
+				case 'u':
+					while (lit.charAt(i++) == 'u');
+					builder.append((char) Integer.decode("0x" + lit.substring(i, i+4)).intValue());
+					i+=4;
+					break;
 				default:
+					// octal escape
 					int a = lit.charAt(i++);
 					int b = lit.charAt(i++);
 					int c = lit.charAt(i);
