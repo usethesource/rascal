@@ -7,8 +7,8 @@ syntax Sort = lex OneChar: [A-Z] |
               ;
 
 syntax Syms = Sym*
-                 //- StrCon "(" {Sym ","}* ")" 
-                 ;
+              // - StrCon "(" {Sym ","}* ")" 
+              ;
 
 syntax NatCon = lex Digits: [0-9]+
                 # [0-9]
@@ -65,7 +65,7 @@ syntax OptRanges = Absent: |
                        Present: Ranges
                        ;
 
-syntax Attribute = Id: "id" "(" ModuleName ")" |
+syntax Attr = Id: "id" "(" ModuleName ")" |
                    Term: ATermAttribute |
                    Reject: "reject" |
                    Prefer: "prefer" |
@@ -82,12 +82,12 @@ syntax ATermAttribute = Default: ATerm a
                         - "id" "(" ModuleName ")"
                         ;
 
-syntax Attributes = Attrs: "{" {Attribute ","}* "}" |
+syntax Attrs = Attrs: "{" {Attr ","}* "}" |
                     NoAttrs: 
                     ;
 
-syntax Prod = Prod: Syms "-\>" Sym Attributes |
-                    PrefixFun: FunctionName "(" {Sym ","}* ")" Attributes // Avoid
+syntax Prod = Prod: Syms "-\>" Sym Attrs |
+                    PrefixFun: FunctionName "(" {Sym ","}* ")" Attrs // Avoid
                     ;
 
 syntax Prods = Prod*
