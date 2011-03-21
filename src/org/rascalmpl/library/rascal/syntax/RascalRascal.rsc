@@ -136,9 +136,6 @@ syntax DecimalLongLiteral
 	| lex [1-9] [0-9]* [L l] 
 	# [0-9 A-Z _ a-z] ;
 
-syntax SingleQuotedStrCon
-	= lex [\'] SingleQuotedStrChar* chars [\'] ;
-
 syntax Header
 	= Parameters: Tags tags "module" QualifiedName name ModuleParameters params Import* imports 
 	| Default: Tags tags "module" QualifiedName name Import* imports ;
@@ -176,9 +173,6 @@ syntax ImportedModule
 	| ActualsRenaming: QualifiedName name ModuleActuals actuals Renamings renamings 
 	| Renamings: QualifiedName name Renamings renamings 
 	| Actuals: QualifiedName name ModuleActuals actuals ;
-
-syntax StrCon
-	= lex [\"] StrChar* chars [\"] ;
 
 syntax Target
 	= Empty: 
@@ -444,14 +438,6 @@ syntax RegExp
 	| lex [\\] [/ \< \> \\] 
 	| lex "\<" Name ":" NamedRegExp* "\>" 
 	| lex Backslash ;
-
-syntax SingleQuotedStrChar
-	= lex "\\\\" 
-	| lex "\\t" 
-	| lex "\\\'" 
-	| lex "\\" [0-9] a [0-9] b [0-9] c 
-	| lex ![\000-\031 \' \\] 
-	| lex "\\n" ;
 
 layout LAYOUTLIST
 	= LAYOUT* 
