@@ -25,7 +25,7 @@ public class ListContainerNode extends AbstractContainerNode{
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	
-	private static class CycleNode extends AbstractNode{
+	protected static class CycleNode extends AbstractNode{
 		public final AbstractNode[] cycle;
 		
 		public CycleNode(AbstractNode[] cycle){
@@ -383,7 +383,7 @@ public class ListContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
-		if(depth == cycleMark.depth){
+		if(depth <= cycleMark.depth){
 			cycleMark.reset();
 		}
 		
@@ -489,6 +489,7 @@ public class ListContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+		// TODO Fix caching problem.
 		return ErrorListBuilder.toErrorListTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
 	}
 }

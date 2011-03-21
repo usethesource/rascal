@@ -73,7 +73,7 @@ public class SortContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
-		if(depth == cycleMark.depth){
+		if(depth <= cycleMark.depth){
 			cycleMark.reset();
 		}
 		
@@ -178,6 +178,7 @@ public class SortContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+		// TODO Fix caching problem.
 		return ErrorSortBuilder.toErrorSortTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
 	}
 }

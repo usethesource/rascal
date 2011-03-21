@@ -13,7 +13,9 @@ data Tree
 @doc{These trees constructors are used additionally in error trees}
 data Tree 
   = error(Production prod, list[Tree] args, list[Tree] rest)
-  | expected(Symbol symbol) 
+  | expected(Symbol symbol)
+  | erroramb(set[Tree] alternatives)
+  | errorcycle(Symbol symbol, int cycleLength)
   ;
   
 data Production =
