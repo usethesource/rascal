@@ -19,7 +19,7 @@ import rascal::syntax::RascalRascal;
 // ------------------------------------------------------------
 //    solve (v1,...,vn b) s : stmt[void]
 //
-public ConstraintBase gatherSolveStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, {QualifiedName ","}+ vars, Bound b, Statement body) {    
+public ConstraintBase gatherSolveStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, {QualifiedName ","}+ vars, Bound b, Statement body) {    
     // Step 1: Constraint the variable list. Definedness is checked during
     // symbol table generation, and no other constraints on the types are
     // given, so we need no logic here for this check.
@@ -45,7 +45,7 @@ public ConstraintBase gatherSolveStatementConstraints(SymbolTable st, Constraint
 // ----------------------------------------------------------
 //       l for (e1,...,en) s : stmt[list[void]]
 //
-public ConstraintBase gatherForStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement body) {
+public ConstraintBase gatherForStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement body) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -73,7 +73,7 @@ public ConstraintBase gatherForStatementConstraints(SymbolTable st, ConstraintBa
 // ----------------------------------------------------------
 //       l while (e1,...,en) s : stmt[list[void]]
 //
-public ConstraintBase gatherWhileStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement body) {
+public ConstraintBase gatherWhileStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement body) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -102,7 +102,7 @@ public ConstraintBase gatherWhileStatementConstraints(SymbolTable st, Constraint
 // ----------------------------------------------------------
 //       l do s while (e) : stmt[list[void]]
 //
-public ConstraintBase gatherDoWhileStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, Statement body, Expression e) {
+public ConstraintBase gatherDoWhileStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, Statement body, Expression e) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -131,7 +131,7 @@ public ConstraintBase gatherDoWhileStatementConstraints(SymbolTable st, Constrai
 // -----------------------------------------------------------------------------
 //    l if (e1,...,en) then tb else tf : stmt[lub(tb,tf)]
 //
-public ConstraintBase gatherIfThenElseStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement trueBody, Statement falseBody) {
+public ConstraintBase gatherIfThenElseStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement trueBody, Statement falseBody) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -161,7 +161,7 @@ public ConstraintBase gatherIfThenElseStatementConstraints(SymbolTable st, Const
 // -------------------------------------------------------------
 //    l if (e1,...,en) then tb : stmt[void]
 //
-public ConstraintBase gatherIfThenStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement trueBody) {
+public ConstraintBase gatherIfThenStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, {Expression ","}+ exps, Statement trueBody) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -185,7 +185,7 @@ public ConstraintBase gatherIfThenStatementConstraints(SymbolTable st, Constrain
 // --------------------------------------------------------------------------------------------------------
 //          l switch(e) { c1 ... cn } : stmt[void]
 //
-public ConstraintBase gatherSwitchStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, Expression e, Case+ cases) {
+public ConstraintBase gatherSwitchStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, Expression e, Case+ cases) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -224,7 +224,7 @@ public ConstraintBase gatherSwitchStatementConstraints(SymbolTable st, Constrain
 // -----------------------------------------------------------
 //   l v : stmt[t1]
 //
-public ConstraintBase gatherVisitStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, Visit v) {
+public ConstraintBase gatherVisitStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, Visit v) {
     // Step 1: Constrain the label. Definedness is checked during symbol table
     // generation, and no other constraints on the label are given, so we need no
     // logic here for this check.
@@ -246,7 +246,7 @@ public ConstraintBase gatherVisitStatementConstraints(SymbolTable st, Constraint
 // --------------------------------------
 //           e ; : stmt[t1]
 //
-public ConstraintBase gatherExpressionStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Expression e) {
+public ConstraintBase gatherExpressionStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Expression e) {
     // Constrain the ultimate type. Given that e has some arbitrary type t, 
     // the statement type will be stmt[t].
     <cs, t1> = makeFreshType(cs);
@@ -267,7 +267,7 @@ public ConstraintBase gatherExpressionStatementConstraints(SymbolTable st, Const
 //
 // TODO: Define rules here!!!
 //
-public ConstraintBase gatherAssignmentStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Assignable a, Assignment op, Statement s) {
+public ConstraintBase gatherAssignmentStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Assignable a, Assignment op, Statement s) {
     RType resultType;
     
     // Step 1: Create the constraints for the assignment, based on the type of assignment 
@@ -308,7 +308,7 @@ public ConstraintBase gatherAssignmentStatementConstraints(SymbolTable st, Const
 // ---------------------------------
 //     assert e; : stmt[void]
 //
-public ConstraintBase gatherAssertStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Expression e) {
+public ConstraintBase gatherAssertStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Expression e) {
     // Step 1: Constrain the expression. It should evaluate to type bool.
     cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeBoolType());
     
@@ -325,7 +325,7 @@ public ConstraintBase gatherAssertStatementConstraints(SymbolTable st, Constrain
 // ---------------------------------
 //     assert e : em; : stmt[void]
 //
-public ConstraintBase gatherAssertWithMessageStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Expression e, Expression em) {
+public ConstraintBase gatherAssertWithMessageStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Expression e, Expression em) {
     // Step 1: Constrain the subexpressions. Assert should be given a bool and a string.
     cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeBoolType()) + TreeIsType(em,em@\loc,makeStrType());
     
@@ -342,7 +342,7 @@ public ConstraintBase gatherAssertWithMessageStatementConstraints(SymbolTable st
 // --------------------------------------------------------------
 //             return b : stmt[void]
 //
-public ConstraintBase gatherReturnStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Statement b) {
+public ConstraintBase gatherReturnStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Statement b) {
     // TODO: We should just have an annotation to do this. Unfortunately, we don't yet...
     //RType retType = sp@functionReturnType;
     RType retType = getFunctionReturnType(st.returnTypeMap[sp@\loc]);
@@ -367,7 +367,7 @@ public ConstraintBase gatherReturnStatementConstraints(SymbolTable st, Constrain
 // ---------------------------------
 //       throw b : stmt[void]
 //
-public ConstraintBase gatherThrowStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Statement b) {
+public ConstraintBase gatherThrowStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Statement b) {
     // Step 1: Constraint the throw body. It must be of type RuntimeException.
     <cs,t1> = makeFreshType(cs);
     cs.constraints = cs.constraints + TreeIsType(b,b@\loc,makeStatementType(t1)) + IsRuntimeException(t1,b@\loc);
@@ -383,7 +383,7 @@ public ConstraintBase gatherThrowStatementConstraints(SymbolTable st, Constraint
 //
 // TODO: Need to also constraint b to be the correct type for appending.
 //
-public ConstraintBase gatherInsertStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, DataTarget dt, Statement b) {
+public ConstraintBase gatherInsertStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, DataTarget dt, Statement b) {
     // Step 1: Constrain the data target. Definedness is checked during symbol table
     // generation, and no other constraints on types are given, so we need no
     // logic here for this check.
@@ -398,7 +398,7 @@ public ConstraintBase gatherInsertStatementConstraints(SymbolTable st, Constrain
 //
 // TODO: Need to also constraint b to be the correct type for appending.
 //
-public ConstraintBase gatherAppendStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, DataTarget dt, Statement b) {
+public ConstraintBase gatherAppendStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, DataTarget dt, Statement b) {
     // Step 1: Constrain the data target. Definedness is checked during symbol table
     // generation, and no other constraints on types are given, so we need no
     // logic here for this check.
@@ -416,7 +416,7 @@ public ConstraintBase gatherAppendStatementConstraints(SymbolTable st, Constrain
 // -----------------------------------------------------
 //     fundecl : stmt[void]
 //
-public ConstraintBase gatherLocalFunctionStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Tags ts, Visibility v, Signature sig, FunctionBody fb) {
+public ConstraintBase gatherLocalFunctionStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Tags ts, Visibility v, Signature sig, FunctionBody fb) {
     // Step 1: Constraint the overall type. It is simply a stmt[void], we don't do any checking here since the
     // necessary checks are performed INSIDE the function.
     cs.constraints = cs.constraints + TreeIsType(sp,sp@\loc,makeStatementType(makeVoidType()));
@@ -430,7 +430,7 @@ public ConstraintBase gatherLocalFunctionStatementConstraints(SymbolTable st, Co
 // -----------------------------------------------------
 //     vardecl : stmt[void]
 //
-public ConstraintBase gatherLocalVarStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, {Variable ","}+ vs) {
+public ConstraintBase gatherLocalVarStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, {Variable ","}+ vs) {
     // Step 1: Constraint the overall type. It is simply a stmt[void], we don't do any 
     // checking here since the necessary checks are performed with the variable declaration.
     cs.constraints = cs.constraints + TreeIsType(sp,sp@\loc,makeStatementType(makeVoidType()));
@@ -444,7 +444,7 @@ public ConstraintBase gatherLocalVarStatementConstraints(SymbolTable st, Constra
 // ------------------------------
 //      break t; : stmt[void]
 //
-public ConstraintBase gatherBreakStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Target t) {
+public ConstraintBase gatherBreakStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Target t) {
     // Step 1: Constrain the target. Definedness is checked during symbol table
     // generation, and no other constraints on types are given, so we need no
     // logic here for this check.
@@ -461,7 +461,7 @@ public ConstraintBase gatherBreakStatementConstraints(SymbolTable st, Constraint
 // -----------------------------
 //      fail t; : stmt[void]
 //
-public ConstraintBase gatherFailStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Target t) {
+public ConstraintBase gatherFailStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Target t) {
     // Step 1: Constrain the target. Definedness is checked during symbol table
     // generation, and no other constraints on types are given, so we need no
     // logic here for this check.
@@ -478,7 +478,7 @@ public ConstraintBase gatherFailStatementConstraints(SymbolTable st, ConstraintB
 // --------------------------------
 //      continue t; : stmt[void]
 //
-public ConstraintBase gatherContinueStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Target t) {
+public ConstraintBase gatherContinueStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Target t) {
     // Step 1: Constrain the target. Definedness is checked during symbol table
     // generation, and no other constraints on types are given, so we need no
     // logic here for this check.
@@ -495,7 +495,7 @@ public ConstraintBase gatherContinueStatementConstraints(SymbolTable st, Constra
 // ----------------------------------------
 //        try sb c1 ... cn : stmt[void]
 //
-public ConstraintBase gatherTryCatchStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Statement body, Catch+ catches) {
+public ConstraintBase gatherTryCatchStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Statement body, Catch+ catches) {
     // There are no overall constraints on the types here, so we just return stmt[void].
     cs.constraints = cs.constraints + TreeIsType(sp,sp@\loc,makeStatementType(makeVoidType()));
     return cs;
@@ -508,7 +508,7 @@ public ConstraintBase gatherTryCatchStatementConstraints(SymbolTable st, Constra
 // ------------------------------------------------------
 //        try sb c1 ... cn finally sf : stmt[void]
 //
-public ConstraintBase gatherTryCatchFinallyStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Statement body, Catch+ catches, Statement fBody) {
+public ConstraintBase gatherTryCatchFinallyStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Statement body, Catch+ catches, Statement fBody) {
     // There are no overall constraints on the types here, so we just return stmt[void].
     cs.constraints = cs.constraints + TreeIsType(sp, sp@\loc, makeStatementType(makeVoidType()));
     return cs;
@@ -521,7 +521,7 @@ public ConstraintBase gatherTryCatchFinallyStatementConstraints(SymbolTable st, 
 // -------------------------------------------------
 //          { s1 ... sn } : stmt[tn]
 //
-public ConstraintBase gatherBlockStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp, Label l, Statement+ bs) {
+public ConstraintBase gatherBlockStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp, Label l, Statement+ bs) {
     // The block type is identical to the type of the final statement in the
     // block, and both are stmt types.
     list[Statement] blockStatements = [ b | b <- bs ];
@@ -541,7 +541,7 @@ public ConstraintBase gatherBlockStatementConstraints(SymbolTable st, Constraint
 // --------------------------------------
 //           ; : stmt[void]
 //
-public ConstraintBase gatherEmptyStatementConstraints(SymbolTable st, ConstraintBase cs, Statement sp) {
+public ConstraintBase gatherEmptyStatementConstraints(STBuilder st, ConstraintBase cs, Statement sp) {
     cs.constraints = cs.constraints + TreeIsType(sp, sp@\loc, makeStatementType(makeVoidType()));
     return cs;
 }
@@ -550,7 +550,7 @@ public ConstraintBase gatherEmptyStatementConstraints(SymbolTable st, Constraint
 // Collect constraints over all statements. This dispatches out to individual functions
 // for each statement production.
 //
-public ConstraintBase gatherStatementConstraints(SymbolTable st, ConstraintBase cs, Statement stmt) {
+public ConstraintBase gatherStatementConstraints(STBuilder st, ConstraintBase cs, Statement stmt) {
     switch(stmt) {
         case (Statement)`solve (<{QualifiedName ","}+ vs> <Bound b>) <Statement sb>` :
             return gatherSolveStatementConstraints(st,cs,stmt,vs,b,sb);

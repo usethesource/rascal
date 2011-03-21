@@ -224,7 +224,7 @@ data Constraint =
     | Bindable(Tree pattern, RType subject, loc at)
     | Enumerable(Tree pattern, RType subject, loc at)
 	| StepItType(Tree reducer, loc at, RType inType, RType outType, RType result)
-    | DefinedBy(RType lvalue, set[STItemId] definingIds, loc at)
+    | DefinedBy(RType lvalue, set[ItemId] definingIds, loc at)
     ;
 
 // The location in the tree at which this constraint is registered (NOT CURRENTY USED).

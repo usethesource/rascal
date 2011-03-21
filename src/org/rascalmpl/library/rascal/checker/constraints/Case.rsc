@@ -13,7 +13,7 @@ import rascal::syntax::RascalRascal;
 //
 // TODO: Add type rules!
 //
-public ConstraintBase gatherCaseConstraints(SymbolTable st, ConstraintBase cs, Case c) {
+public ConstraintBase gatherCaseConstraints(STBuilder st, ConstraintBase cs, Case c) {
     switch(c) {
         case `case <PatternWithAction p>` : {
             <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];

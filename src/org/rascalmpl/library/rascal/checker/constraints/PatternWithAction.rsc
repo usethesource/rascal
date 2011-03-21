@@ -19,7 +19,7 @@ import rascal::syntax::RascalRascal;
 //
 // TODO: Add typing rules!
 // 
-public ConstraintBase gatherPatternWithActionConstraints(SymbolTable st, ConstraintBase cs, PatternWithAction pat) {
+public ConstraintBase gatherPatternWithActionConstraints(STBuilder st, ConstraintBase cs, PatternWithAction pat) {
     switch(pat) {
         case `<Pattern p> => <Expression e>` : {
             <cs, t1> = makeFreshType(cs);

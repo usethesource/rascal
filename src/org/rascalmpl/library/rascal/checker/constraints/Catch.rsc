@@ -11,7 +11,7 @@ import rascal::syntax::RascalRascal;
 //
 // Gather constraints for catch clauses in exception handlers.
 //
-public ConstraintBase gatherCatchConstraints(SymbolTable symbolTable, ConstraintBase constraintBase, Catch c) {
+public ConstraintBase gatherCatchConstraints(STBuilder stBuilder, ConstraintBase constraintBase, Catch c) {
     switch(c) {
         // For a catch with a body but no binding to the thrown value, we don't need to generate any
         // constraints. We do provide an empty body so we don't trigger the default below.

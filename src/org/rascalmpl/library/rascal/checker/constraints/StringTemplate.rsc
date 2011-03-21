@@ -17,7 +17,7 @@ import rascal::syntax::RascalRascal;
 // a candidate subject type or we have enough information to identify the
 // constructor at the top.
 //
-public ConstraintBase gatherStringTemplateConstraints(SymbolTable symbolTable, ConstraintBase constraintBase, StringTemplate s) {
+public ConstraintBase gatherStringTemplateConstraints(STBuilder stBuilder, ConstraintBase constraintBase, StringTemplate s) {
     // For all the different types of string templates, we only need to constrain the overall type
     // and the type of any generators, conditions, etc. The body is made up of either string
     // templates or expressions, and these are either constrained elsewhere (string templates)

@@ -8,5 +8,5 @@ import ParseTree;
 //
 // Annotation for linking symbol table items to trees.
 //
-anno set[STItemId] Tree@nameIds;
+anno set[ItemId] Tree@nameIds;
 

@@ -17,21 +17,21 @@ import rascal::syntax::RascalRascal;
 // name an arbitrary assignable (tuples, fields, etc), and are handled in the statement
 // logic, not here.
 // 
-public ConstraintBase gatherVariableConstraints(SymbolTable st, ConstraintBase cs, Variable v) {
+public ConstraintBase gatherVariableConstraints(STBuilder st, ConstraintBase cs, Variable v) {
     switch(v) {
         case (Variable) `<Name n>` : {
             <cs, t1> = makeFreshType(cs);
             cs.constraints = cs.constraints + TreeIsType(n,n@\loc,t1);
-            if (n@\loc in st.itemUses)
-                cs.constraints = cs.constraints + DefinedBy(t1,(st.itemUses)[n@\loc],n@\loc);
+            if (n@\loc in st.itemUses<0>)
+                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
             return cs;
         }
         
         case (Variable) `<Name n> = <Expression e>` : {
             <cs, t1> = makeFreshType(cs);
             cs.constraints = cs.constraints + TreeIsType(n,n@\loc,t1);
-            if (n@\loc in st.itemUses)
-                cs.constraints = cs.constraints + DefinedBy(t1,(st.itemUses)[n@\loc],n@\loc);
+            if (n@\loc in st.itemUses<0>)
+                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
             <cs, t2> = makeFreshType(cs);
             cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t2) + Assignable(v,v@\loc,n,e,t2,t1);
             return cs;

@@ -24,9 +24,9 @@ public RName convertName(QualifiedName qn) {
 	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
 		nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl];
 		if (size(nameParts) > 1) {
-			return RCompoundName(nameParts);
+			return RCompoundName(nameParts)[@at = qn@\loc];
 		} else {
-			return RSimpleName(head(nameParts));
+			return RSimpleName(head(nameParts))[@at = qn@\loc];
 		} 
 	}
 	throw "Unexpected syntax for qualified name: <qn>";
@@ -34,7 +34,7 @@ public RName convertName(QualifiedName qn) {
 
 public RName convertName(Name n) {
 	if (startsWith("<n>","\\"))
-		return RSimpleName(substring("<n>",1));
+		return RSimpleName(substring("<n>",1))[@at = n@\loc];
 	else
 		return RSimpleName("<n>");
 }
@@ -45,13 +45,6 @@ private Name getLastName(QualifiedName qn) {
 		return head(tail(nameParts,1));
 	}
 	throw "Unexpected syntax for qualified name: <qn>";
-}
-
-public RName appendName(RName n1, RName n2) {
-	if (RSimpleName(s1) := n1  && RSimpleName(s2) := n2) return RCompoundName([s1,s2]);
-	if (RSimpleName(s1) := n1 && RCompoundName(ss2) := n2) return RCompoundName([s1] + ss2);
-	if (RCompoundName(ss1) := n1 && RSimpleName(s2) := n2) return RCompoundName(ss1 + s2);
-	if (RCompoundName(ss1) := n1 && RCompoundName(ss2) := n2) return RCompoundName(ss1 + ss2);
 }
 
 public str prettyPrintNameList(list[str] nameList) {
@@ -177,9 +170,10 @@ data RNamedType =
 anno RType Tree@rtype; 
 
 //
-// Annotation for adding locations to types
+// Annotation for adding locations to types and names
 //
 anno loc RType@at;
+anno loc RName@at;
 
 //
 // Annotations for adding error and warning information to types

@@ -8,6 +8,7 @@ import Relation;
 import Map;
 import ParseTree;
 import Node;
+import Message;
 
 import rascal::types::Types;
 import rascal::types::TypeSignatures;
@@ -25,184 +26,120 @@ data Namespace = Modules() | Labels() | FCVs() | Types() | TypeVars() | Annotati
 //
 // Each item in the symbol table is given a unique ID.
 //
-alias STItemId = int;
+alias ItemId = int;
 
 //
-// The symbol table is made up of a mix of layers and items. The layers
-// represent scopes in the symbol table, while the items represent actual
-// named entities (functions, variables, etc).
+// The symbol table is made up of a mix of different items, some of
+// which represent scopes (BlockScope), some of which represent named
+// items in the table (ADT), and some of which represent both (Function).
 //
-// Why IDs? This mainly simplifies the computation -- there is no need
-// to form an explicit n-ary tree, but instead the tree can be encoded
-// using IDs. Storing these IDs then provides a direct link back into
-// that location in the scope tree.
-//
-// TODO: Add something for TagItem...
-//
-data STItem =
-      BlockLayer(STItemId parentId)
-    | BooleanExpLayer(STItemId parentId)
-    | FunctionLayer(STItemId itemId, STItemId parentId)
-	| ModuleLayer(STItemId itemId, STItemId parentId)
-    | OrLayer(STItemId parentId)
-	| PatternMatchLayer(STItemId parentId)
-    | TopLayer()
+data Item =
+      BlockScope(ItemId parentId, loc definedAt)
+    | BooleanExpScope(ItemId parentId, loc definedAt)
+    | OrScope(ItemId parentId, loc definedAt)
+	| PatternMatchScope(ItemId parentId, loc definedAt)
+    | TopScope()
 
-    | ADTItem(RType adtType, bool isPublic, STItemId parentId) 
-    | AliasItem(RType aliasType, bool isPublic, STItemId parentId)
-    | AnnotationItem(RName annotationName, RType annoType, RType onType, bool isPublic, STItemId parentId) 
-    | ConstructorItem(RName constructorName, list[RNamedType] constructorArgs, STItemId adtParentId, STItemId parentId)
-    | FunctionItem(RName functionName, RType returnType, Parameters params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, STItemId parentId)
-    | FormalParameterItem(RName parameterName, RType parameterType, STItemId parentId)
-    | LabelItem(RName labelName, STItemId parentId)
-    | ModuleItem(RName moduleName, STItemId parentId)
-    | RuleItem(RName ruleName, STItemId parentId)
-    | TypeVariableItem(RType typeVar, STItemId parentId)
-	| VariableItem(RName variableName, RType variableType, STItemId parentId)
-	| TagItem(STItemId parentId)
+    | Function(RName functionName, RType returnType, Parameters params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, ItemId parentId, loc definedAt)
+    | Module(RName moduleName, ItemId parentId, loc definedAt)
+
+    | ADT(RType adtType, bool isPublic, ItemId parentId, loc definedAt) 
+    | Alias(RType aliasType, bool isPublic, ItemId parentId, loc definedAt)
+    | Annotation(RName annotationName, RType annoType, RType onType, bool isPublic, ItemId parentId, loc definedAt) 
+    | Constructor(RName constructorName, list[RNamedType] constructorArgs, ItemId adtParentId, ItemId parentId, loc definedAt)
+    | FormalParameter(RName parameterName, RType parameterType, ItemId parentId, loc definedAT)
+    | Label(RName labelName, ItemId parentId, loc definedAt)
+    | Rule(RName ruleName, ItemId parentId, loc definedAt)
+    | TypeVariable(RType typeVar, ItemId parentId, loc definedAt)
+	| Variable(RName variableName, RType variableType, ItemId parentId, loc definedAt)
+	| Tag(ItemId parentId, loc definedAt)
 ;
 
 //
 // Identify which scope items are included in which namespaces
 //
-private rel[Namespace, str] namespaceItems = { <Modules(), "ModuleItem">, <Labels(), "LabelItem">, <FCVs(), "ConstructorItem">,
-                                               <FCVs(), "FunctionItem">, <FCVs(), "FormalParameterItem">, <FCVs(), "VariableItem">,
-                                               <Types(), "ADTItem">, <Types(), "AliasItem">, <TypeVars(), "TypeVariableItem">,
-                                               <Annotations(), "AnnotationItem">, <Rules(), "RuleItem">, <Tags(), "TagItem"> };
+private rel[Namespace, str] namespaceItems = { <Modules(), "Module">, <Labels(), "Label">, <FCVs(), "Constructor">,
+                                               <FCVs(), "Function">, <FCVs(), "FormalParameter">, <FCVs(), "Variable">,
+                                               <Types(), "ADT">, <Types(), "Alias">, <TypeVars(), "TypeVariable">,
+                                               <Annotations(), "Annotation">, <Rules(), "Rule">, <Tags(), "Tag"> };
 //
 // Named scope items.
 //
-private set[str] namedItems = { "ModuleItem", "FunctionItem", "VariableItem", "FormalParameterItem", "LabelItem", "AliasItem", 
-                                "ConstructorItem", "ADTItem", "AnnotationItem", "RuleItem", "TypeVariableItem" };
+private set[str] namedItems = { "Module", "Function", "Variable", "FormalParameter", "Label", "Alias", 
+                                "Constructor", "ADT", "Annotation", "Rule", "TypeVariable" };
 
 //
 // Indicate if the item has a name (like a variable)
 //
-public bool itemHasName(STItem item) {
+public bool itemHasName(Item item) {
     return getName(item) in namedItems;
 }
 
 //
 // If the item has a syntactical name, retrieve it.
 //
-public RName getItemName(STItem item) {
+public RName getItemName(Item item) {
     switch(getName(item)) {
-        case "ModuleItem" : return item.moduleName;
-        case "FunctionItem" : return item.functionName;
-        case "VariableItem" : return item.variableName;
-        case "FormalParameterItem" : return item.parameterName;
-        case "LabelItem" : return item.labelName;
-        case "AliasItem" : return item.aliasType.aliasName;
-        case "ConstructorItem" : return item.constructorName;
-        case "ADTItem" : return item.adtType.adtName;
-        case "AnnotationItem" : return item.annotationName;
-        case "RuleItem" : return item.ruleName;
-        case "TypeVariableItem" : return item.typeVar.varName;
-		default : throw "Item does not have a name, use itemHasHame(STItem item) to check first to ensure the item has a name";
+        case "Module" : return item.moduleName;
+        case "Function" : return item.functionName;
+        case "Variable" : return item.variableName;
+        case "FormalParameter" : return item.parameterName;
+        case "Label" : return item.labelName;
+        case "Alias" : return item.aliasType.aliasName;
+        case "Constructor" : return item.constructorName;
+        case "ADT" : return item.adtType.adtName;
+        case "Annotation" : return item.annotationName;
+        case "Rule" : return item.ruleName;
+        case "TypeVariable" : return item.typeVar.varName;
+		default : throw "Item does not have a name, use itemHasHame(Item item) to check first to ensure the item has a name";
 	}
 }
 
 //
-// Is this a symbol table layer (true) or an actual symbol table entry (false)?
+// Does item represent a scope?
 //
-// NOTE: We could instead do a regexp against Layer, but that seems like too much
-// of a hack...
-//
-public bool isLayer(STItem si) {
-    return getName(si) in { "TopLayer", "ModuleLayer", "FunctionLayer", "PatternMatchLayer", "BooleanExpLayer", "OrLayer", "BlockLayer" };
+public bool isScope(Item si) {
+    return getName(si) in { "TopScope", "Module", "Function", "PatternMatchScope", "BooleanExpScope", "OrScope", "BlockScope" };
 }
 
 //
-// Is this a symbol table item (true) or a scoping layer (false)?
+// Does item reprsent a named entity, not just a scope construct?
 //
-public bool isItem(STItem si) {
-	return !isLayer(si);
+public bool isItem(Item si) {
+	return getName(si) in { "ADT", "Alias", "Annotation", "Constructor", "Function", "FormalParameter", "Label", "Module", "Rule", "TypedVariable", "Variable", "Tag" };  
 }
 
 //
-// Several functions to check the type of item
-//				
-public bool isFunctionItem(STItem si) {
-	return getName(si) == "FunctionItem";
-}
-
-public bool isConstructorItem(STItem si) {
-	return getName(si) == "ConstructorItem";
-}
-
-public bool isFunctionOrConstructorItem(STItem si) {
-	return isFunctionItem(si) || isConstructorItem(si);
-}
-
+// Symbol table items can have an associated location or locations
 //
-// Symbol table items can have an associated location
-//
-anno loc STItem@at;
-
-anno set[loc] STItem@ats;
-
-// The data structure used to represent the symbol table.
-//
-// topSTItemId: the symbol table item ID for the top of the symbol table tree
-// scopeRel: relates the scope layer (scopeId) with the individual ST items (itemId)
-// itemUses: given a location, give the symbol table items that may be used there
-// scopeItemMap: maps the symbol table item identifier to the actual ST item
-// itemLocations: maps a location to the item defined in that location
-// currentScope: the identifier of the current scope layer
-// freshType: a counter which allows generation of "fresh" types, used by the local inferencer
-// scopeErrorMap: maps locations to errors detected at the location
-// scopeWarningMap: maps locations to warning detected at the location
-// inferredTypeMap: map the id used in the fresh type to the type determined via inference
-// returnMap: map of return locations to the function item this return is associated with
-// itBinder: used for typing of the "it" construct in reducers: keeps track of the value of "it"
-//           inside the proper scope
-// scopeStack: a stack of scope layers, allows entering and leaving scopes by pushing and popping
-// adtItems: map from the ADT name to the related ADT and constructor symbol table items
-
-alias ScopeRel = rel[STItemId scopeId, STItemId itemId];
-alias ScopeNamesRel = rel[STItemId scopeId, RName itemName, STItemId itemId];
-alias ItemUses = map[loc useLoc, set[STItemId] usedItems];
-alias STItemMap = map[STItemId,STItem];
-alias ItemLocationRel = rel[loc,STItemId];
-alias ItemTypeMap = map[int, RType];
-
-alias SymbolTable = tuple[
-    STItemId topSTItemId,
-    STItemId currentModule,	
-    ScopeRel scopeRel,
-    ScopeNamesRel scopeNames,
-    ItemUses itemUses, 
-    STItemId nextScopeId, 
-    STItemMap scopeItemMap, 
-    ItemLocationRel itemLocations, 
-    STItemId currentScope, 
-    int freshType,
-    map[loc, set[str]] scopeErrorMap, 
-    map[loc, set[str]] scopeWarningMap, 
-    ItemTypeMap inferredTypeMap,
-    ItemTypeMap typeVarMap, 
-    map[loc, STItemId] returnMap,
+data STBuilder = STBuilder(
+    rel[ItemId scopeId, ItemId itemId] scopeRel, // Basic symbol table: which items are nested in which items
+    rel[ItemId scopeId, RName itemName, ItemId itemId] scopeNames, // Same as scopeRel, but just for named items
+    rel[loc useLoc, ItemId usedItem] itemUses, // relates locations in the tree to the items that are used at those locations
+    rel[loc, Message] messages, 
+    list[ItemId] scopeStack, 
+    map[ItemId,Item] scopeItemMap, 
+    map[int, RType] inferredTypeMap,
+    map[loc, ItemId] returnMap,
     map[loc, RType] itBinder, 
-    list[STItemId] scopeStack, 
-    map[RName adtName,tuple[set[STItemId] adtItems,set[STItemId] consItems] adtInfo] adtMap,
-    list[RType] functionReturnStack,
-    list[Tree] visitSubjectStack,
-    list[Tree] switchSubjectStack
-];
+    map[RName adtName,tuple[set[ItemId] adtItems,set[ItemId] consItems] adtInfo] adtMap,
+    ItemId nextScopeId, 
+    int freshType
+);
 
 //
 // These types are used in functions that add/update the scope information,
 // since we need to return multiple items -- the new table, plus information
 // about what was added/updated.
 //
-alias AddedItemPair = tuple[SymbolTable symbolTable, STItemId addedId];
-alias ScopeUpdatePair = tuple[SymbolTable symbolTable, STItemId oldScopeId];
+alias AddedItemPair = tuple[STBuilder stBuilder, ItemId addedId];
+alias ScopeUpdatePair = tuple[STBuilder stBuilder, ItemId oldScopeId];
   
 //                      
 // Create an empty symbol table
 //                        
-public SymbolTable createNewSymbolTable() {
-	return < -1, -1, { }, { }, ( ), 0, ( ), { }, 0, 0, (), (), (), (), (), (), [ ], ( ), [], [], []>;
+public STBuilder createNewSTBuilder() {
+	return STBuilder( { }, { }, { }, { }, [ ], ( ), ( ), ( ), ( ), ( ), 0, 0 );
 }                    
 
 //
@@ -214,226 +151,127 @@ public SymbolTable createNewSymbolTable() {
 // set of bindings?
 // TODO: Add location information so we can track back to all points of definition
 //
-public SymbolTable mergeOrLayers(SymbolTable symbolTable, list[STItemId] orLayers, STItemId intoLayer) {
+public STBuilder mergeOrScopes(STBuilder stBuilder, list[ItemId] orLayers, ItemId intoLayer) {
     // First, get back the items introduced in the first or layer in the list
-    set[STItemId] introducedItems = { vi | vi <- symbolTable.scopeRel[head(orLayers)], VariableItem(_,_,_) := symbolTable.scopeItemMap[vi] };
+    set[ItemId] introducedItems = { vi | vi <- stBuilder.scopeRel[head(orLayers)], Variable(_,_,_,_) := stBuilder.scopeItemMap[vi] };
 	
     // Now, go through the rest of the layers -- we only keep vars found in all the layers with the same name.
     // Note that we don't restrict this based on type here, since we may not know the type yet -- this
     // is instead a decision for the type checker.
     for (oritem <- tail(orLayers)) {
-        set[STItemId] sharedItems = { };
-        for (li <- introducedItems, VariableItem(vn,_,_) := symbolTable.scopeItemMap[li],
-            ri <- symbolTable.scopeRel[oritem], VariableItem(vn,_,_) := symbolTable.scopeItemMap[ri]) {
-            sharedItems += li;
+        set[ItemId] sharedItems = { };
+        for (li <- introducedItems, Variable(vn,_,_,_) := stBuilder.scopeItemMap[li],
+            ri <- stBuilder.scopeRel[oritem], Variable(vn,_,_,_) := stBuilder.scopeItemMap[ri]) {
+            sharedItems = sharedItems + li;
         }
         introducedItems = sharedItems;
     }
 
 	// Finally, inject them into the intoLayer
-    symbolTable = pushScope(intoLayer, symbolTable);
-    for (oritem <- introducedItems, VariableItem(vn,vt,_) := symbolTable.scopeItemMap[oritem]) {
-        symbolTable = justSymbolTable(addSTItemUses(addVariableToScope(vn, vt, false, symbolTable.scopeItemMap[oritem]@at, symbolTable),[<true,symbolTable.scopeItemMap[oritem]@at>]));
-    }
-    symbolTable = popScope(symbolTable);
+    stBuilder = pushScope(intoLayer, stBuilder);
+    for (oritem <- introducedItems, Variable(vn,vt,_,_) := stBuilder.scopeItemMap[oritem])
+        stBuilder = justSTBuilder(addVariableToScope(vn, vt, false, stBuilder.scopeItemMap[oritem].definedAt, stBuilder));
+    stBuilder = popScope(stBuilder);
 
-    return symbolTable;
+    return stBuilder;
 }
 
 //
 // Indicate that scopeItem is used at location l
 //
-public SymbolTable addItemUse(SymbolTable symbolTable, STItemId scopeItem, loc l) {
-    if (l in symbolTable.itemUses)
-        symbolTable.itemUses[l] = symbolTable.itemUses[l] + scopeItem;
-    else
-        symbolTable.itemUses += (l : { scopeItem });
-    return symbolTable;
+public STBuilder addItemUse(STBuilder stBuilder, ItemId scopeItem, loc l) {
+    return stBuilder[itemUses = stBuilder.itemUses + < l, scopeItem >];
 }
 
 //
 // Indicate that scopeItems are used at location l
 //
-public SymbolTable addItemUses(SymbolTable symbolTable, set[STItemId] scopeItems, loc l) {
-    if (l in symbolTable.itemUses)
-        symbolTable.itemUses[l] += scopeItems;
-    else
-        symbolTable.itemUses += (l : scopeItems );
-    return symbolTable;
+public STBuilder addItemUses(STBuilder stBuilder, set[ItemId] scopeItems, loc l) {
+    return stBuilder[itemUses = stBuilder.itemUses + ({l} * scopeItems)];
 }
 
 //
 // Add a scope error with message msg at location l
 //
-public SymbolTable addScopeError(SymbolTable symbolTable, loc l, str msg) {
-    if (l in symbolTable.scopeErrorMap)
-        symbolTable.scopeErrorMap[l] = symbolTable.scopeErrorMap[l] + msg;
-    else
-        symbolTable.scopeErrorMap += (l : { msg } );
-    return symbolTable;
+public STBuilder addScopeError(STBuilder stBuilder, loc l, str msg) {
+	stBuilder.messages = stBuilder.messages + < l, error(msg,l) >;
+    return stBuilder;
 }
 
-public SymbolTable addScopeWarning(SymbolTable symbolTable, loc l, str msg) {
-    if (l in symbolTable.scopeWarningMap)
-        symbolTable.scopeWarningMap[l] = symbolTable.scopeWarningMap[l] + msg;
-    else
-        symbolTable.scopeWarningMap += (l : { msg } );
-    return symbolTable;
+public STBuilder addScopeWarning(STBuilder stBuilder, loc l, str msg) {
+	stBuilder.messages = stBuilder.messages + < l, warning(msg,l) >;
+    return stBuilder;
 }
 
 //
-// Add a new layer WITHOUT a parent into the scope. These are layers that are not
-// nested inside other layers, such as the top layer.
+// Get back the layer defined at location l. Note: this operation is VERY expensive,
+// and should be used sparingly.
 //
-public AddedItemPair addScopeLayer(STItem si, loc l, SymbolTable symbolTable) {
-    int newItemId = symbolTable.nextScopeId;
-    STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
-    ItemLocationRel newILRel = symbolTable.itemLocations + <l,symbolTable.nextScopeId>;
-    symbolTable = ((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel];
-    return <symbolTable,newItemId>;				
-}
-
-//
-// Add a new layer WITH a parent into the scope. These are layers that are nested
-// inside other layers, such as the module layers (inside the top layer), function
-// layers (inside modules or other functions), etc. Note that layers do not
-// have names, only normal items, so we do not need to update the scope names
-// relation here.
-//
-public AddedItemPair addScopeLayerWithParent(STItem si, STItemId parentId, loc l, SymbolTable symbolTable) {
-    int newItemId = symbolTable.nextScopeId;
-    ScopeRel newScopeRel = symbolTable.scopeRel + <parentId, symbolTable.nextScopeId>;
-    STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
-    ItemLocationRel newILRel = symbolTable.itemLocations + <l,symbolTable.nextScopeId>;
-    symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel];
-    return <symbolTable,newItemId>;				
-}
-
-//
-// Add a new symbol table item within a scope layer.
-//
-public AddedItemPair addSTItemWithParent(STItem si, STItemId parentId, loc l, SymbolTable symbolTable) {
-    int newItemId = symbolTable.nextScopeId;
-    ScopeRel newScopeRel = symbolTable.scopeRel + <parentId, symbolTable.nextScopeId>;
-    STItemMap newSIMap = symbolTable.scopeItemMap + (newItemId : si);
-    ItemLocationRel newILRel = symbolTable.itemLocations + <l,symbolTable.nextScopeId>;
-    if (itemHasName(si)) {
-        ScopeNamesRel newScopeNamesRel = { };
-        // For functions and modules, we add the name to the parent layer, since (at least in the case of functions)
-        // we want to make sure that the name is only visible at the actual defining level of scope. If we define
-        // it inside the function layer we block calls to overloads with the same name, since we will always find
-        // this one first and won't continue up the symbol table hierarchy looking for others.
-        if (FunctionItem(n,_,_,_,_,_,_) := si || ModuleItem(n,_) := si) {
-            newScopeNamesRel = symbolTable.scopeNames + < symbolTable.scopeItemMap[parentId].parentId, n, symbolTable.nextScopeId>;
-        } else {
-            newScopeNamesRel = symbolTable.scopeNames + <parentId, getItemName(si), symbolTable.nextScopeId>;
-        }
-        symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel][scopeNames = newScopeNamesRel];
-    } else {
-        symbolTable = (((symbolTable[nextScopeId = symbolTable.nextScopeId+1])[scopeItemMap=newSIMap])[itemLocations=newILRel])[scopeRel = newScopeRel];
-    }
-    return <symbolTable,newItemId>;				
-}
-
-//
-// Get back the layer defined at location l
-//
-public STItemId getLayerAtLocation(loc l, SymbolTable symbolTable) {
-    if (l in domain(symbolTable.itemLocations)) {
-        set[STItemId] layers = { si | si <- symbolTable.itemLocations[l], isLayer(symbolTable.scopeItemMap[si]) };
-        if (size(layers) == 1)
-            return getOneFrom(layers);
-        else if (size(layers) == 0)
-            throw "getLayerAtLocation: Error, trying to retrieve layer item from location <l> with no associated layer.";  		
-        else {
-            throw "getLayerAtLocation: Error, trying to retrieve layer item from location <l> with more than 1 associated layer.";
-        }	
-    } else {
-        throw "getLayerAtLocation: Error, trying to retrieve item from unassociated location <l>.";
-    }
+public ItemId getLayerAtLocation(loc l, STBuilder stBuilder) {
+    set[ItemId] layers = { si | si <- stBuilder.scopeItemMap<0>, isScope(stBuilder.scopeItemMap[si]), TopScope() !:= stBuilder.scopeItemMap[si], stBuilder.scopeItemMap[si].definedAt == l };
+    if (size(layers) == 1)
+        return getOneFrom(layers);
+    else if (size(layers) == 0)
+        throw "getLayerAtLocation: Error, trying to retrieve layer item from location <l> with no associated layer.";  		
+    else {
+        throw "getLayerAtLocation: Error, trying to retrieve layer item from location <l> with more than 1 associated layer.";
+    }	
 }
 
 //
 // Update the item stored at ID idToUpdate
 //
-public SymbolTable updateSTItem(STItem si, STItemId idToUpdate, SymbolTable symbolTable) {
-    return symbolTable[scopeItemMap = symbolTable.scopeItemMap + (idToUpdate : si)];				
+public STBuilder updateItem(Item si, ItemId idToUpdate, STBuilder stBuilder) {
+    return stBuilder[scopeItemMap = stBuilder.scopeItemMap + (idToUpdate : si)];				
 }
 
 //
 // Get the item stored at ID id
 //
-public STItem getSTItem(STItemId id, SymbolTable symbolTable) {
-    return symbolTable.scopeItemMap[id];
+public Item getItem(ItemId id, STBuilder stBuilder) {
+    return stBuilder.scopeItemMap[id];
 }
 	
 //
 // Pretty printers for scope information
 //
-public str prettyPrintSI(SymbolTable st, STItem si) {
-    str prettyPrintSIAux(STItem si) {
+public str prettyPrintSI(STBuilder st, Item si) {
+    str prettyPrintSIAux(Item si) {
         switch(si) {
-            case TopLayer() : return "TopLayer";
-            case ModuleLayer(_,_) : return "ModuleLayer";
-            case FunctionLayer(_,_) : return "FunctionLayer";
-            case PatternMatchLayer(_) : return "PatternMatchLayer";
-            case BooleanExpLayer(_) : return "BooleanExpLayer";
-            case OrLayer(_) : return "OrLayer";
-            case BlockLayer(_) : return "BlockLayer";
-            case ModuleItem(x,_) : return "Module <prettyPrintName(x)>";
-            case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)><ags>";
-            case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)>";
-            case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)>";
-            case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)>";
-            case LabelItem(x,_) : return "Label <prettyPrintName(x)>";
-            case AliasItem(atype,_,_) : return "Alias <prettyPrintType(atype)>";
-            case ConstructorItem(cn,tas,_,_) : 	return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>)";
-            case ADTItem(ut,_,_) : return "ADT <prettyPrintType(ut)>";
-            case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)>";
-            case RuleItem(x,_) : return "Rule <prettyPrintName(x)>";
+            case TopScope() : return "TopScope";
+            case PatternMatchScope(_,_) : return "PatternMatchScope";
+            case BooleanExpScope(_,_) : return "BooleanExpScope";
+            case OrScope(_,_) : return "OrScope";
+            case BlockScope(_,_) : return "BlockScope";
+            case Module(x,_,_) : return "Module <prettyPrintName(x)>";
+            case Function(x,t,ags,_,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)><ags>";
+            case Variable(x,t,_,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)>";
+            case TypeVariable(t,_,_) : return "Type Variable <prettyPrintType(t)>";
+            case FormalParameter(x,t,_,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)>";
+            case Label(x,_,_) : return "Label <prettyPrintName(x)>";
+            case Alias(atype,_,_,_) : return "Alias <prettyPrintType(atype)>";
+            case Constructor(cn,tas,_,_,_) : 	return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>)";
+            case ADT(ut,_,_,_) : return "ADT <prettyPrintType(ut)>";
+            case Annotation(x,atyp,otyp,_,_,_) : return "Annotation <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)>";
+            case Rule(x,_,_) : return "Rule <prettyPrintName(x)>";
+            case Tag(_,_) : return "Tag";
         }
     }
     
     return prettyPrintSIAux(si);
 }
 
-public str prettyPrintSIWLoc(SymbolTable st, STItem si) {
-    str prettyPrintSIWLocAux(STItem si) {
-        if ( (si@at)? ) {
-            switch(si) {
-                case TopLayer() : return "TopLayer defined at <si@at>";
-                case ModuleLayer(_,_) : return "ModuleLayer defined at <si@at>";
-                case FunctionLayer(_,_) : return "FunctionLayer defined at <si@at>";
-                case PatternMatchLayer(_) : return "PatternMatchLayer defined at <si@at>";
-                case BooleanExpLayer(_) : return "BooleanExpLayer defined at <si@at>";
-                case OrLayer(_) : return "OrLayer defined at <si@at>";
-                case BlockLayer(_) : return "BlockLayer defined at <si@at>";
-                case ModuleItem(x,_) : return "Module <prettyPrintName(x)> defined at <si@at>";
-                case FunctionItem(x,t,ags,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<ags>) defined at <si@at>";
-                case VariableItem(x,t,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)> defined at <si@at>";
-                case TypeVariableItem(t,_) : return "Type Variable <prettyPrintType(t)> defined at <si@at>";
-                case FormalParameterItem(x,t,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)> defined at <si@at>";
-                case LabelItem(x,_) : return "Label <prettyPrintName(x)> defined at <si@at>";
-                case AliasItem(atype,_,_) : return "Alias <prettyPrintType(atype)> defined at <si@at>";
-                case ConstructorItem(cn,tas,_,_) :  return "Constructor <prettyPrintName(cn)>(<prettyPrintNamedTypeList(tas)>) defined at <si@at>";
-                case ADTItem(ut,_,_) : return "ADT <prettyPrintType(ut)> defined at <si@at>";
-                case AnnotationItem(x,atyp,otyp,_,_) : return "Annotation <prettyPrintType(atyp)> <prettyPrintType(otyp)>@<prettyPrintName(x)> defined at <si@at>";
-                case RuleItem(x,_) : return "Rule <prettyPrintName(x)> defined at <si@at>";
-            }
-        } else {
-            println(si);
-            return prettyPrintSI(st,si);
-        }
-    }
-    
-    return prettyPrintSIWLocAux(si);
+public str prettyPrintSIWLoc(STBuilder st, Item si) {
+    if (TopScope() := si) return prettyPrintSI(st,si);
+    return prettyPrintSI(st,si) + " defined at <si.definedAt>";
+//    return prettyPrintSI(st,si) + ( TopScope() := si ? "" : " defined at <si.definedAt>" );
 }
 
 //
 // Filter a set of items to only include those in the given namespace
 //
-private set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STItemId] scopeItems, Namespace namespace) {
-    return { i | i <- scopeItems, getName(symbolTable.scopeItemMap[i]) in namespaceItems[namespace] };
+private set[ItemId] filterNamesForNamespace(STBuilder stBuilder, set[ItemId] scopeItems, Namespace namespace) {
+    return { i | i <- scopeItems, getName(stBuilder.scopeItemMap[i]) in namespaceItems[namespace] };
 }
 
 //
@@ -441,13 +279,13 @@ private set[STItemId] filterNamesForNamespace(SymbolTable symbolTable, set[STIte
 //
 // TODO: May want to provide a nicer interface to this...
 //
-public tuple[bool inModule, STItemId moduleId] getSurroundingModule(SymbolTable symbolTable, STItemId currentScopeId) {
-    if (ModuleLayer(_,_) := symbolTable.scopeItemMap[currentScopeId]) {
+public tuple[bool inModule, ItemId moduleId] getSurroundingModule(STBuilder stBuilder, ItemId currentScopeId) {
+    if (Module(_,_,_) := stBuilder.scopeItemMap[currentScopeId]) {
         return < true, currentScopeId >;
-    } else if (TopLayer() := symbolTable.scopeItemMap[currentScopeId]) {
+    } else if (TopScope() := stBuilder.scopeItemMap[currentScopeId]) {
         return < false, -1 >;
     } else {
-        return getSurroundingModule(symbolTable,symbolTable.scopeItemMap[currentScopeId].parentId);
+        return getSurroundingModule(stBuilder,stBuilder.scopeItemMap[currentScopeId].parentId);
     }
 }
 
@@ -456,13 +294,13 @@ public tuple[bool inModule, STItemId moduleId] getSurroundingModule(SymbolTable 
 //
 // TODO: May want to provide a nicer interface to this...
 //
-public tuple[bool inFunction, STItemId functionId] getSurroundingFunction(SymbolTable symbolTable, STItemId currentScopeId) {
-    if (FunctionLayer(_,_) := symbolTable.scopeItemMap[currentScopeId]) {
+public tuple[bool inFunction, ItemId functionId] getSurroundingFunction(STBuilder stBuilder, ItemId currentScopeId) {
+    if (Function(_,_,_,_,_,_,_,_) := stBuilder.scopeItemMap[currentScopeId]) {
         return < true, currentScopeId >;
-    } else if (TopLayer() := symbolTable.scopeItemMap[currentScopeId]) {
+    } else if (TopScope() := stBuilder.scopeItemMap[currentScopeId]) {
         return < false, -1 >;
     } else {
-        return getSurroundingFunction(symbolTable,symbolTable.scopeItemMap[currentScopeId].parentId);
+        return getSurroundingFunction(stBuilder,stBuilder.scopeItemMap[currentScopeId].parentId);
     }
 }
 
@@ -471,14 +309,14 @@ public tuple[bool inFunction, STItemId functionId] getSurroundingFunction(Symbol
 //
 // TODO: May want to provide a nicer interface to this...
 //
-public tuple[bool inFunction, STItemId functionId] getOutermostFunction(SymbolTable symbolTable, STItemId currentScopeId) {
-    <inFunction, functionId> = getSurroundingFunction(symbolTable, currentScopeId);
+public tuple[bool inFunction, ItemId functionId] getOutermostFunction(STBuilder stBuilder, ItemId currentScopeId) {
+    <inFunction, functionId> = getSurroundingFunction(stBuilder, currentScopeId);
     if (inFunction) {
-        <inFunction2,functionId2> = getSurroundingFunction(symbolTable,symbolTable.scopeItemMap[functionId].parentId);
+        <inFunction2,functionId2> = getSurroundingFunction(stBuilder,stBuilder.scopeItemMap[functionId].parentId);
         while(inFunction2) {
             inFunction = inFunction2;
             functionId = functionId2;
-            <inFunction2,functionId2> = getSurroundingFunction(symbolTable,symbolTable.scopeItemMap[functionId].parentId);
+            <inFunction2,functionId2> = getSurroundingFunction(stBuilder,stBuilder.scopeItemMap[functionId].parentId);
         }
     }
     return <inFunction, functionId>;
@@ -488,32 +326,32 @@ public tuple[bool inFunction, STItemId functionId] getOutermostFunction(SymbolTa
 // Get items of name x defined in the the current module or, if no names are found in the module, in
 // the top layer.
 //
-private set[STItemId] getModuleAndTopItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    set[STItemId] foundItems = { };
-    < inModule, moduleId > = getSurroundingModule(symbolTable,currentScopeId);
+private set[ItemId] getModuleAndTopItems(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    set[ItemId] foundItems = { };
+    < inModule, moduleId > = getSurroundingModule(stBuilder,currentScopeId);
     if (inModule)
-        foundItems = filterNamesForNamespace(symbolTable, symbolTable.scopeNames[currentScopeId,x], ns);
+        foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[currentScopeId,x], ns);
     if (size(foundItems) == 0)
-        foundItems = filterNamesForNamespace(symbolTable, symbolTable.scopeNames[symbolTable.topSTItemId,x], ns);
+        foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[last(stBuilder.scopeStack),x], ns);
     return foundItems;    
 }
 
 //
 // The same as above, except this only checks in the current module.
 //
-private set[STItemId] getModuleItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    set[STItemId] foundItems = { };
-    < inModule, moduleId > = getSurroundingModule(symbolTable,currentScopeId);
+private set[ItemId] getModules(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    set[ItemId] foundItems = { };
+    < inModule, moduleId > = getSurroundingModule(stBuilder,currentScopeId);
     if (inModule)
-        foundItems = filterNamesForNamespace(symbolTable, symbolTable.scopeNames[currentScopeId,x], ns);
+        foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[currentScopeId,x], ns);
     return foundItems;    
 }
 
 //
 // The same as above, except this only checks in the top layer.
 //
-private set[STItemId] getTopItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    return filterNamesForNamespace(symbolTable, symbolTable.scopeNames[symbolTable.topSTItemId,x], ns);
+private set[ItemId] getTopItems(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    return filterNamesForNamespace(stBuilder, stBuilder.scopeNames[last(stBuilder.scopeStack),x], ns);
 }
 
 //
@@ -522,11 +360,11 @@ private set[STItemId] getTopItems(SymbolTable symbolTable, STItemId currentScope
 //
 // TODO: Put in logic to stop at the top
 //
-private set[STItemId] getBoundedItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns, STItemId boundingId) {
-    set[STItemId] foundItems = filterNamesForNamespace(symbolTable, symbolTable.scopeNames[currentScopeId,x], ns);
+private set[ItemId] getBoundedItems(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns, ItemId boundingId) {
+    set[ItemId] foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[currentScopeId,x], ns);
     if (size(foundItems) == 0) {
         if (currentScopeId != boundingId) {
-            foundItems = getBoundedItems(symbolTable, symbolTable.scopeItemMap[currentScopeId].parentId, x, ns, boundingId);
+            foundItems = getBoundedItems(stBuilder, stBuilder.scopeItemMap[currentScopeId].parentId, x, ns, boundingId);
         }
     }
     return foundItems;
@@ -536,11 +374,11 @@ private set[STItemId] getBoundedItems(SymbolTable symbolTable, STItemId currentS
 // Get items of name x defined in the current function, starting at the current scope layer and working
 // up to the function layer the current scope is nested within.
 //
-private set[STItemId] getCurrentFunctionItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    set[STItemId] foundItems = { };
-    < inFunction, functionId > = getSurroundingFunction(symbolTable,currentScopeId);
+private set[ItemId] getCurrentFunctions(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    set[ItemId] foundItems = { };
+    < inFunction, functionId > = getSurroundingFunction(stBuilder,currentScopeId);
     if (inFunction) {
-        foundItems = getBoundedItems(symbolTable, currentScopeId, x, ns, functionId);
+        foundItems = getBoundedItems(stBuilder, currentScopeId, x, ns, functionId);
     }
     return foundItems;    
 }
@@ -549,11 +387,11 @@ private set[STItemId] getCurrentFunctionItems(SymbolTable symbolTable, STItemId 
 // Get items of name x defined in the current function, starting at the current scope layer and working
 // up to the outermost function layer the current scope is nested within.
 //
-private set[STItemId] getNestedFunctionItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    set[STItemId] foundItems = { };
-    < inFunction, functionId > = getOutermostFunction(symbolTable,currentScopeId);
+private set[ItemId] getNestedFunctions(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    set[ItemId] foundItems = { };
+    < inFunction, functionId > = getOutermostFunction(stBuilder,currentScopeId);
     if (inFunction) {
-        foundItems = getBoundedItems(symbolTable, currentScopeId, x, ns, functionId);
+        foundItems = getBoundedItems(stBuilder, currentScopeId, x, ns, functionId);
     }
     return foundItems;    
 }
@@ -561,8 +399,8 @@ private set[STItemId] getNestedFunctionItems(SymbolTable symbolTable, STItemId c
 //
 // Get items of name x defined between the current scope and the top.
 //
-private set[STItemId] getAllItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    return getBoundedItems(symbolTable, currentScopeId, x, ns, symbolTable.topSTItemId);
+private set[ItemId] getAllItems(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    return getBoundedItems(stBuilder, currentScopeId, x, ns, last(stBuilder.scopeStack));
 }
 
 //
@@ -571,8 +409,8 @@ private set[STItemId] getAllItems(SymbolTable symbolTable, STItemId currentScope
 //
 // TODO: If we ever support nested modules, this will need to be changed.
 //
-private set[STItemId] getModuleItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getTopItems(symbolTable,currentScopeId,x,Modules());
+private set[ItemId] getModules(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getTopItems(stBuilder,currentScopeId,x,Modules());
 }
 
 //
@@ -581,32 +419,32 @@ private set[STItemId] getModuleItems(SymbolTable symbolTable, STItemId currentSc
 // TODO: What if we are not inside a function, but are instead at the module level when we
 // encounter the label? We probably want to limit scope to just the current statement instead.
 //
-private set[STItemId] getLabelItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getCurrentFunctionItems(symbolTable,currentScopeId,x,Labels());
+private set[ItemId] getLabels(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getCurrentFunctions(stBuilder,currentScopeId,x,Labels());
 }
 
 //
 // Look up names associated with variables, constructors, and functions. Since these names can
 // shadow one another, start the lookup at the current level and continue to the top scope.
 //
-private set[STItemId] getFCVItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getAllItems(symbolTable, currentScopeId, x, FCVs());
+private set[ItemId] getFCVItems(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getAllItems(stBuilder, currentScopeId, x, FCVs());
 }
 
 //
 // The same as above, but only lookup to the top of the current function scope (assuming
 // we are inside a function...)
 //
-private set[STItemId] getFCVItemsForConflicts(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getNestedFunctionItems(symbolTable, currentScopeId, x, FCVs());
+private set[ItemId] getFCVItemsForConflicts(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getNestedFunctions(stBuilder, currentScopeId, x, FCVs());
 }
 
 //
 // Look up names associated with types (aliases, ADTs). These are always visible either in the
 // current module or at the top level (for imported names).
 //
-private set[STItemId] getTypeItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getModuleAndTopItems(symbolTable,currentScopeId,x,Types());
+private set[ItemId] getTypeItems(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getModuleAndTopItems(stBuilder,currentScopeId,x,Types());
 }
 
 //
@@ -616,59 +454,61 @@ private set[STItemId] getTypeItems(SymbolTable symbolTable, STItemId currentScop
 // TODO: What if we are not inside a function, but are instead at the module level when we
 // encounter the label? We probably want to limit scope to just the current statement instead.
 //
-private set[STItemId] getTypeVarItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getNestedFunctionItems(symbolTable,currentScopeId,x,TypeVars());
+private set[ItemId] getTypeVarItems(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getNestedFunctions(stBuilder,currentScopeId,x,TypeVars());
 }
 
 //
 // Look up names associated with annotations. These are always visible either in the
 // current module or at the top level (for imported names).
 //
-private set[STItemId] getAnnotationItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getModuleAndTopItems(symbolTable,currentScopeId,x,Annotations());
+// NOTE: Node defines getAnnotations, so we leave this as getAnnotationItems to make it unique
+//
+private set[ItemId] getAnnotationItems(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getModuleAndTopItems(stBuilder,currentScopeId,x,Annotations());
 }
 
 //
 // Look up names associated with rules. These are always visible either in the
 // current module or at the top level (for imported names).
 //
-private set[STItemId] getRuleItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getModuleAndTopItems(symbolTable,currentScopeId,x,Rules());
+private set[ItemId] getRules(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getModuleAndTopItems(stBuilder,currentScopeId,x,Rules());
 }
 
 //
 // Look up names associated with tags. These are always visible either in the
 // current module or at the top level (for imported names).
 //
-private set[STItemId] getTagItems(SymbolTable symbolTable, STItemId currentScopeId, RName x) {
-    return getModuleAndTopItems(symbolTable,currentScopeId,x,Tags());
+private set[ItemId] getTags(STBuilder stBuilder, ItemId currentScopeId, RName x) {
+    return getModuleAndTopItems(stBuilder,currentScopeId,x,Tags());
 }
 
-private map[Namespace, set[STItemId] (SymbolTable, STItemId, RName)] lookupFunctions = (
-    Modules() : getModuleItems,
-    Labels() : getLabelItems,
+private map[Namespace, set[ItemId] (STBuilder, ItemId, RName)] lookupFunctions = (
+    Modules() : getModules,
+    Labels() : getLabels,
     FCVs() : getFCVItems,
     Types() : getTypeItems,
     TypeVars() : getTypeVarItems,
     Annotations() : getAnnotationItems,
-    Rules() : getRuleItems,
-    Tags() : getTagItems );
+    Rules() : getRules,
+    Tags() : getTags );
 
-private map[Namespace, set[STItemId] (SymbolTable, STItemId, RName)] lookupFunctionsForConflicts = (
-    Modules() : getModuleItems,
-    Labels() : getLabelItems,
+private map[Namespace, set[ItemId] (STBuilder, ItemId, RName)] lookupFunctionsForConflicts = (
+    Modules() : getModules,
+    Labels() : getLabels,
     FCVs() : getFCVItemsForConflicts,
     Types() : getTypeItems,
     TypeVars() : getTypeVarItems,
     Annotations() : getAnnotationItems,
-    Rules() : getRuleItems,
-    Tags() : getTagItems );
+    Rules() : getRules,
+    Tags() : getTags );
     
 //
 // Get back items of a given name from the symbol table. This handles dispatch to the correct
 // lookup function (encoded in the map above), plus it handles lookups in qualified names.
 //
-private set[STItemId] getItemsGeneral(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns, map[Namespace, set[STItemId] (SymbolTable, STItemId, RName)] lookupFuns) {
+private set[ItemId] getItemsGeneral(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns, map[Namespace, set[ItemId] (STBuilder, ItemId, RName)] lookupFuns) {
     // We look up modules by their full name. So, if we aren't looking up modules, and we have a compound
     // name, switch to the correct context, else just do a normal lookup.
     if (Modules() !:= ns && RCompoundName(nl) := x) {
@@ -677,7 +517,7 @@ private set[STItemId] getItemsGeneral(SymbolTable symbolTable, STItemId currentS
 		x = RSimpleName(nl[size(nl)-1]);
 		
 		// Get the module item representing the given module name, it should be in scope.
-		set[STItemId] mods = getModuleItems(symbolTable, currentScopeId, moduleName);
+		set[ItemId] mods = getModules(stBuilder, currentScopeId, moduleName);
 		
 		// If we found the module, do the lookup in that context. It should be the case that
 		// we have just one match; if we do not, then we have an error, which will show up
@@ -686,7 +526,7 @@ private set[STItemId] getItemsGeneral(SymbolTable symbolTable, STItemId currentS
 		// TODO: Once we have parameterized modules working, we need to decide how to do this,
 		// a simple lookup based on the module name may no longer by valid.
 		if (size(mods) == 1) {
-			return getItemsGeneral(symbolTable, symbolTable.scopeItemMap[getOneFrom(mods)].parentId, x, ns, lookupFuns);
+			return getItemsGeneral(stBuilder, stBuilder.scopeItemMap[getOneFrom(mods)].parentId, x, ns, lookupFuns);
 		} else if (size(mods) > 1) {
 			// TODO: Error, should be caught processing imports -- this means multiple modules have the same name
 			// TODO: Throw an exception here!
@@ -698,15 +538,15 @@ private set[STItemId] getItemsGeneral(SymbolTable symbolTable, STItemId currentS
 
 	// We fall through to here IF a) the name is not a qualified name, or b) the name IS a qualified 
 	// name but is the name of a module. Otherwise, it is taken care of above.
-    return (lookupFuns[ns])(symbolTable,currentScopeId,x);
+    return (lookupFuns[ns])(stBuilder,currentScopeId,x);
 }
 
-public set[STItemId] getItems(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    return getItemsGeneral(symbolTable, currentScopeId, x, ns, lookupFunctions);
+public set[ItemId] getItems(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    return getItemsGeneral(stBuilder, currentScopeId, x, ns, lookupFunctions);
 }    
 
-public set[STItemId] getItemsForConflicts(SymbolTable symbolTable, STItemId currentScopeId, RName x, Namespace ns) {
-    return getItemsGeneral(symbolTable, currentScopeId, x, ns, lookupFunctionsForConflicts);
+public set[ItemId] getItemsForConflicts(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
+    return getItemsGeneral(stBuilder, currentScopeId, x, ns, lookupFunctionsForConflicts);
 }    
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -717,238 +557,308 @@ public set[STItemId] getItemsForConflicts(SymbolTable symbolTable, STItemId curr
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 //
-// A word of explanation: the functions that add new items into the scope
-// return a ResultTuple, which includes both the updated symbol table and
-// a list of the items that were added. This allows additional information
-// to be added using these items. Note that the receiver of this information
-// either knows the order in which items are returned (for instance, knows
-// the first is a function layer, the second is the function item, etc) or
-// has to find this out.
+// Add a new item into the symbol table.
 //
-
-alias ResultTuple = tuple[SymbolTable symbolTable, list[STItemId] addedItems];
-
-public ResultTuple pushNewTopScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aipTop = addScopeLayer(TopLayer()[@at=l], l, symbolTable);
-	symbolTable = aipTop.symbolTable[topSTItemId = aipTop.addedId];
-	symbolTable.scopeStack = [ aipTop.addedId ] + symbolTable.scopeStack;
-	symbolTable.currentScope = aipTop.addedId;
-	return <symbolTable,[aipTop.addedId]>; 	
+public AddedItemPair addItem(Item si, ItemId parentId, loc l, STBuilder stBuilder) {
+	return addItem(si, parentId, l, stBuilder, false);
 }
 
-public ResultTuple pushNewModuleScope(RName moduleName, loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayerWithParent(ModuleLayer(-1, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
-	aip.symbolTable.currentScope = aip.addedId;
-	AddedItemPair aip2 = addSTItemWithParent(ModuleItem(moduleName, aip.symbolTable.currentScope)[@at=l], aip.symbolTable.currentScope, l, aip.symbolTable);
-	aip2.symbolTable.scopeItemMap[aip.addedId].itemId = aip2.addedId;
-	return <aip2.symbolTable,[aip.addedId,aip2.addedId]>; 	
+//
+// Add a new item into the symbol table. Also handle marking of uses of items, if desired.
+//
+public AddedItemPair addItem(Item si, ItemId parentId, loc l, STBuilder stBuilder, bool flagUse) {
+    int newItemId = stBuilder.nextScopeId;
+    stBuilder.nextScopeId += 1;
+
+	// insert the new item
+    stBuilder.scopeItemMap = stBuilder.scopeItemMap + (newItemId : si);
+
+	// add it to the symbol table
+    stBuilder.scopeRel = stBuilder.scopeRel + < parentId, newItemId >;
+
+	// add it to the symbol table names relation, if it has a name
+    if (itemHasName(si)) stBuilder.scopeNames = stBuilder.scopeNames + < parentId, getItemName(si), newItemId >;
+
+	// flag this as a use of the item being added
+	// TODO: We should really add this as a use at the location of the name!
+    if (flagUse) 
+    	if (itemHasName(si) && (getItemName(si)@at)?) {
+    		stBuilder = addItemUse(stBuilder, newItemId, getItemName(si)@at);
+    	} else {
+    		stBuilder = addItemUse(stBuilder, newItemId, l);
+    	}
+
+    return < stBuilder, newItemId >;				
 }
 
-public ResultTuple pushNewBooleanScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayerWithParent(BooleanExpLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
-	aip.symbolTable.currentScope = aip.addedId;
-	return <aip.symbolTable,[aip.addedId]>; 	
+//
+// Push an existing item onto the scope stack, setting this to be the current scope
+//
+public STBuilder pushScope(ItemId newScope, STBuilder stBuilder) {
+	return stBuilder[scopeStack = [newScope] + stBuilder.scopeStack];
 }
 
-public ResultTuple pushNewOrScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayerWithParent(OrLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
-	aip.symbolTable.currentScope = aip.addedId;
-	return <aip.symbolTable,[aip.addedId]>; 	
+//
+// Pop the current head of the scope stack, making the new head of the stack the current scope
+//
+public STBuilder popScope(STBuilder stBuilder) {
+	if (size(stBuilder.scopeStack) == 0) throw "popScope: Scope Stack is empty, cannot pop!";
+	return stBuilder[scopeStack = tail(stBuilder.scopeStack)];
 }
 
-public ResultTuple pushNewBlockScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayerWithParent(BlockLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
-	aip.symbolTable.currentScope = aip.addedId;
-	return <aip.symbolTable,[aip.addedId]>; 	
+//
+// Add a new scope into the symbol table and make it the current scope
+//
+public AddedItemPair pushNewScope(Item scopeItem, ItemId parentId, loc l, STBuilder stBuilder) {
+	return pushNewScope(scopeItem, parentId, l, stBuilder, false);
 }
 
-public ResultTuple pushNewPatternMatchScope(loc l, SymbolTable symbolTable) {
-	AddedItemPair aip = addScopeLayerWithParent(PatternMatchLayer(symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-	aip.symbolTable.scopeStack = [ aip.addedId ] + aip.symbolTable.scopeStack;
-	aip.symbolTable.currentScope = aip.addedId;
-	return <aip.symbolTable,[aip.addedId]>; 	
+//
+// Add a new scope into the symbol table and make it the current scope. Also handle marking
+// uses of items, if desired.
+//
+// TODO: Since we now allow the parent Id, the scope stack is not really accurate. But, we don't
+// want to have to completely redo this. Look into whether we need a way to make this accurate,
+// though, instead of just making sure the head and last are accurate (which they still are).
+//
+public AddedItemPair pushNewScope(Item scopeItem, ItemId parentId, loc l, STBuilder stBuilder, bool markUse) {
+	< stBuilder, addedId > = addItem(scopeItem, parentId, l, stBuilder);
+	stBuilder = pushScope(addedId, stBuilder);
+	if (markUse) stBuilder = addItemUse(stBuilder, addedId, l);
+	return < stBuilder, addedId >;
 }
 
-public SymbolTable popScope(SymbolTable symbolTable) {
-	if (size(symbolTable.scopeStack) == 0) throw "popScope: Scope Stack is empty, cannot pop!";
-	symbolTable.scopeStack = tail(symbolTable.scopeStack);
-	symbolTable.currentScope = head(symbolTable.scopeStack);
-	return symbolTable;
+//
+// Add the top scope into the symbol table. This should only be done in an empty symbol
+// table.
+// TODO: Verify that this constraint holds.
+//
+public AddedItemPair pushNewTopScope(STBuilder stBuilder) {
+    int newItemId = stBuilder.nextScopeId;
+    stBuilder.nextScopeId += 1;
+
+    Item item = TopScope();
+    stBuilder.scopeItemMap = stBuilder.scopeItemMap + ( newItemId : item );
+
+	stBuilder = pushScope(newItemId, stBuilder);
+
+	return < stBuilder, newItemId >; 	
 }
 
-public SymbolTable pushScope(STItemId newScope, SymbolTable symbolTable) {
-	symbolTable.scopeStack = [ newScope ] + symbolTable.scopeStack;
-	symbolTable.currentScope = newScope;
-	return symbolTable;
+//
+// Insert a new module scope. The additional code also adds the module name into the scope relation
+// for the current module, since it is visible within itself.
+//
+public AddedItemPair pushNewModuleScope(RName moduleName, loc l, STBuilder stBuilder) {
+	< stBuilder, addedId > = pushNewScope(Module(moduleName, head(stBuilder.scopeStack),l), head(stBuilder.scopeStack), l, stBuilder);
+	stBuilder.scopeNames = stBuilder.scopeNames + < addedId, moduleName, addedId >;
+	return < stBuilder, addedId >;
 }
 
-public ResultTuple pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	// Create the function layer, adding it to the scope stack and making it the current scope
-	AddedItemPair aipLayer = addScopeLayerWithParent(FunctionLayer(-1, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	symbolTable = aipLayer.symbolTable;
-	symbolTable.scopeStack = [ aipLayer.addedId ] + symbolTable.scopeStack;
-	symbolTable.currentScope = aipLayer.addedId;
-    
-    // Add the actual function item associated with the scope layer
-    AddedItemPair aipItem = addSTItemWithParent(FunctionItem(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, symbolTable.currentScope)[@at=l], symbolTable.currentScope, l, symbolTable);
-    aipItem.symbolTable.scopeItemMap[aipLayer.addedId].itemId = aipItem.addedId;
-    if (hasAnonymousName) aipItem.symbolTable.scopeItemMap[aipItem.addedId].functionName = RSimpleName("@ANONYMOUS_FUNCTION_<aipItem.addedId>");
-    
-    return <aipItem.symbolTable,[aipLayer.addedId, aipItem.addedId]>;
+//
+// Insert a new boolean scope, used to enforce scoping of names introduced in boolean expressions.
+//
+public AddedItemPair pushNewBooleanScope(loc l, STBuilder stBuilder) {
+	return pushNewScope(BooleanExpScope(head(stBuilder.scopeStack),l), head(stBuilder.scopeStack), l, stBuilder);
 }
 
-public ResultTuple pushNewFunctionScope(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable) {
-	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, symbolTable, symbolTable.currentScope);
+//
+// Insert a new OR scope, used to enforce the scoping rule for names in || or similar expressions
+// (that rule being that names need to be introduced on all branches to be visible)
+//
+public AddedItemPair pushNewOrScope(loc l, STBuilder stBuilder) {
+	return pushNewScope(OrScope(head(stBuilder.scopeStack),l), head(stBuilder.scopeStack), l, stBuilder);
 }
 
-public ResultTuple pushNewFunctionScopeAtTop(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, SymbolTable symbolTable) {
-	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, symbolTable, symbolTable.topSTItemId);
+//
+// Insert a new block scope
+//
+public AddedItemPair pushNewBlockScope(loc l, STBuilder stBuilder) {
+	return pushNewScope(BlockScope(head(stBuilder.scopeStack),l), head(stBuilder.scopeStack), l, stBuilder);
+}
+
+//
+// Insert a new pattern match scope, used in match operations inside cases, etc
+//
+public AddedItemPair pushNewPatternMatchScope(loc l, STBuilder stBuilder) {
+	return pushNewScope(PatternMatchScope(head(stBuilder.scopeStack),l), head(stBuilder.scopeStack), l, stBuilder);
+}
+
+//
+// Insert a new function scope. Like with the module scope, the function scope adds the function name
+// into the scope for the function itself, since the function name is visible inside the function.
+//
+public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+    if (hasAnonymousName) functionName = RSimpleName("@ANONYMOUS_FUNCTION_<stBuilder.nextScopeId>");
+    < stBuilder, addedId > = pushNewScope(Function(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, scopeToUse, l), scopeToUse, l, stBuilder);
+	stBuilder.scopeNames = stBuilder.scopeNames + < addedId, functionName, addedId >;
+	return < stBuilder, addedId >;
+}
+
+//
+// Insert the function scope inside the current scope
+//
+public AddedItemPair pushNewFunctionScope(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
+	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, stBuilder, head(stBuilder.scopeStack));
+}
+
+//
+// Insert the function scope inside the top scope, used for imported functions
+//
+public AddedItemPair pushNewFunctionScopeAtTop(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
+	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, stBuilder, last(stBuilder.scopeStack));
 } 
 
-public ResultTuple pushNewClosureScope(RType retType, Parameters ps, loc l, SymbolTable symbolTable) {
-    return pushNewFunctionScopeAt(true, RSimpleName(""), retType, ps, [], false, false, l, symbolTable, symbolTable.currentScope);
+//
+// Insert a new closure scope, which is just a function scope for an anonymously-named function
+//
+public AddedItemPair pushNewClosureScope(RType retType, Parameters ps, loc l, STBuilder stBuilder) {
+    return pushNewFunctionScopeAt(true, RSimpleName(""), retType, ps, [], false, false, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple pushNewVoidClosureScope(Parameters ps, loc l, SymbolTable symbolTable) {
-    return pushNewFunctionScopeAt(true, RSimpleName(""), makeVoidType(), ps, [], false, false, l, symbolTable, symbolTable.currentScope);
+//
+// Insert a new void closure scope, which is just a function scope for an anonymously-named function
+//
+public AddedItemPair pushNewVoidClosureScope(Parameters ps, loc l, STBuilder stBuilder) {
+    return pushNewFunctionScopeAt(true, RSimpleName(""), makeVoidType(), ps, [], false, false, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addAliasToScopeAt(RType aliasType, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(AliasItem(aliasType, isPublic, scopeToUse), scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add an alias into the given scope.
+//
+public AddedItemPair addAliasToScopeAt(RType aliasType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(Alias(aliasType, isPublic, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addAliasToScope(RType aliasType, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addAliasToScopeAt(aliasType, isPublic, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addAliasToScope(RType aliasType, bool isPublic, loc l, STBuilder stBuilder) {
+	return addAliasToScopeAt(aliasType, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addAliasToTopScope(RType aliasType, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addAliasToScopeAt(aliasType, isPublic, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addAliasToTopScope(RType aliasType, bool isPublic, loc l, STBuilder stBuilder) {
+	return addAliasToScopeAt(aliasType, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-public ResultTuple addVariableToScopeAt(RName varName, RType varType, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(VariableItem(varName, varType, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add a variable into the given scope.
+//
+public AddedItemPair addVariableToScopeAt(RName varName, RType varType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(Variable(varName, varType, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addVariableToScope(RName varName, RType varType, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addVariableToScopeAt(varName, varType, isPublic, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addVariableToScope(RName varName, RType varType, bool isPublic, loc l, STBuilder stBuilder) {
+	return addVariableToScopeAt(varName, varType, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addVariableToTopScope(RName varName, RType varType, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addVariableToScopeAt(varName, varType, isPublic, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addVariableToTopScope(RName varName, RType varType, bool isPublic, loc l, STBuilder stBuilder) {
+	return addVariableToScopeAt(varName, varType, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-public ResultTuple addTypeVariableToScopeAt(RType varType, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(TypeVariableItem(varType, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add a type variable into the given scope.
+//
+public AddedItemPair addTypeVariableToScopeAt(RType varType, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(TypeVariable(varType, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addTypeVariableToScope(RType varType, loc l, SymbolTable symbolTable) {
-	return addTypeVariableToScopeAt(varType, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addTypeVariableToScope(RType varType, loc l, STBuilder stBuilder) {
+	return addTypeVariableToScopeAt(varType, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addTypeVariableToTopScope(RType varType, loc l, SymbolTable symbolTable) {
-	return addTypeVariableToScopeAt(varType, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addTypeVariableToTopScope(RType varType, loc l, STBuilder stBuilder) {
+	return addTypeVariableToScopeAt(varType, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-public ResultTuple addADTToScopeAt(RType adtName, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(ADTItem(adtName, isPublic, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
-	return <symbolTable, []>;
+//
+// Add an ADT into the given scope.
+//
+public AddedItemPair addADTToScopeAt(RType adtName, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(ADT(adtName, isPublic, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addADTToScope(RType adtName, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addADTToScopeAt(adtName, isPublic, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addADTToScope(RType adtName, bool isPublic, loc l, STBuilder stBuilder) {
+	return addADTToScopeAt(adtName, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addADTToTopScope(RType adtName, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addADTToScopeAt(adtName, isPublic, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addADTToTopScope(RType adtName, bool isPublic, loc l, STBuilder stBuilder) {
+	return addADTToScopeAt(adtName, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-// TODO: Need to get ADT that goes with the adtType and associate this constructor with it, as well as adding this constructor
-// ID to the list maintained as part of the ADT.
-public ResultTuple addConstructorToScopeAt(RName constructorName, list[RNamedType] constructorArgs, STItemId adtItem, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(ConstructorItem(constructorName, constructorArgs, adtItem, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add a constructor into the given scope.
+//
+public AddedItemPair addConstructorToScopeAt(RName constructorName, list[RNamedType] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(Constructor(constructorName, constructorArgs, adtItem, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addConstructorToScope(RName constructorName, list[RNamedType] constructorArgs, STItemId adtItem, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addConstructorToScope(RName constructorName, list[RNamedType] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder) {
+	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addConstructorToTopScope(RName constructorName, list[RNamedType] constructorArgs, STItemId adtItem, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addConstructorToTopScope(RName constructorName, list[RNamedType] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder) {
+	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-public ResultTuple addAnnotationToScopeAt(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(AnnotationItem(annotationName, annotationType, onType, isPublic, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add an annotation into the given scope
+//
+public AddedItemPair addAnnotationToScopeAt(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(Annotation(annotationName, annotationType, onType, isPublic, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addAnnotationToScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addAnnotationToScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, STBuilder stBuilder) {
+	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addAnnotationToTopScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, SymbolTable symbolTable) {
-	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addAnnotationToTopScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, STBuilder stBuilder) {
+	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-public ResultTuple addRuleToScopeAt(RName ruleName, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(RuleItem(ruleName, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add a rule into the given scope
+//
+public AddedItemPair addRuleToScopeAt(RName ruleName, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(Rule(ruleName, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addRuleToScope(RName ruleName, loc l, SymbolTable symbolTable) {
-	return addRuleToScopeAt(ruleName, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addRuleToScope(RName ruleName, loc l, STBuilder stBuilder) {
+	return addRuleToScopeAt(ruleName, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addRuleToTopScope(RName ruleName, loc l, SymbolTable symbolTable) {
-	return addRuleToScopeAt(ruleName, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addRuleToTopScope(RName ruleName, loc l, STBuilder stBuilder) {
+	return addRuleToScopeAt(ruleName, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-public ResultTuple addLabelToScopeAt(RName labelName, loc l, SymbolTable symbolTable, STItemId scopeToUse) {
-	AddedItemPair aip = addSTItemWithParent(LabelItem(labelName, scopeToUse)[@at=l], scopeToUse, l, symbolTable);
-	return <aip.symbolTable,[aip.addedId]>;
+//
+// Add a label into the given scope.
+//
+public AddedItemPair addLabelToScopeAt(RName labelName, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+	return addItem(Label(labelName, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public ResultTuple addLabelToScope(RName labelName, loc l, SymbolTable symbolTable) {
-	return addLabelToScopeAt(labelName, l, symbolTable, symbolTable.currentScope);
+public AddedItemPair addLabelToScope(RName labelName, loc l, STBuilder stBuilder) {
+	return addLabelToScopeAt(labelName, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public ResultTuple addLabelToTopScope(RName labelName, loc l, SymbolTable symbolTable) {
-    return addLabelToScopeAt(labelName, l, symbolTable, symbolTable.topSTItemId);
+public AddedItemPair addLabelToTopScope(RName labelName, loc l, STBuilder stBuilder) {
+    return addLabelToScopeAt(labelName, l, stBuilder, last(stBuilder.scopeStack));
 }
 
-// Projectors/combinators to work with result tuples
-public SymbolTable justSymbolTable(ResultTuple result) {
-	return result.symbolTable;
+//
+// Indicate if the current scope is a boolean scope or an or scope -- used to prevent us from adding
+// additional layers of scoping where they are not needed.
+// 
+public bool inBoolLayer(STBuilder stBuilder) {
+	return (BooleanExpScope(_,_) := stBuilder.scopeItemMap[head(stBuilder.scopeStack)] || OrScope(_,_) := stBuilder.scopeItemMap[head(stBuilder.scopeStack)]);
 }
 
-public ResultTuple setCurrentModule(ResultTuple result) {
-    SymbolTable symbolTable = result.symbolTable;
-	symbolTable.currentModule = result.addedItems[0];
-	return <symbolTable, result.addedItems>;
+//
+// Indicate which function is being returned from by the return statement at location l
+//
+public STBuilder markReturnFunction(ItemId id, loc l, STBuilder stBuilder) {
+    return stBuilder[returnMap = stBuilder.returnMap + ( l : id )];
 }
 
-public ResultTuple addSTItemUses(ResultTuple result, list[tuple[bool flagUse, loc useloc]] useLocs) {
-	SymbolTable symbolTable = result.symbolTable;
-	for (n <- [0..size(useLocs)-1]) if (useLocs[n].flagUse) symbolTable = addItemUse(symbolTable, result.addedItems[n], useLocs[n].useloc);
-	return <symbolTable, result.addedItems>;
-}
-
-public bool inBoolLayer(SymbolTable symbolTable) {
-	if (BooleanExpLayer(_) := symbolTable.scopeItemMap[symbolTable.currentScope] || OrLayer(_) := symbolTable.scopeItemMap[symbolTable.currentScope])
-		return true;
-	return false;
-}
-
-
-
-public SymbolTable markReturnFunction(STItemId id, loc l, SymbolTable symbolTable) {
-    return symbolTable[returnMap = symbolTable.returnMap + ( l : id )];
-}
+//
+// Just return the symbol table when we don't care about the ID in the pair
+//
+public STBuilder justSTBuilder(aip) = aip[0];
