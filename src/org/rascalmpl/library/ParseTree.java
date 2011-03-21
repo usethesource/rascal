@@ -33,6 +33,8 @@ public class ParseTree {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
+		
+		
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(startSort, input.getURI());
 
