@@ -9,7 +9,7 @@ public final class Ambiguous extends AssertionError {
 	private static final long serialVersionUID = -8740312542969306482L;
 
 	public Ambiguous(IConstructor tree) {
-		super("Unexpected ambiguity: " + getValueString(tree));
+		super("Unexpected ambiguity at " + tree.getAnnotation("loc") + ": " + getValueString(tree));
 	}
 
 	private static String getValueString(IConstructor tree) {
