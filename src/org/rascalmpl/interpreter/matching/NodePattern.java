@@ -153,7 +153,7 @@ public class NodePattern extends AbstractMatchingResult {
 		// The following decision code decides whether it is worth it and safe to call initMatch on the tuple matcher.
 		Type patternType = getConstructorType(ctx.getCurrentEnvt());
 		Type subjectType = subject.getType();
-		if (patternType.comparable(subjectType)) {
+		if (patternType.getAbstractDataType().comparable(subjectType)) {
 			tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			hasNext = tuple.hasNext;
 		}
