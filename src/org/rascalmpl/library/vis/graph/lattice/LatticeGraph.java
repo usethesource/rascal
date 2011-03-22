@@ -11,12 +11,16 @@ import java.util.Random;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * 
@@ -31,7 +35,7 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 public class LatticeGraph extends Figure implements
 		Comparator<LatticeGraph.Organism> {
 	private final int E = 10;
-	private final int G = 30;
+	private final int G = 20;
 	protected ArrayList<LatticeGraphNode> nodes;
 	protected ArrayList<LatticeGraphEdge> edges;
 	private HashMap<String, LatticeGraphNode> registered;
@@ -40,10 +44,16 @@ public class LatticeGraph extends Figure implements
 	IEvaluatorContext ctx;
 	ArrayList<LatticeGraphNode>[] layers;
 	final int border = 20;
+	final int lmargin = 0;
+	final TypeStore ts = new TypeStore();
+	final TypeFactory tf = TypeFactory.getInstance();
+	final Type propt, shapeCurved;
 
 	private final int E2 = E * E;
 
 	final private Random rand = new Random();
+
+	final LinSolve linSolve = new LinSolve();
 
 	// private static boolean debug = false;
 	private LatticeGraphNode topNode = null, bottomNode = null;
@@ -55,6 +65,13 @@ public class LatticeGraph extends Figure implements
 
 		final float fitness;
 
+		final int cut;
+
+		private float fitnessDefinition() {
+			set();
+			return -LatticeGraph.this.Z();
+		}
+
 		Organism() {
 			int i = 0;
 			for (ArrayList<LatticeGraphNode> ns : layers) {
@@ -64,20 +81,39 @@ public class LatticeGraph extends Figure implements
 			}
 			init();
 			mutate(20);
-			set();
-			fitness = -LatticeGraph.this.Z();
+			cut = -1;
+			fitness = fitnessDefinition();
 		}
 
 		private void mutate(int p) {
 			final int r = rand.nextInt(x.length);
-			final int n = x[r].length;
+			mutate(r, p);
+		}
+
+		private boolean isTriggered(float x, float step) {
+			float d = Math.abs((x - lmargin) / step);
+			if (d - Math.floor(d) < 0.001)
+				return false;
+			return true;
+		}
+
+		private void mutate(int cut, int p) {
+			final int n = x[cut].length;
+			// final float step = width / (n + 1);
 			for (int i = 0; i < p; i++)
 				if (n > 0) {
-					int k = rand.nextInt(n);
-					float s = x[r][k];
+					int m = rand.nextInt(n * 4);
+					int k = m / 4;
+					float s = x[cut][k];
 					final int l = rand.nextInt(n);
-					x[r][k] = x[r][l];
-					x[r][l] = s;
+					x[cut][k] = x[cut][l];
+					x[cut][l] = s;
+					/*
+					 * if (m%4==1 || m%4==3) { if (isTriggered(x[cut][k], step))
+					 * x[cut][k]-=step/2; else x[cut][k]+=step/2; } if (m%4==2
+					 * || m%4==3) { if (isTriggered(x[cut][l], step))
+					 * x[cut][l]-=step/2; else x[cut][l]+=step/2; }
+					 */
 				}
 		}
 
@@ -90,9 +126,10 @@ public class LatticeGraph extends Figure implements
 				for (int j = 0; j < o.x[i].length; j++) {
 					x[i][j] = o.x[i][j];
 				}
-			mutate(1);
-			set();
-			fitness = -LatticeGraph.this.Z();
+			this.cut = o.cut;
+			mutate(cut, 2);
+			// System.err.println("After mutate");
+			fitness = fitnessDefinition();
 		}
 
 		Organism(Organism o1, Organism o2) {
@@ -100,8 +137,7 @@ public class LatticeGraph extends Figure implements
 				x[i] = new float[o1.x[i].length];
 				aux[i] = new float[x[i].length];
 			}
-			final int cut = o1.x.length > 3 ? 1 + rand.nextInt(o1.x.length - 2)
-					: 0;
+			cut = o1.x.length > 3 ? 1 + rand.nextInt(o1.x.length - 2) : 0;
 			for (int i = 0; i < cut; i++)
 				for (int j = 0; j < o1.x[i].length; j++) {
 					x[i][j] = o1.x[i][j];
@@ -110,11 +146,7 @@ public class LatticeGraph extends Figure implements
 				for (int j = 0; j < o2.x[i].length; j++) {
 					x[i][j] = o2.x[i][j];
 				}
-			set();
-			// fitness = LatticeGraph.this.Y() - LatticeGraph.this.C();
-			fitness = -LatticeGraph.this.Z();
-			// System.err.println("New organism fitness:" + fitness+
-			// " "+o1.fitness+" "+o2.fitness);
+			fitness = fitnessDefinition();
 		}
 
 		private void init() {
@@ -146,11 +178,6 @@ public class LatticeGraph extends Figure implements
 			}
 		}
 
-		/*
-		 * float C() { set(); float r = LatticeGraph.this.C(); reset(); return
-		 * r; }
-		 */
-
 	}
 
 	Organism[] elitePopulation;
@@ -162,22 +189,21 @@ public class LatticeGraph extends Figure implements
 		super(fpa, properties);
 		this.nodes = new ArrayList<LatticeGraphNode>();
 		this.ctx = ctx;
+		propt = tf.abstractDataType(ts, "propt");
+		shapeCurved = tf.constructor(ts, propt, "shapeCurved", tf.boolType());
 		width = getWidthProperty();
 		height = getHeightProperty();
 		if (debug)
-			System.err.println("LatticaGraph");
+			System.err.println("LatticeGraph");
 		registered = new HashMap<String, LatticeGraphNode>();
 		for (IValue v : nodes) {
-
 			IConstructor c = (IConstructor) v;
 			Figure ve = FigureFactory.make(fpa, c, properties, ctx);
 			String name = ve.getIdProperty();
-
 			if (name.length() == 0)
 				throw RuntimeExceptionFactory.figureException(
 						"Id property should be defined", v,
 						ctx.getCurrentAST(), ctx.getStackTrace());
-
 			LatticeGraphNode node = new LatticeGraphNode(name, ve);
 			this.nodes.add(node);
 			register(name, node);
@@ -202,6 +228,15 @@ public class LatticeGraph extends Figure implements
 		initialPlacement();
 		elitePopulation = computeFirstElitePopulation();
 		evolution();
+		for (LatticeGraphNode n : this.nodes)
+			for (LatticeGraphEdge e : this.edges)
+				if (!e.getFrom().equals(n) && !e.getTo().equals(n))
+					if (linSolve.isOnEdge(e, n)) {
+						// System.err.println("BINGO");
+						IPropertyManager ep = new PropertyManager(fpa,
+								properties, vf.list(vf.constructor(shapeCurved, vf.bool(true))), ctx);
+						e.properties = ep;
+					}
 	}
 
 	public void register(String name, LatticeGraphNode nd) {
@@ -212,7 +247,7 @@ public class LatticeGraph extends Figure implements
 		return registered.get(name);
 	}
 
-	public void initialPlacement() {
+	private void initialPlacement() {
 		int i = 0;
 		for (ArrayList<LatticeGraphNode> layer : layers) {
 			int s = layer.size();
@@ -221,11 +256,13 @@ public class LatticeGraph extends Figure implements
 				float step = width / (s + 1);
 				// System.err.println("width:"+width);
 				// System.err.println("step:"+step);
-				float x = i % 2 == 0 ? step / 2 : (width - step / 2);
+				// float x = i % 2 == 0 ? step / 2 : (width - step / 2);
+				float x = lmargin + step;
 				for (LatticeGraphNode n : layer) {
 					// n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));
 					n.x = x;
-					x += (i % 2 == 0 ? step : -step);
+					// x += (i % 2 == 0 ? step : -step);
+					x += step;
 					n.y = border + (n.rank * (height - 2 * border))
 							/ layers.length;
 					// System.err.println("y:"+n.y);
@@ -276,20 +313,21 @@ public class LatticeGraph extends Figure implements
 			elitePopulation = nextPopulation(elitePopulation);
 		}
 		Arrays.sort(elitePopulation, this);
-		System.err.println("NextPopulation Fitness:"
+		System.err.println("After evolution Fitness:"
 				+ +elitePopulation[0].fitness);
 		elitePopulation[0].set();
 	}
 
 	@Override
 	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
-		System.err.println("mousePressed:" + this.getClass() + " "
-				+ nodes.size());
+//		System.err.println("mousePressed:" + this.getClass() + " "
+//				+ nodes.size());
 		for (LatticeGraphNode n : nodes) {
 			if (n.mousePressed(mousex, mousey, e))
 				return true;
 		}
 		evolution();
+
 		return false;
 		// return super.mousePressed(mousex, mousey, e);
 	}
@@ -385,7 +423,7 @@ public class LatticeGraph extends Figure implements
 			layers[i] = new ArrayList<LatticeGraphNode>();
 		for (LatticeGraphNode n : nodes) {
 			// n.rank = n.rankTop - n.rankBottom + maxBottom;
-			n.rank = n.rankBottom - n.rankTop + maxTop;
+			n.rank = (n.rankBottom - n.rankTop + maxTop);
 			layers[n.rank].add(n);
 		}
 	}
@@ -425,14 +463,13 @@ public class LatticeGraph extends Figure implements
 
 	private float Y() {
 		float r = 0;
-		int i = 0;
+		// int i = 0;
 		for (ArrayList<LatticeGraphNode> ns : layers) {
 			for (LatticeGraphNode n : ns)
 				for (LatticeGraphNode m : ns)
 					if (!m.equals(n)) {
 						final float k = (n.x - m.x) * (n.x - m.x);
-						r += (k < 10 ? -10000000 : 0);
-						i++;
+						r += k;
 					}
 		}
 		return r;
@@ -444,7 +481,7 @@ public class LatticeGraph extends Figure implements
 		for (LatticeGraphEdge e1 : edges)
 			for (LatticeGraphEdge e2 : edges)
 				if (!e1.equals(e2)) {
-					boolean b = new LinSolve(e1, e2).isInside();
+					boolean b = linSolve.isCuttingPointInside(e1, e2);
 					if (b)
 						r++;
 					else
@@ -466,12 +503,12 @@ public class LatticeGraph extends Figure implements
 			for (int j = 0; j < E; j++) {
 				result[i * E + j] = organism[j];
 			}
-//			System.err.println("Start Fitness:" + organism[0].fitness + " i="
-//					+ i);
+			// System.err.println("Start Fitness:" + organism[0].fitness + " i="
+			// + i);
 		}
 		Arrays.sort(result, this);
 		result[0].set();
-		System.err.println("Init Fitness:" + result[0].fitness);
+		System.err.println("Initial Fitness:" + result[0].fitness);
 		return result;
 	}
 
