@@ -69,14 +69,13 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					return makeResult(nont, child, ctx);
 				}
 			}
-
-			if (Factory.Tree_Appl.hasField(name)) {
-				return makeResult(Factory.Tree_Appl.getFieldType(name), tree.get(name), ctx);
-			}
-
-			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		throw new UnsupportedOperationError("field access", ctx.getCurrentAST());
+		
+		if (tree.getConstructorType().hasField(name)) {
+			return makeResult(tree.getConstructorType().getFieldType(name), tree.get(name), ctx);
+		}
+		
+		throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	@Override
