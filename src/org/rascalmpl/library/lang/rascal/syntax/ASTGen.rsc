@@ -1,6 +1,6 @@
 module lang::rascal::syntax::ASTGen
 
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Parameters;
 import ParseTree;
 

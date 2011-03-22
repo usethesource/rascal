@@ -7,7 +7,7 @@
 @bootstrapParser
 module lang::rascal::syntax::Definition
      
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::RascalRascal;
 import List; 
 import String;    

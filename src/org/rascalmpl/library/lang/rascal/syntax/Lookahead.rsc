@@ -1,6 +1,6 @@
 module lang::rascal::syntax::Lookahead
   
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Regular;
 import lang::rascal::syntax::Characters;
 import lang::rascal::syntax::Normalization;

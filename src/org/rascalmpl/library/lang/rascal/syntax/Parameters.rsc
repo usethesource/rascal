@@ -3,7 +3,7 @@
 }
 module lang::rascal::syntax::Parameters
 
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Normalization; // this module assumes normalized grammars
 import ParseTree;
 import List;

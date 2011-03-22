@@ -1,6 +1,6 @@
 module lang::rascal::syntax::Actions
 
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Generator;
 import ParseTree;
 

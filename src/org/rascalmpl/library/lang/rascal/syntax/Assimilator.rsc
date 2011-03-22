@@ -8,7 +8,7 @@ import ValueIO;
 import List;
 import IO;
 import ParseTree;
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Definition;
 import lang::rascal::syntax::Normalization;
 import lang::rascal::syntax::Escape;
