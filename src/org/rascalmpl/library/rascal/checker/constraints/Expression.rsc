@@ -817,8 +817,6 @@ public ConstraintBase gatherSetAnnotationExpressionConstraints(STBuilder st, Con
 //
 // NOTE: map composition does not maintain field names. Is this intentional?
 //
-// TODO: Convert over to use constraints
-//
 public ConstraintBase gatherCompositionExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
     <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
     Constraint c1 = TreeIsType(el, el@\loc, t1);

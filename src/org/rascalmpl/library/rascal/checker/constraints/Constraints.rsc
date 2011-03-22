@@ -189,7 +189,7 @@ public RBuiltInOp opForAOp(RAssignmentOp a) {
 // Failure:         Constrains a tree type to be a failure type, allows explicit indication of errors, versus
 //                  just inferring them from a failed unification
 //
-// DefinedBy:       Constraints the given type to that specified by the given scope ids
+// DefinedBy:       Constrains the given type to that specified by the given scope ids
 //
 data Constraint =
       TreeIsType(Tree t, loc at, RType treeType)
@@ -259,13 +259,15 @@ data RType =
     | SetProjection(RType resType)
     | CaseType(RType replacementPattern, RType caseType)
     | DefaultCaseType(RType caseType)
-    | AssignableType(Tree assignablePattern)
+    | AssignableType(RType assignableType)
     | TypeWithName(RNamedType typeWithName)
     | SpliceableElement(RType rt)
     | ReplacementType(Tree pattern, RType replacementType)
-    | NoReplacementType(Tree pattern, RType resultType)
+    | NoReplacementType(Tree pattern)
     ;
-    
+
+public RType makeAssignableType(RType rt) = AssignableType(rt);
+
 public tuple[ConstraintBase,list[RType]] makeFreshTypes(ConstraintBase cs, int n) {
     list[RType] ftlist = [InferenceVar(c) | c <- [cs.freshCounter .. (cs.freshCounter+n-1)] ];
     cs.freshCounter = cs.freshCounter + n;
