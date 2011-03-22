@@ -46,9 +46,9 @@ public class StaticChecker {
 	}
 
 	public synchronized void load() {
-//		eval("import rascal::checker::Check;");
-//		eval("import rascal::checker::Import;");
-		eval("import rascal::scoping::ResolveNames;");
+//		eval("import lang::rascal::checker::Check;");
+//		eval("import lang::rascal::checker::Import;");
+		eval("import lang::rascal::scoping::ResolveNames;");
 		loaded = true;
 	}
 

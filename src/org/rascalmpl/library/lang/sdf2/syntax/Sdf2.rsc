@@ -48,8 +48,8 @@ syntax Class = SimpleCharClass: "[" OptRanges "]" |
                    Bracket: "(" Class ")" |
                    Comp: "~" Class >
                    Diff: Class "/" Class >
-                   ISect: Class "/\\" Class >
-                   Union: Class "\\/" Class
+                   left ISect: Class "/\\" Class >
+                   left Union: Class "\\/" Class
                    ;
 
 syntax Range = Character |
@@ -180,7 +180,7 @@ syntax FunctionName = UnquotedFun: IdCon |
                       QuotedFun: StrCon
                       ;
 
-syntax SingleQuotedStrCon = lex Default: [\'] SingleQuotedStrChar [\']
+syntax SingleQuotedStrCon = lex Default: [\'] SingleQuotedStrChar* [\']
                             ;
 
 syntax SingleQuotedStrChar = lex NewLine: [\\] [n] | // "\\n"
@@ -255,15 +255,18 @@ syntax ImpSection = Imports: "imports" Imports
 syntax Definition = Module*
                     ;
 
-syntax Lookahead = Class: Class |
-                   Seq: Class "." Lookaheads
-                   ;
-
-syntax Lookaheads = Single: Lookahead |
-                    right Alt: Lookaheads "|" Lookaheads |
-                    Bracket: "(" Lookaheads ")" |
-                    List: "[[" {Lookahead ","}* "]]"
-                    ;
+syntax Lookahead 
+ = Class: Class class
+ | Seq: Class class "." Lookaheads las { println("action!"); if (las is Alt) fail; } 
+ ;
+ 
+// [a-z] . [0-9] | [\"]
+syntax Lookaheads 
+  = Single: Lookahead 
+  | right Alt: Lookaheads "|" Lookaheads 
+  | Bracket: "(" Lookaheads ")" 
+  | List: "[[" {Lookahead ","}* "]]"
+  ;
 
 syntax Restriction = Follow: Syms "-/-" Lookaheads
                      ;

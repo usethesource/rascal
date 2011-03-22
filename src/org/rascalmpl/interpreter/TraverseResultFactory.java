@@ -20,15 +20,15 @@ public final class TraverseResultFactory {
 	}
 	
 	public static final TraverseResult makeTraverseResult(IValue value){
-		if(free){
+		if (free) {
 			free = false;
 			tr.matched = false;
 			tr.value = value;
 			tr.changed = false;
 			return tr;
 		}
-		
-		throw new ImplementationError("TraverseResultFactory");
+		return new TraverseResult(value);
+//		throw new ImplementationError("TraverseResultFactory");
 	}
 
 	public static final TraverseResult makeTraverseResult(IValue value, boolean changed){
@@ -39,8 +39,8 @@ public final class TraverseResultFactory {
 			tr.changed = changed;
 			return tr;
 		}
-		
-		throw new ImplementationError("TraverseResultFactory");
+		return new TraverseResult(value, changed);
+//		throw new ImplementationError("TraverseResultFactory");
 	}
 	
 	public static final TraverseResult makeTraverseResult(boolean someMatch, IValue value, boolean changed){
@@ -51,13 +51,14 @@ public final class TraverseResultFactory {
 			tr.changed = changed;
 			return tr;
 		}
-		
-		throw new ImplementationError("TraverseResultFactory");
+		return new TraverseResult(someMatch, value, changed);
+//		throw new ImplementationError("TraverseResultFactory");
 	}
 	
 	public static final void freeTraverseResult(TraverseResult tr){
-		if(free)
+		if (free) {
 			throw new ImplementationError("TraverseResultFactory");
+		}
 		free = true;
 	}
 

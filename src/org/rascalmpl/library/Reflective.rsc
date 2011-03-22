@@ -1,7 +1,7 @@
 module Reflective
 
 import ParseTree;
-import rascal::syntax::Grammar;
+import lang::rascal::syntax::Grammar;
 
 @javaClass{org.rascalmpl.library.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given path}

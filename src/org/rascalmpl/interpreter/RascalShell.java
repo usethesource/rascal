@@ -231,7 +231,7 @@ public class RascalShell {
 		PrintWriter stdout = new PrintWriter(System.out);
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
-		evaluator.doImport("rascal::doc::ToLatex");
+		evaluator.doImport("lang::rascal::doc::ToLatex");
 		File file = new File(fileName);
 		String name = file.getName();
 		int pos = name.lastIndexOf('.');
