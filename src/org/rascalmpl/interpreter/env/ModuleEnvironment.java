@@ -50,6 +50,7 @@ public class ModuleEnvironment extends Environment {
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
 	protected List<Test> tests;
 	private boolean initialized;
+	private boolean syntaxDefined;
 	private boolean bootstrap;
 	private String cachedParser;
 	
@@ -65,6 +66,7 @@ public class ModuleEnvironment extends Environment {
 		this.typeStore = new TypeStore();
 		this.tests = new LinkedList<Test>();
 		this.initialized = false;
+		this.syntaxDefined = false;
 		this.bootstrap = false;
 	}
 	
@@ -77,6 +79,7 @@ public class ModuleEnvironment extends Environment {
 		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
+		this.syntaxDefined = false;
 		this.bootstrap = false;
 	}
 	
@@ -85,6 +88,13 @@ public class ModuleEnvironment extends Environment {
 		return heap;
 	}
 	
+	public boolean isSyntaxDefined() {
+		return syntaxDefined;
+	}
+	
+	public void setSyntaxDefined(boolean val) {
+		this.syntaxDefined = val;
+	}
 	
 	@Override
 	public void declareProduction(Syntax x) {

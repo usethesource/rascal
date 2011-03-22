@@ -1031,6 +1031,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		// take care of imports and declare syntax
+		env.setSyntaxDefined(false);
 		preModule.declareSyntax(this, true);
 
 		ISet prods = env.getProductions();
