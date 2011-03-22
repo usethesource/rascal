@@ -80,6 +80,7 @@ public set[Production] \layouts(set[Production] prods, str layoutName) {
 
 public list[Symbol] str2syms(str x) {
   // TODO: escaping?
+  if (x == "") return [];
   return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
 }
 

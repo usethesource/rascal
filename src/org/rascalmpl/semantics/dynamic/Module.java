@@ -34,19 +34,23 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 				heap.addModule(env);
 			}
 
-			env.setBootstrap(eval.needBootstrapParser(this));
-			env.setCachedParser(eval.getCachedParser(this));
-			Environment oldEnv = eval.getCurrentEnvt();
-			eval.setCurrentEnvt(env); 
+			if (!env.isSyntaxDefined()) {
+				env.setBootstrap(eval.needBootstrapParser(this));
+				env.setCachedParser(eval.getCachedParser(this));
+				Environment oldEnv = eval.getCurrentEnvt();
+				eval.setCurrentEnvt(env); 
+				env.setSyntaxDefined(true);
 
-			try {
-				this.getHeader().declareSyntax(eval, withImports);
-			}
-			catch (RuntimeException e) {
-				throw e;
-			}
-			finally {
-				eval.setCurrentEnvt(oldEnv);
+				try {
+					this.getHeader().declareSyntax(eval, withImports);
+				}
+				catch (RuntimeException e) {
+					env.setSyntaxDefined(false);
+					throw e;
+				}
+				finally {
+					eval.setCurrentEnvt(oldEnv);
+				}
 			}
 
 			return Names.fullName(getHeader().getName());

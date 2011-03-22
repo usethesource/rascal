@@ -13,6 +13,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.values.uptr.Factory;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
@@ -35,6 +36,12 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			String name = eval.getUnescapedModuleName(this);
 
+			ModuleEnvironment env = eval.getHeap().getModule(name);
+			if (env != null && env.isSyntaxDefined()) {
+				// so modules that have been initialized already dont get parsed again and again
+				return name;
+			}
+			
 			org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
 			if (withImports) {
 				mod.declareSyntax(eval, false);
@@ -59,17 +66,25 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				// deal with a fresh module that needs initialization
 				heap.addModule(new ModuleEnvironment(name, heap));
 			}
-			org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
-			eval.addImportToCurrentModule(this, name);
-			if (withImports) {
-				Environment old = eval.getCurrentEnvt();
-				try {
-					eval.setCurrentEnvt(heap.getModule(name));
-					mod.declareSyntax(eval, false);
+
+			try {
+				org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
+				
+				eval.addImportToCurrentModule(this, name);
+				if (withImports) {
+					Environment old = eval.getCurrentEnvt();
+					try {
+						eval.setCurrentEnvt(heap.getModule(name));
+						mod.declareSyntax(eval, false);
+					}
+					finally {
+						eval.setCurrentEnvt(old);
+					}
 				}
-				finally {
-					eval.setCurrentEnvt(old);
-				}
+			}
+			catch (ModuleLoadError e) {
+				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
+				return null;
 			}
 
 			return null;
