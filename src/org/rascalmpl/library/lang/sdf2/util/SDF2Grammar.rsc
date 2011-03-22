@@ -11,10 +11,10 @@ import IO;
 import String;
 import Integer;
 import ParseTree;
-import rascal::syntax::Grammar;
+import lang::rascal::syntax::Grammar;
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
-      
+       
 private bool debug = false; // Print debug output
 
 public Grammar sdf2grammar(loc input) {
@@ -32,38 +32,36 @@ public Grammar sdf2grammar(SDF definition) {
                  getProductions(definition) 
                  + {prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())});
 }
-  
+   
 test sdf2grammar(
         `definition 
          module X
          exports
            context-free syntax
-              "abc" -> ABC`) ==
-         grammar({},{prod([lit("abc")],sort("ABC"),\no-attrs())});
+              "abc" -> ABC`).rules[sort("ABC")] ==
+         prod([lit("abc")],sort("ABC"),\no-attrs());
 
-test sdf2grammar(
+test rs := sdf2grammar(
 		`definition
 		 module PICOID
          exports
            lexical syntax
              [a-z] [a-z0-9]* -> PICO-ID  
            lexical restrictions
-             PICO-ID -/- [a-z0-9]`) == 
-                  
-		grammar({}, {
-				prod([\char-class([range(97,122)]),\iter-star(\char-class([range(97,122),range(48,57)]))],sort("PICO-ID"),attrs([term("lexical")])),
-				restrict(sort("PICO-ID"),others(sort("PICO-ID")),{[\char-class([range(97,122),range(48,57)])]})
-		});
-
-test sdf2grammar(
+             PICO-ID -/- [a-z0-9]`).rules 
+     && prod([\char-class([range(97,122)]),\iter-star(\char-class([range(97,122),range(48,57)]))],sort("PICO-ID"),attrs([\lex()])) in rs[sort("PICO-ID")]          
+     && restrict(sort("PICO-ID"),others(sort("PICO-ID")),{prod([\char-class([range(48,57),range(97,122)])],restricted(sort("PICO-ID")),\no-attrs())}) in rs[sort("PICO-ID")]              
+     ;
+     
+test rs := sdf2grammar(
 		`definition
 		 module StrChar
          exports
            lexical syntax
              ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}`)
-          == 
-          grammar({},{prod([complement(\char-class([range(0,25),range(10,10),range(9,9),range(34,34),range(92,92)]))],sort("StrChar"),attrs([term(cons("normal")),term("lexical")]))});
-
+     && prod([\char-class([range(26,33),range(35,91),range(93,65535)])],sort("StrChar"),attrs([\lex()])) in rs[sort("StrChar")]
+     ;
+     
 public set[Production] getProductions(SDF definition) {
  res = {};
  visit (definition) {
@@ -98,13 +96,13 @@ public set[Production] getProductions(SDF definition) {
 }
 
 test getProductions((SDF) `definition module A exports syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),attrs([term("lexical")]))};
+     {prod([sort("A")],sort("B"),attrs([\lex()]))};
      
 test getProductions((SDF) `definition module A exports lexical syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),attrs([term("lexical")]))};
+     {prod([sort("A")],sort("B"),attrs([\lex()]))};
      
 test getProductions((SDF) `definition module A exports lexical syntax A -> B B -> C`) ==
-     {prod([sort("B")],sort("C"),attrs([term("lexical")])),prod([sort("A")],sort("B"),attrs([term("lexical")]))};
+     {prod([sort("B")],sort("C"),attrs([\lex()])),prod([sort("A")],sort("B"),attrs([\lex()]))};
      
 test getProductions((SDF) `definition module A exports context-free syntax A -> B`) ==
      {prod([sort("A")],sort("B"),\no-attrs())};
@@ -130,13 +128,13 @@ Production fixParameters(Production input) {
 public Production getProduction(Prod P, bool isLex) {
   switch (P) {
     case (Prod) `<Syms syms> -> <Sym sym>`:
-    	return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
+    	return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([\lex()]))
     	               : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
-    
-    case (Prod) `<Syms syms> -> <Sym sym> <Attributes ats>` :
+      
+    case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` :
  		if(attrs([list[Attr] a]) := getAttributes(ats)) {
  		    newSym = getSymbol(sym, isLex);
-    		result = (isLex) ? prod(getSymbols(syms, isLex),newSym, \attrs([a, \term("lexical")]))
+    		result = (isLex) ? prod(getSymbols(syms, isLex),newSym, \attrs([a, \lex()]))
     	               	     : prod(getSymbols(syms, isLex),newSym, \attrs([a]));
     	    
     	    if (\reject() in a) {
@@ -145,7 +143,7 @@ public Production getProduction(Prod P, bool isLex) {
  		    return result;
     	}
     	else {
-    		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([term("lexical")]))
+    		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([\lex()]))
     	               	   : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
     	}
     	
@@ -170,7 +168,7 @@ test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, false) ==
      prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs());
      
 test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
-     prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([term("lexical")]));
+     prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([\lex()]));
 
 test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, false) ==
      prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
@@ -178,7 +176,7 @@ test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, fa
                attrs([term(cons("decl")),\assoc(left())]));
                
 test getProduction((Prod) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term(cons("whitespace")),term("lexical")]));
+	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term(cons("whitespace")),\lex()]));
 
 test getProduction((Prod) `{~[\n]* [\n]}* -> Rest`, true);
 
@@ -209,12 +207,12 @@ public set[Production] getRestriction(Restriction restriction, bool isLex) {
 test getRestriction((Restriction) `-/- [a-z]`, true) == {};
 
 test getRestriction((Restriction) `ID -/- [a-z]`, true) == 
-     {restrict(sort("ID"),others(sort("ID")),{[\char-class([range(97,122)])]})};
+     {restrict(sort("ID"),others(sort("ID")),{prod([\char-class([range(97,122)])],restricted(sort("ID")),\no-attrs())})};
    
 
 // ----- getLookaheads, getLookahead -----
 
-public set[Production] getLookaheads(Sym sym, Lookaheads ls) {
+public set[Production] getLookaheads(Symbol sym, Lookaheads ls) {
    switch (ls) {
      case (Lookaheads) `<Class c>` :
      	return {prod([getCharClass(c)],restricted(sym),\no-attrs())};
@@ -224,7 +222,7 @@ public set[Production] getLookaheads(Sym sym, Lookaheads ls) {
      case (Lookaheads) `<Lookaheads l> | <Lookaheads r>` :
      	return getLookaheads(sym,l) + getLookaheads(sym,r);
      	
-     case (Lookaheads) `(<Lookaheads(l)>)` :
+     case (Lookaheads) `(<Lookaheads l>)` :
      	return getLookaheads(sym,l);
      	
      case (Lookaheads) `[[<{Lookahead ","}* _>]]`:
@@ -234,18 +232,15 @@ public set[Production] getLookaheads(Sym sym, Lookaheads ls) {
    }
 }
  
-test getLookaheads((Lookaheads) `[a-z]`) == 
-     {[\char-class([range(97,122)])]};
+test getLookaheads(sort("X"), (Lookaheads) `[a-z]`) == 
+     {prod([\char-class([range(97,122)])],restricted(sort("X")),\no-attrs())};
      
-//test getLookaheads((Lookaheads) `[a-z] . [0-9]`) ==
-//     {[\char-class([range(97,122)]),\char-class([range(48,57)])]};
+test getLookaheads(sort("X"), (Lookaheads) `[a-z] . [0-9]`) ==
+     {prod([\char-class([range(97,122)]),\char-class([range(48,57)])],restricted(sort("X")),\no-attrs())};
+       
+test getLookaheads(sort("X"), (Lookaheads) `([a-z] . [0-9]) | [\"]`) ==
+     {[\char-class([range(97,122)]),\char-class([range(48,57)])],[\char-class([range(34,34)])]};
      
-//test getLookaheads((Lookaheads) `[a-z] . [0-9] | [\"]`) ==
-//     {[\char-class([range(97,122)]),\char-class([range(48,57)])],[\char-class([range(34,34)])]};
-     
-//test getLookaheads((Lookaheads) `([a-z])`) == 
-//     {[\char-class([range(97,122)])]};
-
 // ----- getPriorities, getPriority -----
 
 public set[Production] getPriorities({Priority ","}* priorities, bool isLex) {
@@ -330,9 +325,9 @@ test getPriority((Priority) `A -> B > C -> D > E -> F`, false) ==
 public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
   // Note that this might not work if there are different right-hand sides in the group...
   // I don't know what to do about this yet.
-  if (/(Prod) `<Sym* _> -> <Sym s> <Attributes _>` := v) {
+  if (/(Prod) `<Sym* _> -> <Sym s> <Attrs _>` := v) {
     return getSymbol(s, isLex);
-  } else if (/(Prod) `<Sym* _> -> LAYOUT <Attributes _>` := v) {
+  } else if (/(Prod) `<Sym* _> -> LAYOUT <Attrs _>` := v) {
     return sort("LAYOUT");
   }
   throw "could not find a defined symbol in <v>";
@@ -371,7 +366,7 @@ public list[Symbol] getSymbols(Syms syms, bool isLex){
   return [];
 }
 
-//test getSymbols((Sym*) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
+test getSymbols((Syms) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
      
 
 public Symbol getSymbol(Sym sym, bool isLex) {
@@ -478,7 +473,7 @@ test getSymbol((Sym) `"abc"`, false) 		== lit("abc");
 test getSymbol((Sym) `"a\\c"`, false) 		== lit("a\\c");
 test getSymbol((Sym) `"a>c"`, false) 		== lit("a\>c");
 test getSymbol((Sym) `ABC`, false) 			== sort("ABC");
-//test getSymbol((Sym) `'abc'`, false) 		== cilit("abc");
+test getSymbol((Sym) `'abc'`, false) 		== cilit("abc");
 test getSymbol((Sym) `abc : ABC`, false) 	== label("abc",sort("ABC"));
 test getSymbol((Sym) `"abc" : ABC`, false) 	== label("abc",sort("ABC"));
 test getSymbol((Sym) `A[[B]]`, false) 		== \parameterized-sort("A", [sort("B")]);
@@ -539,10 +534,10 @@ test unescape((StrCon) `"a\"c"`) 	== "a\"c";
 test unescape((StrCon) `"a\\c"`) 	== "a\\c";
 test unescape((StrCon) `"a\\\"c"`)	== "a\\\"c";
 
-//test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
-//test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
-//test unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
-//test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
+test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
+test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
+test unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
+test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
 
 // unescapeStr: do the actual unescaping on a string
 // Also takes care of escaping of < and > characters as required for Rascal strings (TO DO/CHECK)
@@ -561,10 +556,8 @@ public str unescapeStr(str chars){
        case /^\\EOF/         => "\256"
        case /^\\BOT/         => "\0"
        case /^\\LABEL_START/ => "\257"
-       
        case /^\</			 => "\<"
        case /^\>/			 => "\>"
-       
      };      
 }
 
@@ -662,12 +655,12 @@ test getCharacter((Character) `\n`)   == 10;
 // ----- getAttributes, getAttribute, getAssociativity -----
 
 public Attributes getAttributes(Attrs as) {
-  if ((Attrs) `{ <{Attribute ","}* mods> }` := as) {
-	  return attrs([getAttribute(m) | Attribute m <- mods]);
+  if ((Attrs) `{ <{Attr ","}+ mods> }` := as) {
+	  return attrs([getAttribute(m) | Attr m <- mods]);
   }
   return \no-attrs();
 }
-
+   
 test getAttributes((Attrs) `{left, cons("decl")}`) == attrs([\assoc(\left()),term(cons("decl"))]);
 
 public Attr getAttribute(Attr m) {
@@ -703,8 +696,8 @@ public Attr getAttribute(Attr m) {
   }
 }
 
-test getAttribute((Attribute) `left`)        == \assoc(left());
-test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
+test getAttribute((Attr) `left`)        == \assoc(\left());
+test getAttribute((Attr) `cons("abc")`) == term("cons"("abc"));
  
 private Associativity getAssociativity(Assoc as){
   switch (as) {

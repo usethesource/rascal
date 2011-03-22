@@ -34,10 +34,10 @@ public class ParserGenerator {
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		this.vf = factory;
 		this.out = out;
-		evaluator.doImport("rascal::syntax::Generator");
-		evaluator.doImport("rascal::syntax::Normalization");
-		evaluator.doImport("rascal::syntax::Definition");
-		evaluator.doImport("rascal::syntax::Assimilator");
+		evaluator.doImport("lang::rascal::syntax::Generator");
+		evaluator.doImport("lang::rascal::syntax::Normalization");
+		evaluator.doImport("lang::rascal::syntax::Definition");
+		evaluator.doImport("lang::rascal::syntax::Assimilator");
 	}
 	
 	/**

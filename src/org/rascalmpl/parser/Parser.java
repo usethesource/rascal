@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.library.rascal.syntax.RascalRascal;
+import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 
 public class Parser  {
