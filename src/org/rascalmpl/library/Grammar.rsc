@@ -5,7 +5,7 @@
   productions. Where there is interaction between productions, usually to define disambiguation filters, the Production
   type is extended with combinators.
 }
-module lang::rascal::syntax::Grammar
+module Grammar
 
 import ParseTree;
 import Set;

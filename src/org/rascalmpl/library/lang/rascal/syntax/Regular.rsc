@@ -1,6 +1,6 @@
 module lang::rascal::syntax::Regular
 
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import ParseTree;
 import Set;
 import IO;

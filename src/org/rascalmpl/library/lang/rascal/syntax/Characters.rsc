@@ -6,7 +6,7 @@
 module lang::rascal::syntax::Characters
 
 import ParseTree;
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import List;
 
 public data CharRange = \empty-range();    

@@ -11,7 +11,7 @@ import IO;
 import String;
 import Integer;
 import ParseTree;
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
        

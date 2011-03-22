@@ -1,9 +1,9 @@
 @bootstrapParser
 module lang::rascal::syntax::Bootstrap
 
-import lang::rascal::syntax::Grammar2Rascal;
+import Grammar2Rascal;
 import lang::rascal::syntax::Definition;
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Generator;
 import lang::rascal::syntax::RascalRascal; 
 import lang::rascal::syntax::ASTGen;

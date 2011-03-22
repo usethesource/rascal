@@ -3,7 +3,7 @@ module Ambiguity
 import ParseTree;
 import IO;
 import ValueIO;
-import lang::rascal::syntax::Grammar2Rascal;
+import Grammar2Rascal;
 
 public void report(str amb) {
   report(readTextValueString(#Tree, amb));

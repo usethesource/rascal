@@ -1,6 +1,6 @@
 module lang::rascal::syntax::Generator
 
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Parameters;
 import lang::rascal::syntax::Regular;
 import lang::rascal::syntax::Normalization;

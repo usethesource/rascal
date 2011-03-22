@@ -6,7 +6,7 @@
 }
 module lang::rascal::syntax::Normalization
 
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Characters;
 import List;
 import String;

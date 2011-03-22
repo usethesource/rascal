@@ -1,4 +1,4 @@
-module lang::rascal::syntax::Grammar2Rascal
+module Grammar2Rascal
 
 // Convert the Rascal internal grammar representation format (Grammar) to 
 // a syntax definition in Rascal source code
@@ -14,7 +14,7 @@ module lang::rascal::syntax::Grammar2Rascal
 // - Manually paste output to /org/rascalmpl/library/rascal/conversion/grammar/Rascal.rsc
 
 import ParseTree;
-import lang::rascal::syntax::Grammar;
+import Grammar;
 import lang::rascal::syntax::Characters;
 import lang::rascal::syntax::Escape;
 import IO;
