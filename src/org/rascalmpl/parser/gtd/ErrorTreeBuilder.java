@@ -241,7 +241,7 @@ public class ErrorTreeBuilder{
 		throw new RuntimeException("Unknown type of production: "+prod);
 	}
 	
-	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
+	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractContainerNode> filteredNodes){
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
@@ -270,7 +270,19 @@ public class ErrorTreeBuilder{
 		
 		while(!filteredNodes.isEmpty()){
 			AbstractStackNode filteredNode = filteredNodes.peekFirst();
-			AbstractNode resultStore = filteredNodes.popSecond();
+			AbstractContainerNode resultStore = filteredNodes.popSecond();
+			
+			int startLocation = filteredNode.getStartLocation();
+			
+			// Carry over the necessary result stores.
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(startLocation);
+			if(levelResultStoreMap == null){
+				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
+				errorResultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
+			}
+			String nodeName = filteredNode.getName();
+			int resultStoreId = parser.getResultStoreId(filteredNode.getId());
+			levelResultStoreMap.put(nodeName, resultStoreId, resultStore);
 			
 			errorNodes.push(filteredNode, resultStore);
 		}

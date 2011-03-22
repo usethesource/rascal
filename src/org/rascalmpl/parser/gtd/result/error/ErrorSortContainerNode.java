@@ -86,7 +86,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		throw new UnsupportedOperationException("This type of node can only build error trees.");
 	}
-
+	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		if(depth <= cycleMark.depth){
 			cycleMark.reset();
