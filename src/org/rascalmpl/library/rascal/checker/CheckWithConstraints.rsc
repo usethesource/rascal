@@ -36,6 +36,7 @@ import rascal::checker::constraints::Visit;
 import rascal::checker::constraints::Case;
 import rascal::checker::constraints::StringTemplate;
 import rascal::checker::constraints::Catch;
+import rascal::checker::constraints::Assignable;
 
 import rascal::syntax::RascalRascal;
 
@@ -165,6 +166,8 @@ public ConstraintBase gatherConstraints(STBuilder st, Tree t) {
         case `<StringTemplate s>` : cb = gatherStringTemplateConstraints(st,cb,s);
         
         case `<Catch c>` : cb = gatherCatchConstraints(st,cb,c);
+        
+        case `<Assignable a>` : cb = gatherAssignableConstraints(st,cb,a);
         
 //        case `<Toplevel t>` : {
 //            if (size(cb.constraints) > 0) {
