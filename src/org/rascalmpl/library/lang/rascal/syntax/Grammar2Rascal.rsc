@@ -1,4 +1,4 @@
-module Grammar2Rascal
+module lang::rascal::syntax::Grammar2Rascal
 
 // Convert the Rascal internal grammar representation format (Grammar) to 
 // a syntax definition in Rascal source code
