@@ -60,7 +60,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	private final Stack<AbstractStackNode> stacksToExpand;
 	private Stack<AbstractStackNode> stacksWithTerminalsToReduce;
-	private final DoubleStack<AbstractStackNode, AbstractNode> stacksWithNonTerminalsToReduce;
+	private final DoubleStack<AbstractStackNode, AbstractContainerNode> stacksWithNonTerminalsToReduce;
 	
 	private final ArrayList<AbstractStackNode[]> lastExpects;
 	private final HashMap<String, ArrayList<AbstractStackNode>> cachedEdgesForExpect;
@@ -88,7 +88,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
-	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
+	private final DoubleStack<AbstractStackNode, AbstractContainerNode> filteredNodes;
 	
 	public SGTDBF(){
 		super();
@@ -96,7 +96,7 @@ public abstract class SGTDBF implements IGTD{
 		positionStore = new PositionStore();
 		
 		stacksToExpand = new Stack<AbstractStackNode>();
-		stacksWithNonTerminalsToReduce = new DoubleStack<AbstractStackNode, AbstractNode>();
+		stacksWithNonTerminalsToReduce = new DoubleStack<AbstractStackNode, AbstractContainerNode>();
 		
 		lastExpects = new ArrayList<AbstractStackNode[]>();
 		cachedEdgesForExpect = new HashMap<String, ArrayList<AbstractStackNode>>();
@@ -118,7 +118,7 @@ public abstract class SGTDBF implements IGTD{
 		
 		unexpandableNodes = new Stack<AbstractStackNode>();
 		unmatchableNodes = new Stack<AbstractStackNode>();
-		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
+		filteredNodes = new DoubleStack<AbstractStackNode, AbstractContainerNode>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -753,7 +753,7 @@ public abstract class SGTDBF implements IGTD{
 		move(terminal, terminal.getResult());
 	}
 	
-	private void reduceNonTerminal(AbstractStackNode nonTerminal, AbstractNode result){
+	private void reduceNonTerminal(AbstractStackNode nonTerminal, AbstractContainerNode result){
 		// Filtering
 		if(nonTerminal.isReductionFiltered(input, location)){
 			filteredNodes.push(nonTerminal, result);
