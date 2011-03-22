@@ -152,8 +152,11 @@ public class NodePattern extends AbstractMatchingResult {
 		// We should only call initMatch if the node types line up, otherwise the tuple matcher might throw a "static error" exception.
 		// The following decision code decides whether it is worth it and safe to call initMatch on the tuple matcher.
 		Type patternType = getConstructorType(ctx.getCurrentEnvt());
+		if (patternType.isConstructorType()) {
+			patternType = patternType.getAbstractDataType();
+		}
 		Type subjectType = subject.getType();
-		if (patternType.getAbstractDataType().comparable(subjectType)) {
+		if (patternType.comparable(subjectType)) {
 			tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			hasNext = tuple.hasNext;
 		}
