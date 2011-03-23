@@ -20,6 +20,7 @@ public map[str,str] mathLiterals = (
 		"\<=": 		"\\leq",
 		"\<-": 		"\\leftarrow",
 		"in": 		"\\in",
+		"notin": 	"\\not\\in",
 		"*": 		"\\times",
 		"&": 		"\\cap",
 		"&&": 		"\\wedge",
@@ -29,11 +30,12 @@ public map[str,str] mathLiterals = (
 		"all": 		"\\forall",
 		"==": 		"\\equiv",
 		"!=": 		"\\neq",
-		"==\>": 	"\\Rightarrow",
+		"==\>": 	"\\Longrightarrow",
 		"\<=\>": 	"\\Leftrightarrow",
-		"=\>": 		"\\mapsto",
-		":=": 		"\\cong",
-		"!:=": 		"\\not\\cong"
+		"=\>": 		"\\Rightarrow",
+		"!:=":		"\\neg{}:="
+//		":=": 		"\\cong",
+//		"!:=": 		"\\not\\cong"
 
 );
 
@@ -47,14 +49,24 @@ public str rascalDoc2Latex(str s, loc l) {
 
 
 private str rascalToLatex(str snip, loc l) {
-	pt = annotateSpecials(parseCommand(snip, l));
-	pt = annotateMathOps(pt, mathLiterals);
-	return highlight2latex(highlight(pt));
+	try {
+		println("parsing `<snip>`");
+		pt = parseCommands(snip, l);
+		println("Annotating specials...");
+		pt = annotateSpecials(pt);
+		println("Annotating math ops...");
+		pt = annotateMathOps(pt, mathLiterals);
+		return highlight2latex(highlight(pt));
+	}
+	catch value x: {
+		println("Exception <x>");
+		return "\\begin{verbatim}PARSE ERROR <snip>\\end{verbatim}";
+	}
 }
 
 
+// TODO: do something with margins in strings
 private Tree annotateSpecials(Tree pt) {
-	println("Annotating specials...");
 	return top-down-break visit (pt) {
 		
 		// tuples
