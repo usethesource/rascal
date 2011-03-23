@@ -5,9 +5,58 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 public class BinaryClassLoader extends ClassLoader {
+	private final List<ClassLoader> parents;
 
+	public BinaryClassLoader(List<ClassLoader> parents) {
+		this.parents = parents;
+	}
+
+	@Override
+	protected synchronized Class<?> loadClass(String name, boolean resolve)
+			throws ClassNotFoundException {
+		for (ClassLoader loader : parents) {
+			try {
+				return loader.loadClass(name);
+			}
+			catch (ClassNotFoundException e) {
+				// continue
+			}
+		}
+		
+		throw new ClassNotFoundException(name);
+	}
+	
+	@Override
+	public synchronized Class<?> loadClass(String name) throws ClassNotFoundException {
+		for (ClassLoader loader : parents) {
+			try {
+				return loader.loadClass(name);
+			}
+			catch (ClassNotFoundException e) {
+				// continue
+			}
+		}
+		
+		throw new ClassNotFoundException(name);
+	}
+	
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		for (ClassLoader loader : parents) {
+			try {
+				return loader.loadClass(name);
+			}
+			catch (ClassNotFoundException e) {
+				// continue
+			}
+		}
+		
+		throw new ClassNotFoundException(name);
+	}
+	
 	public Class<?> defineClass(URI classLocation) throws IOException{
 		byte[] classBytes = getBytesFromFile(classLocation);
 		return defineClass(null,classBytes,0,classBytes.length);
