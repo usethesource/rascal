@@ -330,7 +330,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return either null if its a void function, or the return value of the
 	 *         function.
 	 */
-	public IValue call(String name, IValue... args) {
+	public synchronized IValue call(String name, IValue... args) {
 		QualifiedName qualifiedName = org.rascalmpl.interpreter.utils.Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) this.getCurrentEnvt().getVariable(qualifiedName);
 
@@ -352,7 +352,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * Parse an object string using the imported SDF modules from the current
 	 * context.
 	 */
-	public IConstructor parseObject(IConstructor startSort, URI input) {
+	public synchronized IConstructor parseObject(IConstructor startSort, URI input) {
 		try {
 			System.err.println("Generating a parser");
 			IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(input));
@@ -373,7 +373,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public IConstructor parseObject(IConstructor startSort, String input) {
+	public synchronized IConstructor parseObject(IConstructor startSort, String input) {
 		URI inputURI = java.net.URI.create("file://-");
 		IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(inputURI));
 		String name = "";
@@ -389,7 +389,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return parser.parse(name, inputURI, input, exec);
 	}
 	
-	public IConstructor parseObject(IConstructor startSort, String input, ISourceLocation loc) {
+	public synchronized IConstructor parseObject(IConstructor startSort, String input, ISourceLocation loc) {
 		IGTD parser = this.getObjectParser(loc);
 		String name = "";
 		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
@@ -545,7 +545,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param stat
 	 * @return
 	 */
-	public Result<IValue> eval(Statement stat) {
+	public synchronized Result<IValue> eval(Statement stat) {
 		this.__setInterrupt(false);
 		try {
 			if (Evaluator.doProfiling) {
@@ -579,7 +579,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param expr
 	 * @return
 	 */
-	public Result<IValue> eval(Expression expr) {
+	public synchronized Result<IValue> eval(Expression expr) {
 		this.__setInterrupt(false);
 		this.currentAST = expr;
 		if (Evaluator.doProfiling) {
@@ -610,7 +610,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param command
 	 * @return
 	 */
-	public Result<IValue> eval(String command, URI location) {
+	public synchronized Result<IValue> eval(String command, URI location) {
 		this.__setInterrupt(false);
 		IConstructor tree;
 
@@ -631,7 +631,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return this.eval(stat);
 	}
 
-	public IConstructor parseCommand(String command, URI location) {
+	public synchronized IConstructor parseCommand(String command, URI location) {
 		this.__setInterrupt(false);
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
 
@@ -643,7 +643,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return rp.parse("start__$Command", location, command, actionExecutor);
 	}
 
-	public Result<IValue> eval(Command command) {
+	public synchronized Result<IValue> eval(Command command) {
 		this.__setInterrupt(false);
 		if (Evaluator.doProfiling) {
 			this.profiler = new Profiler(this);
@@ -668,7 +668,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param declaration
 	 * @return
 	 */
-	public Result<IValue> eval(Declaration declaration) {
+	public synchronized Result<IValue> eval(Declaration declaration) {
 		this.__setInterrupt(false);
 		this.currentAST = declaration;
 		Result<IValue> r = declaration.interpret(this);
@@ -685,7 +685,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param imp
 	 * @return
 	 */
-	public Result<IValue> eval(Import imp) {
+	public synchronized Result<IValue> eval(Import imp) {
 		this.__setInterrupt(false);
 		this.currentAST = imp;
 		Result<IValue> r = imp.interpret(this);
@@ -696,11 +696,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new ImplementationError("Not yet implemented: " + imp.getTree());
 	}
 
-	public void doImport(String string) {
-		this.eval("import " + string + ";", java.net.URI.create("import:///"));
+	public synchronized void doImport(String string) {
+		eval("import " + string + ";", java.net.URI.create("import:///"));
 	}
 
-	public void reloadModules(Set<String> names, URI errorLocation) {
+	public synchronized void reloadModules(Set<String> names, URI errorLocation) {
 		Set<String> onHeap = new HashSet<String>();
 		
 		for (String mod : names) {
@@ -959,7 +959,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * use Rascal to implement Rascal. Parsing a module currently has the side
 	 * effect of declaring non-terminal types in the given environment.
 	 */
-	public IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException {
+	public synchronized IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException {
 		char[] data;
 
 		InputStream inputStream = null;
@@ -1012,7 +1012,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 	}
 	
-	public IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
+	public synchronized IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
 		this.__setInterrupt(false);
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
 
@@ -1046,7 +1046,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public IConstructor parseModuleWithErrorTree(char[] data, URI location, ModuleEnvironment env) {
+	public synchronized IConstructor parseModuleWithErrorTree(char[] data, URI location, ModuleEnvironment env) {
 		this.__setInterrupt(false);
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
 
@@ -1168,7 +1168,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
 	
-	public Module evalRascalModule(AbstractAST x, String name) {
+	public synchronized Module evalRascalModule(AbstractAST x, String name) {
 		ModuleEnvironment env = this.__getHeap().getModule(name);
 		if (env == null) {
 			env = new ModuleEnvironment(name, this.__getHeap());
