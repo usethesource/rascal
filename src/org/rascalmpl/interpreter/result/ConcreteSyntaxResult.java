@@ -227,5 +227,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 
 		return bool(false, ctx);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addString(StringResult that) {
+		// Note the reverse concat.
+		return (Result<U>) new ConcatStringResult(getType(), that, 
+				new StringResult(that.getType(),ctx.getValueFactory().string(TreeAdapter.yield(getValue())), ctx), ctx);
+	}
 
 }
