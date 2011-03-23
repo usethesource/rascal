@@ -13,16 +13,12 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RunClassFile {
-	
-	
-	
 	public RunClassFile(IValueFactory values) {
 		super();
 	}
 	
 	private Class<?> getClass(ISourceLocation path, IEvaluatorContext ctx,BinaryClassLoader load){
 		try {
-			
 			URI input = ctx.getResolverRegistry().getResourceURI(path.getURI());
 			Class<?> c = load.defineClass(input);
 			return c;
@@ -33,7 +29,7 @@ public class RunClassFile {
 	
 	public void runClassFile(ISourceLocation path, IList dependencies, IEvaluatorContext ctx){
 		try {
-			BinaryClassLoader load = new BinaryClassLoader();
+			BinaryClassLoader load = new BinaryClassLoader(ctx.getEvaluator().getClassLoaders());
 			for(IValue elem : dependencies){
 				getClass((ISourceLocation) elem,ctx,load);
 			}
