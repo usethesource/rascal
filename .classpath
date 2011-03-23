@@ -3,15 +3,11 @@
 	<classpathentry excluding="**/jhotdraw/*" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry exported="true" kind="lib" path="lib/jline-0.9.94.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/junit-4.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/core.jar" sourcepath="/home/paulk/software/source/processing-source"/>
-	<classpathentry kind="lib" path="lib/treemap.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
-	<classpathentry kind="lib" path="lib/trilead.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-continuation-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-http-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-io-7.1.5.v20100705.jar"/>
@@ -22,12 +18,12 @@
 	<classpathentry kind="lib" path="lib/jetty-webapp-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-xml-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/mail.jar"/>
 	<classpathentry kind="lib" path="lib/asm-all-3.3.jar"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="src"/>
 </classpath>
