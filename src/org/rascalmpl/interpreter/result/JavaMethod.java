@@ -48,54 +48,56 @@ public class JavaMethod extends NamedFunction {
 
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
-		Type actualTypesTuple;
-		Type formals = getFormals();
-		Object[] oActuals;
-		
-		if (hasVarArgs) {
-			oActuals = computeVarArgsActuals(actuals, formals);
-		}
-		else {
-			oActuals = actuals;
-		}
-		
-		if (hasReflectiveAccess) {
-			oActuals = addCtxActual(oActuals);
-		}
-		
-		if (callTracing) {
-			printStartTrace();
-		}
-
-		Environment old = ctx.getCurrentEnvt();
-		
-		try {
-			ctx.pushEnv();
-	
-			IValue result = invoke(oActuals);
+		synchronized (ctx.getEvaluator()) {
+			Type actualTypesTuple;
+			Type formals = getFormals();
+			Object[] oActuals;
 
 			if (hasVarArgs) {
-				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
+				oActuals = computeVarArgsActuals(actuals, formals);
 			}
 			else {
-				actualTypesTuple = TF.tupleType(actualTypes);
+				oActuals = actuals;
 			}
 
-			Environment env = ctx.getCurrentEnvt();
-			bindTypeParameters(actualTypesTuple, formals, env); 
-			Type resultType = getReturnType().instantiate(env.getTypeBindings());
-			return ResultFactory.makeResult(resultType, result, eval);
-		}
-		catch (Throw t) {
-			t.setTrace(ctx.getStackTrace());
-			t.setLocation(ctx.getCurrentAST().getLocation());
-			throw t;
-		}
-		finally {
-			if (callTracing) {
-				printEndTrace();
+			if (hasReflectiveAccess) {
+				oActuals = addCtxActual(oActuals);
 			}
-			ctx.unwind(old);
+
+			if (callTracing) {
+				printStartTrace();
+			}
+
+			Environment old = ctx.getCurrentEnvt();
+
+			try {
+				ctx.pushEnv();
+
+				IValue result = invoke(oActuals);
+
+				if (hasVarArgs) {
+					actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
+				}
+				else {
+					actualTypesTuple = TF.tupleType(actualTypes);
+				}
+
+				Environment env = ctx.getCurrentEnvt();
+				bindTypeParameters(actualTypesTuple, formals, env); 
+				Type resultType = getReturnType().instantiate(env.getTypeBindings());
+				return ResultFactory.makeResult(resultType, result, eval);
+			}
+			catch (Throw t) {
+				t.setTrace(ctx.getStackTrace());
+				t.setLocation(ctx.getCurrentAST().getLocation());
+				throw t;
+			}
+			finally {
+				if (callTracing) {
+					printEndTrace();
+				}
+				ctx.unwind(old);
+			}
 		}
 	}
 	

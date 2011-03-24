@@ -32,26 +32,28 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
-		if (constructorType == Factory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals);
-		}
-		
-		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings);
-		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
-		Type instantiated = constructorType;
-		
-		if (!formalTypeParameters.isVoidType()) {
-			for (Type field : formalTypeParameters) {
-				if (!bindings.containsKey(field)) {
-					bindings.put(field, TF.voidType());
-				}
+		synchronized (ctx.getEvaluator()) {
+			if (constructorType == Factory.Tree_Appl) {
+				return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals);
 			}
-			instantiated = constructorType.instantiate(bindings);
+
+			Map<Type,Type> bindings = new HashMap<Type,Type>();
+			constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings);
+			Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
+			Type instantiated = constructorType;
+
+			if (!formalTypeParameters.isVoidType()) {
+				for (Type field : formalTypeParameters) {
+					if (!bindings.containsKey(field)) {
+						bindings.put(field, TF.voidType());
+					}
+				}
+				instantiated = constructorType.instantiate(bindings);
+			}
+
+			// TODO: the actual construction of the tree before applying rules should be avoided here!
+			return makeResult(instantiated, te.applyRules(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals)), ctx);
 		}
-		
-		// TODO: the actual construction of the tree before applying rules should be avoided here!
-		return makeResult(instantiated, te.applyRules(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals)), ctx);
 	}
 	
 	@Override
