@@ -17,34 +17,20 @@ public class BinaryClassLoader extends ClassLoader {
 	@Override
 	protected synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
-		for (ClassLoader loader : parents) {
-			try {
-				return loader.loadClass(name);
-			}
-			catch (ClassNotFoundException e) {
-				// continue
-			}
-		}
-		
-		throw new ClassNotFoundException(name);
+		return delegate(name);
 	}
 	
 	@Override
 	public synchronized Class<?> loadClass(String name) throws ClassNotFoundException {
-		for (ClassLoader loader : parents) {
-			try {
-				return loader.loadClass(name);
-			}
-			catch (ClassNotFoundException e) {
-				// continue
-			}
-		}
-		
-		throw new ClassNotFoundException(name);
+		return delegate(name);
 	}
 	
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		return delegate(name);
+	}
+	
+	private Class<?> delegate(String name) throws ClassNotFoundException {
 		for (ClassLoader loader : parents) {
 			try {
 				return loader.loadClass(name);
