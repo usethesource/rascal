@@ -47,16 +47,27 @@ public str rascalDoc2Latex(str s, loc l) {
 	return expand(myParse(s), l);
 }
 
+private str escapeRascalString(str s) {
+	// escape backslashes and curlies
+	preEscapes = ("\\": "\\textbackslash{}", "{": "\\{", "}": "\\}");
+	s = escape(s, preEscapes);
+	s = visit (s) {
+		// introduce backslashes and curlies
+		case /^<ws:\s*>'/ => escape("<ws>\'")
+	}
+	// escape the rest
+	return escape(s, stringEscapes - preEscapes);
+}
 
 private str rascalToLatex(str snip, loc l) {
 	try {
-		println("parsing `<snip>`");
+		//println("parsing `<snip>`");
 		pt = parseCommands(snip, l);
 		println("Annotating specials...");
 		pt = annotateSpecials(pt);
 		println("Annotating math ops...");
 		pt = annotateMathOps(pt, mathLiterals);
-		return highlight2latex(highlight(pt));
+		return highlight2latex(highlight(pt), escapeRascalString);
 	}
 	catch value x: {
 		println("Exception <x>");
