@@ -8,6 +8,7 @@ import String;
 public map[str, str] latexEscapes = (
 	"\t": "\\TAB{}",
 	"#": "\\#",
+	"%": "\\%",
 	"_": "\\_",
 	"$": "\\$",
 	" ": "\\SPACE{}", // space gets eaten sometimes, \  eats up newlines. \quad?
@@ -17,7 +18,7 @@ public map[str, str] latexEscapes = (
 );
 
 public map[str, str] stringEscapes = 
-	// this dangerous: \t first to spaces, than to \textvisiblespace{}
+	// this dangerous: \t first to spaces, then to \textvisiblespace{}
 	latexEscapes + ( "\t": "    ", " ": "\\textvisiblespace{}");
 
 
