@@ -427,8 +427,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 
-		System.err.println("Generating a parser");
-
 		ParserGenerator pg = this.getParserGenerator();
 		ISet productions = currentModule.getProductions();
 		Class<IGTD> parser = this.getHeap().getObjectParser(currentModule.getName(), productions);
