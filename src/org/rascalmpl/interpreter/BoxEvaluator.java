@@ -622,7 +622,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitDataTargetEmpty(org.rascalmpl.ast.DataTarget.Empty x) {
-		return null;
+		return BoxADT.EMPTY;
 	}
 
 	public IValue visitDataTargetLabeled(Labeled x) {
@@ -855,7 +855,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				0,
 				true,
 				H(1, eX(x.getType()),
-						H(0, eX(x.getParameters()), BoxADT.LBLOCK)),
+						H(0, BoxADT.LPAR, eX(x.getParameters()), BoxADT.RPAR, BoxADT.LBLOCK)),
 				eXs0(x.getStatements()), BoxADT.RBLOCK);
 	}
 
@@ -1261,7 +1261,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitImportExtend(Extend x) {
-		return L(x.getClass().toString());
+		return H(KW("extend"), L(x.getModule().getName().toString() + ";"));
 	}
 
 	public IValue visitImportedModuleActuals(Actuals x) {
@@ -1373,7 +1373,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitLabelEmpty(org.rascalmpl.ast.Label.Empty x) {
-		return null;
+		return BoxADT.EMPTY;
 	}
 
 	public IValue visitLiteralAmbiguity(org.rascalmpl.ast.Literal.Ambiguity x) {
@@ -1911,25 +1911,25 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				eXs(x.getExceptions(), null, null));
 	}
 
-//	public IValue visitSingleQuotedStrCharAmbiguity(
-//			org.rascalmpl.ast.SingleQuotedStrChar.Ambiguity x) {
-//		return L(x.getClass().toString());
-//	}
-//
-//	public IValue visitSingleQuotedStrCharLexical(
-//			org.rascalmpl.ast.SingleQuotedStrChar.Lexical x) {
-//		return L(x.getClass().toString());
-//	}
-//
-//	public IValue visitSingleQuotedStrConAmbiguity(
-//			org.rascalmpl.ast.SingleQuotedStrCon.Ambiguity x) {
-//		return L(x.getClass().toString());
-//	}
-//
-//	public IValue visitSingleQuotedStrConLexical(
-//			org.rascalmpl.ast.SingleQuotedStrCon.Lexical x) {
-//		return L(x.getClass().toString());
-//	}
+	// public IValue visitSingleQuotedStrCharAmbiguity(
+	// org.rascalmpl.ast.SingleQuotedStrChar.Ambiguity x) {
+	// return L(x.getClass().toString());
+	// }
+	//
+	// public IValue visitSingleQuotedStrCharLexical(
+	// org.rascalmpl.ast.SingleQuotedStrChar.Lexical x) {
+	// return L(x.getClass().toString());
+	// }
+	//
+	// public IValue visitSingleQuotedStrConAmbiguity(
+	// org.rascalmpl.ast.SingleQuotedStrCon.Ambiguity x) {
+	// return L(x.getClass().toString());
+	// }
+	//
+	// public IValue visitSingleQuotedStrConLexical(
+	// org.rascalmpl.ast.SingleQuotedStrCon.Lexical x) {
+	// return L(x.getClass().toString());
+	// }
 
 	public IValue visitStatementAmbiguity(
 			org.rascalmpl.ast.Statement.Ambiguity x) {
@@ -2104,27 +2104,27 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitStrategyBottomUp(BottomUp x) {
-		return L(x.getClass().toString());
+		return KW("bottom-up");
 	}
 
 	public IValue visitStrategyBottomUpBreak(BottomUpBreak x) {
-		return L(x.getClass().toString());
+		return KW("bottom-up-break");
 	}
 
 	public IValue visitStrategyInnermost(Innermost x) {
-		return L(x.getClass().toString());
+		return KW("innermost");
 	}
 
 	public IValue visitStrategyOutermost(Outermost x) {
-		return L(x.getClass().toString());
+		return KW("outermost");
 	}
 
 	public IValue visitStrategyTopDown(TopDown x) {
-		return L(x.getClass().toString());
+		return KW("top-down");
 	}
 
 	public IValue visitStrategyTopDownBreak(TopDownBreak x) {
-		return L(x.getClass().toString());
+		return KW("top-down-break");
 	}
 
 	public IValue visitStringCharacterAmbiguity(
@@ -2553,7 +2553,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		IList l = getTreeList(x, 12);
 		return V(
 				0,
-				L(x.getStrategy().getClass().getSimpleName().toLowerCase()),
+				eX(x.getStrategy()),
 				cStat(x,
 						null,
 						"visit",
@@ -2967,11 +2967,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		IList r = list();
 		for (IValue t : c) {
 			String s = TreeAdapter.yield((IConstructor) t);
-			if (s.endsWith("\n") && r.length() == c.length() - 1)	
-	        s = s.substring(0, s.length() - 1);
-			if (s.startsWith("//")) r = r.append(V(0, COMM(s), BoxADT.EMPTY));
+			if (s.endsWith("\n") && r.length() == c.length() - 1)
+				s = s.substring(0, s.length() - 1);
+			if (s.startsWith("//"))
+				r = r.append(V(0, COMM(s), BoxADT.EMPTY));
 			else
-			r = r.append(COMM(s));
+				r = r.append(COMM(s));
 		}
 		if (c.length() >= 2)
 			return list(H(0, r));
@@ -3221,10 +3222,10 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-//	public IValue visitLanguageActionBuild(Build x) {
-//		// TODO Auto-generated method stub
-//		return L(x.getClass().toString());
-//	}
+	// public IValue visitLanguageActionBuild(Build x) {
+	// // TODO Auto-generated method stub
+	// return L(x.getClass().toString());
+	// }
 
 	public IValue visitNonterminalAmbiguity(
 			org.rascalmpl.ast.Nonterminal.Ambiguity x) {
@@ -3665,109 +3666,131 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitProdModifierTag(org.rascalmpl.ast.ProdModifier.Tag x) {
 		// TODO Auto-generated method stub
-		return eX(x.getTag());
+		return L(x.getClass().toString());
 	}
 
 	public IValue visitExpressionHas(Has x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
 	}
 
 	public IValue visitExpressionIs(Is x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
 	}
 
 	public IValue visitFunctionModifierDefault(
 			org.rascalmpl.ast.FunctionModifier.Default x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
 	}
 
 	public IValue visitFunctionDeclarationExpression(
 			org.rascalmpl.ast.FunctionDeclaration.Expression x) {
 		// TODO Auto-generated method stub
-		return null;
+		// Tags Visibility Signature "=" Expression ";"
+		return V(
+				0,
+				eX(x.getTags()),
+				H(1, eX(x.getVisibility()), H(0, eX(x.getSignature())),
+						BoxADT.ASSIGN,
+						H(0, eX(x.getExpression()), BoxADT.SEMICOLON)));
 	}
 
 	public IValue visitSyntaxDefinitionKeyword(Keyword x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
 	}
 
 	public IValue visitSyntaxDefinitionLexical(
 			org.rascalmpl.ast.SyntaxDefinition.Lexical x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymNotFollow(NotFollow x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymLayout(org.rascalmpl.ast.Sym.Layout x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymSequence(Sequence x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
+
 	public IValue visitSymKeyword(org.rascalmpl.ast.Sym.Keyword x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymAlternative(Alternative x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymStart(Start x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymNotPrecede(NotPrecede x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymEmpty(org.rascalmpl.ast.Sym.Empty x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymFollow(org.rascalmpl.ast.Sym.Follow x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymUnequal(Unequal x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitSymPrecede(Precede x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitLanguageActionWhen(When x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitLanguageActionReplace(Replace x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 	public IValue visitLanguageActionReplaceWhen(ReplaceWhen x) {
 		// TODO Auto-generated method stub
-		return null;
+		return L(x.getClass().toString());
+
 	}
 
 }
