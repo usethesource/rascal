@@ -1911,25 +1911,25 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				eXs(x.getExceptions(), null, null));
 	}
 
-	public IValue visitSingleQuotedStrCharAmbiguity(
-			org.rascalmpl.ast.SingleQuotedStrChar.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSingleQuotedStrCharLexical(
-			org.rascalmpl.ast.SingleQuotedStrChar.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSingleQuotedStrConAmbiguity(
-			org.rascalmpl.ast.SingleQuotedStrCon.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitSingleQuotedStrConLexical(
-			org.rascalmpl.ast.SingleQuotedStrCon.Lexical x) {
-		return L(x.getClass().toString());
-	}
+//	public IValue visitSingleQuotedStrCharAmbiguity(
+//			org.rascalmpl.ast.SingleQuotedStrChar.Ambiguity x) {
+//		return L(x.getClass().toString());
+//	}
+//
+//	public IValue visitSingleQuotedStrCharLexical(
+//			org.rascalmpl.ast.SingleQuotedStrChar.Lexical x) {
+//		return L(x.getClass().toString());
+//	}
+//
+//	public IValue visitSingleQuotedStrConAmbiguity(
+//			org.rascalmpl.ast.SingleQuotedStrCon.Ambiguity x) {
+//		return L(x.getClass().toString());
+//	}
+//
+//	public IValue visitSingleQuotedStrConLexical(
+//			org.rascalmpl.ast.SingleQuotedStrCon.Lexical x) {
+//		return L(x.getClass().toString());
+//	}
 
 	public IValue visitStatementAmbiguity(
 			org.rascalmpl.ast.Statement.Ambiguity x) {
@@ -2097,22 +2097,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitStatementWhile(While x) {
 		return cStat(x, eX(x.getLabel()), "while", eXs(x.getConditions()),
 				eX(x.getBody()));
-	}
-
-	public IValue visitStrCharAmbiguity(org.rascalmpl.ast.StrChar.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitStrCharLexical(org.rascalmpl.ast.StrChar.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitStrConAmbiguity(org.rascalmpl.ast.StrCon.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitStrConLexical(org.rascalmpl.ast.StrCon.Lexical x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitStrategyAmbiguity(org.rascalmpl.ast.Strategy.Ambiguity x) {

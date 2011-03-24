@@ -764,8 +764,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitCommentLexical(Comment.Lexical x) { return null; }
   
-      public T visitStrCharLexical(StrChar.Lexical x) { return null; }
-  
       public T visitProtocolCharsLexical(ProtocolChars.Lexical x) { return null; }
   
       public T visitMidStringCharsLexical(MidStringChars.Lexical x) { return null; }
@@ -775,8 +773,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitEscapedNameLexical(EscapedName.Lexical x) { return null; }
   
       public T visitRegExpLexical(RegExp.Lexical x) { return null; }
-  
-      public T visitSingleQuotedStrCharLexical(SingleQuotedStrChar.Lexical x) { return null; }
   
       public T visitRealLiteralLexical(RealLiteral.Lexical x) { return null; }
   
@@ -818,11 +814,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitDecimalLongLiteralLexical(DecimalLongLiteral.Lexical x) { return null; }
   
-      public T visitSingleQuotedStrConLexical(SingleQuotedStrCon.Lexical x) { return null; }
-  
       public T visitNameLexical(Name.Lexical x) { return null; }
-  
-      public T visitStrConLexical(StrCon.Lexical x) { return null; }
   
       public T visitBooleanLiteralLexical(BooleanLiteral.Lexical x) { return null; }
   
@@ -919,8 +911,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitTestAmbiguity(Test.Ambiguity x) { return null; }
   
-      public T visitStrConAmbiguity(StrCon.Ambiguity x) { return null; }
-  
       public T visitIntegerLiteralAmbiguity(IntegerLiteral.Ambiguity x) { return null; }
   
       public T visitTargetAmbiguity(Target.Ambiguity x) { return null; }
@@ -936,8 +926,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitSymAmbiguity(Sym.Ambiguity x) { return null; }
   
       public T visitDecimalLongLiteralAmbiguity(DecimalLongLiteral.Ambiguity x) { return null; }
-  
-      public T visitSingleQuotedStrConAmbiguity(SingleQuotedStrCon.Ambiguity x) { return null; }
   
       public T visitUnicodeEscapeAmbiguity(UnicodeEscape.Ambiguity x) { return null; }
   
@@ -1091,8 +1079,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitLocationLiteralAmbiguity(LocationLiteral.Ambiguity x) { return null; }
   
-      public T visitSingleQuotedStrCharAmbiguity(SingleQuotedStrChar.Ambiguity x) { return null; }
-  
       public T visitLocalVariableDeclarationAmbiguity(LocalVariableDeclaration.Ambiguity x) { return null; }
   
       public T visitRealLiteralAmbiguity(RealLiteral.Ambiguity x) { return null; }
@@ -1102,8 +1088,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitParametersAmbiguity(Parameters.Ambiguity x) { return null; }
   
       public T visitRegExpAmbiguity(RegExp.Ambiguity x) { return null; }
-  
-      public T visitStrCharAmbiguity(StrChar.Ambiguity x) { return null; }
   
       public T visitProtocolCharsAmbiguity(ProtocolChars.Ambiguity x) { return null; }
   

@@ -45,5 +45,9 @@ public class Reflective {
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		return ctx.getEvaluator().parseCommand(str.getValue(), loc.getURI());
 	}
+
+	public IValue parseCommands(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
+		return ctx.getEvaluator().parseCommands(str.getValue(), loc.getURI());
+	}
 	
 }

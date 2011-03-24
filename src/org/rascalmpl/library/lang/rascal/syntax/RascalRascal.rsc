@@ -503,6 +503,10 @@ syntax Visit
 	= GivenStrategy: Strategy strategy "visit" "(" Expression subject ")" "{" Case+ cases "}" 
 	| DefaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
 
+start syntax Commands
+	= Command+
+	;
+
 start syntax Command
 	= Expression: Expression expression {
 	  if (expression is NonEmptyBlock) { 
