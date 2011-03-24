@@ -2,6 +2,7 @@ module lang::box::util::Highlight
 
 import lang::box::util::Box;
 
+import Ambiguity;
 import ParseTree;
 import String;
 import IO;
@@ -41,8 +42,13 @@ public list[Box] highlight(Tree t) {
 		case appl(_, as):
 			return [ highlight(a) | a <- as ];
 
-		case amb(_):
-			throw "Ambiguous tree: <t>";
+		case amb({k, _*}): {
+			// this triggers a bug in stringtemplates??? 
+			//throw "Ambiguous tree: <report(t)>";
+			// pick one
+			println("Warning: ambiguity: <t>");
+			return highlight(k);
+		}
 			
 		default: 
 			throw "Unhandled tree <t>";
