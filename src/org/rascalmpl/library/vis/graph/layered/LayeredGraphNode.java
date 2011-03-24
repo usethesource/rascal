@@ -155,44 +155,50 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	public int compareTo(LayeredGraphNode o){
-		return shadowing ? compare(outShadowed, o.outShadowed) : compare(out, o.out);
+		return shadowing ? compare(inShadowed, o.inShadowed) : compare(in, o.in);
 	}
 	
+	/**
+	 * @param S
+	 * @param T
+	 * @return -1 (S < T)
+	 *          0 (S == T)
+	 *          1 (S > T)
+	 */
 	private int compare(LinkedList<LayeredGraphNode> S, LinkedList<LayeredGraphNode> T){
 		if(S.size() == 0 && T.size() == 0)
 			return 0;
 		if(S.size() == 0 && T.size() != 0)
 			return -1;
-		if(S.size() > 0 && T.size() == 0)
+		if(S.size() != 0 && T.size() == 0)
 			return 1;
-		if(S.size() != 0 && T.size() != 0){
-			int maxS = maxLabel(S);
-			int maxT = maxLabel(T);
-			
-			if(maxS < 0)
-				return 1;
-			if(maxT < 0)
-				return -1;
-			
-			if(maxS < maxT)
-				return -1;
-			if(maxS > maxT)
-				return 1;
 		
-			LinkedList<LayeredGraphNode> SOut = new LinkedList<LayeredGraphNode>();
-			for(LayeredGraphNode g : S){
-					if(g.label != maxS)
-						SOut.add(g);
-			}
-			
-			LinkedList<LayeredGraphNode> TOut = new LinkedList<LayeredGraphNode>();
-			for(LayeredGraphNode g : T){
-					if(g.label != maxT)
-						TOut.add(g);
-			}
-			return compare(SOut, TOut);
+		// S.size() != 0 && T.size() != 0
+		int maxS = maxLabel(S);
+		int maxT = maxLabel(T);
+
+		if(maxS < 0)
+			return 1;
+		if(maxT < 0)
+			return -1;
+
+		if(maxS < maxT)
+			return -1;
+		if(maxS > maxT)
+			return 1;
+
+		LinkedList<LayeredGraphNode> SOut = new LinkedList<LayeredGraphNode>();
+		for(LayeredGraphNode g : S){
+			if(g.label != maxS)
+				SOut.add(g);
 		}
-		return 0;
+
+		LinkedList<LayeredGraphNode> TOut = new LinkedList<LayeredGraphNode>();
+		for(LayeredGraphNode g : T){
+			if(g.label != maxT)
+				TOut.add(g);
+		}
+		return compare(SOut, TOut);
 	}
 	
 	public LinkedList<LayeredGraphNode> increasingSortedOut(){
@@ -204,15 +210,38 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return out;
 	}
 	
-	public boolean AllInAssignedToLayers(int layer){
-		System.err.printf("AllInAssignedToLayers %s, layer=%d => ", name, layer);
-		for(LayeredGraphNode g : shadowing ? inShadowed : in){
-			if(g.layer < 0 || g.layer > layer){
-				System.err.println("false");
+	public boolean AllInLabelled(){
+		for(LayeredGraphNode g : in){
+			System.err.println("AllInLabelled: " + g.name + " label = " + g.label);
+			if(g.label < 0)
+				return false;
+		}
+		return true;
+	}
+	
+	public boolean AllOutAssignedToLayers(){
+		System.err.printf("AllOutAssignedToLayers %s\n", name);
+		for(LayeredGraphNode g : out){
+			System.err.println("\tconsidering " + g.name + " with layer " + g.layer + " and label " + g.label);
+			if(g.layer < 0){
+				System.err.printf("AllOutAssignedToLayers %s => false\n", name);
 				return false;
 			}
 		}
-		System.err.println("true");
+		System.err.printf("AllOutAssignedToLayers %s => true\n", name);
+		return true;
+	}
+	
+	public boolean AllOutAssignedToLayers(int layer){
+		System.err.printf("AllOutAssignedToLayers %s, layer=%d", name, layer);
+		for(LayeredGraphNode g : shadowing ? outShadowed : out){
+			System.err.println("\tconsidering " + g.name + " with layer " + g.layer + " and label " + g.label);
+			if(g.layer < 0 ||  (g.layer >= layer)){
+				System.err.printf("AllOutAssignedToLayers %s => false\n", name);
+				return false;
+			}
+		}
+		System.err.printf("AllOutAssignedToLayers %s => true\n", name);
 		return true;
 	}
 	
