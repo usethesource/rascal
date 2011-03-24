@@ -10,6 +10,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 
 public class Parser  {
 	public static final String START_COMMAND = "start__$Command";
+	public static final String START_COMMANDS = "start__$Commands";
 	public static final String START_MODULE = "start__$Module";
 	public static final String START_PRE_MODULE = "start__$PreModule";
 	
@@ -17,6 +18,10 @@ public class Parser  {
 	
 	public IConstructor parseCommand(URI location, String command, IActionExecutor actionExecutor) {
 		return new RascalRascal().parse(START_COMMAND, location, command, actionExecutor);
+	}
+
+	public IConstructor parseCommands(URI location, String commands, IActionExecutor actionExecutor) {
+		return new RascalRascal().parse(START_COMMANDS, location, commands, actionExecutor);
 	}
 
 	public IConstructor parseModule(URI location, InputStream source, IActionExecutor actionExecutor) throws IOException {

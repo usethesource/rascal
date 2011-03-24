@@ -354,7 +354,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 */
 	public synchronized IConstructor parseObject(IConstructor startSort, URI input) {
 		try {
-			System.err.println("Generating a parser");
 			IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(input));
 			String name = "";
 			if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
@@ -427,6 +426,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
 			}
 		}
+
+		System.err.println("Generating a parser");
 
 		ParserGenerator pg = this.getParserGenerator();
 		ISet productions = currentModule.getProductions();
@@ -641,6 +642,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 		return rp.parse("start__$Command", location, command, actionExecutor);
+	}
+
+	public IConstructor parseCommands(String commands, URI location) {
+		this.__setInterrupt(false);
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+
+		if (!commands.contains("`")) {
+			return this.__getParser().parseCommands(location, commands, actionExecutor);
+		}
+
+		IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
+		return rp.parse("start__$Commands", location, commands, actionExecutor);
 	}
 
 	public synchronized Result<IValue> eval(Command command) {

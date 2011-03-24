@@ -764,8 +764,6 @@ public interface IASTVisitor<T> {
   
       public T visitCommentLexical(Comment.Lexical x);
   
-      public T visitStrCharLexical(StrChar.Lexical x);
-  
       public T visitProtocolCharsLexical(ProtocolChars.Lexical x);
   
       public T visitMidStringCharsLexical(MidStringChars.Lexical x);
@@ -775,8 +773,6 @@ public interface IASTVisitor<T> {
       public T visitEscapedNameLexical(EscapedName.Lexical x);
   
       public T visitRegExpLexical(RegExp.Lexical x);
-  
-      public T visitSingleQuotedStrCharLexical(SingleQuotedStrChar.Lexical x);
   
       public T visitRealLiteralLexical(RealLiteral.Lexical x);
   
@@ -818,11 +814,7 @@ public interface IASTVisitor<T> {
   
       public T visitDecimalLongLiteralLexical(DecimalLongLiteral.Lexical x);
   
-      public T visitSingleQuotedStrConLexical(SingleQuotedStrCon.Lexical x);
-  
       public T visitNameLexical(Name.Lexical x);
-  
-      public T visitStrConLexical(StrCon.Lexical x);
   
       public T visitBooleanLiteralLexical(BooleanLiteral.Lexical x);
   
@@ -919,8 +911,6 @@ public interface IASTVisitor<T> {
   
       public T visitTestAmbiguity(Test.Ambiguity x);
   
-      public T visitStrConAmbiguity(StrCon.Ambiguity x);
-  
       public T visitIntegerLiteralAmbiguity(IntegerLiteral.Ambiguity x);
   
       public T visitTargetAmbiguity(Target.Ambiguity x);
@@ -936,8 +926,6 @@ public interface IASTVisitor<T> {
       public T visitSymAmbiguity(Sym.Ambiguity x);
   
       public T visitDecimalLongLiteralAmbiguity(DecimalLongLiteral.Ambiguity x);
-  
-      public T visitSingleQuotedStrConAmbiguity(SingleQuotedStrCon.Ambiguity x);
   
       public T visitUnicodeEscapeAmbiguity(UnicodeEscape.Ambiguity x);
   
@@ -1091,8 +1079,6 @@ public interface IASTVisitor<T> {
   
       public T visitLocationLiteralAmbiguity(LocationLiteral.Ambiguity x);
   
-      public T visitSingleQuotedStrCharAmbiguity(SingleQuotedStrChar.Ambiguity x);
-  
       public T visitLocalVariableDeclarationAmbiguity(LocalVariableDeclaration.Ambiguity x);
   
       public T visitRealLiteralAmbiguity(RealLiteral.Ambiguity x);
@@ -1102,8 +1088,6 @@ public interface IASTVisitor<T> {
       public T visitParametersAmbiguity(Parameters.Ambiguity x);
   
       public T visitRegExpAmbiguity(RegExp.Ambiguity x);
-  
-      public T visitStrCharAmbiguity(StrChar.Ambiguity x);
   
       public T visitProtocolCharsAmbiguity(ProtocolChars.Ambiguity x);
   

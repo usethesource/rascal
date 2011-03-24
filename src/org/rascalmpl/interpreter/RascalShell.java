@@ -248,6 +248,7 @@ public class RascalShell {
 		File dest = new File(file.getParent(), name.substring(0, pos) + destExt); 
 		
 		System.err.println("Formatting Rascal snippets in " + file + "; outputting to " + dest + "...");
+		System.err.flush();
 		ISourceLocation loc = vf.sourceLocation(file.getAbsolutePath());
 		IString str = (IString) evaluator.call("rascalDoc2Latex", loc);
 		FileWriter writer = new FileWriter(dest);
