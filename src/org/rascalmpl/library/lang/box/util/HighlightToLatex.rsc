@@ -10,22 +10,23 @@ public map[str, str] latexEscapes = (
 	"#": "\\#",
 	"_": "\\_",
 	"$": "\\$",
-	" ": "\\space{}", // space gets eaten sometimes, \  eats up newlines. \quad?
+	" ": "\\SPACE{}", // space gets eaten sometimes, \  eats up newlines. \quad?
 	"{": "\\{",
 	"}": "\\}",
 	"\\": "\\textbackslash{}"
 );
 
 public map[str, str] stringEscapes = 
+	// this dangerous: \t first to spaces, than to \textvisiblespace{}
 	latexEscapes + ( "\t": "    ", " ": "\\textvisiblespace{}");
 
 
-public str highlight2latex(list[Box] bs) {
+public str highlight2latex(list[Box] bs, str(str) myEscapeString) {
 	res = "";
 	for (b <- bs) {
 		switch (b) {
 			case KW(L(s)): res += "\\KW{<s>}";
-			case STRING(L(s)): res += "\\STR{<escapeString(s)>}";
+			case STRING(L(s)): res += "\\STR{<myEscapeString(s)>}";
 			case COMM(L(s)): res += "\\COMM{<escape(s)>}";
 			case VAR(L(s)): res += "\\VAR{<escape(s)>}";
 			case MATH(L(s)): res += "\\MATH{<s>}";
@@ -33,7 +34,11 @@ public str highlight2latex(list[Box] bs) {
 			default: throw "Unhandled box: <b>"; // todo NUM, REF etc. 
 		}
 	}
-	return res;
+	return res;	
+}
+
+public str highlight2latex(list[Box] bs) {
+	return highlight2latex(bs, escapeString);
 }
 
 public str escapeString(str s) {
