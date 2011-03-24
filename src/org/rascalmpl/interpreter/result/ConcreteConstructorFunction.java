@@ -29,18 +29,20 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
-		IConstructor prod = (IConstructor) actuals[0];
-		IList args = (IList) actuals[1];
-		
-		if (ProductionAdapter.isList(prod)) {
-			actuals[1] = flatten(prod, args);
+		synchronized (ctx.getEvaluator()) {
+			IConstructor prod = (IConstructor) actuals[0];
+			IList args = (IList) actuals[1];
+
+			if (ProductionAdapter.isList(prod)) {
+				actuals[1] = flatten(prod, args);
+			}
+
+			IConstructor newAppl = (IConstructor) Factory.Tree_Appl.make(getValueFactory(), actuals);
+
+			NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
+
+			return makeResult(concreteType, re.applyRules(concreteType, newAppl), ctx);
 		}
-		
-		IConstructor newAppl = (IConstructor) Factory.Tree_Appl.make(getValueFactory(), actuals);
-		
-	    NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
-	    
-		return makeResult(concreteType, re.applyRules(concreteType, newAppl), ctx);
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {
