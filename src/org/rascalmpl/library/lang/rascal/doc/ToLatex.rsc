@@ -69,14 +69,13 @@ private str rascalToLatex(str snip, loc l) {
 		pt = annotateMathOps(pt, mathLiterals);
 		return highlight2latex(highlight(pt), escapeRascalString);
 	}
-	catch value x: {
-		println("Exception <x>");
-		return "\\begin{verbatim}PARSE ERROR <snip>\\end{verbatim}";
+	catch value err: {
+		println("Parse error at <err>");
+		return "\\begin{verbatim}PARSE ERROR at <err>  <snip>\\end{verbatim}";
 	}
 }
 
 
-// TODO: do something with margins in strings
 private Tree annotateSpecials(Tree pt) {
 	return top-down-break visit (pt) {
 		
