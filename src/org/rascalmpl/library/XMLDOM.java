@@ -126,7 +126,7 @@ public class XMLDOM {
 			return new Text(new java.lang.String(Character.toChars(c)));
 		}
 		if (n.getConstructorType() == Factory.Node_entityRef) {
-			new EntityRef(((IString)n.get(0)).getValue());
+			return new EntityRef(((IString)n.get(0)).getValue());
 		}
 
 		java.lang.String text = ((IString)n.get(0)).getValue();
