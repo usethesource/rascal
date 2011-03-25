@@ -1067,49 +1067,52 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public synchronized IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env) {
 		IRascalMonitor old = setMonitor(monitor);
-		try {
+		try{
 			this.__setInterrupt(false);
 			Parser rascal = new Parser();
 			IActionExecutor actionExecutor = new RascalActionExecutor(this, rascal.getInfo());
 
 			event("Parsing imports and syntax definitions at " + location);
 			IConstructor prefix = rascal.preParseModule(location, data, actionExecutor);
+
 			Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 			String name = getModuleName(preModule);
+
+			if(env == null){
+				env = __getHeap().getModule(name);
+				if(env == null){
+					env = new ModuleEnvironment(name, heap);
+					heap.addModule(env);
+				}
+				env.setBootstrap(needBootstrapParser(preModule));
+			}
+
 			// take care of imports and declare syntax
-			
 			env.setSyntaxDefined(false);
 			event("Declaring syntax for module " + name);
 			preModule.declareSyntax(this, true);
-			
-			if (env == null) {
-				env = this.__getHeap().getModule(name);
-				env.setBootstrap(needBootstrapParser(preModule));
-			}
 
 			ISet prods = env.getProductions();
 			IGTD parser = null;
 			IConstructor result;
 			event("Parsing complete module " + name);
 			try{
-				if (this.needBootstrapParser(preModule)){
+				if(this.needBootstrapParser(preModule)){
 					parser = new MetaRascalRascal();
 					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-				} else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+				}else if(prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 					parser = new RascalRascal();
 					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-				} else{
+				}else{
 					parser = getRascalParser(env, location);
 					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
 				}
-			} catch (SyntaxError se){
+			}catch(SyntaxError se){
 				result = parser.buildErrorTree();
 				if(result == null) throw se; // Rethrow the exception if building the error tree fails.
 			}
-
 			return result;
-		}
-		finally {
+		}finally{
 			setMonitor(old);
 		}
 	}
