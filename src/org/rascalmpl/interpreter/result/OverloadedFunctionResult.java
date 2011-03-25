@@ -70,7 +70,6 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return lub;
 	}
 
-	@Override
 	public synchronized Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);

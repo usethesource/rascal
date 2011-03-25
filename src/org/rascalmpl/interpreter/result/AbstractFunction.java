@@ -93,7 +93,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return hasVarArgs;
 	}
 	
-	@Override
 	public synchronized Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
