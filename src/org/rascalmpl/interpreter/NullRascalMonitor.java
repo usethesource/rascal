@@ -16,16 +16,13 @@ public class NullRascalMonitor implements IRascalMonitor {
 
 	public void startJob(String name, int totalWork) {
 	}
-
-	@Override
+	
 	public void startJob(String name) {
 	}
-
-	@Override
+	
 	public void startJob(String name, int workShare, int totalWork) {
 	}
-
-	@Override
+	
 	public void todo(int work) {
 	}
 }
