@@ -50,8 +50,9 @@ public class ParserGenerator {
 	 * @return
 	 */
 	public Class<IGTD> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, ISet imports) {
+		monitor.startJob("Generating parser", 100);
+		
 		try {
-			// TODO: add caching
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, imports);
 			String normName = name.replaceAll("\\.", "_");
@@ -64,6 +65,8 @@ public class ParserGenerator {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+		} finally {
+			monitor.endJob(true);
 		}
 	}
 
