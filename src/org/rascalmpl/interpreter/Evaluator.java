@@ -208,9 +208,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return old;
 	}
 	
-	public void endJob(boolean succeeded) {
+	public int endJob(boolean succeeded) {
 		if (monitor != null)
-			monitor.endJob(succeeded);
+			return monitor.endJob(succeeded);
+		return 0;
 	}
 
 	public void event(int inc) {
@@ -228,11 +229,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			monitor.event(name);
 	}
 
+	public void startJob(String name, int workShare, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, workShare, totalWork);
+	}
+
 	public void startJob(String name, int totalWork) {
 		if (monitor != null)
 			monitor.startJob(name, totalWork);
 	}
 	
+	public void startJob(String name) {
+		if (monitor != null)
+			monitor.startJob(name);
+	}
+	
+	public void todo(int work) {
+		if (monitor != null)
+			monitor.todo(work);
+	}
 	
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
 		this.constructorDeclaredListeners.add(iml);
@@ -560,10 +575,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	private ParserGenerator getParserGenerator() {
-		event("Load parser generator", 40);
+		startJob("Loading parser generator", 40);
 		if (this.parserGenerator == null) {
 			this.parserGenerator = new ParserGenerator(monitor, this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
+		endJob(true);
 		return this.parserGenerator;
 	}
 

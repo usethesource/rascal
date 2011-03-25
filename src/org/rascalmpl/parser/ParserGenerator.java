@@ -34,23 +34,25 @@ public class ParserGenerator {
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		this.vf = factory;
 		
-		monitor.event("Loading parser generator");
+		monitor.startJob("Loading parser generator", 100, 139);
 		evaluator.doImport(monitor, "lang::rascal::syntax::Generator");
 		evaluator.doImport(monitor, "lang::rascal::syntax::Normalization");
 		evaluator.doImport(monitor, "lang::rascal::syntax::Definition");
 		evaluator.doImport(monitor, "lang::rascal::syntax::Assimilator");
+		monitor.endJob(true);
 	}
 	
 	/**
 	 * Generate a parser from a Rascal syntax definition (a set of production rules).
 	 * 
+	 * @param monitor a progress monitor; this method will contribute 100 work units
 	 * @param loc     a location for error reporting
 	 * @param name    the name of the parser for use in code generation and for later reference
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
 	public Class<IGTD> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, ISet imports) {
-		monitor.startJob("Generating parser", 100);
+		monitor.startJob("Generating parser", 100, 90);
 		
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);

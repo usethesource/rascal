@@ -218,8 +218,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		return __getCtx().getBuilder();
 	}
 
-	public void endJob(boolean succeeded) {
-		ctx.endJob(succeeded);
+	public int endJob(boolean succeeded) {
+		return ctx.endJob(succeeded);
 	}
 
 	public void event(int inc) {
@@ -234,8 +234,20 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		ctx.event(name);
 	}
 
+	public void startJob(String name, int workShare, int totalWork) {
+		ctx.startJob(name, workShare, totalWork);
+	}
+
 	public void startJob(String name, int totalWork) {
 		ctx.startJob(name, totalWork);
 	}
+	
+	public void startJob(String name) {
+		ctx.startJob(name);
+		
+	}
 
+	public void todo(int work) {
+		ctx.todo(work);
+	}
 }
