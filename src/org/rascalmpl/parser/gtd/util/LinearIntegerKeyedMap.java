@@ -72,8 +72,26 @@ public class LinearIntegerKeyedMap<V>{
 		return -1;
 	}
 	
+	public int findKeyBefore(int key, int index){
+		for(int i = index - 1; i >= 0; --i){
+			if(keys[i] == key){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public V findValue(int key){
 		for(int i = size - 1; i >= 0; --i){
+			if(keys[i] == key){
+				return values[i];
+			}
+		}
+		return null;
+	}
+	
+	public V findValueBefore(int key, int index){
+		for(int i = index - 1; i >= 0; --i){
 			if(keys[i] == key){
 				return values[i];
 			}

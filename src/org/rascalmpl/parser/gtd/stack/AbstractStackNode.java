@@ -322,7 +322,7 @@ public abstract class AbstractStackNode{
 			}else{
 				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 					int startLocation = edgesMapToAdd.getKey(i);
-					int index = edgesMap.findKey(startLocation);
+					int index = edgesMap.findKeyBefore(startLocation, edgesMapSize);
 					ArrayList<Link> prefixes;
 					if(index == -1){
 						index = edgesMap.size();
