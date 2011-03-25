@@ -917,6 +917,8 @@ public abstract class SGTDBF implements IGTD{
 					todoLists[insertLocation] = terminalsTodo;
 				}
 				terminalsTodo.push(stack);
+			}else{
+				unexpandableNodes.push(stack);
 			}
 			
 			return;
