@@ -577,7 +577,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
 		if (this.parserGenerator == null) {
-			this.parserGenerator = new ParserGenerator(monitor, this.getStdErr(), this.classLoaders, this.getValueFactory());
+			this.parserGenerator = new ParserGenerator(this, this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
 		endJob(true);
 		return this.parserGenerator;
