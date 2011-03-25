@@ -21,7 +21,7 @@ public class Category extends TutorHttpServlet {
 		String pmap = getParametersAsMap(request);
 		
 		PrintWriter out = response.getWriter();
-		Result<IValue> result = evaluator.eval("category(" + pmap + ")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, "category(" + pmap + ")", URI.create("stdin:///"));
 
 		out.println(((IString) result.getValue()).getValue());
 		out.close();

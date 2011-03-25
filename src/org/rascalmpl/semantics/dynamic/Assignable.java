@@ -1,6 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -29,6 +30,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
@@ -521,6 +523,35 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			return __eval.recur(this, result);
 
 		}
+		
+		/**
+		 * Return an evaluation result that is already in normal form, i.e., all
+		 * potential rules have already been applied to it.
+		 */
+		private Result<IValue> normalizedResult(Evaluator __eval, Type t, IValue v) {
+			Map<Type, Type> bindings = __eval.getCurrentEnvt().getTypeBindings();
+			Type instance;
+
+			if (bindings.size() > 0) {
+				instance = t.instantiate(bindings);
+			} else {
+				instance = t;
+			}
+
+			if (v != null) {
+				checkType(v.getType(), instance);
+			}
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(instance, v, __eval);
+		}
+		
+		private void checkType(Type given, Type expected) {
+			if (expected instanceof FunctionType) {
+				return;
+			}
+			if (!given.isSubtypeOf(expected)) {
+				throw new UnexpectedTypeError(expected, given, this);
+			}
+		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -534,7 +565,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					IValue result = list.get(((IInteger) subscript.getValue())
 							.intValue());
 					Type type = receiver.getType().getElementType();
-					return __eval.normalizedResult(type, result);
+					return normalizedResult(__eval, type, result);
 				}
 
 				throw new UnexpectedTypeError(

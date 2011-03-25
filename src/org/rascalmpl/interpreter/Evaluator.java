@@ -12,14 +12,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -60,14 +58,11 @@ import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedReturnError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.strategy.StrategyContextStack;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
@@ -87,8 +82,6 @@ import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.uptr.Factory;
-
 
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
 	private IValueFactory vf;
@@ -112,12 +105,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final List<ClassLoader> classLoaders;
 	private final ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
-	private final Parser parser;
 
 	private final PrintWriter stderr;
 	private final PrintWriter stdout;
 
 	private ITestResultListener testReporter;
+	private IRascalMonitor monitor;
+	
+
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private Stack<Integer> indentStack = new Stack<Integer>();
 	private final RascalURIResolver rascalPathResolver;
@@ -143,7 +138,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.classLoaders = classLoaders;
 		this.javaBridge = new JavaBridge(this.classLoaders, this.__getVf());
 		this.rascalPathResolver = rascalURIResolver;
-		this.parser = new Parser();
 		this.stderr = stderr;
 		this.stdout = stdout;
 		this.resolverRegistry = rascalPathResolver.getRegistry();
@@ -203,6 +197,43 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.resolverRegistry.registerInputOutput(home);
 	}
 
+	public synchronized IRascalMonitor setMonitor(IRascalMonitor monitor) {
+		if (monitor == this) {
+			return monitor;
+		}
+		
+		interrupt = false;
+		IRascalMonitor old = this.monitor;
+		this.monitor = monitor;
+		return old;
+	}
+	
+	public void endJob(boolean succeeded) {
+		if (monitor != null)
+			monitor.endJob(succeeded);
+	}
+
+	public void event(int inc) {
+		if (monitor != null)
+			monitor.event(inc);
+	}
+
+	public void event(String name, int inc) {
+		if (monitor != null)
+			monitor.event(name, inc);
+	}
+
+	public void event(String name) {
+		if (monitor != null)
+			monitor.event(name);
+	}
+
+	public void startJob(String name, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, totalWork);
+	}
+	
+	
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
 		this.constructorDeclaredListeners.add(iml);
 	}
@@ -214,10 +245,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public List<ClassLoader> getClassLoaders() {
 		return Collections.unmodifiableList(classLoaders);
-	}
-
-	public Parser __getParser() {
-		return parser;
 	}
 
 	public ModuleEnvironment __getRootScope() {
@@ -330,7 +357,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return either null if its a void function, or the return value of the
 	 *         function.
 	 */
-	public synchronized IValue call(String name, IValue... args) {
+	public synchronized IValue call(IRascalMonitor monitor, String name, IValue... args) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return call(name, args);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	private IValue call(String name, IValue... args) {
 		QualifiedName qualifiedName = org.rascalmpl.interpreter.utils.Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) this.getCurrentEnvt().getVariable(qualifiedName);
 
@@ -345,14 +382,24 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			types[i++] = v.getType();
 		}
 
-		return func.call(types, args).getValue();
+		return func.call(monitor, types, args).getValue();
 	}
 
 	/**
 	 * Parse an object string using the imported SDF modules from the current
 	 * context.
 	 */
-	public synchronized IConstructor parseObject(IConstructor startSort, URI input) {
+	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, URI input) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return parseObject(startSort, input);
+		}
+		finally { 
+			setMonitor(old);
+		}
+	}
+	
+	private IConstructor parseObject(IConstructor startSort, URI input) {
 		try {
 			IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(input));
 			String name = "";
@@ -372,7 +419,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public synchronized IConstructor parseObject(IConstructor startSort, String input) {
+	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return parseObject(startSort, input);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	private IConstructor parseObject(IConstructor startSort, String input) {
 		URI inputURI = java.net.URI.create("file://-");
 		IGTD parser = this.getObjectParser(this.__getVf().sourceLocation(inputURI));
 		String name = "";
@@ -388,7 +445,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return parser.parse(name, inputURI, input, exec);
 	}
 	
-	public synchronized IConstructor parseObject(IConstructor startSort, String input, ISourceLocation loc) {
+	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return parseObject(startSort, input, loc);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	private IConstructor parseObject(IConstructor startSort, String input, ISourceLocation loc) {
 		IGTD parser = this.getObjectParser(loc);
 		String name = "";
 		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
@@ -439,7 +506,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = currentModule.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getParser(loc, parserName, productions);
+			parser = pg.getParser(this, loc, parserName, productions);
 			this.getHeap().storeObjectParser(currentModule.getName(), productions, parser);
 		}
 
@@ -467,7 +534,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = env.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getRascalParser(loc, parserName, productions, objectParser);
+			parser = pg.getRascalParser(this, loc, parserName, productions, objectParser);
 			this.getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
 
@@ -480,9 +547,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public ParserGenerator getParserGenerator() {
+	public synchronized IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			ParserGenerator pgen = getParserGenerator();
+			ModuleEnvironment env = getHeap().getModule(uri.getAuthority());
+			return pgen.getGrammar(monitor, env.getProductions());
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	private ParserGenerator getParserGenerator() {
+		event("Load parser generator", 40);
 		if (this.parserGenerator == null) {
-			this.parserGenerator = new ParserGenerator(this.getStdErr(), this.classLoaders, this.getValueFactory());
+			this.parserGenerator = new ParserGenerator(monitor, this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
 		return this.parserGenerator;
 	}
@@ -573,50 +653,31 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	/**
-	 * Evaluate an expression
-	 * 
-	 * @param expr
-	 * @return
-	 */
-	public synchronized Result<IValue> eval(Expression expr) {
-		this.__setInterrupt(false);
-		this.currentAST = expr;
-		if (Evaluator.doProfiling) {
-			this.profiler = new Profiler(this);
-			this.profiler.start();
-
-		}
-		try {
-			Result<IValue> r = expr.interpret(this);
-			if (r != null) {
-				return r;
-			}
-		} finally {
-			if (Evaluator.doProfiling) {
-				if (this.profiler != null) {
-					this.profiler.pleaseStop();
-					this.profiler.report();
-				}
-			}
-		}
-
-		throw new NotYetImplemented(expr.toString());
-	}
-
-	/**
 	 * Parse and evaluate a command in the current execution environment
 	 * 
 	 * @param command
 	 * @return
 	 */
-	public synchronized Result<IValue> eval(String command, URI location) {
+	public synchronized Result<IValue> eval(IRascalMonitor monitor, String command, URI location) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return eval(command, location);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+
+	private Result<IValue> eval(String command, URI location)
+			throws ImplementationError {
 		this.__setInterrupt(false);
 		IConstructor tree;
 
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+		Parser parser = new Parser();
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 
 		if (!command.contains("`")) {
-			tree = this.__getParser().parseCommand(location, command, actionExecutor);
+			tree = parser.parseCommand(location, command, actionExecutor);
 		} else {
 			IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 			tree = rp.parse("start__$Command", location, command, actionExecutor);
@@ -630,31 +691,60 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return this.eval(stat);
 	}
 
-	public synchronized IConstructor parseCommand(String command, URI location) {
+	public synchronized IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return parseCommand(command, location);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+
+	private IConstructor parseCommand(String command, URI location) {
 		this.__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+		Parser parser = new Parser();
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 
 		if (!command.contains("`")) {
-			return this.__getParser().parseCommand(location, command, actionExecutor);
+			return parser.parseCommand(location, command, actionExecutor);
 		}
 
 		IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
 		return rp.parse("start__$Command", location, command, actionExecutor);
 	}
 
-	public IConstructor parseCommands(String commands, URI location) {
-		this.__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+	public synchronized IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			this.__setInterrupt(false);
+			Parser parser = new Parser();
+			IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 
-		if (!commands.contains("`")) {
-			return this.__getParser().parseCommands(location, commands, actionExecutor);
+			if (!commands.contains("`")) {
+				return parser.parseCommands(location, commands, actionExecutor);
+			}
+
+			IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
+			return rp.parse("start__$Commands", location, commands, actionExecutor);
 		}
-
-		IGTD rp = this.getRascalParser(this.getCurrentModuleEnvironment(), location);
-		return rp.parse("start__$Commands", location, commands, actionExecutor);
+		finally {
+			setMonitor(old);
+		}
 	}
 
-	public synchronized Result<IValue> eval(Command command) {
+	public synchronized Result<IValue> eval(IRascalMonitor monitor, Command command) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return eval(command);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	private Result<IValue> eval(Command command) {
 		this.__setInterrupt(false);
 		if (Evaluator.doProfiling) {
 			this.profiler = new Profiler(this);
@@ -679,68 +769,70 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param declaration
 	 * @return
 	 */
-	public synchronized Result<IValue> eval(Declaration declaration) {
-		this.__setInterrupt(false);
-		this.currentAST = declaration;
-		Result<IValue> r = declaration.interpret(this);
-		if (r != null) {
-			return r;
-		}
-
-		throw new NotYetImplemented(declaration.toString());
-	}
-
-	/**
-	 * Evaluate an import
-	 * 
-	 * @param imp
-	 * @return
-	 */
-	public synchronized Result<IValue> eval(Import imp) {
-		this.__setInterrupt(false);
-		this.currentAST = imp;
-		Result<IValue> r = imp.interpret(this);
-		if (r != null) {
-			return r;
-		}
-
-		throw new ImplementationError("Not yet implemented: " + imp.getTree());
-	}
-
-	public synchronized void doImport(String string) {
-		eval("import " + string + ";", java.net.URI.create("import:///"));
-	}
-
-	public synchronized void reloadModules(Set<String> names, URI errorLocation) {
-		Set<String> onHeap = new HashSet<String>();
-		
-		for (String mod : names) {
-			if (this.__getHeap().existsModule(mod)) {
-				onHeap.add(mod);
-				this.__getHeap().removeModule(this.__getHeap().getModule(mod));
+	public synchronized Result<IValue> eval(IRascalMonitor monitor, Declaration declaration) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			this.__setInterrupt(false);
+			this.currentAST = declaration;
+			Result<IValue> r = declaration.interpret(this);
+			if (r != null) {
+				return r;
 			}
+
+			throw new NotYetImplemented(declaration.toString());
 		}
-		
-		for (String mod : onHeap) {
-			if (!heap.existsModule(mod)) {
-				stderr.print("Reloading module " + mod);
-				reloadModule(mod, errorLocation);
+		finally {
+			setMonitor(old);
+		}
+	}
+
+	public synchronized void doImport(IRascalMonitor monitor, String string) {
+		IRascalMonitor old = setMonitor(monitor);
+		interrupt = false;
+		try {
+			eval("import " + string + ";", java.net.URI.create("import:///"));
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+
+	public synchronized void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			Set<String> onHeap = new HashSet<String>();
+
+			for (String mod : names) {
+				if (this.__getHeap().existsModule(mod)) {
+					onHeap.add(mod);
+					this.__getHeap().removeModule(this.__getHeap().getModule(mod));
+				}
 			}
-		}
-		
-		Set<String> depending = getDependingModules(names);
-		for (String mod : depending) {
-			ModuleEnvironment env = heap.getModule(mod);
-			Set<String> todo = new HashSet<String>(env.getImports());
-			for (String imp : todo) {
-				if (names.contains(imp)) {
-					env.unImport(imp);
-					ModuleEnvironment imported = heap.getModule(imp);
-					if (imported != null) {
-						env.addImport(imp, imported);
+
+			for (String mod : onHeap) {
+				if (!heap.existsModule(mod)) {
+					stderr.print("Reloading module " + mod);
+					reloadModule(mod, errorLocation);
+				}
+			}
+
+			Set<String> depending = getDependingModules(names);
+			for (String mod : depending) {
+				ModuleEnvironment env = heap.getModule(mod);
+				Set<String> todo = new HashSet<String>(env.getImports());
+				for (String imp : todo) {
+					if (names.contains(imp)) {
+						env.unImport(imp);
+						ModuleEnvironment imported = heap.getModule(imp);
+						if (imported != null) {
+							env.addImport(imp, imported);
+						}
 					}
 				}
 			}
+		}
+		finally {
+			setMonitor(old);
 		}
 	}
 	
@@ -791,32 +883,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return found;
 	}
 	
-	/**
-	 * Return an evaluation result that is already in normal form, i.e., all
-	 * potential rules have already been applied to it.
-	 */
-	public Result<IValue> normalizedResult(Type t, IValue v) {
-		Map<Type, Type> bindings = this.getCurrentEnvt().getTypeBindings();
-		Type instance;
-
-		if (bindings.size() > 0) {
-			instance = t.instantiate(bindings);
-		} else {
-			instance = t;
-		}
-
-		if (v != null) {
-			this.checkType(v.getType(), instance);
-		}
-		return org.rascalmpl.interpreter.result.ResultFactory.makeResult(instance, v, this);
-	}
-
 	public void unwind(Environment old) {
-		// TODO why not just replace the current env with the old one??
-//		while (this.getCurrentEnvt() != old) {
-//			this.setCurrentEnvt(this.getCurrentEnvt().getParent());
-//			this.getCurrentEnvt();
-//		}
 		setCurrentEnvt(old);
 	}
 
@@ -832,81 +899,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return env;
 	}
 
-	private void checkType(Type given, Type expected) {
-		if (expected instanceof FunctionType) {
-			return;
-		}
-		if (!given.isSubtypeOf(expected)) {
-			throw new UnexpectedTypeError(expected, given, this.getCurrentAST());
-		}
-	}
-
-	public boolean mayOccurIn(Type small, Type large) {
-		return this.mayOccurIn(small, large, new HashSet<Type>());
-	}
-
-	boolean mayOccurIn(Type small, Type large, Set<Type> seen) {
-		// TODO: this should probably be a visitor as well
-
-		if (small.isVoidType())
-			return true;
-		if (large.isVoidType())
-			return false;
-		if (small.isValueType())
-			return true;
-		if (small.isSubtypeOf(large))
-			return true;
-		if (large.isListType() || large.isSetType())
-			return this.mayOccurIn(small, large.getElementType(), seen);
-		if (large.isMapType())
-			return this.mayOccurIn(small, large.getKeyType(), seen) || this.mayOccurIn(small, large.getValueType(), seen);
-		if (large.isTupleType()) {
-			for (int i = 0; i < large.getArity(); i++) {
-				if (this.mayOccurIn(small, large.getFieldType(i), seen))
-					return true;
-			}
-			return false;
-		}
-
-		if (large instanceof NonTerminalType && small instanceof NonTerminalType) {
-			// TODO: Until we have more precise info about the types in the
-			// concrete syntax
-			// we just return true here.
-			return true;
-		}
-
-		if (large.isConstructorType()) {
-
-			for (int i = 0; i < large.getArity(); i++) {
-				if (this.mayOccurIn(small, large.getFieldType(i), seen))
-					return true;
-			}
-			return false;
-		}
-		if (large.isAbstractDataType()) {
-			if (small.isNodeType() && !small.isAbstractDataType())
-				return true;
-			if (small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType()))
-				return true;
-			seen.add(large);
-			for (Type alt : this.getCurrentEnvt().lookupAlternatives(large)) {
-				if (alt.isConstructorType()) {
-					for (int i = 0; i < alt.getArity(); i++) {
-						Type fType = alt.getFieldType(i);
-						if (seen.add(fType) && this.mayOccurIn(small, fType, seen))
-							return true;
-					}
-				} else
-					throw new ImplementationError("ADT");
-
-			}
-			return false;
-		}
-		return small.isSubtypeOf(large);
-	}
-
-	// Ambiguity ...................................................
-
+	
 	public void printHelpMessage(PrintWriter out) {
 		out.println("Welcome to the Rascal command shell.");
 		out.println();
@@ -957,38 +950,38 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return org.rascalmpl.interpreter.utils.Names.fullName(x.getModule().getName());
 	}
 
-	public void loadParseTreeModule(AbstractAST x) {
-		String parseTreeModName = "ParseTree";
-		if (!this.__getHeap().existsModule(parseTreeModName)) {
-			this.evalRascalModule(x, parseTreeModName);
-		}
-		this.addImportToCurrentModule(x, parseTreeModName);
-	}
 
 	/**
 	 * Parse a module. Practical for implementing IDE features or features that
 	 * use Rascal to implement Rascal. Parsing a module currently has the side
 	 * effect of declaring non-terminal types in the given environment.
+	 * @param monitor TODO
 	 */
-	public synchronized IConstructor parseModule(URI location, ModuleEnvironment env) throws IOException {
-		char[] data;
-
-		InputStream inputStream = null;
+	public synchronized IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException {
+		IRascalMonitor old = setMonitor(monitor);
+		
 		try {
-			inputStream = this.resolverRegistry.getInputStream(location);
-			data = this.readModule(inputStream);
-		} finally {
-			if (inputStream != null) {
-				inputStream.close();
+			char[] data;
+			InputStream inputStream = null;
+			try {
+				inputStream = this.resolverRegistry.getInputStream(location);
+				data = this.readModule(inputStream);
+			} finally {
+				if (inputStream != null) {
+					inputStream.close();
+				}
 			}
-		}
 
-		URI resolved = this.rascalPathResolver.resolve(location);
-		if (resolved != null) {
-			location = resolved;
-		}
+			URI resolved = this.rascalPathResolver.resolve(location);
+			if (resolved != null) {
+				location = resolved;
+			}
 
-		return this.parseModule(data, location, env);
+			return parseModule(data, location, env);
+		}
+		finally {
+			setMonitor(old);
+		}
 	}
 
 	public Module preParseModule(URI location, ISourceLocation cause) {
@@ -1017,21 +1010,34 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		this.__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+		Parser parser = new Parser();
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
 
-		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
+		IConstructor prefix = parser.preParseModule(location, data, actionExecutor);
 		return builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 	}
 	
-	public synchronized IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
-		this.__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+	public synchronized IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return parseModule(data, location, env);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
 
-		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
-		
+	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
+		this.__setInterrupt(false);
+		Parser parser = new Parser();
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, parser.getInfo());
+
+		event("Parsing imports and syntax definitions at " + location);
+		IConstructor prefix = parser.preParseModule(location, data, actionExecutor);
+
 		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 		String name = getModuleName(preModule);
-		
+
 		if (env == null) {
 			env = this.__getHeap().getModule(name);
 			if (env == null) {
@@ -1040,61 +1046,75 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			env.setBootstrap(needBootstrapParser(preModule));
 		}
-		
+
 		// take care of imports and declare syntax
 		env.setSyntaxDefined(false);
+		event("Declaring syntax for module " + name);
 		preModule.declareSyntax(this, true);
 
 		ISet prods = env.getProductions();
+		event("Parsing complete module " + name);
 		if (this.needBootstrapParser(preModule)) {
 			return new MetaRascalRascal().parse(Parser.START_MODULE, location, data, actionExecutor);
 		}
 		else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-			return this.__getParser().parseModule(location, data, actionExecutor);
+			return parser.parseModule(location, data, actionExecutor);
 		}
 		else {
 			return this.getRascalParser(env, location).parse(Parser.START_MODULE, location, data, actionExecutor);
 		}
 	}
 	
-	public synchronized IConstructor parseModuleWithErrorTree(char[] data, URI location, ModuleEnvironment env) {
-		this.__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, this.__getParser().getInfo());
+	public synchronized IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			this.__setInterrupt(false);
+			Parser rascal = new Parser();
+			IActionExecutor actionExecutor = new RascalActionExecutor(this, rascal.getInfo());
 
-		IConstructor prefix = this.__getParser().preParseModule(location, data, actionExecutor);
-		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
-
-		// take care of imports and declare syntax
-		String name = preModule.declareSyntax(this, true);
-
-		if (env == null) {
-			env = this.__getHeap().getModule(name);
-			env.setBootstrap(needBootstrapParser(preModule));
-		}
-
-		ISet prods = env.getProductions();
-		IGTD parser = null;
-		IConstructor result;
-		try{
-			if(this.needBootstrapParser(preModule)){
-				parser = new MetaRascalRascal();
-				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-			}else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-				parser = new RascalRascal();
-				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-			}else{
-				parser = getRascalParser(env, location);
-				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+			event("Parsing imports and syntax definitions at " + location);
+			IConstructor prefix = rascal.preParseModule(location, data, actionExecutor);
+			Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+			String name = getModuleName(preModule);
+			// take care of imports and declare syntax
+			
+			env.setSyntaxDefined(false);
+			event("Declaring syntax for module " + name);
+			preModule.declareSyntax(this, true);
+			
+			if (env == null) {
+				env = this.__getHeap().getModule(name);
+				env.setBootstrap(needBootstrapParser(preModule));
 			}
-		}catch(SyntaxError se){
-			result = parser.buildErrorTree();
-			if(result == null) throw se; // Rethrow the exception if building the error tree fails.
+
+			ISet prods = env.getProductions();
+			IGTD parser = null;
+			IConstructor result;
+			event("Parsing complete module " + name);
+			try{
+				if (this.needBootstrapParser(preModule)){
+					parser = new MetaRascalRascal();
+					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+				} else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+					parser = new RascalRascal();
+					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+				} else{
+					parser = getRascalParser(env, location);
+					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+				}
+			} catch (SyntaxError se){
+				result = parser.buildErrorTree();
+				if(result == null) throw se; // Rethrow the exception if building the error tree fails.
+			}
+
+			return result;
 		}
-		
-		return result;
+		finally {
+			setMonitor(old);
+		}
 	}
 
-	public static boolean containsBackTick(char[] data, int offset) {
+	private static boolean containsBackTick(char[] data, int offset) {
 		for (int i = data.length - 1; i >= offset; --i) {
 			if (data[i] == '`')
 				return true;
@@ -1137,7 +1157,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
 		try {
-			IConstructor tree = this.parseModule(java.net.URI.create("rascal:///" + name), env);
+			event("Loading module " + name);
+			IConstructor tree = this.parseModule(this, java.net.URI.create("rascal:///" + name), env);
 			ASTBuilder astBuilder = getBuilder();
 			Module moduleAst = astBuilder.buildModule(tree);
 
@@ -1179,7 +1200,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
 	
-	public synchronized Module evalRascalModule(AbstractAST x, String name) {
+	public Module evalRascalModule(AbstractAST x, String name) {
 		ModuleEnvironment env = this.__getHeap().getModule(name);
 		if (env == null) {
 			env = new ModuleEnvironment(name, this.__getHeap());
@@ -1194,7 +1215,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				this.__getHeap().setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
+				
+				// TODO: is this declare syntax necessary? (again!)
 				module.declareSyntax(this, true);
+				
+				event("Running toplevel declarations in " + name);
 				module.interpret(this);
 				return module;
 			}
@@ -1231,8 +1256,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return pat.buildBooleanBacktracker(pe);
 	} 
 
-	// Expressions -----------------------------------------------------------
-
 	public Result<IValue> evalBooleanExpression(Expression x) {
 		IBooleanResult mp = this.makeBooleanResult(x);
 		mp.init();
@@ -1245,8 +1268,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return org.rascalmpl.interpreter.result.ResultFactory.bool(false, this);
 	}
-
-	
 
 	public boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat) {
 		boolean debug = false;
@@ -1357,32 +1378,38 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return this.__getHeap();
 	}
 
-	public boolean runTests() {
-		final boolean[] allOk = new boolean[] { true };
-		final ITestResultListener l = this.testReporter != null ? this.testReporter : new DefaultTestResultListener(this.getStdOut());
+	public boolean runTests(IRascalMonitor monitor) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			final boolean[] allOk = new boolean[] { true };
+			final ITestResultListener l = this.testReporter != null ? this.testReporter : new DefaultTestResultListener(this.getStdOut());
 
-		new TestEvaluator(this, new ITestResultListener() {
-			public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
-				if (!successful)
-					allOk[0] = false;
-				l.report(successful, test, loc, t);
-			}
+			new TestEvaluator(this, new ITestResultListener() {
+				public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
+					if (!successful)
+						allOk[0] = false;
+					l.report(successful, test, loc, t);
+				}
 
-			public void report(boolean successful, String test, ISourceLocation loc) {
-				if (!successful)
-					allOk[0] = false;
-				l.report(successful, test, loc);
-			}
+				public void report(boolean successful, String test, ISourceLocation loc) {
+					if (!successful)
+						allOk[0] = false;
+					l.report(successful, test, loc);
+				}
 
-			public void done() {
-				l.done();
-			}
+				public void done() {
+					l.done();
+				}
 
-			public void start(int count) {
-				l.start(count);
-			}
-		}).test();
-		return allOk[0];
+				public void start(int count) {
+					l.start(count);
+				}
+			}).test();
+			return allOk[0];
+		}
+		finally {
+			setMonitor(old);
+		}
 	}
 
 	public IValueFactory getValueFactory() {
@@ -1417,16 +1444,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.__setAccumulators(accumulators);
 	}
 
-	public void appendToString(IValue value, StringBuilder b) {
-		if (value.getType() == Factory.Tree) {
-			b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
-		} else if (value.getType().isStringType()) {
-			b.append(((IString) value).getValue());
-		} else {
-			b.append(value.toString());
-		}
+	public IRascalMonitor getMonitor() {
+		return monitor;
 	}
-
-	
-
 }

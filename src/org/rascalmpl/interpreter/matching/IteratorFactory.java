@@ -15,6 +15,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.TypeReachability;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class IteratorFactory {
@@ -114,8 +115,9 @@ public class IteratorFactory {
 	}
 	
 	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
-		if(!ctx.getEvaluator().mayOccurIn(rType, patType))
+		if(!TypeReachability.mayOccurIn(rType, patType, ctx.getCurrentEnvt())) {
 			throw new UnexpectedTypeError(rType, patType, ctx.getCurrentAST());
+		}
 	}
 	
 }

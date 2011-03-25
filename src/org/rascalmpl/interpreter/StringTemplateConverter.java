@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -35,6 +36,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -103,7 +105,7 @@ public class StringTemplateConverter {
 					else {
 						// Ensure that values that are trees are yielding the appropriate string value
 						StringBuilder sb = new StringBuilder(500);
-						__eval.appendToString(v, sb);
+						appendToString(v, sb);
 						v = vf.string(sb.toString());
 					}
 				}
@@ -119,6 +121,16 @@ public class StringTemplateConverter {
 				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
 				target.append(result);
 				return result;
+			}
+			
+			private void appendToString(IValue value, StringBuilder b) {
+				if (value.getType() == Factory.Tree) {
+					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
+				} else if (value.getType().isStringType()) {
+					b.append(((IString) value).getValue());
+				} else {
+					b.append(value.toString());
+				}
 			}
 			
 		}

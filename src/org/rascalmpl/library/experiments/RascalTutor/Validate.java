@@ -26,7 +26,7 @@ public class Validate extends TutorHttpServlet {
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setCharacterEncoding("utf-8");
 		PrintWriter out = response.getWriter();
-		Result<IValue> result = evaluator.eval("validateAnswer(" + pmap + ")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, "validateAnswer(" + pmap + ")", URI.create("stdin:///"));
 
 		System.err.println("Validate gets back: " + ((IString)result.getValue()).getValue());
 		out.println(((IString)result.getValue()).getValue());

@@ -173,8 +173,8 @@ public class AssignableEvaluator extends NullASTVisitor<Result<IValue>>{
 		this.__getEval().pushEnv();		
 	}
 
-	public void runTests() {
-		this.__getEval().runTests();
+	public void runTests(IRascalMonitor monitor) {
+		this.__getEval().runTests(monitor);
 	}
 
 	public void setCurrentEnvt(Environment environment) {

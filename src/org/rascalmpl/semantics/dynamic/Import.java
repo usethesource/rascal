@@ -142,7 +142,12 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		
 		@Override
 		public Result<IValue> interpret(Evaluator eval) {
-			eval.loadParseTreeModule(this);
+			String parseTreeModName = "ParseTree";
+			if (!eval.__getHeap().existsModule(parseTreeModName)) {
+				eval.evalRascalModule(this, parseTreeModName);
+			}
+			eval.addImportToCurrentModule(this, parseTreeModName);
+
 			declareSyntax(eval, false);
 			return nothing();
 		}

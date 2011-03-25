@@ -24,7 +24,7 @@ public class Save extends TutorHttpServlet {
 		String newContent = escapeForRascal(getStringParameter(request, "newcontent"));
 		boolean newConcept = getStringParameter(request, "new").equals("true");
 
-		Result<IValue> result = evaluator.eval("save(\"" + concept + "\",\"" + newContent + "\"," + newConcept + ")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, "save(\"" + concept + "\",\"" + newContent + "\"," + newConcept + ")", URI.create("stdin:///"));
 
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);

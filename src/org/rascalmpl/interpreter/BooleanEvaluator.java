@@ -71,8 +71,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 		this.__getCtx().pushEnv();
 	}
 
-	public boolean runTests() {
-		return this.__getCtx().runTests();
+	public boolean runTests(IRascalMonitor monitor) {
+		return this.__getCtx().runTests(monitor);
 	}
 
 	public void setCurrentEnvt(Environment environment) {
@@ -134,6 +134,26 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 
 	public PrintWriter getStdOut() {
 		return new PrintWriter(System.out);
+	}
+
+	public void endJob(boolean succeeded) {
+		ctx.endJob(succeeded);
+	}
+
+	public void event(int inc) {
+		ctx.event(inc);
+	}
+
+	public void event(String name, int inc) {
+		ctx.event(name, inc);
+	}
+
+	public void event(String name) {
+		ctx.event(name);
+	}
+
+	public void startJob(String name, int totalWork) {
+		ctx.startJob(name, totalWork);
 	}
 
 }

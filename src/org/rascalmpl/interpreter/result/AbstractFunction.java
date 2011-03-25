@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -90,6 +91,18 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	public boolean hasVarArgs() {
 		return hasVarArgs;
+	}
+	
+	@Override
+	public synchronized Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
+			IValue[] argValues) {
+		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+		try {
+			return call(argTypes, argValues);
+		}
+		finally {
+			ctx.getEvaluator().setMonitor(old);
+		}
 	}
 	
 	private boolean matchVarArgsFunction(Type actuals) {

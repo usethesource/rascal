@@ -14,7 +14,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 // TODO: this interface needs to be split into an external interface, for clients
 // which want to call Rascal from Java, and an internal interface for managing the global
 // state of the interpreter between its different components.
-public interface IEvaluatorContext {
+public interface IEvaluatorContext extends IRascalMonitor {
 	/** for error messaging */
 	public AbstractAST getCurrentAST();
 	public void setCurrentAST(AbstractAST ast);
@@ -37,7 +37,7 @@ public interface IEvaluatorContext {
 	
 	public GlobalEnvironment getHeap();
 	
-	public boolean runTests();
+	public boolean runTests(IRascalMonitor monitor);
 	
 	public IValueFactory getValueFactory();
 	
@@ -50,4 +50,5 @@ public interface IEvaluatorContext {
 	
 	// URI resolver related
 	public URIResolverRegistry getResolverRegistry();
+	
 }
