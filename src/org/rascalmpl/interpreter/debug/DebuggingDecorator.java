@@ -855,8 +855,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return null;
 	}
 	
-	public void endJob(boolean succeeded) {
-		evaluator.endJob(succeeded);
+	public int endJob(boolean succeeded) {
+		return evaluator.endJob(succeeded);
 	}
 
 	public void event(int inc) {
@@ -871,8 +871,21 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		evaluator.event(name);
 	}
 
+	public void startJob(String name, int workShare, int totalWork) {
+		evaluator.startJob(name, workShare, totalWork);
+	}
+
 	public void startJob(String name, int totalWork) {
 		evaluator.startJob(name, totalWork);
+	}
+
+	public void startJob(String name) {
+		evaluator.startJob(name);
+		
+	}
+
+	public void todo(int work) {
+		evaluator.todo(work);
 	}
 
 }

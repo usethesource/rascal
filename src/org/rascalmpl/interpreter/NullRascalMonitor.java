@@ -1,7 +1,8 @@
 package org.rascalmpl.interpreter;
 
 public class NullRascalMonitor implements IRascalMonitor {
-	public void endJob(boolean succeeded) {
+	public int endJob(boolean succeeded) {
+		return 0;
 	}
 
 	public void event(String name) {
@@ -14,5 +15,17 @@ public class NullRascalMonitor implements IRascalMonitor {
 	}
 
 	public void startJob(String name, int totalWork) {
+	}
+
+	@Override
+	public void startJob(String name) {
+	}
+
+	@Override
+	public void startJob(String name, int workShare, int totalWork) {
+	}
+
+	@Override
+	public void todo(int work) {
 	}
 }
