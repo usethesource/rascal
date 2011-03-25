@@ -161,14 +161,14 @@ public class ErrorTreeBuilder{
 			for(int j = edgeList.size() - 1; j >= 0; --j){
 				AbstractStackNode edge = edgeList.get(j);
 				String nodeName = edge.getName();
-				int resultStoreId = parser.getResultStoreId(edge.getId());
+				int resultStoreId = -1;//parser.getResultStoreId(edge.getId());
 				
 				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
 				if(resultStore == null){
 					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
 					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
 					
-					if(filteredParents == null || !filteredParents.contains(edge.getId())){
+					//if(filteredParents == null || !filteredParents.contains(edge.getId())){
 						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore != null){
 							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
@@ -180,7 +180,7 @@ public class ErrorTreeBuilder{
 							errorNodes.push(edge, resultStore);
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
-					}
+					//}
 				}else{
 					errorNodes.push(edge, resultStore);
 				}
