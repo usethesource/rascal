@@ -20,7 +20,7 @@ public class Eval extends TutorHttpServlet {
 		
 		String expr = escapeForRascal(getStringParameter(request,"expr"));
 
-		Result<IValue> result = evaluator.eval(expr, URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, expr, URI.create("stdin:///"));
 
 		PrintWriter out = response.getWriter();
 		String resp = "<tt>" + result.getValue().toString() + "</tt>";

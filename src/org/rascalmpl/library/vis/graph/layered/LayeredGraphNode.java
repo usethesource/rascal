@@ -70,12 +70,12 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	public void averageHorizontal(){
 		// compute average median
-		System.err.printf("averageHorizontal: " + name);
-		System.err.printf(" [%f,%f,%f,%f], ", xs[0], xs[1], xs[2], xs[3]);
+//		System.err.printf("averageHorizontal: " + name);
+//		System.err.printf(" [%f,%f,%f,%f], ", xs[0], xs[1], xs[2], xs[3]);
 	
 		Arrays.sort(xs);
 		x = (xs[1] + xs[2])/2;
-		System.err.printf("sorted; [%f,%f,%f,%f] => %f\n",  xs[0], xs[1], xs[2], xs[3], x);
+//		System.err.printf("sorted; [%f,%f,%f,%f] => %f\n",  xs[0], xs[1], xs[2], xs[3], x);
 	}
 	
 	public boolean isVirtual(){

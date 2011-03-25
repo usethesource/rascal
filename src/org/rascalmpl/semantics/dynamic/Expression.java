@@ -82,6 +82,7 @@ import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
@@ -1157,11 +1158,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				String command = '(' + expected.toString() + ')' + '`'
 						+ ((IString) result.getValue()).getValue() + '`';
 				__eval.__setInterrupt(false);
-				IConstructor tree = __eval.__getParser().parseCommand(
+				Parser parser = new Parser();
+				IConstructor tree = parser.parseCommand(
 						this.getLocation().getURI(),
 						command,
-						new RascalActionExecutor(__eval, __eval.__getParser()
-								.getInfo()));
+						new RascalActionExecutor(__eval, parser.getInfo()));
 
 				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
 						.getArgs(tree).get(1); // top

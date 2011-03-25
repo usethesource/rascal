@@ -154,8 +154,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 		this.__getCtx().pushEnv();
 	}
 
-	public boolean runTests() {
-		return this.__getCtx().runTests();
+	public boolean runTests(IRascalMonitor monitor) {
+		return this.__getCtx().runTests(monitor);
 	}
 
 	public void setCurrentEnvt(Environment environment) {
@@ -216,6 +216,26 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 
 	public ASTBuilder getBuilder() {
 		return __getCtx().getBuilder();
+	}
+
+	public void endJob(boolean succeeded) {
+		ctx.endJob(succeeded);
+	}
+
+	public void event(int inc) {
+		ctx.event(inc);
+	}
+
+	public void event(String name, int inc) {
+		ctx.event(name, inc);
+	}
+
+	public void event(String name) {
+		ctx.event(name);
+	}
+
+	public void startJob(String name, int totalWork) {
+		ctx.startJob(name, totalWork);
 	}
 
 }

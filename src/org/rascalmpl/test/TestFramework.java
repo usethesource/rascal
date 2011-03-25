@@ -138,7 +138,7 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-			return evaluator.runTests();
+			return evaluator.runTests(evaluator.getMonitor());
 		}
 		finally {
 			stderr.flush();
@@ -195,7 +195,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command){
-		Result<IValue> result = evaluator.eval(command, URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, command, URI.create("stdin:///"));
 
 		if (result.getType().isVoidType()) {
 			return true;

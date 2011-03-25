@@ -158,7 +158,7 @@ public class Scripting {
 		Result<IValue> result = null;
 		if(!timer.hasExpired() && commands.length() > 0){
 			for(IValue command : commands){
-				result = evaluator.eval(((IString) command).getValue(), URI.create("stdin:///"));
+				result = evaluator.eval(null, ((IString) command).getValue(), URI.create("stdin:///"));
 			}
 			timer.cancel();
 			if(timer.hasExpired())

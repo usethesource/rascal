@@ -31,7 +31,7 @@ public class RascalTutor {
 	private Server server;
 	
 	public void start(final int port) throws Exception {
-		eval.eval("import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
+		eval.eval(null, "import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
 		server = new Server(port);
 		server.setHandler(getTutorHandler());
 		server.start();

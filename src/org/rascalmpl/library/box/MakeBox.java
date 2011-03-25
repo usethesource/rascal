@@ -93,7 +93,7 @@ public class MakeBox {
 	}
 
 	private void execute(String s) {
-		commandEvaluator.eval(s, URI.create("box:///"));
+		commandEvaluator.eval(commandEvaluator.getMonitor(), s, URI.create("box:///"));
 	}
 
 	private IValue launchRascalProgram(String resultName, boolean richText) {
@@ -183,7 +183,7 @@ public class MakeBox {
 	public IConstructor computeBox(URI uri) {
 		try {
 			// System.err.println("computeBox: start parsing");
-			IConstructor moduleTree = commandEvaluator.parseModule(uri, null);
+			IConstructor moduleTree = commandEvaluator.parseModule(commandEvaluator, uri, null);
 			IList z = TreeAdapter.getArgs(moduleTree);
 			// System.err.println("computeBox: parsed");
 			Module moduleAst = AB.buildModule(moduleTree);

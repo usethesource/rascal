@@ -98,6 +98,7 @@ import org.rascalmpl.ast.Statement.While;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -123,8 +124,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return evaluator.getBuilder();
 	}
 	
-	public IValue call(String name, IValue... args) {
-		return evaluator.getEvaluator().call(name, args);
+	public IValue call(IRascalMonitor monitor, String name, IValue... args) {
+		return evaluator.getEvaluator().call(monitor, name, args);
 	}
 	
 	/* used for pattern-matching evaluation */
@@ -766,8 +767,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		return debugger;
 	}
 
-	public IConstructor parseCommand(String command){
-		return evaluator.getEvaluator().parseCommand(command, URI.create("debug:///"));
+	public IConstructor parseCommand(IRascalMonitor monitor, String command){
+		return evaluator.getEvaluator().parseCommand(monitor, command, URI.create("debug:///"));
 	}
 
 	public AbstractAST getCurrentAST() {
@@ -798,8 +799,8 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 		evaluator.pushEnv();
 	}
 
-	public boolean runTests() {
-		return evaluator.runTests();
+	public boolean runTests(IRascalMonitor monitor) {
+		return evaluator.runTests(monitor);
 	}
 
 	public void setCurrentAST(AbstractAST ast) {
@@ -852,6 +853,26 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 	public PrintWriter getStdOut() {
 		return null;
+	}
+	
+	public void endJob(boolean succeeded) {
+		evaluator.endJob(succeeded);
+	}
+
+	public void event(int inc) {
+		evaluator.event(inc);
+	}
+
+	public void event(String name, int inc) {
+		evaluator.event(name, inc);
+	}
+
+	public void event(String name) {
+		evaluator.event(name);
+	}
+
+	public void startJob(String name, int totalWork) {
+		evaluator.startJob(name, totalWork);
 	}
 
 }

@@ -107,10 +107,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval
-					.runTests(), __eval);
+			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(__eval.getMonitor()), __eval);
 		}
-
 	}
 
 	static public class Unimport extends

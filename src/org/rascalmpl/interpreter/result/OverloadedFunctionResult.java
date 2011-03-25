@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -69,6 +70,18 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return lub;
 	}
 
+	@Override
+	public synchronized Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
+			IValue[] argValues) {
+		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
+		try {
+			return call(argTypes, argValues);
+		}
+		finally {
+			ctx.getEvaluator().setMonitor(old);
+		}
+	}
+	
 	@Override 
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
 		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues);

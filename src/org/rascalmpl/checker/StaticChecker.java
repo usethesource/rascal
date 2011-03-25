@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -37,18 +38,18 @@ public class StaticChecker {
 		loaded = false;
 	}
 	
-	private IValue eval(String cmd) {
+	private IValue eval(IRascalMonitor monitor, String cmd) {
 		try {
-			return eval.eval(cmd, URI.create("checker:///")).getValue();
+			return eval.eval(monitor, cmd, URI.create("checker:///")).getValue();
 		} catch (SyntaxError se) {
 			throw new ImplementationError("syntax error in static checker modules", se);
 		}
 	}
 
-	public synchronized void load() {
+	public synchronized void load(IRascalMonitor monitor) {
 //		eval("import lang::rascal::checker::Check;");
 //		eval("import lang::rascal::checker::Import;");
-		eval("import lang::rascal::scoping::ResolveNames;");
+		eval(monitor, "import lang::rascal::scoping::ResolveNames;");
 		loaded = true;
 	}
 
@@ -60,8 +61,8 @@ public class StaticChecker {
 		return initialized;
 	}
 	
-	private IConstructor resolveImports(IConstructor moduleParseTree) {
-		ISet imports = (ISet) eval.call("importedModules", moduleParseTree);
+	private IConstructor resolveImports(IRascalMonitor monitor, IConstructor moduleParseTree) {
+		ISet imports = (ISet) eval.call(monitor, "importedModules", moduleParseTree);
 		
 		eval.getStdErr().println("imports: " + imports);
 		
@@ -74,13 +75,13 @@ public class StaticChecker {
 		
 		eval.getStdErr().println("locations: " + mw.done());
 		
-		return (IConstructor) eval.call("linkImportedModules", moduleParseTree, mw.done());
+		return (IConstructor) eval.call(monitor, "linkImportedModules", moduleParseTree, mw.done());
 	}
 	
-	public synchronized IConstructor checkModule(IConstructor moduleParseTree) {
+	public synchronized IConstructor checkModule(IRascalMonitor monitor, IConstructor moduleParseTree) {
 		IConstructor res = moduleParseTree;
-//		res = resolveImports(res);
-		if (checkerEnabled) res = (IConstructor) eval.call("resolveTree", res);
+//		res = resolveImports(monitor, res);
+		if (checkerEnabled) res = (IConstructor) eval.call(monitor, "resolveTree", res);
 		return res;
 	}
 
@@ -88,8 +89,10 @@ public class StaticChecker {
 		checkerEnabled = false;
 	}
 
-	public void enableChecker() {
-		if (!loaded) load();
+	public void enableChecker(IRascalMonitor monitor) {
+		if (!loaded) {
+			load(monitor);
+		}
 		checkerEnabled = true;
 	}
 	

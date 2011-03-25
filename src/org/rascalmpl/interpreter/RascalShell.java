@@ -167,9 +167,9 @@ public class RascalShell {
 			printStacktrace(console, cause);
 		}
 	}
-
+	
 	private String handleInput(final Evaluator command, StringBuffer statement){
-		Result<IValue> value = evaluator.eval(statement.toString(), URI.create("prompt:///"));
+		Result<IValue> value = evaluator.eval(null, statement.toString(), URI.create("prompt:///"));
 
 		if (value.getValue() == null) {
 			return "ok";
@@ -189,7 +189,7 @@ public class RascalShell {
 		String command = statement.toString();
 		
 		try {
-			evaluator.parseCommand(command, URI.create("prompt:///"));
+			evaluator.parseCommand(null, command, URI.create("prompt:///"));
 		}
 		catch (SyntaxError e) {
 			ISourceLocation l = e.getLocation();
@@ -230,7 +230,7 @@ public class RascalShell {
 		PrintWriter stdout = new PrintWriter(System.out);
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
-		evaluator.doImport("lang::rascal::doc::ToLatex");
+		evaluator.doImport(null, "lang::rascal::doc::ToLatex");
 		File file = new File(fileName);
 		String name = file.getName();
 		int pos = name.lastIndexOf('.');
@@ -250,7 +250,7 @@ public class RascalShell {
 		System.err.println("Formatting Rascal snippets in " + file + "; outputting to " + dest + "...");
 		System.err.flush();
 		ISourceLocation loc = vf.sourceLocation(file.getAbsolutePath());
-		IString str = (IString) evaluator.call("rascalDoc2Latex", loc);
+		IString str = (IString) evaluator.call(null, "rascalDoc2Latex", loc);
 		FileWriter writer = new FileWriter(dest);
 		writer.write(str.getValue());
 		writer.close();

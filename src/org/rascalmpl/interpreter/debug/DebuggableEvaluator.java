@@ -93,6 +93,7 @@ import org.rascalmpl.ast.Statement.TryFinally;
 import org.rascalmpl.ast.Statement.VariableDeclaration;
 import org.rascalmpl.ast.Statement.While;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -126,7 +127,6 @@ public class DebuggableEvaluator extends Evaluator {
 		return super.visitExpressionAddition(x);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitExpressionAll(All x) {
 		suspend(x);
@@ -145,8 +145,6 @@ public class DebuggableEvaluator extends Evaluator {
 		return super.visitExpressionAnd(x);
 	}
 
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitExpressionAny(Any x) {
 		suspend(x);
@@ -740,8 +738,8 @@ public class DebuggableEvaluator extends Evaluator {
 		return debugger;
 	}
 
-	public IConstructor parseCommand(String command){
-		return parseCommand(command, URI.create("debug:///"));
+	public IConstructor parseCommand(IRascalMonitor monitor, String command){
+		return parseCommand(monitor, command, URI.create("debug:///"));
 	}
 
 }

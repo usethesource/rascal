@@ -22,7 +22,7 @@ public class Edit extends TutorHttpServlet {
 		boolean newConcept = getStringParameter(request, "new").equals("true");
 		boolean check = getStringParameter(request, "check").equals("true");
 		
-		Result<IValue> result = evaluator.eval("edit(\"" + concept + "\"," + newConcept + "," + check + ")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, "edit(\"" + concept + "\"," + newConcept + "," + check + ")", URI.create("stdin:///"));
 
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);

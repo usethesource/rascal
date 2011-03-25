@@ -11,6 +11,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.TypeReachability;
 
 public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
@@ -29,7 +30,7 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	
 	@Override
 	public boolean mayMatch(Type subjectType, Environment env){
-		return ctx.getEvaluator().mayOccurIn(getType(env), subjectType);
+		return TypeReachability.mayOccurIn(getType(env), subjectType, env);
 	}
 	
 	@Override
