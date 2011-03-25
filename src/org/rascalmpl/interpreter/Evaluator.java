@@ -110,6 +110,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final PrintWriter stdout;
 
 	private ITestResultListener testReporter;
+	/**
+	 * To avoid null pointer exceptions, avoid passing this directly to other classes, use
+	 * the result of getMonitor() instead. 
+	 */
 	private IRascalMonitor monitor;
 	
 
@@ -397,7 +401,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			types[i++] = v.getType();
 		}
 
-		return func.call(monitor, types, args).getValue();
+		return func.call(getMonitor(), types, args).getValue();
 	}
 
 	/**
@@ -577,7 +581,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
 		if (this.parserGenerator == null) {
-			this.parserGenerator = new ParserGenerator(this, this.getStdErr(), this.classLoaders, this.getValueFactory());
+			this.parserGenerator = new ParserGenerator(getMonitor(), this.getStdErr(), this.classLoaders, this.getValueFactory());
 		}
 		endJob(true);
 		return this.parserGenerator;
@@ -1464,6 +1468,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public IRascalMonitor getMonitor() {
-		return monitor;
+		if (monitor != null)
+			return monitor;
+		else
+			return new NullRascalMonitor();
 	}
 }
