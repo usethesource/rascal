@@ -13,6 +13,10 @@ import org.rascalmpl.library.vis.Figure;
  * @author paulk
  *
  */
+/**
+ * @author paulklint
+ *
+ */
 public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	protected String name;
@@ -47,36 +51,31 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		root = align = sink = this;
 	}
 	
-	public void addShadowConnections(){
-		shadowing = true;
-		inShadowed = new LinkedList<LayeredGraphNode>();
-		outShadowed = new LinkedList<LayeredGraphNode>();
-		for(LayeredGraphNode i : in)
-			inShadowed.add(i);
-		for(LayeredGraphNode o : out)
-			outShadowed.add(o);
+	public void print(){
+
+		System.err.println("*** " + name);
+		System.err.printf("\tin    = ");
+		for(LayeredGraphNode gin : in){
+			System.err.printf("%s ", gin.name);
+		}
+		System.err.println("");
+		System.err.printf("\tout   = ");
+		for(LayeredGraphNode gout : out){
+			System.err.printf("%s ", gout.name);
+		}
+		System.err.println("");
+		System.err.println("\tlabel = " + label);
+		System.err.println("\tlayer = " + layer);
+		System.err.println("\tpos   = " + pos);
+		System.err.println("\troot  = " + (root  != null ? root.name:  "null"));
+		System.err.println("\talign = " + (align != null ? align.name: "null"));
+		System.err.println("\tsink  = " +  (sink != null ? sink.name:  "null"));
+		System.err.println("\tsink.shift  = " +  (sink != null ? sink.shift :  -1));
+		System.err.println("\tthis.X= " +  x);
+		System.err.println("\tthis.shift  = " +  shift);
 	}
 	
-	public void delShadowConnections(){
-		inShadowed = outShadowed = null;
-		shadowing = false;
-	}
-	
-	public void clearHorizontal(){
-		root = align = sink = this;
-		x = -1;
-		shift = INFINITY;
-	}
-	
-	public void averageHorizontal(){
-		// compute average median
-//		System.err.printf("averageHorizontal: " + name);
-//		System.err.printf(" [%f,%f,%f,%f], ", xs[0], xs[1], xs[2], xs[3]);
-	
-		Arrays.sort(xs);
-		x = (xs[1] + xs[2])/2;
-//		System.err.printf("sorted; [%f,%f,%f,%f] => %f\n",  xs[0], xs[1], xs[2], xs[3], x);
-	}
+	/* Elementary operations on nodes */
 	
 	public boolean isVirtual(){
 		return figure == null;
@@ -92,22 +91,12 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 			out.add(n);
 	}
 	
-	public LinkedList<LayeredGraphNode> getInAbove(){
-		LinkedList<LayeredGraphNode> inAbove = new LinkedList<LayeredGraphNode>();
-		for(LayeredGraphNode g : in){
-			if(g.layer < layer)
-				inAbove.add(g);
-		}
-		return inAbove;
+	public boolean isAbove(LayeredGraphNode g){
+		return layer < g.layer;
 	}
 	
-	public LinkedList<LayeredGraphNode> getOutBelow(){
-		LinkedList<LayeredGraphNode> outBelow = new LinkedList<LayeredGraphNode>();
-		for(LayeredGraphNode g : out){
-			if(g.layer > layer)
-				outBelow.add(g);
-		}
-		return outBelow;
+	public boolean isBelow(LayeredGraphNode g){
+		return layer > g.layer;
 	}
 	
 	public void delIn(LayeredGraphNode n){
@@ -120,6 +109,35 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 			out.remove(n);
 	}
 	
+	/* Methods for ordering and cycle removal */
+	
+	/**
+	 * Create a shadow graph for the purpose of cycle removal.
+	 * Add a copy of in and out to inShadowed, resp., outShadowed.
+	 * These are used during removeCycles and are null before and after
+	 * removeCycles has been called.
+	 */
+	public void addShadowConnections(){
+		shadowing = true;
+		inShadowed = new LinkedList<LayeredGraphNode>();
+		outShadowed = new LinkedList<LayeredGraphNode>();
+		for(LayeredGraphNode i : in)
+			inShadowed.add(i);
+		for(LayeredGraphNode o : out)
+			outShadowed.add(o);
+	}
+	
+	/**
+	 * Remove the copies of in and out.
+	 */
+	public void delShadowConnections(){
+		inShadowed = outShadowed = null;
+		shadowing = false;
+	}
+
+	/**
+	 * Disconnect this node from the graph during cycle removal
+	 */
 	public void disconnect(){
 		for(LayeredGraphNode g : inShadowed){
 			g.outShadowed.remove(this);
@@ -142,20 +160,35 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return m;
 	}
 	
+	/**
+	 * @return is this node a sink, i.e. has no outgoing edges?
+	 * Note: be called during and after shadowing
+	 */
 	public boolean isSink(){
 		return (shadowing ? outShadowed : out).size() == 0;
 	}
 	
+	/**
+	 * @return is this node a source, i.e. has no incoming edges?
+	 * Note: may be called during and after shadowing.
+	 */
 	public boolean isSource(){
 		return (shadowing ? inShadowed : in).size() == 0;
 	}
 	
+	/**
+	 * @return difference between number of outgoing and ingoing edges
+	 * Note: may ONLY be called during shadowing
+	 */
 	public int getOutInDiff(){
-		return shadowing ? outShadowed.size() - inShadowed.size() : out.size() - in.size();
+		return outShadowed.size() - inShadowed.size();
 	}
 	
-	public int compareTo(LayeredGraphNode o){
-		return shadowing ? compare(inShadowed, o.inShadowed) : compare(in, o.in);
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(LayeredGraphNode other){
+		return shadowing ? compare(inShadowed, other.inShadowed) : compare(in, other.in);
 	}
 	
 	/**
@@ -200,16 +233,28 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		}
 		return compare(SOut, TOut);
 	}
+	/* Methods for layering */
 	
-	public LinkedList<LayeredGraphNode> increasingSortedOut(){
-		if(shadowing){
-			Collections.sort(outShadowed);
-			return outShadowed;
+
+	public LayeredGraphNode lowestIn(){
+		LayeredGraphNode low = null;
+		for(LayeredGraphNode g : in){
+			if(low == null || low.layer < g.layer)
+				low = g;
 		}
-		Collections.sort(out);
-		return out;
+		return low;
 	}
 	
+	public LayeredGraphNode highestOut(){
+		LayeredGraphNode high = null;
+		for(LayeredGraphNode g : out){
+			if(high == null || g.layer < high.layer)
+				high = g;
+		}
+		return high;
+	}
+	
+
 	public boolean AllInLabelled(){
 		for(LayeredGraphNode g : in){
 			System.err.println("AllInLabelled: " + g.name + " label = " + g.label);
@@ -245,6 +290,50 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return true;
 	}
 	
+	/* Methods for horizontal ordering */
+	
+	/**
+	 * Get an ordered list of all nodes in layer that are directly connected to this node.
+	 * @param layer	a horizontal layer of the graph
+	 * @return	ordered list of nodes in layer directly connected to this node
+	 */
+	public LinkedList<LayeredGraphNode> getConnectedNeighbours(LinkedList<LayeredGraphNode> layer){
+		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
+		for(LayeredGraphNode g : layer){
+			if(in.contains(g) || out.contains(g))
+				connected.add(g);
+		}
+		return connected;
+	}
+	
+	/* Methods for horizontal placement */
+	
+	/**
+	 * Clear the data for the horizontal alignment computation.
+	 * Note that the values in xs[0] ... xs[1] are preserved
+	 */
+	public void clearHorizontal(){
+		root = align = sink = this;
+		x = -1;
+		shift = INFINITY;
+	}
+	
+	/**
+	 * Compute the average median of the four horizontal values that have been computed
+	 * for four alignment directions
+	 */
+	public void averageHorizontal(){
+	
+		Arrays.sort(xs);
+		x = (xs[1] + xs[2])/2;
+		//x = (xs[0] + xs[1])/2;
+	}
+	
+	/**
+	 * Get x value for given alignment.
+	 * @param dir	a given alignment direction
+	 * @return The x value for that direction
+	 */
 	public float getX(Direction dir){
 		switch(dir){
 		case TOP_LEFT: return xs[0];
@@ -255,7 +344,13 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return -1;
 	}
 	
+	/**
+	 * Set x value for given alignment
+	 * @param dir	a given alignment direction
+	 * @param x		the x value for that direction
+	 */
 	public void setX(Direction dir, float x){
+		System.err.println("setX: " + name + " => " + x);
 		switch(dir){
 		case TOP_LEFT: this.x = xs[0] = x; return;
 		case TOP_RIGHT: this.x = xs[1] = x; return;
@@ -263,6 +358,9 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		case BOTTOM_RIGHT: this.x = xs[3] = x; return;
 		} 
 	}
+	
+	/* Standard figure elements and operations */
+
 	
 	public float figX(){
 		return x;

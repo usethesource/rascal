@@ -93,11 +93,23 @@ public class LayeredGraphEdge extends Figure {
 	}
 
 	void reverse(){
+		System.err.println("*** Before reverse ***");
+		from.print();
+		to.print();
 		reversed = true;
-		from.out.remove(to);
-		to.in.remove(from);
-		from.in.add(to);
-		to.out.add(from);
+//		from.out.remove(to);
+//		to.in.remove(from);
+//		from.in.add(to);
+//		to.out.add(from);
+		
+		from.delOut(to);
+		to.delIn(from);
+		from.addIn(to);
+		to.addOut(from);
+		
+		System.err.println("*** After reverse ***");
+		from.print();
+		to.print();
 	}
 	
 	boolean isReversed(){
