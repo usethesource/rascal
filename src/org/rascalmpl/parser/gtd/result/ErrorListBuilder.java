@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -20,7 +19,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorListBuilder{
-	private final static IValueFactory vf = AbstractNode.VF;
+	private final static IValueFactory VF = AbstractNode.VF;
 	
 	private ErrorListBuilder(){
 		super();
@@ -33,16 +32,11 @@ public class ErrorListBuilder{
 		for(int i = 0; i < postFixLength; ++i){
 			AbstractNode node = postFix[i];
 			if(!(node instanceof CycleNode)){
-				IConstructor constructedNode = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
-				if(constructedNode == null) return null;
-				constructedPostFix[offset + i] = constructedNode;
+				constructedPostFix[offset + i] = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
 			}else{
 				CycleNode cycleNode = (CycleNode) node;
 				IConstructor[] convertedCycle = convertCycle(cycleNode, stack, depth, cycleMark, positionStore, actionExecutor);
-				if(convertedCycle == null) return null;
-				
 				IConstructor[] constructedCycle = constructCycle(convertedCycle, production, actionExecutor);
-				if(constructedCycle == null) return null;
 				
 				int constructedCycleLength = constructedCycle.length;
 				if(constructedCycleLength == 1){
@@ -67,15 +61,11 @@ public class ErrorListBuilder{
 		IConstructor[] convertedCycle;
 		if(nrOfCycleElements == 1){
 			convertedCycle = new IConstructor[1];
-			IConstructor element = cycleElements[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
-			if(element == null) return null;
-			convertedCycle[0] = element;
+			convertedCycle[0] = cycleElements[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			for(int i = 0; i < nrOfCycleElements; ++i){
-				IConstructor element = cycleElements[i + 1].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
-				if(element == null) return null;
-				convertedCycle[i] = element;
+				convertedCycle[i] = cycleElements[i + 1].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
 			}
 			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}
@@ -84,21 +74,23 @@ public class ErrorListBuilder{
 	}
 	
 	private static IConstructor[] constructCycle(IConstructor[] convertedCycle, IConstructor production, IActionExecutor actionExecutor){
-		IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), vf.integer(1));
+		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
 		cycle = actionExecutor.filterCycle(cycle);
 		if(cycle == null){
-			return convertedCycle;
+			cycle = VF.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
 		}
 		
-		IConstructor elements = vf.constructor(Factory.Tree_Appl, production, vf.list(convertedCycle));
+		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
 		elements = actionExecutor.filterProduction(elements);
 		if(elements == null){
-			return null;
+			elements = VF.constructor(Factory.Tree_Error, production, VF.list(convertedCycle), AbstractContainerNode.EMPTY_LIST);
 		}
 		
-		IConstructor constructedCycle = vf.constructor(Factory.Tree_Amb, vf.set(elements, cycle));
+		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
 		constructedCycle = actionExecutor.filterAmbiguity(constructedCycle);
-		if(constructedCycle == null) return null;
+		if(constructedCycle == null){
+			constructedCycle = VF.constructor(Factory.Tree_Error_Amb, VF.set(elements, cycle));
+		}
 		
 		return new IConstructor[]{constructedCycle};
 	}
@@ -130,8 +122,6 @@ public class ErrorListBuilder{
 			ArrayList<Link> prefixes = child.prefixes;
 			if(prefixes == null){
 				IConstructor[] constructedPostFix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
-				if(constructedPostFix == null) return;
-				
 				gatheredAlternatives.add(constructedPostFix, production);
 				return;
 			}
@@ -141,8 +131,6 @@ public class ErrorListBuilder{
 				
 				if(prefix == null){
 					IConstructor[] constructedPostFix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
-					if(constructedPostFix == null) return;
-					
 					gatheredAlternatives.add(constructedPostFix, production);
 					return;
 				}
@@ -203,8 +191,6 @@ public class ErrorListBuilder{
 			
 			if(prefix == null){
 				IConstructor[] constructedPostFix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
-				if(constructedPostFix == null) return;
-				
 				gatheredAlternatives.add(constructedPostFix, production);
 			}else{
 				AbstractNode prefixNode = prefix.node;
@@ -231,7 +217,6 @@ public class ErrorListBuilder{
 			IConstructor[] prefixAlternative = gatheredPrefixes.getFirst(0);
 			
 			IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
-			if(constructedPrefix == null) return;
 			
 			int length = constructedPrefix.length;
 			int prefixLength = prefixAlternative.length;
@@ -241,55 +226,33 @@ public class ErrorListBuilder{
 			
 			gatheredAlternatives.add(newPostFix, production);
 		}else{
-			ISetWriter ambSublist = vf.setWriter(Factory.Tree);
-			IConstructor lastAlternativeSubList = null;
+			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 			
 			for(int i = nrOfGatheredPrefixes - 1; i >= 0; --i){
-				IConstructor alternativeSubList = vf.constructor(Factory.Tree_Appl, production, vf.list(gatheredPrefixes.getFirst(i)));
+				IConstructor alternativeSubList = VF.constructor(Factory.Tree_Appl, production, VF.list(gatheredPrefixes.getFirst(i)));
 				alternativeSubList = actionExecutor.filterProduction(alternativeSubList);
-				if(alternativeSubList != null){
-					lastAlternativeSubList = alternativeSubList;
-					ambSublist.insert(alternativeSubList);
+				if(alternativeSubList == null){
+					alternativeSubList = VF.constructor(Factory.Tree_Error, production, VF.list(gatheredPrefixes.getFirst(i)), AbstractContainerNode.EMPTY_LIST);
 				}
+				ambSublist.insert(alternativeSubList);
 			}
 			
-			int nrOfAmbSubLists = ambSublist.size();
-			if(nrOfAmbSubLists == 1){ // Filtered and no longer ambiguous; flatten it.
-				IList childrenList = (IList) lastAlternativeSubList.get(1);
-				int nrOfChildren = childrenList.length();
-				IConstructor[] children = new IConstructor[nrOfChildren];
-				for(int i = nrOfChildren - 1; i >= 0; --i){
-					children[i] = (IConstructor) childrenList.get(i);
-				}
-				
-				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
-				if(constructedPrefix == null) return;
-				
-				int length = constructedPrefix.length;
-				IConstructor[] newPostFix = new IConstructor[nrOfChildren + length];
-				System.arraycopy(children, 0, newPostFix, 0, nrOfChildren);
-				System.arraycopy(constructedPrefix, 0, newPostFix, nrOfChildren, length);
-				gatheredAlternatives.add(newPostFix, production);
-				
-				sharedPrefixCache.put(prefixes, children);
-			}else if(nrOfAmbSubLists > 1){ // Ambiguous after filtering.
-				IConstructor prefixResult = vf.constructor(Factory.Tree_Amb, ambSublist.done());
-				prefixResult = actionExecutor.filterAmbiguity(prefixResult);
-				if(prefixResult == null) return;
-				
-				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
-				if(constructedPrefix == null) return;
-				
-				int length = constructedPrefix.length;
-				IConstructor[] newPostFix = new IConstructor[length + 1];
-				System.arraycopy(constructedPrefix, 0, newPostFix, 1, length);
-				newPostFix[0] = prefixResult;
-				
-				gatheredAlternatives.add(newPostFix, production);
-				
-				sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
+			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
+			prefixResult = actionExecutor.filterAmbiguity(prefixResult);
+			if(prefixResult == null){
+				prefixResult = VF.constructor(Factory.Tree_Error_Amb, ambSublist.done());
 			}
-			// Filtering caused it to be discarded.
+			
+			IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
+			
+			int length = constructedPrefix.length;
+			IConstructor[] newPostFix = new IConstructor[length + 1];
+			System.arraycopy(constructedPrefix, 0, newPostFix, 1, length);
+			newPostFix[0] = prefixResult;
+			
+			gatheredAlternatives.add(newPostFix, production);
+			
+			sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
 		}
 	}
 	
@@ -333,15 +296,15 @@ public class ErrorListBuilder{
 	}
 	
 	private static IConstructor buildAlternative(IConstructor production, IValue[] children, boolean error){
-		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
+		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
 		}
 		
 		if(error){
-			return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
+			return VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 		}
-		return vf.constructor(Factory.Tree_Error, production, childrenListWriter.done(), AbstractContainerNode.EMPTY_LIST);
+		return VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), AbstractContainerNode.EMPTY_LIST);
 	}
 	
 	public static IConstructor toErrorListTree(ListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
@@ -349,15 +312,15 @@ public class ErrorListBuilder{
 		if(!(node.isLayout || node.input == null)){
 			int beginLine = positionStore.findLine(node.offset);
 			int endLine = positionStore.findLine(node.endOffset);
-			sourceLocation = vf.sourceLocation(node.input, node.offset, node.endOffset - node.offset, beginLine + 1, endLine + 1, positionStore.getColumn(node.offset, beginLine), positionStore.getColumn(node.endOffset, endLine));
+			sourceLocation = VF.sourceLocation(node.input, node.offset, node.endOffset - node.offset, beginLine + 1, endLine + 1, positionStore.getColumn(node.offset, beginLine), positionStore.getColumn(node.endOffset, endLine));
 		}
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(node.firstProduction), vf.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(node.firstProduction), VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle);
 			if(cycle == null){
-				cycle = vf.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getRhs(node.firstProduction), vf.integer(depth - index));
+				cycle = VF.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getRhs(node.firstProduction), VF.integer(depth - index));
 			}
 			
 			if(sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
@@ -396,7 +359,7 @@ public class ErrorListBuilder{
 			}
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}else if(nrOfAlternatives > 0){ // Ambiguous.
-			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
+			ISetWriter ambSetWriter = VF.setWriter(Factory.Tree);
 			IConstructor lastAlternative = null;
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; --i){
@@ -425,14 +388,14 @@ public class ErrorListBuilder{
 					ambSetWriter.insert(alt);
 				}
 				
-				result = vf.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
 				// Don't filter error ambs.
 			}else{
-				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
+				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				result = actionExecutor.filterAmbiguity(result);
 				if(result == null){
 					// Build error amb.
-					result = vf.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+					result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
 				}
 				
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);

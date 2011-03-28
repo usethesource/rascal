@@ -51,9 +51,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			int postFixLength = postFix.length;
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
 			for(int i = 0; i < postFixLength; ++i){
-				IConstructor node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
-				if(node == null) return;
-				constructedPostFix[i] = node;
+				constructedPostFix[i] = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
 			}
 			
 			gatheredAlternatives.add(constructedPostFix, production);
@@ -64,13 +62,12 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			Link prefix = prefixes.get(i);
 			
 			AbstractNode resultNode = prefix.node;
-			if(!resultNode.isRejected()){
-				int length = postFix.length;
-				AbstractNode[] newPostFix = new AbstractNode[length + 1];
-				System.arraycopy(postFix, 0, newPostFix, 1, length);
-				newPostFix[0] = resultNode;
-				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, actionExecutor);
-			}
+			
+			int length = postFix.length;
+			AbstractNode[] newPostFix = new AbstractNode[length + 1];
+			System.arraycopy(postFix, 0, newPostFix, 1, length);
+			newPostFix[0] = resultNode;
+			gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, actionExecutor);
 		}
 	}
 	
@@ -102,12 +99,6 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			cycleMark.reset();
 		}
 		
-		if(rejected){
-			// TODO Handle filtering.
-			cachedResult = FILTERED_RESULT;
-			return null;
-		}
-		
 		ISourceLocation sourceLocation = null;
 		if(!(isLayout || input == null)){
 			int beginLine = positionStore.findLine(offset);
@@ -119,7 +110,11 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle);
-			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
+			if(cycle == null){
+				cycle = VF.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getRhs(firstProduction), VF.integer(depth - index));
+			}
+			
+			if(sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);
 			
@@ -148,11 +143,11 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
 			result = actionExecutor.filterProduction(result);
-			if(result != null){
-				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-			}else{
-				// TODO Handle filtering.
+			if(result == null){
+				// Build error alternative.
+				result = buildAlternative(production, alternative);
 			}
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}else if(nrOfAlternatives > 0){ // Ambiguous.
 			ISetWriter ambSetWriter = VF.setWriter(Factory.Tree);
 			IConstructor lastAlternative = null;
@@ -173,13 +168,24 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			if(ambSetWriter.size() == 1){
 				result = lastAlternative;
 			}else if(ambSetWriter.size() == 0){
-				// TODO Handle filtering.
+				// Build error trees for the alternatives.
+				for(int i = nrOfAlternatives - 1; i >= 0; --i){
+					IConstructor production = gatheredAlternatives.getSecond(i);
+					IValue[] alternative = gatheredAlternatives.getFirst(i);
+					
+					IConstructor alt = buildAlternative(production, alternative);
+					if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
+					ambSetWriter.insert(alt);
+				}
+				
+				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+				// Don't filter error ambs.
 			}else{
 				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				result = actionExecutor.filterAmbiguity(result);
 				if(result == null){
-					cachedResult = FILTERED_RESULT;
-					return null;
+					// Build error amb.
+					result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
 				}
 				
 				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
