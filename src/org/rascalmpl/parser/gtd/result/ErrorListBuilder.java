@@ -20,7 +20,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorListBuilder{
-	private final static IValueFactory vf = AbstractNode.vf;
+	private final static IValueFactory vf = AbstractNode.VF;
 	
 	private ErrorListBuilder(){
 		super();

@@ -131,7 +131,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '<if (isRoot) {>
            '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
            '		try {
-           '			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+           '			return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
            '		} catch(FactTypeUseException e) {
            '			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
            '		} catch(IOException e) {

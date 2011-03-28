@@ -11,11 +11,12 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public abstract class AbstractContainerNode extends AbstractNode{
+	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final static TypeStore typeStore = new TypeStore();
-	private final static Type CACHED_RESULT_TYPE = TypeFactory.getInstance().abstractDataType(typeStore, "Cached");
-	private final static Type FILTERED_RESULT_TYPE = TypeFactory.getInstance().constructor(typeStore, CACHED_RESULT_TYPE, "filtered");
-	protected final static IConstructor FILTERED_RESULT = vf.constructor(FILTERED_RESULT_TYPE);
-	protected final static IList EMPTY_LIST = vf.list();
+	private final static Type CACHED_RESULT_TYPE = TF.abstractDataType(typeStore, "cached");
+	private final static Type FILTERED_RESULT_TYPE = TF.constructor(typeStore, CACHED_RESULT_TYPE, "filtered");
+	protected final static IConstructor FILTERED_RESULT = VF.constructor(FILTERED_RESULT_TYPE);
+	protected final static IList EMPTY_LIST = VF.list();
 	
 	protected final URI input;
 	protected final int offset;

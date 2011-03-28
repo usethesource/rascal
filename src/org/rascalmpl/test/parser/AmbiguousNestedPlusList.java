@@ -19,16 +19,16 @@ S ::= A+
 A ::= [a]+
 */
 public class AmbiguousNestedPlusList extends SGTDBF implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
-	private final static IConstructor SYMBOL_PLUS_LIST_A = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
-	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
-	private final static IConstructor SYMBOL_PLUS_LIST_a = vf.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a);
+	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_PLUS_LIST_A = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_A);
+	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
+	private final static IConstructor SYMBOL_PLUS_LIST_a = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a);
 	
-	private final static IConstructor PROD_S_PLUSLISTA = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_A), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTA = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_A, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_A_PLUSLISTa = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_PLUS_LIST_a), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTa = vf.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_PLUSLISTA = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_PLUS_LIST_A), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_PLUSLISTA = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_A, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_A_PLUSLISTa = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_PLUS_LIST_a), SYMBOL_A, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_PLUSLISTa = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a, VF.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");

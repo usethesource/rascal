@@ -20,22 +20,22 @@ import org.rascalmpl.values.uptr.Factory;
 * NOTE: This test, tests prefix sharing.
 */
 public class Ambiguous9 extends SGTDBF implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_E = vf.constructor(Factory.Symbol_Sort, vf.string("E"));
-	private final static IConstructor SYMBOL_plus = vf.constructor(Factory.Symbol_Lit, vf.string("+"));
-	private final static IConstructor SYMBOL_star = vf.constructor(Factory.Symbol_Lit, vf.string("*"));
-	private final static IConstructor SYMBOL_1 = vf.constructor(Factory.Symbol_Lit, vf.string("1"));
-	private final static IConstructor SYMBOL_char_plus = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(43))));
-	private final static IConstructor SYMBOL_char_star = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(42))));
-	private final static IConstructor SYMBOL_char_1 = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(49))));
+	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_E = VF.constructor(Factory.Symbol_Sort, VF.string("E"));
+	private final static IConstructor SYMBOL_plus = VF.constructor(Factory.Symbol_Lit, VF.string("+"));
+	private final static IConstructor SYMBOL_star = VF.constructor(Factory.Symbol_Lit, VF.string("*"));
+	private final static IConstructor SYMBOL_1 = VF.constructor(Factory.Symbol_Lit, VF.string("1"));
+	private final static IConstructor SYMBOL_char_plus = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(43))));
+	private final static IConstructor SYMBOL_char_star = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(42))));
+	private final static IConstructor SYMBOL_char_1 = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(49))));
 	
-	private final static IConstructor PROD_S_E = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_E), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_E_EplusE = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_E, SYMBOL_plus, SYMBOL_E), SYMBOL_E, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_E_EstarE = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_E, SYMBOL_star, SYMBOL_E), SYMBOL_E, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_E_1 = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_1), SYMBOL_E, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_plus_plus = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_plus), SYMBOL_plus, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_star_star = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_star), SYMBOL_star, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_1_1 = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_1), SYMBOL_1, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_E = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_E), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_E_EplusE = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_E, SYMBOL_plus, SYMBOL_E), SYMBOL_E, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_E_EstarE = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_E, SYMBOL_star, SYMBOL_E), SYMBOL_E, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_E_1 = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_1), SYMBOL_E, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_plus_plus = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_plus), SYMBOL_plus, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_star_star = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_star), SYMBOL_star, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_1_1 = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_1), SYMBOL_1, VF.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_E0 = new NonTerminalStackNode(0, 0, "E");

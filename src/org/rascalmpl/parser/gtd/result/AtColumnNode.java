@@ -15,8 +15,8 @@ public class AtColumnNode extends AbstractNode{
 	public AtColumnNode(int column){
 		super();
 		
-		IConstructor symbol = vf.constructor(Factory.Symbol_AtColumn, vf.integer(column));
-		result = vf.constructor(Factory.Tree_Appl, vf.constructor(Factory.Production_Regular, symbol, vf.constructor(Factory.Attributes_NoAttrs)), vf.listWriter().done());
+		IConstructor symbol = VF.constructor(Factory.Symbol_AtColumn, VF.integer(column));
+		result = VF.constructor(Factory.Tree_Appl, VF.constructor(Factory.Production_Regular, symbol, VF.constructor(Factory.Attributes_NoAttrs)), VF.listWriter().done());
 	}
 	
 	public void addAlternative(IConstructor production, Link children){

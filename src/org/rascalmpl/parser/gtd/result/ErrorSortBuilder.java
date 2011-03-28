@@ -17,7 +17,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorSortBuilder{
-	private final static IValueFactory vf = AbstractNode.vf;
+	private final static IValueFactory vf = AbstractNode.VF;
 	
 	private ErrorSortBuilder(){
 		super();

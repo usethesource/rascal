@@ -37,7 +37,7 @@ import org.rascalmpl.values.uptr.Factory;
 public class SDF2 extends SGTDBF {
 	protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type){
 		try{
-			return new StandardTextReader().read(vf, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+			return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
 		}catch(FactTypeUseException e){
 			throw new RuntimeException("unexpected exception in generated parser", e);  
 		}catch(IOException e){

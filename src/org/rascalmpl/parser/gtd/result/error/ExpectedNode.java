@@ -65,16 +65,16 @@ public class ExpectedNode extends AbstractNode{
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		if(cachedResult != null) return cachedResult;
 		
-		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
+		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
 			childrenListWriter.insert(mismatchedChildren[i].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor));
 		}
 		
-		IConstructor result = vf.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
+		IConstructor result = VF.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
 		if(!(isLayout || input == null)){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
-			result = result.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine)));
+			result = result.setAnnotation(Factory.Location, VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine)));
 		}
 		
 		return (cachedResult = result);
@@ -83,16 +83,16 @@ public class ExpectedNode extends AbstractNode{
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		if(cachedResult != null) return cachedResult;
 		
-		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
+		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
 			childrenListWriter.insert(mismatchedChildren[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor));
 		}
 		
-		IConstructor result = vf.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
+		IConstructor result = VF.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
 		if(!(isLayout || input == null)){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
-			result = result.setAnnotation(Factory.Location, vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine)));
+			result = result.setAnnotation(Factory.Location, VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine)));
 		}
 		
 		return (cachedResult = result);
