@@ -64,12 +64,12 @@ public class SortContainerNode extends AbstractContainerNode{
 	}
 	
 	private static IConstructor buildAlternative(IConstructor production, IValue[] children){
-		IListWriter childrenListWriter = vf.listWriter(Factory.Tree);
+		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
 		}
 		
-		return vf.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
+		return VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
@@ -92,12 +92,12 @@ public class SortContainerNode extends AbstractContainerNode{
 		if(!(isLayout || input == null)){
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
-			sourceLocation = vf.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+			sourceLocation = VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
 		
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = vf.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), vf.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
@@ -134,7 +134,7 @@ public class SortContainerNode extends AbstractContainerNode{
 				filteringTracker.setLastFilered(offset, endOffset);
 			}
 		}else if(nrOfAlternatives > 0){ // Ambiguous.
-			ISetWriter ambSetWriter = vf.setWriter(Factory.Tree);
+			ISetWriter ambSetWriter = VF.setWriter(Factory.Tree);
 			IConstructor lastAlternative = null;
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; --i){
@@ -155,7 +155,7 @@ public class SortContainerNode extends AbstractContainerNode{
 			}else if(ambSetWriter.size() == 0){
 				filteringTracker.setLastFilered(offset, endOffset);
 			}else{
-				result = vf.constructor(Factory.Tree_Amb, ambSetWriter.done());
+				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
 				result = actionExecutor.filterAmbiguity(result);
 				if(result == null){
 					cachedResult = FILTERED_RESULT;

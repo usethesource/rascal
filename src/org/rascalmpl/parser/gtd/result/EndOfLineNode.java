@@ -9,7 +9,7 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class EndOfLineNode extends AbstractNode{
 	private final static String ENDOFLINE = "end-of-line()";
-	private final static IConstructor result = vf.constructor(Factory.Tree_Appl, vf.constructor(Factory.Production_Regular, vf.constructor(Factory.Symbol_EndOfLine), vf.constructor(Factory.Attributes_NoAttrs)), vf.listWriter().done());
+	private final static IConstructor result = VF.constructor(Factory.Tree_Appl, VF.constructor(Factory.Production_Regular, VF.constructor(Factory.Symbol_EndOfLine), VF.constructor(Factory.Attributes_NoAttrs)), VF.listWriter().done());
 	
 	public EndOfLineNode(){
 		super();

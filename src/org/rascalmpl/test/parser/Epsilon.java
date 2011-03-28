@@ -17,10 +17,10 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= epsilon
 */
 public class Epsilon extends SGTDBF implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_epsilon = vf.constructor(Factory.Symbol_Empty);
+	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_epsilon = VF.constructor(Factory.Symbol_Empty);
 	
-	private final static IConstructor PROD_S_epsilon = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_epsilon), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_epsilon = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_epsilon), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode EPSILON_1 = new EpsilonStackNode(1, 0);

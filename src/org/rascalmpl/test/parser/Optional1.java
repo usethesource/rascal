@@ -19,16 +19,16 @@ S ::= aO?
 O ::= a
 */
 public class Optional1 extends SGTDBF implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_O = vf.constructor(Factory.Symbol_Sort, vf.string("O"));
-	private final static IConstructor SYMBOL_OPTIONAL_O = vf.constructor(Factory.Symbol_Opt, SYMBOL_O);
-	private final static IConstructor SYMBOL_a = vf.constructor(Factory.Symbol_Lit, vf.string("a"));
-	private final static IConstructor SYMBOL_char_a = vf.constructor(Factory.Symbol_CharClass, vf.list(vf.constructor(Factory.CharRange_Single, vf.integer(97))));
+	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_O = VF.constructor(Factory.Symbol_Sort, VF.string("O"));
+	private final static IConstructor SYMBOL_OPTIONAL_O = VF.constructor(Factory.Symbol_Opt, SYMBOL_O);
+	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
+	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
 	
-	private final static IConstructor PROD_S_aOPTIONAL_O = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a, SYMBOL_OPTIONAL_O), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_OPTIONAL_O_O = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_O), SYMBOL_OPTIONAL_O, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_O_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_a), SYMBOL_O,vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_a_a = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_char_a), SYMBOL_a, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_aOPTIONAL_O = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_a, SYMBOL_OPTIONAL_O), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_OPTIONAL_O_O = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_O), SYMBOL_OPTIONAL_O, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_O_a = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_a), SYMBOL_O,VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_a), SYMBOL_a, VF.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode LITERAL_a0 = new LiteralStackNode(0, 0, PROD_a_a, new char[]{'a'});

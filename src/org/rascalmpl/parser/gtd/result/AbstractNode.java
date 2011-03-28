@@ -9,7 +9,7 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractNode{
-	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	protected final static String POSITION_ANNNOTATION_LABEL = "loc";
 	

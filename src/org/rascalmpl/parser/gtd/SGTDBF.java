@@ -47,7 +47,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
-	protected final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	private AbstractStackNode startNode;
 	private URI inputURI;
@@ -168,7 +168,7 @@ public abstract class SGTDBF implements IGTD{
 				int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 				int line = positionStore.findLine(errorLocation);
 				int column = positionStore.getColumn(errorLocation, line);
-				throw new UndeclaredNonTerminalError(name, vf.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column), nsmex);
+				throw new UndeclaredNonTerminalError(name, VF.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column), nsmex);
 			}
 			methodCache.putUnsafe(name, method);
 		}
@@ -1060,7 +1060,7 @@ public abstract class SGTDBF implements IGTD{
 					int column = positionStore.getColumn(filteringTracker.offset, line);
 					int endLine = positionStore.findLine(filteringTracker.endOffset);
 					int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-					throw new SyntaxError("All trees were filtered.", vf.sourceLocation(inputURI, Math.min(filteringTracker.offset, input.length - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
+					throw new SyntaxError("All trees were filtered.", VF.sourceLocation(inputURI, Math.min(filteringTracker.offset, input.length - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
 				}
 			}
 		}
@@ -1071,7 +1071,7 @@ public abstract class SGTDBF implements IGTD{
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
-		throw new SyntaxError("Parse error.", vf.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
+		throw new SyntaxError("Parse error.", VF.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
 	}
 	
 	public IConstructor buildErrorTree(){

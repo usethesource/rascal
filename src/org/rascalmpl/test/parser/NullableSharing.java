@@ -19,14 +19,14 @@ import org.rascalmpl.values.uptr.Factory;
 * A ::= epsilon
 */
 public class NullableSharing extends SGTDBF implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = vf.constructor(Factory.Symbol_Sort, vf.string("S"));
-	private final static IConstructor SYMBOL_A = vf.constructor(Factory.Symbol_Sort, vf.string("A"));
-	private final static IConstructor SYMBOL_N = vf.constructor(Factory.Symbol_Sort, vf.string("N"));
-	private final static IConstructor SYMBOL_empty = vf.constructor(Factory.Symbol_Empty);
+	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
+	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
+	private final static IConstructor SYMBOL_N = VF.constructor(Factory.Symbol_Sort, VF.string("N"));
+	private final static IConstructor SYMBOL_empty = VF.constructor(Factory.Symbol_Empty);
 	
-	private final static IConstructor PROD_S_NN = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_N, SYMBOL_N), SYMBOL_START_S, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_N_A = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_A), SYMBOL_N, vf.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_A_empty = vf.constructor(Factory.Production_Default, vf.list(SYMBOL_empty), SYMBOL_A, vf.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_NN = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_N, SYMBOL_N), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_N_A = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_A), SYMBOL_N, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_A_empty = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_empty), SYMBOL_A, VF.constructor(Factory.Attributes_NoAttrs));
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
