@@ -90,8 +90,13 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		if(depth <= cycleMark.depth){
 			if(cachedResult != null){
-				if(cachedResult.getConstructorType() == FILTERED_RESULT_TYPE) return null;
-				return cachedResult;
+				if(cachedResult.getConstructorType() != FILTERED_RESULT_TYPE){
+					return cachedResult;
+				}
+				IValue filteredTree = cachedResult.get(0);
+				if(filteredTree instanceof IConstructor){
+					return (IConstructor) filteredTree;
+				}
 			}
 			
 			cycleMark.reset();
