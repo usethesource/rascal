@@ -345,10 +345,6 @@ public class ErrorListBuilder{
 	}
 	
 	public static IConstructor toErrorListTree(ListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		if(depth == cycleMark.depth){
-			cycleMark.reset();
-		}
-		
 		ISourceLocation sourceLocation = null;
 		if(!(node.isLayout || node.input == null)){
 			int beginLine = positionStore.findLine(node.offset);
@@ -447,9 +443,4 @@ public class ErrorListBuilder{
 		
 		return result;
 	}
-	
-	// Temp.
-	/*public static IConstructor toErrorListTree(ListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		return node.toTree(stack, depth, cycleMark, positionStore, new FilteringTracker(), actionExecutor);
-	}*/
 }

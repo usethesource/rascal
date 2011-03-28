@@ -74,12 +74,12 @@ public class SortContainerNode extends AbstractContainerNode{
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		if(depth <= cycleMark.depth){
+			if(cachedResult != null){
+				if(cachedResult.getConstructorType() == FILTERED_RESULT_TYPE) return null;
+				return cachedResult;
+			}
+			
 			cycleMark.reset();
-		}
-		
-		if(cachedResult != null){
-			if(cachedResult == FILTERED_RESULT) return null;
-			if(depth <= cycleMark.depth) return cachedResult;
 		}
 		
 		if(rejected){
@@ -178,7 +178,20 @@ public class SortContainerNode extends AbstractContainerNode{
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		// TODO Fix caching problem.
-		return ErrorSortBuilder.toErrorSortTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
+		if(depth <= cycleMark.depth){
+			if(!(cachedResult == null || cachedResult.getConstructorType() == FILTERED_RESULT_TYPE)){
+				return cachedResult;
+			}
+			
+			cycleMark.reset();
+		}
+		
+		IConstructor result = ErrorSortBuilder.toErrorSortTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
+		
+		if(depth < cycleMark.depth){
+			cachedResult = result;
+		}
+		
+		return result;
 	}
 }
