@@ -32,6 +32,7 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
+import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Expression.Ambiguity;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -49,8 +50,10 @@ import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -62,7 +65,9 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedReturnError;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.strategy.StrategyContextStack;
 import org.rascalmpl.interpreter.utils.JavaBridge;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
@@ -81,10 +86,12 @@ import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
 	private IValueFactory vf;
-	private static final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
 	protected Environment currentEnvt;
 	private StrategyContextStack strategyContextStack;
 
@@ -372,7 +379,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	private IValue call(String name, IValue... args) {
-		QualifiedName qualifiedName = org.rascalmpl.interpreter.utils.Names.toQualifiedName(name);
+		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);
 
 		Type[] types = new Type[args.length];
@@ -392,12 +399,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IConstructor parseObject(IConstructor startSort, URI location, char[] input){
 		IGTD parser = getObjectParser(location);
 		String name = "";
-		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
+		if (SymbolAdapter.isStart(startSort)) {
 			name = "start__";
-			startSort = org.rascalmpl.values.uptr.SymbolAdapter.getStart(startSort);
+			startSort = SymbolAdapter.getStart(startSort);
 		}
-		if (org.rascalmpl.values.uptr.SymbolAdapter.isSort(startSort)) {
-			name += org.rascalmpl.values.uptr.SymbolAdapter.getName(startSort);
+		if (SymbolAdapter.isSort(startSort)) {
+			name += SymbolAdapter.getName(startSort);
 		}
 
 		__setInterrupt(false);
@@ -413,7 +420,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			char[] input = InputConverter.toChar(inputStream);
 			return parseObject(startSort, location, input);
 		}catch(IOException ioex){
-			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
+			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
 		}finally{
 			setMonitor(old);
 			
@@ -421,7 +428,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				try{
 					inputStream.close();
 				}catch(IOException ioex){
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
+					throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
 				}
 			}
 		}
@@ -918,7 +925,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public String getUnescapedModuleName(Import x) {
-		return org.rascalmpl.interpreter.utils.Names.fullName(x.getModule().getName());
+		return Names.fullName(x.getModule().getName());
 	}
 
 	public Module preParseModule(URI location, ISourceLocation cause) {
@@ -949,7 +956,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
 		IConstructor prefix = Parser.preParseModule(location, data, actionExecutor);
-		return builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+		return builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 	}
 	
 	/**
@@ -999,7 +1006,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		event("Parsing imports and syntax definitions at " + location);
 		IConstructor prefix = Parser.preParseModule(location, data, actionExecutor);
 
-		Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+		Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 		String name = getModuleName(preModule);
 
 		if (env == null) {
@@ -1036,7 +1043,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			event("Parsing imports and syntax definitions at " + location);
 			IConstructor prefix = Parser.preParseModule(location, data, actionExecutor);
 
-			Module preModule = builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
+			Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 			String name = getModuleName(preModule);
 
 			if(env == null){
@@ -1088,7 +1095,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public boolean needBootstrapParser(Module preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((org.rascalmpl.ast.Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
+			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
 				return true;
 			}
 		}
@@ -1098,8 +1105,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public String getCachedParser(Module preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
-			if (((org.rascalmpl.ast.Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
-				String tagString = ((org.rascalmpl.ast.TagString.Lexical)tag.getContents()).getString();
+			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
+				String tagString = ((TagString.Lexical)tag.getContents()).getString();
 				return tagString.substring(1, tagString.length() - 1);
 			}
 		}
@@ -1214,10 +1221,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if (interrupt)
 				throw new InterruptException(getStackTrace());
 			if (mp.next()) {
-				return org.rascalmpl.interpreter.result.ResultFactory.bool(true, this);
+				return ResultFactory.bool(true, this);
 			}
 		}
-		return org.rascalmpl.interpreter.result.ResultFactory.bool(false, this);
+		return ResultFactory.bool(false, this);
 	}
 
 	public boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat) {
@@ -1298,9 +1305,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	
 	public void updateProperties() {
-		Evaluator.doProfiling = org.rascalmpl.interpreter.Configuration.getProfilingProperty();
+		Evaluator.doProfiling = Configuration.getProfilingProperty();
 
-		org.rascalmpl.interpreter.result.AbstractFunction.setCallTracing(org.rascalmpl.interpreter.Configuration.getTracingProperty());
+		AbstractFunction.setCallTracing(Configuration.getTracingProperty());
 	}
 
 	public Stack<Environment> getCallStack() {
@@ -1321,7 +1328,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		currentEnvt = env;
 	}
 
-	public org.rascalmpl.interpreter.Evaluator getEvaluator() {
+	public Evaluator getEvaluator() {
 		return this;
 	}
 
