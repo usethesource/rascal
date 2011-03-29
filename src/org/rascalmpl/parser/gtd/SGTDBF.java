@@ -1,12 +1,5 @@
 package org.rascalmpl.parser.gtd;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -43,8 +36,6 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class SGTDBF implements IGTD{
-	private final static int STREAM_READ_SEGMENT_SIZE = 8192;
-	
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
 	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -1090,102 +1081,13 @@ public abstract class SGTDBF implements IGTD{
 		throw new RuntimeException("No parse error occured.");
 	}
 	
-	protected IConstructor parseFromString(AbstractStackNode startNode, URI inputURI, String inputString, IActionExecutor actionExecutor){
-		return parse(startNode, inputURI, inputString.toCharArray(), actionExecutor);
-	}
-	
-	protected IConstructor parseFromFile(AbstractStackNode startNode, URI inputURI, File inputFile, IActionExecutor actionExecutor) throws IOException{
-		int inputFileLength = (int) inputFile.length();
-		char[] input = new char[inputFileLength];
-		Reader in = new BufferedReader(new FileReader(inputFile));
-		try{
-			in.read(input, 0, inputFileLength);
-		}finally{
-			in.close();
-		}
-		
-		return parse(startNode, inputURI, input, actionExecutor);
-	}
-	
-	// This is kind of ugly.
-	protected IConstructor parseFromReader(AbstractStackNode startNode, URI inputURI, Reader in, IActionExecutor actionExecutor) throws IOException{
-		ArrayList<char[]> segments = new ArrayList<char[]>();
-		
-		// Gather segments.
-		int nrOfWholeSegments = -1;
-		int bytesRead;
-		do{
-			char[] segment = new char[STREAM_READ_SEGMENT_SIZE];
-			bytesRead = in.read(segment, 0, STREAM_READ_SEGMENT_SIZE);
-			
-			segments.add(segment);
-			++nrOfWholeSegments;
-		}while(bytesRead == STREAM_READ_SEGMENT_SIZE);
-		
-		// Glue the segments together.
-		char[] segment = segments.get(nrOfWholeSegments);
-		char[] input;
-		if(bytesRead != -1){
-			input = new char[(nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE) + bytesRead];
-			System.arraycopy(segment, 0, input, (nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE), bytesRead);
-		}else{
-			input = new char[(nrOfWholeSegments * STREAM_READ_SEGMENT_SIZE)];
-		}
-		for(int i = nrOfWholeSegments - 1; i >= 0; --i){
-			segment = segments.get(i);
-			System.arraycopy(segment, 0, input, (i * STREAM_READ_SEGMENT_SIZE), STREAM_READ_SEGMENT_SIZE);
-		}
-		
-		return parse(startNode, inputURI, input, actionExecutor);
-	}
-	
 	// With post parse filtering.
-	public IConstructor parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in, IActionExecutor actionExecutor) throws IOException{
-		return parseFromReader(startNode, inputURI, new InputStreamReader(in), actionExecutor);
-	}
-	
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor){
 		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
 	}
 	
-	public IConstructor parse(String nonterminal, URI inputURI, String input, IActionExecutor actionExecutor){
-		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, InputStream in, IActionExecutor actionExecutor) throws IOException{
-		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in, actionExecutor);
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, Reader in, IActionExecutor actionExecutor) throws IOException{
-		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in, actionExecutor);
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, File inputFile, IActionExecutor actionExecutor) throws IOException{
-		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, inputFile, actionExecutor);
-	}
-	
 	// Without post parse filtering.
-	public IConstructor parseFromStream(AbstractStackNode startNode, URI inputURI, InputStream in) throws IOException{
-		return parseFromReader(startNode, inputURI, new InputStreamReader(in), new VoidActionExecutor());
-	}
-	
 	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
 		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, String input){
-		return parseFromString(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, new VoidActionExecutor());
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, InputStream in) throws IOException{
-		return parseFromStream(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in);
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, Reader in) throws IOException{
-		return parseFromReader(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, in, new VoidActionExecutor());
-	}
-	
-	public IConstructor parse(String nonterminal, URI inputURI, File inputFile) throws IOException{
-		return parseFromFile(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, inputFile, new VoidActionExecutor());
 	}
 }
