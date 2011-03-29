@@ -1,10 +1,8 @@
 package org.rascalmpl.interpreter;
 
-import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -392,7 +390,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	private IConstructor parseObject(IConstructor startSort, URI location, char[] input){
-		IGTD parser = getObjectParser(vf.sourceLocation(location));
+		IGTD parser = getObjectParser(location);
 		String name = "";
 		if (org.rascalmpl.values.uptr.SymbolAdapter.isStart(startSort)) {
 			name = "start__";
@@ -447,11 +445,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	private IGTD getObjectParser(ISourceLocation loc){
+	private IGTD getObjectParser(URI loc){
 		return getObjectParser((ModuleEnvironment) getCurrentEnvt().getRoot(), loc);
 	}
 
-	private IGTD getObjectParser(ModuleEnvironment currentModule, ISourceLocation loc) {
+	private IGTD getObjectParser(ModuleEnvironment currentModule, URI loc) {
 		if (currentModule.getBootstrap()) {
 			return new ObjectRascalRascal();
 		}
@@ -461,7 +459,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			Class<?> clazz;
 			try {
 				clazz = Class.forName(className);
-				return (IGTD)clazz.newInstance();
+				return (IGTD) clazz.newInstance();
 			} catch (ClassNotFoundException e) {
 				throw new ImplementationError("class for cached parser " + className + " could not be found", e);
 			} catch (InstantiationException e) {
@@ -498,8 +496,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private IGTD getRascalParser(ModuleEnvironment env, URI input) {
 		ParserGenerator pg = getParserGenerator();
-		ISourceLocation loc = vf.sourceLocation(input);
-		IGTD objectParser = getObjectParser(env, loc);
+		IGTD objectParser = getObjectParser(env, input);
 		ISet productions = env.getProductions();
 		Class<IGTD> parser = getHeap().getRascalParser(env.getName(), productions);
 
@@ -511,7 +508,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parserName = env.getName().replaceAll("::", ".");
 			}
 
-			parser = pg.getRascalParser(this, loc, parserName, productions, objectParser);
+			parser = pg.getRascalParser(this, input, parserName, productions, objectParser);
 			getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
 
