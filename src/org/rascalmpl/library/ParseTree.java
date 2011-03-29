@@ -26,6 +26,7 @@ public class ParseTree {
 	
 	public ParseTree(IValueFactory values){
 		super();
+		
 		this.values = values;
 	}
 
@@ -47,6 +48,18 @@ public class ParseTree {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
+
+	public IValue parseWithErrorTree(IConstructor start, ISourceLocation input, IEvaluatorContext ctx){
+		Type reified = start.getType();
+		IConstructor startSort = checkPreconditions(start, reified);
+		
+		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getURI());
+
+		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
+			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+		}
+		return pt;
+	}
 	
 	public IValue parse(IConstructor start, IString input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
@@ -67,6 +80,19 @@ public class ParseTree {
 		}
 	}
 	
+	public IValue parseWithErrorTree(IConstructor start, IString input, IEvaluatorContext ctx){
+		Type reified = start.getType();
+		IConstructor startSort = checkPreconditions(start, reified);
+		
+		IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
+
+		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
+			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+		}
+
+		return pt;
+	}
+	
 	public IValue parse(IConstructor start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
@@ -84,6 +110,19 @@ public class ParseTree {
 		catch (SyntaxError e) {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+	}
+	
+	public IValue parseWithErrorTree(IConstructor start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+		Type reified = start.getType();
+		IConstructor startSort = checkPreconditions(start, reified);
+		
+		IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
+		
+		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
+			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+		}
+		
+		return pt;
 	}
 	
 	public IString unparse(IConstructor tree) {

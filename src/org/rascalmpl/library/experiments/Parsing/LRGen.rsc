@@ -72,44 +72,44 @@ public Item makeItem(Rule r){
 	return item(r.name, [], r.symbols);
 }
 
-private bool canMove(Item it, Symbol sym){
-   return !isEmpty(it.right) && head(it.right) == sym;
+private bool canMove(Item item, Symbol sym){
+   return !isEmpty(item.right) && head(item.right) == sym;
 }
 
-private Item moveRight(Item it){
-   return item(it.name, it.left + [head(it.right)], tail(it.right));
+private Item moveRight(Item item){
+   return item(item.name, item.left + [head(item.right)], tail(item.right));
 }
 
-private Symbol getSymbol(Item it){
-   return head(it.right);
+private Symbol getSymbol(Item item){
+   return head(item.right);
 }
 
-private bool atEnd(Item it){
-   return isEmpty(it.right);
+private bool atEnd(Item item){
+   return isEmpty(item.right);
 }
 
-private bool atNonTerminal(Item it){
-	bool res = !isEmpty(it.right) && nt(_) := head(it.right);
-	//println("atNonTerminal(<it>) => <res>");
+private bool atNonTerminal(Item item){
+	bool res = !isEmpty(item.right) && nt(_) := head(item.right);
+	//println("atNonTerminal(<item>) => <res>");
 	return res;
 }
 
-private str getNonTerminal(Item it){
-	Symbol h = head(it.right);
+private str getNonTerminal(Item item){
+	Symbol h = head(item.right);
 	if(nt(str Name) := h)
 		return Name;
 }
 	
-private bool atTerminal(Item it){
-	return !isEmpty(it.right) && t(_) := head(it.right);
+private bool atTerminal(Item item){
+	return !isEmpty(item.right) && t(_) := head(item.right);
 }
 
-private bool atSymbol(Item it, Symbol sym){
-	return !isEmpty(it.right) && sym == head(it.right);
+private bool atSymbol(Item item, Symbol sym){
+	return !isEmpty(item.right) && sym == head(item.right);
 }
 
-private bool isEmpty(Item it){
-   return isEmpty(it.left) &&  isEmpty(it.right);
+private bool isEmpty(Item item){
+   return isEmpty(item.left) &&  isEmpty(item.right);
 }
 
 
@@ -137,7 +137,7 @@ public ItemSet closure(Grammar G, ItemSet I){
 
 public ItemSet goto(Grammar G, ItemSet I, Symbol sym){
 	//println("goto(<G>, <I>, <sym>)");
-    return closure(G, {moveRight(it) | Item it <- I, atSymbol(it, sym)});
+    return closure(G, {moveRight(item) | Item item <- I, atSymbol(item, sym)});
 }
 
 public set[Symbol] symbols(Grammar G){

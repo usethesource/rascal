@@ -35,7 +35,7 @@ private Book input = book("The Unbearable Lightness of Being",
                      chapter("PART FOUR Soul and Body", 44), 
                      chapter("PART FIVE Lightness and Weight", 68), 
                      chapter("PART SIX The Grand March", 38), 
-                     chapter("PART SEVEN Karenin's Smile", 30)
+                     chapter("PART SEVEN Karenin\'s Smile", 30)
                     ]);
                
 private Publication output = publication("The Unbearable Lightness of Being", 308);

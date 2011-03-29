@@ -1,6 +1,6 @@
 module demo::FactorialTest
 
-import demo::Factorial
+import demo::Factorial;
 
 // Observe that the integers in Rascal can have arbitrary size
 
