@@ -84,7 +84,7 @@ public class ParseTree {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
-		IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
+		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
 
 		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
 			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
@@ -116,7 +116,7 @@ public class ParseTree {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
-		IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
+		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
 		
 		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
 			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
