@@ -1080,11 +1080,9 @@ public abstract class SGTDBF implements IGTD{
 			return errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
 		}
 		
-		// TODO Enable when the feature is fully implemented.
-		if(false && filterErrorOccured){
+		if(filterErrorOccured){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
-			FilteringTracker filteringTracker = new FilteringTracker();
 			// Invoke "the bulldozer" that constructs errors while it's flattening the forest.
 			return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor);
 		}
