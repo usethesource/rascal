@@ -14,23 +14,27 @@ public class Parser{
 	
 	private final static IParserInfo info = new RascalRascal();
 	
-	public IConstructor parseCommand(URI location, char[] command, IActionExecutor actionExecutor) {
+	private Parser(){
+		super();
+	}
+	
+	public static IConstructor parseCommand(URI location, char[] command, IActionExecutor actionExecutor) {
 		return new RascalRascal().parse(START_COMMAND, location, command, actionExecutor);
 	}
 
-	public IConstructor parseCommands(URI location, char[] commands, IActionExecutor actionExecutor) {
+	public static IConstructor parseCommands(URI location, char[] commands, IActionExecutor actionExecutor) {
 		return new RascalRascal().parse(START_COMMANDS, location, commands, actionExecutor);
 	}
 	  
-	public IConstructor preParseModule(URI location, char[] data, IActionExecutor actionExecutor) {
+	public static IConstructor preParseModule(URI location, char[] data, IActionExecutor actionExecutor) {
 		return new RascalRascal().parse(START_PRE_MODULE, location, data, actionExecutor);
 	}
 
-	public IConstructor parseModule(URI location, char[] data, IActionExecutor actionExecutor) {
+	public static IConstructor parseModule(URI location, char[] data, IActionExecutor actionExecutor) {
 		return new RascalRascal().parse(START_MODULE, location, data, actionExecutor);
 	}
 
-	public IParserInfo getInfo() {
+	public static IParserInfo getInfo() {
 		return info;
 	}
 }
