@@ -111,7 +111,7 @@ public class DebuggableEvaluator extends Evaluator {
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
 			ModuleEnvironment moduleEnvironment, IDebugger debugger, GlobalEnvironment heap) {
 		super(vf, stderr, stdout, moduleEnvironment, heap);
-		this.patternEvaluator = new DebuggingDecorator<IMatchingResult>(__getPatternEvaluator(), debugger);
+		this.patternEvaluator = new DebuggingDecorator<IMatchingResult>(patternEvaluator, debugger);
 		this.debugger = debugger;
 	}
 

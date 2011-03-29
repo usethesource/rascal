@@ -21,10 +21,12 @@ public class InputConverter{
 		return s.toCharArray();
 	}
 	
+	// NOTE: The user has to close the stream.
 	public static char[] toChar(InputStream inputStream) throws IOException{
 		return toChar(new InputStreamReader(inputStream));
 	}
 	
+	// NOTE: The user has to close the stream.
 	public static char[] toChar(Reader reader) throws IOException{
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
@@ -59,11 +61,14 @@ public class InputConverter{
 	public static char[] toChar(File inputFile) throws IOException{
 		int inputFileLength = (int) inputFile.length();
 		char[] input = new char[inputFileLength];
-		Reader in = new BufferedReader(new FileReader(inputFile));
+		Reader in = null;
 		try{
+			in = new BufferedReader(new FileReader(inputFile));
 			in.read(input, 0, inputFileLength);
 		}finally{
-			in.close();
+			if(in != null){
+				in.close();
+			}
 		}
 		return input;
 	}
