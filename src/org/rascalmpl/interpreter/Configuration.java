@@ -11,6 +11,7 @@ public class Configuration {
 	private static final String RASCAL_JAVA_COMPILER_CLASSPATH = "rascal.java.classpath";
 	private final static String PROFILING_PROPERTY = "rascal.profiling";
 	private final static String TRACING_PROPERTY = "rascal.tracing";
+	private final static String ERRORS_PROPERTY = "rascal.errors";
 	
 	public static String getRascalJavaClassPathProperty() {
 		String prop = System.getProperty(RASCAL_JAVA_COMPILER_CLASSPATH);
@@ -40,6 +41,14 @@ public class Configuration {
 			return profiling.equals("true") ? true : false;
 		}
 		System.setProperty(TRACING_PROPERTY, "false");
+		return false;
+	}
+	
+	public static boolean printErrors(){
+		String printErrors = System.getProperty(ERRORS_PROPERTY);
+		if(printErrors != null){
+			return printErrors.equals("true") ? true : false;
+		}
 		return false;
 	}
 }
