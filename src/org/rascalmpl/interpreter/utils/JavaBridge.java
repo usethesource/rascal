@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -69,11 +70,11 @@ public class JavaBridge {
 		}
 	}
 
-	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
+	public <T> Class<T> compileJava(URI loc, String className, String source) {
 		return compileJava(loc, className, getClass(), source);
 	}
 	
-	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
+	public <T> Class<T> compileJava(URI loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
 			List<String> commandline = Arrays.asList(new String[] {"-cp", Configuration.getRascalJavaClassPathProperty()});
@@ -83,9 +84,9 @@ public class JavaBridge {
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
 		} catch (ClassCastException e) {
-			throw new JavaCompilationError(e.getMessage(), loc);
+			throw new JavaCompilationError(e.getMessage(), vf.sourceLocation(loc));
 		} catch (JavaCompilerException e) {
-			throw new JavaCompilationError(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), loc);
+			throw new JavaCompilationError(e.getDiagnostics().getDiagnostics().iterator().next().getMessage(null), vf.sourceLocation(loc));
 		}
 	}
 

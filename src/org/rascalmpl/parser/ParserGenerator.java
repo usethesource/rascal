@@ -4,11 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -51,7 +51,7 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
-	public Class<IGTD> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, ISet imports) {
+	public Class<IGTD> getParser(IRascalMonitor monitor, URI loc, String name, ISet imports) {
 		monitor.startJob("Generating parser", 100, 90);
 		
 		try {
@@ -79,7 +79,7 @@ public class ParserGenerator {
 	 * Note that this method works under the assumption that a normal parser was generated before!
 	 * The class that this parser generates will inherit from that previously generated parser.
 	 */
-	public Class<IGTD> getRascalParser(IRascalMonitor monitor, ISourceLocation loc, String name, ISet imports, IGTD objectParser) {
+	public Class<IGTD> getRascalParser(IRascalMonitor monitor, URI loc, String name, ISet imports, IGTD objectParser) {
 		try {
 			monitor.event("Importing and normalizing grammar: " + name, 10);
 			IConstructor grammar = getGrammar(monitor, imports);
