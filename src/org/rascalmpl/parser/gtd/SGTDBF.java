@@ -81,6 +81,9 @@ public abstract class SGTDBF implements IGTD{
 	private final Stack<AbstractStackNode> unmatchableNodes;
 	private final DoubleStack<AbstractStackNode, AbstractContainerNode> filteredNodes;
 	
+	// Guard
+	private boolean invoked;
+	
 	public SGTDBF(){
 		super();
 		
@@ -991,6 +994,11 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
+		if(invoked){
+			throw new RuntimeException("Can only invoke 'parse' once.");
+		}
+		invoked = true;
+		
 		// Initialize.
 		this.startNode = startNode;
 		this.inputURI = inputURI;
