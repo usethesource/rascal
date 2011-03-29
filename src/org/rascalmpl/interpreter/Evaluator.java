@@ -1401,7 +1401,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IRascalMonitor getMonitor() {
 		if (monitor != null)
 			return monitor;
-		else
-			return new NullRascalMonitor();
+		
+		return new NullRascalMonitor();
 	}
 }

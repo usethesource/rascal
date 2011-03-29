@@ -34,12 +34,12 @@ public class ParserGenerator {
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, scope,heap);
 		this.vf = factory;
 		
-		if(monitor != null) monitor.startJob("Loading parser generator", 100, 139);
+		monitor.startJob("Loading parser generator", 100, 139);
 		evaluator.doImport(monitor, "lang::rascal::syntax::Generator");
 		evaluator.doImport(monitor, "lang::rascal::syntax::Normalization");
 		evaluator.doImport(monitor, "lang::rascal::syntax::Definition");
 		evaluator.doImport(monitor, "lang::rascal::syntax::Assimilator");
-		if(monitor != null) monitor.endJob(true);
+		monitor.endJob(true);
 	}
 	
 	/**
