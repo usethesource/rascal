@@ -1161,7 +1161,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Parser parser = new Parser();
 				IConstructor tree = parser.parseCommand(
 						this.getLocation().getURI(),
-						command,
+						command.toCharArray(),
 						new RascalActionExecutor(__eval, parser.getInfo()));
 
 				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
