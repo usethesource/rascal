@@ -1158,11 +1158,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				String command = '(' + expected.toString() + ')' + '`'
 						+ ((IString) result.getValue()).getValue() + '`';
 				__eval.__setInterrupt(false);
-				Parser parser = new Parser();
-				IConstructor tree = parser.parseCommand(
+				IConstructor tree = Parser.parseCommand(
 						this.getLocation().getURI(),
 						command.toCharArray(),
-						new RascalActionExecutor(__eval, parser.getInfo()));
+						new RascalActionExecutor(__eval, Parser.getInfo()));
 
 				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
 						.getArgs(tree).get(1); // top
