@@ -396,7 +396,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return func.call(getMonitor(), types, args).getValue();
 	}
 	
-	private IConstructor parseObject(IConstructor startSort, URI location, char[] input){
+	private IConstructor parseObject(IConstructor startSort, URI location, char[] input, boolean withErrorTree){
 		IGTD parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStart(startSort)) {
@@ -409,35 +409,58 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		__setInterrupt(false);
 		IActionExecutor exec = new RascalActionExecutor(this, (IParserInfo) parser);
-		return parser.parse(name, location, input, exec);
+		
+		IConstructor result = null;
+		try{
+			result = parser.parse(name, location, input, exec);
+		}catch(SyntaxError se){
+			if(withErrorTree) return parser.buildErrorTree();
+			
+			throw se; // Rethrow the exception if building the error tree fails.
+		}
+		
+		return result;
 	}
 	
 	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, URI location){
 		IRascalMonitor old = setMonitor(monitor);
-		InputStream inputStream = null;
+		
 		try{
-			inputStream = resolverRegistry.getInputStream(location);
-			char[] input = InputConverter.toChar(inputStream);
-			return parseObject(startSort, location, input);
+			char[] input = getResourceContent(location);
+			return parseObject(startSort, location, input, false);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
 		}finally{
 			setMonitor(old);
-			
-			if(inputStream != null){
-				try{
-					inputStream.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-				}
-			}
+		}
+	}
+	
+	public synchronized IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, URI location){
+		IRascalMonitor old = setMonitor(monitor);
+		
+		try{
+			char[] input = getResourceContent(location);
+			return parseObject(startSort, location, input, true);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
+		}finally{
+			setMonitor(old);
 		}
 	}
 	
 	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, URI.create("file://-"), input.toCharArray());
+			return parseObject(startSort, URI.create("file://-"), input.toCharArray(), false);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
+	public synchronized IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseObject(startSort, URI.create("file://-"), input.toCharArray(), true);
 		}finally{
 			setMonitor(old);
 		}
@@ -446,7 +469,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, loc.getURI(), input.toCharArray());
+			return parseObject(startSort, loc.getURI(), input.toCharArray(), false);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
+	public synchronized IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseObject(startSort, loc.getURI(), input.toCharArray(), true);
 		}finally{
 			setMonitor(old);
 		}
@@ -658,10 +690,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
 		if (!command.contains("`")) {
-			tree = Parser.parseCommand(location, command.toCharArray(), actionExecutor);
+			tree = new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		} else {
 			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = rp.parse("start__$Command", location, command.toCharArray(), actionExecutor);
+			tree = rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		}
 
 		Command stat = builder.buildCommand(tree);
@@ -687,11 +719,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
 		if (!command.contains("`")) {
-			return Parser.parseCommand(location, command.toCharArray(), actionExecutor);
+			return new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		}
 
 		IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-		return rp.parse("start__$Command", location, command.toCharArray(), actionExecutor);
+		return rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 	}
 
 	public synchronized IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
@@ -701,11 +733,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
 			if (!commands.contains("`")) {
-				return Parser.parseCommands(location, commands.toCharArray(), actionExecutor);
+				return new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor);
 			}
 
 			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			return rp.parse("start__$Commands", location, commands.toCharArray(), actionExecutor);
+			return rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor);
 		}
 		finally {
 			setMonitor(old);
@@ -930,21 +962,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public Module preParseModule(URI location, ISourceLocation cause) {
 		char[] data;
-
-		InputStream inputStream = null;
 		try{
-			inputStream = resolverRegistry.getInputStream(location);
-			data = InputConverter.toChar(inputStream);
-		}catch(IOException e){
-			throw new ModuleLoadError(location.toString(), e.getMessage(), cause);
-		}finally{
-			if(inputStream != null){
-				try{
-					inputStream.close();
-				}catch(IOException e){
-					throw new ModuleLoadError(location.toString(), e.getMessage(), cause);
-				}
-			}
+			data = getResourceContent(location);
+		}catch(IOException ioex){
+			throw new ModuleLoadError(location.toString(), ioex.getMessage(), cause);
 		}
 
 		URI resolved = rascalPathResolver.resolve(location);
@@ -955,8 +976,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		__setInterrupt(false);
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
-		IConstructor prefix = Parser.preParseModule(location, data, actionExecutor);
+		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor);
 		return builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
+	}
+	
+	private char[] getResourceContent(URI location) throws IOException{
+		char[] data;
+		InputStream inputStream = null;
+		try{
+			inputStream = resolverRegistry.getInputStream(location);
+			data = InputConverter.toChar(inputStream);
+		}finally{
+			if(inputStream != null){
+				inputStream.close();
+			}
+		}
+		
+		return data;
 	}
 	
 	/**
@@ -964,54 +1000,46 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * use Rascal to implement Rascal. Parsing a module currently has the side
 	 * effect of declaring non-terminal types in the given environment.
 	 */
-	public synchronized IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException {
-		IRascalMonitor old = setMonitor(monitor);
+	public synchronized IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException{
+		URI resolved = rascalPathResolver.resolve(location);
+		if(resolved != null){
+			location = resolved;
+		}
 		
+		return parseModule(monitor, getResourceContent(location), location, env);
+	}
+	
+	public synchronized IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
+		IRascalMonitor old = setMonitor(monitor);
 		try{
-			char[] data;
-			InputStream inputStream = null;
-			try{
-				inputStream = resolverRegistry.getInputStream(location);
-				data = InputConverter.toChar(inputStream);
-			}finally{
-				if(inputStream != null){
-					inputStream.close();
-				}
-			}
-
-			URI resolved = rascalPathResolver.resolve(location);
-			if(resolved != null){
-				location = resolved;
-			}
-
-			return parseModule(data, location, env);
+			return parseModule(data, location, env, false);
 		}finally{
 			setMonitor(old);
 		}
 	}
 	
-	public synchronized IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env) {
+	public synchronized IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseModule(data, location, env);
+			return parseModule(data, location, env, true);
 		}finally{
 			setMonitor(old);
 		}
 	}
-
-	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env) {
+	
+	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean withErrorTree){
 		__setInterrupt(false);
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
 		event("Parsing imports and syntax definitions at " + location);
-		IConstructor prefix = Parser.preParseModule(location, data, actionExecutor);
+		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor);
 
 		Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 		String name = getModuleName(preModule);
 
-		if (env == null) {
+		if(env == null){
 			env = heap.getModule(name);
-			if (env == null) {
+			if(env == null){
 				env = new ModuleEnvironment(name, heap);
 				heap.addModule(env);
 			}
@@ -1024,65 +1052,26 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		preModule.declareSyntax(this, true);
 
 		ISet prods = env.getProductions();
+		IGTD parser = null;
+		IConstructor result = null;
 		event("Parsing complete module " + name);
-		if (needBootstrapParser(preModule)) {
-			return new MetaRascalRascal().parse(Parser.START_MODULE, location, data, actionExecutor);
-		}else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-			return Parser.parseModule(location, data, actionExecutor);
-		}else {
-			return getRascalParser(env, location).parse(Parser.START_MODULE, location, data, actionExecutor);
-		}
-	}
-	
-	public synchronized IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env) {
-		IRascalMonitor old = setMonitor(monitor);
 		try{
-			__setInterrupt(false);
-			IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
-
-			event("Parsing imports and syntax definitions at " + location);
-			IConstructor prefix = Parser.preParseModule(location, data, actionExecutor);
-
-			Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
-			String name = getModuleName(preModule);
-
-			if(env == null){
-				env = heap.getModule(name);
-				if(env == null){
-					env = new ModuleEnvironment(name, heap);
-					heap.addModule(env);
-				}
-				env.setBootstrap(needBootstrapParser(preModule));
+			if(needBootstrapParser(preModule)){
+				parser = new MetaRascalRascal();
+				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+			}else if(prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+				parser = new RascalRascal();
+				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
+			}else{
+				parser = getRascalParser(env, location);
+				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
 			}
-
-			// take care of imports and declare syntax
-			env.setSyntaxDefined(false);
-			event("Declaring syntax for module " + name);
-			preModule.declareSyntax(this, true);
-
-			ISet prods = env.getProductions();
-			IGTD parser = null;
-			IConstructor result;
-			event("Parsing complete module " + name);
-			try{
-				if(needBootstrapParser(preModule)){
-					parser = new MetaRascalRascal();
-					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-				}else if(prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-					parser = new RascalRascal();
-					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-				}else{
-					parser = getRascalParser(env, location);
-					result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
-				}
-			}catch(SyntaxError se){
-				result = parser.buildErrorTree();
-				if(result == null) throw se; // Rethrow the exception if building the error tree fails.
-			}
-			return result;
-		}finally{
-			setMonitor(old);
+		}catch(SyntaxError se){
+			if(withErrorTree) return parser.buildErrorTree();
+			
+			throw se; // Rethrow the exception if building the error tree fails.
 		}
+		return result;
 	}
 
 	private static boolean containsBackTick(char[] data, int offset) {

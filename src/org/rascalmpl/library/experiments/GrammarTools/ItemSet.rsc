@@ -15,38 +15,38 @@ public Item makeItem(Rule r){
 	return item(r.lhs, [], r.symbols);
 }
 
-public bool canMove(Item it, Symbol sym){
-   return !isEmpty(it.right) && head(it.right) == sym;
+public bool canMove(Item item, Symbol sym){
+   return !isEmpty(item.right) && head(item.right) == sym;
 }
 
-public Item moveRight(Item it){
-   return item(it.lhs, it.left + [head(it.right)], tail(it.right));
+public Item moveRight(Item itm){
+   return item(itm.lhs, itm.left + [head(itm.right)], tail(itm.right));
 }
 
-public Symbol getSymbol(Item it){
-   return head(it.right);
+public Symbol getSymbol(Item itm){
+   return head(itm.right);
 }
 
-public bool atEnd(Item it){
-   return isEmpty(it.right);
+public bool atEnd(Item itm){
+   return isEmpty(itm.right);
 }
 
-public bool atNonTerminal(Item it){
-	bool res = !isEmpty(it.right) && isNonTermSymbol(head(it.right));
-	//println("atNonTerminal(<it>) => <res>");
+public bool atNonTerminal(Item itm){
+	bool res = !isEmpty(itm.right) && isNonTermSymbol(head(itm.right));
+	//println("atNonTerminal(<itm>) => <res>");
 	return res;
 }
 	
-public bool atTerminal(Item it){
-	return !isEmpty(it.right) && isTermSymbol(head(it.right));
+public bool atTerminal(Item itm){
+	return !isEmpty(itm.right) && isTermSymbol(head(itm.right));
 }
 
-public bool atSymbol(Item it, Symbol sym){
-	return !isEmpty(it.right) && sym == head(it.right);
+public bool atSymbol(Item itm, Symbol sym){
+	return !isEmpty(itm.right) && sym == head(itm.right);
 }
 
-private bool isEmpty(Item it){
-   return isEmpty(it.left) &&  isEmpty(it.right);
+private bool isEmpty(Item itm){
+   return isEmpty(itm.left) &&  isEmpty(itm.right);
 }
 
 //-------- ItemSets ---------------------------------------

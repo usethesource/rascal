@@ -81,6 +81,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.RascalActionExecutor;
@@ -1158,7 +1159,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				String command = '(' + expected.toString() + ')' + '`'
 						+ ((IString) result.getValue()).getValue() + '`';
 				__eval.__setInterrupt(false);
-				IConstructor tree = Parser.parseCommand(
+				IConstructor tree = new RascalRascal().parse(
+						Parser.START_COMMAND,
 						this.getLocation().getURI(),
 						command.toCharArray(),
 						new RascalActionExecutor(__eval, Parser.getInfo()));
