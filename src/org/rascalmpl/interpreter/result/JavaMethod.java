@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -132,6 +133,10 @@ public class JavaMethod extends NamedFunction {
 			}
 			else if (targetException instanceof OutOfMemoryError) {
 				throw new ImplementationError("out of memory", targetException);
+			}
+			
+			if(Configuration.printErrors()){
+				targetException.printStackTrace();
 			}
 			
 			String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";
