@@ -409,14 +409,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, URI location){
 		IRascalMonitor old = setMonitor(monitor);
+		InputStream inputStream = null;
 		try{
-			InputStream inputStream = resolverRegistry.getInputStream(location);
+			inputStream = resolverRegistry.getInputStream(location);
 			char[] input = InputConverter.toChar(inputStream);
 			return parseObject(startSort, location, input);
 		}catch(IOException ioex){
 			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-		}finally{ 
+		}finally{
 			setMonitor(old);
+			
+			if(inputStream != null){
+				try{
+					inputStream.close();
+				}catch(IOException ioex){
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
+				}
+			}
 		}
 	}
 	
@@ -918,61 +927,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return org.rascalmpl.interpreter.utils.Names.fullName(x.getModule().getName());
 	}
 
-
-	/**
-	 * Parse a module. Practical for implementing IDE features or features that
-	 * use Rascal to implement Rascal. Parsing a module currently has the side
-	 * effect of declaring non-terminal types in the given environment.
-	 */
-	public synchronized IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException {
-		IRascalMonitor old = setMonitor(monitor);
-		
-		try {
-			char[] data;
-			InputStream inputStream = null;
-			try {
-				inputStream = resolverRegistry.getInputStream(location);
-				data = readModule(inputStream);
-			} finally {
-				if (inputStream != null) {
-					inputStream.close();
-				}
-			}
-
-			URI resolved = rascalPathResolver.resolve(location);
-			if (resolved != null) {
-				location = resolved;
-			}
-
-			return parseModule(data, location, env);
-		}
-		finally {
-			setMonitor(old);
-		}
-	}
-
 	public Module preParseModule(URI location, ISourceLocation cause) {
 		char[] data;
 
 		InputStream inputStream = null;
-		try {
+		try{
 			inputStream = resolverRegistry.getInputStream(location);
-			data = readModule(inputStream);
-		} catch (IOException e) {
+			data = InputConverter.toChar(inputStream);
+		}catch(IOException e){
 			throw new ModuleLoadError(location.toString(), e.getMessage(), cause);
-		} 
-		finally {
-			if (inputStream != null) {
-				try {
+		}finally{
+			if(inputStream != null){
+				try{
 					inputStream.close();
-				} catch (IOException e) {
+				}catch(IOException e){
 					throw new ModuleLoadError(location.toString(), e.getMessage(), cause);
 				}
 			}
 		}
 
 		URI resolved = rascalPathResolver.resolve(location);
-		if (resolved != null) {
+		if(resolved != null){
 			location = resolved;
 		}
 		
@@ -984,12 +959,42 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return builder.buildModule((IConstructor) org.rascalmpl.values.uptr.TreeAdapter.getArgs(prefix).get(1));
 	}
 	
+	/**
+	 * Parse a module. Practical for implementing IDE features or features that
+	 * use Rascal to implement Rascal. Parsing a module currently has the side
+	 * effect of declaring non-terminal types in the given environment.
+	 */
+	public synchronized IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException {
+		IRascalMonitor old = setMonitor(monitor);
+		
+		try{
+			char[] data;
+			InputStream inputStream = null;
+			try{
+				inputStream = resolverRegistry.getInputStream(location);
+				data = InputConverter.toChar(inputStream);
+			}finally{
+				if(inputStream != null){
+					inputStream.close();
+				}
+			}
+
+			URI resolved = rascalPathResolver.resolve(location);
+			if(resolved != null){
+				location = resolved;
+			}
+
+			return parseModule(data, location, env);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
 	public synchronized IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env) {
 		IRascalMonitor old = setMonitor(monitor);
-		try {
+		try{
 			return parseModule(data, location, env);
-		}
-		finally {
+		}finally{
 			setMonitor(old);
 		}
 	}
@@ -1023,11 +1028,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		event("Parsing complete module " + name);
 		if (needBootstrapParser(preModule)) {
 			return new MetaRascalRascal().parse(Parser.START_MODULE, location, data, actionExecutor);
-		}
-		else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+		}else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 			return parser.parseModule(location, data, actionExecutor);
-		}
-		else {
+		}else {
 			return getRascalParser(env, location).parse(Parser.START_MODULE, location, data, actionExecutor);
 		}
 	}
@@ -1110,19 +1113,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 		return null;
-	}
-
-	private char[] readModule(InputStream inputStream) throws IOException {
-		char[] buffer = new char[8192];
-		CharArrayWriter writer = new CharArrayWriter();
-		InputStreamReader reader = new InputStreamReader(inputStream);
-
-		int bytesRead;
-		while ((bytesRead = reader.read(buffer)) != -1) {
-			writer.write(buffer, 0, bytesRead);
-		}
-
-		return writer.toCharArray();
 	}
 
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
