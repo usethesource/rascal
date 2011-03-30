@@ -5,13 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.List;
-
-import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -21,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.console.Shell;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
@@ -41,35 +41,33 @@ public class RascalShell {
 	private final static int LINE_LIMIT = 200;
 	private static final String SHELL_MODULE = "***shell***";
 	
-	private final ConsoleReader console;
+	private final Shell console;
 	private final Evaluator evaluator;
 	private volatile boolean running;
 	
 	
 	// TODO: cleanup these constructors.
-	public RascalShell() throws IOException {
-		console = new ConsoleReader();
+	public RascalShell(){
+		console = new Shell(System.in, System.out);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
-		PrintWriter stderr = new PrintWriter(System.err);
-		PrintWriter stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), root, heap);
 		running = true;
 	}
 	
-	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout) throws IOException {
-		console = new ConsoleReader(stdin, new PrintWriter(stdout));
+	public RascalShell(InputStream stdin, OutputStream stderr, OutputStream stdout){
+		console = new Shell(stdin, stdout);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), root, heap);
 		running = true;
 	}
 	
-	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout, List<ClassLoader> classLoaders, RascalURIResolver uriResolver) throws IOException {
-		console = new ConsoleReader(stdin, new PrintWriter(stdout));
+	public RascalShell(InputStream stdin, OutputStream stderr, OutputStream stdout, List<ClassLoader> classLoaders, RascalURIResolver uriResolver){
+		console = new Shell(stdin, stdout);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap, classLoaders, uriResolver);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), root, heap, classLoaders, uriResolver);
 		running = true;
 	}
 	
@@ -83,14 +81,15 @@ public class RascalShell {
 				String prompt = PROMPT;
 
 				do {
-					line = console.readLine(prompt);
+					console.print(prompt);
+					line = console.readLine();
 					
 					if (line == null) {
 						break next; // EOF
 					}
 					
 					if (line.trim().length() == 0) {
-						console.printString("cancelled\n");
+						console.print("cancelled\n");
 						continue next;
 					}
 					
@@ -99,45 +98,45 @@ public class RascalShell {
 				} while (!completeStatement(input));
 
 				String output = handleInput(evaluator, input);
-				console.printString(output);
-				console.printNewline();
+				console.print(output);
+				console.print("\n");
 			}
 			catch (SyntaxError e) {
 				ISourceLocation loc = e.getLocation();
-				if(loc != null) console.printString("Parse error in command from <"+loc.getBeginLine()+","+loc.getBeginColumn()+"> to <"+loc.getEndLine()+","+loc.getEndColumn()+">\n");
-				else console.printString("Parse error in command\n");
+				if(loc != null) console.print("Parse error in command from <"+loc.getBeginLine()+","+loc.getBeginColumn()+"> to <"+loc.getEndLine()+","+loc.getEndColumn()+">\n");
+				else console.print("Parse error in command\n");
 			}
 			catch (StaticError e) {
-				console.printString("Static Error: " + e.getMessage() + "\n");
+				console.print("Static Error: " + e.getMessage() + "\n");
 				e.printStackTrace(); // for debugging only
 			}
 			catch (Throw e) {
-				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
+				console.print("Uncaught Rascal Exception: " + e.getMessage() + "\n");
 				String trace = e.getTrace();
 				if (trace != null) {
-					console.printString(trace);
+					console.print(trace);
 				}
 				else {
 //					e.printStackTrace(); // for debugging only
 				}
 			}
 			catch(Insert e){
-				console.printString("Error: insert statement outside visit\n");
+				console.print("Error: insert statement outside visit\n");
 			}
 			catch (Return e){
-				console.printString("Error: return statement outside function body\n");
+				console.print("Error: return statement outside function body\n");
 			}
 			catch (ImplementationError e) {
 				e.printStackTrace();
-				console.printString("ImplementationError: " + e.getMessage() + "\n");
+				console.print("ImplementationError: " + e.getMessage() + "\n");
 				printStacktrace(console, e);
 			}
 			catch (QuitException q) {
 				break next;
 			}
 			catch (Throwable e) {
-				console.printString("Unexpected exception (generic Throwable): " + e.getMessage() + "\n");
-				console.printString(evaluator.getStackTrace());
+				console.print("Unexpected exception (generic Throwable): " + e.getMessage() + "\n");
+				console.print(evaluator.getStackTrace());
 				printStacktrace(console, e);
 			}
 		}
@@ -152,18 +151,18 @@ public class RascalShell {
 		return evaluator;
 	}
 	
-	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
+	private void printStacktrace(Shell console, Throwable e) throws IOException {
 		String message = e.getMessage();
-		console.printString("stacktrace: " + (message != null ? message : "" )+ "\n");
+		console.print("stacktrace: " + (message != null ? message : "" )+ "\n");
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		if (stackTrace != null) {
 			for (StackTraceElement elem : stackTrace) {
-				console.printString("\tat " + elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")\n");
+				console.print("\tat " + elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")\n");
 			}
 		}
 		Throwable cause = e.getCause();
 		if (cause != null) {
-			console.printString("caused by:\n");
+			console.print("caused by:\n");
 			printStacktrace(console, cause);
 		}
 	}
@@ -226,10 +225,8 @@ public class RascalShell {
 	private static void toLatex(String fileName) throws IOException {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
-		PrintWriter stderr = new PrintWriter(System.err);
-		PrintWriter stdout = new PrintWriter(System.out);
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
+		Evaluator evaluator = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), root, heap);
 		evaluator.doImport(null, "lang::rascal::doc::ToLatex");
 		File file = new File(fileName);
 		String name = file.getName();
