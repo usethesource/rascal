@@ -550,6 +550,7 @@ public abstract class SGTDBF implements IGTD{
 							
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
+						filteredNodes.push(edge, resultStore);
 					}
 				}
 			}
@@ -667,6 +668,7 @@ public abstract class SGTDBF implements IGTD{
 							
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
+						filteredNodes.push(edge, resultStore);
 					}
 				}
 			}
@@ -1044,7 +1046,7 @@ public abstract class SGTDBF implements IGTD{
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			if(levelResultStoreMap != null){
 				AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
-				if(result != null){
+				if(!(result == null || result.isRejected())){
 					FilteringTracker filteringTracker = new FilteringTracker();
 					// Invoke the forest flattener, a.k.a. "the bulldozer".
 					IConstructor resultTree = result.toTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor);
