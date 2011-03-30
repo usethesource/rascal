@@ -1,6 +1,7 @@
 package org.rascalmpl.library;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -56,11 +57,9 @@ public class Scripting {
 		}
 		InputStream in = new ByteArrayInputStream(is.getBytes());
 		
-		StringWriter os = new StringWriter();
-		PrintWriter out = new PrintWriter(os);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ByteArrayOutputStream err = new ByteArrayOutputStream();
 		
-		StringWriter es = new StringWriter();
-		PrintWriter err = new PrintWriter(es);
 		RascalShell shell = null;
 		
 		try {
@@ -70,9 +69,7 @@ public class Scripting {
 			shell.run();
 			timer.cancel();
 			
-			out.close();
-			err.close();
-			java.lang.String result = os.toString();
+			java.lang.String result = new java.lang.String(out.toByteArray());
 			java.lang.String prompt = "rascal>";
 			if(result.endsWith(prompt))
 					result = result.substring(0, result.length()- prompt.length());
@@ -98,9 +95,6 @@ public class Scripting {
 			System.err.println("caused by:");
 			e.printStackTrace();
 			return values.string("unexpected error: " + e.getMessage());
-		} finally {
-			out.close();
-			err.close();
 		}
 	}
 	

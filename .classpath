@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="lib/jetty-util-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-webapp-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-xml-7.1.5.v20100705.jar"/>
-	<classpathentry kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
