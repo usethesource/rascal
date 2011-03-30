@@ -1,1 +1,0 @@
-concept("fontSize",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/fontSize/fontSize.concept|,[],[],{"Library"},{},"","",""," \<ol\>\<li\> \<code\>FProperty fontSize(int s)\</code\>\</li\>\n\<li\> \<code\>FProperty fontSize(computedInt cs)\</code\>\</li\>\n\</ol\>",{}," Sets the font size (in points) to be used in text.\n","","","",[])

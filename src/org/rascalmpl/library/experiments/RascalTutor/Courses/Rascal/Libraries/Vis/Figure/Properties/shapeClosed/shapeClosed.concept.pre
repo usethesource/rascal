@@ -1,1 +1,0 @@
-concept("shapeClosed",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeClosed/shapeClosed.concept|,[],[],{"Library"},{"shape"},"","",""," \<code\>FProperty shapeClosed()\</code\>\n",{}," Connect the first and the last point of a \<a href=\"/show?concept=shape\"\>shape\</a\>.\n","","","",[])

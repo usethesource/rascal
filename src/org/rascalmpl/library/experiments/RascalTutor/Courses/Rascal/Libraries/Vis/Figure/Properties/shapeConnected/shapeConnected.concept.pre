@@ -1,1 +1,0 @@
-concept("shapeConnected",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeConnected/shapeConnected.concept|,[],[],{"Library"},{"shape"},"","",""," \<code\>FProperty shapeConnected()\</code\>\n",{}," Connect the points in a \<a href=\"/show?concept=shape\"\>shape\</a\>.\n","","","",[])
