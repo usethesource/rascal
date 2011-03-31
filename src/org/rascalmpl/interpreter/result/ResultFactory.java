@@ -162,8 +162,13 @@ public class ResultFactory {
 			if (externalType instanceof NonTerminalType) {
 				return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
 			}
+			/* TODO: hope this is OK.... -anya
+			 * 
+			 * was:
+			 *	throw new NotYetImplemented("visitExternal in result factory: " + externalType);
+			*/
+			return new ValueResult(declaredType, value, ctx);
 			
-			throw new NotYetImplemented("visitExternal in result factory: " + externalType);
 		}
 
 		public Result<? extends IValue> visitDateTime(Type type) {
