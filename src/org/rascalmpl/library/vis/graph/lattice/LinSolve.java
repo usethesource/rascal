@@ -9,7 +9,8 @@ public class LinSolve {
 	float x;
 	float e1ToX, e1ToY, e2ToX, e2ToY;
 	float e1FromY, e1FromX, e2FromX, e2FromY;
-	float eps = 0.1f;
+	final float eps = 0.1f;
+	final float eps1 = 10f;
 	final boolean debug = false;
 
 	class LineEquation {
@@ -30,7 +31,7 @@ public class LinSolve {
 		
 		private boolean isOnEdge(LatticeGraphNode n) {
 		  final float d = (float) Math.hypot(cx, cy);
-		  return Math.abs(cx * n.x + cy * n.y - c) < eps*d;
+		  return Math.abs(cx * n.x + cy * n.y - c) < eps1*d;
 		}
 	}
 	
