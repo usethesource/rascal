@@ -272,18 +272,6 @@ public class ErrorTreeBuilder{
 			AbstractStackNode filteredNode = filteredNodes.peekFirst();
 			AbstractContainerNode resultStore = filteredNodes.popSecond();
 			
-			int startLocation = filteredNode.getStartLocation();
-			
-			// Carry over the necessary result stores.
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(startLocation);
-			if(levelResultStoreMap == null){
-				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
-				errorResultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
-			}
-			String nodeName = filteredNode.getName();
-			int resultStoreId = parser.getResultStoreId(filteredNode.getId());
-			levelResultStoreMap.put(nodeName, resultStoreId, resultStore);
-			
 			errorNodes.push(filteredNode, resultStore);
 		}
 		
