@@ -134,4 +134,8 @@ public class LatticeGraphNode {
 		if (!out.contains(n))
 			out.add(n);
 	}
+	
+	public boolean isConnected(LatticeGraphNode n) {
+		return this.in.contains(n) || this.out.contains(n);
+	}
 }

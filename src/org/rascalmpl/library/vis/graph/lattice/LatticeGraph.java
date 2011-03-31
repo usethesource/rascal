@@ -34,7 +34,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  */
 public class LatticeGraph extends Figure implements
 		Comparator<LatticeGraph.Organism> {
-	private final int E = 10;
+	private final int E = 20;
 	private final int G = 20;
 	protected ArrayList<LatticeGraphNode> nodes;
 	protected ArrayList<LatticeGraphEdge> edges;
@@ -42,7 +42,7 @@ public class LatticeGraph extends Figure implements
 	private final boolean debug = false;
 	private LinkedList<LatticeGraphNode> nextLayer = new LinkedList<LatticeGraphNode>();
 	IEvaluatorContext ctx;
-	ArrayList<LatticeGraphNode>[] layers;
+	Layer[] layers;
 	final int border = 20;
 	final int lmargin = 0;
 	final TypeStore ts = new TypeStore();
@@ -74,9 +74,9 @@ public class LatticeGraph extends Figure implements
 
 		Organism() {
 			int i = 0;
-			for (ArrayList<LatticeGraphNode> ns : layers) {
-				x[i] = new float[ns.size()];
-				aux[i] = new float[ns.size()];
+			for (Layer ns : layers) {
+				x[i] = new float[ns.data.size()];
+				aux[i] = new float[ns.data.size()];
 				i++;
 			}
 			init();
@@ -151,19 +151,19 @@ public class LatticeGraph extends Figure implements
 
 		private void init() {
 			int i = 0;
-			for (ArrayList<LatticeGraphNode> ns : layers) {
-				for (int j = 0; j < ns.size(); j++)
-					x[i][j] = ns.get(j).x;
+			for (Layer ns : layers) {
+				for (int j = 0; j < ns.data.size(); j++)
+					x[i][j] = ns.data.get(j).x;
 				i++;
 			}
 		}
 
 		void set() {
 			int i = 0;
-			for (ArrayList<LatticeGraphNode> ns : layers) {
-				for (int j = 0; j < ns.size(); j++) {
-					aux[i][j] = ns.get(j).x;
-					ns.get(j).x = x[i][j];
+			for (Layer ns : layers) {
+				for (int j = 0; j < ns.data.size(); j++) {
+					aux[i][j] = ns.data.get(j).x;
+					ns.data.get(j).x = x[i][j];
 				}
 				i++;
 			}
@@ -171,13 +171,25 @@ public class LatticeGraph extends Figure implements
 
 		void reset() {
 			int i = 0;
-			for (ArrayList<LatticeGraphNode> ns : layers) {
-				for (int j = 0; j < ns.size(); j++)
-					ns.get(j).x = aux[i][j];
+			for (Layer ns : layers) {
+				for (int j = 0; j < ns.data.size(); j++)
+					ns.data.get(j).x = aux[i][j];
 				i++;
 			}
 		}
 
+	}
+
+	class Layer {
+		final int rank;
+		final ArrayList<LatticeGraphNode> data;
+		final float step;
+
+		Layer(ArrayList<LatticeGraphNode> data, int rank) {
+			this.data = data;
+			this.rank = rank;
+			this.step = (height - 2 * border) / layers.length;
+		}
 	}
 
 	Organism[] elitePopulation;
@@ -234,7 +246,8 @@ public class LatticeGraph extends Figure implements
 					if (linSolve.isOnEdge(e, n)) {
 						// System.err.println("BINGO");
 						IPropertyManager ep = new PropertyManager(fpa,
-								properties, vf.list(vf.constructor(shapeCurved, vf.bool(true))), ctx);
+								properties, vf.list(vf.constructor(shapeCurved,
+										vf.bool(true))), ctx);
 						e.properties = ep;
 					}
 	}
@@ -249,8 +262,9 @@ public class LatticeGraph extends Figure implements
 
 	private void initialPlacement() {
 		int i = 0;
-		for (ArrayList<LatticeGraphNode> layer : layers) {
-			int s = layer.size();
+		float y = border;
+		for (Layer layer : layers) {
+			int s = layer.data.size();
 			// System.err.println("layer.size:"+s);
 			if (s > 0) {
 				float step = width / (s + 1);
@@ -258,15 +272,27 @@ public class LatticeGraph extends Figure implements
 				// System.err.println("step:"+step);
 				// float x = i % 2 == 0 ? step / 2 : (width - step / 2);
 				float x = lmargin + step;
-				for (LatticeGraphNode n : layer) {
+				for (LatticeGraphNode n : layer.data) {
 					// n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));
 					n.x = x;
+					n.y = y;
 					// x += (i % 2 == 0 ? step : -step);
 					x += step;
-					n.y = border + (n.rank * (height - 2 * border))
-							/ layers.length;
 					// System.err.println("y:"+n.y);
 				}
+				int z = 0;
+				for (int k = 0; k < s; k++) {
+					LatticeGraphNode q = layer.data.get(k);
+					for (int j = k + 1; j < s; j++) {
+						if (q.isConnected(layer.data.get(j))) {
+							z++;
+							layer.data.get(j).y += (z * layer.step / s);
+
+						}
+					}
+				}
+				// System.err.println("Problematic:" + i + " " + z);
+				y += layer.step;
 				i++;
 			}
 		}
@@ -320,8 +346,8 @@ public class LatticeGraph extends Figure implements
 
 	@Override
 	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
-//		System.err.println("mousePressed:" + this.getClass() + " "
-//				+ nodes.size());
+		// System.err.println("mousePressed:" + this.getClass() + " "
+		// + nodes.size());
 		for (LatticeGraphNode n : nodes) {
 			if (n.mousePressed(mousex, mousey, e))
 				return true;
@@ -418,13 +444,29 @@ public class LatticeGraph extends Figure implements
 		int maxBottom = assignRank(false);
 		// System.err.println("maxBottom:"+maxBottom);
 		int len = maxBottom + maxTop + 1;
-		layers = new ArrayList[len];
+		ArrayList<LatticeGraphNode>[] layer = new ArrayList[len];
 		for (int i = 0; i < len; i++)
-			layers[i] = new ArrayList<LatticeGraphNode>();
+			layer[i] = new ArrayList<LatticeGraphNode>();
 		for (LatticeGraphNode n : nodes) {
 			// n.rank = n.rankTop - n.rankBottom + maxBottom;
 			n.rank = (n.rankBottom - n.rankTop + maxTop);
-			layers[n.rank].add(n);
+			layer[n.rank].add(n);
+		}
+		int k = 0;
+		for (int i = 0; i < layer.length; i++) {
+			if (i == 0 || i == layer.length - 1 || layer[i].size() > 1)
+				k++;
+		}
+		this.layers = new Layer[k];
+		k = -1;
+		for (int i = 0; i < layer.length; i++) {
+			if (i == 0 || i == layer.length - 1 || layer[i].size() > 1) {
+				k++;
+				this.layers[k] = new Layer(layer[i], k);
+			} else
+				for (LatticeGraphNode n : layer[i]) {
+					layers[k].data.add(n);
+				}
 		}
 	}
 
@@ -464,9 +506,9 @@ public class LatticeGraph extends Figure implements
 	private float Y() {
 		float r = 0;
 		// int i = 0;
-		for (ArrayList<LatticeGraphNode> ns : layers) {
-			for (LatticeGraphNode n : ns)
-				for (LatticeGraphNode m : ns)
+		for (Layer ns : layers) {
+			for (LatticeGraphNode n : ns.data)
+				for (LatticeGraphNode m : ns.data)
 					if (!m.equals(n)) {
 						final float k = (n.x - m.x) * (n.x - m.x);
 						r += k;
