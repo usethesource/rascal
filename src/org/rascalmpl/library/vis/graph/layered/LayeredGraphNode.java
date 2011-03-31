@@ -2,7 +2,6 @@ package org.rascalmpl.library.vis.graph.layered;
 
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
