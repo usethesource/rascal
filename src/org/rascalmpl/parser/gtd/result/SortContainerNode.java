@@ -177,7 +177,7 @@ public class SortContainerNode extends AbstractContainerNode{
 		return result;
 	}
 	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	/*public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		if(depth <= cycleMark.depth){
 			if(cachedResult != null){
 				if(cachedResult.getConstructorType() != FILTERED_RESULT_TYPE){
@@ -199,5 +199,9 @@ public class SortContainerNode extends AbstractContainerNode{
 		}
 		
 		return result;
+	}*/
+	
+	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+		return toTree(stack, depth, cycleMark, positionStore, new FilteringTracker(), actionExecutor);
 	}
 }
