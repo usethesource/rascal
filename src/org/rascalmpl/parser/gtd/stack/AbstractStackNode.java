@@ -4,6 +4,7 @@ package org.rascalmpl.parser.gtd.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
+import org.rascalmpl.parser.gtd.stack.filter.IReductionFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
@@ -29,6 +30,7 @@ public abstract class AbstractStackNode{
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
 	private IMatchableStackNode[] followRestrictions;
+	private IReductionFilter[] reductionFilters;
 	private boolean isReject;
 	
 	public AbstractStackNode(int id, int dot){
@@ -68,6 +70,7 @@ public abstract class AbstractStackNode{
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
+		reductionFilters = original.reductionFilters;
 		isReject = original.isReject;
 	}
 	
@@ -137,6 +140,14 @@ public abstract class AbstractStackNode{
 		return followRestrictions;
 	}
 	
+	public void setReductionFilters(IReductionFilter[] reductionFilters){
+		this.reductionFilters = reductionFilters;
+	}
+	
+	public IReductionFilter[] getReductionFilters() {
+		return reductionFilters;
+	}
+	
 	public boolean isReductionFiltered(char[] input, int location){
 		// Check if follow restrictions apply.
 		if(followRestrictions != null){
@@ -146,6 +157,13 @@ public abstract class AbstractStackNode{
 					followRestriction.matchWithoutResult(input, location)) return true;
 			}
 		}
+		
+		if(reductionFilters != null){
+			for(int i = reductionFilters.length - 1; i >= 0; --i){
+				if(reductionFilters[i].isFiltered(input, startLocation, location)) return true;
+			}
+		}
+		
 		return false;
 	}
 	

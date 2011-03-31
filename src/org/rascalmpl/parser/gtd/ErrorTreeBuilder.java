@@ -124,6 +124,7 @@ public class ErrorTreeBuilder{
 						sharedNext.markAsEndNode();
 						sharedNext.setParentProduction(alternativeNext.getParentProduction());
 						sharedNext.setFollowRestriction(alternativeNext.getFollowRestriction());
+						sharedNext.setReductionFilters(alternativeNext.getReductionFilters());
 						sharedNext.setReject(alternativeNext.isReject());
 					}
 					

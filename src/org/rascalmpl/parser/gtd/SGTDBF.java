@@ -22,6 +22,8 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.IListStackNode;
 import org.rascalmpl.parser.gtd.stack.IMatchableStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.stack.filter.IExpansionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IReductionFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.HashMap;
@@ -122,12 +124,18 @@ public abstract class SGTDBF implements IGTD{
 		lastNode.setParentProduction(production);
 	}
 	
-	protected void expect(IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
+	protected void expect(IConstructor production, IExpansionFilter[] expansionFilters, IReductionFilter[] reductionFilters, AbstractStackNode... symbolsToExpect){
+		if(expansionFilters != null){
+			for(int i = expansionFilters.length - 1; i >= 0; --i){
+				if(expansionFilters[i].isFiltered(input, location)) return;
+			}
+		}
+		
 		lastExpects.add(symbolsToExpect);
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
 		lastNode.setParentProduction(production);
-		lastNode.setFollowRestriction(followRestrictions);
+		lastNode.setReductionFilters(reductionFilters);
 	}
 	
 	protected void expectReject(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -135,15 +143,6 @@ public abstract class SGTDBF implements IGTD{
 		
 		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
 		lastNode.setParentProduction(production);
-		lastNode.markAsReject();
-	}
-	
-	protected void expectReject(IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode... symbolsToExpect){
-		lastExpects.add(symbolsToExpect);
-		
-		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
-		lastNode.setParentProduction(production);
-		lastNode.setFollowRestriction(followRestrictions);
 		lastNode.markAsReject();
 	}
 	
@@ -712,6 +711,7 @@ public abstract class SGTDBF implements IGTD{
 						sharedNext.markAsEndNode();
 						sharedNext.setParentProduction(alternativeNext.getParentProduction());
 						sharedNext.setFollowRestriction(alternativeNext.getFollowRestriction());
+						sharedNext.setReductionFilters(alternativeNext.getReductionFilters());
 						sharedNext.setReject(alternativeNext.isReject());
 					}
 					
@@ -849,6 +849,7 @@ public abstract class SGTDBF implements IGTD{
 					sharedNode.markAsEndNode();
 					sharedNode.setParentProduction(last.getParentProduction());
 					sharedNode.setFollowRestriction(last.getFollowRestriction());
+					sharedNode.setReductionFilters(last.getReductionFilters());
 					sharedNode.setReject(last.isReject());
 				}
 				continue;
