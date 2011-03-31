@@ -132,11 +132,11 @@ public abstract class AbstractStackNode{
 		return parentProduction;
 	}
 	
-	public void setFollowRestriction(IMatchableStackNode[] followRestrictions) {
+	public void setFollowRestriction(IMatchableStackNode[] followRestrictions){
 		this.followRestrictions = followRestrictions;
 	}
 	
-	public IMatchableStackNode[] getFollowRestriction() {
+	public IMatchableStackNode[] getFollowRestriction(){
 		return followRestrictions;
 	}
 	
@@ -144,7 +144,7 @@ public abstract class AbstractStackNode{
 		this.reductionFilters = reductionFilters;
 	}
 	
-	public IReductionFilter[] getReductionFilters() {
+	public IReductionFilter[] getReductionFilters(){
 		return reductionFilters;
 	}
 	
