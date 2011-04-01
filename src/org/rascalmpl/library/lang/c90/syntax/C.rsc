@@ -41,7 +41,7 @@ syntax Expression = Identifier |
                     "-" Expression |
                     "~" Expression |
                     "!" Expression |
-                    "sizeof" Expression |
+                    "sizeof" Expression | // NOTE: May be ambiguous with sizeof(TypeName)?
                     "(" TypeName ")" Expression >
                     left (
                          Expression "*" Expression |
@@ -176,8 +176,8 @@ syntax Specifier = Identifier |
                    "union" Identifier "{" StructDeclaration+ "}" |
                    "union" "{" StructDeclaration+ "}" |
                    "enum" Identifier
-                   "enum" Identifier "{" {Enumerator ","}+  "}" |
-                   "enum" "{" {Enumerator ","}+  "}" |
+                   "enum" Identifier "{" {Enumerator ","}+ "}" |
+                   "enum" "{" {Enumerator ","}+ "}" |
                    ;
 
 syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" // Handle typedef
