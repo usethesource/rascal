@@ -26,6 +26,18 @@ public Figure simplePlot(str title, list[num] xval, list[list[num]] yval, PlotPr
    return _simplePlot(title, facts, settings);
    }
    
+@doc{Create simple line plots. 
+    val are a list  of  values;
+    the ith element which is again a list of 
+    values are the ycoord (1<=k<=n) of the n plots belonging to the ith x value
+    which is stored in element 0 of that list.
+    }  
+public Figure simplePlot(str title, list[list[num]] val, PlotProperty settings ...) {
+   int n = size(val[0]);
+   list[NamedPairSeries] facts = [<"<k>", [<val[i][0], val[i][k]>|int i<-[0..size(val)-1]]>|int k<-[1 .. n-1]];
+   return _simplePlot(title, facts, settings);
+   }
+   
 data PlotProperty =                                      
      areaPlot()                                          
    | chartSize(num w, num h)   
@@ -34,7 +46,9 @@ data PlotProperty =
    | linePlot()                            
    | subTitle(str txt)        
    | xLabel(str txt)           
-   | yLabel(str txt)           
+   | yLabel(str txt)  
+   | xAxis(bool b)
+   | yAxis(bool b)         
    ;
  
 private num chartWidth = 400;
@@ -52,6 +66,8 @@ private int axisFontSize = 10;
 private num stepSize = 25;
 private str rasterColor = "lightgray";
 private bool aspectRatio = false;
+private bool xax = true;
+private bool yax = true;
 
 private void applySettings(list[PlotProperty] settings){
    chartWidth = 400;
@@ -64,6 +80,8 @@ private void applySettings(list[PlotProperty] settings){
    isCurvePlot = false;
    aspectRatio = false;
    stepSize = 25;
+   xax = true;
+   yax = true;
    
    for(PlotProperty setting <- settings){
         
@@ -78,6 +96,8 @@ private void applySettings(list[PlotProperty] settings){
          case xLabel(str s): xTitle = s;
          case yLabel(str s): yTitle = s;
          case aspectRatio(): aspectRatio = true;
+         case xAxis(bool b): xax = b;
+         case yAxis(bool b): yax = b;
        }
     }
 }
@@ -93,9 +113,11 @@ Figure makeSubTitle(str s) {
    return text(s, fontSize(subTitleFontSize));
    } 
 
+/*
 num min(num x, num y) {return x<y?x:y;}
 
 num max(num x, num y) {return x<y?y:x;}
+*/
 
 private Figure _simplePlot(str title, list[NamedPairSeries] facts, list[PlotProperty] settings){
 
@@ -182,7 +204,8 @@ private Figure xtick(num n){
 }
 
 private Figure xlabel(num n){
-    return text("<n>", fontSize(axisFontSize));
+    n = round(100*n)/100;
+    return xax?text("<n>", fontSize(axisFontSize)):text("");
 }
 
 private Figure ytick(num n){
@@ -190,14 +213,15 @@ private Figure ytick(num n){
   }
   
 private Figure ylabel(num n){
+   n = round(100*n)/100;
     // return grid([box(size(60, axisFontSize), lineWidth(0)), text("<n>" ,fontSize(axisFontSize), right())], right(), width(60));
-    return text("<n>" ,fontSize(axisFontSize), right());
+    return yax?text("<n>" ,fontSize(axisFontSize), right()):text("");
 }
 
 // X-axis
 
 private Figure xaxis(str title, num start, num incr, num end, num scale){
-   println("START:<start> incr:<incr> end: <end> scale: <scale>");
+   // println("START:<start> incr:<incr> end: <end> scale: <scale>");
    Figure ticks = grid( [ xtick(n) | num n <- [start, (start + incr) .. end]],
                  gap(incr * scale), width(chartWidth), top() // vcenter() 
                );
@@ -206,7 +230,7 @@ private Figure xaxis(str title, num start, num incr, num end, num scale){
 }
 
 private Figure xlabels(str title, num start, num incr, num end, num scale){
-   println("START:<start> incr:<incr> end: <end> scale: <scale>");
+// println("START:<start> incr:<incr> end: <end> scale: <scale>");
    Figure ticks = grid( [ xlabel(n) | num n <- [start, (start + incr) .. end]],
                  gap(incr * scale), width(chartWidth), top() // vcenter() 
                );
@@ -250,7 +274,9 @@ private Figure legend(list[tuple[str, Color]] funColors, num w){
 
 public void plotDemo() {
      // render(simplePlot("aap", [<"noot", [<i, (i/10)*(i/10)>|int i<-[-100,-90..100]]>, <"mies", [<i, i>|int i<-[-100,-90..100]]>],  chartSize(400, 400), curvePlot(), step(10), xLabel("x"), yLabel("y")));
-     render(simplePlot("simple plot", [i|int i<-[-100,-90..100]],[[i, (i/10)*(i/10), 0.5*i]|int i<-[-100,-90..100]], chartSize(400, 400), curvePlot(), step(10)));
+     // render(simplePlot("simple plot", [i|int i<-[-100,-90..100]],[[i, (i/10)*(i/10), 10*exp(toReal(i)/50)]|int i<-[-100,-90..100]], chartSize(400, 400), curvePlot(), step(10)));
+     // render(simplePlot("simple plot", [[x, exp(-pow(x,2))]|real x<-[-2.0,-1.8..2.0]], chartSize(400, 400), curvePlot(), step(0.2)));
+    render(simplePlot("simple plot", [[x, cos(PI()*x), sin(PI()*x)]|num x<-[-1,-5.0/6..1]], chartSize(400, 400), curvePlot(), step(1.0/5), xAxis(true), yAxis(true), xLabel("pi")));
     }
 
 
