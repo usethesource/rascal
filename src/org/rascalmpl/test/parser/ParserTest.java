@@ -92,6 +92,14 @@ public class ParserTest extends TestCase{
 		executeParser(new Optional3());
 	}
 	
+	public void testSequence(){
+		executeParser(new Sequence1());
+	}
+	
+	public void testAlternative(){
+		executeParser(new Alternative1());
+	}
+	
 	public void testAmbiguousList(){
 		executeParser(new AmbiguousNonTerminalPlusList1());
 		executeParser(new AmbiguousNonTerminalPlusList2());
