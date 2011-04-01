@@ -22,9 +22,9 @@ public void java render(str name, Figure fig);
 public void java renderSave(Figure fig, loc file);
 
 @doc{Set custom colors for errors}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public void java setErrorColors(list[Color] colors);
 
 @doc{Set custom colors for editor highlights}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public void java setHighlightColors(list[Color] colors);
