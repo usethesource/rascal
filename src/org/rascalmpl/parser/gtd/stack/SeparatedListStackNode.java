@@ -43,7 +43,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		emptyChild = original.emptyChild;
 	}
 	
-	private AbstractStackNode[] generateChildren(AbstractStackNode child,  AbstractStackNode[] separators){
+	private AbstractStackNode[] generateChildren(AbstractStackNode child, AbstractStackNode[] separators){
 		AbstractStackNode listNode = child.getCleanCopy();
 		listNode.markAsEndNode();
 		listNode.setParentProduction(production);
@@ -116,8 +116,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		sb.append(name);
 		sb.append('(');
 		sb.append(startLocation);
-		sb.append(',');
-		sb.append('?');
 		sb.append(')');
 		
 		return sb.toString();

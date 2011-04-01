@@ -103,8 +103,6 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		sb.append(name);
 		sb.append('(');
 		sb.append(startLocation);
-		sb.append(',');
-		sb.append('?');
 		sb.append(')');
 		
 		return sb.toString();

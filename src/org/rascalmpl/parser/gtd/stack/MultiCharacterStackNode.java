@@ -118,8 +118,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
-		sb.append(',');
-		sb.append(startLocation + getLength());
 		sb.append(')');
 		
 		return sb.toString();
