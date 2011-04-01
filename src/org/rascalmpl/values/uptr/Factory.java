@@ -74,7 +74,7 @@ public class Factory {
 	public static final Type Symbol_Empty = tf.constructor(uptr, Symbol, "empty");
 	public static final Type Symbol_Seq = tf.constructor(uptr, Symbol, "seq", tf.listType(Symbol), "symbols");
 	public static final Type Symbol_Opt = tf.constructor(uptr, Symbol, "opt", Symbol, "symbol");
-	public static final Type Symbol_Alt = tf.constructor(uptr, Symbol, "alt", Symbol, "lhs", Symbol, "rhs");
+	public static final Type Symbol_Alt = tf.constructor(uptr, Symbol, "alt", tf.setType(Symbol), "alternatives");
 	public static final Type Symbol_Tuple = tf.constructor(uptr, Symbol, "tuple", Symbol, "head", tf.listType(Symbol), "rest");
 	public static final Type Symbol_Sort = tf.constructor(uptr, Symbol, "sort", tf.stringType(), "string");
 	public static final Type Symbol_IterSepX = tf.constructor(uptr, Symbol, "iter-seps", Symbol, "symbol", tf.listType(Symbol), "separators");

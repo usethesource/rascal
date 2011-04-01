@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.utils;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.NullASTVisitor;
@@ -16,6 +17,7 @@ import org.rascalmpl.ast.Expression.TypedVariable;
 import org.rascalmpl.ast.Expression.TypedVariableBecomes;
 import org.rascalmpl.ast.QualifiedName.Default;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.semantics.dynamic.Expression.Set;
 import org.rascalmpl.values.uptr.Factory;
 
 public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
@@ -106,9 +108,12 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		}
 		
 		if (name.equals("alt")) {
-			IConstructor arg1 = x.getArguments().get(0).accept(this);
-			IConstructor arg2 = x.getArguments().get(1).accept(this);
-			return vf.constructor(Factory.Symbol_Alt, arg1, arg2);
+			ISet set = vf.set(Factory.Symbol);
+			Expression.Set arg = (Set) x.getArguments().get(0);
+			for(Expression y: arg.getElements()){
+				set = set.insert(y.accept(this));
+			}
+			return vf.constructor(Factory.Symbol_Alt, set);
 		}
 		
 		if (name.equals("tuple")) {
