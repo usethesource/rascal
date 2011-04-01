@@ -107,8 +107,6 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
-		sb.append(',');
-		sb.append(startLocation + getLength());
 		sb.append(')');
 		
 		return sb.toString();

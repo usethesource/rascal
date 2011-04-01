@@ -71,8 +71,6 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
-		sb.append(',');
-		sb.append('?');
 		sb.append(')');
 		
 		return sb.toString();

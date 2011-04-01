@@ -104,8 +104,6 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		sb.append(name);
 		sb.append('(');
 		sb.append(startLocation);
-		sb.append(',');
-		sb.append('?');
 		sb.append(')');
 		
 		return sb.toString();
