@@ -77,6 +77,14 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean canBeEmpty(){
+		throw new UnsupportedOperationException();
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public AbstractNode getResult(){
 		return result;
 	}

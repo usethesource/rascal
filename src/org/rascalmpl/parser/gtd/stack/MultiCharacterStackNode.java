@@ -91,6 +91,14 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean canBeEmpty(){
+		throw new UnsupportedOperationException();
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public AbstractNode getResult(){
 		return result;
 	}

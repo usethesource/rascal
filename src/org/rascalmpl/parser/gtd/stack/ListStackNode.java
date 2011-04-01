@@ -7,13 +7,12 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-public final class ListStackNode extends AbstractStackNode implements IListStackNode{
-	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
-	
+public final class ListStackNode extends AbstractStackNode implements IExpandableStackNode{
 	private final IConstructor production;
 	private final String name;
 
 	private final AbstractStackNode[] children;
+	private final AbstractStackNode emptyChild;
 	
 	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList){
 		super(id, dot);
@@ -21,7 +20,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
-		this.children = generateChildren(child, isPlusList);
+		this.children = generateChildren(child);
+		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
 	public ListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
@@ -30,7 +30,8 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
-		this.children = generateChildren(child, isPlusList);
+		this.children = generateChildren(child);
+		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
 	private ListStackNode(ListStackNode original){
@@ -40,23 +41,22 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 		name = original.name;
 
 		children = original.children;
+		emptyChild = original.emptyChild;
 	}
 	
-	private AbstractStackNode[] generateChildren(AbstractStackNode child, boolean isPlusList){
+	private AbstractStackNode[] generateChildren(AbstractStackNode child){
 		AbstractStackNode listNode = child.getCleanCopy();
 		listNode.markAsEndNode();
 		listNode.setParentProduction(production);
 		listNode.setProduction(new AbstractStackNode[]{listNode, listNode});
-		
-		if(isPlusList){
-			return new AbstractStackNode[]{listNode};
-		}
-		
+		return new AbstractStackNode[]{listNode};
+	}
+	
+	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy();
 		empty.markAsEndNode();
 		empty.setParentProduction(production);
-		
-		return new AbstractStackNode[]{listNode, empty};
+		return empty;
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -85,6 +85,14 @@ public final class ListStackNode extends AbstractStackNode implements IListStack
 	
 	public AbstractStackNode[] getChildren(){
 		return children;
+	}
+	
+	public boolean canBeEmpty(){
+		return emptyChild != null;
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		return emptyChild;
 	}
 	
 	public AbstractNode getResult(){

@@ -7,13 +7,12 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-public final class OptionalStackNode extends AbstractStackNode implements IListStackNode{
-	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
-	
+public final class OptionalStackNode extends AbstractStackNode implements IExpandableStackNode{
 	private final IConstructor production;
 	private final String name;
 	
 	private final AbstractStackNode[] children;
+	private final AbstractStackNode emptyChild;
 	
 	public OptionalStackNode(int id, int dot, IConstructor production, AbstractStackNode optional){
 		super(id, dot);
@@ -22,6 +21,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
 		this.children = generateChildren(optional);
+		this.emptyChild = generateEmptyChild();
 	}
 	
 	public OptionalStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode optional){
@@ -31,6 +31,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
 		this.children = generateChildren(optional);
+		this.emptyChild = generateEmptyChild();
 	}
 	
 	private OptionalStackNode(OptionalStackNode original){
@@ -40,18 +41,21 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 		name = original.name;
 		
 		children = original.children;
+		emptyChild = original.emptyChild;
 	}
 	
 	private AbstractStackNode[] generateChildren(AbstractStackNode optional){
 		AbstractStackNode child = optional.getCleanCopy();
 		child.markAsEndNode();
 		child.setParentProduction(production);
-
+		return new AbstractStackNode[]{child};
+	}
+	
+	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy();
 		empty.markAsEndNode();
 		empty.setParentProduction(production);
-		
-		return new AbstractStackNode[]{child, empty};
+		return empty;
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -80,6 +84,14 @@ public final class OptionalStackNode extends AbstractStackNode implements IListS
 	
 	public AbstractStackNode[] getChildren(){
 		return children;
+	}
+	
+	public boolean canBeEmpty(){
+		return emptyChild != null;
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		return emptyChild;
 	}
 	
 	public AbstractNode getResult(){

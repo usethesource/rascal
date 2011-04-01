@@ -1,19 +1,17 @@
 package org.rascalmpl.parser.gtd.stack;
 
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
-public final class SeparatedListStackNode extends AbstractStackNode implements IListStackNode{
-	private final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
-	
+public final class SeparatedListStackNode extends AbstractStackNode implements IExpandableStackNode{
 	private final IConstructor production;
 	private final String name;
 
 	private final AbstractStackNode[] children;
+	private final AbstractStackNode emptyChild;
 	
 	public SeparatedListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id, dot);
@@ -21,7 +19,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
-		this.children = generateChildren(child, separators, isPlusList);
+		this.children = generateChildren(child, separators);
+		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
 	public SeparatedListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
@@ -30,7 +29,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
 		
-		this.children = generateChildren(child, separators, isPlusList);
+		this.children = generateChildren(child, separators);
+		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
 	private SeparatedListStackNode(SeparatedListStackNode original){
@@ -40,9 +40,10 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		name = original.name;
 		
 		children = original.children;
+		emptyChild = original.emptyChild;
 	}
 	
-	private AbstractStackNode[] generateChildren(AbstractStackNode child,  AbstractStackNode[] separators, boolean isPlusList){
+	private AbstractStackNode[] generateChildren(AbstractStackNode child,  AbstractStackNode[] separators){
 		AbstractStackNode listNode = child.getCleanCopy();
 		listNode.markAsEndNode();
 		listNode.setParentProduction(production);
@@ -60,15 +61,14 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		}
 		prod[numberOfSeparators + 1] = listNode; // End
 		
-		if(isPlusList){
-			return new AbstractStackNode[]{listNode};
-		}
-
+		return new AbstractStackNode[]{listNode};
+	}
+	
+	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy();
 		empty.markAsEndNode();
 		empty.setParentProduction(production);
-		
-		return new AbstractStackNode[]{listNode, empty};
+		return empty;
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -97,6 +97,14 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	
 	public AbstractStackNode[] getChildren(){
 		return children;
+	}
+	
+	public boolean canBeEmpty(){
+		return emptyChild != null;
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		return emptyChild;
 	}
 	
 	public AbstractNode getResult(){
