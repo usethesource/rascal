@@ -108,6 +108,30 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 			out.remove(n);
 	}
 	
+	public int degree(){
+		return in.size() + out.size();
+	}
+	
+	public float baryCenter(LinkedList<LayeredGraphNode> above,LinkedList<LayeredGraphNode> below){
+		int sum = 0;
+		LinkedList<LayeredGraphNode> aboveG = getAllConnectedNeighbours(above);
+		LinkedList<LayeredGraphNode> belowG = getAllConnectedNeighbours(below);
+		for(LayeredGraphNode ag : aboveG){
+			sum += ag.x;
+		}
+		for(LayeredGraphNode bg : belowG){
+			sum += bg.x;
+		}
+		int degree = aboveG.size() + belowG.size();
+		return degree > 0 ? sum/degree : 0;
+	}
+	
+	public float median(LinkedList<LayeredGraphNode> above){
+		LinkedList<LayeredGraphNode> aboveG = getAllConnectedNeighbours(above);
+		int nAbove = aboveG.size();
+		return nAbove > 0 ? aboveG.get(nAbove/2).x : 0;
+	}
+	
 	/* Methods for ordering and cycle removal */
 	
 	/**
@@ -296,7 +320,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * @param layer	a horizontal layer of the graph
 	 * @return	ordered list of nodes in layer directly connected to this node
 	 */
-	public LinkedList<LayeredGraphNode> getConnectedNeighbours(LinkedList<LayeredGraphNode> layer){
+	public LinkedList<LayeredGraphNode> getAllConnectedNeighbours(LinkedList<LayeredGraphNode> layer){
 		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
 		for(LayeredGraphNode g : layer){
 			if(in.contains(g) || out.contains(g))
@@ -304,6 +328,50 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		}
 		return connected;
 	}
+	
+	/**
+	 * @param layer
+	 * @param k
+	 * @return list of rightmost consecutive neighbors of this node that occur before index k in layer
+	 */
+	public LinkedList<LayeredGraphNode> getAllConnectedNeighboursAfter(LinkedList<LayeredGraphNode> layer, int k){
+		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
+		boolean inSeq = false;
+		for(int i = k + 1; i < layer.size(); i++){
+			LayeredGraphNode g = layer.get(i);
+			if(in.contains(g) || out.contains(g)){
+				inSeq = true;
+				connected.add(g);
+			}
+			else if(inSeq) return connected;
+			else
+				inSeq = true;
+		}
+		return connected;
+	}
+	
+	/**
+	 * @param layer
+	 * @param k
+	 * @return list of leftmost consecutive neighbors of this node that occur befoafterre index k in layer
+	 */
+	public LinkedList<LayeredGraphNode> getAllConnectedNeighboursBefore(LinkedList<LayeredGraphNode> layer, int k){
+		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
+		boolean inSeq = false;
+		for(int i = k - 1; i >= 0 ; i--){
+			LayeredGraphNode g = layer.get(i);
+			if(in.contains(g) || out.contains(g)){
+				inSeq = true;
+				connected.addFirst(g);
+			}
+			else if(inSeq) return connected;
+			else
+				inSeq = true;
+		}
+		return connected;
+	}
+	
+	
 	
 	/* Methods for horizontal placement */
 	

@@ -146,6 +146,12 @@ public class LayeredGraph extends Figure {
 		System.err.println("\n----");
 	}
 	
+	private void printList(String msg, LinkedList<LayeredGraphNode> nodes){
+		System.err.printf("%s: [ ", msg);
+		for(LayeredGraphNode g : nodes) System.err.printf("%s ", g.name);
+		System.err.printf("]\n");
+	}
+	
 	
 	private void printGraph(String txt){
 		System.err.println(txt);
@@ -419,7 +425,7 @@ public class LayeredGraph extends Figure {
 			
 			if(current == null){
 				System.err.println("current is null");
-					current = labeled.getFirst();
+					current = labeled.getLast();
 					System.err.println("pick current: " + current.name);
 			}
 			
@@ -578,6 +584,93 @@ public class LayeredGraph extends Figure {
 	}
 	
 	/**
+	 * Place each node in each layer at its barycenter
+	 * @param layers
+	 * @return modified layers
+	 */
+	private LinkedList<LinkedList<LayeredGraphNode>> placeAtBaryCenters(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		LinkedList<LayeredGraphNode> empty = new LinkedList<LayeredGraphNode>();
+		
+		// Initial estimate of x positions (centered placement)
+		
+		for(int i = 0; i < layers.size(); i++){
+			LinkedList<LayeredGraphNode> layer = layers.get(i);
+			float w = 0;
+			for(int j = 0; j < layer.size(); j++){
+				LayeredGraphNode g = layer.get(j);
+				g.bbox();
+				w += g.width();
+			}
+			w += (layer.size() - 1) * delta; // account for gaps between nodes
+			float x = (WIDTH - w)/2;
+			for(int j = 0; j < layer.size(); j++){
+				float wg =  layer.get(j).width();
+				layer.get(j).x = x + wg/2;
+				x += wg + delta;
+			}
+		}
+		
+		// Now place each node at the barycenter of its neighbours
+		
+		for(int i = 0; i < layers.size(); i++){
+			System.err.println("Layer " + i);
+			LinkedList<LayeredGraphNode> P = (i == 0) ? empty : layers.get(i-1);
+			LinkedList<LayeredGraphNode> L = layers.get(i);
+			LinkedList<LayeredGraphNode> N = (i == layers.size()-1) ? empty : layers.get(i+1);
+			LinkedList<LayeredGraphNode> LR = new LinkedList<LayeredGraphNode>();
+			
+			for(int j = 0; j < L.size(); j++){
+				LayeredGraphNode g = L.get(j);
+				System.err.println("Node " + g.name);
+			
+				float baryCenter = g.baryCenter(P, N);
+				float median = g.median(P);
+				
+				System.err.println("median = " + median);
+				System.err.println("baryCenter = " + baryCenter);
+				boolean added = false;
+				
+				for(int k = 0; k < LR.size(); k++){
+					LayeredGraphNode lrG = LR.get(k);
+					if(median > lrG.x){
+						g.x = median;
+						LR.add(k,g);
+						added = true;
+						break;
+					}
+					if(median == lrG.x && baryCenter < lrG.baryCenter(P, N)){
+						g.x = baryCenter;
+						LR.add(k,g);
+						added = true;
+						break;
+					}
+					if(median == lrG.x){
+						g.x = median + 5;
+						LR.add(k,g);
+						added = true;
+						break;
+					}
+				}
+				if(!added)
+					LR.addLast(g);
+			}
+			
+			
+			printList("LR = ", LR);
+		
+			layers.set(i, LR);
+
+		}
+		// Set all x positions back to uninitialized
+		
+		for(LayeredGraphNode g : nodes)
+			g.x = -1;
+		
+		return layers;
+	}
+
+	
+	/**
 	 * Compute the number of crossings for two adjacent nodes u and v with nodes in the "previous" layer
 	 * Going down:  L1
 	 *              L2 (u, v)
@@ -587,7 +680,7 @@ public class LayeredGraph extends Figure {
 	 *              use the outputs of u and v
 	 * @param down	when true go down, otherwise go up.
 	 * @param L1	top layer (when down = true)
-	 * @param L2	bottom layer (when down = true)
+	 * @param L2	bottom layer (when down = false)
 	 * @param u		left node
 	 * @param v		right node
 	 * @return the number of crossings
@@ -596,6 +689,8 @@ public class LayeredGraph extends Figure {
 		
 		int n = 0;
 		System.err.printf("cn(%s,%s,%b)\n", u.name, v.name, down);
+		
+		assert L2.contains(u) && L2.contains(v);
 		
 /*	//	LinkedList<LayeredGraphNode> L = down ? L2 : L1;
 		LinkedList<LayeredGraphNode> L = down ? L1 : L2;
@@ -610,8 +705,10 @@ public class LayeredGraph extends Figure {
 		}
 */		
 		if(down){ // going down: top layer L1, bottom layer L2, u,v in L2, inputs in L1
-			for(LayeredGraphNode iu : u.getConnectedNeighbours(L1)){
-				for(LayeredGraphNode iv : v.getConnectedNeighbours(L1)){
+			printList("Neighbours " + u.name, u.getAllConnectedNeighbours(L1));
+			for(LayeredGraphNode iu : u.getAllConnectedNeighbours(L1)){
+				printList("Neighbours " + v.name, v.getAllConnectedNeighbours(L1));
+				for(LayeredGraphNode iv : v.getAllConnectedNeighbours(L1)){
 					System.err.printf("iu=%s, iv=%s\n", iu.name, iv.name);
 					if(L1.indexOf(iu) > L1.indexOf(iv)){
 						System.err.printf("Crossing for %s (%d) and %s (%d)\n", 
@@ -621,8 +718,10 @@ public class LayeredGraph extends Figure {
 				}
 			}
 		} else { // going up: top Layer L2, bottom layer L1, u, v in L2, outputs in L1
-			for(LayeredGraphNode ou : u.getConnectedNeighbours(L1)){
-				for(LayeredGraphNode ov : v.getConnectedNeighbours(L1)){
+			printList("Neighbours " + u.name, u.getAllConnectedNeighbours(L1));
+			for(LayeredGraphNode ou : u.getAllConnectedNeighbours(L1)){
+				printList("Neighbours " + v.name, v.getAllConnectedNeighbours(L1));
+				for(LayeredGraphNode ov : v.getAllConnectedNeighbours(L1)){
 					System.err.printf("ou=%s (index=%d), ov=%s (index=%d)\n", ou.name,  L1.indexOf(ou), ov.name, L1.indexOf(ov));
 					if(L1.indexOf(ou) > L1.indexOf(ov)){
 						System.err.printf("Crossing for %s (%d) and %s (%d)\n", 
@@ -636,52 +735,14 @@ public class LayeredGraph extends Figure {
 		return n;
 	}
 	
-	/**
-	 * Place each node in each layer at its barycenter
-	 * @param layers
-	 * @return modified layers
-	 */
-	private LinkedList<LinkedList<LayeredGraphNode>> placeAtBaryCenters(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		LinkedList<LayeredGraphNode> empty = new LinkedList<LayeredGraphNode>();
 		
-		for(int i = layers.size() - 1; i >= 0; i--){
-			System.err.println("Layer " + i);
-			LinkedList<LayeredGraphNode> P = (i == 0) ? empty : layers.get(i-1);
-			LinkedList<LayeredGraphNode> L = layers.get(i);
-			LinkedList<LayeredGraphNode> N = (i == layers.size()-1) ? empty : layers.get(i+1);
-
-			LayeredGraphNode[] A = new LayeredGraphNode[L.size()];
-			
-			for(int j = 0; j < L.size(); j++){
-				LayeredGraphNode g = L.get(j);
-				System.err.println("Node " + g.name);
-				int sum = 0;
-				LinkedList<LayeredGraphNode> aboveG = g.getConnectedNeighbours(P);
-				LinkedList<LayeredGraphNode> belowG = g.getConnectedNeighbours(N);
-				for(int k = 0; k < aboveG.size(); k++){
-					sum += P.indexOf(aboveG.get(k));
-				}
-				int degree = aboveG.size() + belowG.size();
-				int median = degree > 0 ? PApplet.round(sum/degree) % L.size() : 0; // TODO: ok?
-				System.err.println("median = " + median);
-				for(int l = median; ; l = (l + 1) % L.size()){
-					if(A[l] == null){
-						A[l] = g;
-						break;
-					}
-				}
-				System.err.println("copying A to LR");
-				LinkedList<LayeredGraphNode> LR = new LinkedList<LayeredGraphNode>();
-				for(int l = 0; l < L.size(); l++){
-					LR.add(l, A[l]);
-				}
-				layers.set(i, LR);
-			}
-		}
-		return layers;
-	}
-	
 	private int exchangeAdjacentNodes(LinkedList<LayeredGraphNode> L1, LinkedList<LayeredGraphNode> L2, boolean down){
+		
+		System.err.printf("exchangeAdjacentNodes: down = %b, L1= [ ", down);
+		for(LayeredGraphNode g : L1) System.err.printf("%s ", g.name);
+		System.err.printf("] L2 = [ ");
+		for(LayeredGraphNode g : L2) System.err.printf("%s ", g.name);
+		System.err.printf("]\n");
 		int prevCrossings = 100000;
 		int curCrossings = prevCrossings - 1;
 	
@@ -692,25 +753,26 @@ public class LayeredGraph extends Figure {
 			for(int j = 0; j < L2.size() - 1; j++){
 				LayeredGraphNode u = L2.get(j);
 				LayeredGraphNode v = L2.get(j+1);
-				//System.err.println("for node u=" + u.name + " (j = " + j + ") and node v=" + v.name + " in layer " + (down ? i+1 : i-1));
+				System.err.println("for node u=" + u.name + " (j = " + j + ") and node v=" + v.name);
 				int cnbefore = cn(down, L1, L2, u, v);
-				L2.set(j, v);
-				L2.set(j+1, u);
+				L2.set(j, v); v.pos = j;
+				L2.set(j+1, u); u.pos = j+1;
 				int cnafter = cn(down, L1, L2, v, u);
-				//System.err.printf("i=%d, j=%d, u=%s, v=%s, cnb=%d, cna=%d\n", i, j, u.name, v.name, cnbefore, cnafter);
+				System.err.printf("j=%d, u=%s, v=%s, cnb=%d, cna=%d\n", j, u.name, v.name, cnbefore, cnafter);
 				if(cnbefore > cnafter){
 					curCrossings += cnafter;
 					System.err.println("*** Exchange " + u.name + " and " + v.name);
 				//} else if(cnbefore == cnafter){
 				//	curCrossings += cnbefore;
-				//	System.err.println("*** Exchange (equal) " + u.name + " and " + v.name);
+				//	System.err.println("*** Exchange (equal )" + u.name + " and " + v.name);
 				} else {
 					curCrossings += cnbefore;
-					L2.set(j, u);
-					L2.set(j+1, v);
+					L2.set(j, u); u.pos = j;
+					L2.set(j+1, v); v.pos = j+1;
 				}
 			}
 		}
+		System.err.printf("exchangeAdjacentNodes => %d\n", prevCrossings);
 		return prevCrossings;
 	}
 	
@@ -726,22 +788,25 @@ public class LayeredGraph extends Figure {
 		
 		print("reduceCrossings: placeAtBaryCenters done", layers);
 		
-        int prevCrossings[] = {1000000, 1000000};
-        int curCrossings[] =  {999999, 999999};
+        int prevCrossings = 1000000;
+        int curCrossings =  999999;
         int grace = 10; // grace more iterations when nothing seems to change
        
-		for(int iter = 0; curCrossings[0] + curCrossings[1] < prevCrossings[0] + prevCrossings[1] || grace-- > 0; iter++){
-			prevCrossings[iter % 2] = curCrossings[iter % 2];
-			curCrossings[iter % 2] = 0;
-			boolean down = iter % 2 == 0;
-			//System.err.println("=== iter = " + iter + ", " + (down ? "down" : "up") + " mincrossings = " + prevCrossings + " ===");
-			//print("At start of iteration:", layers);
-			for(int i = down ? 0 : layers.size()-1; down ? (i <= layers.size()-2) : (i > 0); i += (down ? 1 : -1)){
-				//System.err.println("--- for layer i = " + i);
-				curCrossings[iter % 2] += exchangeAdjacentNodes(layers.get(i), layers.get(down ? i+1 : i-1), down);
+		for(int iter = 0; (curCrossings < prevCrossings) || grace-- > 0; iter += 2){
+			prevCrossings = curCrossings;
+			curCrossings = 0;
+			for(int k = 0; k < 2; k++){
+				boolean down = k == 0;
+				System.err.println("=== iter = " + iter + ", " + (down ? "down" : "up") + " crossings = " + prevCrossings  + " ===");
+				print("At start of iteration:", layers);
+
+				for(int i = down ? 0 : layers.size()-1; down ? (i <= layers.size()-2) : (i > 0); i += (down ? 1 : -1)){
+					System.err.println("--- for layer i = " + i);
+					curCrossings += exchangeAdjacentNodes(layers.get(i), layers.get(down ? i+1 : i-1), down);
+				}
 			}
 		}
-		System.err.println("crossings = [" + prevCrossings[0] + ", " + prevCrossings[1] + "]");
+		System.err.println("crossings = " + prevCrossings);
 		
 		// Assign layer position to each node;
 		
@@ -758,6 +823,21 @@ public class LayeredGraph extends Figure {
 	 * Graph Drawing 2001, LNCS 2265, pp 31-44, 2002.
 	 */
 	
+	private HashMap<LayeredGraphNode,LinkedList<LayeredGraphNode>> marked;
+	
+	private void mark(LayeredGraphNode from, LayeredGraphNode to){
+		LinkedList<LayeredGraphNode> associates = marked.get(from);
+		if(associates == null)
+			associates = new LinkedList<LayeredGraphNode>();
+		associates.add(to);
+		marked.put(from, associates);
+	}
+	
+	private boolean isMarked(LayeredGraphNode from, LayeredGraphNode to){
+		LinkedList<LayeredGraphNode> associates = marked.get(from);
+		return associates == null ? false : associates.contains(to);
+	}
+	
 	/**
 	 * Preprocess all nodes and mark "type 1" conflicts, i.e. crossings of an
 	 * inner segment (= segment between two virtual nodes) and a non-inner segment. 
@@ -766,6 +846,9 @@ public class LayeredGraph extends Figure {
 	 * @param layers
 	 */
 	private void preprocess(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		
+		marked = new HashMap <LayeredGraphNode,LinkedList<LayeredGraphNode>>();
+		 
 		int h = layers.size()-1;
 		for(int i = 2; i <= h-2; i++){
 			int k0 = 0;
@@ -782,11 +865,13 @@ public class LayeredGraph extends Figure {
 						k1 = vl1.in.get(0).pos;
 					}
 					while (l <= l1){
-						for(LayeredGraphNode vki : Lip1.get(l).getConnectedNeighbours(Li)){
+						LayeredGraphNode vl = Lip1.get(l);
+						for(LayeredGraphNode vki : vl.getAllConnectedNeighbours(Li)){
 							int k = vki.pos;
-							if(k < k0 || k > k1){
-								System.err.println("mark " + vki.name + " -> " + vl1.name);
+							if((k < k0 || k > k1) && vki.isVirtual()){
+								System.err.println("mark " + vki.name + " -> " + vl.name);
 								vki.marked = true;
+								mark(vki, vl);
 							}
 						}
 						l++;
@@ -813,7 +898,7 @@ public class LayeredGraph extends Figure {
 			int r = -1;
 			for(int k = 0; k < Li.size(); k++){
 				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> aboveVk = vk.getConnectedNeighbours(layers.get(i-1));
+				LinkedList<LayeredGraphNode> aboveVk = vk.getAllConnectedNeighboursAfter(layers.get(i-1), r);
 				
 				int d = aboveVk.size();
 				if(d > 0){
@@ -822,7 +907,7 @@ public class LayeredGraph extends Figure {
 					for(int m : ms){
 						if(vk.align == vk){
 							LayeredGraphNode um = aboveVk.get(m);
-							if(!um.marked &&  r < um.pos){
+							if(!isMarked(um, vk) &&  r < um.pos){
 								um.align = vk;
 								vk.root = um.root;
 								vk.align = vk.root;
@@ -845,7 +930,7 @@ public class LayeredGraph extends Figure {
 			int r = -1;
 			for(int k = 0; k < Li.size(); k++){
 				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> belowVk = vk.getConnectedNeighbours(layers.get(i+1));
+				LinkedList<LayeredGraphNode> belowVk = vk.getAllConnectedNeighboursAfter(layers.get(i+1), r);
 				System.err.printf("alignVerticalBL: %s\n", vk.name);
 				int d = belowVk.size();
 				if(d > 0){
@@ -855,7 +940,7 @@ public class LayeredGraph extends Figure {
 						if(vk.align == vk){
 							LayeredGraphNode um = belowVk.get(m);
 							System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
-							if(!um.marked &&  r < um.pos){
+							if(!isMarked(um, vk) &&  r < um.pos){
 //								vk.align = um;
 //								um.root = vk.root;
 //								um.align = vk.root;
@@ -883,7 +968,7 @@ public class LayeredGraph extends Figure {
 			int r = below.size();
 			for(int k = Li.size()-1; k >= 0; k--){
 				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> belowVk = vk.getConnectedNeighbours(below);
+				LinkedList<LayeredGraphNode> belowVk = vk.getAllConnectedNeighboursBefore(below, r);
 				System.err.printf("alignVerticalBR: %s\n", vk.name);
 				int d = belowVk.size();
 				if(d > 0){
@@ -893,7 +978,7 @@ public class LayeredGraph extends Figure {
 						if(vk.align == vk){
 							LayeredGraphNode um = belowVk.get(m);
 							System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
-							if(!um.marked && um.pos < r){
+							if(!isMarked(um, vk) && um.pos < r){
 //								vk.align = um;
 //								um.root = vk.root;
 //								um.align = vk.root;
@@ -920,7 +1005,7 @@ public class LayeredGraph extends Figure {
 			int r = aboveSize;
 			for(int k = Li.size()-1; k >= 0; k--){
 				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> aboveVk = vk.getConnectedNeighbours(above);
+				LinkedList<LayeredGraphNode> aboveVk = vk.getAllConnectedNeighboursBefore(above, r);
 				System.err.printf("alignVerticalTR: %s\n", vk.name);
 				int d = aboveVk.size();
 				System.err.println("d = " + d);
@@ -930,7 +1015,7 @@ public class LayeredGraph extends Figure {
 					for(int m : ms){
 						if(vk.align == vk){
 							LayeredGraphNode um = aboveVk.get(m);
-							if(!um.marked && um.pos <  r){
+							if(!isMarked(um, vk) && um.pos <  r){
 								um.align = vk;
 								vk.root = um.root;
 								vk.align = vk.root;
@@ -948,6 +1033,7 @@ public class LayeredGraph extends Figure {
 	int delta = 150;
 	final int INFINITY = 1000000;
 	final int WIDTH = 1000;
+	boolean useWidth = false;
 	
 	private void placeBlock(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
 		if(dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT)
@@ -959,8 +1045,10 @@ public class LayeredGraph extends Figure {
 	private void placeBlockL(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
 		if(v.getX(dir) < 0){
 			System.err.println("placeBlockL: " + v.name + " x = " + v.getX(dir));
-			//v.setX(dir, v.width()/2);
-			v.setX(dir, 0);
+			if(useWidth)
+				v.setX(dir, v.width()/2);
+			else
+				v.setX(dir, 0);
 			LayeredGraphNode w = v;
 			do {
 				System.err.println("placeBlock: v = " + v.name + " w = " + w.name);
@@ -968,15 +1056,16 @@ public class LayeredGraph extends Figure {
 					LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
 					LayeredGraphNode u = layer.get(w.pos-1).root;
 					placeBlockL(layers, u, dir);
+					float dw = useWidth ? v.width()/2 + u.width()/2 : 0;
 					if(v.sink == v){
 						v.sink = u.sink;
 						System.err.println("placeBlockL: " + v.name + ".sink => " + u.sink.name);
 					}
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - (delta /* + v.width()/2 + u.width()/2*/));
+						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - (delta + dw));
 						System.err.println("placeBlockL: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, max(v.getX(dir), u.getX(dir) + delta /*+ u.width()/2 + v.width()/2*/));
+						v.setX(dir, max(v.getX(dir), u.getX(dir) + delta + dw));
 						System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
@@ -990,7 +1079,7 @@ public class LayeredGraph extends Figure {
 		
 		if(v.getX(dir) < 0){
 			System.err.println("placeBlockR: " + v.name + " x = " + v.getX(dir) + ", sink = " + v.sink.name);
-			v.setX(dir, WIDTH /*- v.width()/2*/);
+			v.setX(dir, WIDTH - (useWidth ? v.width()/2 : 0));
 			LayeredGraphNode w = v;
 			do {
 				System.err.println("placeBlockR: v = " + v.name + " w = " + w.name);
@@ -999,15 +1088,16 @@ public class LayeredGraph extends Figure {
 					
 					LayeredGraphNode u = layer.get(w.pos+1).root;
 					placeBlockR(layers, u, dir);
+					float dw = useWidth ? v.width()/2 + u.width()/2 : 0;
 					if(v.sink == v){   // OK?
 						v.sink = u.sink;
 						System.err.println("placeBlockR: " + v.name + ".sink => " + u.sink.name);
 					}
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - (delta /* + u.width()/2 + v.width()/2*/));
+						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - (delta + dw));
 						System.err.println("placeBlockR: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, min(v.getX(dir), u.getX(dir) - (delta /*+ u.width()/2 + v.width()/2*/)));
+						v.setX(dir, min(v.getX(dir), u.getX(dir) - (delta + dw)));
 						System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
@@ -1103,10 +1193,10 @@ public class LayeredGraph extends Figure {
 			}
 
 		} else {
-			//			Direction dir = Direction.TOP_LEFT;
+						Direction dir = Direction.TOP_LEFT;
 			//			Direction dir = Direction.TOP_RIGHT;
 			//			Direction dir = Direction.BOTTOM_LEFT;
-						Direction dir = Direction.BOTTOM_RIGHT;
+			//			Direction dir = Direction.BOTTOM_RIGHT;
 
 			alignVertical(layers, dir);
 			System.err.println("alignVertical done");
