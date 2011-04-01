@@ -17,14 +17,14 @@ import org.rascalmpl.tasks.FactFactory;
 import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.INameFormatter;
 import org.rascalmpl.tasks.ITransaction;
-import org.rascalmpl.tasks.Scheduler;
+import org.rascalmpl.tasks.TaskRegistry;
 import org.rascalmpl.tasks.Transaction;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue {
 	public static final Type TransactionType = new ExternalType() {};
 	private final Transaction parent;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();
-	private final Scheduler<Type,IValue,IValue> scheduler;
+	private final ITaskRegistry<Type,IValue,IValue> registry;
 	private final Set<IFact<IValue>> deps = new HashSet<IFact<IValue>>();
 	private final Set<Key> removed = new HashSet<Key>();
 	private INameFormatter format;
@@ -37,13 +37,16 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		this(null, format, stderr);
 	}
 
-	public Transaction(ITransaction<Type,IValue,IValue> parent, PrintWriter stderr) {
+	public Transaction(Transaction parent, PrintWriter stderr) {
 		this(parent, null, stderr);
 	}
 	
-	public Transaction(ITransaction<Type,IValue,IValue> parent, INameFormatter format, PrintWriter stderr) {
+	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr) {
 		this.parent = (Transaction) parent;
-		this.scheduler = Scheduler.getScheduler(Type.class, IValue.class, IValue.class);
+		if(parent != null)
+			this.registry = parent.registry;
+		else
+			this.registry = PDBValueTaskRegistry.getRegistry();
 		this.format = format;
 		if(stderr == null)
 			this.stderr = new PrintWriter(System.err);
@@ -85,7 +88,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			}
 			monitor.startJob("Producing fact " + formatKey(key, name));
 			Transaction tr = new Transaction(this, stderr);
-			scheduler.produce(monitor, tr, key, name);
+			registry.produce(monitor, tr, key, name);
 			monitor.endJob(true);
 			fact = tr.query(k);
 			if (fact != null) {
@@ -138,7 +141,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
 		if(fact == null) {
-			fact = FactFactory.fact(IValue.class, k, scheduler.getDepPolicy(key), scheduler.getRefPolicy(key));
+			fact = FactFactory.fact(IValue.class, k, registry.getDepPolicy(key), registry.getRefPolicy(key));
 		}
 		fact.setValue(value);
 		fact.setDepends(deps);

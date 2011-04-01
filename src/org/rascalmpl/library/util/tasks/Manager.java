@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -18,17 +20,16 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.IIValueTask;
-import org.rascalmpl.tasks.ITask;
+import org.rascalmpl.tasks.ITaskRegistry;
 import org.rascalmpl.tasks.ITransaction;
-import org.rascalmpl.tasks.Scheduler;
+import org.rascalmpl.tasks.PDBValueTaskRegistry;
 import org.rascalmpl.tasks.Transaction;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Manager {
 	private Transaction base = null;
-	private final Scheduler<Type, IValue, IValue> scheduler;
+	private final ITaskRegistry<Type, IValue, IValue> registry;
 	private IValueFactory vf;
 	private final Map<IValueWrapper,ProducerWrapper> producers = new HashMap<IValueWrapper,ProducerWrapper>();
 	public Manager() {
@@ -37,7 +38,7 @@ public class Manager {
 	
 	public Manager(IValueFactory vf) {
 		this.vf = vf;
-		this.scheduler = Scheduler.getScheduler(Type.class, IValue.class, IValue.class);
+		this.registry = PDBValueTaskRegistry.getRegistry();
 	}
 	public IValue startTransaction(IEvaluatorContext ctx) {
 		if(base == null)
@@ -87,7 +88,7 @@ public class Manager {
 	public void registerProducer(IValue producer, ISet keys, IEvaluatorContext ctx) {
 		ProducerWrapper wrapper = new ProducerWrapper(ctx, (ICallableValue)producer, keys);
 		producers.put(new IValueWrapper(producer), wrapper);
-		scheduler.registerProducer(wrapper);
+		registry.registerProducer(wrapper);
 	}
 	
 
@@ -95,7 +96,7 @@ public class Manager {
 		IValueWrapper prod = new IValueWrapper(producer);
 		if(producers.containsKey(prod)) {
 			ProducerWrapper wrapper = producers.get(prod);
-			scheduler.unregisterProducer(wrapper);
+			registry.unregisterProducer(wrapper);
 			producers.remove(prod);
 		}
 	}
@@ -106,7 +107,7 @@ public class Manager {
 	/**
 	 *  Cast an IValue to ITransaction 
 	 */
-	protected static ITransaction<Type, IValue, IValue> transaction(IValue tr) {
+	protected static Transaction transaction(IValue tr) {
 		if(tr instanceof Transaction)
 			return (Transaction)tr;
 		else
@@ -122,8 +123,20 @@ public class Manager {
 		ProducerWrapper(IEvaluatorContext ctx, ICallableValue fun, ISet keys) {
 			this.ctx = ctx;
 			this.fun = fun;
-			for(IValue v : keys)
-				this.keys.add(Typeifier.toType((IConstructor)v));
+			for(IValue v : keys) {
+				if(v instanceof ITuple) {
+					IValue keyType = ((ITuple)v).get(0);
+					IValue nameType = ((ITuple)v).get(1);
+					this.keys.add(TypeFactory.getInstance().tupleType(
+							Typeifier.toType((IConstructor)keyType),
+							Typeifier.toType((IConstructor)nameType)));
+				}
+				else {
+					this.keys.add(TypeFactory.getInstance().tupleType(
+							Typeifier.toType((IConstructor)v),
+							TypeFactory.getInstance().valueType()));
+				}
+			}
 		}
 
 		@Override

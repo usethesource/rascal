@@ -1,10 +1,11 @@
 module util::tasks::Manager
 
+alias Task = void (Transaction tr, type[&T] key, &N name);
 @reflect{Needs access to context in order to reify types when calling producer.}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public void java registerProducer(void (Transaction tr, type[&T] key, value name) producer, set[type[value]] keys);
+public void java registerProducer(Task producer, set[value] keys);
 
-public void registerProducer(&T (Transaction tr, type[&T] key, value name) producer, set[type[value]] keys) {
+public void registerProducer(&T (Transaction tr, type[&T] key, &N name) producer, set[value] keys) {
 	registerProducer(void(Transaction t,type[&T] k, value n){v = producer(t,k,n); setFact(t,k,n,v);});
 }
 
