@@ -58,6 +58,14 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 		throw new UnsupportedOperationException();
 	}
 	
+	public boolean canBeEmpty(){
+		throw new UnsupportedOperationException();
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		throw new UnsupportedOperationException();
+	}
+	
 	public AbstractNode getResult(){
 		return result;
 	}

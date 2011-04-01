@@ -19,8 +19,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.IListStackNode;
-import org.rascalmpl.parser.gtd.stack.IMatchableStackNode;
+import org.rascalmpl.parser.gtd.stack.IExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.filter.IExpansionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IReductionFilter;
@@ -725,13 +724,13 @@ public abstract class SGTDBF implements IGTD{
 		if(node.isEndNode()){
 			if(!result.isRejected()){
 				if(!node.isReject()){
-					if(!result.isEmpty() || node.getId() == IListStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
+					if(!result.isEmpty() || node.getId() == IExpandableStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
 						updateEdges(node, result);
 					}else{
 						updateNullableEdges(node, result);
 					}
 				}else{
-					if(!result.isEmpty() || node.getId() == IListStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
+					if(!result.isEmpty() || node.getId() == IExpandableStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
 						updateRejects(node);
 					}else{
 						updateNullableRejects(node);
@@ -940,23 +939,25 @@ public abstract class SGTDBF implements IGTD{
 		}else{ // List
 			AbstractStackNode[] listChildren = stack.getChildren();
 			
-			AbstractStackNode child = listChildren[0];
-			int childId = child.getId();
-			if(!shareListNode(childId, stack)){
-				child = child.getCleanCopy();
-				
-				sharedNextNodes.putUnsafe(childId, child);
-				
-				child.setStartLocation(location);
-				child.initEdges();
-				child.addEdgeWithPrefix(stack, null, location);
-				
-				stacksToExpand.push(child);
+			for(int i = listChildren.length - 1; i >= 0; --i){
+				AbstractStackNode child = listChildren[i];
+				int childId = child.getId();
+				if(!shareListNode(childId, stack)){
+					child = child.getCleanCopy();
+					
+					sharedNextNodes.putUnsafe(childId, child);
+					
+					child.setStartLocation(location);
+					child.initEdges();
+					child.addEdgeWithPrefix(stack, null, location);
+					
+					stacksToExpand.push(child);
+				}
 			}
 			
-			if(listChildren.length > 1){ // Star list or optional.
+			if(stack.canBeEmpty()){ // Star list or optional.
 				// This is always epsilon (and unique for this position); so shouldn't be shared.
-				AbstractStackNode empty = listChildren[1].getCleanCopy();
+				AbstractStackNode empty = stack.getEmptyChild().getCleanCopy();
 				empty.setStartLocation(location);
 				empty.initEdges();
 				empty.addEdge(stack);

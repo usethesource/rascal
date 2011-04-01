@@ -112,7 +112,7 @@ public abstract class AbstractStackNode{
 	}
 	
 	public final boolean isList(){
-		return (this instanceof IListStackNode);
+		return (this instanceof IExpandableStackNode);
 	}
 	
 	public abstract boolean isEmptyLeafNode();
@@ -466,6 +466,10 @@ public abstract class AbstractStackNode{
 	
 	// Lists.
 	public abstract AbstractStackNode[] getChildren();
+	
+	public abstract boolean canBeEmpty();
+	
+	public abstract AbstractStackNode getEmptyChild();
 	
 	// Results.
 	public abstract AbstractNode getResult();
