@@ -1,6 +1,6 @@
 module lang::c90::syntax::C
 
-syntax Statement = "{" Declaration* Statement* "}" |
+syntax Statement = "{" Declaration* Statement* "}" | // TODO: Handle typedefs
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
                    "default" ":" Statement |
@@ -41,7 +41,7 @@ syntax Expression = Identifier |
                     "-" Expression |
                     "~" Expression |
                     "!" Expression |
-                    "sizeof" Expression | // NOTE: May be ambiguous with sizeof(TypeName)?
+                    "sizeof" Expression | // TODO: May be ambiguous with sizeof(TypeName)
                     "(" TypeName ")" Expression >
                     left (
                          Expression "*" Expression |
@@ -144,8 +144,8 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" | // Handle typedef
-                     Specifier+ ";"  // {avoid}
+syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" | // TODO: Record typedefs
+                     Specifier+ ";"  // TODO: avoid + Record typedefs
                      ;
 
 syntax InitDeclarator = Declarator |
@@ -180,7 +180,7 @@ syntax Specifier = Identifier |
                    "enum" "{" {Enumerator ","}+ "}" |
                    ;
 
-syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" // Handle typedef
+syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" // TODO: Record typedefs
                            ;
 
 syntax StructDeclarator = Declarator |
