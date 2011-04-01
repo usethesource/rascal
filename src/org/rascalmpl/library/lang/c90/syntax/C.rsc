@@ -41,10 +41,10 @@ syntax Expression = Identifier |
                     "-" Expression |
                     "~" Expression |
                     "!" Expression |
-                    "sizeof" Expression | // TODO: May be ambiguous with sizeof(TypeName)
+                    "sizeof" Expression | // TODO: May be ambiguous with "sizeof(TypeName)"
                     "(" TypeName ")" Expression >
                     left (
-                         Expression "*" Expression |
+                         Expression "*" Expression | // TODO: May be ambiguous with "TypeName * Expression".
                          Expression "/" Expression |
                          Expression "%" Expression
                     ) >
