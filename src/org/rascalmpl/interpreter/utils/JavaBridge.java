@@ -1,14 +1,28 @@
 package org.rascalmpl.interpreter.utils;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -337,5 +351,83 @@ public class JavaBridge {
 		}
 		
 		throw new UndeclaredJavaMethodError(className + "." + name, func);
+	}
+
+	/**
+	 * Same as saveToJar("", clazz, outPath, false);
+	 */
+	public void saveToJar(Class<?> clazz, String outPath) throws IOException {
+		saveToJar("", clazz, outPath, false);
+	}
+	
+	/**
+	 * Save a compiled class and associated classes to a jar file.
+	 *  
+	 * With a packageName = "" and recursive = false, it will save clazz and any classes
+	 * compiled from the same source (I think); this is probably what you want.
+	 * 
+	 * @param packageName package name prefix to search for classes, or "" for all 
+	 * @param clazz a class that has been previously compiled by this bridge
+	 * @param outPath name of output jar file
+	 * @param recursive whether to retrieve classes from rest of the the JavaFileManager hierarchy
+	 * 	
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void saveToJar(String packageName, Class<?> clazz, String outPath,
+			boolean recursive) throws IOException {
+		JavaFileManager manager = fileManagerCache.get(clazz);
+		Iterable<JavaFileObject> list = null;
+		try {
+			list = manager.list(StandardLocation.CLASS_PATH, packageName,
+					Collections.singleton(JavaFileObject.Kind.CLASS), false);
+		} catch (IOException e) {
+		}
+		if (list.iterator().hasNext()) {
+			Manifest manifest = new Manifest();
+			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
+					"1.0");
+			JarOutputStream target = new JarOutputStream(new FileOutputStream(outPath), manifest);
+			JarEntry entry = new JarEntry("META-INF/");
+			target.putNextEntry(entry);
+			target.closeEntry();
+			Collection<String> dirs = new ArrayList<String>();
+
+			for (JavaFileObject o : list) {
+				String path = o.toUri().getPath().replace(".", "/");
+				String dir = path.substring(0, path.lastIndexOf('/'));
+				String tmp = "";
+				for (String d : dir.split("/")) {
+					tmp += d + "/";
+					if (!dirs.contains(tmp)) {
+						dirs.add(tmp);
+						entry = new JarEntry(tmp);
+						target.putNextEntry(entry);
+						target.closeEntry();
+					}
+				}
+				entry = new JarEntry(path + ".class");
+				entry.setTime(o.getLastModified());
+				target.putNextEntry(entry);
+				InputStream stream = null;
+				try {
+					stream = o.openInputStream();
+
+					byte[] buffer = new byte[8192];
+					int c = stream.read(buffer);
+					while (c > -1) {
+						target.write(buffer, 0, c);
+						c = stream.read(buffer);
+					}
+				} finally {
+					if (stream != null)
+						stream.close();
+				}
+				target.closeEntry();
+
+			}
+			target.close();
+		}
+
 	}
 }
