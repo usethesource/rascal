@@ -40,10 +40,34 @@ public class LayeredGraph extends Figure {
 	protected HashMap<String, LayeredGraphNode> registered;
 	IEvaluatorContext ctx;
 	
+	//int delta = 150;
+	float hgap;
+	float vgap;
+	float WIDTH;
+	final int INFINITY = 1000000;
+	
 //	private static boolean debug = false;
+	private boolean printGraph = false;
+	
 	public LayeredGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
+		
+		if(printGraph){
+			String sep = "";
+			System.err.printf("graph([\n");
+			for(IValue v: nodes){
+				System.err.printf("%s", sep + v);
+				sep = ",\n\t";
+			}
+			System.err.printf("],\n[\n");
+			sep = "";
+			for(IValue v: edges){
+				System.err.printf("%s", sep + v);
+				sep = ",\n\t";
+			}
+			System.err.printf("]);");
+		}
 		
 		this.ctx = ctx;
 		width = getWidthProperty();
@@ -160,7 +184,7 @@ public class LayeredGraph extends Figure {
 		}
 	}
 	
-	private void initialPlacement(){
+	private void computeGraphLayout(){
 		@SuppressWarnings("unused")  // TODO: Use W as width
 		int W = PApplet.round(1.5f * PApplet.sqrt(nodes.size()) + 1); 
 		
@@ -172,39 +196,56 @@ public class LayeredGraph extends Figure {
 		printGraph("Final graph");
 	}
 
+	private boolean scaleDown = false;
+	
 	@Override
 	public void bbox() {
-	 initialPlacement();
-
-		// Now scale (back or up) to the desired width x height frame
-		float minx = Float.MAX_VALUE;
-		float maxx = Float.MIN_VALUE;
-		float miny = Float.MAX_VALUE;
-		float maxy = Float.MIN_VALUE;
 		
-		for(LayeredGraphNode n : nodes){
-			float w2 = n.width()/2;
-			float h2 = n.height()/2;
-			if(n.x - w2 < minx)
+		WIDTH = getWidthProperty();
+		hgap = getHGapProperty();
+		vgap = getVGapProperty();
+		
+		//System.err.printf("WIDTH=%f, hgap=%f, vgap=%f\n", WIDTH, hgap, vgap);
 
-				minx = n.x - w2;
-			if (n.x + w2 > maxx)
-				maxx = n.x + w2;
+		computeGraphLayout();
+		
+		if(scaleDown){
 
-			if (n.y - h2 < miny)
-				miny = n.y - h2;
-			if (n.y + h2 > maxy)
-				maxy = n.y + h2;
-		}
+			// Now scale (back or up) to the desired width x height frame
+			float minx = Float.MAX_VALUE;
+			float maxx = Float.MIN_VALUE;
+			float miny = Float.MAX_VALUE;
+			float maxy = Float.MIN_VALUE;
 
-		float scalex = width / (maxx - minx);
-		float scaley = height / (maxy - miny);
+			for(LayeredGraphNode n : nodes){
+				float w2 = n.width()/2;
+				float h2 = n.height()/2;
+				if(n.x - w2 < minx)
+					minx = n.x - w2;
 
-		for (LayeredGraphNode n : nodes) {
-			n.x = n.x - minx;
-			n.x *= scalex;
-			n.y = n.y - miny;
-			n.y *= scaley;
+				if (n.x + w2 > maxx)
+					maxx = n.x + w2;
+
+				if (n.y - h2 < miny)
+					miny = n.y - h2;
+
+				if (n.y + h2 > maxy)
+					maxy = n.y + h2;
+			}
+
+			float scalex = width / (maxx - minx);
+
+			float scaley = height / (maxy - miny);
+			System.err.printf("minx=%f,maxx=%f, scalex=%f\n", minx, maxx, scalex);
+			System.err.printf("miny=%f,maxy=%f, scaley=%f\n", miny, maxy, scaley);
+			for (LayeredGraphNode n : nodes) {
+				System.err.printf("scale %s from %f,%f to ", n.name, n.x, n.y);
+				n.x = n.x - minx;
+				n.x *= scalex;
+				n.y = n.y - miny;
+				n.y *= scaley;
+				System.err.printf("%f,%f\n", n.x, n.y);
+			}
 		}
 	}
 
@@ -583,15 +624,8 @@ public class LayeredGraph extends Figure {
 		return layers;
 	}
 	
-	/**
-	 * Place each node in each layer at its barycenter
-	 * @param layers
-	 * @return modified layers
-	 */
-	private LinkedList<LinkedList<LayeredGraphNode>> placeAtBaryCenters(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		LinkedList<LayeredGraphNode> empty = new LinkedList<LayeredGraphNode>();
-		
-		// Initial estimate of x positions (centered placement)
+	private LinkedList<LinkedList<LayeredGraphNode>> estimateHorizontalPositions(LinkedList<LinkedList<LayeredGraphNode>> layers){
+	// Initial estimate of x positions (centered placement)
 		
 		for(int i = 0; i < layers.size(); i++){
 			LinkedList<LayeredGraphNode> layer = layers.get(i);
@@ -601,14 +635,38 @@ public class LayeredGraph extends Figure {
 				g.bbox();
 				w += g.width();
 			}
-			w += (layer.size() - 1) * delta; // account for gaps between nodes
+			w += (layer.size() - 1) * hgap; // account for gaps between nodes
 			float x = (WIDTH - w)/2;
 			for(int j = 0; j < layer.size(); j++){
 				float wg =  layer.get(j).width();
 				layer.get(j).x = x + wg/2;
-				x += wg + delta;
+				x += wg + hgap;
 			}
 		}
+		return layers;
+	}
+	
+	private LinkedList<LinkedList<LayeredGraphNode>> placeAtBaryCenters(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		layers = estimateHorizontalPositions(layers);
+		
+		for(int i = 0; i < 5; i++)
+			layers = placeAtBaryCenters1(layers);
+		
+		// Set all x positions back to uninitialized
+		
+		for(LayeredGraphNode g : nodes)
+			g.x = -1;
+		
+		return layers;
+	}
+	
+	/**
+	 * Place each node in each layer at its barycenter
+	 * @param layers
+	 * @return modified layers
+	 */
+	private LinkedList<LinkedList<LayeredGraphNode>> placeAtBaryCenters1(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		LinkedList<LayeredGraphNode> empty = new LinkedList<LayeredGraphNode>();
 		
 		// Now place each node at the barycenter of its neighbours
 		
@@ -628,28 +686,37 @@ public class LayeredGraph extends Figure {
 				
 				System.err.println("median = " + median);
 				System.err.println("baryCenter = " + baryCenter);
+				System.err.println("x = " + g.x);
 				boolean added = false;
 				
 				for(int k = 0; k < LR.size(); k++){
 					LayeredGraphNode lrG = LR.get(k);
-					if(median > lrG.x){
-						g.x = median;
-						LR.add(k,g);
-						added = true;
-						break;
-					}
-					if(median == lrG.x && baryCenter < lrG.baryCenter(P, N)){
+					if(baryCenter > lrG.baryCenter(P,N)){
 						g.x = baryCenter;
 						LR.add(k,g);
 						added = true;
 						break;
 					}
-					if(median == lrG.x){
-						g.x = median + 5;
-						LR.add(k,g);
+					if(k > 0 && baryCenter == lrG.x){
+						System.err.println("Tie for " + g.name + " and " + lrG.name);
+						float prevX = LR.get(k-1).x;
+						g.x = prevX + (baryCenter - prevX)/2 -k;
+						LR.add(k-1,g);
 						added = true;
 						break;
 					}
+//					if(k > 0 && baryCenter == lrG.x && baryCenter < lrG.baryCenter(P, N)){
+//						g.x = baryCenter;
+//						LR.add(k-1,g);
+//						added = true;
+//						break;
+//					}
+//					if(k > 0 && median == lrG.x){
+//						g.x = median + 5;
+//						LR.add(k-1,g);
+//						added = true;
+//						break;
+//					}
 				}
 				if(!added)
 					LR.addLast(g);
@@ -661,10 +728,7 @@ public class LayeredGraph extends Figure {
 			layers.set(i, LR);
 
 		}
-		// Set all x positions back to uninitialized
 		
-		for(LayeredGraphNode g : nodes)
-			g.x = -1;
 		
 		return layers;
 	}
@@ -743,7 +807,7 @@ public class LayeredGraph extends Figure {
 		System.err.printf("] L2 = [ ");
 		for(LayeredGraphNode g : L2) System.err.printf("%s ", g.name);
 		System.err.printf("]\n");
-		int prevCrossings = 100000;
+		int prevCrossings = INFINITY;
 		int curCrossings = prevCrossings - 1;
 	
 		while(curCrossings < prevCrossings){
@@ -788,8 +852,8 @@ public class LayeredGraph extends Figure {
 		
 		print("reduceCrossings: placeAtBaryCenters done", layers);
 		
-        int prevCrossings = 1000000;
-        int curCrossings =  999999;
+        int prevCrossings = INFINITY;
+        int curCrossings =  prevCrossings - 1;
         int grace = 10; // grace more iterations when nothing seems to change
        
 		for(int iter = 0; (curCrossings < prevCrossings) || grace-- > 0; iter += 2){
@@ -979,13 +1043,9 @@ public class LayeredGraph extends Figure {
 							LayeredGraphNode um = belowVk.get(m);
 							System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
 							if(!isMarked(um, vk) && um.pos < r){
-//								vk.align = um;
-//								um.root = vk.root;
-//								um.align = vk.root;
-								
 								um.align = vk;
 								vk.root = um.root;
-								vk.align = vk.root;
+								vk.align = vk.root;								
 								r = um.pos;
 								System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
 							}
@@ -1029,11 +1089,7 @@ public class LayeredGraph extends Figure {
 		}
 	}
 
-	
-	int delta = 150;
-	final int INFINITY = 1000000;
-	final int WIDTH = 1000;
-	boolean useWidth = false;
+	boolean useWidth = true;
 	
 	private void placeBlock(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
 		if(dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT)
@@ -1056,16 +1112,16 @@ public class LayeredGraph extends Figure {
 					LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
 					LayeredGraphNode u = layer.get(w.pos-1).root;
 					placeBlockL(layers, u, dir);
-					float dw = useWidth ? v.width()/2 + u.width()/2 : 0;
+					float dw = useWidth ? (v.width() + u.width())/2 : 0;
 					if(v.sink == v){
 						v.sink = u.sink;
 						System.err.println("placeBlockL: " + v.name + ".sink => " + u.sink.name);
 					}
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - (delta + dw));
+						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - (hgap + dw));
 						System.err.println("placeBlockL: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, max(v.getX(dir), u.getX(dir) + delta + dw));
+						v.setX(dir, max(v.getX(dir), u.getX(dir) + hgap + dw));
 						System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
@@ -1088,16 +1144,16 @@ public class LayeredGraph extends Figure {
 					
 					LayeredGraphNode u = layer.get(w.pos+1).root;
 					placeBlockR(layers, u, dir);
-					float dw = useWidth ? v.width()/2 + u.width()/2 : 0;
+					float dw = useWidth ? (v.width() + u.width())/2 : 0;
 					if(v.sink == v){   // OK?
 						v.sink = u.sink;
 						System.err.println("placeBlockR: " + v.name + ".sink => " + u.sink.name);
 					}
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - (delta + dw));
+						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - (hgap + dw));
 						System.err.println("placeBlockR: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, min(v.getX(dir), u.getX(dir) - (delta + dw)));
+						v.setX(dir, min(v.getX(dir), u.getX(dir) - (hgap + dw)));
 						System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
@@ -1129,7 +1185,8 @@ public class LayeredGraph extends Figure {
 				if(leftAligned)
 					v.setX(dir, v.getX(dir) + v.sink.shift);
 				else {
-					v.setX(dir, v.sink.shift - v.getX(dir));
+					//v.setX(dir, v.sink.shift - v.getX(dir));
+					v.setX(dir,  v.getX(dir) - v.sink.shift);
 				}
 		}
 	}
@@ -1139,7 +1196,7 @@ public class LayeredGraph extends Figure {
 	 * @param layers	of the graph
 	 */
 	private void assignY(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		float vgap = max(getVGapProperty(), 10);
+		
 		float y = 0;
 		
 		for(LinkedList<LayeredGraphNode> layer : layers){
@@ -1157,8 +1214,6 @@ public class LayeredGraph extends Figure {
 			y += hlayer + vgap;
 		}
 	}
-	
-	
 	
 	/**
 	 * 
@@ -1193,11 +1248,14 @@ public class LayeredGraph extends Figure {
 			}
 
 		} else {
-						Direction dir = Direction.TOP_LEFT;
+			//			Direction dir = Direction.TOP_LEFT;
 			//			Direction dir = Direction.TOP_RIGHT;
-			//			Direction dir = Direction.BOTTOM_LEFT;
+						Direction dir = Direction.BOTTOM_LEFT;
 			//			Direction dir = Direction.BOTTOM_RIGHT;
 
+			for(LayeredGraphNode g : nodes){
+					g.clearHorizontal();
+			}
 			alignVertical(layers, dir);
 			System.err.println("alignVertical done");
 			printGraph("after alignVertical");

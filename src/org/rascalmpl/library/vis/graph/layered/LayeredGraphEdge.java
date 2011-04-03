@@ -22,6 +22,7 @@ public class LayeredGraphEdge extends Figure {
 	Figure fromArrow;
 	boolean reversed = false;
 	private static boolean debug = true;
+	private static boolean useSplines = true;
 	
 	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName,
@@ -93,27 +94,60 @@ public class LayeredGraphEdge extends Figure {
 	}
 
 	void reverse(){
-		System.err.println("*** Before reverse ***");
-		from.print();
-		to.print();
-		reversed = true;
-//		from.out.remove(to);
-//		to.in.remove(from);
-//		from.in.add(to);
-//		to.out.add(from);
-		
+		if(debug){
+			System.err.println("*** Before reverse ***");
+			from.print();
+			to.print();
+		}
+		reversed = true;		
 		from.delOut(to);
 		to.delIn(from);
 		from.addIn(to);
 		to.addOut(from);
-		
-		System.err.println("*** After reverse ***");
-		from.print();
-		to.print();
+		if(debug){
+			System.err.println("*** After reverse ***");
+			from.print();
+			to.print();
+		}
 	}
 	
 	boolean isReversed(){
 		return reversed;
+	}
+
+	/*
+	 * Primitives for drawing a multi-vertex edge
+	 */
+	
+	float lastX;
+	float lastY;
+	
+	private void beginCurve(float x, float y){
+		if(useSplines){
+			fpa.smooth();
+			fpa.noFill();
+			fpa.beginShape();
+			fpa.curveVertex(x, y);
+			fpa.curveVertex(x, y);
+		} else{
+			lastX = x; lastY = y;
+		}
+	}
+	
+	private void endCurve(float x, float y){
+		if(useSplines){
+			fpa.curveVertex(x, y);
+			fpa.curveVertex(x, y);
+			fpa.endShape();
+		} else
+			fpa.line(getLeft()+ lastX, getTop() + lastY, getLeft() + x, getTop() + y);	
+	}
+	
+	private void addPointToCurve(float x, float y){
+		if(useSplines)
+			fpa.curveVertex(x, y);
+		else
+			fpa.line(getLeft()+ lastX, getTop() + lastY, getLeft() + x, getTop() + y);
 	}
 	
 	@Override
@@ -124,188 +158,49 @@ public class LayeredGraphEdge extends Figure {
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
 								                 getTo().name + ": " + getTo().x + "," + getTo().y + ")");
 		if(getFrom().isVirtual()){
-			//System.err.println("Ignore");
 			return;
 		}
 		if(getTo().isVirtual()){
-			System.err.println("Drawing a shape, inverted=" + reversed);
-			LayeredGraphNode currentNode = getTo();
-			float currentX = currentNode.figX();
-			float currentY = currentNode.figY();
 			
-			if(fromArrow != null){
-				System.err.println("Drawing from arrow from " + getFrom().name);
-				getFrom().figure.connectFrom(left, top, 
-						getFrom().figX(), getFrom().figY(), 
-						currentX, currentY,
-						fromArrow
-				);
-				
-			} else
-				fpa.line(left + getFrom().figX(), top + getFrom().figY(), left + currentX, top + currentY);
-            
-			LayeredGraphNode prevNode = currentNode;
-			currentNode =  currentNode.out.get(0);
-			while(currentNode.isVirtual()){
-				System.err.println("Add vertex for " + currentNode.name);
-				fpa.line(left + prevNode.figX(), top + prevNode.figY(), left + currentNode.figX(), top + currentNode.figY());
-				prevNode = currentNode;
-				currentNode = prevNode.out.get(0);
-			}
-			
-			drawLastSegment1(prevNode, currentNode);
-			
-		} else {
-			System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
-			if(getTo() == getFrom()){  // Drawing a self edge
-				LayeredGraphNode node = getTo();
-				float h = node.figure.height;
-				float w = node.figure.width;
-				float hgap = getHGapProperty();
-				float vgap = getVGapProperty();
-				
-				fpa.beginShape();
-				fpa.curveVertex(left + node.figX(),              top + node.figY()-h/2);
-				fpa.curveVertex(left + node.figX(),              top + node.figY()-h/2);
-				fpa.curveVertex(left + node.figX(),              top + node.figY()-h/2-vgap);
-				fpa.curveVertex(left + node.figX() + w/2 + hgap, top + node.figY()-h/2-vgap);
-				fpa.curveVertex(left + node.figX() + w/2 + hgap, top + node.figY()-h/2);
-				fpa.curveVertex(left + node.figX() + w/2 + hgap, top + node.figY());
-				fpa.curveVertex(left + node.figX() + w/2,        top + node.figY());
-				fpa.curveVertex(left + node.figX() + w/2,        top + node.figY());
-				fpa.endShape();
-			}
-			
-			
-			if(fromArrow != null || toArrow != null){
-				if(reversed){
-					
-					if(toArrow != null)
-						System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-						getFrom().figure.connectFrom(left, top, 
-								getFrom().figX(), getFrom().figY(),
-								getTo().figX(), getTo().figY(), 
-								toArrow
-					);
-						
-					if(fromArrow != null){
-						System.err.println("[reversed] Drawing to arrow to " + getToOrg().name);
-						getTo().figure.connectFrom(left, top, 
-								getTo().figX(), getTo().figY(),
-								getFrom().figX(), getFrom().figY(), 
-								fromArrow
-						);
-					}
-					
-				} else {
-					System.err.println("Drawing to arrow to " + getToOrg().name);
-					getTo().figure.connectFrom(left, top, 
-							getTo().figX(), getTo().figY(), 
-							getFrom().figX(), getFrom().figY(),
-							toArrow
-					);
-					if(fromArrow != null)
-						System.err.println("Drawing from arrow from " + getFrom().name);
-					   getFrom().figure.connectFrom(left, top, 
-							getFrom().figX(), getFrom().figY(), 
-							getTo().figX(), getTo().figY(),
-							fromArrow
-					);
-			}
-			} else {
-				System.err.println("Drawing lines without arrows");
-				fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
-						left + getTo().figX(), top + getTo().figY());
-				
-			}
-		}
-	}
-	
-	private void drawLastSegment1(LayeredGraphNode prevNode, LayeredGraphNode currentNode){
-		
-		Figure toArrow = getToArrow();
-		if(toArrow != null){
-			System.err.println("Has a to arrow");
-			currentNode.figure.connectFrom(getLeft(), getTop(), 
-					currentNode.figX(), currentNode.figY(), 
-					prevNode.figX(), prevNode.figY(),
-					toArrow);
-		} else {
-			fpa.line(getLeft() + prevNode.figX(), getTop() + prevNode.figY(), getLeft() + currentNode.figX(), getTop() + currentNode.figY());
-		}
-	}
-	
-	
-	public
-	void draw2(float left, float top) {
-		applyProperties();
-		
-		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
-								                 getTo().name + ": " + getTo().x + "," + getTo().y + ")");
-		if(getFrom().isVirtual()){
-			//System.err.println("Ignore");
-			return;
-		}
-		if(getTo().isVirtual()){
 			System.err.println("Drawing a shape, inverted=" + reversed);
 			LayeredGraphNode currentNode = getTo();
 			
 			float dx = currentNode.figX() - getFrom().figX();
-			//float dy = currentNode.figY() - currentNode.layerHeight/2 - getFrom().figY();
-			float dy = 0.5f * (currentNode.figY() - getFrom().figY());
-			float midX = getFrom().figX() + dx/2;
-			float midY = getFrom().figY() + dy/2;
-			System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
-					getFrom().figX(), getFrom().figY(),
-					currentNode.figX(), currentNode.figY(), midX, midY);
+			float dy = (currentNode.figY() - getFrom().figY());
+			float imScale = 0.5f;
+			float imX = getFrom().figX() + dx/2;
+			float imY = getFrom().figY() + dy * imScale;
+			System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",	getFrom().figX(), getFrom().figY(),	currentNode.figX(), currentNode.figY(), imX, imY);
 			
-			Figure fromArrow = getFromArrow();
 			
-			if(fromArrow != null){
+			
+			if(getFromArrow() != null){
 				System.err.println("Drawing from arrow from " + getFrom().name);
-				getFrom().figure.connectFrom(left, top, 
-						getFrom().figX(), getFrom().figY(), 
-						midX, midY,
-						fromArrow
-				);
-				
-			} else
-				fpa.line(left + getFrom().figX(), top + getFrom().figY(), left + midX, top + midY);
+				getFrom().figure.connectFrom(left, top, getFrom().figX(), getFrom().figY(), imX, imY, getFromArrow());
+				beginCurve(imX, imY);
+			} else {
+				beginCurve(getFrom().figX(), getFrom().figY());
+				addPointToCurve(imX, imY);
+			}
+
+			LayeredGraphNode nextNode = currentNode.out.get(0);
 			
-			fpa.noFill();
+			addPointToCurve(currentNode.figX(), currentNode.figY());
 			
-			fpa.beginShape();
-			fpa.vertex(		 left + midX, 				top + midY);      					// V1
-			fpa.bezierVertex(left + currentNode.figX(), top + midY + dy/2, 					// C1
-					         left + currentNode.figX(), top + currentNode.figY() - dy/5,    // C2
-					         left + currentNode.figX(), top + currentNode.figY()      		// V2
-			);
-			
-            
+			LayeredGraphNode prevprevNode = getFrom();
 			LayeredGraphNode prevNode = currentNode;
-			currentNode =  currentNode.out.get(0);
+			currentNode =  nextNode;
+			
 			while(currentNode.isVirtual()){
 				System.err.println("Add vertex for " + currentNode.name);
-				LayeredGraphNode nextNode = currentNode.out.get(0);
-				dx = currentNode.figX() - prevNode.figX();
-				dy = 0.3f * (currentNode.figY() + prevNode.figY());
-				if(nextNode.isVirtual()){
-						fpa.bezierVertex(left + prevNode.figX(), 	top + prevNode.figY(),		//C1
-										 left + currentNode.figX(), top + currentNode.figY(),	//C2
-										 left + currentNode.figX(), top + currentNode.figY()	// C2
-								);
-				}
-				//else{
-//					fpa.bezierVertex(left + currentNode.figX(), top + currentNode.figY()  - 100,
-//							left + nextNode.figX(), top + nextNode.figY() + 100,
-//							left + currentNode.figX(), top + currentNode.figY()
-//							);
-//				}	
+				nextNode = currentNode.out.get(0);
+				addPointToCurve(currentNode.figX(), currentNode.figY());
+				prevprevNode = prevNode;
 				prevNode = currentNode;
 				currentNode = nextNode;
 			}
-			
-			drawLastSegment(prevNode, currentNode);
+		
+			drawLastSegment(left, top, prevNode, currentNode);
 			
 		} else {
 			System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
@@ -328,7 +223,6 @@ public class LayeredGraphEdge extends Figure {
 				fpa.endShape();
 			}
 			
-			
 			if(fromArrow != null || toArrow != null){
 				if(reversed){
 					
@@ -348,9 +242,6 @@ public class LayeredGraphEdge extends Figure {
 								fromArrow
 						);
 					}
-					
-					
-					
 				} else {
 					System.err.println("Drawing to arrow to " + getToOrg().name);
 					getTo().figure.connectFrom(left, top, 
@@ -375,48 +266,24 @@ public class LayeredGraphEdge extends Figure {
 		}
 	}
 	
-	private void drawLastSegment(LayeredGraphNode prevNode, LayeredGraphNode currentNode){
+	private void drawLastSegment(float left, float top, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
 		float dx = currentNode.figX() - prevNode.figX();
-		float dy = 0.1f * (currentNode.figY() - prevNode.figY());
-		float midX = prevNode.figX() + dx/2;
-		float midY = prevNode.figY() + dy/2;
+		float dy = (currentNode.figY() - prevNode.figY());
+		float imScale = 0.6f;
+		float imX = prevNode.figX() + dx / 2;
+		float imY = prevNode.figY() + dy * imScale;
 		
-		System.err.printf("after loop: (%f,%f) -> (%f,%f), midX=%f, midY=%f\n",
+		System.err.printf("drawLastSegment: (%f,%f) -> (%f,%f), imX=%f, imY=%f\n",
 				prevNode.figX(), prevNode.figY(),
-				currentNode.figX(), currentNode.figY(), midX, midY);
-		
-		Figure toArrow = getToArrow();
-		if(toArrow != null){
-			
-//			fpa.bezierVertex(getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C1
-//					 	 	 getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C2
-//					 		 getLeft() + 1.06f*midX, 				getTop() + midY	 +  prevNode.layerHeight								   // V	
-//			);
-			
-			
-			fpa.bezierVertex(getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C1
-			 	 	 getLeft() + prevNode.figX(), 	getTop() + prevNode.figY() + prevNode.layerHeight/2,   // C2
-			 		 getLeft() + midX, 				getTop() + midY	    								   // V	
-	);
-			
-			fpa.endShape();
-			
+				currentNode.figX(), currentNode.figY(), imX, imY);
+	
+		if(getToArrow() != null){
 			System.err.println("Has a to arrow");
-			currentNode.figure.connectFrom(getLeft(), getTop(), 
-					currentNode.figX(), currentNode.figY(), 
-					midX, midY,
-					toArrow);
+			endCurve(imX, imY);
+			currentNode.figure.connectFrom(getLeft(), getTop(), currentNode.figX(), currentNode.figY(), imX, imY, getToArrow());
 		} else {
-			dx = currentNode.figX() - prevNode.figX();
-			dy = currentNode.figY() + prevNode.layerHeight/2 - prevNode.figY();
-			midX = prevNode.figX() + dx/2;
-			midY = prevNode.figY() + dy/2;
-			
-			fpa.bezierVertex(getLeft() + prevNode.figX(), getTop() + prevNode.figY() + dy/2,   // C1
-							 getLeft() + prevNode.figX(), getTop() + prevNode.figY() + dy/2,   // C2
-							 getLeft() + currentNode.figX(), getTop() + currentNode.figY()	    // V	
-			);
-			fpa.endShape();
+			addPointToCurve(imX, imY);
+			endCurve(currentNode.figX(), currentNode.figY());
 		}
 	}
 
