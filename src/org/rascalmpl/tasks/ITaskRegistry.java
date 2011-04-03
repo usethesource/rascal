@@ -8,7 +8,7 @@ public interface ITaskRegistry<K, N, V> extends ITask<K, N, V> {
 
 	public abstract ITask<K, N, V> getProducer(K key, N name);
 
-	public abstract void produce(IRascalMonitor monitor,
+	public abstract boolean produce(IRascalMonitor monitor,
 			ITransaction<K, N, V> tr, K key, N name);
 
 	public abstract void registerProducer(ITask<K, N, V> producer);

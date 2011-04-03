@@ -43,11 +43,11 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	 * @see org.rascalmpl.tasks.ITaskRegistry#produce(org.rascalmpl.interpreter.IRascalMonitor, org.rascalmpl.tasks.ITransaction, K, N)
 	 */
 	@Override
-	public void produce(IRascalMonitor monitor, ITransaction<K, N, V> tr, K key, N name) {
+	public boolean produce(IRascalMonitor monitor, ITransaction<K, N, V> tr, K key, N name) {
 		ITask<K, N, V> producer = getProducer(key, name);
 		if(producer == null)
 			throw new ImplementationError("No registered fact producer for " + key.toString());
-		producer.produce(monitor, tr, key, name);
+		return producer.produce(monitor, tr, key, name);
 	}
 	
 	/* (non-Javadoc)

@@ -13,11 +13,11 @@ public interface ITask<KeyType,NameType,ValueType> {
 	 * 
 	 * May also produce additional facts.
 	 * 
-	 * @param tr
-	 * @param key
-	 * @param name
+	 * @return true if the task was authorative for this key/name combination, false if
+	 *   it failed to produce the fact and was not authorative (i.e., we should try again with
+	 *   a different task).
 	 */
-	public abstract void produce(IRascalMonitor monitor, ITransaction<KeyType,NameType,ValueType> tr, KeyType key, NameType name);
+	public abstract boolean produce(IRascalMonitor monitor, ITransaction<KeyType,NameType,ValueType> tr, KeyType key, NameType name);
 
 	/**
 	 * The facts this producer should be considered a primary supplier of.
