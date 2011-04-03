@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -18,6 +19,7 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.Typeifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.tasks.IIValueTask;
@@ -81,8 +83,12 @@ public class Manager {
 		transaction(tr).removeFact(Typeifier.toType(key), name);
 	}
 
-	public void setFact(IValue tr, IConstructor key, IValue name, IValue value) {
-		transaction(tr).setFact(Typeifier.toType(key), name, value);
+	public void setFact(IValue tr, IConstructor key, IValue name, IValue value, IEvaluatorContext ctx) {
+		Type keyType = Typeifier.toType(key);
+		if(!value.getType().isSubtypeOf(keyType))
+			throw new UnexpectedTypeError(keyType, value.getType(), ctx.getCurrentAST());
+		else
+			transaction(tr).setFact(keyType, name, value);
 	}
 	
 	public void registerProducer(IValue producer, ISet keys, IEvaluatorContext ctx) {
@@ -140,12 +146,17 @@ public class Manager {
 		}
 
 		@Override
-		public void produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr,
+		public boolean produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr,
 				Type key, IValue name) {
 			Transaction t = (Transaction)tr;
 			IValue reifiedKey = reify(ctx, key);
-			fun.call(monitor, new Type[] {t.getType(), reifiedKey.getType(), name.getType()},
+			Result<IValue> result = fun.call(monitor, new Type[] {t.getType(), reifiedKey.getType(), name.getType()},
 					new IValue[] {t, reifiedKey, name});
+			if(result.getValue() instanceof IBool)
+				return ((IBool)result.getValue()).getValue();
+			else
+				throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), result.getType(), ctx.getCurrentAST());
+				
 		}
 
 		@Override

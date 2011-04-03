@@ -46,11 +46,11 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	 * @see org.rascalmpl.tasks.ITaskRegistry#produce(org.rascalmpl.interpreter.IRascalMonitor, org.rascalmpl.tasks.ITransaction, Type, IValue)
 	 */
 	@Override
-	public void produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr, Type key, IValue name) {
+	public boolean produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr, Type key, IValue name) {
 		ITask<Type, IValue, IValue> producer = getProducer(key, name);
 		if(producer == null)
 			throw new ImplementationError("No registered fact producer for " + key.toString());
-		producer.produce(monitor, tr, key, name);
+		return producer.produce(monitor, tr, key, name);
 	}
 	
 	/* (non-Javadoc)
