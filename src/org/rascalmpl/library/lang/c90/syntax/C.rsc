@@ -1,6 +1,8 @@
-module lang::c90::syntax::C
+module C
 
-syntax Statement = "{" Declaration* Statement* "}" | // TODO: Handle typedefs
+syntax Statement = "{" Declaration* Statement* "}" {
+                      
+                   } | // TODO: Handle typedefs
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
                    "default" ":" Statement |
@@ -41,10 +43,14 @@ syntax Expression = Identifier |
                     "-" Expression |
                     "~" Expression |
                     "!" Expression |
-                    "sizeof" Expression | // TODO: May be ambiguous with "sizeof(TypeName)"
+                    "sizeof" Expression {
+                       
+                    } | // TODO: May be ambiguous with "sizeof(TypeName)"
                     "(" TypeName ")" Expression >
                     left (
-                         Expression "*" Expression | // TODO: May be ambiguous with "TypeName * Expression".
+                         Expression "*" Expression {
+                            
+                         } | // TODO: May be ambiguous with "TypeName * Expression"
                          Expression "/" Expression |
                          Expression "%" Expression
                     ) >
@@ -144,8 +150,16 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier+ {InitDeclarator ","}+ ";" | // TODO: Record typedefs
-                     Specifier+ ";"  // TODO: avoid + Record typedefs
+syntax Declaration = Specifier+ specs {InitDeclarator ","}+ ";" {
+                        if(specs){ // TODO: Match
+                           ; // TODO: Record typedef
+                        }
+                     } |
+                     Specifier+ specs ";" {
+                        if(specs){ // TODO: Match
+                           ; // TODO: Record typedef
+                        }
+                     }  // TODO: avoid
                      ;
 
 syntax InitDeclarator = Declarator |
@@ -180,7 +194,9 @@ syntax Specifier = Identifier |
                    "enum" "{" {Enumerator ","}+ "}" |
                    ;
 
-syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" // TODO: Record typedefs
+syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" {
+                              
+                           } // TODO: Record typedefs
                            ;
 
 syntax StructDeclarator = Declarator |
@@ -262,7 +278,9 @@ syntax ExternalDeclaration = FunctionDefinition |
                              Declaration
                              ;
 
-syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}"
+syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" { // TODO: Declarator is wrong.
+                               
+                            } // TODO: Handle typedefs
                             ;
 
 start syntax TranslationUnit = ExternalDeclaration+
@@ -287,3 +305,6 @@ layout LAYOUTLIST = LAYOUT*
 syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 @category="Comment" lex Comment: Comment
                 ;
+
+
+map[str,str] typeDefs = (); // Name to type mapping.
