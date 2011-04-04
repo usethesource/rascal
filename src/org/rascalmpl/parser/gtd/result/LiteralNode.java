@@ -2,17 +2,13 @@ package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public class LiteralNode extends AbstractNode{
-	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	
 	private final IConstructor production;
 	private final char[] content;
 	
@@ -74,22 +70,15 @@ public class LiteralNode extends AbstractNode{
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
 		int numberOfCharacters = content.length;
 		
-		IListWriter listWriter = vf.listWriter(Factory.Tree);
+		IListWriter listWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; ++i){
-			listWriter.append(vf.constructor(Factory.Tree_Char, vf.integer(CharNode.getNumericCharValue(content[i]))));
+			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(CharNode.getNumericCharValue(content[i]))));
 		}
 		
-		return vf.constructor(Factory.Tree_Appl, production, listWriter.done());
+		return VF.constructor(Factory.Tree_Appl, production, listWriter.done());
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		int numberOfCharacters = content.length;
-		
-		IListWriter listWriter = vf.listWriter(Factory.Tree);
-		for(int i = 0; i < numberOfCharacters; ++i){
-			listWriter.append(vf.constructor(Factory.Tree_Char, vf.integer(CharNode.getNumericCharValue(content[i]))));
-		}
-		
-		return vf.constructor(Factory.Tree_Appl, production, listWriter.done());
+		return toTree(stack, depth, cycleMark, positionStore, null, actionExecutor);
 	}
 }
