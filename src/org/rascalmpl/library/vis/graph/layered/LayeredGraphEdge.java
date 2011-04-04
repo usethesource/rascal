@@ -131,35 +131,79 @@ public class LayeredGraphEdge extends Figure {
 	 * Primitives for drawing a multi-vertex edge
 	 */
 	
-	float lastX;
-	float lastY;
+	float points[];
+	int cp;
+	float x1;
+	float y1;
 	
 	private void beginCurve(float x, float y){
 		if(useSplines){
-			fpa.smooth();
-			fpa.noFill();
-			fpa.beginShape();
-			fpa.curveVertex(x, y);
-			fpa.curveVertex(x, y);
+			points = new float[20];
+			cp = 0;
+			addPointToCurve(x, y);
 		} else{
-			lastX = x; lastY = y;
+			x1 = x; y1 = y;
 		}
+	}
+	
+	private void addPointToCurve(float x, float y){
+		if(useSplines){
+			if(cp == points.length){
+				float points1[] = new float[2*points.length];
+				for(int i = 0; i < cp; i++)
+					points1[i] = points[i];
+				points = points1;
+			}
+			points[cp++] = x;
+			points[cp++] = y;
+		} else
+			fpa.line(getLeft()+ x1, getTop() + y1, getLeft() + x, getTop() + y);
 	}
 	
 	private void endCurve(float x, float y){
 		if(useSplines){
-			fpa.curveVertex(x, y);
-			fpa.curveVertex(x, y);
-			fpa.endShape();
+			addPointToCurve(x, y);
+			drawCurve();
 		} else
-			fpa.line(getLeft()+ lastX, getTop() + lastY, getLeft() + x, getTop() + y);	
+			fpa.line(getLeft()+ x1, getTop() + y1, getLeft() + x, getTop() + y);	
 	}
+	/**
+	 * Draw a bezier curve through a list of points. Inspired by a blog post "interpolating curves" by rj, which is in turn inspired by
+	 * Keith Peter's 'Foundation Actionscript 3.0 Animation
+	 */
 	
-	private void addPointToCurve(float x, float y){
-		if(useSplines)
-			fpa.curveVertex(x, y);
-		else
-			fpa.line(getLeft()+ lastX, getTop() + lastY, getLeft() + x, getTop() + y);
+	private void drawCurve() {
+		if (cp == 0)
+			return;
+		
+		fpa.smooth();
+		fpa.noFill();
+		fpa.beginShape();
+		float x1 = points[0];
+		float y1 = points[1];
+		float xc = 0.0f;
+		float yc = 0.0f;
+		float x2 = 0.0f;
+		float y2 = 0.0f;
+		fpa.vertex(x1, y1);
+		for (int i = 2; i < cp - 4; i += 2) {
+			xc = points[i];
+			yc = points[i + 1];
+			x2 = (xc + points[i + 2]) * 0.5f;
+			y2 = (yc + points[i + 3]) * 0.5f;
+			fpa.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
+					(2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
+			x1 = x2;
+			y1 = y2;
+		}
+		xc = points[cp - 4];
+		yc = points[cp - 3];
+		x2 = points[cp - 2];
+		y2 = points[cp - 1];
+		fpa.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
+				(2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
+		fpa.endShape();
+		points = null;
 	}
 	
 	@Override
