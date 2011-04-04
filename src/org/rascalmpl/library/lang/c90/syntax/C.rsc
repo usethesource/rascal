@@ -278,7 +278,7 @@ syntax ExternalDeclaration = FunctionDefinition |
                              Declaration
                              ;
 
-syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" { // TODO: Declarator is wrong.
+syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" {
                                
                             } // TODO: Handle typedefs
                             ;
