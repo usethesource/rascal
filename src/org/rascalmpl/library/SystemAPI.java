@@ -8,7 +8,6 @@
  * Contributors:
 
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.library;
 

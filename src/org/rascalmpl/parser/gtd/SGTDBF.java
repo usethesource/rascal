@@ -6,9 +6,6 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.parser.gtd;
