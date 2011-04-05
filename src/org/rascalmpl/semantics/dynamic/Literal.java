@@ -245,8 +245,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 //								.__getTf().stringType(), v, __eval);
 //
 //			} else {
-				Statement stat = new StringTemplateConverter(__eval
-						.getBuilder()).convert(lit);
+				Statement stat = new StringTemplateConverter().convert(lit);
 				Result<IValue> value = stat.interpret(__eval);
 				if (!value.getType().isListType()) {
 					throw new ImplementationError(

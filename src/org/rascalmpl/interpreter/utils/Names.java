@@ -24,7 +24,6 @@ import org.rascalmpl.parser.ASTBuilder;
 
 
 public class Names {
-	private static ASTBuilder AB = new ASTBuilder();
 	
 	static public Name lastName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
@@ -117,12 +116,12 @@ public class Names {
 	}
 	
 	static public Name toName(String name) {
-		return AB.make("Name", "Lexical", null, name);
+		return new ASTBuilder().make("Name", "Lexical", null, name);
 	}
 	
 	static public QualifiedName toQualifiedName(String name) {
 		List<Name> list = new LinkedList<Name>();
 		list.add(toName(name));
-		return AB.make("QualifiedName", null, list);
+		return new ASTBuilder().make("QualifiedName", null, list);
 	}
 }

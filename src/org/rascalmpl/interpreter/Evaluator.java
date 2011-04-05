@@ -144,7 +144,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private Stack<Integer> indentStack = new Stack<Integer>();
 	private final RascalURIResolver rascalPathResolver;
-	private static final ASTBuilder builder = new ASTBuilder();
 
 	private final URIResolverRegistry resolverRegistry;
 
@@ -714,7 +713,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			tree = rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		}
 
-		Command stat = builder.buildCommand(tree);
+		Command stat = getBuilder().buildCommand(tree);
 		if (stat == null) {
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
 		}
@@ -995,7 +994,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
 
 		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor);
-		return builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
+		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 	}
 	
 	private char[] getResourceContent(URI location) throws IOException{
@@ -1052,7 +1051,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		event("Parsing imports and syntax definitions at " + location);
 		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor);
 
-		Module preModule = builder.buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
+		Module preModule = getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 		String name = getModuleName(preModule);
 
 		if(env == null){
@@ -1137,7 +1136,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public ASTBuilder getBuilder() {
-		return builder;
+		return new ASTBuilder();
 	}
 	
 	public Module extendCurrentModule(AbstractAST x, String name) {
@@ -1306,7 +1305,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return false;
 	}
 
-	public static final Name IT = builder.makeLex("Name", null, "<it>");
+	public static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 	private ParserGenerator parserGenerator;
 	
 

@@ -54,37 +54,34 @@ import org.rascalmpl.values.uptr.Factory;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
-	private final ASTBuilder factory;
 	
-	public StringTemplateConverter(ASTBuilder builder) {
-		this.factory = builder;
+	public StringTemplateConverter() {
+		super();
 	}
 	
 	private Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
-		Name dummy = factory.make("Name","Lexical",src, "_");
-		Expression var = factory.make("Expression","QualifiedName",src, factory.make("QualifiedName", src, Arrays.asList(dummy)));
-		Expression truth = factory.make("Expression","Literal",src, factory.make("Literal","Boolean",src, factory.make("BooleanLiteral","Lexical",src, "true")));
-		Expression list = factory.make("Expression","List", src, Arrays.asList(truth));
-		Expression enumerator = factory.make("Expression","Enumerator",src, var, list);
-		Statement stat = factory.make("Statement","For",src, factory.make("Label","Default", src, label), Arrays.asList(enumerator), body);
+		Name dummy = ASTBuilder.make("Name","Lexical",src, "_");
+		Expression var = ASTBuilder.make("Expression","QualifiedName",src, ASTBuilder.make("QualifiedName", src, Arrays.asList(dummy)));
+		Expression truth = ASTBuilder.make("Expression","Literal",src, ASTBuilder.make("Literal","Boolean",src, ASTBuilder.make("BooleanLiteral","Lexical",src, "true")));
+		Expression list = ASTBuilder.make("Expression","List", src, Arrays.asList(truth));
+		Expression enumerator = ASTBuilder.make("Expression","Enumerator",src, var, list);
+		Statement stat = ASTBuilder.make("Statement","For",src, ASTBuilder.make("Label","Default", src, label), Arrays.asList(enumerator), body);
 		return stat;
 	}
 
 
 	public Statement convert(org.rascalmpl.ast.StringLiteral str) {
-		final Name label= factory.make("Name","Lexical", str.getTree(), "#" + labelCounter);
+		final Name label= ASTBuilder.make("Name","Lexical", str.getTree(), "#" + labelCounter);
 		labelCounter++;
-		Statement stat = str.accept(new Visitor(label, factory));
+		Statement stat = str.accept(new Visitor(label));
 		return surroundWithSingleIterForLoop(str.getTree(), label, stat);
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
 		private final Name label;
-		private final ASTBuilder factory;
 
-		public Visitor(Name label, ASTBuilder factory) {
+		public Visitor(Name label) {
 			this.label = label;
-			this.factory = factory;
 		}
 
 		private Statement makeBlock(INode src, Statement ...stats) {
@@ -92,7 +89,7 @@ public class StringTemplateConverter {
 		}
 		
 		private Statement makeBlock(INode src, List<Statement> stats) {
-			return factory.make("Statement","NonEmptyBlock",src, factory.make("Label", "Empty", src),
+			return ASTBuilder.make("Statement","NonEmptyBlock",src, ASTBuilder.make("Label", "Empty", src),
 					stats);
 		}
 
@@ -261,24 +258,24 @@ public class StringTemplateConverter {
 		
 		
 		private Statement makeConstAppend(INode tree, String str) {
-			return new ConstAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+			return new ConstAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
 		private Statement makePostAppend(INode tree, String str) {
-			return new PostAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+			return new PostAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
 		private Statement makePreAppend(INode tree, String str) {
-			return new PreAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+			return new PreAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
 		private Statement makeMidAppend(INode tree, String str) {
-			return new MidAppend(tree, factory.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+			return new MidAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
 		private Statement makeIndentingAppend(Expression exp) {
-			return new IndentingAppend(exp.getTree(), factory.<DataTarget>make("DataTarget","Labeled", null, label),
-					factory.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
+			return new IndentingAppend(exp.getTree(), ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label),
+					ASTBuilder.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
 		}
 		
 		private  Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
@@ -316,29 +313,29 @@ public class StringTemplateConverter {
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("DoWhile", x.getTree(), factory.make("Label","Empty", x.getTree()), 
+			return ASTBuilder.makeStat("DoWhile", x.getTree(), ASTBuilder.make("Label","Empty", x.getTree()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("For", x.getTree(), factory.make("Label","Empty", x.getTree()), x.getGenerators(), 
+			return ASTBuilder.makeStat("For", x.getTree(), ASTBuilder.make("Label","Empty", x.getTree()), x.getGenerators(), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThen(IfThen x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("IfThen", x.getTree(), factory.make("Label", "Empty", x.getTree()), x.getConditions(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), factory.make("NoElseMayFollow", x.getTree()));
+			return ASTBuilder.makeStat("IfThen", x.getTree(), ASTBuilder.make("Label", "Empty", x.getTree()), x.getConditions(), 
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), ASTBuilder.make("NoElseMayFollow", x.getTree()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThenElse(IfThenElse x) {
 			Statement t = x.getThenString().accept(this);
 			Statement e = x.getElseString().accept(this);
-			return factory.makeStat("IfThenElse", x.getTree(), factory.make("Label","Empty",x.getTree()), 
+			return ASTBuilder.makeStat("IfThenElse", x.getTree(), ASTBuilder.make("Label","Empty",x.getTree()), 
 					x.getConditions(), 
 						combinePreBodyPost(x.getTree(), x.getPreStatsThen(), t, x.getPostStatsThen()),
 						combinePreBodyPost(x.getTree(), x.getPreStatsElse(), e, x.getPostStatsElse()));
@@ -347,7 +344,7 @@ public class StringTemplateConverter {
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
 			Statement body = x.getBody().accept(this);
-			return factory.makeStat("While", x.getTree(), factory.make("Label","Empty", x.getTree()), Collections.singletonList(x.getCondition()), 
+			return ASTBuilder.makeStat("While", x.getTree(), ASTBuilder.make("Label","Empty", x.getTree()), Collections.singletonList(x.getCondition()), 
 					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
