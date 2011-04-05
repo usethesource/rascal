@@ -23,6 +23,28 @@ data Node = document(Node root)
 		  | entityRef(str name)
 		  | charRef(int code);             
 
+
+@javaClass{org.rascalmpl.library.XMLDOM}
+public Node java parseXMLDOM(str src);
+
+@javaClass{org.rascalmpl.library.XMLDOM}
+public Node java parseXMLDOMTrim(str src);
+
+@javaClass{org.rascalmpl.library.XMLDOM}
+public str java xmlRaw(Node x);
+
+@javaClass{org.rascalmpl.library.XMLDOM}
+public str java xmlCompact(Node x);
+
+@javaClass{org.rascalmpl.library.XMLDOM}
+public str java xmlPretty(Node x);
+
+
+// TODO: remove these; use Rascal stdlib for IO
+@javaClass{org.rascalmpl.library.XMLDOM}
+@reflect{Uses URI Resolver Registry}
+public void java writeXMLRaw(loc file, Node x);
+
 @javaClass{org.rascalmpl.library.XMLDOM}
 @reflect{Uses URI Resolver Registry}
 public Node java readXMLDOM(loc file);
@@ -33,12 +55,9 @@ public Node java readXMLDOMTrim(loc file);
 
 @javaClass{org.rascalmpl.library.XMLDOM}
 @reflect{Uses URI Resolver Registry}
-public void java writeXMLRaw(loc file, Node x);
-
-@javaClass{org.rascalmpl.library.XMLDOM}
-@reflect{Uses URI Resolver Registry}
 public void java writeXMLCompact(loc file, Node x);
 
 @javaClass{org.rascalmpl.library.XMLDOM}
 @reflect{Uses URI Resolver Registry}
 public void java writeXMLPretty(loc file, Node x);
+

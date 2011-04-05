@@ -13,9 +13,14 @@
 *******************************************************************************/
 package org.rascalmpl.library;
 
+import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -61,14 +66,28 @@ public class XMLDOM {
 		return readXMLDOM(file, false, ctx);
 	}
 	
-	private IConstructor readXMLDOM(ISourceLocation file, boolean trim, IEvaluatorContext ctx) throws IOException, JDOMException {
-		SAXBuilder builder = new SAXBuilder();
-		InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
-		Document doc = builder.build(stream);
-		return convertDocument(doc, trim);
+	
+	public IConstructor parseXMLDOMTrim(IString str) throws IOException, JDOMException {
+		return parseXMLDOM(str, true);
+	}
+
+	public IConstructor parseXMLDOM(IString str) throws IOException, JDOMException {
+		return parseXMLDOM(str, false);
+	}
+
+
+	
+	public IString xmlRaw(IConstructor node) throws IOException {
+		return xmlToString(node, Format.getRawFormat());
 	}
 	
-	
+	public IString xmlPretty(IConstructor node) throws IOException {
+		return xmlToString(node, Format.getPrettyFormat());
+	}
+
+	public IString xmlCompact(IConstructor node) throws IOException {
+		return xmlToString(node, Format.getCompactFormat());
+	}
 	
 	public void writeXMLRaw(ISourceLocation file, IConstructor node, IEvaluatorContext ctx) throws IOException {
 		writeXML(file, node, Format.getRawFormat(), ctx);
@@ -82,12 +101,38 @@ public class XMLDOM {
 		writeXML(file, node, Format.getCompactFormat(), ctx);
 	}
 	
+	
+	private IConstructor readXMLDOM(ISourceLocation file, boolean trim, IEvaluatorContext ctx) throws IOException, JDOMException {
+		SAXBuilder builder = new SAXBuilder();
+		InputStream stream = ctx.getResolverRegistry().getInputStream(file.getURI());
+		Document doc = builder.build(stream);
+		return convertDocument(doc, trim);
+	}
+	
+	private IConstructor parseXMLDOM(IString str, boolean trim) throws JDOMException, IOException {
+		SAXBuilder builder = new SAXBuilder();
+		CharArrayReader reader = new CharArrayReader(str.getValue().toCharArray());
+		Document doc = builder.build(reader);
+		return convertDocument(doc, trim);
+	}
+	
+
+	
 	private void writeXML(ISourceLocation file, IConstructor node, Format format, IEvaluatorContext ctx) throws IOException {
-		XMLOutputter outputter = new XMLOutputter(format);
 		OutputStream stream = ctx.getResolverRegistry().getOutputStream(file.getURI(), false);
-		Document doc = nodeToDocument(node);
-		outputter.output(doc, stream);
-		stream.close();
+		writeXML(new PrintWriter(stream), nodeToDocument(node), format);
+	}
+	
+	private IString xmlToString(IConstructor node, Format format) throws IOException {
+		StringWriter writer = new StringWriter();
+		writeXML(writer, nodeToDocument(node), format);
+		return vf.string(writer.toString());
+	}
+	
+	private void writeXML(Writer writer, Document document, Format format) throws IOException {
+		XMLOutputter outputter = new XMLOutputter(format);
+		outputter.output(document, writer);
+		writer.close();
 	}
 	
 	
