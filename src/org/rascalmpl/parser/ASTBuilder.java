@@ -74,8 +74,8 @@ public class ASTBuilder {
     private PointerEqualMappingsCache<IValue, Expression> constructorCache = new PointerEqualMappingsCache<IValue, Expression>();
     private ISourceLocation lastSuccess = null;
     
-    private final HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
-	private final ClassLoader classLoader = getClass().getClassLoader();
+    private final static HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
+	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
     
 	public ASTBuilder() {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -85,36 +85,28 @@ public class ASTBuilder {
 				, Collections.<Expression>emptyList());
 	}
 	
-	private void clear() {
-		ambCache.clear();
-		sortCache.clear();
-		lexCache.clear();
-		matchCache.clear();
-		constructorCache.clear();
-	}
-	
-	public <T extends AbstractAST> T make(String sort, INode src, Object... args) {
+	public static <T extends AbstractAST> T make(String sort, INode src, Object... args) {
 		return make(sort, "Default", src, args);
 	}
 	
-	public <T extends Expression> T makeExp(String cons, INode src, Object... args) {
+	public static  <T extends Expression> T makeExp(String cons, INode src, Object... args) {
 		return make("Expression", cons, src, args);
 	}
 	
-	public <T extends Statement> T makeStat(String cons, INode src, Object... args) {
+	public static <T extends Statement> T makeStat(String cons, INode src, Object... args) {
 		return make("Statement", cons, src, args);
 	}
 	
-	public <T extends AbstractAST> T makeAmb(String sort, INode src, Object... args) {
+	public static <T extends AbstractAST> T makeAmb(String sort, INode src, Object... args) {
 		return make(sort, "Ambiguity", src, args);
 	}
 	
-	public <T extends AbstractAST> T makeLex(String sort, INode src, Object... args) {
+	public static <T extends AbstractAST> T makeLex(String sort, INode src, Object... args) {
 		return make(sort, "Lexical", src, args);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends AbstractAST> T make(String sort, String cons, INode src, Object... args) {
+	public static <T extends AbstractAST> T make(String sort, String cons, INode src, Object... args) {
 		Class<?>[] formals = new Class<?>[args.length];
 		for (int i = 0; i < args.length; i++) {
 			Class<?> clazz = args[i].getClass();
@@ -208,8 +200,6 @@ public class ASTBuilder {
 	
 	@SuppressWarnings("unchecked")
 	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
-		clear();
-		
 		if (TreeAdapter.isAppl(parseTree)) {
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(parseTree).get(1);
 			
@@ -1020,7 +1010,7 @@ public class ASTBuilder {
 		return makeQualifiedName(node, "_");
 	}
 
-	private ImplementationError unexpectedError(Throwable e) {
+	private static ImplementationError unexpectedError(Throwable e) {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
@@ -1053,10 +1043,8 @@ public class ASTBuilder {
 	private boolean isRascalSort(String sort) {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
-
 	
-	
-	private AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], INode src, Object actuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], INode src, Object actuals[]) {
 		try {
 			String name = sort + "$" + cons;
 			Class<?> clazz = astClasses.get(name);

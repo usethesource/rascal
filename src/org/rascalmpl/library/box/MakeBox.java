@@ -45,7 +45,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class MakeBox {
 
 	private final String varName = "boxData";
-	private final ASTBuilder AB = new ASTBuilder();
 
 	private final IValueFactory values;
 
@@ -200,7 +199,7 @@ public class MakeBox {
 			IConstructor moduleTree = commandEvaluator.parseModule(commandEvaluator, uri, null);
 			IList z = TreeAdapter.getArgs(moduleTree);
 			// System.err.println("computeBox: parsed");
-			Module moduleAst = AB.buildModule(moduleTree);
+			Module moduleAst = new ASTBuilder().buildModule(moduleTree);
 			// System.err.println("computeBox: build");
 			commandEvaluator.getHeap().clear();
 			if (moduleAst != null)
