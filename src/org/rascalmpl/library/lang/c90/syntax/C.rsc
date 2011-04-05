@@ -171,25 +171,29 @@ syntax Keyword = "auto" |
 syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarator ";" {
                         list[Tree] children;
                         if(appl(_,children) := specs){
-                           ; // If any spec is typedef find the associated variables.
-                        } // TODO: Record typedef
+                           if(_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_* := children){
+                              ; // TODO: Get the associated variable and construct the type.
+                           }
+                        } // TODO: Record the typedef
                         // TODO: Fix ambiguity with "Exp * Exp"
                      } |
                      Specifier+ specs ";" {
                         list[Tree] children;
                         if(appl(_,children) := specs){
-                           ; // If any spec is typedef find the associated variables.
-                        } // TODO: Record typedef
+                           if(_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_* := children){
+                              ; // TODO: Get the associated variable and construct the type.
+                           }
+                        } // TODO: Record the typedef
                         // TODO: Fix ambiguity with "Exp * Exp"
-                     }  // TODO: avoid
-                     ;
+                     }  // TODO: Avoid
+                     ; // TODO: Can't parse "int * const p;"?
 
 syntax InitDeclarator = Declarator |
                         Declarator "=" Initializer
                        ;
 
 syntax Specifier = Identifier |
-                   "typedef" |
+                   TypeDef: "typedef" |
                    "extern" |
                    "static" |
                    "auto" |
