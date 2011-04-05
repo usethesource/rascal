@@ -72,10 +72,10 @@ private str rascalToLatex(str snip, loc l) {
 	try {
 		//println("parsing `<snip>`");
 		pt = parseCommands(snip, l);
-		println("Annotating specials...");
-		pt = annotateSpecials(pt);
-		println("Annotating math ops...");
-		pt = annotateMathOps(pt, mathLiterals);
+		//println("Annotating specials...");
+		//pt = annotateSpecials(pt);
+		//println("Annotating math ops...");
+		//pt = annotateMathOps(pt, mathLiterals);
 		return highlight2latex(highlight(pt), escapeRascalString);
 	}
 	catch value err: {
