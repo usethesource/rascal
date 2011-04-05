@@ -54,7 +54,7 @@ syntax Expression = Variable: Identifier |
                        if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
                           Tree child = children[1];
                           if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := child){
-                             if(typeDefs["<child>"]?){
+                             if("<child>" in typeDefs){
                                   fail;
                                }
                           }
@@ -64,7 +64,7 @@ syntax Expression = Variable: Identifier |
                     left (
                          Expression lexp "*" Expression rexp {
                             if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
-                               if(typeDefs["<lexp>"]?){
+                               if("<child>" in typeDefs){
                                   fail;
                                }
                             }
@@ -113,7 +113,7 @@ syntax Expression = Variable: Identifier |
                     ;
 
 syntax NonCommaExpression = Expression expr {
-                               if(appl(prod(_,_,attrs([_*,term(cons("CommaExpression")),_*])),_) := expr) {
+                               if(appl(prod(_,_,attrs([_*,term(cons("CommaExpression")),_*])),_) := expr){
                                   fail;
                                }
                             }
@@ -168,16 +168,18 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier+ specs {InitDeclarator ","}+ ";" {
-                        if(specs){ // TODO: Match
-                           ; // TODO: Record typedef
-                        }
+syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarator ";" {
+                        list[Tree] children;
+                        if(appl(_,children) := specs){
+                           ; // If any spec is typedef find the associated variables.
+                        } // TODO: Record typedef
                         // TODO: Fix ambiguity with "Exp * Exp"
                      } |
                      Specifier+ specs ";" {
-                        if(specs){ // TODO: Match
-                           ; // TODO: Record typedef
-                        }
+                        list[Tree] children;
+                        if(appl(_,children) := specs){
+                           ; // If any spec is typedef find the associated variables.
+                        } // TODO: Record typedef
                         // TODO: Fix ambiguity with "Exp * Exp"
                      }  // TODO: avoid
                      ;
@@ -214,9 +216,7 @@ syntax Specifier = Identifier |
                    "enum" "{" {Enumerator ","}+ "}" |
                    ;
 
-syntax StructDeclaration = Specifier+ {StructDeclarator ","}+ ";" {
-                              
-                           } // TODO: Record typedefs
+syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" // TODO Disallow typedef specifier and such.
                            ;
 
 syntax StructDeclarator = Declarator |
@@ -298,9 +298,7 @@ syntax ExternalDeclaration = FunctionDefinition |
                              Declaration
                              ;
 
-syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" {
-                               
-                            } // TODO: Handle typedefs
+syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO Disallow typedef specifier and such.
                             ;
 
 start syntax TranslationUnit = ExternalDeclaration+
