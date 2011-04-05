@@ -8,9 +8,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module C
 
-syntax Statement = "{" Declaration* Statement* "}" {
-                      
-                   } | // TODO: Handle typedefs
+syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
                    "default" ":" Statement |
