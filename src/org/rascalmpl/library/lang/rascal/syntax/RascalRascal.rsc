@@ -86,8 +86,8 @@ syntax Renaming
 	= Default: Name from "=\>" Name to ;
 
 syntax Catch
-	= Default: "catch" ":" Statement body 
-	| Binding: "catch" Pattern pattern ":" Statement body ;
+	= @Foldable Default: "catch" ":" Statement body 
+	| @Foldable Binding: "catch" Pattern pattern ":" Statement body ;
 
 syntax PathChars
 	= lex URLChars [|] ;
@@ -157,10 +157,10 @@ syntax Name
 	# [0-9 A-Z _ a-z] ;
 
 syntax SyntaxDefinition
-	= Layout  : "layout"  Sym defined "=" Prod production ";" 
-	| Lexical : "lexical" Sym defined "=" Prod production ";" 
-	| Keyword : "keyword" Sym defined "=" Prod production ";"
-	| Language: Start start "syntax" Sym defined "=" Prod production ";" ;
+	=  @Foldable Layout  : "layout"  Sym defined "=" Prod production ";" 
+	|  @Foldable Lexical : "lexical" Sym defined "=" Prod production ";" 
+	|  @Foldable Keyword : "keyword" Sym defined "=" Prod production ";"
+	|  @Foldable Language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
 syntax Kind
 	= Function: "function" 
@@ -632,8 +632,8 @@ syntax FunctionType
 	= TypeArguments: Type type "(" {TypeArg ","}* arguments ")" ;
 
 syntax Case
-	= PatternWithAction: "case" PatternWithAction patternWithAction 
-	| Default: "default" ":" Statement statement ;
+	= @Foldable PatternWithAction: "case" PatternWithAction patternWithAction 
+	| @Foldable Default: "default" ":" Statement statement ;
 
 syntax Declarator
 	= Default: Type type {Variable ","}+ variables ;
@@ -739,14 +739,13 @@ syntax Type
 syntax Declaration
 	= Variable    : Tags tags Visibility visibility Type type {Variable ","}+ variables ";" 
 	| Annotation  : Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
-	| View        : Tags tags Visibility visibility "view" Name view "\<:" Name superType "=" {Alternative "|"}+ alts ";" 
 	| Alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
 	| Tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
 	| DataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
-	| Data        : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
-	| Rule        : Tags tags "rule" Name name PatternWithAction patternAction ";" 
-	| Function    : FunctionDeclaration functionDeclaration 
-	| Test        : Test test ";" 
+	| @Foldable Data : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
+	| Rule           : Tags tags "rule" Name name PatternWithAction patternAction ";" 
+	| Function       : FunctionDeclaration functionDeclaration 
+	| @Foldable Test : Test test ";" 
 	;
 
 syntax Class
@@ -773,8 +772,8 @@ syntax Variant
 
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
-	| Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
-	| Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
+	| @Foldable Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
+	| @Foldable Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 syntax PreProtocolChars
 	= lex "|" URLChars "\<" ;
@@ -853,7 +852,7 @@ syntax Prod
 	| Labeled: ProdModifier* modifiers Name name ":" Sym* args 
 	| Others: "..." 
 	| Unlabeled: ProdModifier* modifiers Sym* args
-	| AssociativityGroup: Assoc associativity "(" Prod group ")" 
+	| @Foldable AssociativityGroup: Assoc associativity "(" Prod group ")" 
 	> left Reject: Prod lhs "-" Prod rhs 
 	> left Follow: Prod lhs "#" Prod rhs 
 	> left All   : Prod lhs "|" Prod rhs 
@@ -903,9 +902,9 @@ syntax Pattern
     ;
     
 syntax Tag
-	= @category="Comment" Default   : "@" Name name TagString contents 
-	| @category="Comment" Empty     : "@" Name name 
-	| @category="Comment" Expression: "@" Name name "=" Expression expression ;
+	= @Foldable @category="Comment" Default   : "@" Name name TagString contents 
+	| @Foldable @category="Comment" Empty     : "@" Name name 
+	| @Foldable @category="Comment" Expression: "@" Name name "=" Expression expression ;
 
 syntax ModuleActuals
 	= Default: "[" {Type ","}+ types "]" ;
