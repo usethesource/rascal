@@ -27,7 +27,7 @@ syntax Statement = "{" Declaration* Statement* "}" |
                    "return" Expression ";"
                    ;
 
-syntax Expression = Identifier |
+syntax Expression = Variable: Identifier |
                     @category="Constant" HexadecimalConstant |
                     @category="Constant" IntegerConstant |
                     @category="Constant" CharacterConstant |
@@ -36,7 +36,7 @@ syntax Expression = Identifier |
                     Expression "[" Expression "]" |
                     Expression "(" {NonCommaExpression ","}* ")" |
                     "sizeof" "(" TypeName ")" |
-                    bracket "(" Expression ")" |
+                    bracket Bracket: "(" Expression ")" |
                     Expression "." Identifier |
                     Expression "-\>" Identifier |
                     Expression "++" |
@@ -49,14 +49,26 @@ syntax Expression = Identifier |
                     "-" Expression |
                     "~" Expression |
                     "!" Expression |
-                    "sizeof" Expression {
-                       
-                    } | // TODO: May be ambiguous with "sizeof(TypeName)"
+                    "sizeof" Expression exp {
+                       list[Tree] children;
+                       if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
+                          Tree child = children[1];
+                          if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := child){
+                             if(typeDefs["<child>"]?){
+                                  fail;
+                               }
+                          }
+                       }
+                    } | // May be ambiguous with "sizeof(TypeName)"
                     "(" TypeName ")" Expression >
                     left (
-                         Expression "*" Expression {
-                            
-                         } | // TODO: May be ambiguous with "TypeName * Expression"
+                         Expression lexp "*" Expression rexp {
+                            if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
+                               if(typeDefs["<lexp>"]?){
+                                  fail;
+                               }
+                            }
+                         } | // May be ambiguous with "TypeName * Expression"
                          Expression "/" Expression |
                          Expression "%" Expression
                     ) >
