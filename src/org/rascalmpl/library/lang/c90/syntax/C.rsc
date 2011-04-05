@@ -162,11 +162,13 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ ";" {
                         if(specs){ // TODO: Match
                            ; // TODO: Record typedef
                         }
+                        // TODO: Fix ambiguity with "Exp * Exp"
                      } |
                      Specifier+ specs ";" {
                         if(specs){ // TODO: Match
                            ; // TODO: Record typedef
                         }
+                        // TODO: Fix ambiguity with "Exp * Exp"
                      }  // TODO: avoid
                      ;
 
