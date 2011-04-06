@@ -68,7 +68,7 @@ syntax Expression = Variable: Identifier |
                                   fail;
                                }
                             }
-                         } | // May be ambiguous with "TypeName * Expression"
+                         } | // May be ambiguous with "TypeName *Declarator"
                          Expression "/" Expression |
                          Expression "%" Expression
                     ) >
@@ -169,24 +169,38 @@ syntax Keyword = "auto" |
                  ;
 
 syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarator ";" {
-                        list[Tree] children;
-                        if(appl(_,children) := specs){
-                           if(_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_* := children){
-                              ; // TODO: Get the associated variable and construct the type.
+                        list[Tree] specChildren;
+                        if(appl(_,specChildren) := specs){
+                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
+                              str declType = findType(specs);
+                              
+                              // TODO: Construct the type
+                              // TODO: Record the typedef
                            }
-                        } // TODO: Record the typedef
-                        // TODO: Fix ambiguity with "Exp * Exp"
+                        }
+                        
+                        str declType = findType(specs);
+                        if("<declType>" notin typeDefs){
+                           fail;
+                        } // May be ambiguous with "Exp * Exp"
                      } |
                      Specifier+ specs ";" {
-                        list[Tree] children;
-                        if(appl(_,children) := specs){
-                           if(_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_* := children){
-                              ; // TODO: Get the associated variable and construct the type.
+                        list[Tree] specChildren;
+                        if(appl(_,specChildren) := specs){
+                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
+                              str declType = findType(specs);
+                              
+                              // TODO: Construct the type
+                              // TODO: Record the typedef
                            }
-                        } // TODO: Record the typedef
-                        // TODO: Fix ambiguity with "Exp * Exp"
+                        }
+                        
+                        str declType = findType(specs);
+                        if("<declType>" notin typeDefs){
+                           fail;
+                        } // May be ambiguous with "Exp * Exp"
                      }  // TODO: Avoid
-                     ; // TODO: Can't parse "int * const p;"?
+                     ; // TODO: Can't parse "int * const varname;"?
 
 syntax InitDeclarator = Declarator |
                         Declarator "=" Initializer
@@ -260,7 +274,7 @@ syntax Declarator = Identifier |
                     bracket "(" Declarator ")" |
                     Declarator "[" Expression? "]" |
                     Declarator "(" Parameters? ")" >
-                    non-assoc Pointer Declarator
+                    non-assoc PointerDeclarator: Pointer Declarator
                     ;
 
 syntax Parameter = Specifier+ Declarator |
@@ -329,4 +343,8 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 ;
 
 
-map[str,str] typeDefs = (); // Name to type mapping.
+map[str,tuple[str,list[str]]] typeDefs = (); // Name to type mapping.
+
+private str findType(Specifier+ specifiers){
+	return ""; // TODO: Implement.
+}
