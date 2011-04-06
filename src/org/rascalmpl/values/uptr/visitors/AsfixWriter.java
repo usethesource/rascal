@@ -56,6 +56,27 @@ public class AsfixWriter extends IdentityTreeVisitor {
 		return null;
 	}
 
+	public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException{
+		try{
+			writer.write("erroramb([\n");
+			ISet set = TreeAdapter.getAlternatives(arg);
+			int len = set.size();
+			int i = 0;
+			for(IValue x: set){
+				x.accept(this);
+				if(i < len - 1){
+					writer.write(",\n");
+				}
+				++i;
+			}
+			writer.write("])");
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	@Override
 	public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
 		try{
@@ -98,6 +119,18 @@ public class AsfixWriter extends IdentityTreeVisitor {
 	public IConstructor visitTreeCycle(IConstructor arg)  throws VisitorException{
 		try{
 			writer.write("cycle(");
+			writer.write(arg.get("symbol").toString());
+			writer.write(arg.get("cycleLength").toString());
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public IConstructor visitTreeErrorCycle(IConstructor arg)  throws VisitorException{
+		try{
+			writer.write("errorcycle(");
 			writer.write(arg.get("symbol").toString());
 			writer.write(arg.get("cycleLength").toString());
 		}catch(IOException e){

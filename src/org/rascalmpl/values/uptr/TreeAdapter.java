@@ -9,7 +9,6 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -31,7 +30,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class TreeAdapter {
 
@@ -198,20 +197,31 @@ public class TreeAdapter {
 		return ((IInteger) tree.get("character")).intValue();
 	}
 
-	private static class Unparser extends IdentityTreeVisitor {
+	private static class Unparser extends TreeVisitor {
 		private final OutputStream fStream;
 
 		public Unparser(OutputStream stream) {
 			fStream = stream;
 		}
-
-		@Override
+		
 		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 			((ISet) arg.get("alternatives")).iterator().next().accept(this);
 			return arg;
 		}
-
-		@Override
+		
+		public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException {
+			((ISet) arg.get("alternatives")).iterator().next().accept(this);
+			return arg;
+		}
+		
+		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException {
+			return arg;
+		}
+		
+		public IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException {
+			return arg;
+		}
+		
 		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 			try {
 				fStream.write(((IInteger) arg.get("character")).intValue());
@@ -220,8 +230,7 @@ public class TreeAdapter {
 				throw new VisitorException(e);
 			}
 		}
-
-		@Override
+		
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
 			IList children = (IList) arg.get("args");
 			for (IValue child : children) {
