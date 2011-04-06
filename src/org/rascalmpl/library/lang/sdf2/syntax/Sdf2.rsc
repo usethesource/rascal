@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
 module lang::sdf2::syntax::Sdf2
 
 syntax Sort = lex OneChar: [A-Z] |
@@ -74,7 +74,7 @@ syntax OptRanges = Absent: |
                        Present: Ranges
                        ;
 
-syntax Attr = Id: "id" "(" ModuleName ")" |
+syntax Attribute = Id: "id" "(" ModuleName ")" |
                    Term: ATermAttribute |
                    Reject: "reject" |
                    Prefer: "prefer" |
@@ -91,7 +91,7 @@ syntax ATermAttribute = Default: ATerm a
                         - "id" "(" ModuleName ")"
                         ;
 
-syntax Attrs = Attrs: "{" {Attr ","}* "}" |
+syntax Attrs = Attrs: "{" {Attribute ","}* "}" |
                     NoAttrs: 
                     ;
 

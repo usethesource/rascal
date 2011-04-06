@@ -54,7 +54,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 
 			NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
-			return makeResult(concreteType, re.applyRules(concreteType, newAppl), ctx);
+			return makeResult(concreteType, re.applyRules(newAppl), ctx);
 		}
 	}
 

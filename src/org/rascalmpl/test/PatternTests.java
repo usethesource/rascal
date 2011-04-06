@@ -292,6 +292,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=UnexpectedTypeError.class)
+	@Ignore("this is disabled because such type check would break the visiting code")
 	public void matchListError22() {
 		runTest("{ list[int] l = [1,2,3]; [1, list[str] L, 2] := l; }");
 	}
@@ -302,6 +303,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
+	@Ignore("this is disabled because such type check would break the visiting code")
 	public void matchListError3() {
 		runTest("{ list[int] x = [1,2,3] ; [1, str S, 2] := x;}");
 	}
@@ -312,6 +314,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
+	@Ignore("this is disabled because such type check would break the visiting code")
 	public void matchListError42() {
 		runTest("{str S = \"a\"; list[int] x = [1,2,3]; [1, S, 2] := x;}");
 	}
@@ -321,6 +324,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
+	@Ignore("this is disabled because such type check would break the visiting code")
 	public void matchListError55() {
 		runTest("{list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;}");
 	}

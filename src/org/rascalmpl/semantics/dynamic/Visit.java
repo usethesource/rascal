@@ -23,7 +23,6 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Strategy;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.TraversalEvaluator;
-import org.rascalmpl.interpreter.TraverseResult;
 import org.rascalmpl.interpreter.TraversalEvaluator.DIRECTION;
 import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
 import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
@@ -42,18 +41,14 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 			List<Case> cases = this.getCases();
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
 
-			TraverseResult tr = te.traverse(subject.getValue(),
+			IValue val = te.traverse(subject.getValue(),
 					te.new CasesOrRules(cases), DIRECTION.BottomUp,
 					PROGRESS.Continuing, FIXEDPOINT.No);
-			Type t = tr.value.getType();
-			IValue val = tr.value;
-			org.rascalmpl.interpreter.TraverseResultFactory
-					.freeTraverseResult(tr);
+			Type t = val.getType();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
 					val, __eval);
 
@@ -110,13 +105,10 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			}
 
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
-			TraverseResult tr = te
+			IValue val = te
 					.traverse(subject.getValue(), te.new CasesOrRules(cases),
 							direction, progress, fixedpoint);
-			Type t = tr.value.getType();
-			IValue val = tr.value;
-			org.rascalmpl.interpreter.TraverseResultFactory
-					.freeTraverseResult(tr);
+			Type t = val.getType();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
 					val, __eval);
 

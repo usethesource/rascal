@@ -18,6 +18,7 @@ package org.rascalmpl.values.uptr;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class SymbolAdapter {
@@ -92,6 +93,12 @@ public class SymbolAdapter {
 		else if (isParameterizedSort(tree)) {
 			return ((IString) tree.get("sort")).getValue();
 		}
+		else if (isParameter(tree)) {
+			return ((IString) tree.get("name")).getValue();
+		}
+		else if (isLayouts(tree)) {
+			return ((IString) tree.get("name")).getValue();
+		}
 		else {
 			throw new ImplementationError("Symbol does not have a child named \"name\": " + tree);
 		}
@@ -159,9 +166,83 @@ public class SymbolAdapter {
 	}
 
 	public static String toString(IConstructor symbol) {
+		// TODO: this does not do the proper escaping and such!!
+		
+		if (isSort(symbol)) {
+			return getName(symbol);
+		}
+		if (isIterPlusSeps(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append('{');
+			b.append(toString(getSymbol(symbol)));
+			for (IValue sep : getSeparators(symbol)) {
+				b.append(" ");
+				b.append(toString((IConstructor) sep));
+			}
+			b.append('}');
+			b.append('+');
+			return b.toString();
+			
+		}
+		if (isIterStarSeps(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append('{');
+			b.append(toString(getSymbol(symbol)));
+			for (IValue sep : getSeparators(symbol)) {
+				if (!isLayouts((IConstructor) sep)) {
+					b.append(" ");
+					b.append(toString((IConstructor) sep));
+				}
+			}
+			b.append('}');
+			b.append('*');
+			return b.toString();
+		}
+		if (isIterPlus(symbol)) {
+			return toString(getSymbol(symbol)) + '+';
+		}
+		if (isIterStar(symbol)) {
+			return toString(getSymbol(symbol)) + '*';
+		}
+		if (isOpt(symbol)) {
+			return toString(getSymbol(symbol)) + '?';
+		}
+		if (isLayouts(symbol)) {
+			return "layout[" + symbol.get("name") + "]";
+		}
+		if (isLiteral(symbol)) {
+			return '"' + ((IString) symbol.get("string")).getValue() + '"';
+		}
+		if (isCILiteral(symbol)) {
+			return '\'' + ((IString) symbol.get("string")).getValue() + '\'';
+		}
+		if (isParameterizedSort(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append(getName(symbol));
+			IList params = (IList) symbol.get("parameters");
+			b.append('[');
+			if (params.length() > 0) {
+				b.append(toString((IConstructor) params.get(0)));
+				for (int i = 1; i < params.length(); i++) {
+					b.append(',');
+					b.append(toString((IConstructor) params.get(i)));
+				}
+			}
+			b.append(']');
+			return b.toString();
+		}
+		if (isParameter(symbol)) {
+			return "&" + getName(symbol);
+		}
+		
+		// TODO: add more to cover all different symbol constructors
 		return symbol.toString();
 	}
 	
+	private static boolean isParameter(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Parameter;
+	}
+
 	public static IConstructor getRhs(IConstructor symbol) {
 		symbol = delabel(symbol);
 		return (IConstructor) symbol.get("rhs");
