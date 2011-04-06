@@ -92,6 +92,9 @@ public class PropertyManager implements IPropertyManager {
 				values[i++] = Utils.getRealArg(Property.VANCHOR, c, 1, fpa, ctx);
 				break;
 				
+			case DIRECTION:
+				values[i++] = Utils.getStrArg(Property.DIRECTION, c, fpa, ctx); break;
+				
 			case DOI:
 				values[i++] = Utils.getIntArg(Property.DOI, c, fpa, ctx); break;
 			
@@ -146,7 +149,10 @@ public class PropertyManager implements IPropertyManager {
 				
 			case INNERRADIUS:
 				values[i++] = Utils.getIntOrRealArg(Property.INNERRADIUS, c, 0, fpa, ctx); break;
-				
+			
+			case LAYER:
+				values[i++] = Utils.getStrArg(Property.LAYER, c, fpa, ctx); break;
+
 			case LINE_COLOR:
 				values[i++] = Utils.getColorArg(Property.LINE_COLOR, c, fpa, ctx); break;
 				
@@ -223,6 +229,10 @@ public class PropertyManager implements IPropertyManager {
 		return getBooleanProperty(Property.ALIGN_ANCHORS);
 	}
 	
+	public String getDirection(){
+		return getStringProperty(Property.DIRECTION);
+	}
+	
 	public int getDOI(){
 		return getIntegerProperty(Property.DOI);
 	}
@@ -273,6 +283,10 @@ public class PropertyManager implements IPropertyManager {
 
 	public float getInnerRadius() {
 		return getRealProperty(Property.INNERRADIUS);
+	}
+	
+	public String getLayer() {
+		return getStringProperty(Property.LAYER);
 	}
 
 	public int getLineColor() {

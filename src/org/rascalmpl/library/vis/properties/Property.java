@@ -18,12 +18,13 @@ public enum Property {
 	ALIGN,			// Internally represented by HALIGN and VALIGN
 	ALIGN_ANCHORS,	// boolean
 	ANCHOR,         // Internally represented by HANCHOR and VANCHOR
+	DIRECTION,		// str
 	DOI,            // int, degree of interest
-	FILL_COLOR,      // color
+	FILL_COLOR,     // color
 	FONT,           // str
-	FONT_COLOR,      // color
-	FONT_SIZE,       // int
-	FROM_ANGLE,      // int
+	FONT_COLOR,     // color
+	FONT_SIZE,      // int
+	FROM_ANGLE,     // int
 	GAP,            // Internally represented by HGAP and VGAP
 	HANCHOR,        // float
 	HALIGN,			// float
@@ -32,15 +33,16 @@ public enum Property {
 	HINT,			// str
 	ID, 			// str
 	INNERRADIUS, 	// float
-	LINE_COLOR, 		// color
-	LINE_WIDTH, 		// float
+	LAYER,			// string
+	LINE_COLOR, 	// color
+	LINE_WIDTH, 	// float
 	ONCLICK,		// function/closure
 	MOUSEOVER, 		// figure
 	SHAPE_CLOSED, 	// boolean
-	SHAPE_CONNECTED,	// boolean
+	SHAPE_CONNECTED,// boolean
 	SHAPE_CURVED,	// boolean
 	SIZE, 			// Internally represented by WIDTH and HEIGHT
-	TEXT_ANGLE, 		// float
+	TEXT_ANGLE, 	// float
 	TO_ANGLE,		// float
 	VALIGN,			// float
 	VANCHOR,		// float
