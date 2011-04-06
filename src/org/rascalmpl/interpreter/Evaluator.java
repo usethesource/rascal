@@ -1244,8 +1244,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			while (mp.hasNext()) {
 				pushEnv();
-				if (interrupt)
+				
+				if (interrupt) {
 					throw new InterruptException(getStackTrace());
+				}
 
 				if (mp.next()) {
 					try {

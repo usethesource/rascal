@@ -66,7 +66,7 @@ public class ConstructorFunction extends NamedFunction {
 			}
 
 			// TODO: the actual construction of the tree before applying rules should be avoided here!
-			return makeResult(instantiated, te.applyRules(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals)), ctx);
+			return makeResult(instantiated, te.applyRules(instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals)), ctx);
 		}
 	}
 	

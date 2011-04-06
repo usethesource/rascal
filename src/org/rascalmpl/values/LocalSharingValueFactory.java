@@ -157,6 +157,13 @@ public class LocalSharingValueFactory implements IValueFactory{
 		return cachedConstructors.cache(valueFactory.constructor(constructor, children));
 	}
 
+	@Override
+	public IConstructor constructor(Type constructor,
+			Map<String, IValue> annotations, IValue... children)
+			throws FactTypeUseException {
+		return cachedConstructors.cache(valueFactory.constructor(constructor, annotations, children));
+	}
+	
 	public IConstructor constructor(Type constructor){
 		return cachedConstructors.cache(valueFactory.constructor(constructor));
 	}

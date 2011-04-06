@@ -23,6 +23,7 @@ import ParseTree;
 import Grammar;
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
+import lang::rascal::syntax::Characters;
        
 private bool debug = false; // Print debug output
 
@@ -48,7 +49,7 @@ test sdf2grammar(
          exports
            context-free syntax
               "abc" -> ABC`).rules[sort("ABC")] ==
-         prod([lit("abc")],sort("ABC"),\no-attrs());
+         {prod([lit("abc")],sort("ABC"),\no-attrs())};
 
 test rs := sdf2grammar(
 		`definition
@@ -59,7 +60,7 @@ test rs := sdf2grammar(
            lexical restrictions
              PICO-ID -/- [a-z0-9]`).rules 
      && prod([\char-class([range(97,122)]),\iter-star(\char-class([range(97,122),range(48,57)]))],sort("PICO-ID"),attrs([\lex()])) in rs[sort("PICO-ID")]          
-     && restrict(sort("PICO-ID"),others(sort("PICO-ID")),{prod([\char-class([range(48,57),range(97,122)])],restricted(sort("PICO-ID")),\no-attrs())}) in rs[sort("PICO-ID")]              
+     && restrict(sort("PICO-ID"),others(sort("PICO-ID")),{prod([\char-class([range(97,122),range(48,57)])],restricted(sort("PICO-ID")),\no-attrs())}) in rs[sort("PICO-ID")]              
      ;
      
 test rs := sdf2grammar(
@@ -67,10 +68,10 @@ test rs := sdf2grammar(
 		 module StrChar
          exports
            lexical syntax
-             ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}`)
-     && prod([\char-class([range(26,33),range(35,91),range(93,65535)])],sort("StrChar"),attrs([\lex()])) in rs[sort("StrChar")]
+             ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}`).rules
+     && prod([\char-class([range(26,33),range(35,91),range(93,65535)])],sort("StrChar"),attrs([term("cons"("normal")),\lex()])) in rs[sort("StrChar")]
      ;
-     
+       
 public set[Production] getProductions(SDF definition) {
  res = {};
  visit (definition) {
@@ -117,7 +118,7 @@ test getProductions((SDF) `definition module A exports context-free syntax A -> 
      {prod([sort("A")],sort("B"),\no-attrs())};
      
 test getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
-     {restrict(sort("ID"),others(sort("ID")),{[\char-class([range(97,122)])]})};
+     {restrict(sort("ID"),others(sort("ID")),{prod([\char-class([range(97,122)])],restricted(sort("ID")),\no-attrs())})};
     
 test getProductions((SDF) `definition module A exports priorities A -> B > C -> D`) ==
      {first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())])};
@@ -182,12 +183,13 @@ test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, true) ==
 test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, false) ==
      prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
                sort("ID-TYPE"),
-               attrs([term(cons("decl")),\assoc(left())]));
+               attrs([term("cons"("decl")),\assoc(left())]));
                
 test getProduction((Prod) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term(cons("whitespace")),\lex()]));
+	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term("cons"("whitespace")),\lex()]));
 
-test getProduction((Prod) `{~[\n]* [\n]}* -> Rest`, true);
+test getProduction((Prod) `{~[\n]* [\n]}* -> Rest`, true) ==
+     prod([\iter-star-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[\char-class([range(10,10)])])],sort("Rest"),attrs([\lex()]));
 
 
 // ----- getRestrictions, getRestriction -----
@@ -248,7 +250,8 @@ test getLookaheads(sort("X"), (Lookaheads) `[a-z] . [0-9]`) ==
      {prod([\char-class([range(97,122)]),\char-class([range(48,57)])],restricted(sort("X")),\no-attrs())};
        
 test getLookaheads(sort("X"), (Lookaheads) `([a-z] . [0-9]) | [\"]`) ==
-     {[\char-class([range(97,122)]),\char-class([range(48,57)])],[\char-class([range(34,34)])]};
+     {prod([\char-class([range(97,122)]),\char-class([range(48,57)])], restricted(sort("X")),\no-attrs()),
+      prod([\char-class([range(34,34)])],restricted(sort("X")),\no-attrs())};
      
 // ----- getPriorities, getPriority -----
 
@@ -664,49 +667,49 @@ test getCharacter((Character) `\n`)   == 10;
 // ----- getAttributes, getAttribute, getAssociativity -----
 
 public Attributes getAttributes(Attrs as) {
-  if ((Attrs) `{ <{Attr ","}+ mods> }` := as) {
-	  return attrs([getAttribute(m) | Attr m <- mods]);
+  if ((Attrs) `{ <{Attribute ","}* mods> }` := as) {
+	  return attrs([getAttribute(m) | Attribute m <- mods]);
   }
   return \no-attrs();
 }
    
-test getAttributes((Attrs) `{left, cons("decl")}`) == attrs([\assoc(\left()),term(cons("decl"))]);
+test getAttributes((Attrs) `{left, cons("decl")}`) == attrs([\assoc(\left()),term("cons"("decl"))]);
 
-public Attr getAttribute(Attr m) {
+public Attr getAttribute(Attribute m) {
   switch (m) {
-    case (Attr) `<Assoc as>`:
+    case (Attribute) `<Assoc as>`:
      	return \assoc(getAssociativity(as));
      	
-    case (Attr) `bracket`:
+    case (Attribute) `bracket`:
     	return \bracket();
     
-    case (Attr) `cons(<StrCon c>)` : {
+    case (Attribute) `cons(<StrCon c>)` : {
     	return term("cons"(unescape(c)));
     	}
-    case (Attr) `memo`:
+    case (Attribute) `memo`:
     	return term("memo"());
     	
-    case (Attr) `prefer`:
+    case (Attribute) `prefer`:
         return term("prefer"());
         
-    case (Attr) `avoid` :
+    case (Attribute) `avoid` :
         return term("avoid"());
     	
-    case (Attr) `reject` :
+    case (Attribute) `reject` :
         return term("reject"());
         
-    case (Attr) `<IdCon c>(<StrCon a>)` : 
+    case (Attribute) `<IdCon c>(<StrCon a>)` : 
         return term("<c>"(unescape(a)));
         
-    case (Attr) `<ATerm t>`:
+    case (Attribute) `<ATerm t>`:
         return term("<t>");
         
     default: throw "missed a case <m>";
   }
 }
 
-test getAttribute((Attr) `left`)        == \assoc(\left());
-test getAttribute((Attr) `cons("abc")`) == term("cons"("abc"));
+test getAttribute((Attribute) `left`)        == \assoc(\left());
+test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
  
 private Associativity getAssociativity(Assoc as){
   switch (as) {

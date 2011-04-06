@@ -21,10 +21,14 @@ public class TraverseResult {
 	 */
 
 	// TODO: can this be put in the result hierarchy?
-		public boolean matched;   // Some rule matched;
+		public boolean matched = false;   // Some rule matched;
 		public IValue value; 		// Result<IValue> of the 
-		public boolean changed;   // Original subject has been changed
+		public boolean changed = false;   // Original subject has been changed
 
+		public TraverseResult() {
+			// TODO Auto-generated constructor stub
+		}
+		
 		public TraverseResult(boolean someMatch, IValue value){
 			this.matched = someMatch;
 			this.value = value;
