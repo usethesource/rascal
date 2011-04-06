@@ -8,7 +8,6 @@
  * Contributors:
 
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.library;
 
