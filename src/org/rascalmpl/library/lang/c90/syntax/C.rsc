@@ -175,8 +175,8 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                               str declType = findType(specs);
                               list[tuple[str,str]] variables = findVariableNames(initDeclarators);
                               for(variableTuple <- variables){
-                                 str variable = variableTuple<0>;
-                                 str initDecl = variableTuple<1>;
+                                 str variable = variableTuple.var;
+                                 str initDecl = variableTuple.initDecl;
                                  list[str] modifiers = findModifiers(specs, initDecl);
                                  typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                               }
@@ -195,8 +195,8 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                               str declType = findType(specs);
                               list[tuple[str,str]] variables = findVariableNames(initDeclarators);
                               for(variableTuple <- variables){
-                                 str variable = variableTuple<0>;
-                                 str initDecl = variableTuple<1>;
+                                 str variable = variableTuple.var;
+                                 str initDecl = variableTuple.initDecl;
                                  list[str] modifiers = findModifiers(specs, initDecl);
                                  typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                               }
