@@ -59,7 +59,7 @@ syntax Expression = Variable: Identifier |
                                }
                           }
                        }
-                    } | // May be ambiguous with "sizeof(TypeName)"
+                    } | // May be ambiguous with "sizeof(TypeName)".
                     "(" TypeName ")" Expression >
                     left (
                          Expression lexp "*" Expression rexp {
@@ -68,7 +68,7 @@ syntax Expression = Variable: Identifier |
                                   fail;
                                }
                             }
-                         } | // May be ambiguous with "TypeName *Declarator"
+                         } | // May be ambiguous with "TypeName *Declarator".
                          Expression "/" Expression |
                          Expression "%" Expression
                     ) >
@@ -168,39 +168,37 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarator ";" {
+syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specs);
-                              
-                              // TODO: Construct the type
-                              // TODO: Record the typedef
+                              list[str] modifiers = findModifiers(specs, initDeclarators);
+                              typeDefs += <declType, modifiers>; // Record the typedef.
                            }
                         }
                         
                         str declType = findType(specs);
                         if("<declType>" notin typeDefs){
                            fail;
-                        } // May be ambiguous with "Exp * Exp"
+                        } // May be ambiguous with "Exp * Exp".
                      } |
-                     Specifier+ specs ";" {
+                     Specifier* specs ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specs);
-                              
-                              // TODO: Construct the type
-                              // TODO: Record the typedef
+                              list[str] modifiers = findModifiers(specs, initDeclarators);
+                              typeDefs += <declType, modifiers>; // Record the typedef.
                            }
                         }
                         
                         str declType = findType(specs);
                         if("<declType>" notin typeDefs){
                            fail;
-                        } // May be ambiguous with "Exp * Exp"
+                        } // May be ambiguous with "Exp * Exp".
                      }  // TODO: Avoid
-                     ; // TODO: Can't parse "int * const varname;"?
+                     ;
 
 syntax InitDeclarator = Declarator |
                         Declarator "=" Initializer
@@ -234,7 +232,7 @@ syntax Specifier = Identifier |
                    "enum" "{" {Enumerator ","}+ "}" |
                    ;
 
-syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" // TODO Disallow typedef specifier and such.
+syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" // TODO Disallow typedef specifier and such.
                            ;
 
 syntax StructDeclarator = Declarator |
@@ -257,7 +255,7 @@ syntax TypeName = Specifier+ AbstractDeclarator
 syntax Pointer = PointerContent+
                  ;
 
-syntax PointerContent = "*" Specifier*;
+syntax PointerContent = "*" Specifier+; // TODO: Only allow type qualifiers and identifiers.
 
 syntax Enumerator = Identifier |
                     Identifier "=" NonCommaExpression
@@ -345,6 +343,12 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
 
 map[str,tuple[str,list[str]]] typeDefs = (); // Name to type mapping.
 
-private str findType(Specifier+ specifiers){
+private str findType(Specifier* specifiers){
+	// If empty type is signed int.
+	
 	return ""; // TODO: Implement.
+}
+
+private list[str] findModifiers(Specifier* specifiers, {InitDeclarator ","}+ initDeclarator){
+	return []; // TODO: Implement.
 }
