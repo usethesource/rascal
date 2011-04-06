@@ -173,8 +173,13 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specs);
-                              list[str] modifiers = findModifiers(specs, initDeclarators);
-                              typeDefs += <declType, modifiers>; // Record the typedef.
+                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
+                              for(variableTuple <- variables){
+                                 str variable = variableTuple<0>;
+                                 str initDecl = variableTuple<1>;
+                                 list[str] modifiers = findModifiers(specs, initDecl);
+                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                              }
                            }
                         }
                         
@@ -188,8 +193,13 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specs);
-                              list[str] modifiers = findModifiers(specs, initDeclarators);
-                              typeDefs += <declType, modifiers>; // Record the typedef.
+                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
+                              for(variableTuple <- variables){
+                                 str variable = variableTuple<0>;
+                                 str initDecl = variableTuple<1>;
+                                 list[str] modifiers = findModifiers(specs, initDecl);
+                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                              }
                            }
                         }
                         
@@ -341,14 +351,18 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 ;
 
 
-map[str,tuple[str,list[str]]] typeDefs = (); // Name to type mapping.
+map[str name, tuple[str var, list[str] modifiers] cType] typeDefs = (); // Name to type mapping.
 
-private str findType(Specifier* specifiers){
-	// If empty type is signed int.
+private str findType(Specifier* specs){
+	// If empty type is int.
 	
 	return ""; // TODO: Implement.
 }
 
-private list[str] findModifiers(Specifier* specifiers, {InitDeclarator ","}+ initDeclarator){
+private list[str] findModifiers(Specifier* specifiers, InitDeclarator initDecl){
+	return []; // TODO: Implement.
+}
+
+private list[tuple[str var, str initDecl]] findVariableNames({InitDeclarator ","}+ initDecls){
 	return []; // TODO: Implement.
 }
