@@ -21,8 +21,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.uptr.Factory;
 
-
-
 public abstract class TreeVisitor extends IdentityVisitor {
 	
 	@Override
@@ -40,6 +38,10 @@ public abstract class TreeVisitor extends IdentityVisitor {
 				return visitTreeCycle(o);
 			}else if(alt == Factory.Tree_Error){
 				return visitTreeError(o);
+			}else if (alt == Factory.Tree_Error_Amb){
+				return visitTreeErrorAmb(o);
+			}else if (alt == Factory.Tree_Error_Cycle){
+				return visitTreeErrorCycle(o);
 			}else if(alt == Factory.Tree_Expected){
 				return visitTreeExpected(o);
 			}else{
@@ -55,5 +57,7 @@ public abstract class TreeVisitor extends IdentityVisitor {
 	public abstract IConstructor visitTreeChar(IConstructor arg) throws VisitorException;
 	public abstract IConstructor visitTreeCycle(IConstructor arg) throws VisitorException;
 	public abstract IConstructor visitTreeError(IConstructor arg) throws VisitorException;
+	public abstract IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException;
+	public abstract IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException;
 	public abstract IConstructor visitTreeExpected(IConstructor arg) throws VisitorException;
 }

@@ -20,6 +20,11 @@ public abstract class IdentityTreeVisitor extends TreeVisitor {
 	public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 		return arg;
 	}
+	
+	@Override
+	public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException {
+		return arg;
+	}
 
 	@Override
 	public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException  {
@@ -32,7 +37,12 @@ public abstract class IdentityTreeVisitor extends TreeVisitor {
 	}
 
 	@Override
-	public IConstructor visitTreeCycle(IConstructor arg)  throws VisitorException {
+	public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException {
+		return arg;
+	}
+
+	@Override
+	public IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException {
 		return arg;
 	}
 }
