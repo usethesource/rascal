@@ -43,6 +43,24 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,(1:10,2:20)))) == 6;}"));
 	}
 	
+	
+	@Test
+	public void When()  {
+		String cnt =
+		"NODE1 cnt(NODE1 T) {" +
+		"   return visit(T) {" +
+		"      case int N => x when int x := N * 2, x >= 1" +
+		"    };" +
+		"}";
+		
+		prepare("data NODE1 = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(3)) == f(6);}"));
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,2,3)) == f(2,4,6);}"));
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,3))) == f(2, g(4, 6));}"));
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,[3,4,5]))) == f(2, g(4, [6, 8, 10]));}"));
+	}
+	
 	@Test
 	public void NewTreeVisibleBottomUp() {
 		prepare("data T = knot(int i, T l, T r) | tip(int i);");

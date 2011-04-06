@@ -760,6 +760,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			setMonitor(old);
 		}
 	}
+	
+	public synchronized IConstructor parseInteraction(IRascalMonitor monitor, String interaction, URI location) {
+//		IRascalMonitor old = setMonitor(monitor);
+//		try {
+//			__setInterrupt(false);
+//			IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
+//
+//			if (!interaction.contains("`")) {
+//				return new RascalRascal().parse(Parser.START_INTERACTION, location, interaction.toCharArray(), actionExecutor);
+//			}
+//
+//			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
+//			return rp.parse(Parser.START_INTERACTION, location, interaction.toCharArray(), actionExecutor);
+//		}
+//		finally {
+//			setMonitor(old);
+//		}
+		return null;
+	}
 
 	public synchronized Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		IRascalMonitor old = setMonitor(monitor);
@@ -1285,20 +1304,68 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if (interrupt)
 					throw new InterruptException(getStackTrace());
 				if (mp.next()) {
+//					try {
+//						boolean trueConditions = true;
+//						for (Expression cond : conditions) {
+//							if (!cond.interpret(this).isTrue()) {
+//								trueConditions = false;
+//								break;
+//							}
+//						}
+//						if (trueConditions) {
+//							throw new Insert(replacementExpr.interpret(this), mp);
+//						}
+//					} catch (Failure e) {
+//						System.err.println("failure occurred");
+//					}
+					
+					/*** copied for Statement.IfThen ***/
+					
+					int size = conditions.size();
+					
+					if (size == 0) {
+						throw new Insert(replacementExpr.interpret(this), mp);
+					}
+					
+					IBooleanResult[] gens = new IBooleanResult[size];
+					Environment[] olds = new Environment[size];
+					Environment old2 = getCurrentEnvt();
+
+					int i = 0;
 					try {
-						boolean trueConditions = true;
-						for (Expression cond : conditions) {
-							if (!cond.interpret(this).isTrue()) {
-								trueConditions = false;
-								break;
+						gens[0] = makeBooleanResult(conditions.get(0));
+						gens[0].init();
+						olds[0] = getCurrentEnvt();
+						pushEnv();
+
+						while (i >= 0 && i < size) {
+
+							if (__getInterrupt()) {
+								throw new InterruptException(getStackTrace());
+							}
+							if (gens[i].hasNext() && gens[i].next()) {
+								if (i == size - 1) {
+									// in IfThen the body is executed, here we insert the expression
+									// NB: replaceMentExpr sees the latest bindings of the when clause 
+									throw new Insert(replacementExpr.interpret(this), mp);
+								}
+
+								i++;
+								gens[i] = makeBooleanResult(conditions.get(i));
+								gens[i].init();
+								olds[i] = getCurrentEnvt();
+								pushEnv();
+							} else {
+								unwind(olds[i]);
+								pushEnv();
+								i--;
 							}
 						}
-						if (trueConditions) {
-							throw new Insert(replacementExpr.interpret(this), mp);
-						}
-					} catch (Failure e) {
-						System.err.println("failure occurred");
+					} finally {
+						unwind(old2);
 					}
+					
+					/****** end of (adapted) clone *****/
 				}
 			}
 		} finally {
