@@ -8,7 +8,6 @@
  * Contributors:
 
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.library;
 
