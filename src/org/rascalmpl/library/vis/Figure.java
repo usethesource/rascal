@@ -80,6 +80,10 @@ public abstract class Figure implements Comparable<Figure> {
 	public float getTop() {
 		return top;
 	}
+	
+	public String getDirection(){
+		return properties.getDirection();
+	}
 
 	public int getDOI(){
 		return properties.getDOI();
@@ -147,7 +151,11 @@ public abstract class Figure implements Comparable<Figure> {
 	protected int getFillColorProperty() {
 		return properties.getFillColor();
 	}
-
+	
+	public String getLayer(){
+		return properties.getLayer();
+	}
+	
 	protected int getLineColorProperty() {
 		return properties.getLineColor();
 	}
@@ -378,7 +386,7 @@ public abstract class Figure implements Comparable<Figure> {
 				IY = Y - h2;
 			}
 		}
-
+//TODO line is to long and overlaps with arrow
 		fpa.line(left + fromX, top + fromY, left + IX, top + IY);
 
 		if (toArrow != null) {

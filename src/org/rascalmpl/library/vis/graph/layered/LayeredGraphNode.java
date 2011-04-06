@@ -121,6 +121,15 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 			out.remove(n);
 	}
 	
+	public boolean hasVirtualOutTo(LayeredGraphNode other){
+		String vname = "_" + other.name + "[";
+		for(LayeredGraphNode g : out){
+			if(g.isVirtual() && g.name.contains(vname))
+				return true;
+		}
+		return false;
+	}
+	
 	public int degree(){
 		return in.size() + out.size();
 	}
@@ -293,7 +302,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 
 	public boolean AllInLabelled(){
 		for(LayeredGraphNode g : in){
-			System.err.println("AllInLabelled: " + g.name + " label = " + g.label);
+			//System.err.println("AllInLabelled: " + g.name + " label = " + g.label);
 			if(g.label < 0)
 				return false;
 		}
@@ -301,28 +310,28 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	public boolean AllOutAssignedToLayers(){
-		System.err.printf("AllOutAssignedToLayers %s\n", name);
+		//System.err.printf("AllOutAssignedToLayers %s\n", name);
 		for(LayeredGraphNode g : out){
-			System.err.println("\tconsidering " + g.name + " with layer " + g.layer + " and label " + g.label);
+			//System.err.println("\tconsidering " + g.name + " with layer " + g.layer + " and label " + g.label);
 			if(g.layer < 0){
-				System.err.printf("AllOutAssignedToLayers %s => false\n", name);
+				//System.err.printf("AllOutAssignedToLayers %s => false\n", name);
 				return false;
 			}
 		}
-		System.err.printf("AllOutAssignedToLayers %s => true\n", name);
+		//System.err.printf("AllOutAssignedToLayers %s => true\n", name);
 		return true;
 	}
 	
 	public boolean AllOutAssignedToLayers(int layer){
-		System.err.printf("AllOutAssignedToLayers %s, layer=%d", name, layer);
+		//System.err.printf("AllOutAssignedToLayers %s, layer=%d", name, layer);
 		for(LayeredGraphNode g : shadowing ? outShadowed : out){
-			System.err.println("\tconsidering " + g.name + " with layer " + g.layer + " and label " + g.label);
+			//System.err.println("\tconsidering " + g.name + " with layer " + g.layer + " and label " + g.label);
 			if(g.layer < 0 ||  (g.layer >= layer)){
-				System.err.printf("AllOutAssignedToLayers %s => false\n", name);
+				//System.err.printf("AllOutAssignedToLayers %s => false\n", name);
 				return false;
 			}
 		}
-		System.err.printf("AllOutAssignedToLayers %s => true\n", name);
+		//System.err.printf("AllOutAssignedToLayers %s => true\n", name);
 		return true;
 	}
 	
@@ -430,7 +439,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * @param x		the x value for that direction
 	 */
 	public void setX(Direction dir, float x){
-		System.err.println("setX: " + name + " => " + x);
+		//System.err.println("setX: " + name + " => " + x);
 		switch(dir){
 		case TOP_LEFT: this.x = xs[0] = x; return;
 		case TOP_RIGHT: this.x = xs[1] = x; return;
@@ -462,6 +471,10 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	float height(){
 		return figure != null ? figure.height : 0;
+	}
+	
+	String getLayer(){
+		return figure != null ? figure.getLayer() : "";
 	}
 
 	void draw(float left, float top) {

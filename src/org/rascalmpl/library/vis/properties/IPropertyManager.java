@@ -25,6 +25,7 @@ public interface IPropertyManager {
 			put("align",			Property.ALIGN);
 			put("alignAnchors",		Property.ALIGN_ANCHORS);
 			put("anchor",			Property.ANCHOR);
+			put("direction",        Property.DIRECTION);
 			put("doi",       		Property.DOI);
 			put("fillColor", 		Property.FILL_COLOR);
 			put("font", 			Property.FONT);
@@ -39,6 +40,7 @@ public interface IPropertyManager {
 			put("hint", 			Property.HINT);
 			put("id", 				Property.ID);
 			put("innerRadius", 		Property.INNERRADIUS);
+			put("layer", 			Property.LAYER);
 			put("lineColor", 		Property.LINE_COLOR);
 			put("lineWidth", 		Property.LINE_WIDTH);
 			put("mouseOver", 		Property.MOUSEOVER);
@@ -65,6 +67,7 @@ public interface IPropertyManager {
 	public FigurePApplet getFPA();
 	
 	public boolean getAlignAnchors();
+	public String getDirection();
 	public int getDOI();
 	public int getFillColor();
 	public String getFont();
@@ -78,6 +81,7 @@ public interface IPropertyManager {
 	public String getHint();
 	public String getId();
 	public float getInnerRadius();
+	public String getLayer();
 	public int getLineColor();
 	public float getLineWidth();
 	public Figure getMouseOver();

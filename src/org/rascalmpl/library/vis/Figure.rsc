@@ -337,6 +337,14 @@ data FProperty =
    | hint(str name)                     // hint for various compositions
    | hint(computedStr cName)
    | hint(Like other)
+   
+   | layer(str name)                     // define named layer for nodes
+   | layer(computedStr cName)
+   | layer(Like other)
+   
+   | direction(str name)
+   | direction(computedStr cname)
+   | direction(Like other)
    ;
 
 /*

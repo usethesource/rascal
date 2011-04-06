@@ -31,6 +31,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		return false;
 	}
 	
+	public String getDirection(){
+		return "TD";
+	}
+	
 	public int getDOI() {
 		return 1000000;
 	}
@@ -83,6 +87,10 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		return 0;
 	}
 
+	public String getLayer(){
+		return "";
+	}
+	
 	public int getLineColor() {
 		return 0;
 	}
@@ -188,6 +196,9 @@ public final class DefaultPropertyManager implements IPropertyManager {
 		case FONT:	return getFont();
 		case HINT:	return getHint();
 		case ID:	return getId();
+		case DIRECTION:
+					return getDirection();
+		case LAYER:	return getLayer();
 		default:
 					return null;
 		}
