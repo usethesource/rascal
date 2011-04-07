@@ -214,32 +214,32 @@ syntax InitDeclarator = Declarator |
                         Declarator "=" Initializer
                        ;
 
-syntax Specifier = Identifier |
+syntax Specifier = Identifier: Identifier |
+                   Void: "void" |
+                   Char: "char" |
+                   Short: "short" |
+                   Int: "int" |
+                   Long: "long" |
+                   Float: "float" |
+                   Double: "double" |
+                   Struct: "struct" Identifier |
+                   StructDecl: "struct" Identifier "{" StructDeclaration+ "}" |
+                   StructAnonDecl: "struct" "{" StructDeclaration+ "}" |
+                   Union: "union" Identifier |
+                   UnionDecl: "union" Identifier "{" StructDeclaration+ "}" |
+                   UnionAnonDecl: "union" "{" StructDeclaration+ "}" |
+                   Enum: "enum" Identifier |
+                   EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" |
+                   EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}" |
+                   "signed" |
+                   "unsigned" |
+                   "const" |
+                   "volatile" |
                    TypeDef: "typedef" |
                    "extern" |
                    "static" |
                    "auto" |
                    "register" |
-                   "void" |
-                   "char" |
-                   "short" |
-                   "int" |
-                   "long" |
-                   "float" |
-                   "double" |
-                   "signed" |
-                   "unsigned" |
-                   "const" |
-                   "volatile" |
-                   "struct" Identifier |
-                   "struct" Identifier "{" StructDeclaration+ "}" |
-                   "struct" "{" StructDeclaration+ "}" |
-                   "union" Identifier |
-                   "union" Identifier "{" StructDeclaration+ "}" |
-                   "union" "{" StructDeclaration+ "}" |
-                   "enum" Identifier
-                   "enum" Identifier "{" {Enumerator ","}+ "}" |
-                   "enum" "{" {Enumerator ","}+ "}" |
                    ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" // TODO Disallow typedef specifier and such.
@@ -354,9 +354,47 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
 map[str name, tuple[str var, list[str] modifiers] cType] typeDefs = (); // Name to type mapping.
 
 private str findType(Specifier* specs){
-	// If empty type is int.
+	str cType = "int"; // If no type is defined the type is int.
 	
-	return ""; // TODO: Implement.
+	if(appl(_,specChildren) := specs){
+       if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specChildren){
+          cType = "void";
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := specChildren){
+          cType = "char";
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := specChildren){
+          cType = "short";
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specChildren){
+          cType = "int";
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := specChildren){
+          cType = "long";
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := specChildren){
+          cType = "float";
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := specChildren){
+          cType = "double";
+       }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specChildren){
+          cType = identifier;
+       }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := specChildren){
+          cType = theStruct;
+       }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := specChildren){
+          cType = theStruct;
+       }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := specChildren){
+          cType = theStruct;
+       }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := specChildren){
+          cType = theUnion;
+       }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := specChildren){
+          cType = theUnion;
+       }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := specChildren){
+          cType = theUnion;
+       }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := specChildren){
+          cType = theEnum;
+       }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := specChildren){
+          cType = theEnum;
+       }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specChildren){
+          cType = theEnum;
+       }
+    }
+	
+	return cType;
 }
 
 private list[str] findModifiers(Specifier* specifiers, InitDeclarator initDecl){
