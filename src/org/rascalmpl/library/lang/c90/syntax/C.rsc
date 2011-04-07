@@ -363,8 +363,6 @@ private str findType(Specifier* specs){
           cType = "char";
        }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := specChildren){
           cType = "short";
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specChildren){
-          cType = "int";
        }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := specChildren){
           cType = "long";
        }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := specChildren){
@@ -391,6 +389,8 @@ private str findType(Specifier* specs){
           cType = theEnum;
        }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specChildren){
           cType = theEnum;
+       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specChildren){
+          cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
        }
     }
 	
