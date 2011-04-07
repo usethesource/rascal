@@ -9,7 +9,7 @@
 
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
 *******************************************************************************/
-package org.rascalmpl.tasks.internal;
+package org.rascalmpl.tasks.facts;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IFact;
-import org.rascalmpl.tasks.internal.AbstractFact;
 
 public abstract class AbstractDepFact<V, ValueStoreType> extends
 		AbstractFact<V, ValueStoreType> implements IDependencyListener {
@@ -45,11 +44,4 @@ public abstract class AbstractDepFact<V, ValueStoreType> extends
 		dependencies.clear();
 		dependencies.addAll(deps);
 	}
-
-	@Override
-	public void updateFrom(IFact<V> fact) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

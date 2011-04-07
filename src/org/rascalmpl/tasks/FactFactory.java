@@ -14,7 +14,7 @@ package org.rascalmpl.tasks;
 import org.rascalmpl.tasks.DepFactPolicy;
 import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.RefFactPolicy;
-import org.rascalmpl.tasks.internal.FineGrainedStrongFact;
+import org.rascalmpl.tasks.facts.FineGrainedStrongFact;
 
 public class FactFactory {
 	

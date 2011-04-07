@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
+import java.util.Collection;
+import java.util.Set;
+
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.tasks.IFact;
 
@@ -18,6 +21,8 @@ import org.rascalmpl.tasks.IFact;
 public interface ITransaction<K,N,V> {
 
 	public abstract IFact<V> setFact(K key, N name, V value);
+
+	public abstract IFact<V> setFact(K key, N name, V value, Collection<IFact<V>> deps);
 
 	//public abstract V getFact(K key, N name);
 
@@ -32,4 +37,10 @@ public interface ITransaction<K,N,V> {
 	public abstract void abandon();
 	
 	public abstract void commit();
+
+	public abstract void commit(Collection<IFact<V>> deps);
+
+	public abstract void registerListener(IDependencyListener listener, K key);
+
+	public abstract void unregisterListener(IDependencyListener listener, K key);
 }
