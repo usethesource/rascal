@@ -9,7 +9,7 @@
 
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
 *******************************************************************************/
-package org.rascalmpl.tasks.internal;
+package org.rascalmpl.tasks.facts;
 
 import static org.rascalmpl.tasks.IDependencyListener.Change.AVAILABLE;
 import static org.rascalmpl.tasks.IDependencyListener.Change.CHANGED;
@@ -22,6 +22,7 @@ import java.util.Set;
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IFact;
 
+
 public abstract class AbstractFact<V,ValueStoreType> implements IFact<V> {
 	public static final int FACT_OK = 0;
 	public static final int FACT_DEPS_INVALID = 1;
@@ -32,7 +33,7 @@ public abstract class AbstractFact<V,ValueStoreType> implements IFact<V> {
 	protected final Set<IDependencyListener> listeners = new HashSet<IDependencyListener>();
 	protected final Object key;
 
-	AbstractFact(Object key) {
+	protected AbstractFact(Object key) {
 		this.key = key;
 	}
 	@Override

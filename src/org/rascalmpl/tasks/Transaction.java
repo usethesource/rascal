@@ -12,6 +12,8 @@
 package org.rascalmpl.tasks;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +27,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.tasks.FactFactory;
+import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.INameFormatter;
 import org.rascalmpl.tasks.ITransaction;
@@ -40,6 +43,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	private final Set<Key> removed = new HashSet<Key>();
 	private INameFormatter format;
 	private final PrintWriter stderr;
+	private Map<Type, Collection<IDependencyListener>> listeners = new HashMap<Type, Collection<IDependencyListener>>();
 	public Transaction(PrintWriter stderr) {
 		this(null, null, stderr);
 	}
@@ -141,6 +145,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		IFact<IValue> fact = map.get(k);
 		map.remove(k);
 		if(fact != null) {
+			notifyListeners(key, fact, Change.REMOVED);
 			fact.remove();
 			deps.remove(fact);
 			removed.add(k);
@@ -149,16 +154,27 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 
 	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value) {
+		return setFact(key, name, value, null);
+	}
+	
+	@Override
+	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
+			Collection<IFact<IValue>> dependencies) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
 		if(fact == null) {
 			fact = FactFactory.fact(IValue.class, k, registry.getDepPolicy(key), registry.getRefPolicy(key));
 		}
-		fact.setValue(value);
-		fact.setDepends(deps);
+		boolean change = fact.setValue(value);
+		if(dependencies != null)
+			fact.setDepends(dependencies);
+		else
+			fact.setDepends(deps);
 		map.put(k, fact);
 		removed.remove(k);
 
+		if(change)
+			notifyListeners(key, fact, Change.CHANGED);
 		stderr.printf("Set fact %s = %s\n    <- ", formatKey(key, name), abbrev(value.toString(), 40));
 		for(IFact<IValue> d : deps)
 			stderr.print(formatKey(d.getKey()) + " ");
@@ -177,6 +193,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	@Override
 	public void abandon() {
 		for(IFact<IValue> fact : map.values()) {
+			notifyListeners(((Key)fact.getKey()).type, fact, Change.REMOVED);
 			fact.remove(); // TODO: dispose?
 		}
 		map.clear();
@@ -193,13 +210,64 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			for(Key k : map.keySet()) {
 				IFact<IValue> fact = parent.query(k);
 				if(fact != null) {
-					fact.updateFrom(map.get(k));
+					if(fact.updateFrom(map.get(k)))
+						parent.notifyListeners(k.type, fact, Change.CHANGED);
 				}
 				else {
 					parent.map.put(k, map.get(k));
+					parent.notifyListeners(k.type, map.get(k), Change.CHANGED);
 				}
 			}
 			// TODO: update fact references
+		}
+	}
+
+	@Override
+	public void commit(Collection<IFact<IValue>> deps) {
+		if(parent != null) {
+			for(Key k : removed) {
+				parent.removeFact(k.type, k.name);
+			}
+			for(Key k : map.keySet()) {
+				IFact<IValue> fact = parent.query(k);
+				map.get(k).setDepends(deps);
+				if(fact != null) {
+					if(fact.updateFrom(map.get(k)))
+						parent.notifyListeners(k.type, fact, Change.CHANGED);
+				}
+				else {
+					parent.map.put(k, map.get(k));
+					parent.notifyListeners(k.type, map.get(k), Change.CHANGED);
+				}
+			}
+		}
+	}
+
+	private void notifyListeners(Type k, IFact<IValue> fact, Change change) {
+		Collection<IDependencyListener> ls = listeners.get(k);
+		if(ls != null)
+			for(IDependencyListener l : ls) {
+				l.changed(fact, change);
+			}
+	}
+
+	
+	@Override
+	public synchronized void registerListener(IDependencyListener listener, Type key) {
+		Collection<IDependencyListener> ls = listeners.get(key);
+		if(ls == null)
+			ls = new ArrayList<IDependencyListener>();
+		if(!ls.contains(listener));
+			ls.add(listener);
+		listeners.put(key, ls);
+	}
+
+	@Override
+	public synchronized void unregisterListener(IDependencyListener listener, Type key) {
+		Collection<IDependencyListener> ls = listeners.get(key);
+		if(ls != null) {
+			ls.remove(listener);
+			listeners.put(key, ls);
 		}
 	}
 
@@ -270,6 +338,8 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			return true;
 		}
 	}
+
+
 
 
 }

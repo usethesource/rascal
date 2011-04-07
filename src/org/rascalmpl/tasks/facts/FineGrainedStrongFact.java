@@ -9,12 +9,12 @@
 
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
 *******************************************************************************/
-package org.rascalmpl.tasks.internal;
+package org.rascalmpl.tasks.facts;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IFact;
-import org.rascalmpl.tasks.internal.AbstractDepFact;
+import org.rascalmpl.tasks.facts.AbstractDepFact;
 
 import static org.rascalmpl.tasks.IDependencyListener.Change.*;
 /**
@@ -35,13 +35,17 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 	 * @see org.rascalmpl.eclipse.db.IFact#setValue(org.eclipse.imp.pdb.facts.T)
 	 */
 	@Override
-	public synchronized void setValue(V val) {
+	public synchronized boolean setValue(V val) {
 		V oldValue = value;
 		value = val;
 		status = FACT_OK;
 		if(oldValue != null &&
-			!(value instanceof IValue ? ((IValue)oldValue).isEqual((IValue)val) : oldValue.equals(value)))
+			!(value instanceof IValue ? ((IValue)oldValue).isEqual((IValue)val) : oldValue.equals(value))) {
 					notifyChanged();
+					return true;
+		}
+		else
+			return false;
 	}
 
 	@Override
@@ -49,12 +53,14 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 		switch(change) {
 		case CHANGED:
 			if(status < FACT_DEPS_CHANGED) {
+				System.out.println("CHANGED: " + this);
 				status = FACT_DEPS_CHANGED;
 				notifyInvalidated();
 			}
 			break;
 		case INVALIDATED:
 			if(status < FACT_DEPS_INVALID) {
+				System.out.println("INVALID: " + this);
 				status = FACT_DEPS_INVALID;
 				notifyInvalidated();
 			}
@@ -103,10 +109,24 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized void updateFrom(IFact<V> fact) {
+	public synchronized boolean updateFrom(IFact<V> fact) {
+		boolean result = false;
 		synchronized(fact) {
 			if(fact instanceof AbstractDepFact<?,?>) {
 				AbstractDepFact<?,?> f = (AbstractDepFact<?,?>)fact;
+				if(f.value == null)
+					value = null;
+				else {
+					V oldValue = value;
+					value = (V)f.value;
+					if(oldValue != null &&
+							!(value instanceof IValue ? ((IValue)oldValue).isEqual((IValue)value) : oldValue.equals(value))) {
+						notifyChanged();
+						result= true;
+					}
+				}
+				//else
+				//	throw new ImplementationError("Trying to update from fact with incompatible value types");
 				for(IFact<?> df : dependencies) {
 					if(!f.dependencies.contains(df)) {
 						dependencies.remove(df);
@@ -119,15 +139,10 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 						df.registerListener(this);
 					}
 				}
-				if(f.value == null)
-					value = null;
-				else
-					value = (V)f.value;
-				//else
-				//	throw new ImplementationError("Trying to update from fact with incompatible value types");
 			}
 			
 		}
+		return result;
 	}
 
 }

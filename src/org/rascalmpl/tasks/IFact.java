@@ -41,8 +41,9 @@ public interface IFact<V> {
 	 *  (if the value has changed).
 	 *  
 	 * @param val The new value
+	 * @return true if the value was changed
 	 */
-	public abstract void setValue(V val);
+	public abstract boolean setValue(V val);
 
 	/**
 	 * Removing a fact means removing it from the dependency chain, and
@@ -56,6 +57,12 @@ public interface IFact<V> {
 	public abstract void unregisterListener(IDependencyListener listener);
 	
 	public abstract void setDepends(Collection<IFact<V>> deps);
-	public abstract void updateFrom(IFact<V> fact);
+
+	/**
+	 * @param fact
+	 * @return True if the fact was actually changed
+	 */
+	public abstract boolean updateFrom(IFact<V> fact);
 	public abstract Object getKey();
+
 }
