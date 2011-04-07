@@ -1103,7 +1103,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
 			}
 		}catch(SyntaxError se){
-			if(withErrorTree) return parser.buildErrorTree();
+			if(withErrorTree){
+				IConstructor errorTree = parser.buildErrorTree();
+				if(errorTree != null) return errorTree;
+			}
 			
 			throw se; // Rethrow the exception if building the error tree fails.
 		}
