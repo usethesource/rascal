@@ -40,7 +40,7 @@ import processing.core.PConstants;
 public abstract class Figure implements Comparable<Figure> {
 
 	private final boolean debug = false;
-	public FigurePApplet fpa;
+	public IFigureApplet fpa;
 	protected static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public IPropertyManager properties;
@@ -57,7 +57,7 @@ public abstract class Figure implements Comparable<Figure> {
 	private float leftDragged;
 	private float topDragged;
 		
-	protected Figure(FigurePApplet fpa, IPropertyManager properties){
+	protected Figure(IFigureApplet fpa, IPropertyManager properties){
 		this.fpa = fpa;
 		this.properties = properties;
 		String id = properties.getId();
@@ -508,7 +508,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public boolean mouseInside(int mouseX, int mouseY){
 		boolean b =  (mouseX > getLeft()  && mouseX < getLeft() + width) &&
 		             (mouseY > getTop()  && mouseY < getTop() + height);
-		System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		// System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
 		return b;
 	}
 
@@ -519,8 +519,8 @@ public abstract class Figure implements Comparable<Figure> {
 		boolean b = (mouseX > left && mouseX < left + width)
 				&& (mouseY > top && mouseY < top + height);
 
-		 System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
-		 "]: "+ b + "; " + this);
+		 // System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
+		 // "]: "+ b + "; " + this);
 		return b;
 	}
 
@@ -542,7 +542,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	
 	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
-		System.err.println("Figure.MouseOver: " + this);
+		// System.err.println("Figure.MouseOver: " + this);
 		if(mouseInside(mouseX, mouseY, centerX, centerY)){
 		   fpa.registerMouseOver(this);
 		   return true;

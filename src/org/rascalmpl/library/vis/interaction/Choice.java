@@ -25,7 +25,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
@@ -39,7 +39,7 @@ public class Choice extends Figure {
 	
 	final java.awt.Choice choice = new java.awt.Choice();
 
-	public Choice(FigurePApplet fpa, IPropertyManager properties, IList choices, IValue fun, IEvaluatorContext ctx) {
+	public Choice(IFigureApplet fpa, IPropertyManager properties, IList choices, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){

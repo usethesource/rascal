@@ -18,7 +18,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.ConstantColorProperty;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.Property;
@@ -34,7 +34,7 @@ public class LatticeGraphEdge extends Figure {
 	private LatticeGraphNode to;
 	private static boolean debug = false;
 
-	public LatticeGraphEdge(LatticeGraph G, FigurePApplet fpa,
+	public LatticeGraphEdge(LatticeGraph G, IFigureApplet fpa,
 			IPropertyManager properties, IString fromName, IString toName,
 			IEvaluatorContext ctx) {
 		super(fpa, properties);

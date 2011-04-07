@@ -14,7 +14,7 @@ package org.rascalmpl.library.vis.compose;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 
@@ -38,7 +38,7 @@ public class HVCat extends Compose {
 	private boolean alignAnchors = false;
 	static boolean debug = false;
 
-	public HVCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public HVCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];

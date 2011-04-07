@@ -13,7 +13,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Image;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -35,7 +38,7 @@ import processing.core.PGraphics;
  * @author paulk
  *
  */
-public class FigurePApplet extends PApplet {
+public class FigurePApplet extends PApplet implements IFigureApplet {
 	/**
 	 * 
 	 */
@@ -57,7 +60,7 @@ public class FigurePApplet extends PApplet {
 	private Figure mouseOver = null;
 	private boolean computedValueChanged = true;
 
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private boolean saveFigure = true;
 	private String file;
 	private float scale = 1.0f;
@@ -91,6 +94,7 @@ public class FigurePApplet extends PApplet {
 		}
 	}
 	
+	
 	public FigurePApplet(IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
 		IPropertyManager def = new DefaultPropertyManager(this);
@@ -103,6 +107,11 @@ public class FigurePApplet extends PApplet {
 		IPropertyManager def = new DefaultPropertyManager(this);
 		this.figure = FigureFactory.make(this, fig, def, ctx);
 		setName(name.getValue());
+	}
+	
+	@Override
+	public void init() {
+		super.init();
 	}
 
 	@Override
@@ -449,13 +458,12 @@ public class FigurePApplet extends PApplet {
 			super.textAlign(arg0, arg1);
 	}
 	
-	@Override
-	public void textFont(PFont arg0){
+	public void textFont(Object arg0){
 		if(saveFigure)
-			canvas.textFont(arg0);
+			canvas.textFont((PFont) arg0);
 			//return;
 		else
-			super.textFont(arg0);
+			super.textFont((PFont) arg0);
 	}
 	
 	@Override
@@ -615,6 +623,51 @@ public class FigurePApplet extends PApplet {
 	}
 	
 	public Image getImage() {return this.g.image;}
+	
+	public void print(){}
+
+
+	public void setCursor(Object cursor) {
+		// TODO Auto-generated method stub
+		super.setCursor((Cursor) cursor);
+		
+	}
+
+	public void add(Object comp) {
+		super.add((Component) comp) ;
+	}
+
+
+	public Object getFont(Object font) {
+		// TODO Auto-generated method stub
+		return super.getFont();
+	};
+	
+	public void setBackground(Object color) {
+		super.setBackground((Color) color);
+	}
+	
+	public void setForeground(Object color) {
+		super.setForeground((Color) color);
+	}
+
+
+	public void remove(Object comp) {
+		super.remove((Component) comp);	
+	}
+	
+	public void invalidate() {
+		super.invalidate();
+	}
+	
+	public void validate() {
+		super.validate();
+	}
+	
+	public void stroke(float arg0, float arg1, float arg2) {
+		super.stroke(arg0, arg1, arg2);
+	}
+	
 	
 }
 

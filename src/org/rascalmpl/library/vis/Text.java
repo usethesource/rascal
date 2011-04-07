@@ -36,7 +36,7 @@ public class Text extends Figure {
 	
 	private int textAlignH = PConstants.CENTER;	
 
-	public Text(FigurePApplet fpa, IPropertyManager properties, IStringPropertyValue text) {
+	public Text(IFigureApplet fpa, IPropertyManager properties, IStringPropertyValue text) {
 		super(fpa, properties);
 		this.txt = text;
 		if(debug)System.err.printf("Text: %s\n", txt);
@@ -66,11 +66,12 @@ public class Text extends Figure {
 			hfill = width/2;
 			height = topAnchor + bottomAnchor;
 		}
-		
+		/*
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
 			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt, width, height, getTextAngleProperty());
 		}
+		*/
 		if(getTextAngleProperty() != 0){
 			float angle = PApplet.radians(getTextAngleProperty());
 			float sina = PApplet.sin(angle);
@@ -108,7 +109,7 @@ public class Text extends Figure {
 		applyProperties();
 		applyFontProperties();
 	
-		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
+		// if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 

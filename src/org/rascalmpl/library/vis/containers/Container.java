@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 
@@ -42,7 +42,7 @@ public abstract class Container extends Figure {
 
 	final private static boolean debug = false;
 
-	public Container(FigurePApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
+	public Container(IFigureApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(innerCons != null){
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);

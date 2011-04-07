@@ -15,7 +15,7 @@ package org.rascalmpl.library.vis.compose;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
@@ -35,7 +35,7 @@ public class VCat extends Compose {
 	private boolean alignAnchors = false;
 	private static boolean debug = false;
 
-	public VCat(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+public VCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	

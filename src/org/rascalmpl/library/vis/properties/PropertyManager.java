@@ -20,7 +20,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 /**
  * Manage the properties of a figure.
@@ -63,7 +63,7 @@ public class PropertyManager implements IPropertyManager {
 	}
 
 	
-	public PropertyManager(FigurePApplet fpa, IPropertyManager inherited, IList props, IEvaluatorContext ctx) {
+	public PropertyManager(IFigureApplet fpa, IPropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		this.inherited = inherited;
 		
 		values = new IPropertyValue[countProperties(props)];
@@ -74,6 +74,8 @@ public class PropertyManager implements IPropertyManager {
 		for (IValue v : props) {
 			
 			IConstructor c = (IConstructor) v;
+//			System.err.println("QQ1:"+c.getType());
+//			System.err.println("QQ2:"+c.getName());
 			String pname = c.getName();
 
 			switch (propertyNames.get(pname)) {
@@ -221,7 +223,7 @@ public class PropertyManager implements IPropertyManager {
 			
 	}
 	
-	public FigurePApplet getFPA() {
+	public IFigureApplet getFPA() {
 		return inherited.getFPA();
 	}
 	

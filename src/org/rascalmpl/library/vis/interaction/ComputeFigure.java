@@ -24,7 +24,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public class ComputeFigure extends Figure {
@@ -39,7 +39,7 @@ public class ComputeFigure extends Figure {
 	final private IEvaluatorContext ctx;
 
 
-	public ComputeFigure(FigurePApplet fpa, IPropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
+	public ComputeFigure(IFigureApplet fpa, IPropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 	
 		this.ctx = ctx;
@@ -139,7 +139,7 @@ public class ComputeFigure extends Figure {
 	
 	@Override
 	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
-		System.err.println("ComputeFigure.mouseOver2: " + figure);
+		// System.err.println("ComputeFigure.mouseOver2: " + figure);
 		if(figure != null){
 			return figure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);
 		}

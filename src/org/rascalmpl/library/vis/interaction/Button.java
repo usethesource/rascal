@@ -23,7 +23,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
@@ -36,7 +36,7 @@ public class Button extends Figure {
 	
 	final java.awt.Button button = new java.awt.Button();
 
-	public Button(FigurePApplet fpa, IPropertyManager properties, IString tname, IValue fun, IEvaluatorContext ctx) {
+	public Button(IFigureApplet fpa, IPropertyManager properties, IString tname, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
 			this.callback = (RascalFunction) fun;
