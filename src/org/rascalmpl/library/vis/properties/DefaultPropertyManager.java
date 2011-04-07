@@ -14,16 +14,16 @@ package org.rascalmpl.library.vis.properties;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 public final class DefaultPropertyManager implements IPropertyManager {
-	FigurePApplet fpa;
+	IFigureApplet fpa;
 	 
-	public DefaultPropertyManager(FigurePApplet fpa){
+	public DefaultPropertyManager(IFigureApplet fpa){
 		this.fpa = fpa;
 	}
 	
-	public FigurePApplet getFPA() {
+	public IFigureApplet getFPA() {
 		return fpa;
 	}
 	

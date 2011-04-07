@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
@@ -40,7 +40,7 @@ public class Checkbox extends Figure {
 	
 	java.awt.Checkbox checkbox;
 
-	public Checkbox(FigurePApplet fpa, IPropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
+	public Checkbox(IFigureApplet fpa, IPropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){

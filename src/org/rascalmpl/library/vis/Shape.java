@@ -37,7 +37,7 @@ public class Shape extends Compose {
 	float topAnchor;
 	float bottomAnchor;
 
-	Shape(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	Shape(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	

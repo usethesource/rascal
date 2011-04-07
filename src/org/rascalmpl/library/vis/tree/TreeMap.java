@@ -24,7 +24,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -39,7 +39,7 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	public TreeMap(FigurePApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
+	public TreeMap(IFigureApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();

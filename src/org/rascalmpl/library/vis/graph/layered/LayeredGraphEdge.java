@@ -18,7 +18,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
@@ -36,7 +36,7 @@ public class LayeredGraphEdge extends Figure {
 	private static boolean debug = false;
 	private static boolean useSplines = true;
 	
-	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
+	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName,
 			IConstructor toArrowCons, IConstructor fromArrowCons, 
 			IEvaluatorContext ctx) {
@@ -63,7 +63,7 @@ public class LayeredGraphEdge extends Figure {
 				", arrows (to/from): " + toArrow + " " + fromArrow);
 	}
 	
-	public LayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IPropertyManager properties, 
+	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow, IEvaluatorContext ctx){
 		
 		super(fpa, properties);

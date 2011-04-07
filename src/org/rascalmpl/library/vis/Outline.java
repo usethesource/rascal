@@ -30,7 +30,7 @@ public class Outline extends Figure {
 	private final IList lineInfo;
 	private final int maxLine;
 
-	public Outline(FigurePApplet fpa, IPropertyManager properties, IList lineInfo, IInteger maxLine) {
+	public Outline(IFigureApplet fpa, IPropertyManager properties, IList lineInfo, IInteger maxLine) {
 		super(fpa, properties);
 		this.lineInfo = lineInfo;
 		this.maxLine = maxLine.intValue();

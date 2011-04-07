@@ -23,7 +23,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 /**
  * Utilities for fetching arguments from property values. Arguments come in three flavours:
@@ -44,7 +44,7 @@ public class Utils {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	public static IBooleanPropertyValue getBooleanArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx){
+	public static IBooleanPropertyValue getBooleanArg(Property prop, IConstructor c, IFigureApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(0);
 
 		if(arg.getType().isBoolType())
@@ -71,7 +71,7 @@ public class Utils {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	public static IIntegerPropertyValue getIntArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx){
+	public static IIntegerPropertyValue getIntArg(Property prop, IConstructor c, IFigureApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(0);
 
 		if(arg.getType().isIntegerType())
@@ -97,7 +97,7 @@ public class Utils {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	public static IStringPropertyValue getStrArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx){
+	public static IStringPropertyValue getStrArg(Property prop, IConstructor c, IFigureApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(0);
 		
 		if(arg.getType().isStringType())
@@ -127,7 +127,7 @@ public class Utils {
 	 * @return
 	 */
 	
-	public static IRealPropertyValue getRealArg(Property prop, IConstructor c, int i, FigurePApplet fpa, IEvaluatorContext ctx){
+	public static IRealPropertyValue getRealArg(Property prop, IConstructor c, int i, IFigureApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(i);
 		
 		if(arg.getType().isRealType())
@@ -157,7 +157,7 @@ public class Utils {
 	 * @return
 	 */
 	
-	public static IRealPropertyValue getIntOrRealArg(Property prop, IConstructor c, int i, FigurePApplet fpa, IEvaluatorContext ctx){
+	public static IRealPropertyValue getIntOrRealArg(Property prop, IConstructor c, int i, IFigureApplet fpa, IEvaluatorContext ctx){
 		IValue arg = c.get(i);
 		
 		if(arg.getType().isIntegerType())
@@ -189,7 +189,7 @@ public class Utils {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	public static IColorPropertyValue getColorArg(Property prop, IConstructor c, FigurePApplet fpa, IEvaluatorContext ctx) {
+	public static IColorPropertyValue getColorArg(Property prop, IConstructor c, IFigureApplet fpa, IEvaluatorContext ctx) {
 		
 		IValue arg = c.get(0);
 		

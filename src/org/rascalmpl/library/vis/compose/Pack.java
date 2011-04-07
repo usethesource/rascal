@@ -16,7 +16,7 @@ import java.util.Arrays;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
@@ -36,7 +36,7 @@ public class Pack extends Compose {
 	static protected boolean debug = false;
 	boolean initialized = false;
 
-	public Pack(FigurePApplet fpa, IPropertyManager properties, IList elems,
+	public Pack(IFigureApplet fpa, IPropertyManager properties, IList elems,
 			IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}

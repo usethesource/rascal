@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 public class ComputedRealProperty implements IRealPropertyValue {
 	Property property;
@@ -27,9 +27,9 @@ public class ComputedRealProperty implements IRealPropertyValue {
 	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
 	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
 	float value;
-	private FigurePApplet fpa;
+	private IFigureApplet fpa;
 
-	public ComputedRealProperty(Property prop, IValue fun, FigurePApplet fpa){
+	public ComputedRealProperty(Property prop, IValue fun, IFigureApplet fpa){
 		this.property = prop;
 		this.fun = fun;
 		this.fpa = fpa;

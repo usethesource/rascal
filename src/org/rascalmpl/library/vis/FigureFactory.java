@@ -128,7 +128,7 @@ public class FigureFactory {
     	put("_wedge",		Primitives.WEDGE);
     }};
 	
-	private static IPropertyManager extendProperties(FigurePApplet fpa, IConstructor c, IPropertyManager pm, IEvaluatorContext ctx){		
+	private static IPropertyManager extendProperties(IFigureApplet fpa, IConstructor c, IPropertyManager pm, IEvaluatorContext ctx){		
 		IList props = (IList) c.get(c.arity()-1);
 		
 		//for(IValue prop: props){
@@ -140,7 +140,7 @@ public class FigureFactory {
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	public static Figure make(FigurePApplet fpa, IConstructor c, IPropertyManager properties, IEvaluatorContext ctx){
+	public static Figure make(IFigureApplet fpa, IConstructor c, IPropertyManager properties, IEvaluatorContext ctx){
 		String ename = c.getName();
 		properties = extendProperties(fpa, c, properties, ctx);
 		
@@ -177,7 +177,7 @@ public class FigureFactory {
 		case HCAT:
 			return new HCat(fpa, properties, (IList) c.get(0), ctx);
 			
-		case HVCAT: 
+		case HVCAT:
 			return new HVCat(fpa, properties, (IList) c.get(0), ctx);
 						
 		case OUTLINE: 
@@ -240,7 +240,7 @@ public class FigureFactory {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, FigurePApplet fpa, IConstructor c,
+	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureApplet fpa, IConstructor c,
 			IPropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
@@ -249,7 +249,7 @@ public class FigureFactory {
 		return new SpringGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow,ctx);
 	}
 	
-	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, FigurePApplet fpa, IConstructor c,
+	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IConstructor c,
 			IPropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
@@ -258,7 +258,7 @@ public class FigureFactory {
 		return new LayeredGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow, ctx);
 	}
 	
-	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, FigurePApplet fpa, IConstructor c,
+	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureApplet fpa, IConstructor c,
 			IPropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);

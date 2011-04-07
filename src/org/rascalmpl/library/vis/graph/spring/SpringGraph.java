@@ -22,7 +22,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
@@ -55,7 +55,7 @@ public class SpringGraph extends Figure {
 	private static boolean debug = true;
 
 	
-	public SpringGraph(FigurePApplet fpa, IPropertyManager properties, IList nodes,
+	public SpringGraph(IFigureApplet fpa, IPropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.nodes = new ArrayList<SpringGraphNode>();

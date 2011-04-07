@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -38,7 +38,7 @@ public class TreeNode extends Figure {
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(FigurePApplet fpa, IPropertyManager properties, Figure fig) {
+	public TreeNode(IFigureApplet fpa, IPropertyManager properties, Figure fig) {
 		super(fpa, properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();

@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 public class ComputedIntegerProperty implements IIntegerPropertyValue {
 	Property property;
@@ -28,7 +28,7 @@ public class ComputedIntegerProperty implements IIntegerPropertyValue {
 	int value;
 	private Object fpa;
 
-	public ComputedIntegerProperty(Property prop, IValue fun, FigurePApplet fpa){
+	public ComputedIntegerProperty(Property prop, IValue fun, IFigureApplet fpa){
 		this.property = prop;
 		this.fun = fun;
 		this.fpa = fpa;

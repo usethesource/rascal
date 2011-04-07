@@ -31,7 +31,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -209,7 +209,7 @@ public class LatticeGraph extends Figure implements
 
 	// Organism[][] islands;
 
-	public LatticeGraph(FigurePApplet fpa, IPropertyManager properties,
+	public LatticeGraph(IFigureApplet fpa, IPropertyManager properties,
 			IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.nodes = new ArrayList<LatticeGraphNode>();

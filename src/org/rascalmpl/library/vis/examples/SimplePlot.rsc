@@ -200,7 +200,7 @@ private Figure _simplePlot(str title, list[NamedPairSeries] facts, list[PlotProp
                  , use( xaxis(xTitle, xmin, stepSize, xmax, xscale), 
                       bottom(), left()
                      )     
-                  ,funPlots
+                  // ,funPlots
                ], bottom());
    return vcat([makeTitle(title), hcat([ylabels(yTitle,  ymin, stepSize, ymax, yscale), 
              vcat([plot, xlabels(xTitle, xmin, stepSize, xmax, xscale), makeSubTitle(xTitle)]),legend(funColors, 100)], top())]);
@@ -284,7 +284,7 @@ public void plotDemo() {
      // render(simplePlot("aap", [<"noot", [<i, (i/10)*(i/10)>|int i<-[-100,-90..100]]>, <"mies", [<i, i>|int i<-[-100,-90..100]]>],  chartSize(400, 400), curvePlot(), step(10), xLabel("x"), yLabel("y")));
      // render(simplePlot("simple plot", [i|int i<-[-100,-90..100]],[[i, (i/10)*(i/10), 10*exp(toReal(i)/50)]|int i<-[-100,-90..100]], chartSize(400, 400), curvePlot(), step(10)));
      // render(simplePlot("simple plot", [[x, exp(-pow(x,2))]|real x<-[-2.0,-1.8..2.0]], chartSize(400, 400), curvePlot(), step(0.2)));
-    render(simplePlot("simple plot", [[x, cos(PI()*x), sin(PI()*x)]|num x<-[-1,-5.0/6..1]], chartSize(400, 400), curvePlot(), step(1.0/5), xAxis(true), yAxis(true), xLabel("pi")));
+    render(simplePlot("simple plot", [[x, cos(PI()*x), sin(PI()*x)]|num x<-[-1,-5.0/6..1]], chartSize(400, 400), curvePlot(), step(1.0/7), xAxis(true), yAxis(true), xLabel("pi")));
     }
 
 

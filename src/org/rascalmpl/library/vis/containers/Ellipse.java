@@ -15,7 +15,7 @@ package org.rascalmpl.library.vis.containers;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
@@ -31,7 +31,7 @@ import processing.core.PConstants;
  */
 public class Ellipse extends Container {
 
-	public Ellipse(FigurePApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+	public Ellipse(IFigureApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties, inside, ctx);
 	}
 	

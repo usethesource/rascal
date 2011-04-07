@@ -18,18 +18,19 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 public class ComputedColorProperty  implements IColorPropertyValue  {
 	
 	Property property;
-	private FigurePApplet fpa;
+	private IFigureApplet fpa;
 	
 	IValue fun;
 	Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
 	IValue[] argVals = new IValue[0];		// Argument values of callback: argList
 	int value;
 
-	public ComputedColorProperty(Property prop,  IValue fun, FigurePApplet fpa){
+	public ComputedColorProperty(Property prop,  IValue fun, IFigureApplet fpa){
 		this.property = prop;
 		this.fun = fun;
 		this.fpa = fpa;

@@ -25,7 +25,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -48,7 +48,7 @@ public class Tree extends Figure {
 	private TreeNodeRaster raster;
 	TreeNode root = null;
 	
-	public Tree(FigurePApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
+	public Tree(IFigureApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);		
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();

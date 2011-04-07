@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /**
@@ -34,7 +34,7 @@ public abstract class Compose extends Figure {
 	final protected Figure[] figures;
 	final private static boolean debug = false;
 
-	protected Compose(FigurePApplet fpa, IPropertyManager properties,
+	protected Compose(IFigureApplet fpa, IPropertyManager properties,
 			IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		int n = elems.length();
@@ -73,10 +73,10 @@ public abstract class Compose extends Figure {
 	// Visit figures front to back
 	@Override
 	public boolean mouseOver(int mouseX, int mouseY,  float centerX, float centerY, boolean mouseInParent) {
-		System.err.println("Compose.MouseOver2: " + this.getClass());
+		// System.err.println("Compose.MouseOver2: " + this.getClass());
 		if(super.mouseInside(mouseX, mouseY)){
 			for (int i = figures.length - 1; i >= 0; i--){
-				System.err.println("Compose.MouseOver, child : " + i);
+				// System.err.println("Compose.MouseOver, child : " + i);
 				if (figures[i].mouseOver(mouseX, mouseY, figures[i].getCenterX(),
 						figures[i].getCenterY(), false)){
 					return true;

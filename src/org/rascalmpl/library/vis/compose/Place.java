@@ -19,7 +19,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 /*
@@ -33,7 +33,7 @@ public class Place extends Figure {
 	private Figure topFigure;
 
 
-	public Place(FigurePApplet fpa, IPropertyManager properties, IConstructor ctop, IString id, IConstructor cbot, IEvaluatorContext ctx) {
+	public Place(IFigureApplet fpa, IPropertyManager properties, IConstructor ctop, IString id, IConstructor cbot, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.bottomFigure = FigureFactory.make(fpa, cbot, properties, ctx);
 		this.topFigure = FigureFactory.make(fpa, ctop, properties, ctx);

@@ -14,7 +14,7 @@ package org.rascalmpl.library.vis.compose;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 
@@ -38,10 +38,10 @@ public class Grid extends Compose {
 	float extRight = 0;
 	
 	private boolean alignAnchors = false;
-	private static boolean debug = true;
+	private static boolean debug = false;
 	
 
-	public Grid(FigurePApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public Grid(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		leftFig = new float[elems.length()];
 		topFig = new float[elems.length()];
@@ -185,6 +185,7 @@ public class Grid extends Compose {
 				if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, leftFig[i], topFig[i], left, top);
 				fig.draw(left + extLeft + leftFig[i] - halign * fig.width, 
 						 top  + extTop  + topFig[i]  - valign * fig.height);
+				if(debug)System.err.printf("Bert: i=%d: %f, %f\n", i, left + extLeft + leftFig[i] - halign * fig.width, top  + extTop  + topFig[i]  - valign * fig.height);
 			}
 		}
 	}

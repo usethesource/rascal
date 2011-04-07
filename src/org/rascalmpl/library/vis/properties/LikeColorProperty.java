@@ -14,13 +14,13 @@ package org.rascalmpl.library.vis.properties;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 public class LikeColorProperty implements IColorPropertyValue {
 	final private Property property;
 	final private Figure fig;
 
-	public LikeColorProperty(Property prop, String id, FigurePApplet fpa, IEvaluatorContext ctx){
+	public LikeColorProperty(Property prop, String id, IFigureApplet fpa, IEvaluatorContext ctx){
 		this.property = prop;
 		this.fig = fpa.getRegisteredId(id);
 		if(this.fig == null)

@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 
 @SuppressWarnings("serial")
 public interface IPropertyManager {
@@ -64,7 +64,7 @@ public interface IPropertyManager {
 	public float getRealProperty(Property property);
 	public String getStringProperty(Property property);
 	
-	public FigurePApplet getFPA();
+	public IFigureApplet getFPA();
 	
 	public boolean getAlignAnchors();
 	public String getDirection();
