@@ -176,7 +176,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                               list[tuple[str,str]] variables = findVariableNames(initDeclarators);
                               for(variableTuple <- variables){
                                  str variable = variableTuple.var;
-                                 str initDecl = variableTuple.initDecl;
+                                 InitDeclarator initDecl = variableTuple.initDecl;
                                  list[str] modifiers = findModifiers(specs, initDecl);
                                  typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                               }
@@ -196,7 +196,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                               list[tuple[str,str]] variables = findVariableNames(initDeclarators);
                               for(variableTuple <- variables){
                                  str variable = variableTuple.var;
-                                 str initDecl = variableTuple.initDecl;
+                                 InitDeclarator initDecl = variableTuple.initDecl;
                                  list[str] modifiers = findModifiers(specs, initDecl);
                                  typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                               }
@@ -437,6 +437,18 @@ private list[str] findModifiers(Specifier* specs, InitDeclarator initDecl){
 	return modifiers;
 }
 
-private list[tuple[str var, str initDecl]] findVariableNames({InitDeclarator ","}+ initDecls){
-	return []; // TODO: Implement.
+private str findVariableInDeclarator(Declarator decl){
+	// TODO Implement;
+	return ""; // Temp
+}
+
+private list[tuple[str var, InitDeclarator initDecl]] findVariableNames({InitDeclarator ","}+ initDecls){
+	list[tuple[str var, InitDeclarator initDecl]] variables = [];
+	for(initDecl <- initDecls){
+		str var = findVariableInDeclarator(initDecl.decl);
+		
+		variables += <var, initDecl>;
+	}
+	
+	return variables;
 }
