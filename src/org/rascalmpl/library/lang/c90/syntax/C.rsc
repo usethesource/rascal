@@ -265,7 +265,7 @@ syntax TypeName = Specifier+ AbstractDeclarator
 syntax Pointer = PointerContent+
                  ;
 
-syntax PointerContent = "*" Specifier+; // TODO: Only allow type qualifiers and identifiers.
+syntax PointerContent = "*" Specifier+ specs; // TODO: Only allow type qualifiers and identifiers.
 
 syntax Enumerator = Identifier |
                     Identifier "=" NonCommaExpression
@@ -278,11 +278,11 @@ syntax AbstractDeclarator = AnonymousIdentifier |
                             non-assoc Pointer AbstractDeclarator
                             ;
 
-syntax Declarator = Identifier |
-                    bracket "(" Declarator ")" |
-                    Declarator "[" Expression? "]" |
-                    Declarator "(" Parameters? ")" >
-                    non-assoc PointerDeclarator: Pointer Declarator
+syntax Declarator = Identifier: Identifier |
+                    bracket Bracket: "(" Declarator decl ")" |
+                    ArrayDeclarator: Declarator decl "[" Expression? "]" |
+                    FunctionDeclarator: Declarator decl "(" Parameters? ")" >
+                    non-assoc PointerDeclarator: Pointer pointer Declarator decl
                     ;
 
 syntax Parameter = Specifier+ Declarator |
@@ -397,8 +397,29 @@ private str findType(Specifier* specs){
 	return cType;
 }
 
-private list[str] findModifiers(Specifier* specifiers, InitDeclarator initDecl){
-	return []; // TODO: Implement.
+private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "double"];
+
+private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
+
+private list[str] findModifiers(Specifier* specs, InitDeclarator initDecl){
+	list[str] modifiers = [];
+	
+	if(appl(_,specChildren) := specs){
+	   modifiers = 
+          for(spec <- specChildren, "<spec>" notin cTypes){
+             if("<spec>" != "typedef"){
+                if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
+                   ;
+                }else{
+                   append(spec);
+                }
+             }
+       }
+	}
+	
+	// TODO: Get stuff from the declarators.
+	
+	return modifiers;
 }
 
 private list[tuple[str var, str initDecl]] findVariableNames({InitDeclarator ","}+ initDecls){
