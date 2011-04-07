@@ -210,8 +210,8 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                      }  // TODO: Avoid
                      ;
 
-syntax InitDeclarator = Declarator |
-                        Declarator "=" Initializer
+syntax InitDeclarator = Declarator decl |
+                        Declarator decl "=" Initializer
                        ;
 
 syntax Specifier = Identifier: Identifier |
@@ -271,17 +271,17 @@ syntax Enumerator = Identifier |
                     Identifier "=" NonCommaExpression
                     ;
 
-syntax AbstractDeclarator = AnonymousIdentifier |
-                            "(" AbstractDeclarator ")" |
-                            AbstractDeclarator "[" Expression? "]" |
-                            AbstractDeclarator "(" Parameters? ")" >
-                            non-assoc Pointer AbstractDeclarator
+syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
+                            bracket Bracket: "(" AbstractDeclarator decl ")" |
+                            ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" |
+                            FunctionDeclarator: AbstractDeclarator decl "(" Parameters? ")" >
+                            non-assoc PointerDeclarator: Pointer AbstractDeclarator decl
                             ;
 
 syntax Declarator = Identifier: Identifier |
                     bracket Bracket: "(" Declarator decl ")" |
-                    ArrayDeclarator: Declarator decl "[" Expression? "]" |
-                    FunctionDeclarator: Declarator decl "(" Parameters? ")" >
+                    ArrayDeclarator: Declarator decl "[" Expression? exp "]" |
+                    FunctionDeclarator: Declarator decl "(" Parameters? params ")" >
                     non-assoc PointerDeclarator: Pointer pointer Declarator decl
                     ;
 
@@ -401,23 +401,38 @@ private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "do
 
 private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
 
+private list[str] walkOverDeclarator(Declarator decl, list[str] modifiers){
+	if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_),_*] := decl){
+		return walkOverDeclarator(theDecl.decl, modifiers);
+	}else if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("ArrayDeclarator")),_*])),_),_*] := decl){
+		modifiers += "[<theDecl.exp>]";
+		return walkOverDeclarator(theDecl.decl, modifiers);
+	}else if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_),_*] := decl){
+		modifiers += "(<theDecl.params>)";
+		return walkOverDeclarator(theDecl.decl, modifiers);
+	}else if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("PointerDeclarator")),_*])),_),_*] := decl){
+		modifiers += "*";
+		return walkOverDeclarator(theDecl.decl, modifiers);
+	}
+	return modifiers;
+}
+
 private list[str] findModifiers(Specifier* specs, InitDeclarator initDecl){
 	list[str] modifiers = [];
 	
 	if(appl(_,specChildren) := specs){
-	   modifiers = 
-          for(spec <- specChildren, "<spec>" notin cTypes){
-             if("<spec>" != "typedef"){
-                if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
-                   ;
-                }else{
-                   append(spec);
-                }
-             }
-       }
+		modifiers = for(spec <- specChildren, "<spec>" notin cTypes){
+				if("<spec>" != "typedef"){
+					if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
+						;
+					}else{
+						append(spec);
+					}
+				}
+		}
 	}
 	
-	// TODO: Get stuff from the declarators.
+	modifiers = walkOverDeclarator(initDecl.decl, modifiers);
 	
 	return modifiers;
 }
