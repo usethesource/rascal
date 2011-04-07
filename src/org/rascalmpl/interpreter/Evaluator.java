@@ -1105,7 +1105,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}catch(SyntaxError se){
 			if(withErrorTree){
 				IConstructor errorTree = parser.buildErrorTree();
-				if(errorTree != null) return errorTree;
+				if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
 			}
 			
 			throw se; // Rethrow the exception if building the error tree fails.
