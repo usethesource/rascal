@@ -169,17 +169,14 @@ syntax Keyword = "auto" |
                  ;
 
 syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
-                        list[Tree] specChildren;
-                        if(appl(_,specChildren) := specs){
-                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
-                              str declType = findType(specs);
-                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
-                              for(variableTuple <- variables){
-                                 str variable = variableTuple.var;
-                                 InitDeclarator initDecl = variableTuple.initDecl;
-                                 list[str] modifiers = findModifiers(specs, initDecl);
-                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
-                              }
+                        if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specs){
+                           str declType = findType(specs);
+                           list[tuple[str,str]] variables = findVariableNames(initDeclarators);
+                           for(variableTuple <- variables){
+                              str variable = variableTuple.var;
+                              InitDeclarator initDecl = variableTuple.initDecl;
+                              list[str] modifiers = findModifiers(specs, initDecl);
+                              typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                            }
                         }
                         
@@ -189,17 +186,14 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                         } // May be ambiguous with "Exp * Exp".
                      } |
                      Specifier* specs ";" {
-                        list[Tree] specChildren;
-                        if(appl(_,specChildren) := specs){
-                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
-                              str declType = findType(specs);
-                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
-                              for(variableTuple <- variables){
-                                 str variable = variableTuple.var;
-                                 InitDeclarator initDecl = variableTuple.initDecl;
-                                 list[str] modifiers = findModifiers(specs, initDecl);
-                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
-                              }
+                        if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specs){
+                           str declType = findType(specs);
+                           list[tuple[str,str]] variables = findVariableNames(initDeclarators);
+                           for(variableTuple <- variables){
+                              str variable = variableTuple.var;
+                              InitDeclarator initDecl = variableTuple.initDecl;
+                              list[str] modifiers = findModifiers(specs, initDecl);
+                              typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                            }
                         }
                         
@@ -356,42 +350,40 @@ map[str name, tuple[str var, list[str] modifiers] cType] typeDefs = (); // Name 
 private str findType(Specifier* specs){
 	str cType = "int"; // If no type is defined the type is int.
 	
-	if(appl(_,specChildren) := specs){
-       if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specChildren){
-          cType = "void";
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := specChildren){
-          cType = "char";
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := specChildren){
-          cType = "short";
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := specChildren){
-          cType = "long";
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := specChildren){
-          cType = "float";
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := specChildren){
-          cType = "double";
-       }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specChildren){
-          cType = identifier;
-       }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := specChildren){
-          cType = theStruct;
-       }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := specChildren){
-          cType = theStruct;
-       }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := specChildren){
-          cType = theStruct;
-       }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := specChildren){
-          cType = theUnion;
-       }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := specChildren){
-          cType = theUnion;
-       }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := specChildren){
-          cType = theUnion;
-       }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := specChildren){
-          cType = theEnum;
-       }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := specChildren){
-          cType = theEnum;
-       }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specChildren){
-          cType = theEnum;
-       }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specChildren){
-          cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
-       }
+    if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specs){
+       cType = "void";
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := specs){
+       cType = "char";
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := specs){
+       cType = "short";
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := specs){
+       cType = "long";
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := specs){
+       cType = "float";
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := specs){
+       cType = "double";
+    }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specs){
+       cType = identifier;
+    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := specs){
+       cType = theStruct;
+    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := specs){
+       cType = theStruct;
+    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := specs){
+       cType = theStruct;
+    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := specs){
+       cType = theUnion;
+    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := specs){
+       cType = theUnion;
+    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := specs){
+       cType = theUnion;
+    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := specs){
+       cType = theEnum;
+    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := specs){
+       cType = theEnum;
+    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specs){
+       cType = theEnum;
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specs){
+       cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
     }
 	
 	return cType;
@@ -420,16 +412,14 @@ private list[str] walkOverDeclarator(Declarator decl, list[str] modifiers){
 private list[str] findModifiers(Specifier* specs, InitDeclarator initDecl){
 	list[str] modifiers = [];
 	
-	if(appl(_,specChildren) := specs){
-		modifiers = for(spec <- specChildren, "<spec>" notin cTypes){
-				if("<spec>" != "typedef"){
-					if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
-						;
-					}else{
-						append(spec);
-					}
+	modifiers = for(spec <- specs, "<spec>" notin cTypes){
+			if("<spec>" != "typedef"){
+				if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
+					;
+				}else{
+					append("<spec>");
 				}
-		}
+			}
 	}
 	
 	modifiers = walkOverDeclarator(initDecl.decl, modifiers);
