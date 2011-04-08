@@ -169,38 +169,44 @@ syntax Keyword = "auto" |
                  ;
 
 syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
-                        if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specs){
-                           str declType = findType(specs);
-                           list[tuple[str,str]] variables = findVariableNames(initDeclarators);
-                           for(variableTuple <- variables){
-                              str variable = variableTuple.var;
-                              InitDeclarator initDecl = variableTuple.initDecl;
-                              tuple[list[str], Declarator] modifiers = findModifiers(specs, initDecl);
-                              typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                        list[Tree] specChildren;
+                        if(appl(_,specChildren) := specs){
+                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
+                              str declType = findType(specChildren);
+                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
+                              for(variableTuple <- variables){
+                                 str variable = variableTuple.var;
+                                 InitDeclarator initDecl = variableTuple.initDecl;
+                                 tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl);
+                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                              }
                            }
+                           
+                           str declType = findType(specChildren);
+                           if("<declType>" notin typeDefs){
+                              fail;
+                           } // May be ambiguous with "Exp * Exp".
                         }
-                        
-                        str declType = findType(specs);
-                        if("<declType>" notin typeDefs){
-                           fail;
-                        } // May be ambiguous with "Exp * Exp".
                      } |
                      Specifier* specs ";" {
-                        if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specs){
-                           str declType = findType(specs);
-                           list[tuple[str,str]] variables = findVariableNames(initDeclarators);
-                           for(variableTuple <- variables){
-                              str variable = variableTuple.var;
-                              InitDeclarator initDecl = variableTuple.initDecl;
-                              tuple[list[str], Declarator] modifiers = findModifiers(specs, initDecl);
-                              typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                     	list[Tree] specChildren;
+                     	if(appl(_,specChildren) := specs){
+                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
+                              str declType = findType(specChildren);
+                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
+                              for(variableTuple <- variables){
+                                 str variable = variableTuple.var;
+                                 InitDeclarator initDecl = variableTuple.initDecl;
+                                 tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl);
+                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                              }
                            }
+                           
+                           str declType = findType(specChildren);
+                           if("<declType>" notin typeDefs){
+                              fail;
+                           } // May be ambiguous with "Exp * Exp".
                         }
-                        
-                        str declType = findType(specs);
-                        if("<declType>" notin typeDefs){
-                           fail;
-                        } // May be ambiguous with "Exp * Exp".
                      }  // TODO: Avoid
                      ;
 
@@ -347,7 +353,7 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
 
 map[str name, tuple[str var, tuple[list[str], Declarator] modifiers] cType] typeDefs = (); // Name to type mapping.
 
-private str findType(Specifier* specs){
+private str findType(list[Tree] specs){
 	str cType = "int"; // If no type is defined the type is int.
 	
     if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specs){
@@ -393,25 +399,34 @@ private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "do
 
 private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
 
-private tuple[list[str], Declarator] findModifiers(Specifier* specs, InitDeclarator initDecl){
+private tuple[list[str], Declarator] findModifiers(list[Tree] specs, InitDeclarator initDecl){
 	list[str] modifiers = [];
 	
-	modifiers = for(spec <- specs, "<spec>" notin cTypes){
-			if("<spec>" != "typedef"){
-				if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
-					;
-				}else{
-					append("<spec>");
-				}
+	modifiers = for(spec <- specChildren, "<spec>" notin cTypes){
+		if("<spec>" != "typedef"){
+			if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
+				;
+			}else{
+				append("<spec>");
 			}
+		}
 	}
 	
 	return <modifiers, initDecl.decl>;
 }
 
 private str findVariableInDeclarator(Declarator decl){
-	// TODO Implement;
-	return ""; // Temp
+	if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := decl){
+		return "<decl>";
+	}else if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl){
+		return walkOverDeclarator(decl.decl);
+	}else if(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl){
+		return walkOverDeclarator(decl.decl);
+	}else if(appl(prod(_,_,attrs([_*,term(cons("PointerDeclarator")),_*])),_) := decl){
+		return walkOverDeclarator(decl.decl);
+	}
+	
+	throw "This can\'t happen";
 }
 
 private list[tuple[str var, InitDeclarator initDecl]] findVariableNames({InitDeclarator ","}+ initDecls){
