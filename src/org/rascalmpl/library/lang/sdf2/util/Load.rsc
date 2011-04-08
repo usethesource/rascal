@@ -13,6 +13,7 @@ import lang::sdf2::syntax::Sdf2;
 import IO;
 import Exception;
 import String;
+import ParseTree;
 import Set;
 
 public SDF loadSDF2Module(str name, list[loc] path) {
@@ -24,11 +25,11 @@ public SDF loadSDF2Module(str name, list[loc] path) {
     <n,newnames> = takeOneFrom(newnames);
     
     if (n notin done) {
-      file = find(replaceAll(n,"::","/") + ".sdf", path);
+      file = find(n + ".sdf", path);
       mod = parse(#Module, file);
       modules += mod;
       newnames += getImports(mod);
-      done += {n};
+      done += {n};  
     }
   }
 
@@ -41,5 +42,5 @@ public SDF loadSDF2Module(str name, list[loc] path) {
 }
 
 public set[str] getImports(Module mod) {
-  return { "<name>" | /Import i := mod,  /ModuleId name := i};
+  return { "<name.id>" | /Import i := mod,  /ModuleName name := i};
 }
