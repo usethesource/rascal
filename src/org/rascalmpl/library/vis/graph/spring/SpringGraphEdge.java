@@ -20,7 +20,7 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -82,7 +82,7 @@ public class SpringGraphEdge extends Figure {
 		float vx = to.xdistance(getFrom());
 		float vy = to.ydistance(getFrom());
 		
-		float dlen = PApplet.mag(vx, vy);
+		float dlen = FigureApplet.mag(vx, vy);
 		//dlen = (dlen == 0) ? .0001f : dlen;
 
 		//float attract = G.attract(dlen);

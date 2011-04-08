@@ -11,7 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.tree;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
+
 
 /**
  * Auxiliary class for Tree layout.
@@ -55,12 +56,12 @@ public class TreeNodeRaster {
 	 * Add -- add an element to the raster
 	 */
 	public void add(float position, float top, float width, float height){
-		int itop = PApplet.round(top);
-		int ibot = PApplet.round(top + height);
+		int itop = FigureApplet.round(top);
+		int ibot = FigureApplet.round(top + height);
 		if(ibot > RMAX){
 			extend(ibot);
 		}
-		int l = PApplet.round(position + width/2);
+		int l = FigureApplet.round(position + width/2);
 		for(int i = itop; i < ibot; i++){
 			last[i] = l;
 		}
@@ -72,15 +73,15 @@ public class TreeNodeRaster {
 	 */
 	
 	public float leftMostPosition(float position, float top, float width, float height, float gap){
-		int itop = PApplet.round(top);
+		int itop = FigureApplet.round(top);
 		float l = position >= 0 ? position : 0;
-		int ibot = PApplet.round(top + height);
+		int ibot = FigureApplet.round(top + height);
 		if(ibot > RMAX){
 			extend(ibot);
 		}
 		for(int i = itop; i < ibot; i++){
-			l = PApplet.max(l, (last[i] == 0) ? width/2 : last[i] + gap + width/2);
-//			l = PApplet.max(l, last[i] + gap + width/2);
+			l = FigureApplet.max(l, (last[i] == 0) ? width/2 : last[i] + gap + width/2);
+//			l = FigureApplet.max(l, last[i] + gap + width/2);
 		}
 		return l;
 	}

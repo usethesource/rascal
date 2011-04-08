@@ -16,8 +16,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
+import org.rascalmpl.library.vis.FigureApplet;
 
 /**
  * A wedge is a vee-shaped figure mostly used in pie charts. 
@@ -79,16 +78,16 @@ public class Wedge extends Container {
 	private int quadrant(double angle){
 		if(debug)System.err.printf("angle 1 = %f\n", angle);
 		if(angle < 0)
-			return quadrant(angle +2 * PConstants.PI);
-		if( angle <=  PConstants.PI/2)
+			return quadrant(angle +2 * FigureApplet.PI);
+		if( angle <=  FigureApplet.PI/2)
 			return 1;
-		if( angle <=  PConstants.PI)
+		if( angle <=  FigureApplet.PI)
 			return 2;
-		if( angle <=  1.5 * PConstants.PI)
+		if( angle <=  1.5 * FigureApplet.PI)
 			return 3;
-		if(angle <= 2 * PConstants.PI)
+		if(angle <= 2 * FigureApplet.PI)
 			return 4;
-		return quadrant(angle - 2 * PConstants.PI);
+		return quadrant(angle - 2 * FigureApplet.PI);
 	}
 
 	@Override
@@ -98,20 +97,20 @@ public class Wedge extends Container {
 		float lw = getLineWidthProperty();
 		innerRadius = getInnerRadiusProperty();
 
-		fromAngle = PApplet.radians(getFromAngleProperty());
-		toAngle= PApplet.radians(getToAngleProperty());
+		fromAngle = FigureApplet.radians(getFromAngleProperty());
+		toAngle= FigureApplet.radians(getToAngleProperty());
 		
 		if(toAngle < fromAngle)
-			toAngle += 2 * PConstants.PI;
+			toAngle += 2 * FigureApplet.PI;
 		
 		
 		if(innerFig != null)	// Compute bounding box of inside object.
 			innerFig.bbox();
 		
-		float sinFrom = PApplet.sin(fromAngle);
-		float cosFrom = PApplet.cos(fromAngle);
-		float sinTo = PApplet.sin(toAngle);
-		float cosTo = PApplet.cos(toAngle);
+		float sinFrom = FigureApplet.sin(fromAngle);
+		float cosFrom = FigureApplet.cos(fromAngle);
+		float sinTo = FigureApplet.sin(toAngle);
+		float cosTo = FigureApplet.cos(toAngle);
 		
 		float rsinFrom = radius * abs(sinFrom);
 		float rcosFrom = radius * abs(cosFrom);
@@ -138,18 +137,18 @@ public class Wedge extends Container {
 		float raux = innerRadius + 0.5f*(radius-innerRadius);
 
 		switch(quadrant(middleAngle)){
-		case 1:	IX = raux * PApplet.cos(middleAngle);
-				IY = raux * PApplet.sin(middleAngle);
+		case 1:	IX = raux * FigureApplet.cos(middleAngle);
+				IY = raux * FigureApplet.sin(middleAngle);
 				break;
 		case 2:
-				IX = -raux * PApplet.cos(PConstants.PI - middleAngle);
-				IY = raux * PApplet.sin(PConstants.PI - middleAngle);
+				IX = -raux * FigureApplet.cos(FigureApplet.PI - middleAngle);
+				IY = raux * FigureApplet.sin(FigureApplet.PI - middleAngle);
 				break;
-		case 3:	IX = -raux * PApplet.cos(middleAngle - PConstants.PI);
-				IY = -raux * PApplet.sin(middleAngle - PConstants.PI);
+		case 3:	IX = -raux * FigureApplet.cos(middleAngle - FigureApplet.PI);
+				IY = -raux * FigureApplet.sin(middleAngle - FigureApplet.PI);
 				break;
-		case 4:	IX = raux * PApplet.cos(2 *  PConstants.PI - middleAngle);
-				IY = -raux * PApplet.sin(2 *  PConstants.PI - middleAngle);
+		case 4:	IX = raux * FigureApplet.cos(2 *  FigureApplet.PI - middleAngle);
+				IY = -raux * FigureApplet.sin(2 *  FigureApplet.PI - middleAngle);
 				break;
 		}
 		
@@ -230,18 +229,18 @@ public class Wedge extends Container {
 	 */
 	void arcVertex(float r, float fromAngle, float toAngle){
 		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
-	    if(abs(toAngle - fromAngle) < PConstants.PI/2){
+	    if(abs(toAngle - fromAngle) < FigureApplet.PI/2){
 			float middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
-			float middleR = abs(r / PApplet.cos(middleAngle));	// radius of control point M
+			float middleR = abs(r / FigureApplet.cos(middleAngle));	// radius of control point M
 			
-			float Mx = centerX + middleR * PApplet.cos(fromAngle + middleAngle);	// coordinates of M
-			float My = centerY + middleR * PApplet.sin(fromAngle + middleAngle);
+			float Mx = centerX + middleR * FigureApplet.cos(fromAngle + middleAngle);	// coordinates of M
+			float My = centerY + middleR * FigureApplet.sin(fromAngle + middleAngle);
 			
-			float Fx = centerX + r * PApplet.cos(fromAngle);	// coordinates of start point
-			float Fy = centerY + r * PApplet.sin(fromAngle);
+			float Fx = centerX + r * FigureApplet.cos(fromAngle);	// coordinates of start point
+			float Fy = centerY + r * FigureApplet.sin(fromAngle);
 			
-			float Tx = centerX + r * PApplet.cos(toAngle);		// coordinates of end point
-			float Ty = centerY + r * PApplet.sin(toAngle);
+			float Tx = centerX + r * FigureApplet.cos(toAngle);		// coordinates of end point
+			float Ty = centerY + r * FigureApplet.sin(toAngle);
 			if(debug){
 				System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
 								fromAngle, middleAngle, toAngle, r, middleR);
@@ -338,16 +337,16 @@ public class Wedge extends Container {
 	public boolean mouseInside(int mousex, int mousey){
 		float dx = mousex - centerX;
 		float dy = mousey - centerY;
-		float dist = PApplet.sqrt(dx*dx + dy*dy);
+		float dist = FigureApplet.sqrt(dx*dx + dy*dy);
 		float angle;
 		if(dx > 0 && dy > 0)
-			angle = PApplet.asin(dy/dist);
+			angle = FigureApplet.asin(dy/dist);
 		else if(dx < 0 && dy > 0)
-			angle = PConstants.PI  - PApplet.asin(dy/dist);
+			angle = FigureApplet.PI  - FigureApplet.asin(dy/dist);
 		else if (dx < 0 && dy < 0)
-			angle = PConstants.PI + PApplet.asin(-dy/dist);
+			angle = FigureApplet.PI + FigureApplet.asin(-dy/dist);
 		else 
-			angle = 2 * PConstants.PI - PApplet.asin(-dy/dist);
+			angle = 2 * FigureApplet.PI - FigureApplet.asin(-dy/dist);
 		
 		return dist > innerRadius && dist <  radius &&
 		       angle > fromAngle && angle < toAngle;

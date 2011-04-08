@@ -28,7 +28,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 public class Choice extends Figure {
 	
@@ -95,7 +95,7 @@ public class Choice extends Figure {
 		this.setTop(top);
 		fpa.setBackground(new Color(getFillColorProperty()));
 		choice.setBackground(new Color(getFillColorProperty()));
-		choice.setLocation(PApplet.round(left), PApplet.round(top));
+		choice.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 	
 	@Override

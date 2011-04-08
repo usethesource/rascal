@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 
 public class ComputedColorProperty  implements IColorPropertyValue  {

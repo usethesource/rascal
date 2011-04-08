@@ -78,7 +78,7 @@ public class LatticeGraphNode {
 					/ 2);
 			// if (mousePressed) {
 			// // System.err.println("Pressed");
-			// FigurePApplet fpa = figure.fpa;
+			// IFigureApplet fpa = figure.fpa;
 			// fpa.stroke(255, 0, 0);
 			// fpa.strokeWeight(1);
 			// // fpa.noFill();

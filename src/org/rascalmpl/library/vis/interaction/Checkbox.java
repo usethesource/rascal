@@ -29,7 +29,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 public class Checkbox extends Figure {
 											
@@ -103,7 +103,7 @@ public class Checkbox extends Figure {
 		this.setLeft(left);
 		this.setTop(top);
 		checkbox.setBackground(new Color(getFillColorProperty()));
-		checkbox.setLocation(PApplet.round(left), PApplet.round(top));
+		checkbox.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 	
 	@Override

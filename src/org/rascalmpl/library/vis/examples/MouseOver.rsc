@@ -22,7 +22,7 @@ public void box10(){
 }
 
 public FProperty tip(str S){ 
-	return mouseOver(box([fillColor("yellow")], text([fontColor("green")], S)));
+	return mouseOver(box(text(S, [fontColor("green")]), [fillColor("yellow")]));
 }
 
 public void mo1(){
