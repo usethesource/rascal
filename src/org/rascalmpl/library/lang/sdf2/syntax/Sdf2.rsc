@@ -210,8 +210,8 @@ syntax OptExp = Present: "e" IntCon |
 start syntax Module = Module: "module" ModuleName ImpSection* Sections
                       ;
 
-syntax ModuleName = Unparameterized: ModuleId |
-                    Parameterized: ModuleId "[" Syms "]"
+syntax ModuleName = Unparameterized: ModuleId id |
+                    Parameterized: ModuleId id "[" Syms actuals "]"
                     - "aliases"
                     - "lexical"
                     - "priorities"
