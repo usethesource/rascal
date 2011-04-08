@@ -175,7 +175,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                            for(variableTuple <- variables){
                               str variable = variableTuple.var;
                               InitDeclarator initDecl = variableTuple.initDecl;
-                              list[str] modifiers = findModifiers(specs, initDecl);
+                              tuple[list[str], Declarator] modifiers = findModifiers(specs, initDecl);
                               typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                            }
                         }
@@ -192,7 +192,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                            for(variableTuple <- variables){
                               str variable = variableTuple.var;
                               InitDeclarator initDecl = variableTuple.initDecl;
-                              list[str] modifiers = findModifiers(specs, initDecl);
+                              tuple[list[str], Declarator] modifiers = findModifiers(specs, initDecl);
                               typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                            }
                         }
@@ -345,7 +345,7 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 ;
 
 
-map[str name, tuple[str var, list[str] modifiers] cType] typeDefs = (); // Name to type mapping.
+map[str name, tuple[str var, tuple[list[str], Declarator] modifiers] cType] typeDefs = (); // Name to type mapping.
 
 private str findType(Specifier* specs){
 	str cType = "int"; // If no type is defined the type is int.
@@ -393,23 +393,7 @@ private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "do
 
 private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
 
-private list[str] walkOverDeclarator(Declarator decl, list[str] modifiers){
-	if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_),_*] := decl){
-		return walkOverDeclarator(theDecl.decl, modifiers);
-	}else if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("ArrayDeclarator")),_*])),_),_*] := decl){
-		modifiers += "[<theDecl.exp>]";
-		return walkOverDeclarator(theDecl.decl, modifiers);
-	}else if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_),_*] := decl){
-		modifiers += "(<theDecl.params>)";
-		return walkOverDeclarator(theDecl.decl, modifiers);
-	}else if([_*,theDecl:appl(prod(_,_,attrs([_*,term(cons("PointerDeclarator")),_*])),_),_*] := decl){
-		modifiers += "*";
-		return walkOverDeclarator(theDecl.decl, modifiers);
-	}
-	return modifiers;
-}
-
-private list[str] findModifiers(Specifier* specs, InitDeclarator initDecl){
+private tuple[list[str], Declarator] findModifiers(Specifier* specs, InitDeclarator initDecl){
 	list[str] modifiers = [];
 	
 	modifiers = for(spec <- specs, "<spec>" notin cTypes){
@@ -422,9 +406,7 @@ private list[str] findModifiers(Specifier* specs, InitDeclarator initDecl){
 			}
 	}
 	
-	modifiers = walkOverDeclarator(initDecl.decl, modifiers);
-	
-	return modifiers;
+	return <modifiers, initDecl.decl>;
 }
 
 private str findVariableInDeclarator(Declarator decl){
