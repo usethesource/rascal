@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -35,6 +36,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredConstructorError;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class NodePattern extends AbstractMatchingResult {
@@ -218,7 +220,14 @@ public class NodePattern extends AbstractMatchingResult {
 			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
 				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
 					 if (d.match(signature)) {
-						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qName)), signature);
+						 String cons = Names.name(Names.lastName(qName));
+						Type constructor = env.getConstructor(d.getReturnType(), cons, signature);
+						 
+						 if (constructor == null) {
+							 // it was a function, not a constructor!
+							 throw new UndeclaredConstructorError(cons, signature, ctx, qName);
+						 }
+						return constructor;
 					 }
 				 }
 			 }
