@@ -43,18 +43,18 @@ import org.rascalmpl.values.uptr.Factory;
  */
 public class GlobalEnvironment {
 	/** The heap of Rascal */
-	private final Map<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
+	private final HashMap<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		
 	/** Normalizing rules are a global feature */
-	private final Map<Type, List<RewriteRule>> ruleEnvironment = new HashMap<Type, List<RewriteRule>>();
+	private final HashMap<Type, List<RewriteRule>> ruleEnvironment = new HashMap<Type, List<RewriteRule>>();
 	
 	/** Keeping track of module locations */
-	private final Map<String, URI> moduleLocations = new HashMap<String,URI>();
-	private final Map<URI, String> locationModules = new HashMap<URI,String>();
+	private final HashMap<String, URI> moduleLocations = new HashMap<String,URI>();
+	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
 	
 	/** Keeping track of generated parsers */
-	private final Map<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
-	private final Map<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
+	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
+	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
 	
 	public void clear() {
 		moduleEnvironment.clear();
@@ -196,61 +196,31 @@ public class GlobalEnvironment {
 	}
 	
 	/**
-	 * Retrieves a parser for a module. If a similar parser exists for another module,
-	 * based on an equal set of productions, this parser is returned instead.
+	 * Retrieves a parser for a module.
 	 * 
 	 * @param module
 	 * @param productions
 	 */
 	private Class<IGTD> getParser(Map<String,ParserTuple> store, String module, ISet productions) {
 		ParserTuple parser = store.get(module);
-		if (parser == null) {
-			for (ParserTuple g : store.values()) {
-				if (g.getProductions().isEqual(productions)) {
-					// there is a parser for the same syntax, but stored with a different module
-					store.put(module, g);
-					return g.getParser();
-				}
-			}
-			
-			// there is no parser, not even for another module with the same productions
-			return null;
-		}
-		else if (!parser.getProductions().isEqual(productions)) {
-			// there is a parser, but it is not for the same syntax
-			return null;
+		if(parser != null && parser.getProductions().isEqual(productions)) {
+			return parser.getParser();
 		}
 		
-		// there is a parser and its for the same syntax
-		return parser.getParser();
+		return null;
 	}
 	
 	public void storeObjectParser(String module, ISet productions, Class<IGTD> parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
 	}
 	
-	private void storeParser(Map<String,ParserTuple> store, String module, ISet productions, Class<IGTD> parser) {
-		ParserTuple newT = new ParserTuple(productions, parser);
-		ParserTuple old = store.get(module);
-		
-		if (old != null) {
-			// all modules for the old production set can be updated now
-			for (String m : store.keySet()) {
-				ParserTuple mt = store.get(m);
-				
-				if (mt != null && mt.getProductions().isEqual(old.getProductions())) {
-					// there is a parser for the same syntax, but stored with a different module
-					store.put(m, newT);
-				}
-			}
-		}
-		else {
-			store.put(module, newT);
-		}
-	}
-	
 	public void storeRascalParser(String module, ISet productions, Class<IGTD> parser) {
 		storeParser(rascalParsersForModules, module, productions, parser);
+	}
+	
+	private static void storeParser(HashMap<String, ParserTuple> store, String module, ISet productions, Class<IGTD> parser) {
+		ParserTuple newT = new ParserTuple(productions, parser);
+		store.put(module, newT);
 	}
 	
 	public Set<String> getDependingModules(String mod) {
@@ -265,9 +235,9 @@ public class GlobalEnvironment {
 		return result;
 	}
 	
-	private class ParserTuple {
-		private ISet production;
-		private Class<IGTD> parser;
+	private static class ParserTuple {
+		private final ISet production;
+		private final Class<IGTD> parser;
 
 		public ParserTuple(ISet productions, Class<IGTD> parser) {
 			this.production = productions;
@@ -282,6 +252,4 @@ public class GlobalEnvironment {
 			return parser;
 		}
 	}
-
-	
 }
