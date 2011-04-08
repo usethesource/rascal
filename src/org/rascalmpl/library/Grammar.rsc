@@ -48,13 +48,17 @@ The intended semantics are that
     'others' means '...', which is substituted for a choice among the other definitions
     'restrict' means the language defined by rhs, but predicated on a certain lookahead restriction
 } 
-data Production = \choice(Symbol rhs, set[Production] alternatives)                  
+data Production = \choice(Symbol rhs, set[Production] alternatives)
+                // will be renamed to 'prio'                           
                 | \first(Symbol rhs, list[Production] choices)
-                | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)               
+                | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)
+                // deprecated:      
                 | \diff(Symbol rhs, Production language, set[Production] alternatives)
+                // deprecated:
                 | \restrict(Symbol rhs, Production language, set[Production] restrictions)
                 | \others(Symbol rhs)
                 | \action(Symbol rhs, Production prod, Tree action)
+                | \action(Symbol rhs, Tree action) // for amb nodes
                 ;
 
 @doc{
