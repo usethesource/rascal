@@ -223,7 +223,7 @@ syntax Specifier = Identifier: Identifier |
                    "extern" |
                    "static" |
                    "auto" |
-                   "register" |
+                   "register"
                    ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" // TODO Disallow typedef specifier and such.
