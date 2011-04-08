@@ -8,6 +8,8 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module C
 
+import ParseTree;
+
 syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
@@ -168,13 +170,13 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
+syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specChildren);
-                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
-                              for(variableTuple <- variables){
+                              list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
+                              for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                                  str variable = variableTuple.var;
                                  InitDeclarator initDecl = variableTuple.initDecl;
                                  tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl);
@@ -182,32 +184,14 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarator ";" {
                               }
                            }
                            
-                           str declType = findType(specChildren);
-                           if("<declType>" notin typeDefs){
-                              fail;
-                           } // May be ambiguous with "Exp * Exp".
-                        }
-                     } |
-                     Specifier* specs ";" {
-                     	list[Tree] specChildren;
-                     	if(appl(_,specChildren) := specs){
-                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
+                           if(hasCustomType(specChildren)){
                               str declType = findType(specChildren);
-                              list[tuple[str,str]] variables = findVariableNames(initDeclarators);
-                              for(variableTuple <- variables){
-                                 str variable = variableTuple.var;
-                                 InitDeclarator initDecl = variableTuple.initDecl;
-                                 tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl);
-                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
-                              }
+                              if("<declType>" notin typeDefs){
+                                 fail;
+                              } // May be ambiguous with "Exp * Exp".
                            }
-                           
-                           str declType = findType(specChildren);
-                           if("<declType>" notin typeDefs){
-                              fail;
-                           } // May be ambiguous with "Exp * Exp".
                         }
-                     }  // TODO: Avoid
+                     }
                      ;
 
 syntax InitDeclarator = Declarator decl |
@@ -369,25 +353,25 @@ private str findType(list[Tree] specs){
     }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := specs){
        cType = "double";
     }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specs){
-       cType = identifier;
+       cType = "<identifier>";
     }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := specs){
-       cType = theStruct;
+       cType = "<theStruct>";
     }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := specs){
-       cType = theStruct;
+       cType = "<theStruct>";
     }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := specs){
-       cType = theStruct;
+       cType = "<theStruct>";
     }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := specs){
-       cType = theUnion;
+       cType = "<theUnion>";
     }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := specs){
-       cType = theUnion;
+       cType = "<theUnion>";
     }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := specs){
-       cType = theUnion;
+       cType = "<theUnion>";
     }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := specs){
-       cType = theEnum;
+       cType = "<theEnum>";
     }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := specs){
-       cType = theEnum;
+       cType = "<theEnum>";
     }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specs){
-       cType = theEnum;
+       cType = "<theEnum>";
     }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specs){
        cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
     }
@@ -399,10 +383,23 @@ private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "do
 
 private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
 
+private bool hasCustomType(list[Tree] specs){
+	for(spec <- specs, "<spec>" notin cTypes){
+		if("<spec>" != "typedef"){
+			if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
+				;
+			}else{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 private tuple[list[str], Declarator] findModifiers(list[Tree] specs, InitDeclarator initDecl){
 	list[str] modifiers = [];
 	
-	modifiers = for(spec <- specChildren, "<spec>" notin cTypes){
+	modifiers = for(spec <- specs, "<spec>" notin cTypes){
 		if("<spec>" != "typedef"){
 			if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
 				;
