@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 public class Rotate extends Figure {
 	private Figure figure;
@@ -36,7 +36,7 @@ public class Rotate extends Figure {
 		super(fpa, inherited);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
-		angle = PApplet.radians(a);
+		angle = FigureApplet.radians(a);
 		figure = FigureFactory.make(fpa, c, properties, ctx);
 	}
 
@@ -46,8 +46,8 @@ public class Rotate extends Figure {
 		
 		figure.bbox();
 		
-		sina = abs(PApplet.sin(angle));
-		cosa = abs(PApplet.cos(angle));
+		sina = abs(FigureApplet.sin(angle));
+		cosa = abs(FigureApplet.cos(angle));
 		
 		float hanch = figure.getHanchorProperty();
 		float vanch = figure.getHanchorProperty();

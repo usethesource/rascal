@@ -30,8 +30,8 @@ import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 import  org.rascalmpl.library.vis.graph.layered.Direction;
+import org.rascalmpl.library.vis.FigureApplet;
 
-import processing.core.PApplet;
 
 /**
 
@@ -345,7 +345,7 @@ public class LayeredGraph extends Figure {
 	 */
 	private void computeGraphLayout(){
 		@SuppressWarnings("unused")  // TODO: Use W as width
-		int W = PApplet.round(1.5f * PApplet.sqrt(nodes.size()) + 1); 
+		int W = FigureApplet.round(1.5f * FigureApplet.sqrt(nodes.size()) + 1); 
 		
 		if(debug)
 			printGraph("Initial graph");

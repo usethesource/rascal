@@ -19,7 +19,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
@@ -62,7 +62,7 @@ public class Pack extends Compose {
 			surface += fig.width * fig.height;
 			ratio = (ratio +fig.height/fig.width)/2;
 		}
-		float opt = PApplet.sqrt(surface);
+		float opt = FigureApplet.sqrt(surface);
 		width = opt;
 		height = ratio * opt;
 		//width = opt/maxw < 1.2 ? 1.2f * maxw : 1.2f*opt;

@@ -17,9 +17,11 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.FigureApplet;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
+// import processing.core.FigureApplet;
+// import processing.core.FigureApplet;
+
 
 
 /**
@@ -37,7 +39,7 @@ public class Ellipse extends Container {
 	
 	@Override
 	void drawContainer(){
-		fpa.ellipseMode(PConstants.CORNERS);
+		fpa.ellipseMode(FigureApplet.CORNERS);
 		fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
 	}
 	
@@ -63,17 +65,17 @@ public class Ellipse extends Container {
 		
 		if(fromX == X)
 			fromX += 0.00001;
-        float theta = PApplet.atan((fromY - Y) / (fromX - X));
+        float theta = FigureApplet.atan((fromY - Y) / (fromX - X));
         if(theta < 0){
         	if(fromX < X )
-        		theta += PConstants.PI;
+        		theta += FigureApplet.PI;
         } else {
         	if(fromX < X )
-        		theta += PConstants.PI;
+        		theta += FigureApplet.PI;
         }
-        float sint = PApplet.sin(theta);
-        float cost = PApplet.cos(theta);
-        float r = height * width / (4 * PApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
+        float sint = FigureApplet.sin(theta);
+        float cost = FigureApplet.cos(theta);
+        float r = height * width / (4 * FigureApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
         float IX = X + r * cost;
         float IY = Y + r * sint;
         
@@ -83,7 +85,7 @@ public class Ellipse extends Container {
         	toArrow.bbox();
         	fpa.pushMatrix();
         	fpa.translate(left + IX, top + IY);
-        	fpa.rotate(PApplet.radians(-90) + theta);
+        	fpa.rotate(FigureApplet.radians(-90) + theta);
         	toArrow.draw(-toArrow.width/2, 0);
         	fpa.popMatrix();
         }
@@ -97,7 +99,7 @@ public class Ellipse extends Container {
 		if(isVisible()){
 			fpa.stroke(255, 0,0);
 			fpa.noFill();
-			fpa.ellipseMode(PConstants.CORNERS);
+			fpa.ellipseMode(FigureApplet.CORNERS);
 			fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
 		}
 	}

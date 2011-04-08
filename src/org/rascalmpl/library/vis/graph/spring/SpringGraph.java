@@ -25,7 +25,7 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 /**
 
@@ -90,7 +90,7 @@ public class SpringGraph extends Figure {
 
 		// float connectivity = edges.length()/nodes.length();
 		springConstant = // (connectivity > 1 ? 0.5f : 0.3f) *
-		                 PApplet.sqrt((width * height) / nodes.length());
+		                 FigureApplet.sqrt((width * height) / nodes.length());
 		if (debug)
 			System.err.printf("springConstant = %f\n", springConstant);
 		springConstant2 = springConstant * springConstant;

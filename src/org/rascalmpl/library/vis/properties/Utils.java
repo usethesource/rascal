@@ -40,7 +40,7 @@ public class Utils {
 	 * Get a boolean argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. shapeConnected(true)
-	 * @param fpa	The FigurePApplet
+	 * @param fpa	The IFigureApplet
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -67,7 +67,7 @@ public class Utils {
 	 * Get an integer argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. lineWidth(10)
-	 * @param fpa	The FigurePApplet
+	 * @param fpa	The IFigureApplet
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -93,7 +93,7 @@ public class Utils {
 	 * Get a string argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. fontName("Helvetica")
-	 * @param fpa	The FigurePApplet
+	 * @param fpa	The IFigureApplet
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -122,7 +122,7 @@ public class Utils {
 	 * Get a real argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. width(25.7)
-	 * @param fpa	The FigurePApplet
+	 * @param fpa	The IFigureApplet
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -152,7 +152,7 @@ public class Utils {
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. lineWidth(10)
 	 * @param i		The argument position of the argument in the constructor
-	 * @param fpa	The FigurePApplet
+	 * @param fpa	The IFigureApplet
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -185,7 +185,7 @@ public class Utils {
 	 * Get an color argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. fillColor("blue" or fillColor(color(0,0,255))
-	 * @param fpa	The FigurePApplet
+	 * @param fpa	The IFigureApplet
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */

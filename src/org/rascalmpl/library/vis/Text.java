@@ -14,8 +14,7 @@ package org.rascalmpl.library.vis;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.IStringPropertyValue;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
+import org.rascalmpl.library.vis.FigureApplet;
 
 /**
  * Text element.
@@ -34,7 +33,7 @@ public class Text extends Figure {
 	private float hfill = 0;
 	private float vfill = 0;
 	
-	private int textAlignH = PConstants.CENTER;	
+	private int textAlignH = FigureApplet.CENTER;	
 
 	public Text(IFigureApplet fpa, IPropertyManager properties, IStringPropertyValue text) {
 		super(fpa, properties);
@@ -46,7 +45,7 @@ public class Text extends Figure {
 	public
 	void bbox(){
 		float halign = getHalignProperty();
-		textAlignH = (halign < 0.5f) ? PConstants.LEFT : (halign > 0.5f) ? PConstants.RIGHT : PConstants.CENTER;
+		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 
 		applyFontProperties();
 		topAnchor = fpa.textAscent() ;
@@ -59,7 +58,7 @@ public class Text extends Figure {
 			width = max(width, fpa.textWidth(lines[i]));
 		
 		if(nlines > 1){
-			hfill = textAlignH == PConstants.LEFT ? 0 : textAlignH == PConstants.RIGHT ? width : width/2;
+			hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? width : width/2;
 			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
 			topAnchor = bottomAnchor = getVanchorProperty() * height;
 		} else {
@@ -73,9 +72,9 @@ public class Text extends Figure {
 		}
 		*/
 		if(getTextAngleProperty() != 0){
-			float angle = PApplet.radians(getTextAngleProperty());
-			float sina = PApplet.sin(angle);
-			float cosa = PApplet.cos(angle);
+			float angle = FigureApplet.radians(getTextAngleProperty());
+			float sina = FigureApplet.sin(angle);
+			float cosa = FigureApplet.cos(angle);
 			float h1 = abs(width * sina);
 			float w1 = abs(width * cosa);
 			float h2 = abs(height *  cosa);
@@ -91,7 +90,7 @@ public class Text extends Figure {
 			
 			hfill = width/2;
 			if(nlines > 1){
-				vfill = textAlignH == PConstants.LEFT ? height : textAlignH == PConstants.RIGHT ? 0 : height/2;
+				vfill = textAlignH == FigureApplet.LEFT ? height : textAlignH == FigureApplet.RIGHT ? 0 : height/2;
 			} else {
 				vfill = height/2;
 			}
@@ -113,16 +112,16 @@ public class Text extends Figure {
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 
-			fpa.textAlign(textAlignH,PConstants.CENTER);
+			fpa.textAlign(textAlignH,FigureApplet.CENTER);
 			if(angle != 0){
 				fpa.pushMatrix();
 				fpa.translate(left + hfill, top + vfill);
-				fpa.rotate(PApplet.radians(angle));
+				fpa.rotate(FigureApplet.radians(angle));
 				fpa.text(txt.getValue(), 0, 0);
 				fpa.popMatrix();
 			} else {
 				fpa.text(txt.getValue(), left + hfill, top + height/2);
-//				vlp.rectMode(PConstants.CORNERS);
+//				vlp.rectMode(FigureApplet.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}
 		}

@@ -23,9 +23,7 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import processing.core.PApplet;
-import processing.core.PConstants;
-
+import org.rascalmpl.library.vis.FigureApplet;
 /**
  * Figures are the foundation of Rascal visualization. They are based on a
  * bounding box + anchor model. The bounding box defines the maximal dimensions
@@ -355,13 +353,13 @@ public abstract class Figure implements Comparable<Figure> {
 			fromX += 0.00001;
 		float s = (fromY - Y) / (fromX - X);
 
-		float theta = PApplet.atan(s);
+		float theta = FigureApplet.atan(s);
 		if (theta < 0) {
 			if (fromX < X)
-				theta += PConstants.PI;
+				theta += FigureApplet.PI;
 		} else {
 			if (fromX < X)
-				theta += PConstants.PI;
+				theta += FigureApplet.PI;
 		}
 		float IX;
 		float IY;
@@ -393,7 +391,7 @@ public abstract class Figure implements Comparable<Figure> {
 			toArrow.bbox();
 			fpa.pushMatrix();
 			fpa.translate(left + IX, top + IY);
-			fpa.rotate(PApplet.radians(-90) + theta);
+			fpa.rotate(FigureApplet.radians(-90) + theta);
 			toArrow.draw(-toArrow.width / 2, 0);
 			fpa.popMatrix();
 		}

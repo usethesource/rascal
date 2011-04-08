@@ -26,7 +26,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
+
 
 public class Button extends Figure {
 	final private RascalFunction callback;
@@ -84,7 +85,7 @@ public class Button extends Figure {
 		this.setLeft(left);
 		this.setTop(top);
 		button.setBackground(new Color(getFillColorProperty()));
-		button.setLocation(PApplet.round(left), PApplet.round(top));
+		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 	
 	@Override

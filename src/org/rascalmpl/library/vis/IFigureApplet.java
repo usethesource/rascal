@@ -83,4 +83,5 @@ public interface IFigureApplet {
 	public void validate();
 	public void stroke(float arg0, float arg1, float arg2);
 	public String getName();
+	// Needed by SpringGraph
 }

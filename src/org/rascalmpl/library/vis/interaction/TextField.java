@@ -31,7 +31,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 
-import processing.core.PApplet;
+import org.rascalmpl.library.vis.FigureApplet;
 
 public class TextField extends Figure {
 											// Function of type Figure (list[str]) to compute new figure
@@ -102,8 +102,8 @@ public class TextField extends Figure {
 		width = getWidthProperty();
 		height = getHeightProperty();
 		
-		field.setSize(PApplet.round(width), PApplet.round(height));
-		field.setPreferredSize(new Dimension(PApplet.round(width), PApplet.round(height)));
+		field.setSize(FigureApplet.round(width), FigureApplet.round(height));
+		field.setPreferredSize(new Dimension(FigureApplet.round(width), FigureApplet.round(height)));
 		width = field.getWidth();
 		height = field.getHeight();
 	}
@@ -145,7 +145,7 @@ public class TextField extends Figure {
 		fpa.setBackground(new Color(getFillColorProperty()));
 		//field.setBackground(new Color(getFillColorProperty()));
 		field.setForeground(validated ? new Color(getFontColorProperty()) : falseColor);
-		field.setLocation(PApplet.round(left), PApplet.round(top));
+		field.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 	
 	@Override
