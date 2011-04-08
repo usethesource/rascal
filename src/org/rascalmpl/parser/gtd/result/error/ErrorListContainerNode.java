@@ -127,9 +127,9 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			for(int i = 0; i < nrOfCycleElements; ++i){
-				IConstructor element = cycleElements[i + 1].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
+				IConstructor element = cycleElements[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
 				if(element == null) return null;
-				convertedCycle[i] = element;
+				convertedCycle[i + 1] = element;
 			}
 			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}

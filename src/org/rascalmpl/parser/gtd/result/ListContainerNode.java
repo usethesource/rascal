@@ -125,9 +125,9 @@ public class ListContainerNode extends AbstractContainerNode{
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			for(int i = 0; i < nrOfCycleElements; ++i){
-				IConstructor element = cycleElements[i + 1].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+				IConstructor element = cycleElements[i].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
 				if(element == null) return null;
-				convertedCycle[i] = element;
+				convertedCycle[i + 1] = element;
 			}
 			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}

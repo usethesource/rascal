@@ -76,7 +76,7 @@ public class ErrorListBuilder{
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			for(int i = 0; i < nrOfCycleElements; ++i){
-				convertedCycle[i] = cycleElements[i + 1].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
+				convertedCycle[i + 1] = cycleElements[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
 			}
 			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}
