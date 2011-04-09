@@ -21,11 +21,10 @@ import org.rascalmpl.tasks.IFact;
 public abstract class AbstractDepFact<V, ValueStoreType> extends
 		AbstractFact<V, ValueStoreType> implements IDependencyListener {
 
-	AbstractDepFact(Object key) {
-		super(key);
+	AbstractDepFact(Object key, String keyName) {
+		super(key, keyName);
 	}
 
-	protected final Set<IFact<?>> dependencies = new HashSet<IFact<?>>();
 
 
 	@Override
@@ -39,9 +38,4 @@ public abstract class AbstractDepFact<V, ValueStoreType> extends
 		
 	}
 
-	@Override
-	public synchronized void setDepends(Collection<IFact<V>> deps) {
-		dependencies.clear();
-		dependencies.addAll(deps);
-	}
 }

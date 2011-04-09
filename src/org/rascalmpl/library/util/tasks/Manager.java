@@ -72,13 +72,16 @@ public class Manager {
 	}
 	
 	public IValue getFact(IValue tr, IConstructor key, IValue name, IEvaluatorContext ctx) {
-		return check(transaction(tr).getFact(ctx, Typeifier.toType(key), name), key, name, ctx);
+		IValue fact = transaction(tr).getFact(ctx, Typeifier.toType(key), name);
+		if(fact == null)
+			fact = null; // <- put breakpoint here!
+		return check(fact, key, name, ctx);
 		
 	}
 
 	private IValue check(IValue fact, IConstructor key, IValue name, IEvaluatorContext ctx) {
 		if(fact == null)
-			throw RuntimeExceptionFactory.noSuchKey(vf.string(key.toString() + ":" + name.toString()), 
+			throw RuntimeExceptionFactory.noSuchKey(vf.string(Typeifier.toType(key).toString() + ":" + name.toString()), 
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		else if(!fact.getType().isSubtypeOf(Typeifier.toType(key)))
 			throw new UnexpectedTypeError(Typeifier.toType(key), fact.getType(), ctx.getCurrentAST());
@@ -116,6 +119,10 @@ public class Manager {
 			registry.unregisterProducer(wrapper);
 			producers.remove(prod);
 		}
+	}
+	
+	public ITuple getDependencyGraph(IValue tr) {
+		return transaction(tr).getGraph();
 	}
 
 	protected IConstructor reify(IEvaluatorContext ctx, Type type) {

@@ -16,6 +16,8 @@ import static org.rascalmpl.tasks.IDependencyListener.Change.CHANGED;
 import static org.rascalmpl.tasks.IDependencyListener.Change.INVALIDATED;
 import static org.rascalmpl.tasks.IDependencyListener.Change.REMOVED;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,37 +26,36 @@ import org.rascalmpl.tasks.IFact;
 
 
 public abstract class AbstractFact<V,ValueStoreType> implements IFact<V> {
-	public static final int FACT_OK = 0;
-	public static final int FACT_DEPS_INVALID = 1;
-	public static final int FACT_DEPS_CHANGED = 2;
-
 	protected ValueStoreType value = null;
-	protected int status = FACT_DEPS_CHANGED;
+	protected int status = IFact.FACT_DEPS_CHANGED;
 	protected final Set<IDependencyListener> listeners = new HashSet<IDependencyListener>();
+	protected final Set<IFact<?>> dependencies = new HashSet<IFact<?>>();
 	protected final Object key;
+	protected final String keyName;
 
-	protected AbstractFact(Object key) {
+	protected AbstractFact(Object key, String keyName) {
 		this.key = key;
+		this.keyName = keyName;
 	}
 	@Override
 	public boolean isValid() {
-		return status == FACT_OK;
+		return status == IFact.FACT_OK;
 	}
 	
 	@Override
 	public void registerListener(IDependencyListener listener) {
-		listeners.remove(listener);
+		listeners.add(listener);
 	}
 
 	@Override
 	public void unregisterListener(IDependencyListener listener) {
-		listeners.add(listener);
+		listeners.remove(listener);
 	}
 
 	@Override
 	public void remove() {
 		for(IDependencyListener l : listeners) {
-			l.changed(this, REMOVED);
+			l.changed(this, REMOVED, null);
 		}
 		listeners.clear();
 		value = null;
@@ -62,23 +63,56 @@ public abstract class AbstractFact<V,ValueStoreType> implements IFact<V> {
 	
 	protected void notifyInvalidated() {
 		for(IDependencyListener f : listeners) {
-			f.changed(this, INVALIDATED);
+			f.changed(this, INVALIDATED, null);
 		}
 	}
 
 	protected void notifyChanged() {
 		for(IDependencyListener f : listeners) {
-			f.changed(this, CHANGED);
+			f.changed(this, CHANGED, null);
 		}
 	}
 
 	protected void notifyAvailable() {
 		for(IDependencyListener f : listeners) {
-			f.changed(this, AVAILABLE);
+			f.changed(this, AVAILABLE, null);
 		}
+	}
+	
+	public Collection<IDependencyListener> getListeners() {
+		return Collections.unmodifiableCollection(listeners);
 	}
 	
 	public Object getKey() {
 		return key;
+	}
+	
+	public String toString() {
+		return keyName;
+	}
+
+
+	@Override
+	public synchronized void setDepends(Collection<IFact<V>> deps) {
+		for(IFact<?> foo : dependencies) {
+			if(!deps.contains(foo))
+				foo.unregisterListener(this);
+		}
+		for(IFact<?> foo : deps) {
+			if(!dependencies.contains(foo))
+				foo.registerListener(this);
+		}
+		dependencies.clear();
+		dependencies.addAll(deps);
+	}
+
+	@Override
+	public synchronized Collection<IFact<?>> getDepends() {
+		return Collections.unmodifiableCollection(dependencies);
+	}
+	
+	@Override
+	public int getStatus() {
+		return status;
 	}
 }
