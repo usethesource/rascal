@@ -59,6 +59,7 @@ public class LayeredGraph extends Figure {
 	float hgap;
 	float vgap;
 	float MAXWIDTH;
+	private float DELTA;
 	private static final int INFINITY = 1000000;
 	
 	private static final boolean debug = true;
@@ -101,7 +102,7 @@ public class LayeredGraph extends Figure {
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
 
-			if(getRegistered(name) != null)
+			if(getRegisteredNodeId(name) != null)
 				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", v, ctx.getCurrentAST(), ctx.getStackTrace());
 		
 			LayeredGraphNode node = new LayeredGraphNode(name, fig);
@@ -171,7 +172,7 @@ public class LayeredGraph extends Figure {
 	 * @param name
 	 * @return
 	 */
-	public LayeredGraphNode getRegistered(String name) {
+	public LayeredGraphNode getRegisteredNodeId(String name) {
 		return registeredNodeIds.get(name);
 	}
 	
@@ -228,9 +229,21 @@ public class LayeredGraph extends Figure {
 		height = getHeightProperty();
 		hgap = getHGapProperty();
 		vgap = getVGapProperty();
+		
+		float maxNodeWidth = 0;
+		
+		for(LayeredGraphNode g : nodes){
+			g.bbox();
+			if(g.width() > maxNodeWidth){
+				maxNodeWidth = g.width();
+			}
+		}
+		DELTA = maxNodeWidth + hgap;
+		System.err.println("DELTA = " + DELTA);
 
 		computeGraphLayout();
 		translateToOrigin();
+		rotateToDirection();
 	}
 	
 	/**
@@ -265,6 +278,35 @@ public class LayeredGraph extends Figure {
 		}
 		width = maxx - minx;
 		height = maxy - miny;
+	}
+	
+	private void rotateToDirection(){
+		String dir = getDirection();
+		if(dir.length() == 0 || dir.equals("TB"))
+			return;
+		
+		if(dir.equals("BT")){
+			for (LayeredGraphNode n : nodes){
+				System.err.println("rotate: " + n.name + ": " + n.y + " -> " + (height- n.y));
+				n.y = height - n.y;
+			}
+			return;
+		}
+		float tmp;
+		if(dir.equals("LR")){
+			for (LayeredGraphNode n : nodes){
+				tmp = n.x; n.x = n.y; n.y = width - tmp;
+			}
+			
+		} else if(dir.equals("RL")){
+			for (LayeredGraphNode n : nodes){
+				tmp = n.x; n.x = width - n.y; n.y = tmp;
+			}
+		}
+		
+		tmp = width;
+		width = height;
+		height = tmp;
 	}
 
 	@Override
@@ -593,13 +635,12 @@ public class LayeredGraph extends Figure {
 			}
 		}
 		
-		return moveSourcesDown(moveSinksUp(layers));
+		return layers; //moveSourcesDown(moveSinksUp(layers));
 	}
 	
 	private LinkedList<LinkedList<LayeredGraphNode>> moveSinksUp(LinkedList<LinkedList<LayeredGraphNode>> layers){
 		for(int l = 0; l < layers.size(); l++){
 			LinkedList<LayeredGraphNode> layer = layers.get(l);
-			int d = -1;
 			LinkedList<LayeredGraphNode> moved = new LinkedList<LayeredGraphNode>();
 			for(int i = 0; i < layer.size(); i++){
 				LayeredGraphNode g = layer.get(i);
@@ -650,8 +691,14 @@ public class LayeredGraph extends Figure {
 			boolean downwards = from.isAbove(to);
 			int delta = downwards ? 1 : -1;
 			// Create virtual node
-			String vname =  from.name + "_" + to.name + "[" + (from.layer + delta) + "]";
-			if(debug)System.err.println("Creating virtual node " + vname + " between " + from.name + " and " + to.name);
+			
+			String fromName = from.name;
+			int fni = from.name.indexOf("_");
+			if(fni > 0)
+				fromName = fromName.substring(0, fni);
+			
+			String vname =  fromName + "_" + to.name + "[" + (from.layer + delta) + "]";
+			if(debug)System.err.println("Creating virtual node " + vname + " between " + fromName + " and " + to.name);
 			LayeredGraphNode virtual = new LayeredGraphNode(vname, null);
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			IString vfVname = vf.string(vname);
@@ -730,7 +777,6 @@ public class LayeredGraph extends Figure {
 			float w = 0;
 			for(int j = 0; j < layer.size(); j++){
 				LayeredGraphNode g = layer.get(j);
-				g.bbox();
 				w += g.width();
 			}
 			w += (layer.size() - 1) * hgap; // account for gaps between nodes
@@ -1173,7 +1219,7 @@ public class LayeredGraph extends Figure {
 		}
 	}
 
-	boolean useWidth = true;
+	boolean useWidth = false;
 	
 	private void placeBlock(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
 		if(dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT)
@@ -1183,12 +1229,11 @@ public class LayeredGraph extends Figure {
 	}
 	
 	private void placeBlockL(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
-		if(v.getX(dir) < 0){
+		if(v.getX(dir) == -1){
 			if(debug)System.err.println("placeBlockL: " + v.name + " x = " + v.getX(dir));
-			if(useWidth)
-				v.setX(dir, v.width()/2);
-			else
-				v.setX(dir, 0);
+			//v.setX(dir, useWidth ? v.width()/2 : 0);
+			v.setX(dir, 0);
+		
 			LayeredGraphNode w = v;
 			do {
 				if(debug)System.err.println("placeBlock: v = " + v.name + " w = " + w.name);
@@ -1196,16 +1241,17 @@ public class LayeredGraph extends Figure {
 					LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
 					LayeredGraphNode u = layer.get(w.pos-1).root;
 					placeBlockL(layers, u, dir);
-					float dw = useWidth ? (v.width() + u.width())/2 : 0;
+					//float dw = useWidth ? (v.width() + u.width())/2 : 0;
+					//float dw = useWidth ? MAXW : 0;
 					if(v.sink == v){
 						v.sink = u.sink;
 						if(debug)System.err.println("placeBlockL: " + v.name + ".sink => " + u.sink.name);
 					}
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - (hgap + dw));
+						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - DELTA /*(hgap + dw)*/);
 						if(debug)System.err.println("placeBlockL: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, max(v.getX(dir), u.getX(dir) + hgap + dw));
+						v.setX(dir, max(v.getX(dir), u.getX(dir) + DELTA /* hgap + dw*/));
 						if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
@@ -1217,9 +1263,11 @@ public class LayeredGraph extends Figure {
 	
 	private void placeBlockR(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
 		
-		if(v.getX(dir) < 0){
+		if(v.getX(dir) == -1){
 			if(debug)System.err.println("placeBlockR: " + v.name + " x = " + v.getX(dir) + ", sink = " + v.sink.name);
-			v.setX(dir, MAXWIDTH - (useWidth ? v.width()/2 : 0));
+			//v.setX(dir, MAXWIDTH - (useWidth ? v.width()/2 : 0));
+			//v.setX(dir, MAXWIDTH - (useWidth ? MAXW/2 : 0));
+			v.setX(dir, MAXWIDTH);
 			LayeredGraphNode w = v;
 			do {
 				if(debug)System.err.println("placeBlockR: v = " + v.name + " w = " + w.name);
@@ -1228,16 +1276,17 @@ public class LayeredGraph extends Figure {
 					
 					LayeredGraphNode u = layer.get(w.pos+1).root;
 					placeBlockR(layers, u, dir);
-					float dw = useWidth ? (v.width() + u.width())/2 : 0;
+					//float dw = useWidth ? MAXW : 0;
+					//float dw = useWidth ? (v.width() + u.width())/2 : 0;
 					if(v.sink == v){   // OK?
 						v.sink = u.sink;
 						if(debug)System.err.println("placeBlockR: " + v.name + ".sink => " + u.sink.name);
 					}
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - (hgap + dw));
+						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - DELTA /*(hgap + dw)*/);
 						if(debug)System.err.println("placeBlockR: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, min(v.getX(dir), u.getX(dir) - (hgap + dw)));
+						v.setX(dir, max(/*useWidth ? v.width()/2 :*/ 0, min(v.getX(dir), u.getX(dir) - DELTA /*(hgap + dw)*/)));
 						if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
@@ -1287,7 +1336,6 @@ public class LayeredGraph extends Figure {
 			float hlayer = 0;
 			for(LayeredGraphNode g : layer){
 				if(!g.isVirtual()){
-					g.bbox();
 					hlayer = max(hlayer, g.height());
 				}
 			}
@@ -1301,7 +1349,7 @@ public class LayeredGraph extends Figure {
 	
 	/**
 	 * 
-	 * Perform horizintal placement for all 4 alignment directions and average the resulting x coordinates
+	 * Perform horizontal placement for all 4 alignment directions and average the resulting x coordinates
 	 * @param layers	of the graph
 	 * @return			modified graph
 	 */
@@ -1337,10 +1385,10 @@ public class LayeredGraph extends Figure {
 			}
 
 		} else {
-						Direction dir = Direction.TOP_LEFT;
+			//			Direction dir = Direction.TOP_LEFT;
 			//			Direction dir = Direction.TOP_RIGHT;
 			//			Direction dir = Direction.BOTTOM_LEFT;
-			//			Direction dir = Direction.BOTTOM_RIGHT;
+						Direction dir = Direction.BOTTOM_RIGHT;
 
 			for(LayeredGraphNode g : nodes){
 					g.clearHorizontal();

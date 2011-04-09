@@ -60,7 +60,7 @@ public class Ellipse extends Container {
 	 * @param toArrow	the figure to be used as arrow
 	 */
 	@Override
-	public void connectFrom(float left, float top, float X, float Y, float fromX, float fromY,
+	public void connectArrowFrom(float left, float top, float X, float Y, float fromX, float fromY,
 			Figure toArrow){
 		
 		if(fromX == X)
@@ -79,7 +79,7 @@ public class Ellipse extends Container {
         float IX = X + r * cost;
         float IY = Y + r * sint;
         
-        fpa.line(left + fromX, top + fromY, left + IX, top + IY);
+   //     fpa.line(left + fromX, top + fromY, left + IX, top + IY);
         
         if(toArrow != null){
         	toArrow.bbox();

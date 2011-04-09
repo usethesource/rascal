@@ -368,7 +368,6 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 		computedValueChanged = true;
 		redraw();
 	}
-
 	
 	// ---------------------
 	
