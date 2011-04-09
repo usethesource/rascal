@@ -106,14 +106,14 @@ public class SpringGraphEdge extends Figure {
 				to.name + ": " + to.getX() + "," + to.getY() + ")");
 
 		if(toArrow != null){
-			getTo().figure.connectFrom(left, top, 
+			getTo().figure.connectArrowFrom(left, top, 
 					getTo().figX(), getTo().figY(), 
 					getFrom().figX(), getFrom().figY(),
 					toArrow
 			);
 
 			if(fromArrow != null)
-				getFrom().figure.connectFrom(left, top, 
+				getFrom().figure.connectArrowFrom(left, top, 
 						getFrom().figX(), getFrom().figY(), 
 						getTo().figX(), getTo().figY(),
 						fromArrow

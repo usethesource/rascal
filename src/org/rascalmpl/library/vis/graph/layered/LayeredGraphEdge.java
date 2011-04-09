@@ -33,21 +33,21 @@ public class LayeredGraphEdge extends Figure {
 	Figure toArrow;
 	Figure fromArrow;
 	boolean reversed = false;
-	private static boolean debug = false;
-	private static boolean useSplines = true;
+	private static boolean debug = true;
+	private static boolean useSplines = false;
 	
 	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IPropertyManager properties, 
 			IString fromName, IString toName,
 			IConstructor toArrowCons, IConstructor fromArrowCons, 
 			IEvaluatorContext ctx) {
 		super(fpa, properties);
-		this.from = G.getRegistered(fromName.getValue());
+		this.from = G.getRegisteredNodeId(fromName.getValue());
 		
 		if(getFrom() == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + fromName.getValue() + "\"",
 					fromName, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		to = G.getRegistered(toName.getValue());
+		to = G.getRegisteredNodeId(toName.getValue());
 		if(to == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
@@ -67,13 +67,13 @@ public class LayeredGraphEdge extends Figure {
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow, IEvaluatorContext ctx){
 		
 		super(fpa, properties);
-		this.from = G.getRegistered(fromName.getValue());
+		this.from = G.getRegisteredNodeId(fromName.getValue());
 		
 		if(getFrom() == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + fromName.getValue() + "\"",
 					fromName, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		to = G.getRegistered(toName.getValue());
+		to = G.getRegisteredNodeId(toName.getValue());
 		if(to == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
@@ -141,7 +141,7 @@ public class LayeredGraphEdge extends Figure {
 			points = new float[20];
 			cp = 0;
 			addPointToCurve(x, y);
-		} else{
+		} else {
 			x1 = x; y1 = y;
 		}
 	}
@@ -194,7 +194,7 @@ public class LayeredGraphEdge extends Figure {
 			x2 = (xc + points[i + 2]) * 0.5f;
 			y2 = (yc + points[i + 3]) * 0.5f;
 			fpa.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
-					(2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
+					         (2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
 			x1 = x2;
 			y1 = y2;
 		}
@@ -203,7 +203,7 @@ public class LayeredGraphEdge extends Figure {
 		x2 = points[cp - 2];
 		y2 = points[cp - 1];
 		fpa.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
-				(2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
+				         (2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
 		fpa.endShape();
 		points = null;
 	}
@@ -228,16 +228,11 @@ public class LayeredGraphEdge extends Figure {
 			float imScale = 0.4f;
 			float imX = getFrom().figX() + dx/2;
 			float imY = getFrom().figY() + dy * imScale;
+			
 			if(debug)System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",	getFrom().figX(), getFrom().figY(),	currentNode.figX(), currentNode.figY(), imX, imY);
 			
-			if(getFromArrow() != null){
-				if(debug)System.err.println("Drawing from arrow from " + getFrom().name);
-				getFrom().figure.connectFrom(left, top, getFrom().figX(), getFrom().figY(), imX, imY, getFromArrow());
-				beginCurve(imX, imY);
-			} else {
-				beginCurve(getFrom().figX(), getFrom().figY());
-				addPointToCurve(imX, imY);
-			}
+			beginCurve(getFrom().figX(), getFrom().figY());
+			addPointToCurve(imX, imY);
 
 			LayeredGraphNode nextNode = currentNode.out.get(0);
 			
@@ -254,7 +249,7 @@ public class LayeredGraphEdge extends Figure {
 				currentNode = nextNode;
 			}
 		
-			drawLastSegment(left, top, prevNode, currentNode);
+			drawLastSegment(left, top, imX, imY, prevNode, currentNode);
 			
 		} else {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
@@ -273,51 +268,55 @@ public class LayeredGraphEdge extends Figure {
 				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY());
 				addPointToCurve(left + node.figX() + w/2,        top + node.figY());
 				endCurve(left + node.figX() + w/2,        		 top + node.figY());
+				return;
 			}
+			
+			fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
+					 left + getTo().figX(), top + getTo().figY());
 			
 			if(fromArrow != null || toArrow != null){
 				if(reversed){
 					
-					if(toArrow != null)
+					if(toArrow != null){
 						if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-						getFrom().figure.connectFrom(left, top, 
+						getFrom().figure.connectArrowFrom(left, top, 
 								getFrom().figX(), getFrom().figY(),
 								getTo().figX(), getTo().figY(), 
 								toArrow
-					);
+						);
+					}
 						
 					if(fromArrow != null){
 						if(debug)System.err.println("[reversed] Drawing to arrow to " + getToOrg().name);
-						getTo().figure.connectFrom(left, top, 
+						getTo().figure.connectArrowFrom(left, top, 
 								getTo().figX(), getTo().figY(),
 								getFrom().figX(), getFrom().figY(), 
 								fromArrow
 						);
 					}
 				} else {
-					if(debug)System.err.println("Drawing to arrow to " + getToOrg().name);
-					getTo().figure.connectFrom(left, top, 
+					if(debug)System.err.println("Drawing to arrow to " + getTo().name);
+					if(toArrow != null){
+						getTo().figure.connectArrowFrom(left, top, 
 							getTo().figX(), getTo().figY(), 
 							getFrom().figX(), getFrom().figY(),
 							toArrow
-					);
-					if(fromArrow != null)
+						);
+					}
+					if(fromArrow != null){
 						if(debug)System.err.println("Drawing from arrow from " + getFrom().name);
-					   getFrom().figure.connectFrom(left, top, 
+					    getFrom().figure.connectArrowFrom(left, top, 
 							getFrom().figX(), getFrom().figY(), 
 							getTo().figX(), getTo().figY(),
 							fromArrow
-					);
-			}
-			} else {
-				if(debug)System.err.println("Drawing lines without arrows");
-				fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
-						 left + getTo().figX(), top + getTo().figY());
+					    );
+					}
+				}
 			}
 		}
 	}
 	
-	private void drawLastSegment(float left, float top, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
+	private void drawLastSegment(float left, float top, float startImX, float startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
 		float dx = currentNode.figX() - prevNode.figX();
 		float dy = (currentNode.figY() - prevNode.figY());
 		float imScale = 0.6f;
@@ -328,14 +327,18 @@ public class LayeredGraphEdge extends Figure {
 			System.err.printf("drawLastSegment: (%f,%f) -> (%f,%f), imX=%f, imY=%f\n",
 					prevNode.figX(), prevNode.figY(),
 					currentNode.figX(), currentNode.figY(), imX, imY);
-	
+		
+		addPointToCurve(imX, imY);
+		endCurve(currentNode.figX(), currentNode.figY());
+		
+		// Finally draw the arrows on both sides of the edge
+		
+		if(getFromArrow() != null){
+			getFrom().figure.connectArrowFrom(left, top, getFrom().figX(), getFrom().figY(), startImX, startImY, getFromArrow());
+		}
 		if(getToArrow() != null){
 			if(debug)System.err.println("Has a to arrow");
-			endCurve(imX, imY);
-			currentNode.figure.connectFrom(getLeft(), getTop(), currentNode.figX(), currentNode.figY(), imX, imY, getToArrow());
-		} else {
-			addPointToCurve(imX, imY);
-			endCurve(currentNode.figX(), currentNode.figY());
+			currentNode.figure.connectArrowFrom(left, top, currentNode.figX(), currentNode.figY(), imX, imY, getToArrow());
 		}
 	}
 

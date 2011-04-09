@@ -328,9 +328,9 @@ public abstract class Figure implements Comparable<Figure> {
 	public abstract void draw(float left, float top);
 
 	/**
-	 * Draw a connection from an external position (fromX, fromY) to the center
-	 * (X,Y) of the current figure. At the intersection with the border of the
-	 * current figure, place an arrow that is appropriately rotated.
+	 * Draw an arrow from an external position (fromX, fromY) directed to the center
+	 * (X,Y) of the current figure. The arrow is placed at At the intersection with the border of the
+	 * current figure and it is appropriately rotated.
 	 * 
 	 * @param left
 	 *            X of left corner
@@ -347,7 +347,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @param toArrow
 	 *            the figure to be used as arrow
 	 */
-	public void connectFrom(float left, float top, float X, float Y,
+	public void connectArrowFrom(float left, float top, float X, float Y,
 			float fromX, float fromY, Figure toArrow) {
 		if (fromX == X)
 			fromX += 0.00001;
@@ -384,9 +384,9 @@ public abstract class Figure implements Comparable<Figure> {
 				IY = Y - h2;
 			}
 		}
-//TODO line is to long and overlaps with arrow
-		fpa.line(left + fromX, top + fromY, left + IX, top + IY);
-
+/*
+		//fpa.line(left + fromX, top + fromY, left + IX, top + IY);
+*/
 		if (toArrow != null) {
 			toArrow.bbox();
 			fpa.pushMatrix();

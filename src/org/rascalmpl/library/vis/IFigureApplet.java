@@ -72,6 +72,7 @@ public interface IFigureApplet {
 	public float random(float lub, float hub);
 	public Object createFont(String fontName, float fontSize);
 	public void smooth();
+	
 	// From awt  
 	public void setCursor(Object cursor);
 	public void add(Object comp);
