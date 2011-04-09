@@ -16,8 +16,13 @@ import java.util.Collection;
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IFact;
 
-public interface IFact<V> {
+public interface IFact<V> extends IDependencyListener {
 	
+
+	public static final int FACT_OK = 0;
+	public static final int FACT_DEPS_INVALID = 1;
+	public static final int FACT_DEPS_CHANGED = 2;
+	public static final int FACT_ERROR = 3;
 
 	/**
 	 *  Returns true if a fact's valid is valid.
@@ -56,7 +61,11 @@ public interface IFact<V> {
 	
 	public abstract void unregisterListener(IDependencyListener listener);
 	
+	public abstract Collection<IDependencyListener> getListeners();
+	
 	public abstract void setDepends(Collection<IFact<V>> deps);
+
+	public abstract Collection<IFact<?>> getDepends();
 
 	/**
 	 * @param fact
@@ -64,5 +73,7 @@ public interface IFact<V> {
 	 */
 	public abstract boolean updateFrom(IFact<V> fact);
 	public abstract Object getKey();
+
+	public abstract int getStatus();
 
 }

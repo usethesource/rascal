@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.tasks.facts;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IFact;
@@ -27,8 +29,8 @@ import static org.rascalmpl.tasks.IDependencyListener.Change.*;
  */
 public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 
-	public FineGrainedStrongFact(Object key) {
-		super(key);
+	public FineGrainedStrongFact(Object key, String keyName) {
+		super(key, keyName);
 	}
 
 	/* (non-Javadoc)
@@ -38,7 +40,7 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 	public synchronized boolean setValue(V val) {
 		V oldValue = value;
 		value = val;
-		status = FACT_OK;
+		status = IFact.FACT_OK;
 		if(oldValue != null &&
 			!(value instanceof IValue ? ((IValue)oldValue).isEqual((IValue)val) : oldValue.equals(value))) {
 					notifyChanged();
@@ -49,27 +51,32 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 	}
 
 	@Override
-	public synchronized void changed(IFact<?> fact, Change change) {
+	public synchronized void changed(IFact<?> fact, Change change, Object moreInfo) {
 		switch(change) {
 		case CHANGED:
-			if(status < FACT_DEPS_CHANGED) {
-				System.out.println("CHANGED: " + this);
-				status = FACT_DEPS_CHANGED;
+			if(status < IFact.FACT_DEPS_CHANGED) {
+				System.out.println("CHANGED: " + fact + " recv by " + this);
+				status = IFact.FACT_DEPS_CHANGED;
 				notifyInvalidated();
 			}
 			break;
 		case INVALIDATED:
-			if(status < FACT_DEPS_INVALID) {
-				System.out.println("INVALID: " + this);
-				status = FACT_DEPS_INVALID;
+			if(status < IFact.FACT_DEPS_INVALID) {
+				System.out.println("INVALID: " + fact + " recv by " + this);
+				status = IFact.FACT_DEPS_INVALID;
 				notifyInvalidated();
 			}
 			break;
 		case REMOVED:
-			if(status < FACT_DEPS_CHANGED) {
+			if(status < IFact.FACT_DEPS_CHANGED) {
 				dependencies.remove(fact);
-				status = FACT_DEPS_CHANGED;
+				status = IFact.FACT_DEPS_CHANGED;
 				notifyInvalidated();
+			}
+			break;
+		case MOVED_TO:
+			if(dependencies.remove(fact)) {
+				dependencies.add((IFact<?>) moreInfo);
 			}
 			break;
 		}
@@ -88,7 +95,7 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 			f.unregisterListener(this);
 		}
 		for(IDependencyListener l : listeners) {
-			l.changed(this, REMOVED);
+			l.changed(this, REMOVED, null);
 		}
 
 		dependencies.clear();
@@ -99,7 +106,7 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 
 	@Override
 	public synchronized V getValue() {
-		if(status == FACT_OK)
+		if(status == IFact.FACT_OK)
 			return value;
 		else
 			return null;
@@ -112,8 +119,9 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 	public synchronized boolean updateFrom(IFact<V> fact) {
 		boolean result = false;
 		synchronized(fact) {
-			if(fact instanceof AbstractDepFact<?,?>) {
-				AbstractDepFact<?,?> f = (AbstractDepFact<?,?>)fact;
+				if(fact instanceof AbstractFact<?,?>) {
+				AbstractFact<?,?> f = (AbstractFact<?,?>)fact;
+				status = f.status;
 				if(f.value == null)
 					value = null;
 				else {
@@ -127,9 +135,11 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 				}
 				//else
 				//	throw new ImplementationError("Trying to update from fact with incompatible value types");
-				for(IFact<?> df : dependencies) {
+				Iterator<IFact<?>> iterator = dependencies.iterator();
+				while(iterator.hasNext()) {
+					IFact<?> df = iterator.next();
 					if(!f.dependencies.contains(df)) {
-						dependencies.remove(df);
+						iterator.remove();
 						df.unregisterListener(this);
 					}
 				}
@@ -139,8 +149,12 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 						df.registerListener(this);
 					}
 				}
+				for(IDependencyListener dl : f.listeners)
+					dl.changed(f, MOVED_TO, this);
+				f.listeners.addAll(f.listeners);
 			}
 			
+
 		}
 		return result;
 	}

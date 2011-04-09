@@ -14,13 +14,19 @@ package org.rascalmpl.tasks;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -33,6 +39,7 @@ import org.rascalmpl.tasks.INameFormatter;
 import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.TaskRegistry;
 import org.rascalmpl.tasks.Transaction;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue {
 	public static final Type TransactionType = new ExternalType() {};
@@ -105,11 +112,13 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			Transaction tr = new Transaction(this, stderr);
 			registry.produce(monitor, tr, key, name);
 			monitor.endJob(true);
-			fact = tr.query(k);
+			fact = tr.map.get(k);
 			if (fact != null) {
 				tr.commit();
 				deps.add(fact);
 			}
+			else
+				System.err.println("ERROR: failed to produce fact: " + formatKey(key, name));
 //			else
 	//			tr.abandon();
 		}
@@ -163,20 +172,20 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
 		if(fact == null) {
-			fact = FactFactory.fact(IValue.class, k, registry.getDepPolicy(key), registry.getRefPolicy(key));
+			fact = FactFactory.fact(IValue.class, k, formatKey(k), registry.getDepPolicy(key), registry.getRefPolicy(key));
 		}
 		boolean change = fact.setValue(value);
 		if(dependencies != null)
-			fact.setDepends(dependencies);
+			fact.setDepends(Collections.unmodifiableCollection(dependencies));
 		else
-			fact.setDepends(deps);
+			fact.setDepends(Collections.unmodifiableCollection(deps));
 		map.put(k, fact);
 		removed.remove(k);
 
 		if(change)
 			notifyListeners(key, fact, Change.CHANGED);
 		stderr.printf("Set fact %s = %s\n    <- ", formatKey(key, name), abbrev(value.toString(), 40));
-		for(IFact<IValue> d : deps)
+		for(IFact<?> d : fact.getDepends())
 			stderr.print(formatKey(d.getKey()) + " ");
 		stderr.println();
 		stderr.flush();
@@ -204,18 +213,29 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	@Override
 	public void commit() {
 		if(parent != null) {
+			if(parent.parent == null)
+				System.out.println("foo");
 			for(Key k : removed) {
 				parent.removeFact(k.type, k.name);
 			}
+			Set<IDependencyListener> toNotify = new HashSet<IDependencyListener>();
+			Set<IDependencyListener> trSet= new HashSet<IDependencyListener>();
+			
 			for(Key k : map.keySet()) {
-				IFact<IValue> fact = parent.query(k);
+				IFact<IValue> fact = parent.map.get(k);
+				IFact<IValue> trFact = map.get(k);
+				trSet.add(trFact);
 				if(fact != null) {
-					if(fact.updateFrom(map.get(k)))
+					Collection<IDependencyListener> ls = fact.getListeners();
+					if(fact.updateFrom(trFact)) {
 						parent.notifyListeners(k.type, fact, Change.CHANGED);
+						toNotify.addAll(ls);
+					}
+					trSet.add(fact);
 				}
 				else {
 					parent.map.put(k, map.get(k));
-					parent.notifyListeners(k.type, map.get(k), Change.CHANGED);
+					parent.notifyListeners(k.type, trFact, Change.CHANGED);
 				}
 			}
 			// TODO: update fact references
@@ -247,7 +267,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		Collection<IDependencyListener> ls = listeners.get(k);
 		if(ls != null)
 			for(IDependencyListener l : ls) {
-				l.changed(fact, change);
+				l.changed(fact, change, null);
 			}
 	}
 
@@ -339,7 +359,21 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		}
 	}
 
-
-
-
+	public ITuple getGraph() {
+		GraphBuilder g = new GraphBuilder(); 
+		for(Key k : map.keySet()) {
+			g.addFact(map.get(k), k.type.getName(), map.get(k).getStatus());			
+		}
+		for(IFact<?> fact : map.values()) {
+			for(IFact<?> d : fact.getDepends()) {
+				if(d.getListeners().contains(fact))
+					g.arrow(fact, d, "<->");
+				else {
+					g.arrow(fact, d, "->");
+					System.err.printf("Warning: fact %s depends on %s but does not listen on it.", fact, d);
+				}
+			}
+		}
+		return g.getGraph();
+	}
 }

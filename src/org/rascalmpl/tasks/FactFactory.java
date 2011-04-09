@@ -18,7 +18,7 @@ import org.rascalmpl.tasks.facts.FineGrainedStrongFact;
 
 public class FactFactory {
 	
-	public static <V,K> IFact<V> fact(Class<V> cls, Object key, DepFactPolicy depPolicy, RefFactPolicy refPolicy) {
-		return new FineGrainedStrongFact<V>(key);
+	public static <V,K> IFact<V> fact(Class<V> cls, Object key, String keyName, DepFactPolicy depPolicy, RefFactPolicy refPolicy) {
+		return new FineGrainedStrongFact<V>(key, keyName);
 	}
 }
