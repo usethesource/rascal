@@ -230,7 +230,8 @@ syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" // TODO 
                            ;
 
 syntax StructDeclarator = Declarator |
-                          Declarator? ":" Expression
+                          ":" Expression | // TODO: Prefer if we got the bellow as well (How?)
+                          Declarator ":" Expression // TODO: Avoid if we got the above as well (How?)
                           ;
 
 syntax Parameters = {Parameter ","}+ MoreParameters?
