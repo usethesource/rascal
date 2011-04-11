@@ -122,7 +122,7 @@ public abstract class AbstractStackNode{
 		return (this instanceof ILocatableStackNode);
 	}
 	
-	public final boolean isList(){
+	public final boolean isExpandable(){
 		return (this instanceof IExpandableStackNode);
 	}
 	

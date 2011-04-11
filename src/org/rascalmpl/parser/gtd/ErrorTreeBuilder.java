@@ -185,7 +185,7 @@ public class ErrorTreeBuilder{
 						if(resultStore != null){
 							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 						}else{
-							resultStore = (!edge.isList()) ? new ErrorSortContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isExpandable()) ? new ErrorSortContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.addAlternative(production, resultLink);
 							

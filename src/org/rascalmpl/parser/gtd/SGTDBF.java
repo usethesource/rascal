@@ -302,7 +302,7 @@ public abstract class SGTDBF implements IGTD{
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
 						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore == null){ // If there are no previous reductions to this level, handle this.
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, getResultStoreId(edge.getId()), resultStore);
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
@@ -503,7 +503,7 @@ public abstract class SGTDBF implements IGTD{
 						if(resultStore != null){
 							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 						}else{
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.addAlternative(production, resultLink);
 							
@@ -552,7 +552,7 @@ public abstract class SGTDBF implements IGTD{
 						if(resultStore != null){
 							resultStore.setRejected();
 						}else{
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.setRejected();
 							
@@ -612,7 +612,7 @@ public abstract class SGTDBF implements IGTD{
 						if(resultStore != null){
 							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 						}else{
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.addAlternative(production, resultLink);
 							
@@ -670,7 +670,7 @@ public abstract class SGTDBF implements IGTD{
 						if(resultStore != null){
 							resultStore.setRejected();
 						}else{
-							resultStore = (!edge.isList()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+							resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 							resultStore.setRejected();
 							
@@ -930,7 +930,7 @@ public abstract class SGTDBF implements IGTD{
 			return;
 		}
 		
-		if(!stack.isList()){
+		if(!stack.isExpandable()){
 			ArrayList<AbstractStackNode> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges != null){
 				cachedEdges.add(stack);
