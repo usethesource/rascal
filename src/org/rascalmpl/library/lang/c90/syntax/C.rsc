@@ -258,7 +258,7 @@ syntax Enumerator = Identifier |
 syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
                             bracket Bracket: "(" AbstractDeclarator decl ")" |
                             ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" |
-                            FunctionDeclarator: AbstractDeclarator decl "(" Parameters? ")" >
+                            FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" >
                             non-assoc PointerDeclarator: Pointer AbstractDeclarator decl
                             ;
 
@@ -384,7 +384,11 @@ private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "do
 private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
 
 private bool hasCustomType(list[Tree] specs){
-	return (findType(specs) notin cTypes);
+	if(findType(specs) notin cTypes) return false;
+	
+	if([_*,appl(prod(_,_,attrs([_*,term(cons("Idenfitier")),_*])),_),_*] := specs){
+		return true;
+	}
 }
 
 private tuple[list[str], Declarator] findModifiers(list[Tree] specs, InitDeclarator initDecl){
