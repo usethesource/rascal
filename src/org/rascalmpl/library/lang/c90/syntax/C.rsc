@@ -249,7 +249,7 @@ syntax TypeName = Specifier+ AbstractDeclarator
 syntax Pointer = PointerContent+
                  ;
 
-syntax PointerContent = "*" Specifier+ specs; // TODO: Only allow type qualifiers and identifiers.
+syntax PointerContent = "*" Specifier* specs; // TODO: Only allow type qualifiers and identifiers.
 
 syntax Enumerator = Identifier |
                     Identifier "=" NonCommaExpression
@@ -384,16 +384,7 @@ private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "do
 private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
 
 private bool hasCustomType(list[Tree] specs){
-	for(spec <- specs, "<spec>" notin cTypes){
-		if("<spec>" != "typedef"){
-			if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
-				;
-			}else{
-				return false;
-			}
-		}
-	}
-	return true;
+	return (findType(specs) notin cTypes);
 }
 
 private tuple[list[str], Declarator] findModifiers(list[Tree] specs, InitDeclarator initDecl){
