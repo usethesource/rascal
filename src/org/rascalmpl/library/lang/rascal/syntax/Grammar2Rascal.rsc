@@ -40,17 +40,11 @@ public str grammar2rascal(Grammar g, str name) {
 }
 
 public str grammar2rascal(Grammar g) {
-  if (grammar(set[Symbol] start, set[Production] productions) := g) {
-    <normals,literals> = separateLiterals(productions);
-    return ( "" | it + "\n" + topProd2rascal(p) | gr <- groupByNonTerminal(normals), Production p <- gr)
-         + "\n\n"
-         + ( "" | it + "\n" + topProd2rascal(p) | Production p <- literals);
-  }
-  else if (grammar(set[Symbol] start, map[Symbol,set[Production]] rules) := g) {
-    return ("" | it + "\n" + topProd2rascal(choice(nont, rules[nont])) | nont <- rules, lit(_) !:= nont)
-         + "\n\n"
-         + ("" | it + "\n" + topProd2rascal(p) | Symbol nont:lit(_) <- rules, p <- rules[nont]);
-  }
+  return "<for (nont <- g.rules, lit(_) !:= nont) {>
+         '<topProd2rascal(choice(nont, g.rules[nont]))>
+         '<}>
+         '<for (Symbol nont:lit(_) <- g.rules, p <- g.rules[nont]) {>
+         '<topProd2rascal(p)><}>";
 }
 
 tuple[set[Production],set[Production]] separateLiterals(set[Production] prods) {
@@ -81,7 +75,9 @@ bool same(Production p, Production q) {
 public str topProd2rascal(Production p) {
   if (regular(_,_) := p) return "";
   
-  return "<(start(_) := p.rhs) ? "start ":""><(\layouts(_) := p.rhs) ? "layout <layoutname(p.rhs)>" : "syntax <symbol2rascal(p.rhs)>">\n\t= <prod2rascal(p)>;\n";
+  return "<(start(_) := p.rhs) ? "start ":""><(\layouts(_) := p.rhs) ? "layout <layoutname(p.rhs)>" : "syntax <symbol2rascal(p.rhs)>">
+         '  = <prod2rascal(p)>
+         '  ;";
 }
 
 str layoutname(Symbol s) {
@@ -96,25 +92,33 @@ public str prod2rascal(Production p) {
     case choice(s, alts) : 
         if (alts != {}) {
         	<fst, rest> = takeOneFrom(alts);
-			return ( prod2rascal(fst) | "<it>\n\t| <prod2rascal(pr)>" | pr <- rest );
+			return "<prod2rascal(fst)><for (pr:prod(_,_,_) <- rest) {>
+			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_,_) !:= pr) {>
+			       '| <prod2rascal(pr)><}>";
 		}
-		else {
+		else {  
 		  return "...";
 		}
     case first(s, alts) :
-      	return ( prod2rascal(head(alts)) | "<it>\n\t\> <prod2rascal(pr)>" | pr <- tail(alts) );
-      
+        return "( <prod2rascal(head(alts))><for (pr <- tail(alts)) {>
+               '\> <prod2rascal(pr)><}>
+               ')";
     case \assoc(s, a, alts) : {
     		<fst, rest> = takeOneFrom(alts);
-    		return ( "<attr2mod(\assoc(a))> (  <prod2rascal(fst)> " | "<it>\n\t\t| <prod2rascal(pr)>" | pr <- rest ) + "\n\t)";
+    		return "<attr2mod(\assoc(a))> 
+    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
+    		       '  | <prod2rascal(pr)><}>
+    		       '  )";
  		}
     case diff(s,q,alts) : {
       <fst, rest> = takeOneFrom(alts);
-      return ( "<prod2rascal(q)>\n\t- <prod2rascal(fst)>" | "<it>\n\t- <prod2rascal(pr)>" | pr <- rest );
+      return "<prod2rascal(q)><for (pr <- alts) {>
+             '- <prod2rascal(pr)><}>";
     }
  
     case restrict(rhs, language, restrictions):
-    	return "<prod2rascal(language)><for(r <- restrictions){>\n\t# <prod2rascal(r)><}>";
+    	return "<prod2rascal(language)><for(r <- restrictions){>
+    	       '# <prod2rascal(r)><}>";
  
     case others(sym):
         return "...";
@@ -184,7 +188,7 @@ public str attr2mod(Attr a) {
     case \assoc(\right()): return "right";
     case \assoc(\non-assoc()): return "non-assoc";
     case \assoc(\assoc()): return "assoc";
-    case term("lexical"): return "lex";
+    case \lex(): return "lex";
     case \bracket(): return "bracket";
     default : return "/*<a>*/";
   }

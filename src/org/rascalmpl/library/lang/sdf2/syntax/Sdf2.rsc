@@ -266,7 +266,7 @@ syntax Definition = Module*
 
 syntax Lookahead 
  = Class: Class class
- | Seq: Class class "." Lookaheads las { println("action!"); if (las is Alt) fail; } 
+ | Seq: Class class "." Lookaheads las { if (las is Alt) fail; } 
  ;
  
 // [a-z] . [0-9] | [\"]
