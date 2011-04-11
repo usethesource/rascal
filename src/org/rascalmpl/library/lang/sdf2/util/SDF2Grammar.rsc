@@ -24,9 +24,8 @@ import Grammar;
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
 import lang::rascal::syntax::Characters;
+import lang::rascal::syntax::Normalization;
        
-private bool debug = false; // Print debug output
-
 public Grammar sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
@@ -38,11 +37,47 @@ public Grammar sdf2module2grammar(str name, list[loc] path) {
 // Convert given SDF definition
 
 public Grammar sdf2grammar(SDF definition) {
-  return grammar(getStartSymbols(definition), 
+  return dup(grammar(getStartSymbols(definition), 
                  getProductions(definition) 
-                 + {prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())});
+                 + {prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())}));
 }
-   
+
+public Grammar dup(Grammar g) {
+  prods = { p | /Production p:prod(_,_,_) := g };
+  
+  while ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
+    prods = {prod(l,r,fuse(a1,a2)), rest};
+  }
+  
+  g = visit(g) {
+    case prod(l,r,a1) : if ({p:prod(l,r,_), _*} := prods) insert p;
+  }
+  
+  ordered = { p | /\first(_,/Production p:prod(_,_,_)) := g }
+          + { p | /\assoc(_,_,/Production p:prod(_,_,_)) := g};
+  
+  // for toplevel alternatives
+  for (nt <- g.rules, p <- g.rules[nt], p in ordered) {
+    g.rules[nt] -= {p};
+  }
+  
+  // for nested alternatives
+  g = visit(g) {
+    case choice(nt,{Production p, rest*}) => choice(nt, rest) when p in ordered
+  }
+  
+  return g;
+}
+
+public Attributes fuse(Attributes a1, Attributes a2) {
+  switch (<a1,a2>) {
+    case <\no-attrs(),_>         : return a2;
+    case <_,\no-attrs()>         : return a1;
+    case <attrs(as1),attrs(as2)> : return attrs(as1+as2);
+  }
+  throw "unexpected attrs <a1> or <a2>";
+}
+
 test sdf2grammar(
         `definition 
          module X
@@ -203,9 +238,9 @@ public set[Production] getRestriction(Restriction restriction, bool isLex) {
     case (Restriction) `-/- <Lookaheads ls>` :
     	return {};
     	
-    case (Restriction) `<Sym s1> <Sym s2> <Sym* rest> -/- <Lookaheads ls>` : 
+    case (Restriction) `<Sym s1> <Sym+ rest> -/- <Lookaheads ls>` : 
       return getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex) 
-           + getRestriction((Restriction) `<Sym s2> <Sym* rest> -/- <Lookaheads ls>`, isLex);
+           + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
            
     case (Restriction) `<Sym s1> -/- <Lookaheads ls>` :
       return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), getLookaheads(getSymbol(s1,isLex),ls))};
@@ -416,13 +451,13 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     	return \seq(getSymbols((Syms) `<sym> <syms>`, isLex));
     	
     case (Sym) `< <Sym sym> -LEX >`:
-        return \lex(getSymbol(sym, isLex));
+        return getSymbol(sym, isLex);
         
     case (Sym) `< <Sym sym> -CF >`:
-        return \cf(getSymbol(sym, isLex));
+        return getSymbol(sym, isLex);
        
     case (Sym) `< <Sym sym> -VAR >`:
-        throw "-VAR symbols not supported: <sym>";
+        return getSymbol(sym, isLex);
        
   }  
   

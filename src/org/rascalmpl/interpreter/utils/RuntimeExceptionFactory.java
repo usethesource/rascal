@@ -40,7 +40,9 @@ public class RuntimeExceptionFactory {
 	private static TypeFactory TF = TypeFactory.getInstance();
 	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	public static TypeStore TS = new TypeStore();
-	public static Type Exception = TF.abstractDataType(TS, "RuntimeException"); 
+	public static Type Exception = TF.abstractDataType(TS, "RuntimeException");
+	
+	public static Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
     public static Type IndexOutOfBounds = TF.constructor(TS, Exception, "IndexOutOfBounds", TF.integerType(), "index");
 	public static Type AssertionFailed = TF.constructor(TS,Exception,"AssertionFailed");
 	public static Type LabeledAssertionFailed = TF.constructor(TS,Exception,"AssertionFailed", TF.stringType(), "label");
@@ -80,6 +82,10 @@ public class RuntimeExceptionFactory {
 	public static Type DateTimePrintingError = TF.constructor(TS, Exception, "DateTimePrintingError", TF.stringType(), "message");
 	public static Type Timeout = TF.constructor(TS, Exception, "Timeout");
 	public static Type Figure = TF.constructor(TS, Exception, "Figure", TF.stringType(), "message", TF.valueType(), "figure");
+	
+	public static Throw stackOverflow(AbstractAST ast, String trace) {
+		return new Throw(StackOverflow.make(VF), ast, trace);
+	}
 	
     public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, String trace) {
     	return new Throw(IndexOutOfBounds.make(VF, i), ast, trace);

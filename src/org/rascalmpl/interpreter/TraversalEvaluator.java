@@ -189,9 +189,11 @@ public class TraversalEvaluator {
 			if (tr.changed && fixedpoint == FIXEDPOINT.Yes) {
 				do {
 					tr.changed = false;
+					tr.matched = false;
 					result = traverseTop(result, casesOrRules, tr);
 				} while (tr.changed);
 				tr.changed = true;
+				tr.matched = true;
 			}
 			
 			tr.changed |= hasChanged;

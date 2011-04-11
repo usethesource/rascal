@@ -16,6 +16,18 @@ import IO;
    
 alias Graph[&T] = rel[&T from, &T to];
 
+@doc{compute topological order of the nodes in a graph}
+public list[&T] order(Graph[&T] g) {
+  result = [];
+  b = bottom(g);
+  solve (g) {
+    t = top(g);
+    result = result + [e | e <- t];
+    g = { <from,to> | <from,to> <- g, from notin t};
+  }
+  return result + [e | e <- b];
+}
+
 @doc{ return the bottom nodes of a Graph.}
 public set[&T] bottom(Graph[&T] G)
 {

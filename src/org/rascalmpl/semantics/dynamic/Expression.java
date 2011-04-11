@@ -95,6 +95,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
@@ -442,80 +443,87 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			if (__eval.__getInterrupt()) {
-				throw new InterruptException(__eval.getStackTrace());
-			}
-
-			__eval.setCurrentAST(this);
-
-			Result<IValue> function = this.cachedPrefix;
-
-			// If the name expression is just a name, enable caching of the name
-			// lookup result.
-			// Also, if we have not yet registered a handler when we cache the
-			// result, do so now.
-			// NOTE: We verify that this is a constructor type, since we don't
-			// cache functions
-			// at this point.
-			// TODO: Split the function name lookup from the closure formation,
-			// so we can cache
-			// the lookup without having problems with closure formation and
-			// scoping for nested
-			// functions.
-			if (function == null) {
-				this.cachedPrefix = function = this.getExpression().interpret(
-						__eval);
-				if (!function.getType().isConstructorType()) {
-					this.cachedPrefix = null;
+			try {
+				if (__eval.__getInterrupt()) {
+					throw new InterruptException(__eval.getStackTrace());
 				}
 
-				if (this.cachedPrefix != null && !registeredCacheHandler) {
-					__eval.getEvaluator().registerConstructorDeclaredListener(
-							new IConstructorDeclared() {
-								public void handleConstructorDeclaredEvent() {
-									cachedPrefix = null;
-								}
-							});
-					registeredCacheHandler = true;
-				}
-			}
+				__eval.setCurrentAST(this);
 
-			java.util.List<org.rascalmpl.ast.Expression> args = this
-					.getArguments();
+				Result<IValue> function = this.cachedPrefix;
 
-			IValue[] actuals = new IValue[args.size()];
-			Type[] types = new Type[args.size()];
-
-			for (int i = 0; i < args.size(); i++) {
-				Result<IValue> resultElem = args.get(i).interpret(__eval);
-				types[i] = resultElem.getType();
-				actuals[i] = resultElem.getValue();
-			}
-
-			Result<IValue> res = function.call(types, actuals);
-
-			// we need to update the strategy context when the function is of
-			// type Strategy
-			IStrategyContext strategyContext = __eval.getStrategyContext();
-			if (strategyContext != null) {
-				if (function.getValue() instanceof AbstractFunction) {
-					AbstractFunction f = (AbstractFunction) function.getValue();
-					if (f.isTypePreserving()) {
-						strategyContext.update(actuals[0], res.getValue());
+				// If the name expression is just a name, enable caching of the name
+				// lookup result.
+				// Also, if we have not yet registered a handler when we cache the
+				// result, do so now.
+				// NOTE: We verify that this is a constructor type, since we don't
+				// cache functions
+				// at this point.
+				// TODO: Split the function name lookup from the closure formation,
+				// so we can cache
+				// the lookup without having problems with closure formation and
+				// scoping for nested
+				// functions.
+				if (function == null) {
+					this.cachedPrefix = function = this.getExpression().interpret(
+							__eval);
+					if (!function.getType().isConstructorType()) {
+						this.cachedPrefix = null;
 					}
-				} else if (function.getValue() instanceof OverloadedFunctionResult) {
-					OverloadedFunctionResult fun = (OverloadedFunctionResult) function
-							.getValue();
 
-					for (AbstractFunction f : fun.iterable()) {
+					if (this.cachedPrefix != null && !registeredCacheHandler) {
+						__eval.getEvaluator().registerConstructorDeclaredListener(
+								new IConstructorDeclared() {
+									public void handleConstructorDeclaredEvent() {
+										cachedPrefix = null;
+									}
+								});
+						registeredCacheHandler = true;
+					}
+				}
+
+				java.util.List<org.rascalmpl.ast.Expression> args = this
+				.getArguments();
+
+				IValue[] actuals = new IValue[args.size()];
+				Type[] types = new Type[args.size()];
+
+				for (int i = 0; i < args.size(); i++) {
+					Result<IValue> resultElem = args.get(i).interpret(__eval);
+					types[i] = resultElem.getType();
+					actuals[i] = resultElem.getValue();
+				}
+
+
+				Result<IValue> res = function.call(types, actuals);
+
+
+				// we need to update the strategy context when the function is of
+				// type Strategy
+				IStrategyContext strategyContext = __eval.getStrategyContext();
+				if (strategyContext != null) {
+					if (function.getValue() instanceof AbstractFunction) {
+						AbstractFunction f = (AbstractFunction) function.getValue();
 						if (f.isTypePreserving()) {
 							strategyContext.update(actuals[0], res.getValue());
 						}
+					} else if (function.getValue() instanceof OverloadedFunctionResult) {
+						OverloadedFunctionResult fun = (OverloadedFunctionResult) function
+						.getValue();
+
+						for (AbstractFunction f : fun.iterable()) {
+							if (f.isTypePreserving()) {
+								strategyContext.update(actuals[0], res.getValue());
+							}
+						}
 					}
 				}
-			}
-			return res;
+				return res;
 
+			}
+			catch (StackOverflowError e) {
+				throw RuntimeExceptionFactory.stackOverflow(this, __eval.getStackTrace());
+			}
 		}
 
 		private boolean isConcreteListProd() {

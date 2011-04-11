@@ -186,7 +186,10 @@ public class SetPattern extends AbstractMatchingResult {
 					isSetVar[nVar] = childType.isSetType();
 					nVar++;
 				} else {
-					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+					hasNext = false;
+					return;
+					// you cant do this in the context of a visit, because you might actually visit another set!
+//					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				
 			} else if(child instanceof MultiVariablePattern){
@@ -251,7 +254,9 @@ public class SetPattern extends AbstractMatchingResult {
 					        	 */
 					        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
 					        } else {
-					        	throw new UnexpectedTypeError(staticSetSubjectType,varType, getAST());
+					        	hasNext = false; // cant throw type error 
+					        	return;
+//					        	throw new UnexpectedTypeError(staticSetSubjectType,varType, getAST());
 					        }
 					    } 
 					    else {
@@ -283,7 +288,9 @@ public class SetPattern extends AbstractMatchingResult {
 			} else {
 				Type childType = child.getType(env);
 				if(!childType.comparable(staticSubjectElementType)){
-					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+					hasNext = false;
+					return;
+//					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){ 
