@@ -98,7 +98,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 	}
 	
 	public boolean canBeEmpty(){
-		return emptyChild != null;
+		return true;
 	}
 	
 	public AbstractStackNode getEmptyChild(){
