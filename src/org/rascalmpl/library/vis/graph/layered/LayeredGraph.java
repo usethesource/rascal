@@ -62,7 +62,7 @@ public class LayeredGraph extends Figure {
 	private float DELTA;
 	private static final int INFINITY = 1000000;
 	
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	private static final boolean printGraph = false;
 	
 	public LayeredGraph(IFigureApplet fpa, IPropertyManager properties, IList nodes,
