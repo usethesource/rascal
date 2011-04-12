@@ -172,7 +172,7 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier* specs {InitDeclarator ","}* initDeclarators ";" {
+syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
@@ -194,7 +194,18 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}* initDeclarators ";" 
                               } // May be ambiguous with "Exp * Exp".
                            }
                         }
-                     }
+                     } |
+                     Specifier* specs ";" {
+                        list[Tree] specChildren;
+                        if(appl(_,specChildren) := specs){
+                           if(hasCustomType(specChildren)){
+                              str declType = findType(specChildren);
+                              if("<declType>" notin typeDefs){
+                                 fail;
+                              } // May be ambiguous with "Exp * Exp".
+                           }
+                        }
+                     } // TODO: Avoid;
                      ;
 
 syntax InitDeclarator = Declarator decl |
@@ -272,8 +283,7 @@ syntax Declarator = Identifier: Identifier |
                     non-assoc PointerDeclarator: Pointer pointer Declarator decl
                     ;
 
-syntax Parameter = Specifier+ Declarator |
-                   Specifier+ AbstractDeclarator
+syntax Parameter = Specifier* Declarator
                    ;
 
 syntax HexadecimalConstant = lex [0] [xX] [a-fA-F0-9]+ [uUlL]*
@@ -343,6 +353,7 @@ map[str name, tuple[str var, tuple[list[str], Declarator] modifiers] cType] type
 private str findType(list[Tree] specs){
 	str cType = "int"; // If no type is defined the type is int.
 	
+	// This is order dependant.
     if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specs){
        cType = "void";
     }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := specs){
