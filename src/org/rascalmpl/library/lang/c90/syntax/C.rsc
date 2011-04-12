@@ -226,12 +226,11 @@ syntax Specifier = Identifier: Identifier |
                    "register"
                    ;
 
-syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" // TODO Disallow typedef specifier and such.
+syntax StructDeclaration = Specifier* specs {StructDeclarator ","}* ";" // TODO Disallow typedef specifier and such.
                            ;
 
 syntax StructDeclarator = Declarator |
-                          ":" Expression | // TODO: Prefer if we got the bellow as well (How?)
-                          Declarator ":" Expression // TODO: Avoid if we got the above as well (How?)
+                          Declarator? ":" Expression // TODO: Prefer the one where 'Declarator' is filled.
                           ;
 
 syntax Parameters = {Parameter ","}+ MoreParameters?
