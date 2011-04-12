@@ -170,7 +170,7 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
+syntax Declaration = Specifier* specs {InitDeclarator ","}* initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
