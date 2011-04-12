@@ -179,7 +179,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                               for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                                  str variable = variableTuple.var;
                                  InitDeclarator initDecl = variableTuple.initDecl;
-                                 tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl);
+                                 tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
                                  typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                               }
                            }
@@ -391,7 +391,7 @@ private bool hasCustomType(list[Tree] specs){
 	}
 }
 
-private tuple[list[str], Declarator] findModifiers(list[Tree] specs, InitDeclarator initDecl){
+private tuple[list[str], Declarator] findModifiers(list[Tree] specs, Declarator decl){
 	list[str] modifiers = [];
 	
 	modifiers = for(spec <- specs, "<spec>" notin cTypes){
@@ -404,7 +404,7 @@ private tuple[list[str], Declarator] findModifiers(list[Tree] specs, InitDeclara
 		}
 	}
 	
-	return <modifiers, initDecl.decl>;
+	return <modifiers, decl>;
 }
 
 private str findVariableInDeclarator(Declarator decl){
