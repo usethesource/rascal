@@ -10,6 +10,8 @@ module C
 
 import ParseTree;
 
+import IO;
+
 syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
@@ -175,6 +177,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}* initDeclarators ";" 
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specChildren);
+                              
                               list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
                               for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                                  str variable = variableTuple.var;
@@ -352,8 +355,8 @@ private str findType(list[Tree] specs){
        cType = "float";
     }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := specs){
        cType = "double";
-    }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specs){
-       cType = "<identifier>";
+    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specs){
+       cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
     }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := specs){
        cType = "<theStruct>";
     }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := specs){
@@ -372,8 +375,8 @@ private str findType(list[Tree] specs){
        cType = "<theEnum>";
     }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specs){
        cType = "<theEnum>";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specs){
-       cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
+    }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specs){
+       cType = "<identifier>";
     }
 	
 	return cType;
@@ -389,6 +392,8 @@ private bool hasCustomType(list[Tree] specs){
 	if([_*,appl(prod(_,_,attrs([_*,term(cons("Idenfitier")),_*])),_),_*] := specs){
 		return true;
 	}
+	
+	return false;
 }
 
 private tuple[list[str], Declarator] findModifiers(list[Tree] specs, Declarator decl){
