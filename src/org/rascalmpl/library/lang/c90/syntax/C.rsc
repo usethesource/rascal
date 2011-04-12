@@ -205,7 +205,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                               } // May be ambiguous with "Exp * Exp".
                            }
                         }
-                     } // TODO: Avoid;
+                     } // TODO: Avoid.
                      ;
 
 syntax InitDeclarator = Declarator decl |
@@ -241,7 +241,7 @@ syntax Specifier = Identifier: Identifier |
                    ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}* ";" // TODO Disallow typedef specifier and such.
-                           ;
+                           ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
 
 syntax StructDeclarator = Declarator |
                           Declarator? ":" Expression // TODO: Prefer the one where 'Declarator' is filled.
