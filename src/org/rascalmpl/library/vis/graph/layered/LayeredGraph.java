@@ -186,7 +186,7 @@ public class LayeredGraph extends Figure {
 	}
 	
 	public LinkedList<LayeredGraphNode> getRegisteredLayer(String name){
-		System.err.println("getRegisteredLayer: " + name);
+		if (debug) System.err.println("getRegisteredLayer: " + name);
 		return registeredLayerIds.get(name);
 	}
 	
