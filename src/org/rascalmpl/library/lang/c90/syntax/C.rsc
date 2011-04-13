@@ -10,8 +10,6 @@ module C
 
 import ParseTree;
 
-import IO;
-
 syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
