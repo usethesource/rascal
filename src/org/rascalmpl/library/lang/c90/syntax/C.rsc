@@ -258,11 +258,6 @@ syntax Initializer = NonCommaExpression |
 syntax TypeName = Specifier+ AbstractDeclarator
                   ;
 
-syntax Pointer = PointerContent+
-                 ;
-
-syntax PointerContent = "*" Specifier* specs; // TODO: Only allow type qualifiers and identifiers.
-
 syntax Enumerator = Identifier |
                     Identifier "=" NonCommaExpression
                     ;
@@ -271,14 +266,14 @@ syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
                             bracket Bracket: "(" AbstractDeclarator decl ")" |
                             ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" |
                             FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" >
-                            non-assoc PointerDeclarator: Pointer AbstractDeclarator decl
+                            non-assoc PointerDeclarator: "*" Specifier* specs AbstractDeclarator decl // TODO: Only allow type qualifiers and identifiers as specs.
                             ;
 
 syntax Declarator = Identifier: Identifier |
                     bracket Bracket: "(" Declarator decl ")" |
                     ArrayDeclarator: Declarator decl "[" Expression? exp "]" |
                     FunctionDeclarator: Declarator decl "(" Parameters? params ")" >
-                    non-assoc PointerDeclarator: Pointer pointer Declarator decl
+                    PointerDeclarator: "*" Specifier* specs Declarator decl // TODO: Only allow type qualifiers and identifiers as specs.
                     ;
 
 syntax Parameter = Specifier* Declarator
