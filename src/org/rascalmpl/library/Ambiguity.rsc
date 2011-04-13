@@ -132,6 +132,12 @@ public list[Message] deeperCauses(Tree x, Tree y) {
   if (overloadedLits != []) {
     result += info("Overloaded literals may be solved by semantic actions that filter certain nestings", x@\loc);
     result += overloadedLits;
+    
+    fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true /* workaround alert*/};
+    fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true /* workaround alert*/};
+    for (<p,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
+      result += error("A semantic action filtering <alt2rascal(q)> as a direct child of <alt2rascal(p)> would solve the ambiguity.", x@\loc);
+    } 
   }
   
   return result; 
