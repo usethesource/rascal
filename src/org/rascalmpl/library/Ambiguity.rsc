@@ -87,8 +87,8 @@ public list[Message] deeperCauses(Tree x, Tree y) {
     result += [info("Unique layout to the other: <symbol2rascal(t.rhs)>", t[0]@\loc) | t <- laY - laX];
     
     // literals that became lexicals and vice versa
-    result += [error("You might reserve <l> from <symbol2rhs(r.rhs)>", t@\loc) | <r,l> <- rX o lY<1,0>];
-    result += [error("You might reserve <l> from <symbol2rhs(r.rhs)>", t@\loc) | <r,l> <- rY o lX<1,0>];
+    result += [error("You might reserve <l> from <symbol2rhs(r.rhs)>, i.e. using a reject (reserved keyword).", t@\loc) | <r,l> <- rX o lY<1,0>];
+    result += [error("You might reserve <l> from <symbol2rhs(r.rhs)>, i.e. using a reject (reserved keyword).", t@\loc) | <r,l> <- rY o lX<1,0>];
     
     // lexicals that overlap position, but are shorter (longest match issue)
     for (<tX,yX> <- rX, <tY,yY> <- rY, tX != tY) {
@@ -98,25 +98,25 @@ public list[Message] deeperCauses(Tree x, Tree y) {
       // <-------->
       //    <--->
       if (tXl.begin >= tYl.begin && tXl.end <= tX.end) { 
-        result += error("<tX> is overlapping with <tY>, add follow restrictions!", tXl);
+        result += error("<tX> is overlapping with <tY>, add follow restrictions or a symbol table!", tXl);
       }
       
       //    <--->
       // <-------->
       if (tYl.begin >= tXl.begin && tYl.end <= tX.end) {
-        result += error("<tX> is overlapping with <tY>, add follow restrictions!", tXl);
+        result += error("<tX> is overlapping with <tY>, add follow/precede restrictions!", tXl);
       }
       
       // <----->
       //    <----->
       if (tXl.end >= tYl.begin && tXl.end <= tYl.end) {
-        result += error("<tX> is overlapping with <tY>, add follow restrictions!", tXl);
+        result += error("<tX> is overlapping with <tY>, add follow/precede restrictions!", tXl);
       }
       
       //     <---->     
       // <----->
       if (tXl.start >= tYl.begin && tXl.start <= tYl.end) {
-        result += error("<tX> is overlapping with <tY>, add follow restrictions!", tXl);
+        result += error("<tX> is overlapping with <tY>, add follow/precede restrictions!", tXl);
       }
     }   
   }
@@ -136,7 +136,7 @@ public list[Message] deeperCauses(Tree x, Tree y) {
     fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true /* workaround alert*/};
     fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true /* workaround alert*/};
     for (<p,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
-      result += error("A semantic action filtering <alt2rascal(q)> as a direct child of <alt2rascal(p)> would solve the ambiguity.", x@\loc);
+      result += warning("A semantic action filtering <alt2rascal(q)> as a direct child of <alt2rascal(p)> would solve the ambiguity.", x@\loc);
     } 
   }
   
