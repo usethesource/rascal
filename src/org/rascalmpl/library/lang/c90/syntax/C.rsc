@@ -239,7 +239,7 @@ syntax Specifier = Identifier: Identifier |
                    ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow typedef specifier and such.
-                           Specifier* specs; // TODO Disallow typedef specifier and such.
+                           Specifier* specs // TODO: Avoid. Disallow typedef specifier and such.
                            ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
 
 syntax StructDeclarator = Declarator |
