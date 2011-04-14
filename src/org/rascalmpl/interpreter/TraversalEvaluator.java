@@ -41,7 +41,6 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.RewriteRule;

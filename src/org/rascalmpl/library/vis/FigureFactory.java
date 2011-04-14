@@ -43,7 +43,6 @@ import org.rascalmpl.library.vis.interaction.Checkbox;
 import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.TextField;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyValue;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;

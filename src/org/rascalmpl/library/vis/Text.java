@@ -13,8 +13,6 @@ package org.rascalmpl.library.vis;
 
 import org.rascalmpl.library.vis.properties.IPropertyValue;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.StrProp;
-
 import org.rascalmpl.library.vis.FigureApplet;
 
 /**

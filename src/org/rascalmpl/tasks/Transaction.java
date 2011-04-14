@@ -17,16 +17,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -37,9 +33,7 @@ import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.INameFormatter;
 import org.rascalmpl.tasks.ITransaction;
-import org.rascalmpl.tasks.TaskRegistry;
 import org.rascalmpl.tasks.Transaction;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue {
 	public static final Type TransactionType = new ExternalType() {};
