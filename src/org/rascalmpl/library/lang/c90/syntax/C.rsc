@@ -219,11 +219,11 @@ syntax Specifier = Identifier: Identifier |
                    Float: "float" |
                    Double: "double" |
                    Struct: "struct" Identifier |
-                   StructDecl: "struct" Identifier "{" StructDeclaration+ "}" |
-                   StructAnonDecl: "struct" "{" StructDeclaration+ "}" |
+                   StructDecl: "struct" Identifier "{" StructDeclaration* "}" |
+                   StructAnonDecl: "struct" "{" StructDeclaration* "}" |
                    Union: "union" Identifier |
-                   UnionDecl: "union" Identifier "{" StructDeclaration+ "}" |
-                   UnionAnonDecl: "union" "{" StructDeclaration+ "}" |
+                   UnionDecl: "union" Identifier "{" StructDeclaration* "}" |
+                   UnionAnonDecl: "union" "{" StructDeclaration* "}" |
                    Enum: "enum" Identifier |
                    EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" |
                    EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}" |
@@ -238,7 +238,8 @@ syntax Specifier = Identifier: Identifier |
                    "register"
                    ;
 
-syntax StructDeclaration = Specifier* specs {StructDeclarator ","}* ";" // TODO Disallow typedef specifier and such.
+syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow typedef specifier and such.
+                           Specifier* specs; // TODO Disallow typedef specifier and such.
                            ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
 
 syntax StructDeclarator = Declarator |
@@ -346,7 +347,7 @@ map[str name, tuple[str var, tuple[list[str], Declarator] modifiers] cType] type
 private str findType(list[Tree] specs){
 	str cType = "int"; // If no type is defined the type is int.
 	
-	// This is order dependant.
+	// This is order dependant, so don't convert this to a switch.
     if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specs){
        cType = "void";
     }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := specs){
