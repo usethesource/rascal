@@ -22,6 +22,7 @@ public map[str, str] latexEscapes = (
 	" ": "\\SPACE{}", // space gets eaten sometimes, \  eats up newlines. \quad?
 	"{": "\\{",
 	"}": "\\}",
+	"&": "\\&",
 	"\\": "\\textbackslash{}"
 );
 
