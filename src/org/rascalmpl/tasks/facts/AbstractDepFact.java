@@ -11,10 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.tasks.facts;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IFact;
 

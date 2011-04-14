@@ -15,8 +15,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.compose.Compose;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
-
 import processing.core.PConstants;
 
 

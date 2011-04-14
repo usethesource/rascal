@@ -12,8 +12,6 @@
 package org.rascalmpl.tasks;
 
 import java.util.Collection;
-import java.util.Set;
-
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.tasks.IFact;
 

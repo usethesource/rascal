@@ -29,8 +29,6 @@ import org.rascalmpl.interpreter.Evaluator;
 
 import org.rascalmpl.interpreter.PatternEvaluator;
 
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-
 import org.rascalmpl.interpreter.env.Environment;
 
 import org.rascalmpl.interpreter.matching.IBooleanResult;

@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
