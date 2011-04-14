@@ -70,7 +70,7 @@ public abstract class Container extends Figure {
 				width = innerFig.width + 2 * hgap;
 			}
 			if(desiredHeight == AUTO_SIZE){
-				height = innerFig.width + 2 * hgap;
+				height = innerFig.height + 2 * hgap;
 			}
 		} else {
 			width = getWidthProperty();
