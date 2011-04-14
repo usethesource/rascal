@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Horizontal composition of elements:
@@ -33,13 +33,13 @@ public class HCat extends Compose {
 	private boolean alignAnchors = false;
 	private static boolean debug = false;
 
-public HCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+public HCat(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredMajorSize, float desiredMinorSize){
 		alignAnchors = getAlignAnchorsProperty();
 		if(alignAnchors)
 			bboxAlignAnchors();
@@ -55,7 +55,7 @@ public HCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvalua
 		bottomAnchor = 0;
 		hgap = getHGapProperty();
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
 			width += fig.width;
 			topAnchor = max(topAnchor, fig.topAnchor());
 			bottomAnchor = max(bottomAnchor, fig.bottomAnchor());
@@ -77,7 +77,7 @@ public HCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvalua
 		
 		hgap = getHGapProperty();
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
 			width += fig.width;
 			height = max(height, fig.height);
 			if(debug)System.err.printf("hcat (loop): topAnchor=%f, bottomAnchor=%f\n", topAnchor, bottomAnchor);

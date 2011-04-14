@@ -15,9 +15,9 @@ package org.rascalmpl.library.vis.containers;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 // import processing.core.FigureApplet;
 // import processing.core.FigureApplet;
@@ -33,7 +33,7 @@ import org.rascalmpl.library.vis.FigureApplet;
  */
 public class Ellipse extends Container {
 
-	public Ellipse(IFigureApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+	public Ellipse(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties, inside, ctx);
 	}
 	
@@ -82,7 +82,7 @@ public class Ellipse extends Container {
    //     fpa.line(left + fromX, top + fromY, left + IX, top + IY);
         
         if(toArrow != null){
-        	toArrow.bbox();
+        	toArrow.bbox(AUTO_SIZE, AUTO_SIZE);
         	fpa.pushMatrix();
         	fpa.translate(left + IX, top + IY);
         	fpa.rotate(FigureApplet.radians(-90) + theta);

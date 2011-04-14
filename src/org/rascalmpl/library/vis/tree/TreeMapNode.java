@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * A TreeMapNode is created for each "node" constructor that occurs in the TreeMap.
@@ -36,7 +36,7 @@ public class TreeMapNode extends Figure {
 	private float[] childTop;
 	private static boolean debug = true;
 	
-	public TreeMapNode(IFigureApplet fpa, TreeMap treeMap, IPropertyManager properties,
+	public TreeMapNode(IFigureApplet fpa, TreeMap treeMap, PropertyManager properties,
 			Figure fig) {
 		super(fpa, properties);
 		this.treemap = treeMap;
@@ -44,7 +44,7 @@ public class TreeMapNode extends Figure {
 		children = new ArrayList<TreeMapNode>();
 	}
 	
-	public void addChild(IPropertyManager inheritedProps, IList props,
+	public void addChild(PropertyManager inheritedProps, IList props,
 			TreeMapNode toNode, IEvaluatorContext ctx) {
 		children.add(toNode);
 	}
@@ -69,7 +69,7 @@ public class TreeMapNode extends Figure {
 		float aheight = height - (n+1) * vgap;
 		for(int i = 0; i < n; i++){
 			TreeMapNode child = children.get(i);
-			child.bbox();
+			child.bbox(AUTO_SIZE, AUTO_SIZE);
 			chsurf += child.width * child.height;
 		}
 		for(int i = 0; i < n; i++){
@@ -103,8 +103,8 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public
-	void bbox() {
-		rootFigure.bbox();
+	void bbox(float desiredWidth, float desiredHeight) {
+		rootFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = rootFigure.width;
 		height = rootFigure.height;
 	}

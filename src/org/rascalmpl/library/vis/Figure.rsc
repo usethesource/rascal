@@ -206,6 +206,8 @@ public list[str] java fontNames();
  
 public alias FProperties = list[FProperty];
 
+int auto = 0;
+
 data FProperty =
 /* sizes */
      width(num width)                   // sets width of element
@@ -214,7 +216,6 @@ data FProperty =
    | height(num height)                 // sets height of element
    | height(computedNum cHeight)       // sets height of element
    | height(Like other)
-   
    | size(num size)					    // sets width and height to same value
    | size(computedNum cSize)			// sets width and height to same value
    | size(Like other)
@@ -233,9 +234,28 @@ data FProperty =
    | hgap(computedNum cWidth)
    | hgap(Like other)
    
+   | hgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an hcat), width(gaps)/width(non-gaps)
+   | hgapRatio(computedNum cRatio)   
+   | hgapRatio(Like other)   
+   
    | vgap(num height)                     // set vert gap
    | vgap(computedNum cHeight)
    | vgap(Like other)
+   
+   | vgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an vcat), height(gaps)/height(non-gaps)
+   | vgapRatio(computedNum cRatio)   
+   | vgapRatio(Like other)   
+   
+   | startGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
+   | startGap(computedBool cAlg)
+   | startGap(Like other)
+   | endGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
+   | endGap(computedBool cAlg)
+   | endGap(Like other)   
+   | capGaps(bool b)                      // shorthand for setting both startGap and endGap
+   | capGaps(computedBool cAlg)
+   | capGaps(Like other)   
+   | capGaps(bool b,bool b2)                     
    
 /* alignment -- used by composition operators hcat, vcat, etc. */
    | align(num hor, num vert)
@@ -345,7 +365,164 @@ data FProperty =
    | direction(str name)
    | direction(computedStr cname)
    | direction(Like other)
-   ;
+/* Standard properties: all the properties again! */
+/* sizes */
+   | stdWidth(num width)                   // sets width of element
+   | stdWidth(computedNum cWidth)         // sets width of element
+   | stdWidth(Like other)
+   | stdHeight(num height)                 // sets height of element
+   | stdHeight(computedNum cHeight)       // sets height of element
+   | stdHeight(Like other)
+   | stdSize(num size)					    // sets width and height to same value
+   | stdSize(computedNum cSize)			// sets width and height to same value
+   | stdSize(Like other)
+   
+   | stdSize(num width, num height)            // sets width and height to separate values
+//   | stdsize(computedNum cWidth, computedNum cHeight)  // sets width and height to separate values
+   
+   | stdGap(num amount)                    // sets hor and vert gap between elements in composition to same value
+   | stdGap(computedNum cAmount) 
+   | stdGap(Like other) 
+   
+   | stdGap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
+ //  | stdGap(computedNum cWidth, computedNum cHeight) 
+   
+   | stdHgap(num width)                      // sets hor gap
+   | stdHgap(computedNum cWidth)
+   | stdHgap(Like other)
+   
+   | stdHgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an hcat), width(gaps)/width(non-gaps)
+   | stdHgapRatio(computedNum cRatio)   
+   | stdHgapRatio(Like other)   
+   
+   | stdVgap(num height)                     // set vert gap
+   | stdVgap(computedNum cHeight)
+   | stdVgap(Like other)
+
+   | stdVgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an vcat), height(gaps)/height(non-gaps)
+   | stdVgapRatio(computedNum cRatio)   
+   | stdVgapRatio(Like other)   
+
+   | stdStartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
+   | stdStartGap(computedBool cAlg)
+   | stdStartGap(Like other)
+   | stdEndGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
+   | stdEndGap(computedBool cAlg)
+   | stdEndGap(Like other)   
+   | stdCapGaps(bool b)                      // shorthand for setting both startGap and endGap
+   | stdCapGaps(computedBool cAlg)
+   | stdCapGaps(Like other)   
+   | stdCapGaps(bool b,bool b2)      
+   
+/* alignment -- used by composition operators hcat, vcat, etc. */
+   | stdAlign(num hor, num vert)
+   
+   | stdHalign(num hor)
+   | stdHalign(computedNum cHor)
+   | stdHalign(Like other)
+   
+   | stdValign(num vert)
+   | stdValign(computedNum cVert)
+   | stdValign(Like other)
+   
+   | stdAlignAnchors(bool b)
+   | stdAlignAnchors(computedBool cAlg)
+   | stdAlignAnchors(Like other)
+   
+/* anchoring -- inherent property of a figure; only used when alignAnchors is set */
+   | stdAnchor(num hor, num vert)
+   | stdHanchor(num hor)
+   | stdHanchor(computedNum cHor)
+   | stdHanchor(Like other)
+   
+   | stdVanchor(num vert)
+   | stdVanchor(computedNum cVert)
+   | stdVanchor(Like other)
+   
+/* line and border properties */
+   | stdLineWidth(num lineWidth)			// line width
+   | stdLineWidth(computedNum cLineWidth)		// line width
+   | stdLineWidth(Like other)
+   
+   | stdLineColor(Color lineColor)		    // line color
+   | stdLineColor(str colorName)           // named line color
+   | stdLineColor(computedColor cColorName)    // named line color
+   | stdLineColor(Like other)
+   
+   | stdFillColor(Color fillColor)			// fill color of shapes and text
+   | stdFillColor(str colorName)           // named fill color
+   | stdFillColor(computedColor cColorName)    // named fill color
+   | stdFillColor(Like other)
+  
+/* wedge properties */
+   | stdFromAngle(num angle)
+   | stdFromAngle(computedNum cAngle)
+   | stdFromAngle(Like other)
+   
+   | stdToAngle(num angle)
+   | stdToAngle(computedNum cAngle)
+   | stdToAngle(Like other)
+   
+   | stdInnerRadius(num radius)
+   | stdInnerRadius(computedNum cRadius)
+   | stdInnerRadius(Like other)
+
+/* shape properties */
+   | stdShapeConnected(bool b)              // shapes consist of connected points
+   | stdShapeConnected(computedBool cB)
+   | stdShapeConnected(Like other)
+   
+   | stdShapeClosed(bool b)    		 	// closed shapes
+   | stdShapeClosed(computedBool cB)
+   | stdShapeClosed(Like other)
+   
+   | stdShapeCurved(bool b)                // use curves instead of straight lines
+   | stdShapeCurved(computedBool cB)
+   | stdShapeCurved(Like other)
+ 
+/* font and text properties */
+   | stdFont(str fontName)             	// named font
+   | stdFont(computedStr cFontName)    
+   | stdFont(Like other)
+    
+   | stdFontSize(int isize)                // font size
+   | stdFontSize(computedInt ciSize)
+   | stdFontSize(Like other)
+   
+   | stdFontColor(Color textColor)         // font color
+   | stdFontColor(str colorName)
+   | stdFontColor(computedColor cColorName)  
+   | stdFontColor(Like other)
+   
+   | stdTextAngle(num angle)               // text rotation
+   | stdTextAngle(computedNum cAngle) 
+   | stdTextAngle(Like other)
+   
+/* interaction properties */  
+   | stdMouseOver(Figure inner)            // add figure when mouse is over current figure
+   
+   | stdOnClick(void() handler)            // handler for mouse clicks
+   
+   | stdDoi(int d)                         // limit visibility to nesting level d
+   | stdDoi(computedInt ciD) 
+   
+/* other properties */
+   | stdId(str name)                       // name of elem (used in edges and various layouts)
+   | stdId(computedStr cName)
+   | stdId(Like other)
+   
+   | stdHint(str name)                     // hint for various compositions
+   | stdHint(computedStr cName)
+   | stdHint(Like other)
+   
+   | stdLayer(str name)                     // define named layer for nodes
+   | stdLayer(computedStr cName)
+   | stdLayer(Like other)
+   
+   | stdDirection(str name)
+   | stdDirection(computedStr cname)
+   | stdDirection(Like other)
+   ;   
 
 /*
  * Vertex and Edge: auxiliary data types

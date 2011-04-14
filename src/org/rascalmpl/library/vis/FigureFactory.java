@@ -43,12 +43,11 @@ import org.rascalmpl.library.vis.interaction.Checkbox;
 import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.TextField;
-import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
-import org.rascalmpl.library.vis.properties.IStringPropertyValue;
-import org.rascalmpl.library.vis.properties.Property;
+import org.rascalmpl.library.vis.properties.IPropertyValue;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.Utils;
+import org.rascalmpl.library.vis.properties.PropertyParsers;
+import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.library.vis.tree.Tree;
 import org.rascalmpl.library.vis.tree.TreeMap;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -128,21 +127,11 @@ public class FigureFactory {
     	put("_wedge",		Primitives.WEDGE);
     }};
 	
-	private static IPropertyManager extendProperties(IFigureApplet fpa, IConstructor c, IPropertyManager pm, IEvaluatorContext ctx){		
-		IList props = (IList) c.get(c.arity()-1);
-		
-		//for(IValue prop: props){
-		//	System.err.println("prop: " + prop.toString());	
-		//}
-		return pm == null ? new DefaultPropertyManager(fpa)
-		                  : ((props == null || props.equals(emptyList)) ? pm
-								                          : new PropertyManager(fpa, pm, props, ctx));
-	}
 	
 	@SuppressWarnings("incomplete-switch")
-	public static Figure make(IFigureApplet fpa, IConstructor c, IPropertyManager properties, IEvaluatorContext ctx){
+	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IEvaluatorContext ctx){
 		String ename = c.getName();
-		properties = extendProperties(fpa, c, properties, ctx);
+		properties = PropertyManager.extendProperties(fpa, c, properties, ctx);
 		
 		switch(pmap.get(ename)){
 			
@@ -165,9 +154,9 @@ public class FigureFactory {
 			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 					
 		case GRAPH:
-			if(properties.getHint().contains("lattice"))
+			if(properties.getStringProperty(StrProp.HINT).contains("lattice"))
 				return new LatticeGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
-			if(properties.getHint().contains("layered"))
+			if(properties.getStringProperty(StrProp.HINT).contains("layered"))
 				return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
@@ -210,9 +199,10 @@ public class FigureFactory {
 			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
 		case TEXT:
+			IPropertyValue<String> txt = new PropertyParsers.StringArgParser().parseProperty(StrProp.TEXT, c, 0, fpa, ctx);
+
 			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
-			IStringPropertyValue txt = Utils.getStrArg(Property.TEXT, c, fpa, ctx);
-			return new Text(fpa, properties,  txt);
+			return new Text(fpa, properties,txt);
 						
 		case TEXTFIELD:
 			if(c.arity() > 3)
@@ -241,7 +231,7 @@ public class FigureFactory {
 	}
 	
 	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureApplet fpa, IConstructor c,
-			IPropertyManager properties, IEvaluatorContext ctx) {
+			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
@@ -250,7 +240,7 @@ public class FigureFactory {
 	}
 	
 	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IConstructor c,
-			IPropertyManager properties, IEvaluatorContext ctx) {
+			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
@@ -259,7 +249,7 @@ public class FigureFactory {
 	}
 	
 	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureApplet fpa, IConstructor c,
-			IPropertyManager properties, IEvaluatorContext ctx) {
+			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		return new LatticeGraphEdge(G, fpa, properties, from, to,  ctx);

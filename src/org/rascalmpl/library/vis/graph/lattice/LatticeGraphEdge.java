@@ -19,9 +19,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.ConstantColorProperty;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
-import org.rascalmpl.library.vis.properties.Property;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -35,7 +33,7 @@ public class LatticeGraphEdge extends Figure {
 	private static boolean debug = false;
 
 	public LatticeGraphEdge(LatticeGraph G, IFigureApplet fpa,
-			IPropertyManager properties, IString fromName, IString toName,
+			PropertyManager properties, IString fromName, IString toName,
 			IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.from = G.getRegistered(fromName.getValue());
@@ -72,7 +70,7 @@ public class LatticeGraphEdge extends Figure {
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
 					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x
 					+ "," + to.y + ")");
-		if (this.isCurved()) {
+		if (getCurvedProperty()) {
 			float mx = (left + getFrom().figX() + left + getTo().figX()) / 2 + 20, my = (top
 					+ getFrom().figY() + top + getTo().figY()) / 2;
 			fpa.noFill();
@@ -89,13 +87,13 @@ public class LatticeGraphEdge extends Figure {
 	}
 
 	public void setColor(String s) {
-		IInteger cl = FigureColorUtils.colorNames.get(s);
-		if (cl != null)
-			new ConstantColorProperty(Property.LINE_COLOR, cl.intValue());
+		//IInteger cl = FigureColorUtils.colorNames.get(s);
+		//if (cl != null)
+			//new ConstantColorProperty( cl.intValue());
 	}
 
 	@Override
-	public void bbox() {
+	public void bbox(float desiredWidth, float desiredHeight) {
 		// TODO Auto-generated method stub
 
 	}

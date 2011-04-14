@@ -1,0 +1,124 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2011 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl - CWI
+*******************************************************************************/
+
+package org.rascalmpl.library.vis.properties;
+
+import java.util.EnumMap;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
+import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.RealProp;
+import org.rascalmpl.library.vis.properties.descriptions.StrProp;
+
+public class PropertySetters {
+
+	public static interface PropertySetter<Prop extends Enum<Prop>,PropValue>{
+		void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx);
+	}
+	
+	public static class SinglePropertySetter<Prop extends Enum<Prop>,PropValue> implements PropertySetter<Prop,PropValue>{
+		Prop property;
+		PropertyParsers.PropertyParser<Prop,PropValue> parser;
+		
+		SinglePropertySetter(Prop property,PropertyParsers.PropertyParser<Prop,PropValue> parser){
+			this.property = property;
+			this.parser = parser;
+		}
+		
+		public void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,
+				IEvaluatorContext ctx){
+			values.put(property,parser.parseProperty(property, c, 0, fpa, ctx));
+		}
+	}
+	
+
+	public static class DualOrRepeatSinglePropertySetter <Prop extends Enum<Prop>,PropValue> implements PropertySetter<Prop,PropValue>{
+		Prop property1,property2;
+		PropertyParsers.PropertyParser<Prop,PropValue> parser;
+		
+		DualOrRepeatSinglePropertySetter(Prop property1,Prop property2,PropertyParsers.PropertyParser<Prop,PropValue> parser){
+			this.property1 = property1;
+			this.property2 = property2;
+			this.parser = parser;
+		}
+		
+		public void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,
+				IEvaluatorContext ctx){
+			int secondIndex;
+			if(c.arity() == 1){
+				secondIndex = 0;
+			} else {
+				secondIndex = 1;
+			}
+			values.put(property1,parser.parseProperty(property1, c, 0, fpa, ctx));
+			values.put(property2,parser.parseProperty(property2, c, secondIndex, fpa, ctx));
+		}
+	}
+	
+	public static class SingleBooleanPropertySetter extends SinglePropertySetter<BoolProp,Boolean>{
+		public SingleBooleanPropertySetter(BoolProp property) {
+			super(property, new PropertyParsers.BooleanArgParser());
+		}
+	}
+	
+	public static class DualOrRepeatSingleBooleanPropertySetter extends DualOrRepeatSinglePropertySetter<BoolProp,Boolean> {
+		public DualOrRepeatSingleBooleanPropertySetter(BoolProp property1,BoolProp property2) {
+			super(property1, property2, new PropertyParsers.BooleanArgParser());
+		}
+	}
+	
+	public static class SingleIntPropertySetter extends SinglePropertySetter<IntProp,Integer>{
+		public SingleIntPropertySetter(IntProp property) {
+			super(property, new PropertyParsers.IntegerArgParser());
+		}
+	}
+	
+	public static class SingleRealPropertySetter extends SinglePropertySetter<RealProp,Float>{
+		public SingleRealPropertySetter(RealProp property) {
+			super(property, new PropertyParsers.RealArgParser());
+		}
+	}
+	
+	public static class SingleIntOrRealPropertySetter extends SinglePropertySetter<RealProp,Float>{
+		public SingleIntOrRealPropertySetter(RealProp property) {
+			super(property, new PropertyParsers.IntOrRealArgParser());
+		}
+	}
+	
+	public static class DualOrRepeatSingleRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Float>{
+		public DualOrRepeatSingleRealPropertySetter(RealProp property1,RealProp property2) {
+			super(property1,property2, new PropertyParsers.RealArgParser());
+		}
+	}
+	
+	public static class DualOrRepeatSingleIntOrRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Float>{
+		public DualOrRepeatSingleIntOrRealPropertySetter(RealProp property1,RealProp property2) {
+			super(property1,property2, new PropertyParsers.IntOrRealArgParser());
+		}
+	}
+	
+	public static class SingleStrPropertySetter extends SinglePropertySetter<StrProp,String>{
+		public SingleStrPropertySetter(StrProp property) {
+			super(property, new PropertyParsers.StringArgParser());
+		}
+	}
+	
+	public static class SingleColorPropertySetter extends SinglePropertySetter<ColorProp,Integer>{
+		public SingleColorPropertySetter(ColorProp property) {
+			super(property, new PropertyParsers.ColorArgParser());
+		}
+	}
+}

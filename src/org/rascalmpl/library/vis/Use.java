@@ -17,7 +17,7 @@ import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Use another element. Mostly used to override properties.
@@ -34,7 +34,7 @@ public class Use extends Figure {
 	private Figure inside;
 	private static boolean debug = false;
 
-	public Use(IFigureApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+	public Use(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(inside != null){
 			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
@@ -44,9 +44,9 @@ public class Use extends Figure {
 
 	@Override
 	public 
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 		
-		inside.bbox();
+		inside.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = inside.width;
 		height = inside.height;
 		if(debug)System.err.println("use.bbox: width=" + width + ", height=" + height);

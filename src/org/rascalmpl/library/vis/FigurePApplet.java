@@ -24,8 +24,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.properties.DefaultPropertyManager;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -86,8 +84,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 				file = file.substring(5);
 			}
 			System.err.println("saveFile = " + file);
-			IPropertyManager def = new DefaultPropertyManager(this);
-			this.figure = FigureFactory.make(this, fig, def, ctx);
+			this.figure = FigureFactory.make(this, fig, null, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,15 +94,13 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 	
 	public FigurePApplet(IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
-		IPropertyManager def = new DefaultPropertyManager(this);
-		this.figure = FigureFactory.make(this, fig, def, ctx);
+		this.figure = FigureFactory.make(this, fig, null, ctx);
 		setName("Figure");
 	}
 	
 	public FigurePApplet(IString name, IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
-		IPropertyManager def = new DefaultPropertyManager(this);
-		this.figure = FigureFactory.make(this, fig, def, ctx);
+		this.figure = FigureFactory.make(this, fig, null, ctx);
 		setName(name.getValue());
 	}
 	
@@ -120,7 +115,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 		System.err.println("name: " + getName());
 		if(saveFigure){
 			canvas = createGraphics(defaultWidth, defaultHeight, JAVA2D);
-			figure.bbox();
+			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			figureWidth = figure.width;
 			figureHeight = figure.height;
 			canvas = createGraphics(round(figureWidth + 2), round(figureHeight + 2), JAVA2D);
@@ -130,7 +125,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 		noLoop();
 		setLayout(null); // allows more precise position of AWT widgets.
 		
-		figure.bbox();
+		figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 		
 		computedValueChanged = false;
 		figureWidth = figure.width;
@@ -167,7 +162,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 			depth = 0;
 
 			if(computedValueChanged){
-				figure.bbox();
+				figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 				figureWidth = figure.width;
 				figureHeight = figure.height;
 				computedValueChanged = false;

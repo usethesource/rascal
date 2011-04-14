@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -40,7 +40,7 @@ public class Checkbox extends Figure {
 	
 	java.awt.Checkbox checkbox;
 
-	public Checkbox(IFigureApplet fpa, IPropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
+	public Checkbox(IFigureApplet fpa, PropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
 		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
@@ -62,7 +62,7 @@ public class Checkbox extends Figure {
 	    	        public void itemStateChanged(ItemEvent e) {
 	    	          try {
 	    	        
-	    	        	  boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+	    	        	  //boolean selected = e.getStateChange() == ItemEvent.SELECTED;
 	    	        	  System.err.println("getStateChange = " + e.getStateChange());
 	    	        	  System.err.println("getState = " + checkbox.getState());
 	    	        	  //checkbox.setState(!checkbox.getState());
@@ -81,7 +81,7 @@ public class Checkbox extends Figure {
 	}
 
 	@Override
-	public void bbox() {
+	public void bbox(float desiredWidth, float desiredHeight) {
 		width = checkbox.getWidth();
 		height = checkbox.getHeight();
 	}

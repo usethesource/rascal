@@ -25,7 +25,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class ComputeFigure extends Figure {
 	
@@ -39,7 +39,7 @@ public class ComputeFigure extends Figure {
 	final private IEvaluatorContext ctx;
 
 
-	public ComputeFigure(IFigureApplet fpa, IPropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
+	public ComputeFigure(IFigureApplet fpa, PropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 	
 		this.ctx = ctx;
@@ -52,7 +52,7 @@ public class ComputeFigure extends Figure {
 	}
 
 	@Override
-	public void bbox() {
+	public void bbox(float desiredWidth, float desiredHeight) {
 		
 		Result<IValue> figureVal;
 		
@@ -72,7 +72,7 @@ public class ComputeFigure extends Figure {
 		IConstructor figureCons = (IConstructor) figureVal.getValue();
 		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
 		fpa.setComputedValueChanged();
-		figure.bbox();
+		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = figure.width;
 		height = figure.height;
 		fpa.validate();

@@ -23,7 +23,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -55,7 +55,7 @@ public class SpringGraph extends Figure {
 	private static boolean debug = true;
 
 	
-	public SpringGraph(IFigureApplet fpa, IPropertyManager properties, IList nodes,
+	public SpringGraph(IFigureApplet fpa, PropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.nodes = new ArrayList<SpringGraphNode>();
@@ -121,7 +121,7 @@ public class SpringGraph extends Figure {
 //		 root.setY(height/2);
 //		 }
 		for (SpringGraphNode n : nodes) {
-			n.figure.bbox();
+			n.figure.bbox(AUTO_SIZE, AUTO_SIZE);
 			if (n != root) {
 				n.setX(fpa.random(n.figure.width/2,  width  - n.figure.width/2));
 				n.setY(fpa.random(n.figure.height/2, height - n.figure.height/2));
@@ -141,7 +141,7 @@ public class SpringGraph extends Figure {
 
 	@Override
 	public
-	void bbox() {
+	void bbox(float desiredWidth, float desiredHeight) {
 
 		initialPlacement();
 			

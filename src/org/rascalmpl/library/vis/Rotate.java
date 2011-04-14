@@ -17,9 +17,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
-
-import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class Rotate extends Figure {
 	private Figure figure;
@@ -32,7 +30,7 @@ public class Rotate extends Figure {
 	private float sina;
 	private float cosa;
 	
-	Rotate(IFigureApplet fpa, IPropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
+	Rotate(IFigureApplet fpa, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
 		super(fpa, inherited);
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
@@ -42,15 +40,15 @@ public class Rotate extends Figure {
 
 	@Override
 	public
-	void bbox() {
+	void bbox(float desiredWidth, float desiredHeight) {
 		
-		figure.bbox();
+		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 		
 		sina = abs(FigureApplet.sin(angle));
 		cosa = abs(FigureApplet.cos(angle));
 		
 		float hanch = figure.getHanchorProperty();
-		float vanch = figure.getHanchorProperty();
+		float vanch = figure.getVanchorProperty();
 		
 		float w = figure.width;
 		float h = figure.height;

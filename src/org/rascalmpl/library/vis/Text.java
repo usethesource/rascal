@@ -11,8 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import org.rascalmpl.library.vis.properties.IPropertyManager;
-import org.rascalmpl.library.vis.properties.IStringPropertyValue;
+import org.rascalmpl.library.vis.properties.IPropertyValue;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -23,8 +24,6 @@ import org.rascalmpl.library.vis.FigureApplet;
  *
  */
 public class Text extends Figure {
-
-	private IStringPropertyValue txt;
 	private static boolean debug = false;
 	private float topAnchor = 0;
 	private float bottomAnchor = 0;
@@ -32,18 +31,18 @@ public class Text extends Figure {
 	private float rightAnchor;
 	private float hfill = 0;
 	private float vfill = 0;
-	
+	private IPropertyValue<String> txt;
 	private int textAlignH = FigureApplet.CENTER;	
 
-	public Text(IFigureApplet fpa, IPropertyManager properties, IStringPropertyValue text) {
+	public Text(IFigureApplet fpa, PropertyManager properties,IPropertyValue<String> txt) {
 		super(fpa, properties);
-		this.txt = text;
-		if(debug)System.err.printf("Text: %s\n", txt);
+		this.txt = txt;
+		if(debug)System.err.printf("Text: %s\n", txt.getValue());
 	}
 	
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 		float halign = getHalignProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 

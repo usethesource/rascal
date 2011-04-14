@@ -16,10 +16,9 @@ import java.util.Arrays;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
-
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
@@ -36,14 +35,14 @@ public class Pack extends Compose {
 	static protected boolean debug = false;
 	boolean initialized = false;
 
-	public Pack(IFigureApplet fpa, IPropertyManager properties, IList elems,
+	public Pack(IFigureApplet fpa, PropertyManager properties, IList elems,
 			IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 
 	@Override
 	public
-	void bbox() {
+	void bbox(float desiredWidth, float desiredHeight) {
 		if(initialized)
 			return;
 		width = getWidthProperty();
@@ -56,7 +55,7 @@ public class Pack extends Compose {
 		float maxh = 0;
 		float ratio = 1;
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			maxw = max(maxw, fig.width);
 			maxh = max(maxh, fig.height);
 			surface += fig.width * fig.height;

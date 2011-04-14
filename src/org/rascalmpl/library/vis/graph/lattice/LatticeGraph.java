@@ -209,7 +209,7 @@ public class LatticeGraph extends Figure implements
 
 	// Organism[][] islands;
 
-	public LatticeGraph(IFigureApplet fpa, IPropertyManager properties,
+	public LatticeGraph(IFigureApplet fpa, PropertyManager properties,
 			IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.nodes = new ArrayList<LatticeGraphNode>();
@@ -258,7 +258,7 @@ public class LatticeGraph extends Figure implements
 				if (!e.getFrom().equals(n) && !e.getTo().equals(n))
 					if (linSolve.isOnEdge(e, n)) {
 						// System.err.println("BINGO");
-						IPropertyManager ep = new PropertyManager(fpa,
+						PropertyManager ep = new PropertyManager(fpa,
 								properties, vf.list(vf.constructor(shapeCurved,
 										vf.bool(true))), ctx);
 						e.properties = ep;
@@ -585,7 +585,7 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public void bbox() {
+	public void bbox(float desiredWidth, float desiredHeight) {
 	}
 
 }

@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Vertex: a point that is part of a shape.
@@ -43,13 +43,13 @@ public class Vertex extends Figure {
 		return 0;
 		
 	}
-	public Vertex(IFigureApplet fpa, IPropertyManager properties, IValue dx, IValue dy) {
+	public Vertex(IFigureApplet fpa, PropertyManager properties, IValue dx, IValue dy) {
 		super(fpa, properties);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 	}
 	
-	public Vertex(IFigureApplet fpa, IPropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
+	public Vertex(IFigureApplet fpa, PropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
@@ -60,11 +60,11 @@ public class Vertex extends Figure {
 
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 
 		if(marker != null){
 			//TODO is this ok?
-			marker.bbox();
+			marker.bbox(AUTO_SIZE, AUTO_SIZE);
 			if(debug) System.err.printf("Vertex: marker anchors hor (%f, %f), vert (%f, %f)\n",
 					   marker.leftAnchor(), marker.rightAnchor(), marker.topAnchor(), marker.bottomAnchor());
 			if(marker.leftAnchor() >= deltax){
@@ -109,7 +109,7 @@ public class Vertex extends Figure {
 			System.err.printf("Vertex: marker at %f, %f\n", left, top);
 		}
 		if(marker != null){
-			marker.bbox();
+			marker.bbox(AUTO_SIZE, AUTO_SIZE);
 			marker.draw(left-marker.width/2, top-marker.height/2);
 		}
 	}

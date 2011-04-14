@@ -21,6 +21,12 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
+import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.RealProp;
+import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import org.rascalmpl.library.vis.FigureApplet;
@@ -35,13 +41,16 @@ import org.rascalmpl.library.vis.FigureApplet;
  * @author paulk
  */
 
-public abstract class Figure implements Comparable<Figure> {
+public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 
+	public static final float AUTO_SIZE = -1.0f;
+	
+	@SuppressWarnings("unused")
 	private final boolean debug = false;
 	public IFigureApplet fpa;
 	protected static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-	public IPropertyManager properties;
+	public PropertyManager properties;
 
 	
 	private float left;		// coordinates of top left corner of
@@ -55,10 +64,10 @@ public abstract class Figure implements Comparable<Figure> {
 	private float leftDragged;
 	private float topDragged;
 		
-	protected Figure(IFigureApplet fpa, IPropertyManager properties){
+	protected Figure(IFigureApplet fpa, PropertyManager properties){
 		this.fpa = fpa;
 		this.properties = properties;
-		String id = properties.getId();
+		String id = properties.getStringProperty(StrProp.ID);
 		if(id != null)
 			fpa.registerId(id, this);
 	}
@@ -66,6 +75,7 @@ public abstract class Figure implements Comparable<Figure> {
 	protected void setLeft(float left) {
 		this.left = left;
 	}
+	
 
 	public float getLeft() {
 		return left + getLeftDragged();
@@ -77,14 +87,6 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public float getTop() {
 		return top;
-	}
-	
-	public String getDirection(){
-		return properties.getDirection();
-	}
-
-	public int getDOI(){
-		return properties.getDOI();
 	}
 	
 	public float getCenterX(){
@@ -107,165 +109,58 @@ public abstract class Figure implements Comparable<Figure> {
 		return a >= 0 ? a : -a;
 	}
 
-	private IPropertyManager getProperties() {
-		return properties;
-	}
-
 	public void applyProperties() {
-		IPropertyManager pm = getProperties();
-
-		fpa.fill(pm.getFillColor());
-		fpa.stroke(pm.getLineColor());
-		fpa.strokeWeight(pm.getLineWidth());
-		fpa.textSize(pm.getFontSize());
+		fpa.fill(getColorProperty(ColorProp.FILL_COLOR));
+		fpa.stroke(getColorProperty(ColorProp.LINE_COLOR));
+		fpa.strokeWeight(getRealProperty(RealProp.LINE_WIDTH));
+		fpa.textSize(getIntegerProperty(IntProp.FONT_SIZE));
 	}
 
 	public void applyFontProperties() {
-		fpa.textFont(fpa.createFont(properties.getFont(),
-				properties.getFontSize()));
-		fpa.fill(properties.getFontColor());
-	}
-	
-	protected boolean getAlignAnchorsProperty(){
-		return properties.getAlignAnchors();
-	}
-
-	protected float getHeightProperty() {
-		return properties.getHeight();
-	}
-
-	protected float getWidthProperty() {
-		return properties.getWidth();
-	}
-
-	protected float getHGapProperty() {
-		return properties.getHGap();
-	}
-
-	protected float getVGapProperty() {
-		return properties.getVGap();
-	}
-
-	protected int getFillColorProperty() {
-		return properties.getFillColor();
-	}
-	
-	public String getLayer(){
-		return properties.getLayer();
-	}
-	
-	protected int getLineColorProperty() {
-		return properties.getLineColor();
-	}
-
-	protected float getLineWidthProperty() {
-		return properties.getLineWidth();
-	}
-	
-	// Alignment
-	
-	public float getHalignProperty() {
-		return properties.getHalign();
-	}
-
-	public float getValignProperty() {
-		return properties.getValign();
+		fpa.textFont(fpa.createFont(getStringProperty(StrProp.FONT),
+				getIntegerProperty(IntProp.FONT_SIZE)));
+		fpa.fill(getColorProperty(ColorProp.FONT_COLOR));
 	}
 	
 	public float leftAlign() {
-		float res= (properties.getHalign() * width);
+		float res= (getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
 	public float rightAlign() {
-		float res =  (width - properties.getHalign() * width);
+		float res =  (width - getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
 	public float topAlign() {
-		return (properties.getValign() * height);
+		return (getRealProperty(RealProp.VALIGN) * height);
 	}
 
 	public float bottomAlign() {
-		return (height - properties.getValign() * height);
+		return (height - getRealProperty(RealProp.VALIGN)  * height);
 	}
 	
 	// Anchors
 
-	public float getHanchorProperty() {
-		return properties.getHanchor();
-	}
-
-	public float getVanchorProperty() {
-		return properties.getVanchor();
-	}
-
 	public float leftAnchor() {
-		float res= (properties.getHanchor() * width);
+		float res= (getRealProperty(RealProp.HANCHOR) * width);
 		return res;
 	}
 
 	public float rightAnchor() {
-		float res =  (width - properties.getHanchor() * width);
+		float res =  (width - getRealProperty(RealProp.HANCHOR) * width);
 		return res;
 	}
 
 	public float topAnchor() {
-		return (properties.getVanchor() * height);
+		return (getRealProperty(RealProp.VANCHOR) * height);
 	}
 
 	public float bottomAnchor() {
-		return (height - properties.getVanchor() * height);
-	}
-
-	public boolean isClosed() {
-		return properties.isShapeClosed();
-	}
-
-	protected boolean isConnected() {
-		return properties.isShapeConnected();
-	}
-
-	protected boolean isCurved() {
-		return properties.isShapeCurved();
-	}
-
-	protected float getFromAngleProperty() {
-		return properties.getFromAngle();
-	}
-
-	protected float getToAngleProperty() {
-		return properties.getToAngle();
-	}
-
-	protected float getInnerRadiusProperty() {
-		return properties.getInnerRadius();
+		return (height - getRealProperty(RealProp.VANCHOR) * height);
 	}
 
 	// TODO: irregular
-	protected boolean getHint(String txt) {
-		return properties.getHint().contains(txt);
-	}
-
-	public String getIdProperty() {
-		return properties.getId();
-	}
-
-	protected String getFontProperty() {
-		return properties.getFont();
-	}
-
-	protected int getFontSizeProperty() {
-		return properties.getFontSize();
-	}
-
-	protected int getFontColorProperty() {
-		return properties.getFontColor();
-	}
-
-	protected float getTextAngleProperty() {
-		return properties.getTextAngle();
-	}
 
 	public boolean isVisible() {
 		return true;
@@ -277,13 +172,6 @@ public abstract class Figure implements Comparable<Figure> {
 		// return fpa.isVisible(properties.getDOI() + 1);
 	}
 
-	public Figure getMouseOverFigure() {
-		return properties.getMouseOver();
-	}
-
-	public boolean hasMouseOverFigure() {
-		return properties.getMouseOver() != null;
-	}
 
 	/*
 	 * Compare two Figures according to their surface and aspect ratio
@@ -312,9 +200,11 @@ public abstract class Figure implements Comparable<Figure> {
 	/**
 	 * Compute the bounding box of the element. Should be called before draw
 	 * since, the computed width and height are stored in the element itself.
+	 * @param desiredWidth TODO
+	 * @param desiredHeight TODO
 	 */
 
-	public abstract void bbox();
+	public abstract void bbox(float desiredWidth, float desiredHeight);
 
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
@@ -388,7 +278,7 @@ public abstract class Figure implements Comparable<Figure> {
 		//fpa.line(left + fromX, top + fromY, left + IX, top + IY);
 */
 		if (toArrow != null) {
-			toArrow.bbox();
+			toArrow.bbox(AUTO_SIZE, AUTO_SIZE);
 			fpa.pushMatrix();
 			fpa.translate(left + IX, top + IY);
 			fpa.rotate(FigureApplet.radians(-90) + theta);
@@ -496,13 +386,14 @@ public abstract class Figure implements Comparable<Figure> {
 	public void drawWithMouseOver(float left, float top) {
 		// draw(left, top);
 		if (hasMouseOverFigure()) {
-			Figure mo = getMouseOverFigure();
-			mo.bbox();
+			Figure mo = getMouseOver();
+			mo.bbox(AUTO_SIZE, AUTO_SIZE);
 			mo.drawWithMouseOver(max(0, left + (width - mo.width) / 2f),
 					max(0, top + (height - mo.height) / 2));
 		}
 	}
-	
+
+
 	public boolean mouseInside(int mouseX, int mouseY){
 		boolean b =  (mouseX > getLeft()  && mouseX < getLeft() + width) &&
 		             (mouseY > getTop()  && mouseY < getTop() + height);
@@ -628,10 +519,6 @@ public abstract class Figure implements Comparable<Figure> {
 		return false;
 	}
 
-	public boolean isDraggable() {
-		return properties.isDraggable();
-	}
-
 	public void setLeftDragged(float leftDragged) {
 		this.leftDragged = leftDragged;
 	}
@@ -653,5 +540,89 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	public void destroy(){
 	}
+	
+	// IPropertyManager implementation (boilerplate)
+	public boolean isBooleanPropertySet(BoolProp property){
+		return properties.isBooleanPropertySet(property);
+	}
+	public boolean getBooleanProperty(BoolProp property){
+		return properties.getBooleanProperty(property);
+	}
+	public boolean isIntegerPropertySet(IntProp property){
+		return properties.isIntegerPropertySet(property);
+	}
+	public int getIntegerProperty(IntProp property) {
+		return properties.getIntegerProperty(property);
+	}
+	public boolean isRealPropertySet(RealProp property){
+		return properties.isRealPropertySet(property);
+	}
+	public float getRealProperty(RealProp property){
+		return properties.getRealProperty(property);
+	}
+	public boolean isStringPropertySet(StrProp property){
+		return properties.isStringPropertySet(property);
+	}
+	public String getStringProperty(StrProp property){
+		return properties.getStringProperty(property);
+	}
+	public boolean isColorPropertySet(ColorProp property){
+		return properties.isColorPropertySet(property);
+	}
+	public int getColorProperty(ColorProp property) {
+		return properties.getColorProperty(property);
+	}
+	
+	public boolean isDraggable(){
+		return properties.isDraggable();
+	}
+	public Figure getMouseOver(){
+		return properties.getMouseOver();
+	}
+	public IValue getOnClick(){
+		return properties.getOnClick();
+	}
+	
+	private boolean hasMouseOverFigure() {
+		return getMouseOver() != null;
+	}
+	
+	// short-hand functions for selected properties(boilerplate)
+	
+	public boolean getAlignAnchorsProperty(){return getBooleanProperty(BoolProp.ALIGN_ANCHORS);}
+	public boolean getClosedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CLOSED);}
+	public boolean getCurvedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CURVED);}
+	public boolean getConnectedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CONNECTED);}
+	public String getIdProperty(){return getStringProperty(StrProp.ID);}
+	public String getDirectionProperty(){return getStringProperty(StrProp.DIRECTION);}
+	public String getLayerProperty(){return getStringProperty(StrProp.LAYER);}
+	public boolean isWidthPropertySet(){return isRealPropertySet(RealProp.WIDTH);}
+	public float getWidthProperty(){ return getRealProperty(RealProp.WIDTH);}
+	public boolean isHeightPropertySet(){return isRealPropertySet(RealProp.HEIGHT);}
+	public float getHeightProperty(){return getRealProperty(RealProp.HEIGHT);}
+	public boolean isHGapPropertySet(){return isRealPropertySet(RealProp.HGAP);}
+	public float getHGapProperty(){return getRealProperty(RealProp.HGAP);}
+	public boolean isHGapRatioPropertySet(){return isRealPropertySet(RealProp.HGAP_RATIO);}
+	public float getHGapRatioProperty() { return getRealProperty(RealProp.HGAP_RATIO);}
+	public boolean isVGapPropertySet(){return isRealPropertySet(RealProp.VGAP);}
+	public float getVGapProperty(){return getRealProperty(RealProp.VGAP);}
+	public boolean isVGapRatioPropertySet(){return isRealPropertySet(RealProp.VGAP_RATIO);}
+	public float getVGapRatioProperty() { return getRealProperty(RealProp.VGAP_RATIO);}
+	public float getHalignProperty(){return getRealProperty(RealProp.HALIGN);}
+	public float getValignProperty(){return getRealProperty(RealProp.VALIGN);}
+	public float getHanchorProperty(){return getRealProperty(RealProp.HANCHOR);}
+	public float getVanchorProperty(){return getRealProperty(RealProp.VANCHOR);}
+	public float getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
+	public float getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
+	public float getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}
+	public float getFromAngleProperty(){return getRealProperty(RealProp.FROM_ANGLE);}
+	public float getToAngleProperty(){return getRealProperty(RealProp.TO_ANGLE);}
+	public int getFillColorProperty(){return getColorProperty(ColorProp.FILL_COLOR);}
+	public int getFontColorProperty(){return getColorProperty(ColorProp.FONT_COLOR);}
+	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}
+	public boolean getEndGapProperty(){ return getBooleanProperty(BoolProp.END_GAP);}
+	public boolean widthExplicitlySet(){return isRealPropertySet(RealProp.WIDTH);}
+	public boolean heightExplicitlySet(){return isRealPropertySet(RealProp.HEIGHT);}
+	
 	
 }

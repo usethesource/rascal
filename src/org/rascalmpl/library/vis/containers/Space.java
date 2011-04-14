@@ -14,7 +14,7 @@ package org.rascalmpl.library.vis.containers;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Spacing that can act as container.
@@ -24,7 +24,7 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
  */
 public class Space extends Container {
 
-	public Space(IFigureApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+	public Space(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties, inside, ctx);
 	}
 

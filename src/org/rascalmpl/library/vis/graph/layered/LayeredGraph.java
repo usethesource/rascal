@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 import  org.rascalmpl.library.vis.graph.layered.Direction;
 import org.rascalmpl.library.vis.FigureApplet;
@@ -62,10 +62,10 @@ public class LayeredGraph extends Figure {
 	private float DELTA;
 	private static final int INFINITY = 1000000;
 	
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 	private static final boolean printGraph = false;
 	
-	public LayeredGraph(IFigureApplet fpa, IPropertyManager properties, IList nodes,
+	public LayeredGraph(IFigureApplet fpa, PropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
@@ -97,7 +97,7 @@ public class LayeredGraph extends Figure {
 			IConstructor c = (IConstructor) v;
 			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
 			String name = fig.getIdProperty();
-			String layer = fig.getLayer();
+			String layer = fig.getLayerProperty();
 
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
@@ -186,7 +186,7 @@ public class LayeredGraph extends Figure {
 	}
 	
 	public LinkedList<LayeredGraphNode> getRegisteredLayer(String name){
-		if (debug) System.err.println("getRegisteredLayer: " + name);
+		System.err.println("getRegisteredLayer: " + name);
 		return registeredLayerIds.get(name);
 	}
 	
@@ -224,7 +224,7 @@ public class LayeredGraph extends Figure {
 	}
 	
 	@Override
-	public void bbox() {
+	public void bbox(float desiredWidth, float desiredHeight) {
 		MAXWIDTH = width = getWidthProperty();
 		height = getHeightProperty();
 		hgap = getHGapProperty();
@@ -281,7 +281,7 @@ public class LayeredGraph extends Figure {
 	}
 	
 	private void rotateToDirection(){
-		String dir = getDirection();
+		String dir = getDirectionProperty();
 		if(dir.length() == 0 || dir.equals("TB"))
 			return;
 		
