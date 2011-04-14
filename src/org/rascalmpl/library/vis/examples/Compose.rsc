@@ -20,14 +20,7 @@ import IO;
 
 // Horizontal combination of boxes of 100x200 with rgb and (same) named colors
 public void hor1(){
-	render(hcat(   [
-					 box(fillColor("mediumblue")),
-	                 box(fillColor(rgb(0, 0, 205))),
-	                 box(fillColor(rgb(0, 0, 205, 0.5))),
-	                 box(fillColor(color("mediumblue", 0.5)))
-	                ],
-	                lineWidth(2), size(100,200)
-	                ));
+	render(hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue", 0.5)))],stdLineWidth(2), stdSize(100,200)));
 }
 
 // Horizontal combination of boxes of 100x200 with named colors and opacity
@@ -40,7 +33,7 @@ public void hor2(){
 	                 box(fillColor(color("mediumblue", 0.8))),
 	                 box(fillColor(color("mediumblue", 1.0)))
 	                ],
-	                size(100,200)
+	                stdSize(100,200)
 	                ));
 }
 // Horizontal combination of boxes of 100x200 with grey color and different opacities
@@ -53,7 +46,7 @@ public void hor3(){
 	                 box(fillColor(gray(125, 0.8))),
 	                 box(fillColor(gray(125, 1.0))) 
 	                ],
-	                size(100,200)
+	                stdSize(100,200)
 	                ));
 }
 
@@ -63,7 +56,7 @@ public void hor4(){
 			        box(size(150,100)),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      fillColor("yellow"), gap(10),top()
+			      stdFillColor("yellow"), gap(10),top()
 		));
 }
 // Horizontal combination of bottom-aligned boxes with some inherited colors
@@ -72,7 +65,7 @@ public void hor5(){
 			        box(size(150,100)),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      fillColor("yellow"), gap(10),bottom()
+			      stdFillColor("yellow"), gap(10),bottom()
 		));
 }
 
@@ -82,7 +75,7 @@ public void hor6(){
 			        box(size(150,100)),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      fillColor("yellow"), gap(10),vcenter()
+			      stdFillColor("yellow"), gap(10),vcenter()
 		));
 }
 

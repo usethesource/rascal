@@ -25,7 +25,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -39,7 +39,7 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	public TreeMap(IFigureApplet fpa, IPropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
+	public TreeMap(IFigureApplet fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();
@@ -93,7 +93,7 @@ public class TreeMap extends Figure {
 	
 	@Override
 	public
-	void bbox() {
+	void bbox(float desiredWidth, float desiredHeight) {
 		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", getLeft(), getTop());
 		width = getWidthProperty();
 		if(width == 0) 
@@ -132,7 +132,7 @@ public class TreeMap extends Figure {
 	@Override
 	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
 		if(root.mousePressed(mousex, mousey, e)){
-			bbox();
+			bbox(AUTO_SIZE, AUTO_SIZE);
 			return true;
 		}
 		return false;

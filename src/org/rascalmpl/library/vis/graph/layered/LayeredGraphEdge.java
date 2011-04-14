@@ -19,7 +19,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -36,7 +36,7 @@ public class LayeredGraphEdge extends Figure {
 	private static boolean debug = true;
 	private static boolean useSplines = false;
 	
-	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IPropertyManager properties, 
+	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, PropertyManager properties, 
 			IString fromName, IString toName,
 			IConstructor toArrowCons, IConstructor fromArrowCons, 
 			IEvaluatorContext ctx) {
@@ -63,7 +63,7 @@ public class LayeredGraphEdge extends Figure {
 				", arrows (to/from): " + toArrow + " " + fromArrow);
 	}
 	
-	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IPropertyManager properties, 
+	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, PropertyManager properties, 
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow, IEvaluatorContext ctx){
 		
 		super(fpa, properties);
@@ -344,7 +344,7 @@ public class LayeredGraphEdge extends Figure {
 
 	@Override
 	public
-	void bbox() {
+	void bbox(float desiredWidth, float desiredHeight) {
 		// TODO Auto-generated method stub
 	}
 }

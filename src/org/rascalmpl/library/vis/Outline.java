@@ -15,8 +15,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
-import org.rascalmpl.library.vis.FigureColorUtils;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Outline element: a rectangle with colored horizontal lines
@@ -30,7 +29,7 @@ public class Outline extends Figure {
 	private final IList lineInfo;
 	private final int maxLine;
 
-	public Outline(IFigureApplet fpa, IPropertyManager properties, IList lineInfo, IInteger maxLine) {
+	public Outline(IFigureApplet fpa, PropertyManager properties, IList lineInfo, IInteger maxLine) {
 		super(fpa, properties);
 		this.lineInfo = lineInfo;
 		this.maxLine = maxLine.intValue();
@@ -38,7 +37,7 @@ public class Outline extends Figure {
 
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 		float lw = getLineWidthProperty();
 		width = getWidthProperty();
 		height = getHeightProperty();

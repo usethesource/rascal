@@ -156,7 +156,7 @@ public class SpringGraphNode {
 	
 	void bbox(){
 		if(figure != null){
-			figure.bbox();
+			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 		}
 	}
 	

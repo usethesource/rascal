@@ -14,7 +14,8 @@ package org.rascalmpl.library.vis;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.compose.Compose;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 
 import processing.core.PConstants;
 
@@ -37,17 +38,17 @@ public class Shape extends Compose {
 	float topAnchor;
 	float bottomAnchor;
 
-	Shape(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	Shape(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 		leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 
 		for (Figure fig : figures){
-			fig.bbox();
+			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			leftAnchor = max(leftAnchor, fig.leftAnchor());
 			rightAnchor = max(rightAnchor, fig.rightAnchor());
 			topAnchor = max(topAnchor, fig.topAnchor());
@@ -68,9 +69,9 @@ public class Shape extends Compose {
 		
 		applyProperties();
 		float bottom = top + height - bottomAnchor;
-		boolean closed = isClosed();
-		boolean curved = isCurved();
-		boolean connected = isClosed() || isConnected() || curved;
+		boolean closed = getClosedProperty();
+		boolean curved = getCurvedProperty();
+		boolean connected = closed ||  getConnectedProperty() || curved;
 		
 		if(connected){
 			fpa.noFill();

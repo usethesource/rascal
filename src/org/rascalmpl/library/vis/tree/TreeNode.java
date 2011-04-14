@@ -38,14 +38,14 @@ public class TreeNode extends Figure {
 	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(IFigureApplet fpa, IPropertyManager properties, Figure fig) {
+	public TreeNode(IFigureApplet fpa, PropertyManager properties, Figure fig) {
 		super(fpa, properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();
 		edgeProperties = new ArrayList<PropertyManager>();
 	}
 	
-	public void addChild(IPropertyManager inheritedProps, IList props,
+	public void addChild(PropertyManager inheritedProps, IList props,
 			TreeNode toNode, IEvaluatorContext ctx) {
 		children.add(toNode);
 		//TODO
@@ -79,7 +79,7 @@ public class TreeNode extends Figure {
 	float shapeTree(float rootMidX, float rootTop, TreeNodeRaster raster) {
         String id = rootFigure.getIdProperty();
 		if(debug)System.err.printf("shapeTree: id=%s, rootMidX=%f, rootTop=%f\n", id, rootMidX, rootTop);
-		rootFigure.bbox();
+		rootFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		float hgap = getHGapProperty();
 		float vgap = getVGapProperty();
 		
@@ -95,7 +95,7 @@ public class TreeNode extends Figure {
 			rootPosition = width/2;
 		} else {
 			for(TreeNode child : children){
-				child.rootFigure.bbox();
+				child.rootFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 			}
 			
 			// Compute position of leftmost child
@@ -150,7 +150,7 @@ public class TreeNode extends Figure {
 	
 	@Override
 	public
-	void bbox() {
+	void bbox(float desiredWidth, float desiredHeight) {
 		// TODO Auto-generated method stub
 	}
 	

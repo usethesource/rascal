@@ -14,7 +14,7 @@ package org.rascalmpl.library.vis.containers;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -67,7 +67,7 @@ public class Wedge extends Container {
 	
 	private static boolean debug = false;
 
-	public Wedge(IFigureApplet fpa, IPropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
+	public Wedge(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties, inside, ctx);
 	}
 	
@@ -92,7 +92,7 @@ public class Wedge extends Container {
 
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 		radius = getHeightProperty();
 		float lw = getLineWidthProperty();
 		innerRadius = getInnerRadiusProperty();
@@ -105,7 +105,7 @@ public class Wedge extends Container {
 		
 		
 		if(innerFig != null)	// Compute bounding box of inside object.
-			innerFig.bbox();
+			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
 		
 		float sinFrom = FigureApplet.sin(fromAngle);
 		float cosFrom = FigureApplet.cos(fromAngle);

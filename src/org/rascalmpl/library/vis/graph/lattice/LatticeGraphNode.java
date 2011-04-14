@@ -59,7 +59,7 @@ public class LatticeGraphNode {
 
 	void bbox() {
 		if (figure != null) {
-			figure.bbox();
+			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class LatticeGraphNode {
 
 	void draw(float left, float top) {
 		if (figure != null) {
-			figure.bbox();
+			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			figure.draw(x + left - figure.width / 2, y + top - figure.height
 					/ 2);
 			// if (mousePressed) {

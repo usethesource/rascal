@@ -13,14 +13,23 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.properties;
 
+import java.util.EnumMap;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
+import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.RealProp;
+import org.rascalmpl.library.vis.properties.descriptions.StrProp;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Manage the properties of a figure.
@@ -31,355 +40,258 @@ import org.rascalmpl.library.vis.IFigureApplet;
 
 public class PropertyManager implements IPropertyManager {
 
+	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	static IList emptyList = vf.list();
+	
 	protected Figure mouseOverFigure = null; // Interaction and mouse handling
 	protected IValue onClickHandler = null;
-	
-	IPropertyValue values[];
-	IPropertyManager inherited;
-
-//	private boolean usesTrigger;
 	private boolean draggable;
 	
-	private int countProperties(IList props){
-		int n = 0;
-		for (IValue v : props) {
-			IConstructor c = (IConstructor) v;
-			String pname = c.getName();
-			switch (propertyNames.get(pname)) {
-			case ALIGN:
-			case ANCHOR:
-			case SIZE:
-			case GAP:
-				n += 2; break;
-			case MOUSEOVER:
-			case ONCLICK:
-				break;
-			
-			default:
-				n++;
-			}
+	class Values{
+		
+		EnumMap<BoolProp, IPropertyValue<Boolean>> boolValues;
+		EnumMap<IntProp, IPropertyValue<Integer>> intValues;
+		EnumMap<RealProp, IPropertyValue<Float>> realValues;
+		EnumMap<StrProp, IPropertyValue<String>> strValues;
+		EnumMap<ColorProp, IPropertyValue<Integer>> colorValues;
+		
+	}
+	
+	Values explicitValues, stdValues;
+	
+	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IEvaluatorContext ctx){		
+		IList props = (IList) c.get(c.arity()-1);
+		if(pm != null && !pm.anyExplicitPropertiesSet() && pm.getMouseOver() == null && pm.getOnClick() == null 
+				&& (props == null || props.length()==0)){
+			return pm; // reuse old property manager
+		} else {
+			return new PropertyManager(fpa, pm, props, ctx);
 		}
-		return n;
+								                         
+	}
+	
+	public PropertyManager(IFigureApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
+		draggable = false;
+		setProperties(fpa, props, ctx);
+		inheritStdProperties(inherited);
 	}
 
-	
-	public PropertyManager(IFigureApplet fpa, IPropertyManager inherited, IList props, IEvaluatorContext ctx) {
-		this.inherited = inherited;
-		
-		values = new IPropertyValue[countProperties(props)];
-		int i = 0;
-		
-		draggable = false;
-		
+	private void setProperties(IFigureApplet fpa, IList props,
+			IEvaluatorContext ctx) {
 		for (IValue v : props) {
 			
 			IConstructor c = (IConstructor) v;
-//			System.err.println("QQ1:"+c.getType());
-//			System.err.println("QQ2:"+c.getName());
 			String pname = c.getName();
-
-			switch (propertyNames.get(pname)) {
-			
-			case ALIGN_ANCHORS:
-//				values[i++] = new ConstantBooleanProperty(Property.ALIGNASCHILD, true); break;
-				values[i++] = Utils.getBooleanArg(Property.ALIGN_ANCHORS, c, fpa, ctx); break;
-				
-			case ALIGN:
-				values[i++] = Utils.getRealArg(Property.HALIGN, c, 0, fpa, ctx);  // TODO check range?
-				values[i++] = Utils.getRealArg(Property.VALIGN, c, 1, fpa, ctx);
-				break;
-				
-			case ANCHOR:
-				values[i++] = Utils.getRealArg(Property.HANCHOR, c, 0, fpa, ctx);	// TODO check range?
-				values[i++] = Utils.getRealArg(Property.VANCHOR, c, 1, fpa, ctx);
-				break;
-				
-			case DIRECTION:
-				values[i++] = Utils.getStrArg(Property.DIRECTION, c, fpa, ctx); break;
-				
-			case DOI:
-				values[i++] = Utils.getIntArg(Property.DOI, c, fpa, ctx); break;
-			
-			case FILL_COLOR:
-				values[i++] = Utils.getColorArg(Property.FILL_COLOR, c, fpa, ctx); break;
-				
-			case FONT:
-				values[i++] = Utils.getStrArg(Property.FONT, c, fpa, ctx); break;
-				
-			case FONT_COLOR:
-				values[i++] = Utils.getColorArg(Property.FONT_COLOR, c, fpa, ctx); break;
-				
-			case FONT_SIZE:
-				values[i++] = Utils.getIntArg(Property.FONT_SIZE, c, fpa, ctx); break;
-				
-			case FROM_ANGLE:
-				values[i++] = Utils.getIntOrRealArg(Property.FROM_ANGLE, c, 0, fpa, ctx); break;
-			
-			case GAP:
-				if(c.arity() == 1){
-					values[i++] = Utils.getIntOrRealArg(Property.HGAP, c, 0, fpa, ctx);
-					values[i++] = Utils.getIntOrRealArg(Property.VGAP, c, 0, fpa, ctx);
-					
-				} else {
-					values[i++] = Utils.getIntOrRealArg(Property.HGAP, c, 0, fpa, ctx);
-					values[i++] = Utils.getIntOrRealArg(Property.VGAP, c, 1, fpa, ctx);
-				}
-				break;
-				
-			case HALIGN:
-				values[i++] = Utils.getRealArg(Property.HALIGN, c, 0, fpa, ctx);
-				//hanchor = hanchor < 0 ? 0 : (hanchor > 1 ? 1 : hanchor);
-				break;
-				
-			case HANCHOR:
-				values[i++] = Utils.getRealArg(Property.HANCHOR, c, 0, fpa, ctx);
-				//hanchor = hanchor < 0 ? 0 : (hanchor > 1 ? 1 : hanchor);
-				break;
-				
-			case HEIGHT:
-				values[i++] = Utils.getIntOrRealArg(Property.HEIGHT, c, 0, fpa, ctx); break;
-				
-			case HGAP:
-				values[i++] = Utils.getIntOrRealArg(Property.HGAP, c, 0, fpa, ctx); break;
-				
-			case HINT:
-				values[i++] = Utils.getStrArg(Property.HINT, c, fpa, ctx); break;
-				//hint = getStrArg(null, c).toLowerCase(); break;
-				
-			case ID:
-				values[i++] = Utils.getStrArg(Property.ID, c, fpa, ctx); break;
-				
-			case INNERRADIUS:
-				values[i++] = Utils.getIntOrRealArg(Property.INNERRADIUS, c, 0, fpa, ctx); break;
-			
-			case LAYER:
-				values[i++] = Utils.getStrArg(Property.LAYER, c, fpa, ctx); break;
-
-			case LINE_COLOR:
-				values[i++] = Utils.getColorArg(Property.LINE_COLOR, c, fpa, ctx); break;
-				
-			case LINE_WIDTH:
-				values[i++] = Utils.getIntOrRealArg(Property.LINE_WIDTH, c, 0, fpa, ctx); break;
-
-			case MOUSEOVER:
+			if(pname.equals("mouseOver")){
 				mouseOverFigure = FigureFactory.make(fpa, 
 													 (IConstructor)c.get(0), 
-													 new DefaultPropertyManager(fpa),
+													 new PropertyManager(fpa,this,emptyList,ctx),
 													 ctx);
-				break;	
-				
-			case ONCLICK:
+				continue;	
+			} 
+			if(pname.equals("onClick")){
 				onClickHandler = c.get(0);
-				break;
-				
-			case SHAPE_CLOSED:
-				//values[i++] = new ConstantBooleanProperty(Property.SHAPECLOSED, true); break;
-				values[i++] = Utils.getBooleanArg(Property.SHAPE_CLOSED, c, fpa, ctx); break;
-				
-			case SHAPE_CONNECTED:
-				//values[i++] = new ConstantBooleanProperty(Property.SHAPECONNECTED, true); break;
-				values[i++] = Utils.getBooleanArg(Property.SHAPE_CONNECTED, c, fpa, ctx); break;
-				
-			case SHAPE_CURVED:
-				//values[i++] = new ConstantBooleanProperty(Property.SHAPECURVED, true); break;
-				values[i++] = Utils.getBooleanArg(Property.SHAPE_CURVED, c, fpa, ctx); break;
-			
-			case SIZE:
-				if(c.arity() == 1){
-					values[i++] = Utils.getIntOrRealArg(Property.WIDTH, c, 0, fpa, ctx);
-					values[i++] = Utils.getIntOrRealArg(Property.HEIGHT, c, 0, fpa, ctx);
-				} else {
-					values[i++] = Utils.getIntOrRealArg(Property.WIDTH, c, 0, fpa, ctx);
-					values[i++] = Utils.getIntOrRealArg(Property.HEIGHT, c, 1, fpa, ctx);
+				continue;	
+			} 
+			Values values;
+			if(pname.startsWith("std")){
+				if(stdValues == null){
+					stdValues = new Values();
 				}
-				break;
-				
-			case TEXT_ANGLE:
-				values[i++] = Utils.getIntOrRealArg(Property.TEXT_ANGLE, c, 0, fpa, ctx); break;
-				
-			case TO_ANGLE:
-				values[i++] = Utils.getIntOrRealArg(Property.TO_ANGLE, c, 0, fpa, ctx); break;
-				
-			case VALIGN:
-				values[i++] = Utils.getRealArg(Property.VALIGN, c, 0, fpa, ctx);
-				break;
-				
-			case VANCHOR:
-				values[i++] = Utils.getRealArg(Property.VANCHOR, c, 0, fpa, ctx);
-				//vanchor = vanchor < 0 ? 0 : (vanchor > 1 ? 1 : vanchor);
-				break;
-				
-			case VGAP:
-				values[i++] = Utils.getIntOrRealArg(Property.VGAP, c, 0, fpa, ctx); break;
-			
-			case WIDTH:
-				values[i++] = Utils.getIntOrRealArg(Property.WIDTH, c, 0, fpa, ctx); break;
-				
-			default:
+				values = stdValues;
+				int stdLength = "std".length();
+				// convert stdSize to size
+				pname = pname.substring(stdLength,stdLength+1).toLowerCase() + pname.substring(stdLength+1);
+			} else {
+				if(explicitValues == null){
+					explicitValues = new Values();
+				}
+				values = explicitValues;
+			}
+			if(BoolProp.propertySetters.containsKey(pname)){
+				if(values.boolValues == null){
+					values.boolValues = new EnumMap<BoolProp, IPropertyValue<Boolean>>(BoolProp.class);
+				}
+				BoolProp.propertySetters.get(pname).execute(values.boolValues, c, fpa, ctx);
+			} else if(IntProp.propertySetters.containsKey(pname)){
+				if(values.intValues == null){
+					values.intValues = new EnumMap<IntProp, IPropertyValue<Integer>>(IntProp.class);
+				}
+				IntProp.propertySetters.get(pname).execute(values.intValues, c, fpa, ctx);
+			}  else if(RealProp.propertySetters.containsKey(pname)){
+				if(values.realValues == null){
+					 values.realValues = new EnumMap<RealProp, IPropertyValue<Float>>(RealProp.class);
+				}
+				RealProp.propertySetters.get(pname).execute(values.realValues, c, fpa, ctx);
+			} else if(StrProp.settersStr.containsKey(pname)){
+				if(values.strValues == null){
+					values.strValues = new EnumMap<StrProp, IPropertyValue<String>>(StrProp.class);
+				}
+				StrProp.settersStr.get(pname).execute(values.strValues, c, fpa, ctx);
+			} else if(ColorProp.propertySetters.containsKey(pname)){
+				if(values.colorValues == null){
+					values.colorValues = new EnumMap<ColorProp, IPropertyValue<Integer>>(ColorProp.class);
+				}
+				ColorProp.propertySetters.get(pname).execute(values.colorValues, c, fpa, ctx);
+			} else {
 				throw RuntimeExceptionFactory.illegalArgument(c, ctx
 						.getCurrentAST(), ctx.getStackTrace());
 			}
 		}
+	}
+	
+	private void inheritStdProperties(PropertyManager inherited) {
+		if(inherited == null){
+			return;
+		}
+		if(stdValues == null){
+			stdValues = inherited.stdValues;
+		} else if(inherited.stdValues != null){
 			
+			if(stdValues.boolValues == null){
+				stdValues.boolValues = inherited.stdValues.boolValues;
+			} else if(inherited.stdValues.boolValues != null) {
+				for(BoolProp p : BoolProp.values()){
+					if(!stdValues.boolValues.containsKey(p) && inherited.stdValues.boolValues.containsKey(p)){
+						stdValues.boolValues.put(p, inherited.stdValues.boolValues.get(p));
+					}
+				}
+			}
+			if(stdValues.intValues == null){
+				stdValues.intValues = inherited.stdValues.intValues;
+			} else if(inherited.stdValues.intValues != null){
+				for(IntProp p : IntProp.values()){
+					if(!stdValues.intValues.containsKey(p) && inherited.stdValues.intValues.containsKey(p)){
+						stdValues.intValues.put(p, inherited.stdValues.intValues.get(p));
+					}
+				}
+			}
+			if(stdValues.realValues == null){
+				stdValues.realValues = inherited.stdValues.realValues;
+			} else if(inherited.stdValues.realValues != null){
+				for(RealProp p : RealProp.values()){
+					if(!stdValues.realValues.containsKey(p) && inherited.stdValues.realValues.containsKey(p)){
+						stdValues.realValues.put(p, inherited.stdValues.realValues.get(p));
+					}
+				}
+			}
+			if(stdValues.strValues == null){
+				stdValues.strValues = inherited.stdValues.strValues;
+			} else if(inherited.stdValues.strValues != null){
+				for(StrProp p : StrProp.values()){
+					if(!stdValues.strValues.containsKey(p) && inherited.stdValues.strValues.containsKey(p)){
+						stdValues.strValues.put(p, inherited.stdValues.strValues.get(p));
+					}
+				}
+			}
+			if(stdValues.colorValues == null){
+				stdValues.colorValues = inherited.stdValues.colorValues;
+			} else if(inherited.stdValues.colorValues != null){
+				for(ColorProp p : ColorProp.values()){
+					if(!stdValues.colorValues.containsKey(p) && inherited.stdValues.colorValues.containsKey(p)){
+						stdValues.colorValues.put(p, inherited.stdValues.colorValues.get(p));
+					}
+				}
+			}
+		}
 	}
 	
-	public IFigureApplet getFPA() {
-		return inherited.getFPA();
+	
+	public boolean anyExplicitPropertiesSet() {
+		return explicitValues != null;
 	}
 	
-	public boolean getAlignAnchors(){
-		return getBooleanProperty(Property.ALIGN_ANCHORS);
+
+	public boolean isBooleanPropertySet(BoolProp property){
+		return explicitValues != null && 
+		       explicitValues.boolValues != null &&
+		       explicitValues.boolValues.containsKey(property);
+	}
+	public boolean getBooleanProperty(BoolProp property) {
+		if(isBooleanPropertySet(property)){
+			return explicitValues.boolValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.boolValues != null && 
+				stdValues.boolValues.containsKey(property)){
+			return stdValues.boolValues.get(property).getValue();
+		} else {
+			return BoolProp.stdDefaults.get(property);
+		}
 	}
 	
-	public String getDirection(){
-		return getStringProperty(Property.DIRECTION);
+	public boolean isIntegerPropertySet(IntProp property){
+		return explicitValues != null && 
+	       explicitValues.intValues != null &&
+	       explicitValues.intValues.containsKey(property);
+	}
+	public int getIntegerProperty(IntProp property) {
+		if(isIntegerPropertySet(property)){
+			return explicitValues.intValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.intValues != null && 
+				stdValues.intValues.containsKey(property)){
+			return stdValues.intValues.get(property).getValue();
+		} else {
+			return IntProp.stdDefaults.get(property);
+		}
 	}
 	
-	public int getDOI(){
-		return getIntegerProperty(Property.DOI);
-	}
+	public boolean isRealPropertySet(RealProp property){
+		return explicitValues != null && 
+	       explicitValues.realValues != null &&
+	       explicitValues.realValues.containsKey(property);
 
-	public int getFillColor() {
-		return getIntegerProperty(Property.FILL_COLOR);
 	}
-
-	public String getFont() {
-		return getStringProperty(Property.FONT);
-	}
-
-	public int getFontColor() {
-		return getIntegerProperty(Property.FONT_COLOR);
-	}
-
-	public int getFontSize() {
-		return getIntegerProperty(Property.FONT_SIZE);
-	}
-
-	public float getFromAngle() {
-		return getRealProperty(Property.FROM_ANGLE);
+	public float getRealProperty(RealProp property) {
+		if(isRealPropertySet(property)){
+			return explicitValues.realValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.realValues != null && 
+				stdValues.realValues.containsKey(property)){
+			return stdValues.realValues.get(property).getValue();
+		} else {
+			return RealProp.stdDefaults.get(property);
+		}
 	}
 	
-	public float getHalign() {
-		return getRealProperty(Property.HALIGN);
+	public boolean isStringPropertySet(StrProp property){
+		return explicitValues != null && 
+	       explicitValues.strValues != null &&
+	       explicitValues.strValues.containsKey(property);
+	}
+	public String getStringProperty(StrProp property) {
+		if(isStringPropertySet(property)){
+			return explicitValues.strValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.strValues != null && 
+				stdValues.strValues.containsKey(property)){
+			return stdValues.strValues.get(property).getValue();
+		} else {
+			return StrProp.stdDefaults.get(property);
+		}
 	}
 	
-	public float getHanchor() {
-		return getRealProperty(Property.HANCHOR);
+	public boolean isColorPropertySet(ColorProp property){
+		return explicitValues != null && 
+	       explicitValues.colorValues != null &&
+	       explicitValues.colorValues.containsKey(property);
 	}
-
-	public float getHGap() {
-		return getRealProperty(Property.HGAP);
-	}
-
-	public float getHeight() {
-		return getRealProperty(Property.HEIGHT);
-	}
-
-	public String getHint() {
-		return getStringProperty(Property.HINT);
-	}
-
-	public String getId() {
-		return getStringProperty(Property.ID);
-	}
-
-	public float getInnerRadius() {
-		return getRealProperty(Property.INNERRADIUS);
+	public int getColorProperty(ColorProp property) {
+		if(isColorPropertySet(property)){
+			return explicitValues.colorValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.colorValues != null && 
+				stdValues.colorValues.containsKey(property)){
+			return stdValues.colorValues.get(property).getValue();
+		} else {
+			return ColorProp.stdDefaults.get(property);
+		}
 	}
 	
-	public String getLayer() {
-		return getStringProperty(Property.LAYER);
-	}
-
-	public int getLineColor() {
-		return getIntegerProperty(Property.LINE_COLOR);
-	}
-
-	public float getLineWidth() {
-		return getRealProperty(Property.LINE_WIDTH);
-	}
-
 	public Figure getMouseOver() {
-		if(mouseOverFigure != null)
 			return mouseOverFigure;
-		return inherited.getMouseOver();
 	}
 	
 	public IValue getOnClick(){
-		if(onClickHandler != null)
 			return onClickHandler;
-		return inherited.getOnClick();
-	}
-
-	public float getTextAngle() {
-		return getRealProperty(Property.TEXT_ANGLE);
-	}
-
-	public float getVGap() {
-		return getRealProperty(Property.VGAP);
-	}
-	
-	public float getValign() {
-		return getRealProperty(Property.VALIGN);
-	}
-
-	public float getVanchor() {
-		return getRealProperty(Property.VANCHOR);
-	}
-
-	public float getWidth() {
-		return getRealProperty(Property.WIDTH);
-	}
-
-	public boolean isShapeClosed() {
-		return getBooleanProperty(Property.SHAPE_CLOSED);
-	}
-
-	public boolean isShapeConnected() {
-		return getBooleanProperty(Property.SHAPE_CONNECTED);
-	}
-
-	public boolean isShapeCurved() {
-		return getBooleanProperty(Property.SHAPE_CURVED);
-	}
-
-	public float getToAngle() {
-		return getRealProperty(Property.TO_ANGLE);
 	}
 	
 	public boolean isDraggable(){
 		return draggable;
-	}
-	
-	public boolean getBooleanProperty(Property property) {
-		for(IPropertyValue pv : values){
-			if(pv.getProperty() == property)
-				return ((IBooleanPropertyValue) pv).getValue();
-		}
-		return inherited.getBooleanProperty(property);
-	}
-
-	public int getIntegerProperty(Property property) {
-		for(IPropertyValue pv : values){
-			if(pv.getProperty() == property)
-				return ((IIntegerPropertyValue) pv).getValue();
-		}
-		return inherited.getIntegerProperty(property);
-	}
-	
-	public float getRealProperty(Property property) {
-		for(IPropertyValue pv : values){
-			if(pv.getProperty() == property)
-				return ((IRealPropertyValue) pv).getValue();
-		}
-		return inherited.getRealProperty(property);
-	}
-	
-	public String getStringProperty(Property property) {
-		for(IPropertyValue pv : values){
-			if(pv.getProperty() == property)
-				return ((IStringPropertyValue) pv).getValue();
-		}
-		return inherited.getStringProperty(property);
 	}
 }

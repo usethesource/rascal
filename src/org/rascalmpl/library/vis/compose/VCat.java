@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * 
@@ -35,13 +35,13 @@ public class VCat extends Compose {
 	private boolean alignAnchors = false;
 	private static boolean debug = false;
 
-public VCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+public VCat(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
 	public
-	void bbox(){
+	void bbox(float desiredMajorSize, float desiredMinorSize){
 		alignAnchors = getAlignAnchorsProperty();
 		if(alignAnchors)
 			bboxAlignAnchors();
@@ -58,7 +58,7 @@ public VCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvalua
 		vgap = getVGapProperty();
 		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
 			leftAnchor = max(leftAnchor, fig.leftAnchor());
 			rightAnchor = max(rightAnchor, fig.rightAnchor());
 			height = height + fig.height;
@@ -79,7 +79,7 @@ public VCat(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvalua
 		vgap = getVGapProperty();
 		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
 			width = max(width, fig.width);
 			height += fig.height;
 		}

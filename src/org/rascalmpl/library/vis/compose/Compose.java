@@ -21,7 +21,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Abstract class for the composition of a list of visual elements.
@@ -34,7 +34,7 @@ public abstract class Compose extends Figure {
 	final protected Figure[] figures;
 	final private static boolean debug = false;
 
-	protected Compose(IFigureApplet fpa, IPropertyManager properties,
+	protected Compose(IFigureApplet fpa, PropertyManager properties,
 			IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		int n = elems.length();

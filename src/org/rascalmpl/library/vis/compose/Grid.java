@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
 /**
@@ -41,14 +41,14 @@ public class Grid extends Compose {
 	private static boolean debug = false;
 	
 
-	public Grid(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public Grid(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 		leftFig = new float[elems.length()];
 		topFig = new float[elems.length()];
 	}
 	
 	@Override
-	public void bbox(){
+	public void bbox(float desiredWidth, float desiredHeight){
 		alignAnchors = getAlignAnchorsProperty();
 		if(alignAnchors)
 			bboxAlignAnchors();
@@ -82,7 +82,7 @@ public class Grid extends Compose {
 			}
 			
 			Figure fig = figures[i];
-			fig.bbox();
+			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			
 			if(w == 0)
 				extLeft = max(extLeft, fig.leftAnchor());
@@ -134,7 +134,7 @@ public class Grid extends Compose {
 			}
 			
 			Figure fig = figures[i];
-			fig.bbox();
+			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			
 			if(w == 0)
 				extLeft = max(extLeft, halign * fig.width);
@@ -172,8 +172,8 @@ public class Grid extends Compose {
 			}
 		} else {
 			
-			float hgap = getHGapProperty();
-			float vgap = getVGapProperty();
+			//float hgap = getHGapProperty();
+			//float vgap = getVGapProperty();
 			
 			float halign = getHalignProperty();
 			float valign = getValignProperty();

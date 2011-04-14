@@ -460,7 +460,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	void bbox(){
 		if(figure != null){
-			figure.bbox();
+			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 		}
 	}
 	
@@ -473,12 +473,12 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	String getLayer(){
-		return figure != null ? figure.getLayer() : "";
+		return figure != null ? figure.getLayerProperty() : "";
 	}
 
 	void draw(float left, float top) {
 		if(figure != null){
-			figure.bbox();
+			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			figure.draw(x + left - figure.width/2, y + top - figure.height/2);
 		}
 	}

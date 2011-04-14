@@ -17,14 +17,14 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class Scale extends Figure {
 	float xscale;
 	float yscale;
 	Figure figure;
 
-	public Scale(IFigureApplet fpa, IPropertyManager inheritedProps, IValue xs,
+	public Scale(IFigureApplet fpa, PropertyManager inheritedProps, IValue xs,
 			IValue ys, IConstructor c, IEvaluatorContext ctx) {
 		super(fpa, inheritedProps);
 		xscale = xs.getType().isIntegerType() ? ((IInteger) xs).intValue()
@@ -38,8 +38,8 @@ public class Scale extends Figure {
 
 	@Override
 	public
-	void bbox() {
-		figure.bbox();
+	void bbox(float desiredWidth, float desiredHeight) {
+		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = xscale * figure.width;
 		height = yscale * figure.height;
 	}

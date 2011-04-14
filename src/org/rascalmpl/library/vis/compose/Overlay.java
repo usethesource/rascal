@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
 /**
@@ -36,12 +36,12 @@ public class Overlay extends Compose {
 	float leftAnchor = 0;
 	float rightAnchor = 0;
 
-	public Overlay(IFigureApplet fpa, IPropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public Overlay(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
 	@Override
-	public void bbox(){
+	public void bbox(float desiredWidth, float desiredHeight){
 		alignAnchors = getAlignAnchorsProperty();
 		if(alignAnchors)
 			bboxAlignAnchors();
@@ -54,7 +54,7 @@ public class Overlay extends Compose {
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
 		for(Figure ve : figures){
-			ve.bbox();
+			ve.bbox(AUTO_SIZE, AUTO_SIZE);
 			topAnchor = max(topAnchor, ve.topAnchor());
 			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
 			leftAnchor = max(leftAnchor, ve.leftAnchor());
@@ -69,7 +69,7 @@ public class Overlay extends Compose {
 		width = height = 0;
 		
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			width = max(width, fig.width);
 			height = max(height, fig.height);
 		}

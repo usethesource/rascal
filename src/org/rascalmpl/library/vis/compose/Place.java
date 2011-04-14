@@ -20,7 +20,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /*
  * Given are a first figure (bottomFigure) that contains a second figure (refFigure) with identity id.
@@ -33,7 +33,7 @@ public class Place extends Figure {
 	private Figure topFigure;
 
 
-	public Place(IFigureApplet fpa, IPropertyManager properties, IConstructor ctop, IString id, IConstructor cbot, IEvaluatorContext ctx) {
+	public Place(IFigureApplet fpa, PropertyManager properties, IConstructor ctop, IString id, IConstructor cbot, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.bottomFigure = FigureFactory.make(fpa, cbot, properties, ctx);
 		this.topFigure = FigureFactory.make(fpa, ctop, properties, ctx);
@@ -44,12 +44,12 @@ public class Place extends Figure {
 	}
 
 	@Override
-	public void bbox() {
-		bottomFigure.bbox();
-		topFigure.bbox();
+	public void bbox(float desiredWidth, float desiredHeight) {
+		bottomFigure.bbox(AUTO_SIZE, AUTO_SIZE);
+		topFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		
-		float halign = properties.getHalign();
-		float valign = properties.getValign();
+		float halign = getHalignProperty();
+		float valign = getValignProperty();
 		width = max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
 		height = max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
 	}
@@ -58,8 +58,8 @@ public class Place extends Figure {
 	public void draw(float left, float top) {
 		setLeft(left);
 		setTop(top);
-		float halign = properties.getHalign();
-		float valign = properties.getValign();
+		float halign = getHalignProperty();
+		float valign = getValignProperty();
 		bottomFigure.draw(left, top);
 		topFigure.draw(refFigure.getLeft() + halign * refFigure.width - topFigure.width/2,
 				       refFigure.getTop()  + valign * refFigure.height - topFigure.height/2);

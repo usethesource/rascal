@@ -29,7 +29,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -47,7 +47,7 @@ public class TextField extends Figure {
 	
 	final java.awt.TextField field = new java.awt.TextField();
 
-	public TextField(IFigureApplet fpa, IPropertyManager properties, IString text, IValue cb, IValue validate,  IEvaluatorContext ctx) {
+	public TextField(IFigureApplet fpa, PropertyManager properties, IString text, IValue cb, IValue validate,  IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
 		if(cb.getType().isExternalType() && ((cb instanceof RascalFunction) || (cb instanceof OverloadedFunctionResult))){
@@ -98,7 +98,7 @@ public class TextField extends Figure {
 	}
 
 	@Override
-	public void bbox() {
+	public void bbox(float desiredWidth, float desiredHeight) {
 		width = getWidthProperty();
 		height = getHeightProperty();
 		

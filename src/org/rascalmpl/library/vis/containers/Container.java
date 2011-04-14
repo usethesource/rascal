@@ -19,7 +19,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
 /**
@@ -42,7 +42,7 @@ public abstract class Container extends Figure {
 
 	final private static boolean debug = false;
 
-	public Container(IFigureApplet fpa, IPropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
+	public Container(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(innerCons != null){
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
@@ -53,19 +53,29 @@ public abstract class Container extends Figure {
 
 	@Override
 	public 
-	void bbox(){
+	void bbox(float desiredWidth, float desiredHeight){
 		float lw = getLineWidthProperty();
-		width = getWidthProperty();
-		height = getHeightProperty();
+		if(isWidthPropertySet()){
+			desiredWidth = width = getWidthProperty();
+		} 
+		if(isHeightPropertySet()){
+			desiredHeight = height = getHeightProperty();
+		} 
+		
 		if(innerFig != null){
 			float hgap = getHGapProperty();
 			float vgap = getVGapProperty();
-			innerFig.bbox();
-			if(width == 0 && height == 0){
+			innerFig.bbox(desiredWidth,desiredHeight);
+			if(desiredWidth == AUTO_SIZE){
 				width = innerFig.width + 2 * hgap;
-				height = innerFig.height + 2 * vgap;
 			}
-		} 
+			if(desiredHeight == AUTO_SIZE){
+				height = innerFig.width + 2 * hgap;
+			}
+		} else {
+			width = getWidthProperty();
+			height = getHeightProperty();
+		}
 		width += 2*lw;
 		height += 2*lw;
 		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());
@@ -100,7 +110,7 @@ public abstract class Container extends Figure {
 		draw(left, top);
 		if(innerFig != null && innerFig.isVisibleInMouseOver())
 			innerDrawWithMouseOver(left, top);
-		Figure mo = getMouseOverFigure();
+		Figure mo = getMouseOver();
 		if(mo != null && mo.isVisibleInMouseOver()){
 			mo.drawWithMouseOver(max(0, left + mo.getHanchorProperty()*(width  - mo.width)),
 			    				 max(0, top  + mo.getVanchorProperty()*(height - mo.height)));
@@ -163,20 +173,20 @@ public abstract class Container extends Figure {
 					mouseOverActive = true;
 				}
 			} else if (mouseInMe){
-				innerFig.bbox();
+				innerFig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
 				innerFig.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
 				mouseOverActive = true;
 			}
 		}
 		
-		Figure mo = getMouseOverFigure();
+		Figure mo = getMouseOver();
 		if(mo != null){
 			if(mo.isVisibleInMouseOver()){
 				if(mo.mouseOver(mouseX, mouseY, mouseInMe)){
 					mouseOverActive = true;
 				}
 			} else if(mouseInMe){
-				mo.bbox();
+				mo.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
 				mo.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
 				mouseOverActive = true;
 			}
@@ -199,7 +209,7 @@ public abstract class Container extends Figure {
 	public void clearVisibleInMouseOver(){
 		if(innerFig != null)
 			innerFig.clearVisibleInMouseOver();
-		Figure mo = getMouseOverFigure();
+		Figure mo = getMouseOver();
 		if(mo != null)
 			mo.clearVisibleInMouseOver();
 		setVisibleInMouseOver(false);
@@ -214,7 +224,7 @@ public abstract class Container extends Figure {
 		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, e))
 				return true;
 		
-		Figure mo = getMouseOverFigure();
+		Figure mo = getMouseOver();
 		
 		if(mo != null && mo.isVisibleInMouseOver() && mo.mousePressed(mouseX, mouseY, e))
 			return true;
