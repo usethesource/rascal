@@ -602,12 +602,12 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public float getHeightProperty(){return getRealProperty(RealProp.HEIGHT);}
 	public boolean isHGapPropertySet(){return isRealPropertySet(RealProp.HGAP);}
 	public float getHGapProperty(){return getRealProperty(RealProp.HGAP);}
-	public boolean isHGapRatioPropertySet(){return isRealPropertySet(RealProp.HGAP_RATIO);}
-	public float getHGapRatioProperty() { return getRealProperty(RealProp.HGAP_RATIO);}
+	public boolean isHGapFactorPropertySet(){return isRealPropertySet(RealProp.HGAP_FACTOR);}
+	public float getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
 	public boolean isVGapPropertySet(){return isRealPropertySet(RealProp.VGAP);}
 	public float getVGapProperty(){return getRealProperty(RealProp.VGAP);}
-	public boolean isVGapRatioPropertySet(){return isRealPropertySet(RealProp.VGAP_RATIO);}
-	public float getVGapRatioProperty() { return getRealProperty(RealProp.VGAP_RATIO);}
+	public boolean isVGapFactorPropertySet(){return isRealPropertySet(RealProp.VGAP_FACTOR);}
+	public float getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
 	public float getHalignProperty(){return getRealProperty(RealProp.HALIGN);}
 	public float getValignProperty(){return getRealProperty(RealProp.VALIGN);}
 	public float getHanchorProperty(){return getRealProperty(RealProp.HANCHOR);}

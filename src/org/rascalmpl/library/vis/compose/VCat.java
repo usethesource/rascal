@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 
 /**
  * 
@@ -24,109 +25,54 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * - when alignAnchors==true, using their horizontal anchor for alignment.
  * - otherwise using current alignment settings
  * 
+ * VCat is a HCat but with the axises swapped
+ * 
  * @author paulk
  *
  */
-public class VCat extends Compose {
-	
-	float vgap;
-	float leftAnchor = 0;
-	float rightAnchor = 0;
-	private boolean alignAnchors = false;
-	private static boolean debug = false;
+public class VCat extends HCat {
 
-public VCat(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
+	public VCat(IFigureApplet fpa, PropertyManager properties, IList elems,
+			IEvaluatorContext ctx) {
 		super(fpa, properties, elems, ctx);
 	}
 	
-	@Override
-	public
-	void bbox(float desiredMajorSize, float desiredMinorSize){
-		alignAnchors = getAlignAnchorsProperty();
-		if(alignAnchors)
-			bboxAlignAnchors();
-		else
-			bboxStandard();
-	}
-	
-	public
-	void bboxAlignAnchors(){
-		width = 0;
-		height = 0;
-		leftAnchor = 0;
-		rightAnchor = 0;
-		vgap = getVGapProperty();
-		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
-		for(Figure fig : figures){
-			fig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
-			leftAnchor = max(leftAnchor, fig.leftAnchor());
-			rightAnchor = max(rightAnchor, fig.rightAnchor());
-			height = height + fig.height;
-		}
+	void setProperties(){
+		isWidthPropertySet = isHeightPropertySet();
+		isHeightPropertySet = isWidthPropertySet();
+		isHGapPropertySet = isVGapPropertySet();
+		isHGapFactorPropertySet = isVGapFactorPropertySet();
 		
-		width = leftAnchor + rightAnchor;
-		int ngaps = (figures.length - 1);
+		getWidthProperty = getHeightProperty();
+		getHeightProperty = getWidthProperty();
+		getHGapProperty = getVGapProperty();
+		getHGapFactorProperty = getVGapFactorProperty();
+		getValignProperty = getHalignProperty();
+	}
+	
+	public void bbox(float desiredWidth,float desiredHeight){
+		super.bbox(desiredHeight,desiredWidth);
+		float tmp = width;
+		width = height;
+		height = tmp;
 		
-		height += ngaps * vgap;
-		if(debug)System.err.printf("vcat: width=%f, height=%f, leftAnchor=%f, rightAnchor=%f\n", width, height, leftAnchor, rightAnchor);
 	}
 	
-	public void bboxStandard(){
-		width = 0;
-		height = 0;
-
-		float halign = getHalignProperty();
-		vgap = getVGapProperty();
-		if(debug)System.err.printf("vertical.bbox: vgap=%f\n", vgap);
-		for(Figure fig : figures){
-			fig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
-			width = max(width, fig.width);
-			height += fig.height;
-		}
-		int ngaps = (figures.length - 1);
-		height += ngaps * vgap;
-		leftAnchor = halign * width;
-		rightAnchor = (1 - halign) * width;
-		
-		if(debug)System.err.printf("vcat: width=%f, height=%f, leftAnchor=%f, rightAnchor=%f\n", width, height, leftAnchor, rightAnchor);
+	float getFigureWidth(Figure fig){ return fig.height; }
+	float getFigureHeight(Figure fig){return fig.width;}
+	float getTopAnchor(Figure fig){return fig.leftAnchor();}
+	float getBottomAnchor(Figure fig){return fig.rightAnchor();}
+	void  drawFigure(Figure fig,float left,float top,float leftBase,float topBase){
+		fig.draw(leftBase + top, topBase + left);
 	}
+	void  bboxOfFigure(Figure fig,float desiredWidth,float desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
+	float getHeight(){return width;}
+	public float leftAnchor(){ return topAnchor; }
+	public float rightAnchor(){ return bottomAnchor; }
 	
-	@Override
-	public
-	void draw(float left, float top){
-		this.setLeft(left);
-		this.setTop(top);
-
-		applyProperties();
-		if(alignAnchors){
-			float bottom = top + height;
-
-			// Draw from top to bottom
-			for(int i = figures.length-1; i >= 0; i--){
-				if(debug)System.err.printf("vertical.draw: i=%d, vgap=%f, bottom=%f\n", i, vgap, bottom);
-				Figure fig = figures[i];
-				float h = fig.height;
-				fig.draw(left + leftAnchor - fig.leftAnchor(), bottom - h);
-				bottom -= h + vgap;
-			}
-		} else {
-			float currentTop = top;
-			float halign = getHalignProperty();
-			for(Figure fig : figures){
-				float hpad = halign * (width - fig.width);
-				fig.draw(left + hpad, currentTop);
-				currentTop += fig.height + vgap;
-			}
-		}
-	}
 	
-	@Override
-	public float leftAnchor(){
-		return leftAnchor;
-	}
+	//reset top and bottom anchor to defaults
+	public float topAnchor() { return (getRealProperty(RealProp.VANCHOR) * height);}
+	public float bottomAnchor() {return (height - getRealProperty(RealProp.VANCHOR) * height);}
 	
-	@Override
-	public float rightAnchor(){
-		return rightAnchor;
-	}
 }

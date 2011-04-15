@@ -230,20 +230,25 @@ data FProperty =
    | gap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
  //  | gap(computedNum cWidth, computedNum cHeight) 
    
+   | gapFactor(num amount)
+   | gapFactor(computerNum cAmount)
+   | gapFactor(Like other)
+   | gapFactor(num hfactor,num vfactor)
+   
    | hgap(num width)                      // sets hor gap
    | hgap(computedNum cWidth)
    | hgap(Like other)
    
-   | hgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an hcat), width(gaps)/width(non-gaps)
-   | hgapRatio(computedNum cRatio)   
-   | hgapRatio(Like other)   
+   | hgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
+   | hgapFactor(computedNum cFactor)   
+   | hgapFactor(Like other)   
    
    | vgap(num height)                     // set vert gap
    | vgap(computedNum cHeight)
    | vgap(Like other)
    
-   | vgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an vcat), height(gaps)/height(non-gaps)
-   | vgapRatio(computedNum cRatio)   
+   | vgapFactor(num factor)                 //  the factor of the total height which is whitespace (i.e. 0.2 means 20% whitespace)
+   | vgapRatio(computedNum cFactor)   
    | vgapRatio(Like other)   
    
    | startGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
@@ -387,21 +392,26 @@ data FProperty =
    | stdGap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
  //  | stdGap(computedNum cWidth, computedNum cHeight) 
    
+   | stdGapFactor(num amount)
+   | stdGapFactor(computerNum cAmount)
+   | stdGapFactor(Like other)
+   | stdGapFactor(num hfactor,num vfactor)
+   
    | stdHgap(num width)                      // sets hor gap
    | stdHgap(computedNum cWidth)
    | stdHgap(Like other)
    
-   | stdHgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an hcat), width(gaps)/width(non-gaps)
-   | stdHgapRatio(computedNum cRatio)   
-   | stdHgapRatio(Like other)   
+   | stdHgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
+   | stdHgapFactor(computedNum cFactor)   
+   | stdHgapFactor(Like other)      
    
    | stdVgap(num height)                     // set vert gap
    | stdVgap(computedNum cHeight)
    | stdVgap(Like other)
 
-   | stdVgapRatio(num ratio)                 // the ratio between gaps and non-gaps(i.e. figures in for example an vcat), height(gaps)/height(non-gaps)
-   | stdVgapRatio(computedNum cRatio)   
-   | stdVgapRatio(Like other)   
+   | stdVgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
+   | stdVgapFactor(computedNum cFactor)   
+   | stdVgapFactor(Like other)   
 
    | stdStartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
    | stdStartGap(computedBool cAlg)
