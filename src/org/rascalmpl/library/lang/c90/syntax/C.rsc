@@ -176,11 +176,11 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
                               str declType = findType(specChildren);
                               
-                              list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
-                              for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
+                              list[tuple[TypeSpecifier var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
+                              for(tuple[TypeSpecifier var, InitDeclarator initDecl] variableTuple <- variables){
                                  str variable = variableTuple.var;
                                  InitDeclarator initDecl = variableTuple.initDecl;
-                                 tuple[list[str], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
+                                 tuple[list[Specifiers], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
                                  typeDefs += (variable:<declType, modifiers>); // Record the typedef.
                               }
                            }
@@ -210,33 +210,42 @@ syntax InitDeclarator = Declarator decl |
                         Declarator decl "=" Initializer
                        ;
 
-syntax Specifier = Identifier: Identifier |
-                   Void: "void" |
-                   Char: "char" |
-                   Short: "short" |
-                   Int: "int" |
-                   Long: "long" |
-                   Float: "float" |
-                   Double: "double" |
-                   Struct: "struct" Identifier |
-                   StructDecl: "struct" Identifier "{" StructDeclaration* "}" |
-                   StructAnonDecl: "struct" "{" StructDeclaration* "}" |
-                   Union: "union" Identifier |
-                   UnionDecl: "union" Identifier "{" StructDeclaration* "}" |
-                   UnionAnonDecl: "union" "{" StructDeclaration* "}" |
-                   Enum: "enum" Identifier |
-                   EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" |
-                   EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}" |
-                   "signed" |
-                   "unsigned" |
-                   "const" |
-                   "volatile" |
-                   TypeDef: "typedef" |
-                   "extern" |
-                   "static" |
-                   "auto" |
-                   "register"
+syntax Specifier = StorageClass: StorageClass |
+                   TypeSpecifier: TypeSpecifier |
+                   TypeQualifier: TypeQualifier
                    ;
+
+syntax StorageClass = TypeDef: "typedef" |
+                      "extern" |
+                      "static" |
+                      "auto" |
+                      "register"
+                      ;
+
+syntax TypeSpecifier = Identifier: Identifier |
+                       Void: "void" |
+                       Char: "char" |
+                       Short: "short" |
+                       Int: "int" |
+                       Long: "long" |
+                       Float: "float" |
+                       Double: "double" |
+                       "signed" |
+                       "unsigned" |
+                       Struct: "struct" Identifier |
+                       StructDecl: "struct" Identifier "{" StructDeclaration* "}" |
+                       StructAnonDecl: "struct" "{" StructDeclaration* "}" |
+                       Union: "union" Identifier |
+                       UnionDecl: "union" Identifier "{" StructDeclaration* "}" |
+                       UnionAnonDecl: "union" "{" StructDeclaration* "}" |
+                       Enum: "enum" Identifier |
+                       EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" |
+                       EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}"
+                       ;
+
+syntax TypeQualifier = "const" |
+                       "volatile"
+                       ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow typedef specifier and such.
                            Specifier* specs // TODO: Avoid. Disallow typedef specifier and such.
@@ -267,14 +276,14 @@ syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
                             bracket Bracket: "(" AbstractDeclarator decl ")" |
                             ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" |
                             FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" >
-                            non-assoc PointerDeclarator: "*" Specifier* specs AbstractDeclarator decl // TODO: Only allow type qualifiers and identifiers as specs.
+                            non-assoc PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
                             ;
 
 syntax Declarator = Identifier: Identifier |
                     bracket Bracket: "(" Declarator decl ")" |
                     ArrayDeclarator: Declarator decl "[" Expression? exp "]" |
                     FunctionDeclarator: Declarator decl "(" Parameters? params ")" >
-                    PointerDeclarator: "*" Specifier* specs Declarator decl // TODO: Only allow type qualifiers and identifiers as specs.
+                    PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
                     ;
 
 syntax Parameter = Specifier* Declarator
@@ -315,7 +324,7 @@ syntax ExternalDeclaration = FunctionDefinition |
                              Declaration
                              ;
 
-syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO Disallow typedef specifier and such.
+syntax FunctionDefinition = TypeSpecifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO Disallow typedef specifier and such.
                             ;
 
 start syntax TranslationUnit = ExternalDeclaration+
@@ -342,75 +351,78 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
                 ;
 
 
-map[str name, tuple[str var, tuple[list[str], Declarator] modifiers] cType] typeDefs = (); // Name to type mapping.
+map[str name, tuple[TypeSpecifier var, tuple[list[Specifier], Declarator] modifiers] cType] typeDefs = (); // Name to type mapping.
 
-private str findType(list[Tree] specs){
-	str cType = "int"; // If no type is defined the type is int.
+private TypeSpecifier findType(list[Tree] specs){
+	// Bah.
+	TypeSpecifier cType = appl(prod([lit("int")],sort("TypeSpecifier"),attrs([term(cons("Int"))])),[appl(prod([\char-class([range(105,105)]),\char-class([range(110,110)]),\char-class([range(116,116)])],lit("int"),attrs([literal()])),[char(105),char(110),char(116)])]); // If no type is defined the type is int.
+	
+	list[Tree] typeSpecs = [];
+	for(spec <- specs){
+		if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+			if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+				typeSpecs += typeSpecifier[0];
+			}
+		}
+	}
 	
 	// This is order dependant, so don't convert this to a switch.
-    if([_*,appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := specs){
-       cType = "void";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := specs){
-       cType = "char";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := specs){
-       cType = "short";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := specs){
-       cType = "long";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := specs){
-       cType = "float";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := specs){
-       cType = "double";
-    }else if([_*,appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := specs){
-       cType = "int"; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
-    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := specs){
-       cType = "<theStruct>";
-    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := specs){
-       cType = "<theStruct>";
-    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := specs){
-       cType = "<theStruct>";
-    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := specs){
-       cType = "<theUnion>";
-    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := specs){
-       cType = "<theUnion>";
-    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := specs){
-       cType = "<theUnion>";
-    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := specs){
-       cType = "<theEnum>";
-    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := specs){
-       cType = "<theEnum>";
-    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := specs){
-       cType = "<theEnum>";
-    }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := specs){
-       cType = "<identifier>";
+    if([_*,voidType:appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := typeSpecs){
+       cType = voidType;
+    }else if([_*,charType:appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := typeSpecs){
+       cType = charType;
+    }else if([_*,shortType:appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := typeSpecs){
+       cType = shortType;
+    }else if([_*,longType:appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := typeSpecs){
+       cType = longType;
+    }else if([_*,floatType:appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := typeSpecs){
+       cType = floatType;
+    }else if([_*,doubleType:appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := typeSpecs){
+       cType = doubleType;
+    }else if([_*,intType:appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := typeSpecs){
+       cType = intType; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
+    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := typeSpecs){
+       cType = theStruct;
+    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := typeSpecs){
+       cType = theStruct;
+    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := typeSpecs){
+       cType = theStruct;
+    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := typeSpecs){
+       cType = theUnion;
+    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := typeSpecs){
+       cType = theUnion;
+    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := typeSpecs){
+       cType = theUnion;
+    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := typeSpecs){
+       cType = theEnum;
+    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := typeSpecs){
+       cType = theEnum;
+    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := typeSpecs){
+       cType = theEnum;
+    }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := typeSpecs){
+       cType = identifier;
     }
 	
 	return cType;
 }
 
-private list[str] cTypes = ["void", "char", "short", "int", "long", "float", "double"];
-
-private list[str] cStructUnionEnumIdentTypes = ["Identifier", "Struct", "StructDecl", "StructAnonDecl", "Union", "UnionDecl", "UnionAnonDecl", "Enum", "EnumDecl", "EnumAnonDecl"];
-
 private bool hasCustomType(list[Tree] specs){
-	if(findType(specs) notin cTypes) return false;
-	
-	if([_*,appl(prod(_,_,attrs([_*,term(cons("Idenfitier")),_*])),_),_*] := specs){
-		return true;
+	for(spec <- specs){
+		if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+			return (appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]);
+		}
 	}
-	
 	return false;
 }
 
-private tuple[list[str], Declarator] findModifiers(list[Tree] specs, Declarator decl){
-	list[str] modifiers = [];
+private tuple[list[Specifier], Declarator] findModifiers(list[Tree] specs, Declarator decl){
+	list[Specifier] modifiers = [];
 	
-	modifiers = for(spec <- specs, "<spec>" notin cTypes){
-		if("<spec>" != "typedef"){
-			if([_*,cStructUnionEnumIdentType,_*] := cStructUnionEnumIdentTypes, appl(prod(_,_,attrs([_*,term(cons("<cStructUnionEnumIdentType>")),_*])),_) := spec){
-				;
-			}else{
-				append("<spec>");
-			}
+	for(spec <- specs){
+		if(appl(prod(_,_,attrs([_*,term(cons("TypeQualifier")),_*])),typeQualifier) := spec){
+			modifiers += spec;
+		}else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
+			modifiers += spec;
 		}
 	}
 	
