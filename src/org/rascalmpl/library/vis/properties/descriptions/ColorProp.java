@@ -12,26 +12,32 @@
 
 package org.rascalmpl.library.vis.properties.descriptions;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum ColorProp{
-	FILL_COLOR,     
-	FONT_COLOR,    
-	LINE_COLOR,;
+public enum ColorProp  implements IProperties<BoolProp, Integer>{
+	FILL_COLOR(255),     
+	FONT_COLOR(0),    
+	LINE_COLOR(0);
+	
+	int stdDefault;
+	
+	ColorProp(int stdDefault){
+		this.stdDefault = stdDefault;
+	}
 
-	@SuppressWarnings("serial")
-	public static final EnumMap<ColorProp,Integer> stdDefaults = new EnumMap<ColorProp, Integer>(ColorProp.class){{
-		put(FILL_COLOR,255);
-		put(FONT_COLOR,0);
-		put(LINE_COLOR,0);
-	}};
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<ColorProp,Integer>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<ColorProp,Integer>>() {{
 	put("fillColor", new PropertySetters.SingleColorPropertySetter(FILL_COLOR));
 	put("fontColor", new PropertySetters.SingleColorPropertySetter(FONT_COLOR));
 	put("lineColor", new PropertySetters.SingleColorPropertySetter(LINE_COLOR));
-	}}; 
+	}};
+
+	@Override
+	public Integer getStdDefault() {
+		return stdDefault;
+	} 
+	
+	
 }

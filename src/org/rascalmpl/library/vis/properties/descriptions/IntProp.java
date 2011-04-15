@@ -12,23 +12,28 @@
 
 package org.rascalmpl.library.vis.properties.descriptions;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum IntProp {
-	DOI,            // degree of interest
-	FONT_SIZE;
+public enum IntProp implements IProperties<IntProp, Integer> {
+	DOI(1000000),            // degree of interest
+	FONT_SIZE(12);
 
-	@SuppressWarnings("serial")
-	public static final EnumMap<IntProp,Integer> stdDefaults = new EnumMap<IntProp, Integer>(IntProp.class){{
-		put(DOI,1000000);
-		put(FONT_SIZE,12);
-	}};
+	int stdDefault;
+	
+	IntProp(int stdDefault){
+		this.stdDefault = stdDefault;
+	}
+	
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<IntProp,Integer>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<IntProp,Integer>>() {{
 	put("doi", new PropertySetters.SingleIntPropertySetter(DOI));
 	put("fontSize", new PropertySetters.SingleIntPropertySetter(FONT_SIZE));
 	}};
+
+	@Override
+	public Integer getStdDefault() {
+		return stdDefault;
+	}
 }

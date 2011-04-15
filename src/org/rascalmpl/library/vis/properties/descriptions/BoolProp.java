@@ -12,28 +12,24 @@
 
 package org.rascalmpl.library.vis.properties.descriptions;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum BoolProp{
-	ALIGN_ANCHORS,	
-	SHAPE_CLOSED, 	
-	SHAPE_CONNECTED,
-	SHAPE_CURVED,
-	START_GAP,
-	END_GAP;
+public enum BoolProp implements IProperties<BoolProp, Boolean>{
+	ALIGN_ANCHORS(false),	
+	SHAPE_CLOSED(false), 	
+	SHAPE_CONNECTED(false),
+	SHAPE_CURVED(false),
+	START_GAP(false),
+	END_GAP(false);
 
-	@SuppressWarnings("serial")
-	public static final EnumMap<BoolProp,Boolean> stdDefaults = new EnumMap<BoolProp, Boolean>(BoolProp.class){{
-		put(ALIGN_ANCHORS,false);
-		put(SHAPE_CLOSED,false);
-		put(SHAPE_CONNECTED,false);
-		put(SHAPE_CURVED,false);
-		put(START_GAP,false);
-		put(END_GAP,false);
-	}};
+	Boolean stdDefault;
+	
+	BoolProp(Boolean stdDefault ){
+		this.stdDefault = stdDefault;
+	}
+	
 	
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<BoolProp,Boolean>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<BoolProp,Boolean>>() {{
@@ -46,4 +42,9 @@ public enum BoolProp{
 	// aliasses
 	put("capGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(START_GAP, END_GAP));
 	}};
+
+	@Override
+	public Boolean getStdDefault() {
+		return stdDefault;
+	}
 }

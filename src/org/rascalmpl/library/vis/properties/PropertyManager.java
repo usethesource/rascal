@@ -14,6 +14,7 @@
 package org.rascalmpl.library.vis.properties;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -27,6 +28,7 @@ import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.properties.descriptions.IProperties;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
@@ -47,8 +49,8 @@ public class PropertyManager implements IPropertyManager {
 	protected IValue onClickHandler = null;
 	private boolean draggable;
 	
+	
 	class Values{
-		
 		EnumMap<BoolProp, IPropertyValue<Boolean>> boolValues;
 		EnumMap<IntProp, IPropertyValue<Integer>> intValues;
 		EnumMap<RealProp, IPropertyValue<Float>> realValues;
@@ -218,7 +220,6 @@ public class PropertyManager implements IPropertyManager {
 	public boolean anyExplicitPropertiesSet() {
 		return explicitValues != null;
 	}
-	
 
 	public boolean isBooleanPropertySet(BoolProp property){
 		return explicitValues != null && 
@@ -232,7 +233,7 @@ public class PropertyManager implements IPropertyManager {
 				stdValues.boolValues.containsKey(property)){
 			return stdValues.boolValues.get(property).getValue();
 		} else {
-			return BoolProp.stdDefaults.get(property);
+			return property.getStdDefault(); 
 		}
 	}
 	
@@ -248,7 +249,7 @@ public class PropertyManager implements IPropertyManager {
 				stdValues.intValues.containsKey(property)){
 			return stdValues.intValues.get(property).getValue();
 		} else {
-			return IntProp.stdDefaults.get(property);
+			return property.getStdDefault(); 
 		}
 	}
 	
@@ -265,7 +266,7 @@ public class PropertyManager implements IPropertyManager {
 				stdValues.realValues.containsKey(property)){
 			return stdValues.realValues.get(property).getValue();
 		} else {
-			return RealProp.stdDefaults.get(property);
+			return property.getStdDefault(); 
 		}
 	}
 	
@@ -281,7 +282,7 @@ public class PropertyManager implements IPropertyManager {
 				stdValues.strValues.containsKey(property)){
 			return stdValues.strValues.get(property).getValue();
 		} else {
-			return StrProp.stdDefaults.get(property);
+			return property.getStdDefault(); 
 		}
 	}
 	
@@ -297,7 +298,7 @@ public class PropertyManager implements IPropertyManager {
 				stdValues.colorValues.containsKey(property)){
 			return stdValues.colorValues.get(property).getValue();
 		} else {
-			return ColorProp.stdDefaults.get(property);
+			return property.getStdDefault(); 
 		}
 	}
 	
@@ -313,7 +314,7 @@ public class PropertyManager implements IPropertyManager {
 				stdValues.figureValues.containsKey(property)){
 			return stdValues.figureValues.get(property).getValue();
 		} else {
-			return FigureProp.stdDefaults.get(property);
+			return property.getStdDefault(); 
 		}
 	}
 	
@@ -333,7 +334,7 @@ public class PropertyManager implements IPropertyManager {
 	}
 	
 	public boolean isStandardDefaultHandlerPropertySet(HandlerProp property){
-		return HandlerProp.stdDefaults.get(property) != null;
+		return property.getStdDefault() != null;
 	}
 	
 	public void executeHandlerProperty(HandlerProp property) {
@@ -342,7 +343,7 @@ public class PropertyManager implements IPropertyManager {
 		} else if(isStandardHandlerPropertySet(property)){
 			stdValues.handlerValues.get(property).getValue();
 		} else if (isStandardDefaultHandlerPropertySet(property)){
-			HandlerProp.stdDefaults.get(property);
+			property.getStdDefault(); 
 		} 
 	}
 	

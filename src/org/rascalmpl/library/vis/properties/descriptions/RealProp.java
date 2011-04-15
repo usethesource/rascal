@@ -12,46 +12,33 @@
 
 package org.rascalmpl.library.vis.properties.descriptions;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum RealProp{
-	HALIGN,	
-	HANCHOR,
-	HEIGHT,
-	HGAP, 
-	HGAP_FACTOR,
-	INNERRADIUS,
-	LINE_WIDTH,
-	TEXT_ANGLE, 	
-	FROM_ANGLE,
-	TO_ANGLE,		
-	VALIGN,			
-	VANCHOR,		
-	VGAP, 		
-	VGAP_FACTOR,
-	WIDTH;
+public enum RealProp implements IProperties<RealProp, Float>{
+	HALIGN(0.5f),	
+	HANCHOR(0.5f),
+	HEIGHT(10.0f),
+	HGAP(0.0f), 
+	HGAP_FACTOR(0.0f),
+	INNERRADIUS(0.0f),
+	LINE_WIDTH(1.0f),
+	TEXT_ANGLE(0.0f), 	
+	FROM_ANGLE(0.0f),
+	TO_ANGLE(0.0f),		
+	VALIGN(0.5f),			
+	VANCHOR(0.5f),		
+	VGAP(0.0f), 		
+	VGAP_FACTOR(0.0f),
+	WIDTH(10.0f);
+	
+	float stdDefault;
+	
+	RealProp(float stdDefault){
+		this.stdDefault = stdDefault;
+	}
 
-	@SuppressWarnings("serial")
-	public static final EnumMap<RealProp,Float> stdDefaults = new EnumMap<RealProp, Float>(RealProp.class){{
-		put(HALIGN,0.5f);
-		put(HANCHOR,0.5f);
-		put(HEIGHT,10.0f);
-		put(HGAP,0.0f);
-		put(HGAP_FACTOR,0.0f);
-		put(INNERRADIUS,0.0f);
-		put(LINE_WIDTH,1.0f);
-		put(TEXT_ANGLE,0.0f);
-		put(FROM_ANGLE,0.0f);
-		put(TO_ANGLE,0.0f);
-		put(VALIGN,0.5f);
-		put(VANCHOR,0.5f);
-		put(VGAP,0.0f);
-		put(VGAP_FACTOR,0.0f);
-		put(WIDTH,10.0f);
-	}};
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<RealProp,Float>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<RealProp,Float>>() {{
 	put("halign", new PropertySetters.SingleRealPropertySetter(HALIGN));
@@ -75,5 +62,10 @@ public enum RealProp{
 	put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
 	put("gapFactor", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP_FACTOR, VGAP_FACTOR));
 	put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
-	}};	
+	}};
+
+	@Override
+	public Float getStdDefault() {
+		return stdDefault;
+	}	
 }
