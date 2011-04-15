@@ -276,7 +276,7 @@ syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
                             bracket Bracket: "(" AbstractDeclarator decl ")" |
                             ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" |
                             FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" >
-                            non-assoc PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
+                            PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
                             ;
 
 syntax Declarator = Identifier: Identifier |
