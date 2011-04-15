@@ -12,28 +12,24 @@
 
 package org.rascalmpl.library.vis.properties.descriptions;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum StrProp{
-	DIRECTION,	
-	LAYER,		
-	HINT,			
-	ID, 		
-	FONT,           
-	TEXT;
+public enum StrProp implements IProperties<StrProp, String>{
+	DIRECTION("TD"),	
+	LAYER(""),		
+	HINT(""),			
+	ID(""), 		
+	FONT("Helvetica"),           
+	TEXT("");
 
-	@SuppressWarnings("serial")
-	public static final EnumMap<StrProp,String> stdDefaults = new EnumMap<StrProp, String>(StrProp.class){{
-		put(DIRECTION,"TD");
-		put(LAYER,"");
-		put(HINT,"");
-		put(ID,"");
-		put(FONT,"Helvetica");
-		put(TEXT,"");
-	}};			// used to represent text arguments
+	String stdDefault;
+	
+	StrProp(String stdDefault){
+		this.stdDefault = stdDefault;
+	}
+	
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<StrProp,String>> settersStr = new HashMap<String, PropertySetters.PropertySetter<StrProp,String>>() {{
 	put("direction", new PropertySetters.SingleStrPropertySetter(DIRECTION));
@@ -43,4 +39,9 @@ public enum StrProp{
 	put("font", new PropertySetters.SingleStrPropertySetter(FONT));
 	put("text", new PropertySetters.SingleStrPropertySetter(TEXT));
 	}};
+
+	@Override
+	public String getStdDefault() {
+		return stdDefault;
+	}
 }
