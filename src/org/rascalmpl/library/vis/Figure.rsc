@@ -201,6 +201,7 @@ public list[str] java fontNames();
  alias computedNum 	= num();
  alias computedStr 	= str();
  alias computedColor = Color();
+ alias computedFigure = Figure();
  
  data Like = like(str id);
  
@@ -231,7 +232,7 @@ data FProperty =
  //  | gap(computedNum cWidth, computedNum cHeight) 
    
    | gapFactor(num amount)
-   | gapFactor(computerNum cAmount)
+   | gapFactor(computedNum cAmount)
    | gapFactor(Like other)
    | gapFactor(num hfactor,num vfactor)
    
@@ -348,7 +349,9 @@ data FProperty =
    
 /* interaction properties */  
    | mouseOver(Figure inner)            // add figure when mouse is over current figure
-   
+   | mouseOver(computedFigure cInner)           
+   | mouseOver(Like other)
+               
    | onClick(void() handler)            // handler for mouse clicks
    
    | doi(int d)                         // limit visibility to nesting level d
@@ -393,7 +396,7 @@ data FProperty =
  //  | stdGap(computedNum cWidth, computedNum cHeight) 
    
    | stdGapFactor(num amount)
-   | stdGapFactor(computerNum cAmount)
+   | stdGapFactor(computedNum cAmount)
    | stdGapFactor(Like other)
    | stdGapFactor(num hfactor,num vfactor)
    
@@ -510,6 +513,8 @@ data FProperty =
    
 /* interaction properties */  
    | stdMouseOver(Figure inner)            // add figure when mouse is over current figure
+   | stdMouseOver(computedFigure cInner)           
+   | stdMouseOver(Like other)
    
    | stdOnClick(void() handler)            // handler for mouse clicks
    

@@ -16,9 +16,12 @@ import java.util.EnumMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
@@ -26,7 +29,7 @@ import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 public class PropertySetters {
 
 	public static interface PropertySetter<Prop extends Enum<Prop>,PropValue>{
-		void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx);
+		void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx, PropertyManager pm);
 	}
 	
 	public static class SinglePropertySetter<Prop extends Enum<Prop>,PropValue> implements PropertySetter<Prop,PropValue>{
@@ -39,8 +42,8 @@ public class PropertySetters {
 		}
 		
 		public void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,
-				IEvaluatorContext ctx){
-			values.put(property,parser.parseProperty(property, c, 0, fpa, ctx));
+				IEvaluatorContext ctx, PropertyManager pm){
+			values.put(property,parser.parseProperty(property, c, pm, 0, fpa, ctx));
 		}
 	}
 	
@@ -56,15 +59,15 @@ public class PropertySetters {
 		}
 		
 		public void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,
-				IEvaluatorContext ctx){
+				IEvaluatorContext ctx, PropertyManager pm){
 			int secondIndex;
 			if(c.arity() == 1){
 				secondIndex = 0;
 			} else {
 				secondIndex = 1;
 			}
-			values.put(property1,parser.parseProperty(property1, c, 0, fpa, ctx));
-			values.put(property2,parser.parseProperty(property2, c, secondIndex, fpa, ctx));
+			values.put(property1,parser.parseProperty(property1, c, pm, 0, fpa, ctx));
+			values.put(property2,parser.parseProperty(property2, c, pm, secondIndex, fpa, ctx));
 		}
 	}
 	
@@ -119,6 +122,18 @@ public class PropertySetters {
 	public static class SingleColorPropertySetter extends SinglePropertySetter<ColorProp,Integer>{
 		public SingleColorPropertySetter(ColorProp property) {
 			super(property, new PropertyParsers.ColorArgParser());
+		}
+	}
+	
+	public static class SingleFigurePropertySetter extends SinglePropertySetter<FigureProp,Figure>{
+		public SingleFigurePropertySetter(FigureProp property) {
+			super(property, new PropertyParsers.FigureArgParser());
+		}
+	}
+	
+	public static class SingleHandlerPropertySetter extends SinglePropertySetter<HandlerProp,Void>{
+		public SingleHandlerPropertySetter(HandlerProp property) {
+			super(property, new PropertyParsers.HandlerArgParser());
 		}
 	}
 }

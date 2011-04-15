@@ -23,10 +23,14 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
+import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
@@ -41,22 +45,27 @@ import org.rascalmpl.library.vis.properties.descriptions.StrProp;
  *
  */
 public class PropertyParsers {
-	static abstract class PropertyParser<Prop,PropValue>{
+	interface PropertyParser<Prop,PropValue>{
+		IPropertyValue<PropValue> parseProperty(Prop prop,IConstructor c, PropertyManager pm, int propIndex,
+				IFigureApplet fpa, IEvaluatorContext ctx);
+	}
+	
+	static abstract class AbstractPropertyParser<Prop,PropValue> implements PropertyParser<Prop,PropValue>{
 		
 		abstract boolean isLiteralType(Type type);
 		
-		abstract IPropertyValue<PropValue> makeConstantProperty(IValue arg);
+		abstract IPropertyValue<PropValue> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
 		
 		abstract IPropertyValue<PropValue> makeLikeProperty(Prop prop,String id,IFigureApplet fpa,IEvaluatorContext ctx);
 		
-		abstract IPropertyValue<PropValue> makeComputedProperty(IValue arg,IFigureApplet fpa);
+		abstract IPropertyValue<PropValue> makeComputedProperty(IValue arg,PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
 		
-		public IPropertyValue<PropValue> parseProperty(Prop prop,IConstructor c, int propIndex, IFigureApplet fpa,
-				IEvaluatorContext ctx) {
+		public IPropertyValue<PropValue> parseProperty(Prop prop,IConstructor c, PropertyManager pm, int propIndex,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
 			IValue arg = c.get(propIndex);
 			
 			if(isLiteralType(arg.getType()))
-				return makeConstantProperty(arg);
+				return makeConstantProperty(arg, pm, fpa, ctx);
 			
 			if(arg.getType().isAbstractDataType()){
 				IConstructor cs = (IConstructor) arg;
@@ -66,7 +75,7 @@ public class PropertyParsers {
 			}
 			
 			if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
-				return makeComputedProperty(arg, fpa);
+				return makeComputedProperty(arg, pm, fpa, ctx);
 			}
 			throw RuntimeExceptionFactory.illegalArgument(arg, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
@@ -80,14 +89,14 @@ public class PropertyParsers {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	static class BooleanArgParser extends PropertyParser<BoolProp,Boolean>{
+	static class BooleanArgParser extends AbstractPropertyParser<BoolProp,Boolean>{
 		@Override
 		boolean isLiteralType(Type type) {
 			return type.isBoolType();
 		}
 
 		@Override
-		IPropertyValue<Boolean> makeConstantProperty(IValue arg) {
+		IPropertyValue<Boolean> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantBooleanProperty(((IBool) arg).getValue());
 		}
 
@@ -98,7 +107,7 @@ public class PropertyParsers {
 		}
 
 		@Override
-		IPropertyValue<Boolean> makeComputedProperty(IValue arg, IFigureApplet fpa) {
+		IPropertyValue<Boolean> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedBooleanProperty(arg, fpa);
 		}
 	} 
@@ -110,14 +119,14 @@ public class PropertyParsers {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	static class IntegerArgParser extends PropertyParser<IntProp,Integer>{
+	static class IntegerArgParser extends AbstractPropertyParser<IntProp,Integer>{
 		@Override
 		boolean isLiteralType(Type type) {
 			return type.isIntegerType();
 		}
 
 		@Override
-		IPropertyValue<Integer> makeConstantProperty(IValue arg) {
+		IPropertyValue<Integer> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantIntegerProperty(((IInteger) arg).intValue());
 		}
 
@@ -128,7 +137,7 @@ public class PropertyParsers {
 		}
 
 		@Override
-		IPropertyValue<Integer> makeComputedProperty(IValue arg, IFigureApplet fpa) {
+		IPropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedIntegerProperty(arg, fpa);
 		}
 	}
@@ -140,14 +149,14 @@ public class PropertyParsers {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	public static class StringArgParser extends PropertyParser<StrProp,String>{
+	public static class StringArgParser extends AbstractPropertyParser<StrProp,String>{
 		@Override
 		boolean isLiteralType(Type type) {
 			return type.isStringType();
 		}
 
 		@Override
-		IPropertyValue<String> makeConstantProperty(IValue arg) {
+		IPropertyValue<String> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantStringProperty(((IString) arg).getValue());
 		}
 
@@ -158,7 +167,7 @@ public class PropertyParsers {
 		}
 
 		@Override
-		IPropertyValue<String> makeComputedProperty(IValue arg, IFigureApplet fpa) {
+		IPropertyValue<String> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedStringProperty(arg, fpa);
 		}
 	}
@@ -171,14 +180,14 @@ public class PropertyParsers {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	static class RealArgParser extends PropertyParser<RealProp,Float>{
+	static class RealArgParser extends AbstractPropertyParser<RealProp,Float>{
 		@Override
 		boolean isLiteralType(Type type) {
 			return type.isRealType();
 		}
 
 		@Override
-		IPropertyValue<Float> makeConstantProperty(IValue arg) {
+		IPropertyValue<Float> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantRealProperty(((IReal) arg).floatValue());
 		}
 
@@ -189,7 +198,7 @@ public class PropertyParsers {
 		}
 
 		@Override
-		IPropertyValue<Float> makeComputedProperty(IValue arg, IFigureApplet fpa) {
+		IPropertyValue<Float> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedRealProperty(arg, fpa);
 		}
 	}
@@ -211,7 +220,7 @@ public class PropertyParsers {
 		}
 		
 		@Override
-		IPropertyValue<Float> makeConstantProperty(IValue arg) {
+		IPropertyValue<Float> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			float value;
 			if(arg.getType().isIntegerType()){
 				value = ((IInteger) arg).intValue();
@@ -230,7 +239,7 @@ public class PropertyParsers {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	static class ColorArgParser extends PropertyParser<ColorProp,Integer>{
+	static class ColorArgParser extends AbstractPropertyParser<ColorProp,Integer>{
 		
 		@Override
 		boolean isLiteralType(Type type) {
@@ -238,7 +247,7 @@ public class PropertyParsers {
 		}
 		
 		@Override
-		IPropertyValue<Integer> makeConstantProperty(IValue arg) {
+		IPropertyValue<Integer> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			if (arg.getType().isStringType()) {
 				String s = ((IString) arg).getValue().toLowerCase();
 				if(s.length() == 0)
@@ -265,9 +274,46 @@ public class PropertyParsers {
 		}
 
 		@Override
-		IPropertyValue<Integer> makeComputedProperty(IValue arg, IFigureApplet fpa) {
+		IPropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedColorProperty(arg, fpa);
 		}
+	}
+	
+	static class FigureArgParser extends AbstractPropertyParser<FigureProp,Figure>{
+		
+		@Override
+		boolean isLiteralType(Type type) {
+			return type.isAbstractDataType() &&  type.getName().equals("Figure"); 
+		}
+		
+		@Override
+		IPropertyValue<Figure> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+			
+			Figure fig =  FigureFactory.make(fpa, ((IConstructor) arg), pm, ctx);
+			return new ConstantProperties.ConstantFigureProperty(fig); 
+		}
+
+		@Override
+		IPropertyValue<Figure> makeLikeProperty(FigureProp prop, String id,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new LikeProperties.LikeFigureProperty(id, fpa, ctx);
+		}
+
+		@Override
+		IPropertyValue<Figure> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new ComputedProperties.ComputedFigureProperty(arg, fpa, pm, ctx);
+		}
+	}
+	
+	static class HandlerArgParser implements PropertyParser<HandlerProp,Void>{
+
+		@Override
+		public IPropertyValue<Void> parseProperty(HandlerProp prop,
+				IConstructor c, PropertyManager pm, int propIndex,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			 return new ComputedProperties.HandlerProperty(c.get(0),fpa);
+		}
+		
 	}
 	
 }
