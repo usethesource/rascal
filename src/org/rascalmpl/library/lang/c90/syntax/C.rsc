@@ -196,14 +196,23 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                      Specifier+ specs ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
-                           if(hasCustomType(specChildren)){
-                              str declType = findType(specChildren);
+                           TypeSpecifier theType = findType(specChildren);
+                           if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
+                              for(spec <- specChildren){
+                                 if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+                                    if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                       if(identifier != theType) fail;
+                                    }
+                                 }
+                              }
+                              
+                              TypeSpecifier declType = findType(specChildren);
                               if(declType notin typeDefs){
                                  fail;
                               } // May be ambiguous with "Exp * Exp".
                            }
                         }
-                     } // TODO: Avoid.
+                     } // Avoid.
                      ;
 
 syntax InitDeclarator = Declarator decl |
@@ -248,7 +257,19 @@ syntax TypeQualifier = "const" |
                        ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
-                           Specifier+ specs // TODO: Avoid. Disallow store class specifiers.
+                           Specifier+ specs{ // TODO: Disallow store class specifiers.
+                              list[Tree] specChildren;
+                              if(appl(_,specChildren) := specs){
+                                 TypeSpecifier theType = findType(specChildren);
+                                 for(spec <- specChildren){
+                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                          if(identifier != theType) fail;
+                                       }
+                                    }
+                                 }
+                              }
+                           } // Avoid.
                            ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
 
 syntax StructDeclarator = Declarator |
@@ -355,7 +376,7 @@ map[str name, tuple[TypeSpecifier var, tuple[list[Specifier], Declarator] modifi
 
 private TypeSpecifier findType(list[Tree] specs){
 	// Bah.
-	TypeSpecifier cType = appl(prod([lit("int")],sort("TypeSpecifier"),attrs([term(cons("Int"))])),[appl(prod([\char-class([range(105,105)]),\char-class([range(110,110)]),\char-class([range(116,116)])],lit("int"),attrs([literal()])),[char(105),char(110),char(116)])]); // If no type is defined the type is int.
+	TypeSpecifier cType = appl(prod([lit("int")],sort("TypeSpecifier"),\no-attrs()),[appl(prod([\char-class([range(105,105)]),\char-class([range(110,110)]),\char-class([range(116,116)])],lit("int"),attrs([literal()])),[char(105),char(110),char(116)])]); // If no type is defined the type is int.
 	
 	list[Tree] typeSpecs = [];
 	for(spec <- specs){
