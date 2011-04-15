@@ -22,7 +22,7 @@ public enum RealProp{
 	HANCHOR,
 	HEIGHT,
 	HGAP, 
-	HGAP_RATIO,
+	HGAP_FACTOR,
 	INNERRADIUS,
 	LINE_WIDTH,
 	TEXT_ANGLE, 	
@@ -31,7 +31,7 @@ public enum RealProp{
 	VALIGN,			
 	VANCHOR,		
 	VGAP, 		
-	VGAP_RATIO,
+	VGAP_FACTOR,
 	WIDTH;
 
 	@SuppressWarnings("serial")
@@ -40,7 +40,7 @@ public enum RealProp{
 		put(HANCHOR,0.5f);
 		put(HEIGHT,10.0f);
 		put(HGAP,0.0f);
-		put(HGAP_RATIO,0.0f);
+		put(HGAP_FACTOR,0.0f);
 		put(INNERRADIUS,0.0f);
 		put(LINE_WIDTH,1.0f);
 		put(TEXT_ANGLE,0.0f);
@@ -49,7 +49,7 @@ public enum RealProp{
 		put(VALIGN,0.5f);
 		put(VANCHOR,0.5f);
 		put(VGAP,0.0f);
-		put(VGAP_RATIO,0.0f);
+		put(VGAP_FACTOR,0.0f);
 		put(WIDTH,10.0f);
 	}};
 	@SuppressWarnings("serial")
@@ -58,7 +58,7 @@ public enum RealProp{
 	put("hanchor", new PropertySetters.SingleRealPropertySetter(HANCHOR));
 	put("height", new PropertySetters.SingleIntOrRealPropertySetter(HEIGHT));
 	put("hgap", new PropertySetters.SingleIntOrRealPropertySetter(HGAP));
-	put("hgapRatio", new PropertySetters.SingleIntOrRealPropertySetter(HGAP_RATIO));
+	put("hgapFactor", new PropertySetters.SingleIntOrRealPropertySetter(HGAP_FACTOR));
 	put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
 	put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
 	put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
@@ -67,12 +67,13 @@ public enum RealProp{
 	put("valign", new PropertySetters.SingleRealPropertySetter(VALIGN));
 	put("vanchor", new PropertySetters.SingleRealPropertySetter(VANCHOR));
 	put("vgap", new PropertySetters.SingleIntOrRealPropertySetter(VGAP));
-	put("vgapRatio", new PropertySetters.SingleIntOrRealPropertySetter(VGAP_RATIO));
+	put("vgapFactor", new PropertySetters.SingleIntOrRealPropertySetter(VGAP_FACTOR));
 	put("width", new PropertySetters.SingleIntOrRealPropertySetter(WIDTH));
 	// below: aliases
 	put("align", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HALIGN, VALIGN));
 	put("anchor", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HANCHOR, VANCHOR));
 	put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
+	put("gapFactor", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP_FACTOR, VGAP_FACTOR));
 	put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
 	}};	
 }

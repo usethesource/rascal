@@ -55,6 +55,20 @@ public abstract class Container extends Figure {
 	public 
 	void bbox(float desiredWidth, float desiredHeight){
 		float lw = getLineWidthProperty();
+		if(desiredWidth != Figure.AUTO_SIZE){ 
+			if(desiredWidth < 1.0f){
+				desiredWidth = width = 1.0f;
+			} else {
+				width = desiredWidth;
+			}
+		}
+		if(desiredHeight != Figure.AUTO_SIZE){ 
+			if(desiredHeight < 1.0f){
+				desiredHeight = height = 1.0f;
+			} else {
+				height = desiredHeight;
+			}
+		}
 		if(isWidthPropertySet()){
 			desiredWidth = width = getWidthProperty();
 		} 
@@ -63,21 +77,52 @@ public abstract class Container extends Figure {
 		} 
 		
 		if(innerFig != null){
-			float hgap = getHGapProperty();
-			float vgap = getVGapProperty();
-			innerFig.bbox(desiredWidth,desiredHeight);
+			float innerDesiredWidth,
+			      innerDesiredHeight;
+			if(desiredWidth != AUTO_SIZE){
+				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
+					innerDesiredWidth = (1 - getHGapFactorProperty()) * desiredWidth -  2*lw;
+				} else { // HGapProperty set
+					innerDesiredWidth = desiredWidth - 2 * getHGapProperty() -  2*lw;
+				}
+			} else {
+				innerDesiredWidth = Figure.AUTO_SIZE;
+			}
+			if(desiredHeight != AUTO_SIZE){
+				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
+					innerDesiredHeight = (1 - getVGapFactorProperty()) * desiredHeight -  2*lw;
+				} else { // HGapProperty set
+					innerDesiredHeight = desiredHeight - 2 * getVGapProperty() -  2*lw;
+				}
+			} else {
+				innerDesiredHeight = Figure.AUTO_SIZE;
+			}
+			innerFig.bbox(innerDesiredWidth,innerDesiredHeight);
 			if(desiredWidth == AUTO_SIZE){
-				width = innerFig.width + 2 * hgap;
+				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
+					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize) 
+					width = innerFig.width * (1 /  (1/getHGapFactorProperty() - 1) + 1) + 2*lw;
+				} else { // HGapProperty set
+					width = innerFig.width + 2 * getHGapProperty() + 2*lw;
+				}
 			}
 			if(desiredHeight == AUTO_SIZE){
-				height = innerFig.height + 2 * hgap;
+				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
+					// the next formula can be obtained by rewriting vGapFactor = gapsSize / (innerFigureSize + gapsSize) 
+					height = innerFig.height * (1 /  (1/getVGapFactorProperty() - 1) + 1) + 2*lw;
+				} else { // HGapProperty set
+					height = innerFig.height + 2 * getVGapProperty() + 2*lw;
+				}
 			}
 		} else {
-			width = getWidthProperty();
-			height = getHeightProperty();
+			if(desiredWidth == AUTO_SIZE){
+				width = getWidthProperty();
+			} 
+			if(desiredHeight == AUTO_SIZE){
+				height = getHeightProperty();
+			}
 		}
-		width += 2*lw;
-		height += 2*lw;
+		
 		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());
 	}
 
