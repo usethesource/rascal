@@ -13,15 +13,19 @@
 package org.rascalmpl.library.vis.properties;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 
 public class ComputedProperties {
@@ -117,10 +121,44 @@ public class ComputedProperties {
 	}
 	
 	static class ComputedColorProperty extends ComputedIntegerProperty{
-
 		public ComputedColorProperty(IValue fun, IFigureApplet fpa) {
 			super(fun, fpa);
 		}
 	}
 	
+	static class ComputedFigureProperty extends ComputedProperty<Figure>{
+		PropertyManager parentPm;
+		IFigureApplet fpa;
+		IEvaluatorContext ctx;
+		
+		public ComputedFigureProperty(IValue fun, IFigureApplet fpa,PropertyManager parentPm, IEvaluatorContext ctx) {
+			super(fun, fpa);
+			this.fpa = fpa;
+			this.parentPm = parentPm;
+			this.ctx = ctx;
+		}
+
+		@Override
+		Figure convertValue(Result<IValue> res) {
+			System.err.print("Computing figure..");
+			Figure fig = FigureFactory.make(fpa, ((IConstructor) res.getValue()), parentPm, ctx);
+			fig.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
+			fig.setVisibleInMouseOver(true);
+			return fig;
+		}
+		
+	}
+	
+	static class HandlerProperty extends ComputedProperty<Void>{
+
+		public HandlerProperty(IValue fun, IFigureApplet fpa) {
+			super(fun, fpa);
+		}
+
+		@Override
+		Void convertValue(Result<IValue> res) {
+			return null;
+		}
+		
+	}
 }

@@ -12,6 +12,8 @@
 
 package org.rascalmpl.library.vis.properties;
 
+import org.rascalmpl.library.vis.Figure;
+
 public class ConstantProperties {
 
 
@@ -54,6 +56,12 @@ public class ConstantProperties {
 	
 	static class ConstantColorProperty extends ConstantIntegerProperty{
 		public ConstantColorProperty(Integer value) {
+			super(value);
+		}
+	}
+	
+	static class ConstantFigureProperty extends ConstantProperty<Figure>{
+		public ConstantFigureProperty(Figure value) {
 			super(value);
 		}
 	}

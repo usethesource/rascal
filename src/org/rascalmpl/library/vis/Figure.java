@@ -24,12 +24,15 @@ import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import org.rascalmpl.library.vis.FigureApplet;
+
+
 /**
  * Figures are the foundation of Rascal visualization. They are based on a
  * bounding box + anchor model. The bounding box defines the maximal dimensions
@@ -384,7 +387,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 *            top corner of enclosing figure
 	 */
 	public void drawWithMouseOver(float left, float top) {
-		// draw(left, top);
+		draw(left, top);
 		if (hasMouseOverFigure()) {
 			Figure mo = getMouseOver();
 			mo.bbox(AUTO_SIZE, AUTO_SIZE);
@@ -397,7 +400,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public boolean mouseInside(int mouseX, int mouseY){
 		boolean b =  (mouseX > getLeft()  && mouseX < getLeft() + width) &&
 		             (mouseY > getTop()  && mouseY < getTop() + height);
-		// System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		System.err.printf("left %f right %f top %f bottom %f\n", getLeft(),getTop(),getLeft() + width, getTop() + height);
 		return b;
 	}
 
@@ -408,8 +412,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		boolean b = (mouseX > left && mouseX < left + width)
 				&& (mouseY > top && mouseY < top + height);
 
-		 // System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
-		 // "]: "+ b + "; " + this);
+		  System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
+		  "]: "+ b + "; " + this);
 		return b;
 	}
 
@@ -473,17 +477,12 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
 		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
 		if(mouseInside(mouseX, mouseY)){
-			IValue handler = properties.getOnClick();
-			if(handler != null){
-				synchronized(fpa){
-					if(handler instanceof RascalFunction)
-						((RascalFunction) handler).call(argTypes, argVals);
-					else
-						((OverloadedFunctionResult) handler).call(argTypes, argVals);
-				}
-				fpa.setComputedValueChanged();
-			} else
+			
+			if(properties.handlerCanBeExecuted(HandlerProp.MOUSE_CLICK)){
+				properties.executeHandlerProperty(HandlerProp.MOUSE_CLICK);
+			} else {
 				fpa.registerFocus(this);
+			}
 			return true;
 		}
 		return false;
@@ -578,9 +577,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	public Figure getMouseOver(){
 		return properties.getMouseOver();
-	}
-	public IValue getOnClick(){
-		return properties.getOnClick();
 	}
 	
 	private boolean hasMouseOverFigure() {

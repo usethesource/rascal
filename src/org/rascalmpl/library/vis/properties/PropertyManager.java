@@ -22,10 +22,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
@@ -43,7 +44,6 @@ public class PropertyManager implements IPropertyManager {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
-	protected Figure mouseOverFigure = null; // Interaction and mouse handling
 	protected IValue onClickHandler = null;
 	private boolean draggable;
 	
@@ -54,7 +54,8 @@ public class PropertyManager implements IPropertyManager {
 		EnumMap<RealProp, IPropertyValue<Float>> realValues;
 		EnumMap<StrProp, IPropertyValue<String>> strValues;
 		EnumMap<ColorProp, IPropertyValue<Integer>> colorValues;
-		
+		EnumMap<FigureProp, IPropertyValue<Figure>> figureValues;
+		EnumMap<HandlerProp,IPropertyValue<Void>> handlerValues;
 	}
 	
 	Values explicitValues, stdValues;
@@ -82,17 +83,6 @@ public class PropertyManager implements IPropertyManager {
 			
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
-			if(pname.equals("mouseOver")){
-				mouseOverFigure = FigureFactory.make(fpa, 
-													 (IConstructor)c.get(0), 
-													 new PropertyManager(fpa,this,emptyList,ctx),
-													 ctx);
-				continue;	
-			} 
-			if(pname.equals("onClick")){
-				onClickHandler = c.get(0);
-				continue;	
-			} 
 			Values values;
 			if(pname.startsWith("std")){
 				if(stdValues == null){
@@ -112,27 +102,37 @@ public class PropertyManager implements IPropertyManager {
 				if(values.boolValues == null){
 					values.boolValues = new EnumMap<BoolProp, IPropertyValue<Boolean>>(BoolProp.class);
 				}
-				BoolProp.propertySetters.get(pname).execute(values.boolValues, c, fpa, ctx);
+				BoolProp.propertySetters.get(pname).execute(values.boolValues, c, fpa, ctx, this);
 			} else if(IntProp.propertySetters.containsKey(pname)){
 				if(values.intValues == null){
 					values.intValues = new EnumMap<IntProp, IPropertyValue<Integer>>(IntProp.class);
 				}
-				IntProp.propertySetters.get(pname).execute(values.intValues, c, fpa, ctx);
+				IntProp.propertySetters.get(pname).execute(values.intValues, c, fpa, ctx, this);
 			}  else if(RealProp.propertySetters.containsKey(pname)){
 				if(values.realValues == null){
 					 values.realValues = new EnumMap<RealProp, IPropertyValue<Float>>(RealProp.class);
 				}
-				RealProp.propertySetters.get(pname).execute(values.realValues, c, fpa, ctx);
+				RealProp.propertySetters.get(pname).execute(values.realValues, c, fpa, ctx, this);
 			} else if(StrProp.settersStr.containsKey(pname)){
 				if(values.strValues == null){
 					values.strValues = new EnumMap<StrProp, IPropertyValue<String>>(StrProp.class);
 				}
-				StrProp.settersStr.get(pname).execute(values.strValues, c, fpa, ctx);
+				StrProp.settersStr.get(pname).execute(values.strValues, c, fpa, ctx, this);
 			} else if(ColorProp.propertySetters.containsKey(pname)){
 				if(values.colorValues == null){
 					values.colorValues = new EnumMap<ColorProp, IPropertyValue<Integer>>(ColorProp.class);
 				}
-				ColorProp.propertySetters.get(pname).execute(values.colorValues, c, fpa, ctx);
+				ColorProp.propertySetters.get(pname).execute(values.colorValues, c, fpa, ctx, this);
+			} else if(FigureProp.propertySetters.containsKey(pname)){
+				if(values.figureValues == null){
+					values.figureValues = new EnumMap<FigureProp, IPropertyValue<Figure>>(FigureProp.class);
+				}
+				FigureProp.propertySetters.get(pname).execute(values.figureValues, c, fpa, ctx, this);
+			} else if(HandlerProp.propertySetters.containsKey(pname)){
+				if(values.handlerValues == null){
+					values.handlerValues = new EnumMap<HandlerProp, IPropertyValue<Void>>(HandlerProp.class);
+				}
+				HandlerProp.propertySetters.get(pname).execute(values.handlerValues, c, fpa, ctx, this);
 			} else {
 				throw RuntimeExceptionFactory.illegalArgument(c, ctx
 						.getCurrentAST(), ctx.getStackTrace());
@@ -190,6 +190,24 @@ public class PropertyManager implements IPropertyManager {
 				for(ColorProp p : ColorProp.values()){
 					if(!stdValues.colorValues.containsKey(p) && inherited.stdValues.colorValues.containsKey(p)){
 						stdValues.colorValues.put(p, inherited.stdValues.colorValues.get(p));
+					}
+				}
+			}
+			if(stdValues.figureValues == null){
+				stdValues.figureValues = inherited.stdValues.figureValues;
+			} else if(inherited.stdValues.figureValues != null){
+				for(FigureProp p : FigureProp.values()){
+					if(!stdValues.figureValues.containsKey(p) && inherited.stdValues.figureValues.containsKey(p)){
+						stdValues.figureValues.put(p, inherited.stdValues.figureValues.get(p));
+					}
+				}
+			}
+			if(stdValues.handlerValues == null){
+				stdValues.handlerValues = inherited.stdValues.handlerValues;
+			} else if(inherited.stdValues.handlerValues != null){
+				for(HandlerProp p : HandlerProp.values()){
+					if(!stdValues.handlerValues.containsKey(p) && inherited.stdValues.handlerValues.containsKey(p)){
+						stdValues.handlerValues.put(p, inherited.stdValues.handlerValues.get(p));
 					}
 				}
 			}
@@ -283,8 +301,55 @@ public class PropertyManager implements IPropertyManager {
 		}
 	}
 	
+	public boolean isFigurePropertySet(FigureProp property){
+		return explicitValues != null && 
+	       explicitValues.figureValues != null &&
+	       explicitValues.figureValues.containsKey(property);
+	}
+	public Figure getFigureProperty(FigureProp property) {
+		if(isFigurePropertySet(property)){
+			return explicitValues.figureValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.figureValues != null && 
+				stdValues.figureValues.containsKey(property)){
+			return stdValues.figureValues.get(property).getValue();
+		} else {
+			return FigureProp.stdDefaults.get(property);
+		}
+	}
+	
+	public boolean handlerCanBeExecuted(HandlerProp property){
+		return isHandlerPropertySet(property) || isStandardHandlerPropertySet(property) || isStandardDefaultHandlerPropertySet(property);
+	}
+	
+	public boolean isHandlerPropertySet(HandlerProp property){
+		return (explicitValues != null && 
+	       explicitValues.handlerValues != null &&
+	       explicitValues.handlerValues.containsKey(property));
+	}
+	public boolean isStandardHandlerPropertySet(HandlerProp property){
+		 return ( stdValues != null && 
+			       stdValues.handlerValues != null &&
+			       stdValues.handlerValues.containsKey(property) );
+	}
+	
+	public boolean isStandardDefaultHandlerPropertySet(HandlerProp property){
+		return HandlerProp.stdDefaults.get(property) != null;
+	}
+	
+	public void executeHandlerProperty(HandlerProp property) {
+		if(isHandlerPropertySet(property)){
+			explicitValues.handlerValues.get(property).getValue();
+		} else if(isStandardHandlerPropertySet(property)){
+			stdValues.handlerValues.get(property).getValue();
+		} else if (isStandardDefaultHandlerPropertySet(property)){
+			HandlerProp.stdDefaults.get(property);
+		} 
+	}
+	
 	public Figure getMouseOver() {
-			return mouseOverFigure;
+			Figure res = getFigureProperty(FigureProp.MOUSE_OVER);
+			if(res!=null)System.err.print("getMouseOver returned " + res.toString() + "\n ");
+			return res;
 	}
 	
 	public IValue getOnClick(){

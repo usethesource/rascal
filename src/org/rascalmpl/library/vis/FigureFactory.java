@@ -130,6 +130,7 @@ public class FigureFactory {
 	@SuppressWarnings("incomplete-switch")
 	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IEvaluatorContext ctx){
 		String ename = c.getName();
+		System.err.print(ename);
 		properties = PropertyManager.extendProperties(fpa, c, properties, ctx);
 		
 		switch(pmap.get(ename)){
@@ -198,7 +199,7 @@ public class FigureFactory {
 			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
 			
 		case TEXT:
-			IPropertyValue<String> txt = new PropertyParsers.StringArgParser().parseProperty(StrProp.TEXT, c, 0, fpa, ctx);
+			IPropertyValue<String> txt = new PropertyParsers.StringArgParser().parseProperty(StrProp.TEXT, c, null, 0, fpa, ctx);
 
 			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
 			return new Text(fpa, properties,txt);

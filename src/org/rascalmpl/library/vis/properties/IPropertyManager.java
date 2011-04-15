@@ -40,5 +40,4 @@ public interface IPropertyManager {
 	// public IFigureApplet getFPA();
 	public boolean isDraggable();
 	public Figure getMouseOver();
-	public IValue getOnClick();
 }

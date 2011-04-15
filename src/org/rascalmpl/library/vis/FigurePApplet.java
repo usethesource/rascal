@@ -170,6 +170,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 			figure.draw(left,top);
 			if(mouseOver != null)
 				mouseOver.drawWithMouseOver(mouseOver.getLeft(), mouseOver.getTop());
+
 			if(focus != null && focusSelected)
 				focus.drawFocus();
 		}

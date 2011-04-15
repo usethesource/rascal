@@ -143,6 +143,7 @@ public class HCat extends Compose {
 			// the next formula can be obtained by rewriting hGapFactor = gapsSize / (totalElementsWidth + gapsSize) 
 			gapsSize = totalElementsWidth /  (1/getHGapFactorProperty - 1);
 		}
+		width = totalElementsWidth + gapsSize;
 		gapSize = gapsSize / numberOfGaps;
 		topAnchor = valign * height;
 		bottomAnchor = (1 - valign) * height;
