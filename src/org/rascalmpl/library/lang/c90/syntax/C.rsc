@@ -170,7 +170,7 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
+syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
@@ -204,7 +204,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                                        if(identifier != theType) fail;
                                     }
                                  }
-                              }
+                              } // May be ambiguous with Spec* {InitDecl ","}*
                               
                               TypeSpecifier declType = findType(specChildren);
                               if(declType notin typeDefs){
@@ -256,7 +256,7 @@ syntax TypeQualifier = "const" |
                        "volatile"
                        ;
 
-syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
+syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
                            Specifier+ specs{ // TODO: Disallow store class specifiers.
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
@@ -267,7 +267,7 @@ syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TOD
                                           if(identifier != theType) fail;
                                        }
                                     }
-                                 }
+                                 } // May be ambiguous with Spec* {StructDecl ","}*
                               }
                            } // Avoid.
                            ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
@@ -342,10 +342,10 @@ syntax Exponent = lex [Ee] [+\-]? [0-9]+
                   ;
 
 syntax ExternalDeclaration = FunctionDefinition |
-                             Declaration
+                             Declaration // TODO: Type specifiers are not required for these; they default to int.
                              ;
 
-syntax FunctionDefinition = TypeSpecifier* Declarator Declaration* "{" Declaration* Statement* "}"
+syntax FunctionDefinition = TypeSpecifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO: Type specifiers are required for K&R style function declarations, initialization of them is not allowed however.
                             ;
 
 start syntax TranslationUnit = ExternalDeclaration+
