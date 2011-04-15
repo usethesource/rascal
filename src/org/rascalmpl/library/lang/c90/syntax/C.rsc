@@ -56,7 +56,7 @@ syntax Expression = Variable: Identifier |
                        if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
                           Tree child = children[1];
                           if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := child){
-                             if("<child>" in typeDefs){
+                             if(unparse(child) in typeDefs){
                                   fail;
                                }
                           }
@@ -66,7 +66,7 @@ syntax Expression = Variable: Identifier |
                     left (
                          Expression lexp "*" Expression rexp {
                             if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
-                               if("<child>" in typeDefs){
+                               if(unparse(child) in typeDefs){
                                   fail;
                                }
                             }
@@ -187,7 +187,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                            
                            if(hasCustomType(specChildren)){
                               str declType = findType(specChildren);
-                              if("<declType>" notin typeDefs){
+                              if(declType notin typeDefs){
                                  fail;
                               } // May be ambiguous with "Exp * Exp".
                            }
@@ -198,7 +198,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                         if(appl(_,specChildren) := specs){
                            if(hasCustomType(specChildren)){
                               str declType = findType(specChildren);
-                              if("<declType>" notin typeDefs){
+                              if(declType notin typeDefs){
                                  fail;
                               } // May be ambiguous with "Exp * Exp".
                            }
@@ -247,8 +247,8 @@ syntax TypeQualifier = "const" |
                        "volatile"
                        ;
 
-syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow typedef specifier and such.
-                           Specifier+ specs // TODO: Avoid. Disallow typedef specifier and such.
+syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
+                           Specifier+ specs // TODO: Avoid. Disallow store class specifiers.
                            ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
 
 syntax StructDeclarator = Declarator |
@@ -431,7 +431,7 @@ private tuple[list[Specifier], Declarator] findModifiers(list[Tree] specs, Decla
 
 private str findVariableInDeclarator(Declarator decl){
 	if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := decl){
-		return "<decl>";
+		return unparse(decl);
 	}else if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl){
 		return walkOverDeclarator(decl.decl);
 	}else if(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl){
