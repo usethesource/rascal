@@ -431,7 +431,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try{
 			result = parser.parse(name, location, input, exec);
 		}catch(SyntaxError se){
-			if(withErrorTree) return parser.buildErrorTree();
+			if(withErrorTree){
+				try{
+					IConstructor errorTree = parser.buildErrorTree();
+					if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
+				}catch(NullPointerException npex){
+					// Ignore, so we rethrow the orginial parse error.
+				}
+			}
 			
 			throw se; // Rethrow the exception if building the error tree fails.
 		}
@@ -1104,8 +1111,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}catch(SyntaxError se){
 			if(withErrorTree){
-				IConstructor errorTree = parser.buildErrorTree();
-				if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
+				try{
+					IConstructor errorTree = parser.buildErrorTree();
+					if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
+				}catch(NullPointerException npex){
+					// Ignore, so we rethrow the orginial parse error.
+				}
 			}
 			
 			throw se; // Rethrow the exception if building the error tree fails.
