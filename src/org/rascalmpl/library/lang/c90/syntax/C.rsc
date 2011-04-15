@@ -193,7 +193,7 @@ syntax Declaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
                            }
                         }
                      } |
-                     Specifier* specs ";" {
+                     Specifier+ specs ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
                            if(hasCustomType(specChildren)){
@@ -248,7 +248,7 @@ syntax TypeQualifier = "const" |
                        ;
 
 syntax StructDeclaration = Specifier* specs {StructDeclarator ","}+ ";" | // TODO Disallow typedef specifier and such.
-                           Specifier* specs // TODO: Avoid. Disallow typedef specifier and such.
+                           Specifier+ specs // TODO: Avoid. Disallow typedef specifier and such.
                            ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
 
 syntax StructDeclarator = Declarator |
@@ -324,7 +324,7 @@ syntax ExternalDeclaration = FunctionDefinition |
                              Declaration
                              ;
 
-syntax FunctionDefinition = TypeSpecifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO Disallow typedef specifier and such.
+syntax FunctionDefinition = TypeSpecifier* Declarator Declaration* "{" Declaration* Statement* "}"
                             ;
 
 start syntax TranslationUnit = ExternalDeclaration+
