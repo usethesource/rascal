@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum ColorProp  implements IProperties<BoolProp, Integer>{
+public enum ColorProp {
 	FILL_COLOR(255),     
 	FONT_COLOR(0),    
 	LINE_COLOR(0);
@@ -34,7 +34,6 @@ public enum ColorProp  implements IProperties<BoolProp, Integer>{
 	put("lineColor", new PropertySetters.SingleColorPropertySetter(LINE_COLOR));
 	}};
 
-	@Override
 	public Integer getStdDefault() {
 		return stdDefault;
 	} 

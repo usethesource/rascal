@@ -18,7 +18,6 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;

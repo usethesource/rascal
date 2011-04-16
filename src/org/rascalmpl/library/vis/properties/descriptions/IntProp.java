@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum IntProp implements IProperties<IntProp, Integer> {
+public enum IntProp {
 	DOI(1000000),            // degree of interest
 	FONT_SIZE(12);
 
@@ -32,7 +32,6 @@ public enum IntProp implements IProperties<IntProp, Integer> {
 	put("fontSize", new PropertySetters.SingleIntPropertySetter(FONT_SIZE));
 	}};
 
-	@Override
 	public Integer getStdDefault() {
 		return stdDefault;
 	}

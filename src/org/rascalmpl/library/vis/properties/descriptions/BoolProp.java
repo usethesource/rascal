@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum BoolProp implements IProperties<BoolProp, Boolean>{
+public enum BoolProp{
 	ALIGN_ANCHORS(false),	
 	SHAPE_CLOSED(false), 	
 	SHAPE_CONNECTED(false),
@@ -43,7 +43,6 @@ public enum BoolProp implements IProperties<BoolProp, Boolean>{
 	put("capGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(START_GAP, END_GAP));
 	}};
 
-	@Override
 	public Boolean getStdDefault() {
 		return stdDefault;
 	}

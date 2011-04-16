@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum StrProp implements IProperties<StrProp, String>{
+public enum StrProp {
 	DIRECTION("TD"),	
 	LAYER(""),		
 	HINT(""),			
@@ -40,7 +40,6 @@ public enum StrProp implements IProperties<StrProp, String>{
 	put("text", new PropertySetters.SingleStrPropertySetter(TEXT));
 	}};
 
-	@Override
 	public String getStdDefault() {
 		return stdDefault;
 	}
