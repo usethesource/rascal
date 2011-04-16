@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum FigureProp  implements IProperties<BoolProp, Figure>{
+public enum FigureProp{
 	MOUSE_OVER(null);
 	
 	Figure stdDefault;
@@ -20,7 +20,6 @@ public enum FigureProp  implements IProperties<BoolProp, Figure>{
 	// aliasses
 	}};
 
-	@Override
 	public Figure getStdDefault() {
 		return stdDefault;
 	}

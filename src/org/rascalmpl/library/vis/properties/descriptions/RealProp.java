@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum RealProp implements IProperties<RealProp, Float>{
+public enum RealProp {
 	HALIGN(0.5f),	
 	HANCHOR(0.5f),
 	HEIGHT(10.0f),
@@ -64,7 +64,6 @@ public enum RealProp implements IProperties<RealProp, Float>{
 	put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
 	}};
 
-	@Override
 	public Float getStdDefault() {
 		return stdDefault;
 	}	

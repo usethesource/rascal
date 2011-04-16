@@ -12,7 +12,6 @@
 package org.rascalmpl.library.vis.properties;
 
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
