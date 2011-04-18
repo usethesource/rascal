@@ -31,6 +31,7 @@ bool isNonterminal(Symbol x) {
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
        && \start(_) !:= x
+       && \restricted(_) !:= x
        && \parameterized-sort(_,[\parameter(_),_*]) !:= x;
 }
   
