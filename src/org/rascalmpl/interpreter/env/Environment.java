@@ -644,15 +644,32 @@ public class Environment {
 		return getRoot().getProductions();
 	}
 
+	// TODO: We should have an extensible environment model that doesn't
+	// require this type of checking, but instead stores all the info on
+	// a name in one location...
 	protected Environment getFlagsEnvironment(String name) {
-		if (this.nameFlags != null) {
-			NameFlags nf = nameFlags.get(name);
-	
-			if (nf != null) {
-				return this;
+		if (this.variableEnvironment != null) {
+			if (this.variableEnvironment.get(name) != null) {
+				if (this.nameFlags != null) {
+					if (nameFlags.get(name) != null) {
+						return this; // Found it at this level, return the environment
+					}
+				}
+				return null; // Found the name, but no flags, so return null
 			}
 		}
-	
+		
+		if (this.functionEnvironment != null) {
+			if (this.functionEnvironment.get(name) != null) {
+				if (this.nameFlags != null) {
+					if (nameFlags.get(name) != null) {
+						return this; // Found it at this level, return the environment
+					}
+				}
+				return null; // Found the name, but no flags, so return null
+			}
+		}
+		
 		if (!isRootScope()) return parent.getFlagsEnvironment(name);
 		return null;
 	}
