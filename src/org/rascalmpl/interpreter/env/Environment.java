@@ -51,7 +51,7 @@ import org.rascalmpl.interpreter.utils.Names;
 public class Environment {
 	
 	// TODO: these NameFlags should also be used to implement Public & Private ??
-	private class NameFlags {
+	protected static class NameFlags {
 		public final static int FINAL_NAME = 0x01;
 		public final static int OVERLOADABLE_NAME = 0x02;
 		private int flags = 0;
@@ -657,3 +657,4 @@ public class Environment {
 		return null;
 	}
 }
+
