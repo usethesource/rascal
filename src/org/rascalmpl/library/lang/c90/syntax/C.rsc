@@ -321,12 +321,12 @@ syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" | // TOD
                                              }
                                           }
                                        }
-                                    }
-                                 } // May be ambiguous with Spec* {StructDecl ","}*
-                                 
-                                 if(unparse(theType) notin typeDefs){
-                                    fail;
-                                 } // May be ambiguous with "Exp * Exp".
+                                    } // May be ambiguous with Spec* {StructDecl ","}*
+                                    
+                                    if(unparse(theType) notin typeDefs){
+                                       fail;
+                                    } // May be ambiguous with "Exp * Exp".
+                                 }
                               }
                            } // Avoid.
                            ;
@@ -516,11 +516,13 @@ private str findVariableInDeclarator(Declarator decl){
 	if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := decl){
 		return unparse(decl);
 	}else if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl){
-		return walkOverDeclarator(decl.decl);
+		return findVariableInDeclarator(decl.decl);
+	}else if(appl(prod(_,_,attrs([_*,term(cons("ArrayDeclarator")),_*])),_) := decl){
+		return findVariableInDeclarator(decl.decl);
 	}else if(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl){
-		return walkOverDeclarator(decl.decl);
+		return findVariableInDeclarator(decl.decl);
 	}else if(appl(prod(_,_,attrs([_*,term(cons("PointerDeclarator")),_*])),_) := decl){
-		return walkOverDeclarator(decl.decl);
+		return findVariableInDeclarator(decl.decl);
 	}
 	
 	throw "This can\'t happen";
