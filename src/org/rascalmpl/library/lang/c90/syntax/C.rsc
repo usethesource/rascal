@@ -172,6 +172,7 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
+// TODO Fix problem related to typedefed 'identifiers'.
 syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
@@ -221,6 +222,7 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                      } // Avoid.
                      ;
 
+// TODO Fix problem related to typedefed 'identifiers'.
 syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
                            list[Tree] specChildren;
                            if(appl(_,specChildren) := specs){
@@ -249,7 +251,7 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                               }
                            }
                         } |
-                        Specifier* specs ";" {
+                        Specifier+ specs ";" {
                            list[Tree] specChildren;
                            if(appl(_,specChildren) := specs){
                               TypeSpecifier theType = findType(specChildren);
@@ -312,6 +314,7 @@ syntax TypeQualifier = "const" |
                        "volatile"
                        ;
 
+// TODO Fix problem related to typedefed 'identifiers'.
 syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
                            Specifier+ specs { // TODO: Disallow store class specifiers.
                               list[Tree] specChildren;
