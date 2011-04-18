@@ -178,7 +178,6 @@ public list[str] java fontNames();
  
 public alias FProperties = list[FProperty];
 
-int auto = 0;
 
 data FProperty =
 /* sizes */
@@ -330,6 +329,8 @@ data FProperty =
    | direction(str name)
    | direction(computedStr cname)
    | direction(Like other)
+   
+   | _child(FProperties props)           // define properties for the children of a composition (one level deep)
 /* Standard properties: all the properties again! */
 /* sizes */
    | stdWidth(num width)                   // sets width of element
@@ -481,6 +482,14 @@ data FProperty =
    | stdDirection(computedStr cname)
    | stdDirection(Like other)
    ;   
+
+public FProperty child(FProperty props ...){
+	return _child(props);
+}
+
+public FProperty grandChild(FProperty props ...){
+	return _child([_child(props)]);
+}
 
 /*
  * Vertex and Edge: auxiliary data types

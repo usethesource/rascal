@@ -33,7 +33,7 @@ public class Scale extends Figure {
 		yscale = ys.getType().isIntegerType() ? ((IInteger) ys).intValue()
                 							  : ((IReal) ys).floatValue();
 		
-		figure = FigureFactory.make(fpa, c, properties, ctx);
+		figure = FigureFactory.make(fpa, c, properties, null, ctx);
 	}
 
 	@Override

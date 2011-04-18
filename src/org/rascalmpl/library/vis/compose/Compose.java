@@ -35,7 +35,7 @@ public abstract class Compose extends Figure {
 	final private static boolean debug = false;
 
 	protected Compose(IFigureApplet fpa, PropertyManager properties,
-			IList elems, IEvaluatorContext ctx) {
+			IList elems, IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		int n = elems.length();
 		figures = new Figure[n];
@@ -44,7 +44,7 @@ public abstract class Compose extends Figure {
 			IConstructor c = (IConstructor) v;
 			if (debug)
 				System.err.println("Compose, elem = " + c.getName());
-			figures[i] = FigureFactory.make(fpa, c, properties, ctx);
+			figures[i] = FigureFactory.make(fpa, c, properties, childProps, ctx);
 		}
 	}
 

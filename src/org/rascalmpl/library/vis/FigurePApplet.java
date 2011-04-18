@@ -84,7 +84,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 				file = file.substring(5);
 			}
 			System.err.println("saveFile = " + file);
-			this.figure = FigureFactory.make(this, fig, null, ctx);
+			this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,13 +94,13 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 	
 	public FigurePApplet(IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
-		this.figure = FigureFactory.make(this, fig, null, ctx);
+		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		setName("Figure");
 	}
 	
 	public FigurePApplet(IString name, IConstructor fig, IEvaluatorContext ctx){
 		saveFigure = false;
-		this.figure = FigureFactory.make(this, fig, null, ctx);
+		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		setName(name.getValue());
 	}
 	

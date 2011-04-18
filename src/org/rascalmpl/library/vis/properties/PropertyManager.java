@@ -32,6 +32,7 @@ import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+
 /**
  * Manage the properties of a figure.
  * 
@@ -60,15 +61,39 @@ public class PropertyManager implements IPropertyManager {
 	
 	Values explicitValues, stdValues;
 	
-	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IEvaluatorContext ctx){		
+	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){		
 		IList props = (IList) c.get(c.arity()-1);
-		if(pm != null && !pm.anyExplicitPropertiesSet() && pm.getMouseOver() == null && pm.getOnClick() == null 
-				&& (props == null || props.length()==0)){
+		if(pm != null && !pm.anyExplicitPropertiesSet() 
+				&& (props == null || props.length()==0)
+				&& childProps == null){
 			return pm; // reuse old property manager
 		} else {
-			return new PropertyManager(fpa, pm, props, ctx);
+			
+			if(childProps != null){
+				PropertyManager result = new PropertyManager(fpa, pm, childProps, ctx);
+				// explicitly set props override childprops..
+				result.setProperties(fpa, props, ctx);
+				return result;
+			} else {
+				 return new PropertyManager(fpa, pm, props, ctx);
+			}
+			
+		}		                         
+	}
+	
+	public static IList getChildProperties(IList props){
+		IList result = null;
+		for (IValue v : props) {
+			if(v instanceof IConstructor && ((IConstructor)v).getName().equals("_child")){
+				IList childList = (IList)((IConstructor)v).get(0);
+				if(result == null){
+					result = childList;
+				} else {
+					result.concat(childList);
+				}
+			}
 		}
-								                         
+		return result;
 	}
 	
 	public PropertyManager(IFigureApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
@@ -84,6 +109,9 @@ public class PropertyManager implements IPropertyManager {
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
 			Values values;
+			if(pname.startsWith("_child")){
+				continue;
+			}
 			if(pname.startsWith("std")){
 				if(stdValues == null){
 					stdValues = new Values();
@@ -102,32 +130,32 @@ public class PropertyManager implements IPropertyManager {
 				if(values.boolValues == null){
 					values.boolValues = new EnumMap<BoolProp, IPropertyValue<Boolean>>(BoolProp.class);
 				}
-				BoolProp.propertySetters.get(pname).execute(values.boolValues, c, fpa, ctx, this);
+				BoolProp.propertySetters.get(pname).execute(values.boolValues, c,  fpa, ctx, this);
 			} else if(IntProp.propertySetters.containsKey(pname)){
 				if(values.intValues == null){
 					values.intValues = new EnumMap<IntProp, IPropertyValue<Integer>>(IntProp.class);
 				}
-				IntProp.propertySetters.get(pname).execute(values.intValues, c, fpa, ctx, this);
+				IntProp.propertySetters.get(pname).execute(values.intValues, c,  fpa, ctx, this);
 			}  else if(RealProp.propertySetters.containsKey(pname)){
 				if(values.realValues == null){
 					 values.realValues = new EnumMap<RealProp, IPropertyValue<Float>>(RealProp.class);
 				}
-				RealProp.propertySetters.get(pname).execute(values.realValues, c, fpa, ctx, this);
+				RealProp.propertySetters.get(pname).execute(values.realValues, c,  fpa, ctx, this);
 			} else if(StrProp.settersStr.containsKey(pname)){
 				if(values.strValues == null){
 					values.strValues = new EnumMap<StrProp, IPropertyValue<String>>(StrProp.class);
 				}
-				StrProp.settersStr.get(pname).execute(values.strValues, c, fpa, ctx, this);
+				StrProp.settersStr.get(pname).execute(values.strValues, c,  fpa, ctx, this);
 			} else if(ColorProp.propertySetters.containsKey(pname)){
 				if(values.colorValues == null){
 					values.colorValues = new EnumMap<ColorProp, IPropertyValue<Integer>>(ColorProp.class);
 				}
-				ColorProp.propertySetters.get(pname).execute(values.colorValues, c, fpa, ctx, this);
+				ColorProp.propertySetters.get(pname).execute(values.colorValues, c,  fpa, ctx, this);
 			} else if(FigureProp.propertySetters.containsKey(pname)){
 				if(values.figureValues == null){
 					values.figureValues = new EnumMap<FigureProp, IPropertyValue<Figure>>(FigureProp.class);
 				}
-				FigureProp.propertySetters.get(pname).execute(values.figureValues, c, fpa, ctx, this);
+				FigureProp.propertySetters.get(pname).execute(values.figureValues, c,  fpa, ctx, this);
 			} else if(HandlerProp.propertySetters.containsKey(pname)){
 				if(values.handlerValues == null){
 					values.handlerValues = new EnumMap<HandlerProp, IPropertyValue<Void>>(HandlerProp.class);

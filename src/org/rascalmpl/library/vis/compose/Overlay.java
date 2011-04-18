@@ -35,8 +35,8 @@ public class Overlay extends Compose {
 	float leftAnchor = 0;
 	float rightAnchor = 0;
 
-	public Overlay(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
-		super(fpa, properties, elems, ctx);
+	public Overlay(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
+		super(fpa, properties, elems, childProps, ctx);
 	}
 	
 	@Override

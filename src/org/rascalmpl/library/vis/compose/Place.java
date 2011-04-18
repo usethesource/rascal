@@ -35,8 +35,8 @@ public class Place extends Figure {
 
 	public Place(IFigureApplet fpa, PropertyManager properties, IConstructor ctop, IString id, IConstructor cbot, IEvaluatorContext ctx) {
 		super(fpa, properties);
-		this.bottomFigure = FigureFactory.make(fpa, cbot, properties, ctx);
-		this.topFigure = FigureFactory.make(fpa, ctop, properties, ctx);
+		this.bottomFigure = FigureFactory.make(fpa, cbot, properties, null, ctx);
+		this.topFigure = FigureFactory.make(fpa, ctop, properties, null, ctx);
 		this.refFigure = fpa.getRegisteredId(id.getValue());
 		if(this.refFigure == null)
 			throw RuntimeExceptionFactory.figureException("Cannot place on not (yet) existing figure", id, ctx.getCurrentAST(),

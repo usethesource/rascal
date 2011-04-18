@@ -222,7 +222,7 @@ public class LatticeGraph extends Figure implements
 		registered = new HashMap<String, LatticeGraphNode>();
 		for (IValue v : nodes) {
 			IConstructor c = (IConstructor) v;
-			Figure ve = FigureFactory.make(fpa, c, properties, ctx);
+			Figure ve = FigureFactory.make(fpa, c, properties, null, ctx);
 			String name = ve.getIdProperty();
 			if (name.length() == 0)
 				throw RuntimeExceptionFactory.figureException(

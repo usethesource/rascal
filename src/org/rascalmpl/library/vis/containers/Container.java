@@ -15,6 +15,7 @@ package org.rascalmpl.library.vis.containers;
 import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -42,10 +43,10 @@ public abstract class Container extends Figure {
 
 	final private static boolean debug = false;
 
-	public Container(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IEvaluatorContext ctx) {
+	public Container(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(innerCons != null){
-			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, ctx);
+			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, childProps, ctx);
 		} else
 			this.innerFig = null;
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());

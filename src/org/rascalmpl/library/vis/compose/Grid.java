@@ -40,8 +40,8 @@ public class Grid extends Compose {
 	private static boolean debug = false;
 	
 
-	public Grid(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
-		super(fpa, properties, elems, ctx);
+	public Grid(IFigureApplet fpa, PropertyManager properties, IList elems, IList childProps, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, childProps, ctx);
 		leftFig = new float[elems.length()];
 		topFig = new float[elems.length()];
 	}

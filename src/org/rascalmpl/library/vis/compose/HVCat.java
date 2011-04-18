@@ -37,8 +37,8 @@ public class HVCat extends Compose {
 	
 	static boolean debug = false;
 
-	public HVCat(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
-		super(fpa, properties, elems, ctx);
+	public HVCat(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
+		super(fpa, properties, elems, childProps, ctx);
 		leftElem = new float[elems.length()];
 		topRowElem = new float[elems.length()];
 		rowHeight = new float[elems.length()];

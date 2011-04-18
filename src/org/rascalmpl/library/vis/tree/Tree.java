@@ -57,7 +57,7 @@ public class Tree extends Figure {
 		// Construct TreeNodes
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, null, ctx);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
 				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
