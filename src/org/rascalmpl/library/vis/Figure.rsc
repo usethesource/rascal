@@ -557,6 +557,9 @@ data Figure =
    
    | _space(FProperties props)			      	// invisible box (used for spacing)
    | _space(Figure inner, FProperties props)     // invisible box with visible inner element
+
+   | _xaxis(FProperties props)                  // xaxis (work in progress)      
+   | _xaxis(Figure inner, FProperties props)   
  
 /* composition */
    
@@ -647,6 +650,14 @@ public Figure space(FProperty props ...){
 
 public Figure space(Figure fig, FProperty props ...){
   return _space(fig, props);
+}
+
+public Figure xaxis(FProperty props ...){
+  return _xaxis(props);
+}
+
+public Figure xaxis(Figure fig, FProperty props ...){
+  return _xaxis(fig, props);
 }
 
 public Figure place(Figure fig, str at, Figure base, FProperty props ...){
