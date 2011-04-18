@@ -212,7 +212,7 @@ public class Environment {
 		return result.join(resultFromParent);
 	}
 
-	private boolean isNameFlagged(QualifiedName name, int flags) {
+	protected boolean isNameFlagged(QualifiedName name, int flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
@@ -227,11 +227,12 @@ public class Environment {
 		
 	}
 	
-	private boolean isNameFlagged(String name, int flags) {
-		if (nameFlags == null) {
+	protected boolean isNameFlagged(String name, int flags) {
+		Environment flaggingEnvironment = getFlagsEnvironment(name);
+		if (flaggingEnvironment == null) {
 			return false;
 		}
-		return nameFlags.containsKey(name) && (0 != (nameFlags.get(name).getFlags() & flags));
+		return flaggingEnvironment.nameFlags.containsKey(name) && (0 != (flaggingEnvironment.nameFlags.get(name).getFlags() & flags));
 	}
 
 	public boolean isNameFinal(QualifiedName name) {
@@ -242,7 +243,7 @@ public class Environment {
 		return isNameFlagged(name, NameFlags.OVERLOADABLE_NAME);
 	}
 
-	private void flagName(QualifiedName name, int flags) {
+	protected void flagName(QualifiedName name, int flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
@@ -257,7 +258,9 @@ public class Environment {
 		
 	}
 	
-	private void flagName(String name, int flags) {
+	protected void flagName(String name, int flags) {
+		// NOTE: This assumption is that the environment level is already correct, i.e.,
+		// we are not requested to mark a name that is higher up in the hierarchy.
 		if (nameFlags == null) {
 			nameFlags = new HashMap<String,NameFlags>();
 		}
@@ -641,4 +644,16 @@ public class Environment {
 		return getRoot().getProductions();
 	}
 
+	protected Environment getFlagsEnvironment(String name) {
+		if (this.nameFlags != null) {
+			NameFlags nf = nameFlags.get(name);
+	
+			if (nf != null) {
+				return this;
+			}
+		}
+	
+		if (!isRootScope()) return parent.getFlagsEnvironment(name);
+		return null;
+	}
 }

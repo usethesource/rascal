@@ -515,8 +515,6 @@ public class ModuleEnvironment extends Environment {
 		this.initialized = init;
 	}
 
-	
-
 	public void setBootstrap(boolean needBootstrapParser) {
 		this.bootstrap = needBootstrapParser;
 	}
@@ -536,5 +534,65 @@ public class ModuleEnvironment extends Environment {
 
 	public boolean hasCachedParser() {
 		return cachedParser != null;
+	}
+
+	@Override
+	protected boolean isNameFlagged(QualifiedName name, int flags) {
+		String modulename = Names.moduleName(name);
+		String cons = Names.name(Names.lastName(name));
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				return isNameFlagged(cons, flags);
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				throw new UndeclaredModuleError(modulename, name);
+			}
+			
+			return imported.isNameFlagged(cons, flags);
+		}
+		
+		return isNameFlagged(cons, flags);
+	}
+
+	@Override
+	protected void flagName(QualifiedName name, int flags) {
+		String modulename = Names.moduleName(name);
+		String cons = Names.name(Names.lastName(name));
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				flagName(cons, flags);
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				throw new UndeclaredModuleError(modulename, name);
+			}
+			
+			imported.flagName(cons, flags);
+		}
+		
+		flagName(cons, flags);
+	}
+
+	@Override
+	protected Environment getFlagsEnvironment(String name) {
+		Environment env = super.getFlagsEnvironment(name);
+		
+		if (env != null) {
+			return env;
+		}
+		
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			env = mod.getFlagsEnvironment(name);
+			
+			if (env != null) {
+				return env;
+			}
+		}
+
+		return null;
 	}
 }
