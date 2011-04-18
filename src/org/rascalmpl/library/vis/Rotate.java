@@ -83,22 +83,22 @@ public class Rotate extends Figure {
 	}
 	
 	@Override
-	public float leftAnchor(){
+	public float leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAnchor(){
+	public float rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAnchor(){
+	public float topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAnchor(){
+	public float bottomAlign(){
 		return bottomAnchor;
 	}
 	

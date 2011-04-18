@@ -41,7 +41,7 @@ public class Text extends Figure {
 	@Override
 	public
 	void bbox(float desiredWidth, float desiredHeight){
-		float halign = getHalignProperty();
+		float halign = getHanchorProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 
 		applyFontProperties();
@@ -139,12 +139,12 @@ public class Text extends Figure {
 //	}
 	
 	@Override
-	public float topAnchor(){
+	public float topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAnchor(){
+	public float bottomAlign(){
 		return bottomAnchor;
 	}
 	

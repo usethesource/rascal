@@ -44,7 +44,7 @@ public class Outline extends Figure {
 		width += 2*lw;
 		height += 2*lw;
 		if(debug) System.err.println("Outline.bbox => " + width + ", " + height);
-		if(debug)System.err.printf("Outline.bbox: topAnchor=%f, bottomAnchor=%f\n", topAnchor(), bottomAnchor());
+		if(debug)System.err.printf("Outline.bbox: topAnchor=%f, bottomAnchor=%f\n", topAlign(), bottomAlign());
 		
 	}
 	

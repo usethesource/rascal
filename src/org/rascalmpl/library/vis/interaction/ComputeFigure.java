@@ -87,23 +87,23 @@ public class ComputeFigure extends Figure {
 	}
 	
 	@Override 
-	public float topAnchor(){
-		return figure != null ? figure.topAnchor() : 0;
+	public float topAlign(){
+		return figure != null ? figure.topAlign() : 0;
 	}
 	
 	@Override 
-	public float bottomAnchor(){
-		return figure != null ? figure.bottomAnchor() : 0;
+	public float bottomAlign(){
+		return figure != null ? figure.bottomAlign() : 0;
 	}
 	
 	@Override 
-	public float leftAnchor(){
-		return figure != null ? figure.leftAnchor() : 0;
+	public float leftAlign(){
+		return figure != null ? figure.leftAlign() : 0;
 	}
 	
 	@Override 
-	public float rightAnchor(){
-		return figure != null ? figure.rightAnchor() : 0;
+	public float rightAlign(){
+		return figure != null ? figure.rightAlign() : 0;
 	}
 	
 	@Override

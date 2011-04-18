@@ -17,7 +17,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 
 /**
  * 
@@ -47,7 +46,6 @@ public class VCat extends HCat {
 		getHeightProperty = getWidthProperty();
 		getHGapProperty = getVGapProperty();
 		getHGapFactorProperty = getVGapFactorProperty();
-		getValignProperty = getHalignProperty();
 	}
 	
 	public void bbox(float desiredWidth,float desiredHeight){
@@ -60,19 +58,12 @@ public class VCat extends HCat {
 	
 	float getFigureWidth(Figure fig){ return fig.height; }
 	float getFigureHeight(Figure fig){return fig.width;}
-	float getTopAnchor(Figure fig){return fig.leftAnchor();}
-	float getBottomAnchor(Figure fig){return fig.rightAnchor();}
+	float getTopAnchor(Figure fig){return fig.leftAlign();}
+	float getBottomAnchor(Figure fig){return fig.rightAlign();}
 	void  drawFigure(Figure fig,float left,float top,float leftBase,float topBase){
 		fig.draw(leftBase + top, topBase + left);
 	}
 	void  bboxOfFigure(Figure fig,float desiredWidth,float desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
 	float getHeight(){return width;}
-	public float leftAnchor(){ return topAnchor; }
-	public float rightAnchor(){ return bottomAnchor; }
-	
-	
-	//reset top and bottom anchor to defaults
-	public float topAnchor() { return (getRealProperty(RealProp.VANCHOR) * height);}
-	public float bottomAnchor() {return (height - getRealProperty(RealProp.VANCHOR) * height);}
 	
 }

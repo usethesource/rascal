@@ -30,7 +30,6 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public class Overlay extends Compose {
 	
 	private static boolean debug = false;
-	private boolean alignAnchors = false;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
 	float leftAnchor = 0;
@@ -42,37 +41,18 @@ public class Overlay extends Compose {
 	
 	@Override
 	public void bbox(float desiredWidth, float desiredHeight){
-		alignAnchors = getAlignAnchorsProperty();
-		if(alignAnchors)
-			bboxAlignAnchors();
-		else
-			bboxStandard();
-	}
-	
-	public void bboxAlignAnchors(){
 		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
 		for(Figure ve : figures){
-			ve.bbox(AUTO_SIZE, AUTO_SIZE);
-			topAnchor = max(topAnchor, ve.topAnchor());
-			bottomAnchor = max(bottomAnchor, ve.bottomAnchor());
-			leftAnchor = max(leftAnchor, ve.leftAnchor());
-			rightAnchor = max(rightAnchor, ve.rightAnchor());
+			ve.bbox(desiredWidth, desiredHeight);
+			topAnchor = max(topAnchor, ve.topAlign());
+			bottomAnchor = max(bottomAnchor, ve.bottomAlign());
+			leftAnchor = max(leftAnchor, ve.leftAlign());
+			rightAnchor = max(rightAnchor, ve.rightAlign());
 		}
 		width = leftAnchor + rightAnchor;
 		height = topAnchor + bottomAnchor;
-		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
-	}
-	
-	public void bboxStandard(){
-		width = height = 0;
-		
-		for(Figure fig : figures){
-			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			width = max(width, fig.width);
-			height = max(height, fig.height);
-		}
 		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
 	}
 	
@@ -84,19 +64,10 @@ public class Overlay extends Compose {
 		
 		applyProperties();
 		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
-		if(alignAnchors){
-			for(Figure fig : figures){	
-				fig.draw(left + leftAnchor - fig.leftAnchor(), top + topAnchor - fig.topAnchor());
-			}
-		} else {
-			float halign = getHalignProperty();
-			float valign = getValignProperty();
-			
-			for(Figure fig : figures){	
-				float hpad = halign * (width - fig.width);
-				float vpad = valign * (height - fig.height);
-				fig.draw(left + hpad, top + vpad);
-			}
+
+		for(Figure fig : figures){	
+			fig.draw(left + leftAnchor - fig.leftAlign(), top + topAnchor - fig.topAlign());
 		}
+		
 	}
 }

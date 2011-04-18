@@ -347,7 +347,7 @@ public class PropertyManager implements IPropertyManager {
 	
 	public Figure getMouseOver() {
 			Figure res = getFigureProperty(FigureProp.MOUSE_OVER);
-			if(res!=null)System.err.print("getMouseOver returned " + res.toString() + "\n ");
+			//if(res!=null)System.err.print("getMouseOver returned " + res.toString() + "\n ");
 			return res;
 	}
 	

@@ -47,10 +47,10 @@ public class Shape extends Compose {
 
 		for (Figure fig : figures){
 			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			leftAnchor = max(leftAnchor, fig.leftAnchor());
-			rightAnchor = max(rightAnchor, fig.rightAnchor());
-			topAnchor = max(topAnchor, fig.topAnchor());
-			bottomAnchor = max(bottomAnchor, fig.bottomAnchor());
+			leftAnchor = max(leftAnchor, fig.leftAlign());
+			rightAnchor = max(rightAnchor, fig.rightAlign());
+			topAnchor = max(topAnchor, fig.topAlign());
+			bottomAnchor = max(bottomAnchor, fig.bottomAlign());
 		}
 		width = leftAnchor + rightAnchor;
 		height = topAnchor + bottomAnchor;
@@ -127,22 +127,22 @@ public class Shape extends Compose {
 	}
 	
 	@Override
-	public float leftAnchor(){
+	public float leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAnchor(){
+	public float rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAnchor(){
+	public float topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAnchor(){
+	public float bottomAlign(){
 		return bottomAnchor;
 	}
 }

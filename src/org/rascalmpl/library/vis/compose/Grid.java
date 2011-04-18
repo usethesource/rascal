@@ -37,7 +37,6 @@ public class Grid extends Compose {
 	float extLeft = 0;
 	float extRight = 0;
 	
-	private boolean alignAnchors = false;
 	private static boolean debug = false;
 	
 
@@ -49,14 +48,6 @@ public class Grid extends Compose {
 	
 	@Override
 	public void bbox(float desiredWidth, float desiredHeight){
-		alignAnchors = getAlignAnchorsProperty();
-		if(alignAnchors)
-			bboxAlignAnchors();
-		else
-			bboxStandard();
-	}
-	
-	public void bboxAlignAnchors(){
 		
 		width = getWidthProperty();
 		height = 0;
@@ -85,13 +76,13 @@ public class Grid extends Compose {
 			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			
 			if(w == 0)
-				extLeft = max(extLeft, fig.leftAnchor());
+				extLeft = max(extLeft, fig.leftAlign());
 			if(w + hgap >= width)
-				extRight = max(extRight, fig.rightAnchor());
+				extRight = max(extRight, fig.rightAlign());
 			if(nrow == 0)
-				extTop = max(extTop, fig.topAnchor());
+				extTop = max(extTop, fig.topAlign());
 			if(nrow == lastRow){
-				extBot = max(extBot, fig.bottomAnchor());
+				extBot = max(extBot, fig.bottomAlign());
 			}
 			
 			if(debug)System.err.printf("i=%d, row=%d, w=%f, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, nrow, w, extLeft, extRight, extTop, extBot);
@@ -105,57 +96,6 @@ public class Grid extends Compose {
 		if(debug)System.err.printf("grid.bbox: %f, %f\n", width, height);
 	}
 	
-	public void bboxStandard(){
-		
-		width = getWidthProperty();
-		height = 0;
-		float w = 0;
-		int nrow = 0;
-		
-		float hgap = getHGapProperty();
-		float vgap = getVGapProperty();
-		
-		float halign = getHalignProperty();
-		float valign = getValignProperty();
-		
-		int lastRow = (hgap == 0) ? 0 : figures.length / (1 + (int) (width / hgap)) - 1;
-		if(debug)System.err.printf("lastRow = %d\n", lastRow);
-		
-		extTop = 0;
-		extBot = 0;
-		extLeft = 0;
-		extRight = 0;
-		
-		for(int i = 0; i < figures.length; i++){
-			if(w > width){
-				nrow++;
-				height += vgap;
-				w = 0;
-			}
-			
-			Figure fig = figures[i];
-			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			
-			if(w == 0)
-				extLeft = max(extLeft, halign * fig.width);
-			if(w + hgap >= width)
-				extRight = max(extRight, (1 - halign) * fig.width);
-			if(nrow == 0)
-				extTop = max(extTop, valign * fig.height);
-			if(nrow == lastRow){
-				extBot = max(extBot, (1 - valign) * fig.height);
-			}
-			
-			if(debug)System.err.printf("i=%d, row=%d, w=%f, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, nrow, w, extLeft, extRight, extTop, extBot);
-			
-			leftFig[i] = w;
-			topFig[i] = height;
-			w += hgap;
-		}
-		width += extLeft + extRight;
-		height += extTop + extBot;
-		if(debug)System.err.printf("grid.bbox: %f, %f\n", width, height);
-	}
 	
 	@Override
 	public
@@ -164,29 +104,10 @@ public class Grid extends Compose {
 		setTop(top);
 	
 		applyProperties();
-		if(alignAnchors){
-			for(int i = 0; i < figures.length; i++){
-				Figure fig = figures[i];
-				if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, leftFig[i], topFig[i], left, top);
-				fig.draw(left + extLeft + leftFig[i] - fig.leftAnchor(), top + extTop + topFig[i] - fig.topAnchor());
-			}
-		} else {
-			
-			//float hgap = getHGapProperty();
-			//float vgap = getVGapProperty();
-			
-			float halign = getHalignProperty();
-			float valign = getValignProperty();
-			
-			System.err.printf("hanchor=%f, vanchor=%f\n", halign, valign);
-			
-			for(int i = 0; i < figures.length; i++){
-				Figure fig = figures[i];
-				if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, leftFig[i], topFig[i], left, top);
-				fig.draw(left + extLeft + leftFig[i] - halign * fig.width, 
-						 top  + extTop  + topFig[i]  - valign * fig.height);
-				if(debug)System.err.printf("Bert: i=%d: %f, %f\n", i, left + extLeft + leftFig[i] - halign * fig.width, top  + extTop  + topFig[i]  - valign * fig.height);
-			}
+		for(int i = 0; i < figures.length; i++){
+			Figure fig = figures[i];
+			if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, leftFig[i], topFig[i], left, top);
+			fig.draw(left + extLeft + leftFig[i] - fig.leftAlign(), top + extTop + topFig[i] - fig.topAlign());
 		}
 	}
 }
