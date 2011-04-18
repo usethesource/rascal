@@ -8,20 +8,11 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@doc {
+  Convert the Rascal internal grammar representation format (Grammar) to 
+  a syntax definition in Rascal source code.
+}
 module lang::rascal::syntax::Grammar2Rascal
-
-// Convert the Rascal internal grammar representation format (Grammar) to 
-// a syntax definition in Rascal source code
-
-// TODO:
-// - done!
-
-// Commands to test conversion of Pico or Rascal grammar:
-// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Pico.grammar|)));
-// - Manually paste output to /org/rascalmpl/library/rascal/conversion/grammar/Pico.rsc
-
-// println(grammar2rascal(readTextValueFile(#Grammar, |stdlib:///org/rascalmpl/library/rascal/conversion/grammar/Rascal.grammar|)));
-// - Manually paste output to /org/rascalmpl/library/rascal/conversion/grammar/Rascal.rsc
 
 import ParseTree;
 import Grammar;
@@ -32,6 +23,8 @@ import Set;
 import List;
 import String;
 import ValueIO;
+import Graph;
+import Relation;
 
 bool debug = false;
 
@@ -40,7 +33,19 @@ public str grammar2rascal(Grammar g, str name) {
 }
 
 public str grammar2rascal(Grammar g) {
-  return "<for (nont <- g.rules, lit(_) !:= nont) {>
+  deps = symbolDependencies(g);
+  ordered = orderBreadthFirst(deps);
+  unordered = [ e | e <- (g.rules<0> - carrier(deps))];
+  if ({e | e <- (ordered + unordered)} != g.rules<0>) {
+    iprintln(g.rules<0> - (ordered + unordered));
+    throw "???";
+  }
+  return "<grammar2rascal(g, ordered)>
+         '<grammar2rascal(g, unordered)>"; 
+}
+
+public str grammar2rascal(Grammar g, list[Symbol] nonterminals) {
+  return "<for (nont <- nonterminals, lit(_) !:= nont) {>
          '<topProd2rascal(choice(nont, g.rules[nont]))>
          '<}>
          '<for (Symbol nont:lit(_) <- g.rules, p <- g.rules[nont]) {>
@@ -86,6 +91,10 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
+public str alt2rascal(Production p) {
+  return "<symbol2rascal(p.rhs)> = <prod2rascal(p)>";
+}
+
 public str prod2rascal(Production p) {
   if(debug) println("prod2rascal: <p>");
   switch (p) {
@@ -100,9 +109,8 @@ public str prod2rascal(Production p) {
 		  return "...";
 		}
     case first(s, alts) :
-        return "( <prod2rascal(head(alts))><for (pr <- tail(alts)) {>
-               '\> <prod2rascal(pr)><}>
-               ')";
+        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
+               '\> <prod2rascal(pr)><}>";
     case \assoc(s, a, alts) : {
     		<fst, rest> = takeOneFrom(alts);
     		return "<attr2mod(\assoc(a))> 
@@ -123,13 +131,11 @@ public str prod2rascal(Production p) {
     case others(sym):
         return "...";
  
-    // case prod(_,lit(_),_) : return "";
-    
     case prod(list[Symbol] lhs,Symbol rhs,Attributes attrs) :
       	return "<attrs2mods(attrs)><for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case regular(_,_) :
-    	return "";
+    	    return "";
     
     default: throw "missed a case <p>";
   }
@@ -190,6 +196,8 @@ public str attr2mod(Attr a) {
     case \assoc(\assoc()): return "assoc";
     case \lex(): return "lex";
     case \bracket(): return "bracket";
+    case \term("reject"()) : return "";
+    case \term(value x) : return "/*<x>*/";
     default : return "/*<a>*/";
   }
 }
@@ -305,6 +313,7 @@ public str params2rascal(list[Symbol] params){
 }
 
 public str cc2rascal(list[CharRange] ranges) {
+  if (ranges == []) return "[]"; 
   return "[<range2rascal(head(ranges))><for (r <- tail(ranges)){> <range2rascal(r)><}>]";
 }
 

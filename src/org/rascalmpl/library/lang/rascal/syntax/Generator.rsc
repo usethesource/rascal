@@ -257,10 +257,13 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '	
            '  private static class <value2id(s)> {
            '    <for(Production alt <- alts) { 
-                list[Item] lhses = alts[alt];>
-           '	    public final static AbstractStackNode[] <value2id(alt)> = new AbstractStackNode[<size(lhses)>];
-           '	    static {<for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
-           '	      <pi>[<ii>] = <items[i].new>;<}>
+                list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '	    public final static AbstractStackNode[] <id> = _init_<id>();
+           '	    private static final AbstractStackNode[] _init_<id>() {
+           '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
+           '      <for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
+           '	      tmp[<ii>] = <items[i].new>;<}>
+                  return tmp;
            '	    }<}>
            '	  }<}>
            '	
