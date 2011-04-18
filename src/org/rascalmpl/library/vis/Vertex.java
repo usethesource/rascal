@@ -66,24 +66,24 @@ public class Vertex extends Figure {
 			//TODO is this ok?
 			marker.bbox(AUTO_SIZE, AUTO_SIZE);
 			if(debug) System.err.printf("Vertex: marker anchors hor (%f, %f), vert (%f, %f)\n",
-					   marker.leftAnchor(), marker.rightAnchor(), marker.topAnchor(), marker.bottomAnchor());
-			if(marker.leftAnchor() >= deltax){
-				leftAnchor = marker.leftAnchor() - deltax;
+					   marker.leftAlign(), marker.rightAlign(), marker.topAlign(), marker.bottomAlign());
+			if(marker.leftAlign() >= deltax){
+				leftAnchor = marker.leftAlign() - deltax;
 				width = marker.width;
 				rightAnchor = width - leftAnchor;
 			} else {
 				leftAnchor = 0;
-				width = deltax + marker.rightAnchor();
+				width = deltax + marker.rightAlign();
 				rightAnchor = width;
 			}
 			
-			if(marker.bottomAnchor() >= deltay){
-				bottomAnchor = marker.bottomAnchor();
-				topAnchor = marker.topAnchor() + deltay;
+			if(marker.bottomAlign() >= deltay){
+				bottomAnchor = marker.bottomAlign();
+				topAnchor = marker.topAlign() + deltay;
 				height = bottomAnchor + topAnchor;
 			} else {
 				bottomAnchor = 0;
-				height = deltay + marker.topAnchor();
+				height = deltay + marker.topAlign();
 				topAnchor = height;
 			}
 			
@@ -115,22 +115,22 @@ public class Vertex extends Figure {
 	}
 	
 	@Override
-	public float leftAnchor(){
+	public float leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAnchor(){
+	public float rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAnchor(){
+	public float topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAnchor(){
+	public float bottomAlign(){
 		return bottomAnchor;
 	}
 

@@ -5,6 +5,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 
 public class HCat extends Compose {
 
@@ -12,7 +13,6 @@ public class HCat extends Compose {
 	float numberOfGaps;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
-	private boolean alignAnchors = false;
 	private static boolean debug = true;
 	
 	boolean isWidthPropertySet, isHeightPropertySet, isHGapPropertySet, isHGapFactorPropertySet;
@@ -32,13 +32,13 @@ public class HCat extends Compose {
 		getHeightProperty = getHeightProperty();
 		getHGapProperty = getHGapProperty();
 		getHGapFactorProperty = getHGapFactorProperty();
-		getValignProperty = getValignProperty();
 	}
 	
 	float getFigureWidth(Figure fig){ return fig.width; }
 	float getFigureHeight(Figure fig){return fig.height;}
-	float getTopAnchor(Figure fig){return fig.topAnchor();}
-	float getBottomAnchor(Figure fig){return fig.bottomAnchor();}
+	float getTopAnchor(Figure fig){return fig.topAlign();}
+	float getTopAnchorProperty(Figure fig){return fig.getRealProperty(RealProp.VALIGN);}
+	float getBottomAnchor(Figure fig){return fig.bottomAlign();}
 	void  drawFigure(Figure fig,float left,float top,float leftBase,float topBase){
 		fig.draw(leftBase + left, topBase + top);
 	}
@@ -48,43 +48,14 @@ public class HCat extends Compose {
 	public
 	void bbox(float desiredWidth, float desiredHeight){
 		width = height = 0;
-		topAnchor = bottomAnchor = 0;
 		gapSize = getHGapProperty;
 		numberOfGaps = (figures.length - 1);
 		setProperties();
 		if(getStartGapProperty()){numberOfGaps+=0.5f;} 
 		if(getEndGapProperty()){numberOfGaps+=0.5f;} 
-		
-		alignAnchors = getAlignAnchorsProperty();
-		if(alignAnchors)
-			bboxAlignAnchors();
-		else
-			bboxStandard(desiredWidth,desiredHeight);
-	}
-	
-	public
-	void bboxAlignAnchors(){
-		for(Figure fig : figures){
-			fig.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
-			width += getFigureWidth(fig);
-			topAnchor = max(topAnchor, getTopAnchor(fig));
-			bottomAnchor = max(bottomAnchor, getBottomAnchor(fig));
-			//if(debug)System.err.printf("hcat (loop): topAnchor=%f, bottomAnchor=%f\n", topAnchor, bottomAnchor);
-		} 
-		width += numberOfGaps * gapSize;
-		height = topAnchor + bottomAnchor;
-		
-		//if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
-	}	
-	
-	
-	
-	public
-	void bboxStandard(float desiredWidth, float desiredHeight){
-		float valign = getValignProperty;
 		if(isWidthPropertySet) desiredWidth = getWidthProperty;
 		if(isHeightPropertySet) desiredHeight = getHeightProperty;
-		float desiredWidthPerElement, desiredWidthOfElements, gapsSize;
+		float desiredWidthPerElement, desiredWidthOfElements, desiredHeightPerElement, gapsSize;
 		gapsSize = 0.0f; // stops compiler from whining
 		if(isHGapPropertySet && !isHGapFactorPropertySet){
 			gapsSize = getHGapProperty;
@@ -99,39 +70,62 @@ public class HCat extends Compose {
 			desiredWidthOfElements = desiredWidth - gapsSize;
 			desiredWidthPerElement = desiredWidthOfElements / figures.length;
 		}
+		// deterine desired height of elements
+		if(desiredHeight == Figure.AUTO_SIZE){
+			desiredHeightPerElement = Figure.AUTO_SIZE;
+		} else {
+			float minTopAnchorProp, maxTopAnchorProp;
+			minTopAnchorProp = maxTopAnchorProp = 0.0f;
+			for(Figure fig : figures){
+				minTopAnchorProp = min(minTopAnchorProp,getTopAnchorProperty(fig));
+				maxTopAnchorProp = max(maxTopAnchorProp,getTopAnchorProperty(fig));
+			}
+			float maxDiffTopAnchorProp = maxTopAnchorProp - minTopAnchorProp;
+			// first assume all elements will get desiredheight
+			// rewrote : desiredHeight = desiredHeightPerElement + maxDiffTopAnchorProp* desiredHeightPerElement
+			desiredHeightPerElement = desiredHeight / (1 + maxDiffTopAnchorProp);
+		}
 		// determine width and bounding box elements and which are non-resizeable
-		int numberOfNonResizeableElements = 0;
+		int numberOfNonResizeableWidthElements = 0;
 		float totalNonResizeableWidth = 0;
 		boolean[] mayBeResized = new boolean[figures.length];
 		for(int i = 0 ; i < figures.length ; i++){
 			mayBeResized[i] = true;
 		}
+		
+		// assume width and height are independent(!)
 		boolean fixPointReached;
+		// fixpoint computation to set width of figures...
 		do{
 			fixPointReached = true;
 			for(int i = 0 ; i < figures.length; i++){
 				if(mayBeResized[i]){
-					bboxOfFigure(figures[i],desiredWidthPerElement,desiredHeight);
-					//figures[i].bbox(desiredWidthPerElement, desiredHeight);
-					if(getFigureWidth(figures[i]) != desiredWidthPerElement && desiredWidthPerElement != Figure.AUTO_SIZE){
+					bboxOfFigure(figures[i],desiredWidthPerElement,desiredHeightPerElement);
+					if(desiredWidthPerElement != Figure.AUTO_SIZE 
+							&& getFigureWidth(figures[i]) != desiredWidthPerElement ){
 						totalNonResizeableWidth+=getFigureWidth(figures[i]);
-						numberOfNonResizeableElements++;
+						numberOfNonResizeableWidthElements++;
 						mayBeResized[i]=false;
 						fixPointReached = false;
 					} 
 				}
 			}
 			// recompute width of resizeable elements
-			if(numberOfNonResizeableElements > 0 && desiredWidth!=Figure.AUTO_SIZE){
+			if(numberOfNonResizeableWidthElements > 0 && desiredWidth!=Figure.AUTO_SIZE){
 				desiredWidthPerElement = (desiredWidthOfElements - totalNonResizeableWidth) 
-				                              / (figures.length - numberOfNonResizeableElements);
+				                              / (figures.length - numberOfNonResizeableWidthElements);
 			}
 		} while(!fixPointReached);
+		// TODO: Fixpoint for height depending on alignment?
 		float totalElementsWidth = 0;
 		// compute total width and height
+		float maxTopAnchor = 0.0f;
+		float minTopAnchor = 0.0f;
 		for(Figure fig : figures){
 			totalElementsWidth += getFigureWidth(fig);
 			height = max(height,getFigureHeight(fig));
+			maxTopAnchor = max(maxTopAnchor,getTopAnchor(fig));
+			minTopAnchor = min(minTopAnchor,getTopAnchor(fig));
 		}
 		if(desiredWidth != Figure.AUTO_SIZE && 
 		   (int)(totalElementsWidth + gapsSize + 0.5f) > (int)(desiredWidth + 0.5f)){ // prevent round-off cannot fit error
@@ -145,9 +139,8 @@ public class HCat extends Compose {
 		}
 		width = totalElementsWidth + gapsSize;
 		gapSize = gapsSize / numberOfGaps;
-		topAnchor = valign * height;
-		bottomAnchor = (1 - valign) * height;
-		//if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f hgap=%f\n", width, height, topAnchor, bottomAnchor,hgap);
+		height = height + (maxTopAnchor - minTopAnchor);
+		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
 	}	
 	
 	public
@@ -160,24 +153,10 @@ public class HCat extends Compose {
 		if(getStartGapProperty()){
 			left+=0.5*gapSize;
 		}
-		float valign = getValignProperty;
 			// Draw from left to right
 		for(Figure fig : figures){
-			float topOffset;
-			if(alignAnchors){
-				topOffset =  topAnchor - getTopAnchor(fig);
-			} else {
-				topOffset =valign * (getHeight() - getFigureHeight(fig));
-			}
-			drawFigure(fig,left,top + topOffset,leftBase,topBase);
+			drawFigure(fig,left,top + getTopAnchor(fig),leftBase,topBase);
 			left += getFigureWidth(fig) + gapSize;
 		}
 	}
-	
-	
-	
-	public float topAnchor(){ return topAnchor; }
-	public float bottomAnchor(){ return bottomAnchor; }
-	
-	
 }

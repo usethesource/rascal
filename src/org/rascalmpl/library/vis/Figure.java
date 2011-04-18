@@ -18,8 +18,6 @@ import java.awt.event.MouseEvent;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
-import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
@@ -29,8 +27,6 @@ import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import org.rascalmpl.library.vis.FigureApplet;
 
 
 /**
@@ -124,7 +120,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 				getIntegerProperty(IntProp.FONT_SIZE)));
 		fpa.fill(getColorProperty(ColorProp.FONT_COLOR));
 	}
-	
+	/*
 	public float leftAlign() {
 		float res= (getRealProperty(RealProp.HALIGN) * width);
 		return res;
@@ -142,25 +138,26 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public float bottomAlign() {
 		return (height - getRealProperty(RealProp.VALIGN)  * height);
 	}
+	*/
 	
 	// Anchors
 
-	public float leftAnchor() {
-		float res= (getRealProperty(RealProp.HANCHOR) * width);
+	public float leftAlign() {
+		float res= (getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
-	public float rightAnchor() {
-		float res =  (width - getRealProperty(RealProp.HANCHOR) * width);
+	public float rightAlign() {
+		float res =  (width - getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
-	public float topAnchor() {
-		return (getRealProperty(RealProp.VANCHOR) * height);
+	public float topAlign() {
+		return (getRealProperty(RealProp.VALIGN) * height);
 	}
 
-	public float bottomAnchor() {
-		return (height - getRealProperty(RealProp.VANCHOR) * height);
+	public float bottomAlign() {
+		return (height - getRealProperty(RealProp.VALIGN) * height);
 	}
 
 	// TODO: irregular
@@ -400,8 +397,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public boolean mouseInside(int mouseX, int mouseY){
 		boolean b =  (mouseX > getLeft()  && mouseX < getLeft() + width) &&
 		             (mouseY > getTop()  && mouseY < getTop() + height);
-		System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
-		System.err.printf("left %f right %f top %f bottom %f\n", getLeft(),getTop(),getLeft() + width, getTop() + height);
+		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
+		//System.err.printf("left %f right %f top %f bottom %f\n", getLeft(),getTop(),getLeft() + width, getTop() + height);
 		return b;
 	}
 
@@ -412,8 +409,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		boolean b = (mouseX > left && mouseX < left + width)
 				&& (mouseY > top && mouseY < top + height);
 
-		  System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
-		  "]: "+ b + "; " + this);
+		  //System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
+		 // "]: "+ b + "; " + this);
 		return b;
 	}
 
@@ -604,10 +601,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public float getVGapProperty(){return getRealProperty(RealProp.VGAP);}
 	public boolean isVGapFactorPropertySet(){return isRealPropertySet(RealProp.VGAP_FACTOR);}
 	public float getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
-	public float getHalignProperty(){return getRealProperty(RealProp.HALIGN);}
-	public float getValignProperty(){return getRealProperty(RealProp.VALIGN);}
-	public float getHanchorProperty(){return getRealProperty(RealProp.HANCHOR);}
-	public float getVanchorProperty(){return getRealProperty(RealProp.VANCHOR);}
+	public float getHanchorProperty(){return getRealProperty(RealProp.HALIGN);}
+	public float getVanchorProperty(){return getRealProperty(RealProp.VALIGN);}
 	public float getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
 	public float getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
 	public float getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}

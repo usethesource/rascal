@@ -165,35 +165,6 @@ public list[str] java fontNames();
    return align(0.5, 0.5);
 }
    
- /*
- public FProperty left(){
-   return hanchor(0.0);
- }
- 
- public FProperty hcenter(){
-   return hanchor(0.5);
- }
- 
- public FProperty right(){
-   return hanchor(1.0);
- }
- 
- public FProperty top(){
-   return vanchor(0.0);
- }
- 
- public FProperty vcenter(){
-   return vanchor(0.5);
- }
- 
- public FProperty bottom(){
-   return vanchor(1.0);
- }
- 
- public FProperty center(){
-   return anchor(0.5, 0.5);
- }
- */
  
  alias computedBool = bool();
  alias computedInt	= int();
@@ -273,20 +244,6 @@ data FProperty =
    | valign(num vert)
    | valign(computedNum cVert)
    | valign(Like other)
-   
-   | alignAnchors(bool b)
-   | alignAnchors(computedBool cAlg)
-   | alignAnchors(Like other)
-   
-/* anchoring -- inherent property of a figure; only used when alignAnchors is set */
-   | anchor(num hor, num vert)
-   | hanchor(num hor)
-   | hanchor(computedNum cHor)
-   | hanchor(Like other)
-   
-   | vanchor(num vert)
-   | vanchor(computedNum cVert)
-   | vanchor(Like other)
    
 /* line and border properties */
    | lineWidth(num lineWidth)			// line width
@@ -437,20 +394,6 @@ data FProperty =
    | stdValign(num vert)
    | stdValign(computedNum cVert)
    | stdValign(Like other)
-   
-   | stdAlignAnchors(bool b)
-   | stdAlignAnchors(computedBool cAlg)
-   | stdAlignAnchors(Like other)
-   
-/* anchoring -- inherent property of a figure; only used when alignAnchors is set */
-   | stdAnchor(num hor, num vert)
-   | stdHanchor(num hor)
-   | stdHanchor(computedNum cHor)
-   | stdHanchor(Like other)
-   
-   | stdVanchor(num vert)
-   | stdVanchor(computedNum cVert)
-   | stdVanchor(Like other)
    
 /* line and border properties */
    | stdLineWidth(num lineWidth)			// line width

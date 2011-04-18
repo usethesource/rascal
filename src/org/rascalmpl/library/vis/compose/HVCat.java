@@ -35,7 +35,6 @@ public class HVCat extends Compose {
 	float rowWidth[];
 	int inRow[];
 	
-	private boolean alignAnchors = false;
 	static boolean debug = false;
 
 	public HVCat(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
@@ -49,7 +48,6 @@ public class HVCat extends Compose {
 	
 	@Override
 	public void bbox(float desiredWidth, float desiredHeight){
-		alignAnchors = getAlignAnchorsProperty();
 		width = getWidthProperty();
 		height = 0;
 		float w = 0;
@@ -96,28 +94,14 @@ public class HVCat extends Compose {
 
 		applyProperties();
 
-		if(alignAnchors){
-			for(int i = 0; i < figures.length; i++){
-				Figure fig = figures[i];
-				float hrow = rowHeight[inRow[i]];
-				float rfiller = width - rowWidth[inRow[i]];
+		for(int i = 0; i < figures.length; i++){
+			Figure fig = figures[i];
+			float hrow = rowHeight[inRow[i]];
+			float rfiller = width - rowWidth[inRow[i]];
 
-				fig.draw(left + leftElem[i] + fig.getHanchorProperty() * rfiller,
-						top + topRowElem[i] + fig.getVanchorProperty() * (hrow - fig.height));                  
-			}
-		} else {
-			float halign = getHalignProperty();
-			float valign = getValignProperty();
-			
-			for(int i = 0; i < figures.length; i++){
-				Figure fig = figures[i];
-				float hrow = rowHeight[inRow[i]];
-				float rfiller = width - rowWidth[inRow[i]];
-
-				fig.draw(left + leftElem[i] + halign * rfiller,
-						top + topRowElem[i] + valign * (hrow - fig.height));                  
-			}
-
+			fig.draw(left + leftElem[i] + fig.getHanchorProperty() * rfiller,
+					top + topRowElem[i] + fig.getVanchorProperty() * (hrow - fig.height));                  
 		}
+		
 	}
 }
