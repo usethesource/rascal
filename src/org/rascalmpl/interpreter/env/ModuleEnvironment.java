@@ -38,6 +38,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Test;
 import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment.NameFlags;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
@@ -586,13 +587,19 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			env = mod.getFlagsEnvironment(name);
+			env = mod.getLocalFlagsEnvironment(name);
 			
 			if (env != null) {
 				return env;
 			}
 		}
 
+		return null;
+	}
+
+	private Environment getLocalFlagsEnvironment(String name) {
+		if (this.nameFlags != null && nameFlags.get(name) != null)
+			return this;
 		return null;
 	}
 }
