@@ -10,8 +10,6 @@ module C
 
 import ParseTree;
 
-import IO; // Temp.
-
 syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
@@ -206,14 +204,13 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                            if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                               for(spec <- specChildren){
                                  if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                    if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                       if(spec != theType) fail;
+                                    if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                       if(identifier != theType) fail;
                                     }
                                  }
                               } // May be ambiguous with Spec* {InitDecl ","}*
                               
-                              TypeSpecifier declType = findType(specChildren);
-                              if(unparse(declType) notin typeDefs){
+                              if(unparse(theType) notin typeDefs){
                                  fail;
                               } // May be ambiguous with "Exp * Exp".
                            }
@@ -232,7 +229,6 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                                        list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
                                        for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                                           str variable = variableTuple.var;
-                                       println(variable);
                                           InitDeclarator initDecl = variableTuple.initDecl;
                                           tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
                                           typeDefs += (variable:<declType, modifiers>); // Record the typedef.
@@ -256,14 +252,13 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                               if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                                  for(spec <- specChildren){
                                     if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                       if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                          if(spec != theType) fail;
+                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                          if(identifier != theType) fail;
                                        }
                                     }
                                  } // May be ambiguous with Spec* {InitDecl ","}*
                                  
-                                 TypeSpecifier declType = findType(specChildren);
-                                 if(unparse(declType) notin typeDefs){
+                                 if(unparse(theType) notin typeDefs){
                                     fail;
                                  } // May be ambiguous with "Exp * Exp".
                               }
@@ -320,15 +315,16 @@ syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" | // TOD
                                  if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                                     for(spec <- specChildren){
                                        if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                          if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                             if(spec != theType) fail;
+                                          if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                             if(identifier != theType){
+                                                fail;
+                                             }
                                           }
                                        }
                                     }
                                  } // May be ambiguous with Spec* {StructDecl ","}*
                                  
-                                 TypeSpecifier declType = findType(specChildren);
-                                 if(unparse(declType) notin typeDefs){
+                                 if(unparse(theType) notin typeDefs){
                                     fail;
                                  } // May be ambiguous with "Exp * Exp".
                               }
