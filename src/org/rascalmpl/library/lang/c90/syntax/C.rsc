@@ -172,7 +172,6 @@ syntax Keyword = "auto" |
                  # [a-zA-Z0-9_]
                  ;
 
-// TODO Fix problem related to typedefed 'identifiers'.
 syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
@@ -207,8 +206,8 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                            if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                               for(spec <- specChildren){
                                  if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                    if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                       if(identifier != theType) fail;
+                                    if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                       if(spec != theType) fail;
                                     }
                                  }
                               } // May be ambiguous with Spec* {InitDecl ","}*
@@ -222,7 +221,6 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                      } // Avoid.
                      ;
 
-// TODO Fix problem related to typedefed 'identifiers'.
 syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
                            list[Tree] specChildren;
                            if(appl(_,specChildren) := specs){
@@ -258,8 +256,8 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                               if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                                  for(spec <- specChildren){
                                     if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                          if(identifier != theType) fail;
+                                       if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                          if(spec != theType) fail;
                                        }
                                     }
                                  } // May be ambiguous with Spec* {InitDecl ","}*
@@ -314,24 +312,23 @@ syntax TypeQualifier = "const" |
                        "volatile"
                        ;
 
-// TODO Fix problem related to typedefed 'identifiers'.
 syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
-                           Specifier+ specs { // TODO: Disallow store class specifiers.
+                           Specifier+ specs ";" { // TODO: Disallow store class specifiers.
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
                                  TypeSpecifier theType = findType(specChildren);
                                  if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                                     for(spec <- specChildren){
                                        if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                          if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                             if(identifier != theType) fail;
+                                          if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                             if(spec != theType) fail;
                                           }
                                        }
                                     }
                                  } // May be ambiguous with Spec* {StructDecl ","}*
                                  
                                  TypeSpecifier declType = findType(specChildren);
-                                 if(declType notin typeDefs){
+                                 if(unparse(declType) notin typeDefs){
                                     fail;
                                  } // May be ambiguous with "Exp * Exp".
                               }
