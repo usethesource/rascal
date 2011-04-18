@@ -48,13 +48,13 @@ data RLSRunner = RLSRun(loc maudeFile, str(str,list[str]) pre, RLSResult(str) po
 public RLSResult runRLSTask(loc maudeLocation, RLSRunner rlsRunner, str input...) {
 	// Start up a new instance of Maude; this makes sure the running instance
 	// is clean.
-	pid = startMaude(maudeLocation,rlsRunner.maudeFile);
+	PID pid = startMaude(maudeLocation,rlsRunner.maudeFile);
 	
 	// Prepare the input, which should be the term to evaluate (position 0)
 	// and any added arguments, etc (positions 1..n)
 	str inputStr = input[0];
 	list[str] inputArgs = [ ];
-	if (size(input) > 1) inputArgs = [ input[n] | n <- [1..size(input)-1] ];
+	if (size(input) > 1) inputArgs = [ input[n] | n <- index(input)-0 ];
 	
 	// Pre-evaluate the input and arguments, getting back the complete term
 	// to run in Maude.
