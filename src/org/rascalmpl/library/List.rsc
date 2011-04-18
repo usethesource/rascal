@@ -31,6 +31,15 @@ public &T last(list[&T] lst) throws EmptyList {
   throw EmptyList();
 }
 
+@doc{Remove multiple occurrences of elements in a list. The first occurrence remains.}
+public list[&T] dup(list[&T] lst) {
+  done = {};
+  return for (e <- lst, e notin done) {
+    done += e;
+    append e;
+  }
+}
+
 @doc{Return all but the last element of a list}
 public list[&T] prefix(list[&T] lst) {
    if ([list[&T] p, &T l] := lst) 
@@ -207,6 +216,18 @@ public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
   if ([&T h, list[&T] t] := lst)
     return <h, t>;
   throw EmptyList();
+}
+
+public tuple[&T, list[&T]] pop(list[&T] lst) throws EmptyList {
+  return headTail(lst);
+}
+
+public &T top(list[&T] lst) throws EmptyList {
+  return head(lst);
+}
+
+public list[&T] push(&T elem, list[&T] lst) {
+  return [elem] + lst;
 }
 
 @doc{Convert a list of tuples to a map; first elements are associated with a set of second elements}
