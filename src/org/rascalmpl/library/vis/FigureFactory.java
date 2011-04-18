@@ -128,15 +128,25 @@ public class FigureFactory {
 	
 	
 	@SuppressWarnings("incomplete-switch")
-	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IEvaluatorContext ctx){
+	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
 		String ename = c.getName();
 		System.err.print(ename);
-		properties = PropertyManager.extendProperties(fpa, c, properties, ctx);
-		
+		properties = PropertyManager.extendProperties(fpa, c, properties, childProps, ctx);
+		IList childPropsNext = PropertyManager.getChildProperties((IList) c.get(c.arity()-1));
+		if(childProps != null){
+			IList childchildProps = PropertyManager.getChildProperties(childProps);
+			if(childchildProps != null){
+				if(childPropsNext != null){
+					childPropsNext = childchildProps.concat(childPropsNext);
+				} else {
+					childPropsNext = childchildProps;
+				}
+			}
+		}
 		switch(pmap.get(ename)){
 			
 		case BOX:
-			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
+			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
 			
 		case BUTTON:
 			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
@@ -151,7 +161,7 @@ public class FigureFactory {
 			return new ComputeFigure(fpa, properties,  c.get(0), ctx);
 							
 		case ELLIPSE:
-			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
+			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext,ctx);
 					
 		case GRAPH:
 			if(properties.getStringProperty(StrProp.HINT).contains("lattice"))
@@ -161,22 +171,22 @@ public class FigureFactory {
 			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case GRID: 
-			return new Grid(fpa, properties, (IList) c.get(0), ctx);
+			return new Grid(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 
 		case HCAT:
-			return new HCat(fpa, properties, (IList) c.get(0), ctx);
+			return new HCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 			
 		case HVCAT:
-			return new HVCat(fpa, properties, (IList) c.get(0), ctx);
+			return new HVCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 						
 		case OUTLINE: 
 			return new Outline(fpa, properties, (IList)c.get(0), (IInteger) c.get(1));
 			
 		case OVERLAY: 
-			return new Overlay(fpa, properties, (IList) c.get(0), ctx);
+			return new Overlay(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 			
 		case PACK:  
-			return new Pack(fpa, properties, (IList) c.get(0), ctx);
+			return new Pack(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 			
 		case PLACE:
 			return new Place(fpa, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
@@ -193,10 +203,10 @@ public class FigureFactory {
 			return new Scale(fpa, properties, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 			
 		case SHAPE: 
-			return new Shape(fpa, properties, (IList) c.get(0), ctx);
+			return new Shape(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 			
 		case SPACE:
-			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);
+			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
 			
 		case TEXT:
 			IPropertyValue<String> txt = new PropertyParsers.StringArgParser().parseProperty(StrProp.TEXT, c, null, 0, fpa, ctx);
@@ -219,13 +229,13 @@ public class FigureFactory {
 			return new Use(fpa, properties, (IConstructor) c.get(0), ctx);
 			
 		case VCAT:
-			return new VCat(fpa, properties, (IList) c.get(0), ctx);
+			return new VCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 			
 		case VERTEX:			
 			return new Vertex(fpa, properties, c.get(0), c.get(1), c.arity() == 4 ? (IConstructor) c.get(2) : null, ctx);
 			
 		case WEDGE:			
-			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, ctx);						
+			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);						
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}

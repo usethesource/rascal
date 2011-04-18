@@ -54,7 +54,7 @@ public class Vertex extends Figure {
 		deltax = getIntOrReal(dx);
 		deltay = getIntOrReal(dy);
 		if(marker != null)
-			this.marker = FigureFactory.make(fpa, marker, properties, ctx);
+			this.marker = FigureFactory.make(fpa, marker, properties, null, ctx);
 		if(debug)System.err.printf("Vertex at %f, %f\n", deltax, deltay);
 	}
 

@@ -141,7 +141,7 @@ public class ComputedProperties {
 		@Override
 		Figure convertValue(Result<IValue> res) {
 			System.err.print("Computing figure..");
-			Figure fig = FigureFactory.make(fpa, ((IConstructor) res.getValue()), parentPm, ctx);
+			Figure fig = FigureFactory.make(fpa, ((IConstructor) res.getValue()), parentPm, null, ctx);
 			fig.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			fig.setVisibleInMouseOver(true);
 			return fig;

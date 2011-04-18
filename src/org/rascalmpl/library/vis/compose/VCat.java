@@ -32,8 +32,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public class VCat extends HCat {
 
 	public VCat(IFigureApplet fpa, PropertyManager properties, IList elems,
-			IEvaluatorContext ctx) {
-		super(fpa, properties, elems, ctx);
+			 IList childProps, IEvaluatorContext ctx) {
+		super(fpa, properties, elems, childProps, ctx);
 	}
 	
 	void setProperties(){

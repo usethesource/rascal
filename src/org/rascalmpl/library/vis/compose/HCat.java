@@ -13,13 +13,16 @@ public class HCat extends Compose {
 	float numberOfGaps;
 	float topAnchor = 0;
 	float bottomAnchor = 0;
+	float minTopAnchor = Float.MAX_VALUE;
+	private float maxTopAnchor;
 	private static boolean debug = true;
 	
 	boolean isWidthPropertySet, isHeightPropertySet, isHGapPropertySet, isHGapFactorPropertySet;
 	float getWidthProperty, getHeightProperty, getHGapProperty, getHGapFactorProperty, getValignProperty;
+
 	
-	public HCat(IFigureApplet fpa, PropertyManager properties, IList elems, IEvaluatorContext ctx) {
-		super(fpa, properties, elems, ctx);
+	public HCat(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
+		super(fpa, properties, elems, childProps, ctx);
 	}
 	
 	void setProperties(){
@@ -75,7 +78,8 @@ public class HCat extends Compose {
 			desiredHeightPerElement = Figure.AUTO_SIZE;
 		} else {
 			float minTopAnchorProp, maxTopAnchorProp;
-			minTopAnchorProp = maxTopAnchorProp = 0.0f;
+			minTopAnchorProp = Float.MAX_VALUE;
+			maxTopAnchorProp = 0.0f;
 			for(Figure fig : figures){
 				minTopAnchorProp = min(minTopAnchorProp,getTopAnchorProperty(fig));
 				maxTopAnchorProp = max(maxTopAnchorProp,getTopAnchorProperty(fig));
@@ -118,9 +122,8 @@ public class HCat extends Compose {
 		} while(!fixPointReached);
 		// TODO: Fixpoint for height depending on alignment?
 		float totalElementsWidth = 0;
-		// compute total width and height
-		float maxTopAnchor = 0.0f;
-		float minTopAnchor = 0.0f;
+		maxTopAnchor = 0.0f;
+		minTopAnchor = Float.MAX_VALUE;
 		for(Figure fig : figures){
 			totalElementsWidth += getFigureWidth(fig);
 			height = max(height,getFigureHeight(fig));
@@ -140,7 +143,7 @@ public class HCat extends Compose {
 		width = totalElementsWidth + gapsSize;
 		gapSize = gapsSize / numberOfGaps;
 		height = height + (maxTopAnchor - minTopAnchor);
-		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f\n", width, height, topAnchor, bottomAnchor);
+		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f minTopAnchor %f maxTopAnchor %f\n", width, height, topAnchor, bottomAnchor,minTopAnchor,maxTopAnchor);
 	}	
 	
 	public
@@ -155,7 +158,7 @@ public class HCat extends Compose {
 		}
 			// Draw from left to right
 		for(Figure fig : figures){
-			drawFigure(fig,left,top + getTopAnchor(fig),leftBase,topBase);
+			drawFigure(fig,left,top - getTopAnchor(fig) + maxTopAnchor,leftBase,topBase);
 			left += getFigureWidth(fig) + gapSize;
 		}
 	}

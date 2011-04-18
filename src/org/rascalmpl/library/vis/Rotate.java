@@ -35,7 +35,7 @@ public class Rotate extends Figure {
 		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = FigureApplet.radians(a);
-		figure = FigureFactory.make(fpa, c, properties, ctx);
+		figure = FigureFactory.make(fpa, c, properties, null, ctx);
 	}
 
 	@Override

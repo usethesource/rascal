@@ -70,7 +70,7 @@ public class ComputeFigure extends Figure {
 			
 		System.err.println("callback returns: " + figureVal.getValue());
 		IConstructor figureCons = (IConstructor) figureVal.getValue();
-		figure = FigureFactory.make(fpa, figureCons, properties, ctx);
+		figure = FigureFactory.make(fpa, figureCons, properties, null, ctx);
 		fpa.setComputedValueChanged();
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = figure.width;

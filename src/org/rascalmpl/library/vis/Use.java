@@ -37,7 +37,7 @@ public class Use extends Figure {
 	public Use(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(inside != null){
-			this.inside = FigureFactory.make(fpa, inside, this.properties, ctx);
+			this.inside = FigureFactory.make(fpa, inside, this.properties, null, ctx);
 		}
 		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
 	}

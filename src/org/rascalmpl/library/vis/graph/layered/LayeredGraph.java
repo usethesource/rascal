@@ -95,7 +95,7 @@ public class LayeredGraph extends Figure {
 		
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, null, ctx);
 			String name = fig.getIdProperty();
 			String layer = fig.getLayerProperty();
 

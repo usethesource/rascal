@@ -52,10 +52,10 @@ public class SpringGraphEdge extends Figure {
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		if(toArrowCons != null){
-			 toArrow = FigureFactory.make(fpa, toArrowCons, properties, ctx);
+			 toArrow = FigureFactory.make(fpa, toArrowCons, properties, null, ctx);
 		}
 		if(fromArrowCons != null){
-			 fromArrow = FigureFactory.make(fpa, fromArrowCons, properties, ctx);
+			 fromArrow = FigureFactory.make(fpa, fromArrowCons, properties, null, ctx);
 		}
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());

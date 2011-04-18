@@ -289,7 +289,7 @@ public class PropertyParsers {
 		@Override
 		IPropertyValue<Figure> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			
-			Figure fig =  FigureFactory.make(fpa, ((IConstructor) arg), pm, ctx);
+			Figure fig =  FigureFactory.make(fpa, ((IConstructor) arg), pm, null, ctx);
 			return new ConstantProperties.ConstantFigureProperty(fig); 
 		}
 
