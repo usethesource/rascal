@@ -10,6 +10,8 @@ module C
 
 import ParseTree;
 
+import IO; // Temp.
+
 syntax Statement = "{" Declaration* Statement* "}" |
                    Identifier ":" Statement |
                    "case" Expression ":" Statement |
@@ -173,21 +175,25 @@ syntax Keyword = "auto" |
 syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
-                           if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := specChildren){
-                              str declType = findType(specChildren);
-                              
-                              list[tuple[TypeSpecifier var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
-                              for(tuple[TypeSpecifier var, InitDeclarator initDecl] variableTuple <- variables){
-                                 str variable = variableTuple.var;
-                                 InitDeclarator initDecl = variableTuple.initDecl;
-                                 tuple[list[Specifiers], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
-                                 typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                           for(spec <- specs){
+		                      if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
+                                 if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
+                                    TypeSpecifier declType = findType(specChildren);
+                                    
+                                    list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
+                                    for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
+                                       str variable = variableTuple.var;
+                                       InitDeclarator initDecl = variableTuple.initDecl;
+                                       tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
+                                       typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                                    }
+                                 }
                               }
                            }
                            
                            if(hasCustomType(specChildren)){
-                              str declType = findType(specChildren);
-                              if(declType notin typeDefs){
+                              TypeSpecifier declType = findType(specChildren);
+                              if(unparse(declType) notin typeDefs){
                                  fail;
                               } // May be ambiguous with "Exp * Exp".
                            }
@@ -207,13 +213,63 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                               } // May be ambiguous with Spec* {InitDecl ","}*
                               
                               TypeSpecifier declType = findType(specChildren);
-                              if(declType notin typeDefs){
+                              if(unparse(declType) notin typeDefs){
                                  fail;
                               } // May be ambiguous with "Exp * Exp".
                            }
                         }
                      } // Avoid.
                      ;
+
+syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
+                           list[Tree] specChildren;
+                           if(appl(_,specChildren) := specs){
+                              for(spec <- specs){
+                                 if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
+                                    if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
+                                       TypeSpecifier declType = findType(specChildren);
+                                       
+                                       list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
+                                       for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
+                                          str variable = variableTuple.var;
+                                       println(variable);
+                                          InitDeclarator initDecl = variableTuple.initDecl;
+                                          tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
+                                          typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                                       }
+                                    }
+                                 }
+                              }
+                              
+                              if(hasCustomType(specChildren)){
+                                 TypeSpecifier declType = findType(specChildren);
+                                 if(unparse(declType) notin typeDefs){
+                                    fail;
+                                 } // May be ambiguous with "Exp * Exp".
+                              }
+                           }
+                        } |
+                        Specifier* specs ";" {
+                           list[Tree] specChildren;
+                           if(appl(_,specChildren) := specs){
+                              TypeSpecifier theType = findType(specChildren);
+                              if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
+                                 for(spec <- specChildren){
+                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                          if(identifier != theType) fail;
+                                       }
+                                    }
+                                 } // May be ambiguous with Spec* {InitDecl ","}*
+                                 
+                                 TypeSpecifier declType = findType(specChildren);
+                                 if(unparse(declType) notin typeDefs){
+                                    fail;
+                                 } // May be ambiguous with "Exp * Exp".
+                              }
+                           }
+                        } // Avoid.
+                        ;
 
 syntax InitDeclarator = Declarator decl |
                         Declarator decl "=" Initializer
@@ -257,20 +313,27 @@ syntax TypeQualifier = "const" |
                        ;
 
 syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" | // TODO Disallow store class specifiers.
-                           Specifier+ specs{ // TODO: Disallow store class specifiers.
+                           Specifier+ specs { // TODO: Disallow store class specifiers.
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
                                  TypeSpecifier theType = findType(specChildren);
-                                 for(spec <- specChildren){
-                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                          if(identifier != theType) fail;
+                                 if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
+                                    for(spec <- specChildren){
+                                       if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+                                          if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                             if(identifier != theType) fail;
+                                          }
                                        }
                                     }
                                  } // May be ambiguous with Spec* {StructDecl ","}*
+                                 
+                                 TypeSpecifier declType = findType(specChildren);
+                                 if(declType notin typeDefs){
+                                    fail;
+                                 } // May be ambiguous with "Exp * Exp".
                               }
                            } // Avoid.
-                           ; // TODO: Fix ambiguity related to identifiers (they're both in specifiers and declarators).
+                           ;
 
 syntax StructDeclarator = Declarator |
                           Declarator? ":" Expression // TODO: Prefer the one where 'Declarator' is filled.
@@ -342,7 +405,7 @@ syntax Exponent = lex [Ee] [+\-]? [0-9]+
                   ;
 
 syntax ExternalDeclaration = FunctionDefinition |
-                             Declaration // TODO: Type specifiers are not required for these; they default to int.
+                             GlobalDeclaration
                              ;
 
 syntax FunctionDefinition = TypeSpecifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO: Type specifiers are required for K&R style function declarations, initialization of them is not allowed however.
@@ -375,8 +438,7 @@ syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
 map[str name, tuple[TypeSpecifier var, tuple[list[Specifier], Declarator] modifiers] cType] typeDefs = (); // Name to type mapping.
 
 private TypeSpecifier findType(list[Tree] specs){
-	// Bah.
-	TypeSpecifier cType = appl(prod([lit("int")],sort("TypeSpecifier"),\no-attrs()),[appl(prod([\char-class([range(105,105)]),\char-class([range(110,110)]),\char-class([range(116,116)])],lit("int"),attrs([literal()])),[char(105),char(110),char(116)])]); // If no type is defined the type is int.
+	TypeSpecifier cType;
 	
 	list[Tree] typeSpecs = [];
 	for(spec <- specs){
@@ -388,41 +450,45 @@ private TypeSpecifier findType(list[Tree] specs){
 	}
 	
 	// This is order dependant, so don't convert this to a switch.
-    if([_*,voidType:appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := typeSpecs){
-       cType = voidType;
-    }else if([_*,charType:appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := typeSpecs){
-       cType = charType;
-    }else if([_*,shortType:appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := typeSpecs){
-       cType = shortType;
-    }else if([_*,longType:appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := typeSpecs){
-       cType = longType;
-    }else if([_*,floatType:appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := typeSpecs){
-       cType = floatType;
-    }else if([_*,doubleType:appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := typeSpecs){
-       cType = doubleType;
-    }else if([_*,intType:appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := typeSpecs){
-       cType = intType; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
-    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := typeSpecs){
-       cType = theStruct;
-    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := typeSpecs){
-       cType = theStruct;
-    }else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := typeSpecs){
-       cType = theStruct;
-    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := typeSpecs){
-       cType = theUnion;
-    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := typeSpecs){
-       cType = theUnion;
-    }else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := typeSpecs){
-       cType = theUnion;
-    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := typeSpecs){
-       cType = theEnum;
-    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := typeSpecs){
-       cType = theEnum;
-    }else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := typeSpecs){
-       cType = theEnum;
-    }else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := typeSpecs){
-       cType = identifier;
-    }
+	if([_*,voidType:appl(prod(_,_,attrs([_*,term(cons("Void")),_*])),_),_*] := typeSpecs){
+		cType = voidType;
+	}else if([_*,charType:appl(prod(_,_,attrs([_*,term(cons("Char")),_*])),_),_*] := typeSpecs){
+		cType = charType;
+	}else if([_*,shortType:appl(prod(_,_,attrs([_*,term(cons("Short")),_*])),_),_*] := typeSpecs){
+		cType = shortType;
+	}else if([_*,longType:appl(prod(_,_,attrs([_*,term(cons("Long")),_*])),_),_*] := typeSpecs){
+		cType = longType;
+	}else if([_*,floatType:appl(prod(_,_,attrs([_*,term(cons("Float")),_*])),_),_*] := typeSpecs){
+		cType = floatType;
+	}else if([_*,doubleType:appl(prod(_,_,attrs([_*,term(cons("Double")),_*])),_),_*] := typeSpecs){
+		cType = doubleType;
+	}else if([_*,intType:appl(prod(_,_,attrs([_*,term(cons("Int")),_*])),_),_*] := typeSpecs){
+		cType = intType; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
+	}else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("Struct")),_*])),_),_*] := typeSpecs){
+		cType = theStruct;
+	}else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructDecl")),_*])),_),_*] := typeSpecs){
+		cType = theStruct;
+	}else if([_*,theStruct:appl(prod(_,_,attrs([_*,term(cons("StructAnonDecl")),_*])),_),_*] := typeSpecs){
+		cType = theStruct;
+	}else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("Union")),_*])),_),_*] := typeSpecs){
+		cType = theUnion;
+	}else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionDecl")),_*])),_),_*] := typeSpecs){
+		cType = theUnion;
+	}else if([_*,theUnion:appl(prod(_,_,attrs([_*,term(cons("UnionAnonDecl")),_*])),_),_*] := typeSpecs){
+		cType = theUnion;
+	}else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("Enum")),_*])),_),_*] := typeSpecs){
+		cType = theEnum;
+	}else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumDecl")),_*])),_),_*] := typeSpecs){
+		cType = theEnum;
+	}else if([_*,theEnum:appl(prod(_,_,attrs([_*,term(cons("EnumAnonDecl")),_*])),_),_*] := typeSpecs){
+		cType = theEnum;
+	}else if([_*,identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_),_*] := typeSpecs){
+		cType = identifier;
+	}else{
+		// Bah.
+		// If no type is defined the type is int.
+		cType = appl(prod([lit("int")],sort("TypeSpecifier"),\no-attrs()),[appl(prod([\char-class([range(105,105)]),\char-class([range(110,110)]),\char-class([range(116,116)])],lit("int"),attrs([literal()])),[char(105),char(110),char(116)])]);
+	}
 	
 	return cType;
 }
