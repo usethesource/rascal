@@ -32,6 +32,7 @@ import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.Wedge;
+import org.rascalmpl.library.vis.containers.XAxis;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraph;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraphEdge;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
@@ -92,7 +93,8 @@ public class FigureFactory {
 		USE,
 		VCAT,
 		VERTEX,
-		WEDGE
+		WEDGE,
+		XAXIS
 		}
 					  
     static HashMap<String,Primitives> pmap = new HashMap<String,Primitives>() {
@@ -124,6 +126,7 @@ public class FigureFactory {
     	put("_vcat",		Primitives.VCAT);
     	put("_vertex",		Primitives.VERTEX);
     	put("_wedge",		Primitives.WEDGE);
+    	put("_xaxis",		Primitives.XAXIS);
     }};
 	
 	
@@ -235,7 +238,9 @@ public class FigureFactory {
 			return new Vertex(fpa, properties, c.get(0), c.get(1), c.arity() == 4 ? (IConstructor) c.get(2) : null, ctx);
 			
 		case WEDGE:			
-			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);						
+			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
+		case XAXIS:
+			return new XAxis(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}

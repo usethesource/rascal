@@ -122,11 +122,12 @@ public class HCat extends Compose {
 		} while(!fixPointReached);
 		// TODO: Fixpoint for height depending on alignment?
 		float totalElementsWidth = 0;
+		float maxBottomAnchor = 0.0f;
 		maxTopAnchor = 0.0f;
 		minTopAnchor = Float.MAX_VALUE;
 		for(Figure fig : figures){
 			totalElementsWidth += getFigureWidth(fig);
-			height = max(height,getFigureHeight(fig));
+			maxBottomAnchor = max(height,getBottomAnchor(fig));
 			maxTopAnchor = max(maxTopAnchor,getTopAnchor(fig));
 			minTopAnchor = min(minTopAnchor,getTopAnchor(fig));
 		}
@@ -142,7 +143,7 @@ public class HCat extends Compose {
 		}
 		width = totalElementsWidth + gapsSize;
 		gapSize = gapsSize / numberOfGaps;
-		height = height + (maxTopAnchor - minTopAnchor);
+		height =  maxTopAnchor + maxBottomAnchor;
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f minTopAnchor %f maxTopAnchor %f\n", width, height, topAnchor, bottomAnchor,minTopAnchor,maxTopAnchor);
 	}	
 	
