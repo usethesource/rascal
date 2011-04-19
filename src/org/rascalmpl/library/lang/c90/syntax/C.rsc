@@ -66,7 +66,7 @@ syntax Expression = Variable: Identifier |
                     left (
                          Expression lexp "*" Expression rexp {
                             if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
-                               if(unparse(child) in typeDefs){
+                               if(unparse(lexp) in typeDefs){
                                   fail;
                                }
                             }
