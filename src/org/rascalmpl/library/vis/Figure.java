@@ -14,14 +14,17 @@
 package org.rascalmpl.library.vis;
 
 import java.awt.event.MouseEvent;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.library.vis.containers.Chart;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
@@ -170,6 +173,19 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public boolean isNextVisible() {
 		return true;
 		// return fpa.isVisible(properties.getDOI() + 1);
+	}
+	
+	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
+		if(properties.isFigurePropertySet(FigureProp.PROJECTX)){
+			projections.add(new Chart.Projection(left + leftAlign(),
+					 properties.getRealProperty(RealProp.PROJECTX_GAP),
+					 properties.getFigureProperty(FigureProp.PROJECTX),true));
+		} 
+		if(properties.isFigurePropertySet(FigureProp.PROJECTY)){
+			projections.add(new Chart.Projection(top + topAlign(),
+					properties.getRealProperty(RealProp.PROJECTY_GAP),
+					properties.getFigureProperty(FigureProp.PROJECTY),false));
+		}
 	}
 
 
@@ -581,8 +597,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	
 	// short-hand functions for selected properties(boilerplate)
-	
-	public boolean getAlignAnchorsProperty(){return getBooleanProperty(BoolProp.ALIGN_ANCHORS);}
 	public boolean getClosedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CLOSED);}
 	public boolean getCurvedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CURVED);}
 	public boolean getConnectedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CONNECTED);}
@@ -601,8 +615,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public float getVGapProperty(){return getRealProperty(RealProp.VGAP);}
 	public boolean isVGapFactorPropertySet(){return isRealPropertySet(RealProp.VGAP_FACTOR);}
 	public float getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
-	public float getHanchorProperty(){return getRealProperty(RealProp.HALIGN);}
-	public float getVanchorProperty(){return getRealProperty(RealProp.VALIGN);}
+	public float getHAlignProperty(){return getRealProperty(RealProp.HALIGN);}
+	public float getVAlignProperty(){return getRealProperty(RealProp.VALIGN);}
 	public float getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
 	public float getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
 	public float getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}

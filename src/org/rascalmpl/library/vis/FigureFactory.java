@@ -29,10 +29,10 @@ import org.rascalmpl.library.vis.compose.Pack;
 import org.rascalmpl.library.vis.compose.Place;
 import org.rascalmpl.library.vis.compose.VCat;
 import org.rascalmpl.library.vis.containers.Box;
+import org.rascalmpl.library.vis.containers.Chart;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.Wedge;
-import org.rascalmpl.library.vis.containers.XAxis;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraph;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraphEdge;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
@@ -72,6 +72,7 @@ public class FigureFactory {
 		COMPUTEFIGURE,
 		CONTROLON,
 		CONTROLOFF,
+		CHART,
 		EDGE, 
 		ELLIPSE, 
 		GRAPH, 
@@ -102,6 +103,7 @@ public class FigureFactory {
     	put("_box",			Primitives.BOX);
     	put("_button", 		Primitives.BUTTON);
     	put("_checkbox",	Primitives.CHECKBOX);
+    	put("_chart",      Primitives.CHART);
     	put("_choice", 		Primitives.CHOICE);
     	put("_computeFigure",Primitives.COMPUTEFIGURE);
     	put("_edge",		Primitives.EDGE);
@@ -153,6 +155,9 @@ public class FigureFactory {
 			
 		case BUTTON:
 			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
+		
+		case CHART:
+			return new Chart(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
 			
 		case CHECKBOX:
 			return new Checkbox(fpa, properties, (IString) c.get(0), c.get(1), ctx);
@@ -239,8 +244,6 @@ public class FigureFactory {
 			
 		case WEDGE:			
 			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
-		case XAXIS:
-			return new XAxis(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}

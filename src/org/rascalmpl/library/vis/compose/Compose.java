@@ -13,6 +13,7 @@
 package org.rascalmpl.library.vis.compose;
 
 import java.awt.event.MouseEvent;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -21,7 +22,9 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.containers.Chart;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 
 /**
  * Abstract class for the composition of a list of visual elements.
@@ -32,6 +35,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public abstract class Compose extends Figure {
 
 	final protected Figure[] figures;
+	protected float[] xPos;
+	protected float[] yPos;
 	final private static boolean debug = false;
 
 	protected Compose(IFigureApplet fpa, PropertyManager properties,
@@ -39,6 +44,8 @@ public abstract class Compose extends Figure {
 		super(fpa, properties);
 		int n = elems.length();
 		figures = new Figure[n];
+		xPos = new float[figures.length];
+		yPos = new float[figures.length];
 		for (int i = 0; i < n; i++) {
 			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
@@ -118,4 +125,23 @@ public abstract class Compose extends Figure {
 			figures[i].destroy();
 	}
 		
+	
+	@Override
+	public
+	void draw(float left, float top){
+		setLeft(left);
+		setTop(top);
+		applyProperties();
+		for(int i = 0; i < figures.length; i++){
+			figures[i].draw(left + xPos[i], top + yPos[i]);
+		}
+	}
+	
+	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
+		super.gatherProjections(left,top,projections);
+		for(int i = 0 ; i < figures.length ; i++){
+			figures[i].gatherProjections(left + xPos[i], top + yPos[i], projections);
+		}
+	}
+	
 }

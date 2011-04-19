@@ -41,7 +41,7 @@ public class Text extends Figure {
 	@Override
 	public
 	void bbox(float desiredWidth, float desiredHeight){
-		float halign = getHanchorProperty();
+		float halign = getHAlignProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 
 		applyFontProperties();
@@ -57,7 +57,7 @@ public class Text extends Figure {
 		if(nlines > 1){
 			hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? width : width/2;
 			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
-			topAnchor = bottomAnchor = getVanchorProperty() * height;
+			topAnchor = bottomAnchor = getVAlignProperty() * height;
 		} else {
 			hfill = width/2;
 			height = topAnchor + bottomAnchor;

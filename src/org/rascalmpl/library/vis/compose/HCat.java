@@ -145,22 +145,20 @@ public class HCat extends Compose {
 		gapSize = gapsSize / numberOfGaps;
 		height =  maxTopAnchor + maxBottomAnchor;
 		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f minTopAnchor %f maxTopAnchor %f\n", width, height, topAnchor, bottomAnchor,minTopAnchor,maxTopAnchor);
-	}	
-	
-	public
-	void draw(float leftBase, float topBase){
-		this.setLeft(leftBase);
-		this.setTop(topBase);
+		determinePlacement();
+	}
+
+	private void determinePlacement() {
 		float left, top;
 		left = top = 0.0f;
-		applyProperties();
 		if(getStartGapProperty()){
 			left+=0.5*gapSize;
 		}
 			// Draw from left to right
-		for(Figure fig : figures){
-			drawFigure(fig,left,top - getTopAnchor(fig) + maxTopAnchor,leftBase,topBase);
-			left += getFigureWidth(fig) + gapSize;
+		for(int i = 0 ; i < figures.length ; i++){
+			xPos[i] = left;
+			yPos[i] = top - getTopAnchor(figures[i]) + maxTopAnchor;
+			left += getFigureWidth(figures[i]) + gapSize;
 		}
-	}
+	}	
 }

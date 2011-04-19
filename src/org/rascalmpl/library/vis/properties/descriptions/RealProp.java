@@ -18,18 +18,20 @@ import org.rascalmpl.library.vis.properties.PropertySetters;
 
 public enum RealProp {
 	HALIGN(0.5f),
-	HEIGHT(10.0f),
+	HEIGHT(40.0f),
 	HGAP(0.0f), 
 	HGAP_FACTOR(0.0f),
 	INNERRADIUS(0.0f),
 	LINE_WIDTH(1.0f),
+	PROJECTX_GAP(10.0f),
+	PROJECTY_GAP(10.0f),
 	TEXT_ANGLE(0.0f), 	
 	FROM_ANGLE(0.0f),
 	TO_ANGLE(0.0f),			
 	VALIGN(0.5f),		
 	VGAP(0.0f), 		
 	VGAP_FACTOR(0.0f),
-	WIDTH(10.0f);
+	WIDTH(40.0f);
 	
 	float stdDefault;
 	
@@ -45,6 +47,8 @@ public enum RealProp {
 	put("hgapFactor", new PropertySetters.SingleIntOrRealPropertySetter(HGAP_FACTOR));
 	put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
 	put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
+	put("projectXGap", new PropertySetters.SingleIntOrRealPropertySetter(PROJECTX_GAP));
+	put("projectYGap", new PropertySetters.SingleIntOrRealPropertySetter(PROJECTY_GAP));
 	put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
 	put("fromAngle", new PropertySetters.SingleIntOrRealPropertySetter(FROM_ANGLE));
 	put("toAngle", new PropertySetters.SingleIntOrRealPropertySetter(TO_ANGLE));
@@ -57,6 +61,7 @@ public enum RealProp {
 	put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
 	put("gapFactor", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP_FACTOR, VGAP_FACTOR));
 	put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
+	put("projectGap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(PROJECTX_GAP, PROJECTY_GAP));
 	}};
 
 	public Float getStdDefault() {

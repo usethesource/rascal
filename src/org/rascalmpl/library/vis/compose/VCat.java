@@ -53,6 +53,9 @@ public class VCat extends HCat {
 		float tmp = width;
 		width = height;
 		height = tmp;
+		float[] tmpPos = xPos;
+		xPos = yPos;
+		yPos = tmpPos;
 		
 	}
 	
@@ -60,9 +63,6 @@ public class VCat extends HCat {
 	float getFigureHeight(Figure fig){return fig.width;}
 	float getTopAnchor(Figure fig){return fig.leftAlign();}
 	float getBottomAnchor(Figure fig){return fig.rightAlign();}
-	void  drawFigure(Figure fig,float left,float top,float leftBase,float topBase){
-		fig.draw(leftBase + top, topBase + left);
-	}
 	void  bboxOfFigure(Figure fig,float desiredWidth,float desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
 	float getHeight(){return width;}
 	

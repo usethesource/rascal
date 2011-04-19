@@ -94,20 +94,20 @@ public class Grid extends Compose {
 		width += extLeft + extRight;
 		height += extTop + extBot;
 		if(debug)System.err.printf("grid.bbox: %f, %f\n", width, height);
+		
+		determinePlacement();
+		
 	}
-	
-	
-	@Override
-	public
-	void draw(float left, float top){
-		setLeft(left);
-		setTop(top);
-	
-		applyProperties();
+
+	private void determinePlacement() {
 		for(int i = 0; i < figures.length; i++){
-			Figure fig = figures[i];
-			if(debug)System.err.printf("i=%d: %f, %f, left=%f, top=%f\n", i, leftFig[i], topFig[i], left, top);
-			fig.draw(left + extLeft + leftFig[i] - fig.leftAlign(), top + extTop + topFig[i] - fig.topAlign());
+			if(debug)System.err.printf("i=%d: %f, %f, \n", i, leftFig[i], topFig[i]);
+			
+			xPos[i] = extLeft + leftFig[i] - figures[i].leftAlign();
+			yPos[i] = extTop + topFig[i] - figures[i].topAlign();
 		}
 	}
+	
+	
+	
 }

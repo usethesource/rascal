@@ -16,8 +16,7 @@ import java.util.HashMap;
 
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
-public enum BoolProp{
-	ALIGN_ANCHORS(false),	
+public enum BoolProp{	
 	SHAPE_CLOSED(false), 	
 	SHAPE_CONNECTED(false),
 	SHAPE_CURVED(false),
@@ -33,7 +32,6 @@ public enum BoolProp{
 	
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<BoolProp,Boolean>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<BoolProp,Boolean>>() {{
-	put("alignAnchors", new PropertySetters.SingleBooleanPropertySetter(ALIGN_ANCHORS));
 	put("shapeClosed", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CLOSED));
 	put("shapeConnected", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CONNECTED));
 	put("shapeCurved", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));

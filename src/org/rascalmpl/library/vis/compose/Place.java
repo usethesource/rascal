@@ -48,8 +48,8 @@ public class Place extends Figure {
 		bottomFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		topFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		
-		float halign = getHanchorProperty();
-		float valign = getVanchorProperty();
+		float halign = getHAlignProperty();
+		float valign = getVAlignProperty();
 		width = max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
 		height = max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
 	}
@@ -58,8 +58,8 @@ public class Place extends Figure {
 	public void draw(float left, float top) {
 		setLeft(left);
 		setTop(top);
-		float halign = getHanchorProperty();
-		float valign = getVanchorProperty();
+		float halign = getHAlignProperty();
+		float valign = getVAlignProperty();
 		bottomFigure.draw(left, top);
 		topFigure.draw(refFigure.getLeft() + halign * refFigure.width - topFigure.width/2,
 				       refFigure.getTop()  + valign * refFigure.height - topFigure.height/2);
