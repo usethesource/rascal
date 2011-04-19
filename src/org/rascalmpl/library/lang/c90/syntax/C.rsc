@@ -423,7 +423,6 @@ syntax ExternalDeclaration = FunctionDefinition |
                              GlobalDeclaration
                              ;
 
-// TODO: Fix the collision between the last specifier and the declarator for K&R style function definitions.
 syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}" { // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
                                list[Tree] specChildren;
                                if(appl(_,specChildren) := specs){
@@ -441,7 +440,7 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                                            if(identifier != theType) fail;
                                         }
                                      }
-                                  } // May be ambiguous with K&R style function parameter definition thing.
+                                  } // May be ambiguous with the K&R style function parameter definition thing.
                                }
                             }
                             ; // TODO: Disallow storage class specifiers as specifiers. Disallow ArrayDeclarators in the declarator.
