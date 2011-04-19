@@ -193,7 +193,7 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                               TypeSpecifier declType = findType(specChildren);
                               if(unparse(declType) notin typeDefs){
                                  fail;
-                              } // May be ambiguous with "Exp * Exp".
+                              } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
                            }
                         }
                      } |
@@ -213,7 +213,7 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
                            if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
                               if(unparse(theType) notin typeDefs){
                                  fail;
-                              } // May be ambiguous with "Exp * Exp".
+                              } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
                            }
                         }
                      } // Avoid.
@@ -222,11 +222,11 @@ syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
 syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
                            list[Tree] specChildren;
                            if(appl(_,specChildren) := specs){
+                              TypeSpecifier theType = findType(specChildren);
+                              
                               for(spec <- specs){
                                  if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
                                     if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
-                                       TypeSpecifier declType = findType(specChildren);
-                                       
                                        list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
                                        for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                                           str variable = variableTuple.var;
@@ -239,10 +239,9 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                               }
                               
                               if(hasCustomType(specChildren)){
-                                 TypeSpecifier declType = findType(specChildren);
-                                 if(unparse(declType) notin typeDefs){
+                                 if(unparse(theType) notin typeDefs){
                                     fail;
-                                 } // May be ambiguous with "Exp * Exp".
+                                 } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
                               }
                            }
                         } |
@@ -251,6 +250,12 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                            if(appl(_,specChildren) := specs){
                               TypeSpecifier theType = findType(specChildren);
                               
+                              if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
+                                 if(unparse(theType) notin typeDefs){
+                                    fail;
+                                 } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+                              }
+                              
                               for(spec <- specChildren){
                                  if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
                                     if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
@@ -258,12 +263,6 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                                     }
                                  }
                               } // May be ambiguous with Spec* {InitDecl ","}*
-                                 
-                              if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
-                                 if(unparse(theType) notin typeDefs){
-                                    fail;
-                                 } // May be ambiguous with "Exp * Exp".
-                              }
                            }
                         } // Avoid.
                         ;
@@ -321,6 +320,12 @@ syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" {
                                        }
                                     }
                                  }
+                                 
+                                 if(hasCustomType(specChildren)){
+                                    if(unparse(theType) notin typeDefs){
+                                       fail;
+                                    } // Fail if not typedefed.
+                                 }
                               }
                            } | // TODO: Disallow store class specifiers.
                            Specifier+ specs ";" { // TODO: Disallow store class specifiers.
@@ -331,7 +336,7 @@ syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" {
                                  if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
                                     if(unparse(theType) notin typeDefs){
                                        fail;
-                                    } // May be ambiguous with "Exp * Exp".
+                                    } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
                                  }
                                  
                                  for(spec <- specChildren){
@@ -418,9 +423,28 @@ syntax ExternalDeclaration = FunctionDefinition |
                              GlobalDeclaration
                              ;
 
-// TODO Fix the collision between the last Specifier and the Declarator for K&R syle function definitions.
-syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
-                            ; // TODO Disallow StorageSpecifiers as specifiers. Disallow ArrayDeclarators in the Declarator.
+// TODO: Fix the collision between the last specifier and the declarator for K&R style function definitions.
+syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}" { // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
+                               list[Tree] specChildren;
+                               if(appl(_,specChildren) := specs){
+                                  TypeSpecifier theType = findType(specChildren);
+                                  
+                                  if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
+                                     if(unparse(theType) notin typeDefs){
+                                        fail;
+                                     } // Fail if not typedefed.
+                                  }
+                                  
+                                  for(spec <- specChildren){
+                                     if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+                                        if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                           if(identifier != theType) fail;
+                                        }
+                                     }
+                                  } // May be ambiguous with K&R style function parameter definition thing.
+                               }
+                            }
+                            ; // TODO: Disallow storage class specifiers as specifiers. Disallow ArrayDeclarators in the declarator.
 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
