@@ -182,7 +182,7 @@ public Production getProduction(Prod P, bool isLex) {
     		result = (isLex) ? prod(getSymbols(syms, isLex),newSym, \attrs([a, \lex()]))
     	               	     : prod(getSymbols(syms, isLex),newSym, \attrs([a]));
     	    
-    	    if (\reject() in a) {
+    	    if (term("reject"()) in a) {
  		       return diff(newSym, \others(newSym), {result});
  		    }
  		    return result;
@@ -238,8 +238,9 @@ public set[Production] getRestriction(Restriction restriction, bool isLex) {
     case (Restriction) `-/- <Lookaheads ls>` :
     	return {};
     	
-    case (Restriction) `<Sym s1> <Sym+ rest> -/- <Lookaheads ls>` : 
-      return getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex) 
+    case (Restriction) `<Sym s1> <Sym s2> <Sym+ rest> -/- <Lookaheads ls>` : 
+      return getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
+           + getRestriction((Restriction) `<Sym s2> -/- <Lookaheads ls>`, isLex) 
            + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
            
     case (Restriction) `<Sym s1> -/- <Lookaheads ls>` :
@@ -336,7 +337,6 @@ test getPriority((Group) `{left: A -> B B -> C}`, false) ==
 
 public Production getPriority(Priority priority, bool isLex) {
    switch (priority) {
-   
      case (Group) `<Group g>`:
      	return getPriority(g, isLex);
          
