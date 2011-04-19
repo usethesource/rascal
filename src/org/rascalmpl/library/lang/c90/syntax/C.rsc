@@ -405,7 +405,7 @@ syntax ExternalDeclaration = FunctionDefinition |
                              ;
 
 // TODO Fix the collision between the last Specifier and the Declarator for K&R syle function definitions.
-syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO: Type specifiers are required for K&R style function declarations, initialization of them is not allowed however.
+syntax FunctionDefinition = Specifier* Declarator Declaration* "{" Declaration* Statement* "}" // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
                             ; // TODO Disallow StorageSpecifiers as specifiers. Disallow ArrayDeclarators in the Declarator.
 
 start syntax TranslationUnit = ExternalDeclaration+
