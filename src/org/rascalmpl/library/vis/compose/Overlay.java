@@ -54,20 +54,13 @@ public class Overlay extends Compose {
 		width = leftAnchor + rightAnchor;
 		height = topAnchor + bottomAnchor;
 		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
+		determinePlacement();
 	}
-	
-	
-	@Override
-	public void draw(float left, float top) {
-		this.setLeft(left);
-		this.setTop(top);
-		
-		applyProperties();
-		if(debug)System.err.printf("overlay.draw: left=%f, top=%f\n", left, top);
 
-		for(Figure fig : figures){	
-			fig.draw(left + leftAnchor - fig.leftAlign(), top + topAnchor - fig.topAlign());
+	private void determinePlacement() {
+		for(int i = 0 ; i < figures.length ; i++){
+			xPos[i] = leftAnchor - figures[i].leftAlign();
+			yPos[i] = topAnchor - figures[i].topAlign();
 		}
-		
 	}
 }

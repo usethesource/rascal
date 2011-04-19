@@ -47,8 +47,8 @@ public class Rotate extends Figure {
 		sina = abs(FigureApplet.sin(angle));
 		cosa = abs(FigureApplet.cos(angle));
 		
-		float hanch = figure.getHanchorProperty();
-		float vanch = figure.getVanchorProperty();
+		float hanch = figure.getHAlignProperty();
+		float vanch = figure.getVAlignProperty();
 		
 		float w = figure.width;
 		float h = figure.height;

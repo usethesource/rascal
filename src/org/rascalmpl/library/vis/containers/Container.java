@@ -13,6 +13,7 @@
 package org.rascalmpl.library.vis.containers;
 
 import java.awt.event.MouseEvent;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -40,7 +41,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public abstract class Container extends Figure {
 
 	final protected Figure innerFig;
-
+	float innerFigX;
+	float innerFigY;
 	final private static boolean debug = false;
 
 	public Container(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
@@ -49,7 +51,7 @@ public abstract class Container extends Figure {
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, childProps, ctx);
 		} else
 			this.innerFig = null;
-		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());
+		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
 
 	@Override
@@ -80,41 +82,49 @@ public abstract class Container extends Figure {
 		if(innerFig != null){
 			float innerDesiredWidth,
 			      innerDesiredHeight;
+			float spacingX, spacingY;
+			spacingX = spacingY = 0;
 			if(desiredWidth != AUTO_SIZE){
 				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
-					innerDesiredWidth = (1 - getHGapFactorProperty()) * desiredWidth -  2*lw;
+					spacingX = (getHGapFactorProperty()) * desiredWidth;
 				} else { // HGapProperty set
-					innerDesiredWidth = desiredWidth - 2 * getHGapProperty() -  2*lw;
+					spacingX = 2 * getHGapProperty();
 				}
+				innerDesiredWidth = desiredWidth - spacingX - 2*lw;
 			} else {
 				innerDesiredWidth = Figure.AUTO_SIZE;
 			}
 			if(desiredHeight != AUTO_SIZE){
 				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
-					innerDesiredHeight = (1 - getVGapFactorProperty()) * desiredHeight -  2*lw;
+					spacingY = (getVGapFactorProperty()) * desiredHeight;
 				} else { // HGapProperty set
-					innerDesiredHeight = desiredHeight - 2 * getVGapProperty() -  2*lw;
+					spacingY =  2 * getVGapProperty();
 				}
+				innerDesiredHeight = desiredHeight - spacingY - 2*lw;
 			} else {
 				innerDesiredHeight = Figure.AUTO_SIZE;
 			}
 			innerFig.bbox(innerDesiredWidth,innerDesiredHeight);
 			if(desiredWidth == AUTO_SIZE){
 				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
-					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize) 
-					width = innerFig.width * (1 /  (1/getHGapFactorProperty() - 1) + 1) + 2*lw;
+					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
+					spacingX = (innerFig.width / (1/getHGapFactorProperty() - 1));
 				} else { // HGapProperty set
-					width = innerFig.width + 2 * getHGapProperty() + 2*lw;
+					spacingX = 2 * getHGapProperty();
 				}
+				width = innerFig.width + spacingX + 2*lw;
 			}
 			if(desiredHeight == AUTO_SIZE){
 				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
-					// the next formula can be obtained by rewriting vGapFactor = gapsSize / (innerFigureSize + gapsSize) 
-					height = innerFig.height * (1 /  (1/getVGapFactorProperty() - 1) + 1) + 2*lw;
+					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
+					spacingY = (innerFig.height / (1/getVGapFactorProperty() - 1));
 				} else { // HGapProperty set
-					height = innerFig.height + 2 * getVGapProperty() + 2*lw;
+					spacingX = 2 * getVGapProperty();
 				}
+				height = innerFig.height + spacingY + 2*lw;
 			}
+			innerFigX = lw + spacingX/2.0f;
+			innerFigY = lw + spacingY/2.0f;
 		} else {
 			if(desiredWidth == AUTO_SIZE){
 				width = getWidthProperty();
@@ -124,7 +134,7 @@ public abstract class Container extends Figure {
 			}
 		}
 		
-		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHanchorProperty(), getVanchorProperty());
+		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
 
 	@Override
@@ -136,7 +146,7 @@ public abstract class Container extends Figure {
 		this.setTop(top);
 	
 		applyProperties();
-		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHanchorProperty(), getVanchorProperty());
+		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHAlignProperty(), getVAlignProperty());
 
 		if(height > 0 && width > 0){
 			drawContainer();
@@ -159,8 +169,8 @@ public abstract class Container extends Figure {
 		Figure mo = getMouseOver();
 		if(mo != null && mo.isVisibleInMouseOver()){
 			System.err.printf("Mouse over width %f height %f", mo.width,mo.height);
-			mo.drawWithMouseOver(max(0, left + mo.getHanchorProperty()*(width  - mo.width)),
-			    				 max(0, top  + mo.getVanchorProperty()*(height - mo.height)));
+			mo.drawWithMouseOver(max(0, left + mo.getHAlignProperty()*(width  - mo.width)),
+			    				 max(0, top  + mo.getVAlignProperty()*(height - mo.height)));
 		}
 	}
 	
@@ -175,18 +185,16 @@ public abstract class Container extends Figure {
 	 * If the inside  element fits, draw it.
 	 */
 	void innerDraw(){
-		float hgap = getHGapProperty();
-		float vgap = getVGapProperty();
-		innerFig.draw(max(0, getLeft() + hgap + innerFig.getHanchorProperty()*(width  - innerFig.width  - 2 * hgap)),
-			    	  max(0, getTop()  + vgap + innerFig.getVanchorProperty()*(height - innerFig.height - 2 * vgap)));
+		innerFig.draw(max(0, getLeft() + innerFigX),
+			    	  max(0, getTop()  + innerFigY));
 	}
 	
 	void innerDrawWithMouseOver(float left, float top){
 		if(innerFig != null){
 			float hgap = getHGapProperty();
 			float vgap = getVGapProperty();
-			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHanchorProperty()*(width  - innerFig.width  - 2 * hgap)),
-			    	                   max(0, top  + vgap + innerFig.getVanchorProperty()*(height - innerFig.height - 2 * vgap)));
+			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHAlignProperty()*(width  - innerFig.width  - 2 * hgap)),
+			    	                   max(0, top  + vgap + innerFig.getVAlignProperty()*(height - innerFig.height - 2 * vgap)));
 		}
 	}
 	
@@ -364,6 +372,13 @@ public abstract class Container extends Figure {
 	@Override public void destroy(){
 		if(innerFig != null)
 			innerFig.destroy();
+	}
+	
+	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
+		super.gatherProjections(left, top, projections);
+		if(innerFig!=null){
+			innerFig.gatherProjections(left, top, projections);
+		}
 	}
 
 }

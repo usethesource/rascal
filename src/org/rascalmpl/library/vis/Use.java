@@ -59,8 +59,8 @@ public class Use extends Figure {
 		this.setTop(top);
 		applyProperties();
 		
-		inside.draw(left + getHanchorProperty()*(width - inside.width),
-					top  + getVanchorProperty()*(height - inside.height));
+		inside.draw(left + getHAlignProperty()*(width - inside.width),
+					top  + getVAlignProperty()*(height - inside.height));
 	}
 /*	
 	@Override

@@ -84,24 +84,18 @@ public class HVCat extends Compose {
 		if(nrow == 0)
 			width = w - hgap;
 		if(debug)System.err.printf("HVCat.bbox: width=%f, height=%f\n", width, height);
+		
+		determinePlacement();
 	}
-	
-	@Override
-	public
-	void draw(float left, float top){
-		this.setLeft(left);
-		this.setTop(top);
 
-		applyProperties();
-
+	private void determinePlacement() {
 		for(int i = 0; i < figures.length; i++){
 			Figure fig = figures[i];
 			float hrow = rowHeight[inRow[i]];
 			float rfiller = width - rowWidth[inRow[i]];
-
-			fig.draw(left + leftElem[i] + fig.getHanchorProperty() * rfiller,
-					top + topRowElem[i] + fig.getVanchorProperty() * (hrow - fig.height));                  
+			xPos[i] = leftElem[i] + fig.getHAlignProperty()  * rfiller;
+			yPos[i] = topRowElem[i] +  fig.getVAlignProperty() * (hrow - fig.height);              
 		}
-		
 	}
+	
 }

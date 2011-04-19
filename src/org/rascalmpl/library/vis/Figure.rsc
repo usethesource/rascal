@@ -330,6 +330,23 @@ data FProperty =
    | direction(computedStr cname)
    | direction(Like other)
    
+   | projectX(Figure inner)            // projection on chart x axis
+   | projectX(computedFigure cInner)           
+   | projectX(Like other)
+   
+   | projectY(Figure inner)            // projection on chart x axis
+   | projectY(computedFigure cInner)           
+   | projectY(Like other)
+   
+   | projectXGap(num radius)
+   | projectXGap(computedNum cRadius)
+   | projectXGap(Like other)
+   
+   | projectYGap(num radius)
+   | projectYGap(computedNum cRadius)
+   | projectYGap(Like other)
+
+   
    | _child(FProperties props)           // define properties for the children of a composition (one level deep)
 /* Standard properties: all the properties again! */
 /* sizes */
@@ -481,6 +498,23 @@ data FProperty =
    | stdDirection(str name)
    | stdDirection(computedStr cname)
    | stdDirection(Like other)
+   
+   | stdProjectX(Figure inner)            // projection on chart x axis
+   | stdProjectX(computedFigure cInner)           
+   | stdProjectX(Like other)
+   
+   | stdProjectY(Figure inner)            // projection on chart x axis
+   | stdProjectY(computedFigure cInner)           
+   | stdProjectY(Like other)
+   
+   | stdProjectXGap(num radius)
+   | stdProjectXGap(computedNum cRadius)
+   | stdProjectXGap(Like other)
+   
+   | stdProjectYGap(num radius)
+   | stdProjectYGap(computedNum cRadius)
+   | stdProjectYGap(Like other)
+   
    ;   
 
 public FProperty child(FProperty props ...){
@@ -558,8 +592,8 @@ data Figure =
    | _space(FProperties props)			      	// invisible box (used for spacing)
    | _space(Figure inner, FProperties props)     // invisible box with visible inner element
 
-   | _xaxis(FProperties props)                  // xaxis (work in progress)      
-   | _xaxis(Figure inner, FProperties props)   
+   | _chart(FProperties props)                  // chart (work in progress)      
+   | _chart(Figure inner, FProperties props)   
  
 /* composition */
    
@@ -652,12 +686,12 @@ public Figure space(Figure fig, FProperty props ...){
   return _space(fig, props);
 }
 
-public Figure xaxis(FProperty props ...){
-  return _xaxis(props);
+public Figure chart(FProperty props ...){
+  return _chart(props);
 }
 
-public Figure xaxis(Figure fig, FProperty props ...){
-  return _xaxis(fig, props);
+public Figure chart(Figure fig, FProperty props ...){
+  return _chart(fig, props);
 }
 
 public Figure place(Figure fig, str at, Figure base, FProperty props ...){

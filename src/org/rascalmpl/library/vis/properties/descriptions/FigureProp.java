@@ -6,7 +6,9 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
 public enum FigureProp{
-	MOUSE_OVER(null);
+	MOUSE_OVER(null),
+	PROJECTX(null),
+	PROJECTY(null);
 	
 	Figure stdDefault;
 	
@@ -17,6 +19,8 @@ public enum FigureProp{
 	@SuppressWarnings("serial")
 	public static final HashMap<String, PropertySetters.PropertySetter<FigureProp,Figure>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<FigureProp,Figure>>() {{
 	put("mouseOver", new PropertySetters.SingleFigurePropertySetter(MOUSE_OVER));
+	put("projectX", new PropertySetters.SingleFigurePropertySetter(PROJECTX));
+	put("projectY", new PropertySetters.SingleFigurePropertySetter(PROJECTY));
 	// aliasses
 	}};
 
