@@ -409,7 +409,7 @@ syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
                                # [0-9]
                                ;
 
-syntax StringConstant = lex [L]? [\"] StringConstant* [\"]
+syntax StringConstant = lex [L]? [\"] StringConstantContent* [\"]
                         ;
 
 syntax StringConstantContent = lex [\\] ![] |
