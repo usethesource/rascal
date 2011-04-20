@@ -43,8 +43,8 @@ public class Symbols {
 		if (type.isSymbol()) {
 			return symbolAST2SymbolConstructor(type.getSymbol());
 		}
-		
-		return null;
+
+		throw new RuntimeException("Can't convert type to symbol: "+type);
 	}
 
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
@@ -90,7 +90,7 @@ public class Symbols {
 			return Factory.Symbol_Sort.make(factory, name);
 		}
 		
-		return null;
+		throw new RuntimeException("Symbol has unknown type: "+symbol.getTree());
 	}
 
 	private static IValue literal2Symbol(StringConstant sep) {
