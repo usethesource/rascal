@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -89,8 +88,8 @@ public class Use extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
-		return inside.mousePressed(mousex, mousey, e);
+	public boolean mousePressed(int mousex, int mousey, Object e) {
+		return inside.mousePressed(mousex, mousey, null);
 	}
 	
 	@Override

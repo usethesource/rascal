@@ -242,7 +242,7 @@ public class Wedge extends Container {
 			
 			float Tx = centerX + r * FigureApplet.cos(toAngle);		// coordinates of end point
 			float Ty = centerY + r * FigureApplet.sin(toAngle);
-			if(debug){
+			if (debug){
 				System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
 								fromAngle, middleAngle, toAngle, r, middleR);
 				System.err.printf("arcVertex: Fx=%f, Fy=%f, Mx=%f, My=%f, Tx=%f, Ty=%f\n",

@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
-import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -95,10 +94,10 @@ public abstract class Compose extends Figure {
 
 	// Visit figures front to back
 	@Override
-	public synchronized boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
+	public synchronized boolean mousePressed(int mouseX, int mouseY, Object e) {
 		if(super.mouseInside(mouseX, mouseY)){
 			for (int i = figures.length - 1; i >= 0; i--)
-				if (figures[i].mousePressed(mouseX, mouseY, e))
+				if (figures[i].mousePressed(mouseX, mouseY, null))
 					return true;
 		}
 		return false; //super.mousePressed(mouseX, mouseY, e);

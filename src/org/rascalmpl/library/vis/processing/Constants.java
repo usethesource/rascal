@@ -11,6 +11,16 @@ public class Constants {
 	
 	final public static int CENTER  = PConstants.CENTER;
 	
+	final public static int TOP  = PConstants.TOP;
+	
+	final public static int BOTTOM  = PConstants.BOTTOM;
+	
+	final public static int BASELINE  = PConstants.BASELINE;
+	
+	final public static int CLOSE  = PConstants.CLOSE;
+	
+	final public static int OPEN  = PConstants.OPEN;
+	
 	final public static float PI = PConstants.PI;
 
 }

@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
-import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
@@ -91,9 +90,9 @@ public class Place extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
-		return bottomFigure.mousePressed(mouseX, mouseY, e) || 
-        	   topFigure.mousePressed(mouseX, mouseY, e);
+	public boolean mousePressed(int mouseX, int mouseY, Object e){
+		return bottomFigure.mousePressed(mouseX, mouseY, null) || 
+        	   topFigure.mousePressed(mouseX, mouseY, null);
 	}
 	
 	@Override

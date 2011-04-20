@@ -130,7 +130,7 @@ public class TreeMap extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+	public boolean mousePressed(int mousex, int mousey, Object e){
 		if(root.mousePressed(mousex, mousey, e)){
 			bbox(AUTO_SIZE, AUTO_SIZE);
 			return true;

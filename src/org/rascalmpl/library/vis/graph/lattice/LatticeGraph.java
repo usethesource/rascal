@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.lattice;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -357,7 +356,7 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
+	public boolean mousePressed(int mousex, int mousey, Object e) {
 		// System.err.println("mousePressed:" + this.getClass() + " "
 		// + nodes.size());
 		for (LatticeGraphNode n : nodes) {

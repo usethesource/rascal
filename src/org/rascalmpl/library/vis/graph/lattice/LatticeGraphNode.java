@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.lattice;
 
-import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -112,7 +111,7 @@ public class LatticeGraphNode {
 		return false;
 	}
 
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e) {
+	public boolean mousePressed(int mouseX, int mouseY, Object e) {
 		if (figure.mouseInside(mouseX, mouseY, figure.getCenterX(),
 				figure.getCenterY())) {
 			mousePressed = true;

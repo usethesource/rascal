@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.layered;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -336,7 +335,7 @@ public class LayeredGraph extends Figure {
 	}
 
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
+	public boolean mousePressed(int mousex, int mousey, Object e) {
 		for (LayeredGraphNode n : nodes) {
 			if (n.mousePressed(mousex, mousey, e))
 				return true;

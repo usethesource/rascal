@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.spring;
 
-import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
@@ -178,8 +177,8 @@ public class SpringGraphNode {
 		return figure.mouseOver(mousex, mousey, mouseInParent);
 	}
 	
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
-		return figure.mousePressed(mousex, mousey, e);
+	public boolean mousePressed(int mousex, int mousey, Object e){
+		return figure.mousePressed(mousex, mousey, null);
 	}
 
 	protected void setX(float x) {

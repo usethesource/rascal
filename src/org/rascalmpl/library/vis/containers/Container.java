@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
-import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -151,7 +150,7 @@ public abstract class Container extends Figure {
 		if(height > 0 && width > 0){
 			drawContainer();
 			if(innerFig != null && isNextVisible()){
-				//if(debug)System.err.printf("%s.draw2: hgap=%f, vgap=%f, inside.width=%f\n",  containerName(), hgap, vgap, innerFig.width);
+				if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
 				if(innerFits()) {
 					fpa.incDepth();
 					innerDraw();
@@ -271,17 +270,17 @@ public abstract class Container extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+	public boolean mousePressed(int mouseX, int mouseY, Object e){
 		if(!isVisible())
 			return false;
 		System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
 	
-		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, e))
+		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, null))
 				return true;
 		
 		Figure mo = getMouseOver();
 		
-		if(mo != null && mo.isVisibleInMouseOver() && mo.mousePressed(mouseX, mouseY, e))
+		if(mo != null && mo.isVisibleInMouseOver() && mo.mousePressed(mouseX, mouseY, null))
 			return true;
 		
 		if(mouseInside(mouseX, mouseY)){
@@ -293,7 +292,7 @@ public abstract class Container extends Figure {
 	
 	@Override
 	public void drag(float mousex, float mousey){
-		System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
+		if (debug) System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
 		if(!isDraggable())
 			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
 		setLeftDragged(getLeftDragged() + (mousex - getLeft()));
@@ -308,7 +307,7 @@ public abstract class Container extends Figure {
 		if(isDraggable() && mouseInside(mousex, mousey)){
 			fpa.registerFocus(this);
 			drag(mousex, mousey);
-			System.err.printf("Figure.mouseDragged: %f,%f\n", getLeftDragged(), getTopDragged());
+			if (debug) System.err.printf("Figure.mouseDragged: %f,%f\n", getLeftDragged(), getTopDragged());
 			return true;
 		}
 		return false;
