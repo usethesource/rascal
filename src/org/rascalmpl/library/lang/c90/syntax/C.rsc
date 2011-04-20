@@ -307,7 +307,7 @@ syntax TypeQualifier = "const" |
                        "volatile"
                        ;
 
-syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" {
+syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" { // TODO: Disallow store class specifiers.
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
                                  TypeSpecifier theType = findType(specChildren);
@@ -326,7 +326,7 @@ syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" {
                                     } // Fail if not typedefed.
                                  }
                               }
-                           } | // TODO: Disallow store class specifiers.
+                           } |
                            Specifier+ specs ";" { // TODO: Disallow store class specifiers.
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
@@ -422,7 +422,11 @@ syntax ExternalDeclaration = FunctionDefinition |
                              GlobalDeclaration
                              ;
 
-syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}" { // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
+// TODO: Fix 'func(void){}' like declarations.
+// TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
+// TODO: Disallow storage class specifiers as specifiers.
+// TODO: Disallow ArrayDeclarators in the declarator.
+syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}" {
                                list[Tree] specChildren;
                                if(appl(_,specChildren) := specs){
                                   TypeSpecifier theType = findType(specChildren);
@@ -442,7 +446,7 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                                   } // May be ambiguous with the K&R style function parameter definition thing.
                                }
                             }
-                            ; // TODO: Disallow storage class specifiers as specifiers. Disallow ArrayDeclarators in the declarator.
+                            ;
 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
