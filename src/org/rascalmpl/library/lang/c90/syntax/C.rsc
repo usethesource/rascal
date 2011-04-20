@@ -360,6 +360,16 @@ syntax Parameters = {Parameter ","}+ MoreParameters? |
 syntax MoreParameters = "," "..."
                         ;
 
+syntax Parameter = Specifier* Declarator
+                   ;
+
+syntax PrototypeParameter = Specifier* AbstractDeclarator
+                   ;
+
+syntax PrototypeParameters = {PrototypeParameter ","}+ MoreParameters? |
+                             "void"
+                             ;
+
 syntax Initializer = NonCommaExpression |
                      "{" {Initializer ","}+ ","?  "}"
                      ;
@@ -378,15 +388,19 @@ syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
                             PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
                             ;
 
+syntax PrototypeDeclarator = Identifier: Identifier |
+                             bracket Bracket: "(" AbstractDeclarator decl ")" |
+                             ArrayDeclarator: PrototypeDeclarator decl "[" Expression? exp "]" |
+                             FunctionDeclarator: PrototypeDeclarator decl "(" PrototypeParameters? params ")" >
+                             PointerDeclarator: "*" TypeQualifier* qualifiers PrototypeDeclarator decl
+                             ;
+
 syntax Declarator = Identifier: Identifier |
                     bracket Bracket: "(" Declarator decl ")" |
                     ArrayDeclarator: Declarator decl "[" Expression? exp "]" |
                     FunctionDeclarator: Declarator decl "(" Parameters? params ")" >
                     PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
                     ;
-
-syntax Parameter = Specifier* Declarator
-                   ;
 
 syntax HexadecimalConstant = lex [0] [xX] [a-fA-F0-9]+ [uUlL]*
                              # [a-fA-F0-9]
@@ -420,6 +434,7 @@ syntax Exponent = lex [Ee] [+\-]? [0-9]+
                   ;
 
 syntax ExternalDeclaration = FunctionDefinition |
+                             FunctionPrototype |
                              GlobalDeclaration
                              ;
 
@@ -447,6 +462,28 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                                }
                             }
                             ;
+
+syntax FunctionPrototype = Specifier* specs PrototypeDeclarator ";" {
+                              list[Tree] specChildren;
+                              if(appl(_,specChildren) := specs){
+                                 TypeSpecifier theType = findType(specChildren);
+                                 
+                                 if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
+                                    if(unparse(theType) notin typeDefs){
+                                       fail;
+                                    } // Fail if not typedefed.
+                                 }
+                                 
+                                 for(spec <- specChildren){
+                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+                                          if(identifier != theType) fail;
+                                       }
+                                    }
+                                 } // May be ambiguous with the K&R style function parameter definition thing.
+                              }
+                           }
+                           ;
 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
