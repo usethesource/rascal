@@ -56,7 +56,7 @@ public void hor4(){
 			        box(size(150,100)),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      stdFillColor("yellow"), gap(10),top()
+			      stdFillColor("yellow"), gap(10),child(top())
 		));
 }
 // Horizontal combination of bottom-aligned boxes with some inherited colors
@@ -65,7 +65,7 @@ public void hor5(){
 			        box(size(150,100)),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      stdFillColor("yellow"), gap(10),bottom()
+			      stdFillColor("yellow"), gap(10),child(bottom())
 		));
 }
 
@@ -75,55 +75,55 @@ public void hor6(){
 			        box(size(150,100)),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      stdFillColor("yellow"), gap(10),vcenter()
+			      stdFillColor("yellow"), gap(10),child(vcenter())
 		));
 }
 
 // Horizontal, bottom aligned with on exception
 public void hor7(){
 	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(anchor(0.5,0.8), size(150,100)),
+			        box(align(0.5,0.8), size(150,100)),
 			        box(size(200,50), fillColor("green")),
 			        box(size(50,100), fillColor("yellow"))
 			      ],
-			      gap(10),alignAnchors(true), bottom()
+			      gap(10), child(bottom())
 		));
 }
 
 // Horizontal, nested
 public void hor8(){
 	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(anchor(0.5,1.0), size(150,100)),
+			        box(align(0.5,1.0), size(150,100)),
 			        hcat([box(size(200,50), fillColor("green")),
 			              box(size(50,100), fillColor("yellow"))
-			             ], bottom()
+			             ], child(bottom())
 			            )
 			      ],
-			      gap(10),top()
+			      gap(10),child(top())
 		));
 }
 
 // Horizontal, nested
 public void hor9(){
 	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(anchor(0.5,1.0), size(150,100)),
+			        box(align(0.5,1.0), size(150,100)),
 			        hcat([box(size(200,50), fillColor("green")),
 			              box(size(50,100), fillColor("yellow"))
-			             ], bottom()
+			             ], child(bottom())
 			            )
 			      ],
-			      gap(10),alignAnchors(true)
+			      gap(10)
 		));
 }
 
 // Horizontal, top aligned at 0.1, 0.2, 0.3, 0.4 of top
 public void hor10(){
-	render(hcat(  [ box(anchor(0.0, 0.1), size(100,100), fillColor("red")),
-			        box(anchor(0.0, 0.2), size(100,100)),
-			        box(anchor(0.0, 0.3), size(100,100), fillColor("green")),
-			        box(anchor(0.0, 0.4), size(100,100), fillColor("yellow"))
+	render(hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
+			        box(align(0.0, 0.2), size(100,100)),
+			        box(align(0.0, 0.3), size(100,100), fillColor("green")),
+			        box(align(0.0, 0.4), size(100,100), fillColor("yellow"))
 			      ],
-			      gap(10), alignAnchors(true)
+			      gap(10)
 		));
 }
 
@@ -136,7 +136,7 @@ public void vert1(){
 			       box(size(150, 100), fillColor("blue")),
 			       box(size(200,50), fillColor("green"))
 			     ],
-			     left(), gap(2)
+			     child(left()), gap(2)
 		));
 }
 
@@ -146,7 +146,7 @@ public void vert2(){
 			        box(size(150, 100), fillColor("blue")),
 			        box(size(200,50), fillColor("green"))
 			      ],
-			      gap(2), hcenter()
+			      gap(2), child(hcenter())
 		));
 }
 
@@ -156,18 +156,18 @@ public void vert3(){
 			        box([ size(150, 100), fillColor("blue") ]),
 			        box([ size(200,50), fillColor("green") ])
 			      ],
-			      right(), gap(2)
+			      child(right()), gap(2)
 		));
 }
 
 // Vertical, left aligned with on exception
 public void vert4(){
 	render(vcat(  [ box(size(100,200), fillColor("red")),
-			        box(anchor(1.0, 1.0), size(150,100)),
+			        box(align(1.0, 1.0), size(150,100)),
 			        box(size(200,50), fillColor("green")),
 			        box(size(50,100), fillColor("yellow"))
 			      ],
-			      gap(10),alignAnchors(true)
+			      gap(10)
 		));
 }
 
@@ -178,10 +178,10 @@ public void vert5(){
 			              box(size(50,50)),  
 			              box(size(30,30))
 			            ],
-			            right()),
+			            child(right())),
 			       box(size(200,50), fillColor("green"))
 			      ],
-			      gap(10),left()
+			      gap(10),child(left())
 		));
 }
 
@@ -192,21 +192,21 @@ public void vert6(){
 			              box(size(50,50)),  
 			              box(size(30,30))
 			            ],
-			            left()), 
+			            child(left())), 
 			       box(size(200,50), fillColor("green"))
 			      ],
-			      gap(10),left()
+			      gap(10),child(left())
 		));
 }
 
 // Vertical, left aligned at 0.1, 0.2, 0.3, 0.4 of left side
 public void vert7(){
-	render(vcat(  [ box(anchor(0.1, 0.0), size(100,100), fillColor("red")),
-			        box(anchor(0.2, 0.0), size(100,100)),
-			        box(anchor(0.3, 0.0), size(100,100), fillColor("green")),
-			        box(anchor(0.4, 0.0), size(100,100), fillColor("yellow"))
+	render(vcat(  [ box(align(0.1, 0.0), size(100,100), fillColor("red")),
+			        box(align(0.2, 0.0), size(100,100)),
+			        box(align(0.3, 0.0), size(100,100), fillColor("green")),
+			        box(align(0.4, 0.0), size(100,100), fillColor("yellow"))
 			      ],
-			      gap(10), alignAnchors(true)
+			      gap(10)
 		));
 }
 
@@ -217,13 +217,13 @@ public void hv1(){
 	              vcat([ hcat( [ box(size(50, 100), fillColor("blue")),
 			                     box(size(100, 50), fillColor("blue"))
 			                   ],
-			                   vcenter()),
+			                   child(vcenter())),
 			             box(size(250,50), fillColor("green"))
 			           ],
-			           right(), gap(30)),
+			           child(right()), gap(30)),
 			      box(size(100,100), fillColor("yellow"))
 			    ],
-			    bottom(), gap(10)));
+			    child(bottom()), gap(10)));
 }
 
 public void r3(){
@@ -231,7 +231,7 @@ public void r3(){
 			        box(width(150), height(100)),
 			        box(width(200), height(50), fillColor("green"))
 			      ],
-			      fillColor("yellow"), gap(10),bottom()
+			      fillColor("yellow"), gap(10),child(bottom())
 		));
 }
 
@@ -240,7 +240,7 @@ public void r4(){
 			        box(width(150), height(100), fillColor("blue")),
 			        box(width(200), height(50), fillColor("green"))
 			      ],
-			      left(), gap(2)
+			      child(left()), gap(2)
 		));
 }
 
@@ -251,7 +251,7 @@ public void olc(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               left(), vcenter()
+               child(left(), vcenter())
                )
       );
 }
@@ -261,7 +261,7 @@ public void occ(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               center()
+               child(center())
                )
       );
 }
@@ -271,7 +271,7 @@ public void orc(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               right(), vcenter()
+               child(right(), vcenter())
                )
       );
 }
@@ -281,7 +281,7 @@ public void olt(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               left(), top()
+               child(left(), top())
                )
       );
 }
@@ -291,7 +291,7 @@ public void oct(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               hcenter(), top()
+               child(hcenter(), top())
                )
       );
 }
@@ -301,7 +301,7 @@ public void ort(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               right(), top()
+               child(right(), top())
                )
       );
 }
@@ -312,7 +312,7 @@ render(overlay(
                [ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               left(), bottom()
+               child(left(), bottom())
                )
       );
 }
@@ -322,7 +322,7 @@ public void ocb(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               hcenter(), bottom()
+               child(hcenter(), bottom())
                )
       );
 }
@@ -332,7 +332,7 @@ public void orb(){
 render(overlay([ box(size(100,300), fillColor("green")), 
                  box(size(200,200), fillColor("red"))
                ],
-               right(), bottom()
+               child(right(), bottom())
                )
       );
 }
@@ -342,33 +342,61 @@ public void obe(){
 render(overlay([ box(size(100)),
                 ellipse(size(50))
                ],
-               bottom()
+               child(bottom())
                ));
 }
 
-// TODO: ok?
 
-// Nested vertical composition with left/left alignment
+// Nested vertical composition with left/right alignment
 public void onest1(){
 	render(overlay( [ box(size(100,250), fillColor("red")),
 			          vcat([ box(size(150,100)),
 			                 box(size(50,50)),  
 			                 box(size(30,30))
 			               ],
-			               right()), 
+			               child(right())), 
 			         box(size(150,5), fillColor("green"))
 			        ],
-			        gap(10),left()
+			        gap(10),child(left())
 		));
 }
 
 // Vertical, left aligned at 0.1, 0.2, 0.3, 0.4 of left side
 public void onest2(){
-	render(overlay(  [ box(anchor(0.1, 0.0), size(100,100), fillColor("red")),
-			           box(anchor(0.2, 0.0), size(100,100)),
-			           box(anchor(0.3, 0.0), size(100,100), fillColor("green")),
-			           box(anchor(0.4, 0.0), size(100,100), fillColor("yellow"))
+	render(overlay(  [ box(align(0.1, 0.0), size(100,100), fillColor("red")),
+			           box(align(0.2, 0.0), size(100,100)),
+			           box(align(0.3, 0.0), size(100,100), fillColor("green")),
+			           box(align(0.4, 0.0), size(100,100), fillColor("yellow"))
 			      ],
-			      gap(10), alignAnchors(true)
+			      gap(10)
 		));
 }
+
+public void exwidth() {
+	render(hcat([box(),box(),box()],width(350),stdFillColor("red")));
+}
+
+
+public void exwidthspace() {
+	render(hcat([box(),box(),box()],width(350),stdFillColor("red"),gapFactor(0.2)));
+}
+
+
+public void exwidthspaceex() {
+	render(hcat([box(),box(width(150)),box()],width(350),stdFillColor("red"),gapFactor(0.2)));
+}
+
+public void alignandautoheight() {
+	render(hcat([box(bottom()),box(top()),box(vcenter())],width(300),height(200)));
+}
+
+public void alignandautoheight2() {
+	render(hcat([box(bottom(),height(100)),box(top(),height(150)),box(vcenter())],width(300),height(200)));
+}
+
+public void alignandautoheight2() {
+	render(hcat([box(bottom()),box(top(),height(150)),box(vcenter())],width(300),height(200)));
+}
+
+
+

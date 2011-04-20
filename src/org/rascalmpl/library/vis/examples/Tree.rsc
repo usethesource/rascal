@@ -37,7 +37,7 @@ public void tree1a(){
     	];
     	  
     render(hcat([ ellipse(size(30)), tree(nodes, edges, gap(10))],
-                  center()
+                  child(center())
                 ));
 }
 
@@ -207,7 +207,7 @@ public void tree5b(){
 
 
 // Tree
-
+// TODO: Multiple roots here
 public void tree5c(){
 
    nodes =
@@ -236,7 +236,7 @@ public void tree5c(){
     	  edge("D", "J")
     	];
     	    
-    render(tree(nodes, edges, gap(10), top(), size(20), lineWidth(1)));
+    render(tree(nodes, edges, gap(10), child(top()), size(20), lineWidth(1)));
 }
 
 // Tree
@@ -268,7 +268,7 @@ public void tree6(){
     	  
     	];
     	    
-    render(tree(nodes, edges, gap(10), top(), lineWidth(1)));
+    render(tree(nodes, edges, gap(10), child(top()), lineWidth(1)));
 }
 
 // Tree with text popups.
@@ -302,7 +302,7 @@ public void tree7(){
     	  edge("E", "J")
     	  
     	];	    
-    render(tree(nodes, edges, gap(10), top(), lineWidth(1), fillColor("black")));
+    render(tree(nodes, edges, gap(10), child(top()), lineWidth(1), fillColor("black")));
 }
 
 public void tree8(){
@@ -330,7 +330,7 @@ public void tree8(){
     	  edge("E", "J")
     	  
     	];	    
-    render(tree(nodes, edges, gap(10), top(), lineWidth(1), fillColor("black")));
+    render(tree(nodes, edges, gap(10), child(top()), lineWidth(1), fillColor("black")));
 }
 
 // Tree
@@ -355,7 +355,7 @@ public void tree9(){
     	  edge("E", "G")
     	];
     	    
-    render(tree(nodes, edges,gap(10), top(), lineWidth(1)));
+    render(tree(nodes, edges,gap(10), child(top()), lineWidth(1)));
 }
 
 public Figure T1(){
@@ -383,7 +383,7 @@ public Figure T1(){
     	  edge("E", "J")
     	];	
     	
-   return tree(nodes1, edges1, gap(10), top(), lineWidth(1), fillColor("black"));    
+   return tree(nodes1, edges1, gap(10), child(top()), lineWidth(1), fillColor("black"));    
 }
 
 public Figure T2(){
@@ -414,30 +414,30 @@ public Figure T2(){
     	  edge("J", "K"),
     	  edge("K", "L")
     	];	    
-    return tree(nodes2, edges2, gap(10), top(), lineWidth(1), fillColor("black"));
+    return tree(nodes2, edges2, gap(10), child(top()), lineWidth(1), fillColor("black"));
 }
 
 public void tree10a(){
-    render(hcat([T1(), T2()], top(), gap(20), top()));
+    render(hcat([T1(), T2()], child(top()), gap(20), child(top())));
 }
 
 public void tree10b(){
-    render(hcat([T1(), T2()], top(), gap(20)));
+    render(hcat([T1(), T2()], child(top()), gap(20)));
 }
 
 public void tree10c(){
-    render(hcat([T1(), T2()], top(), gap(20), bottom()));
+    render(hcat([T1(), T2()], child(top()), gap(20), child(bottom())));
 }
 
 public void tree10d(){
-    render(vcat( [T1(), T2()], top(), gap(20), left()));
+    render(vcat( [T1(), T2()], child(top()), gap(20), child(left())));
 }
 
 public void tree10e(){
-    render(vcat( [T1(), T2()], top(), gap(20), center()));
+    render(vcat( [T1(), T2()], child(top()), gap(20), child(center())));
 }
 public void tree10f(){
-    render(vcat([T1(), T2()], top(), gap(20), right()));
+    render(vcat([T1(), T2()], child(top()), gap(20), child(right())));
 }
 
 

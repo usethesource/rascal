@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -32,6 +33,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * - It draws itself (using drawContainer).
  * - It draws the inside element provided that it fits in the container.
  * - It always draws the inside element on mouseOver.
+ * 
  * 
  * @author paulk
  * 
@@ -118,12 +120,18 @@ public abstract class Container extends Figure {
 					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
 					spacingY = (innerFig.height / (1/getVGapFactorProperty() - 1));
 				} else { // HGapProperty set
-					spacingX = 2 * getVGapProperty();
+					spacingY = 2 * getVGapProperty();
 				}
 				height = innerFig.height + spacingY + 2*lw;
 			}
-			innerFigX = lw + spacingX/2.0f;
-			innerFigY = lw + spacingY/2.0f;
+			if(desiredWidth != AUTO_SIZE && innerFig.width != innerDesiredWidth){
+				spacingX = desiredWidth - 2 * lw - innerFig.width;
+			}
+			if(desiredHeight != AUTO_SIZE && innerFig.height != innerDesiredHeight){
+				spacingY = desiredHeight - 2 * lw - innerFig.height;
+			}
+			innerFigX = lw + innerFig.getHAlignProperty()*spacingX;
+			innerFigY = lw + innerFig.getVAlignProperty()*spacingY;;
 		} else {
 			if(desiredWidth == AUTO_SIZE){
 				width = getWidthProperty();
@@ -150,7 +158,7 @@ public abstract class Container extends Figure {
 		if(height > 0 && width > 0){
 			drawContainer();
 			if(innerFig != null && isNextVisible()){
-				if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
+				//if(debug)System.err.printf("%s.draw2: hgap=%f, vgap=%f, inside.width=%f\n",  containerName(), hgap, vgap, innerFig.width);
 				if(innerFits()) {
 					fpa.incDepth();
 					innerDraw();

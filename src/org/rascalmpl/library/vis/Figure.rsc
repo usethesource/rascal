@@ -164,6 +164,34 @@ public list[str] java fontNames();
  public FProperty center(){
    return align(0.5, 0.5);
 }
+
+ public FProperty stdLeft(){
+   return stdHalign(0.0);
+ }
+ 
+ public FProperty stdHcenter(){
+   return stdHalign(0.5);
+ }
+ 
+ public FProperty stdRight(){
+   return stdHalign(1.0);
+ }
+ 
+ public FProperty stdTop(){
+   return stdValign(0.0);
+ }
+ 
+ public FProperty stdVcenter(){
+   return stdValign(0.5);
+ }
+ 
+ public FProperty stdBottom(){
+   return stdValign(1.0);
+ }
+ 
+ public FProperty stdCenter(){
+   return stdAlign(0.5, 0.5);
+}
    
  
  alias computedBool = bool();

@@ -18,7 +18,7 @@ import Set;
 // Blue outer box of 20x20 with yellow larger inner box (only visible on mouse over)
 //Note: left/top borders of innerbox is not visible
 public void box10(){
-	render(box([width(20), height(20), fillColor("mediumblue"), gap(10)], box([size(30,30), fillColor("yellow")])));
+	render(box(width(20), height(20), fillColor("mediumblue"), gap(10), box(size(30,30), fillColor("yellow"))));
 }
 
 public FProperty tip(str S){ 

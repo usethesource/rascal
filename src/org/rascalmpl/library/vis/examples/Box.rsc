@@ -75,31 +75,41 @@ public void bbc(){
 // Sized outer box, with left-aligned inner box of 100x200
 
 public void bbl(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), width(150), height(300), gap(5, 30), left()));
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"),left()), width(150), height(300), gap(5, 30)));
 }
 
 // Sized outer box, with top-aligned inner box of 100x200
 
 public void bblt(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), width(150), height(300), gap(5,30), left(), top()));
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"),  left(), top()), width(150), height(300), gap(5,30)));
 }
 
 // Sized outer box, with bottom-aligned inner box of 100x200
 public void bblb(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), width(150), height(300), gap(5,30), left(), bottom()));
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"), left(), bottom()), width(150), height(300), gap(5,30)));
 }
 
 // Sized outer box, with right-aligned inner box of 100x200
 public void bbr(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), width(150), height(300), gap(5,30), right()));
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right()), width(150), height(300), gap(5,30)));
 }
 
 // Sized outer box, with top-aligned and right-aligned inner box of 100x200
 public void bbrt(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), width(150), height(300), gap(5,30), right(), top()));
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right(), top()), width(150), height(300), gap(5,30)));
 }
 
 // Sized outer box, with bottom-aligned and right-aligned inner box of 100x200
 public void bbrb(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), width(150), height(300), gap(5,30), right(), bottom()));
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right(), bottom()), width(150), height(300), gap(5,30)));
+}
+
+// unsized out box, top-align and right-align inner box of 100x200, gapFactor(0.3)
+public void ubbtr(){
+	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right(), bottom()), gapFactor(0.3)));
+}
+
+// size out box, top-align and right-align unsize inner box of, gapFactor(0.3)
+public void bubtr(){
+	render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), gapFactor(0.3),size(300,200)));
 }
