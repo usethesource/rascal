@@ -38,7 +38,7 @@ public void txt4(){
 	 				  text("Giant xyz 2", fontSize(40), fontColor("blue")),
 	 				  text("Giant xyz 3", fontSize(60), fontColor("red"))
 	 			    ],
-	 			   bottom()
+	 			   child(bottom())
 	 			   ),
 	 			gap(10)));
 }
@@ -54,7 +54,7 @@ public void txt6(){
 	render(vcat( [  box(width(100), height(200), fillColor("red")),
 	                text("Een label", fontSize(20), textAngle(-90))
 	             ],
-	             center(), gap(10)));
+	             child(center()), gap(10)));
 }
 
 // Overlay of box and text
@@ -64,7 +64,7 @@ public void txt7(){
 	              [box(width(150), height(200), fillColor("red")),
 			       text( "Een label", fontSize(20))
 			      ],
-			      bottom(), right()
+			      child(bottom(), right())
 		));
 }
 
@@ -75,14 +75,14 @@ public void txt8(){
 	 				 text("BB", fontSize(40), fontColor("blue")),
 	 				 text("CC", fontSize(60), fontColor("red"))
 	 			   ],
-	 			   bottom()),
+	 			   child(bottom())),
 	 		  gap(1)));
 }
 
 public void txt9(){
    words = [ text("aappp"), text("noot"), text("mies"), text("wim"), text("zus") ];
    
-   render(grid(words, width(100), fillColor("black"), gap(40), bottom(), left()));
+   render(grid(words, width(100), fillColor("black"), gap(40), child(bottom(), left())));
  }
  
 public void txt10(){
@@ -117,7 +117,7 @@ public void txt11r(){
  public void txt12(){
    words = [ text("aappp"), text("noot"), text("mies"), text("wim"), text("zus") ];
    
-   render(grid(words, width(100), fillColor("black"), gap(40), bottom(), left(), textAngle(-90)));
+   render(grid(words, width(100), fillColor("black"), gap(40), child(bottom(), left()), textAngle(-90)));
  }
 
 private map[str, int] leesplank = 
@@ -130,19 +130,19 @@ private map[str, int] leesplank =
          );
          
 // Word cloud using hvcat
-public void txt11(){
+public void txt11wc(){
      words = [text("<name>", fontSize(2*leesplank[name])) | name <- leesplank];
      render(hvcat(words, width(400), fillColor("black"), gap(10), bottom(), left()));
 }
 
 // Word cloud using pack
-public void txt12(){
+public void txt12wc(){
      words = [text( "<name>", fontSize(2*leesplank[name])) | name <- leesplank];
      render(pack(words, width(400), fillColor("black"), gap(10), bottom(), left()));
 }
 
 // Word cloud using pack with rotated words
-public void txt13(){
+public void txt13wc(){
      words = [text("<name>", fontSize(2*leesplank[name]), (arbInt(3) == 2) ? textAngle(-90) : textAngle(0)) | name <- leesplank];
      render(pack(words, width(400), fillColor("black"), gap(10), bottom(), left()));
 }

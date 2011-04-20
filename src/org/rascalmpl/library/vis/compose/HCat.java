@@ -120,7 +120,66 @@ public class HCat extends Compose {
 				                              / (figures.length - numberOfNonResizeableWidthElements);
 			}
 		} while(!fixPointReached);
-		// TODO: Fixpoint for height depending on alignment?
+		// Fixpoint for height depending on alignment
+		if(desiredHeight != AUTO_SIZE){
+			float maxTopAnchor, maxBottomAnchor;
+			float maxTopAnchorR, maxBottomAnchorR;
+			maxTopAnchor = maxBottomAnchor = maxTopAnchorR = maxBottomAnchorR =  0.0f;
+			fixPointReached = true;
+			for(int i = 0 ; i < figures.length ; i++){
+				mayBeResized[i] = figures[i].height == desiredHeightPerElement;
+				if(!mayBeResized[i]){
+					maxTopAnchor = max(maxTopAnchor,getTopAnchor(figures[i]));
+					maxBottomAnchor = max(maxBottomAnchor,getBottomAnchor(figures[i]));
+					fixPointReached = false;
+				} else {
+					maxTopAnchorR =  max(maxTopAnchorR,getTopAnchor(figures[i]));
+					maxBottomAnchorR = max(maxBottomAnchorR,getBottomAnchor(figures[i]));
+				}
+			}
+			while(!fixPointReached){
+				fixPointReached = true;
+				float spaceForResize = desiredHeight - (maxTopAnchor + maxBottomAnchor);
+				float totalHeightNow = max(maxTopAnchor,maxTopAnchorR) + max(maxBottomAnchor,maxBottomAnchorR);
+				float topExtraSpacePart, bottomExtraSpacePart;
+				
+				topExtraSpacePart = max(0,(maxTopAnchorR - maxTopAnchor) / totalHeightNow);
+				bottomExtraSpacePart = max(0,(maxBottomAnchorR - maxBottomAnchor) / totalHeightNow);
+				if(topExtraSpacePart + bottomExtraSpacePart == 0){
+					// cannot fit!
+					break;
+				}
+				float topCap = (topExtraSpacePart / (topExtraSpacePart + bottomExtraSpacePart)) * spaceForResize + maxTopAnchor;
+				float bottomCap = (bottomExtraSpacePart / (topExtraSpacePart + bottomExtraSpacePart)) * spaceForResize + maxBottomAnchor;
+				
+				for(int i = 0 ; i < figures.length ; i++){
+					if(mayBeResized[i]){
+						float topAdjust = min(getTopAnchor(figures[i]), topCap);
+						float bottomAdjust = min(getBottomAnchor(figures[i]), bottomCap);
+						float desiredHeightNow;
+						if(getTopAnchorProperty(figures[i]) == 0.0f){
+							desiredHeightNow = bottomAdjust /( 1 - getTopAnchorProperty(figures[i]));
+						} else if (getTopAnchorProperty(figures[i]) == 1.0f){
+							desiredHeightNow = topAdjust / getTopAnchorProperty(figures[i]);
+						} else {
+							desiredHeightNow = min(topAdjust / getTopAnchorProperty(figures[i]),
+												  bottomAdjust /( 1 - getTopAnchorProperty(figures[i])));
+						}
+						bboxOfFigure(figures[i],desiredWidthPerElement,desiredHeightNow);
+						mayBeResized[i] = figures[i].height == desiredHeightNow;
+						if(!mayBeResized[i]){
+							maxTopAnchor = max(maxTopAnchor,getTopAnchor(figures[i]));
+							maxBottomAnchor = max(maxBottomAnchor,getBottomAnchor(figures[i]));
+							fixPointReached = false;
+						} else {
+							maxTopAnchorR =  max(maxTopAnchorR,getTopAnchor(figures[i]));
+							maxBottomAnchorR = max(maxBottomAnchorR,getBottomAnchor(figures[i]));
+						}
+					}
+				}
+				
+			}
+		}
 		float totalElementsWidth = 0;
 		float maxBottomAnchor = 0.0f;
 		maxTopAnchor = 0.0f;

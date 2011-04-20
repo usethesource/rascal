@@ -46,7 +46,7 @@ public void class1() {
 public void class2() {
    cscale = colorScale(toList(classes.sloc), color("green"), color("red"));
    nodes = [ box(id(c.name), width(c.noa*5), height(c.nom*5), fillColor(cscale(c.sloc))) | CI c <- classes];
-   edges = [ edge([], from,to) | <str from, str to> <- inherits ];
+   edges = [ edge(from,to) | <str from, str to> <- inherits ];
    
    render(graph(nodes, edges, size(400)));      
 }

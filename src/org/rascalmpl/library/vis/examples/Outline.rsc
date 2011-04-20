@@ -12,5 +12,5 @@ import vis::Figure;
 import vis::Render;
 
 public void out1(){
-  render(outline((10: color("red")), size(100)));
+  render(outline([info(10,"jada")],100));
 }

@@ -57,7 +57,7 @@ public enum RealProp {
 	put("vgapFactor", new PropertySetters.SingleIntOrRealPropertySetter(VGAP_FACTOR));
 	put("width", new PropertySetters.SingleIntOrRealPropertySetter(WIDTH));
 	// below: aliases
-	put("anchor", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HALIGN, VALIGN));
+	put("align", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HALIGN, VALIGN));
 	put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
 	put("gapFactor", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP_FACTOR, VGAP_FACTOR));
 	put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));

@@ -24,7 +24,7 @@ public void s1(int s){
 	b = shape([ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1) -1]],
                 lineColor("blue"),
                 lineWidth(2),
-                shapeConnected(),
+                shapeConnected(true),
 	            fillColor("lightgreen")
                );
     render(b);
@@ -35,7 +35,7 @@ public void s2(int s){
 	b = shape( [ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1) -1]],
                 lineColor("blue"),
                 lineWidth(2),
-                shapeConnected(), shapeClosed(),
+                shapeConnected(true), shapeClosed(true),
 	            fillColor("lightgreen")
                );
     render(overlay([b, box(left(), bottom(), size(20))]));
@@ -51,8 +51,8 @@ public void s3(int s){
                 lineColor("blue"),
                 lineWidth(2),
 	            fillColor("lightgreen"),
-	            shapeConnected(),
-	            shapeCurved()
+	            shapeConnected(true),
+	            shapeCurved(true)
                );
     render(b);
 }
@@ -65,13 +65,13 @@ public void s4(){
                 lineColor("blue"),
                 lineWidth(2),
 	            fillColor(color("lightblue", 0.5)),
-	            shapeCurved(), shapeClosed()               
+	            shapeCurved(true), shapeClosed(true)               
                );
     sh2 = shape([ vertex(i * 50, 10 * dt2[i], ellipse(size(10), lineWidth(0), fillColor("black"))) | int i <- [0 .. size(dt2) -1]],
                 lineColor("green"),
                 lineWidth(2),
 	            fillColor(color("lightgreen", 0.5)),
-	            shapeCurved(), shapeClosed()
+	            shapeCurved(true), shapeClosed(true)
                );
     render(overlay([sh1, sh2]));
 }
