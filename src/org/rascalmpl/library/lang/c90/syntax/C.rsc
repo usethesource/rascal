@@ -353,7 +353,8 @@ syntax StructDeclarator = Declarator |
                           Declarator? ":" Expression // Prefer the one where 'Declarator' is filled.
                           ;
 
-syntax Parameters = {Parameter ","}+ MoreParameters?
+syntax Parameters = {Parameter ","}+ MoreParameters? |
+                    "void"
                     ;
 
 syntax MoreParameters = "," "..."
