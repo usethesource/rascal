@@ -159,7 +159,7 @@ public class TreeMapNode extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+	public boolean mousePressed(int mousex, int mousey, Object e){
 		if(debug)System.err.printf("TreeMapNode.mousePressed: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
 		if(!isVisible())
 			return false;

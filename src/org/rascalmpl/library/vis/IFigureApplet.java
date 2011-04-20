@@ -14,6 +14,7 @@
 package org.rascalmpl.library.vis;
 
 public interface IFigureApplet {
+	public Object getComp(); // get Composite. Needed by swt variant
 	public void init();
 	public void setup();
 	public void draw();
@@ -45,7 +46,9 @@ public interface IFigureApplet {
 	public void stroke(int arg0);
 	public void strokeWeight(float arg0);
 	public void textSize(float arg0);
+	public void textColor(int arg0);
 	public void textAlign(int arg0, int arg1);
+	public void textAlign(int arg0);
 	public void textFont(Object arg0);
 	public float textWidth(String txt);
 	public float textAscent();
@@ -77,7 +80,7 @@ public interface IFigureApplet {
 	public void setCursor(Object cursor);
 	public void add(Object comp);
 	public void remove(Object comp);
-	public Object getFont(Object font);
+	public Object getFont();
 	public void setBackground(Object color);
 	public void setForeground(Object color);	
 	public void invalidate();

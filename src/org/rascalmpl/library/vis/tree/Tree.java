@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.tree;
 
-import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -144,7 +143,7 @@ public class Tree extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
+	public boolean mousePressed(int mousex, int mousey, Object e){
 		//System.err.printf("Tree.mousePressed: %s, %d, %d\n", root.rootFigure.getIdProperty(), mousex, mousey);
 		return root.mousePressed(mousex, mousey, e) ||
 			   super.mousePressed(mousex, mousey, e);

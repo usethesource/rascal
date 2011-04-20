@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.layered;
 
-import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -489,8 +488,8 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return false;
 	}
 	
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e){
-		if(figure != null && figure.mousePressed(mousex, mousey, e))
+	public boolean mousePressed(int mousex, int mousey, Object e){
+		if(figure != null && figure.mousePressed(mousex, mousey, null))
 			return true;
 		return false;
 	}

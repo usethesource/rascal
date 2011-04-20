@@ -43,7 +43,6 @@ public class Text extends Figure {
 	void bbox(float desiredWidth, float desiredHeight){
 		float halign = getHAlignProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
-
 		applyFontProperties();
 		topAnchor = fpa.textAscent() ;
 		bottomAnchor = fpa.textDescent();
@@ -55,13 +54,12 @@ public class Text extends Figure {
 			width = max(width, fpa.textWidth(lines[i]));
 		
 		if(nlines > 1){
-			hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? width : width/2;
 			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
 			topAnchor = bottomAnchor = getVAlignProperty() * height;
 		} else {
-			hfill = width/2;
 			height = topAnchor + bottomAnchor;
 		}
+		hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? width : width/2;
 		/*
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );

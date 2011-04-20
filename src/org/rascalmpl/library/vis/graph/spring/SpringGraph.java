@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.spring;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -219,7 +218,7 @@ public class SpringGraph extends Figure {
 	}
 
 	@Override
-	public boolean mousePressed(int mousex, int mousey, MouseEvent e) {
+	public boolean mousePressed(int mousex, int mousey, Object e) {
 		for (SpringGraphNode n : nodes) {
 			if (n.mousePressed(mousex, mousey, e))
 				return true;

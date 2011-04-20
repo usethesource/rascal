@@ -36,6 +36,7 @@ import processing.core.PGraphics;
  * @author paulk
  *
  */
+
 public class FigurePApplet extends PApplet implements IFigureApplet {
 	/**
 	 * 
@@ -352,7 +353,7 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
 		unRegisterMouseOver(mouseOver);
-		if(figure.mousePressed(mouseX, mouseY, mouseEvent)){
+		if(figure.mousePressed(mouseX, mouseY, null)){
 			focusSelected = true;
 			if (debug) System.err.println(""+this.getClass()+" "+focusSelected);
 		} else
@@ -443,6 +444,10 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 			canvas.textSize(arg0);
 		else
 			super.textSize(arg0);
+	}
+	
+	public void textColor(int color) {  // Bert Lisser
+		fill(color);
 	}
 	
 	@Override
@@ -632,11 +637,6 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 		super.add((Component) comp) ;
 	}
 
-
-	public Object getFont(Object font) {
-		// TODO Auto-generated method stub
-		return super.getFont();
-	};
 	
 	public void setBackground(Object color) {
 		super.setBackground((Color) color);
@@ -661,6 +661,11 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 	
 	public void stroke(float arg0, float arg1, float arg2) {
 		super.stroke(arg0, arg1, arg2);
+	}
+
+
+	public Object getComp() {
+		return null;
 	}
 	
 	

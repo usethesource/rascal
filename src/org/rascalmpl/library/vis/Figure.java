@@ -487,7 +487,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @return
 	 */
 
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+	public boolean mousePressed(int mouseX, int mouseY, Object e){
 		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
 		if(mouseInside(mouseX, mouseY)){
 			

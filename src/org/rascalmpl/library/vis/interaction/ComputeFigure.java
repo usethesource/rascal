@@ -12,7 +12,6 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Cursor;
-import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -147,10 +146,10 @@ public class ComputeFigure extends Figure {
 	}
 	
 	@Override
-	public boolean mousePressed(int mouseX, int mouseY, MouseEvent e){
+	public boolean mousePressed(int mouseX, int mouseY, Object e){
 		System.err.println("ComputeFigure.mousePressed: " + mouseX + ", " + mouseY);
 		if(figure != null)
-			return figure.mousePressed(mouseX, mouseY, e);
+			return figure.mousePressed(mouseX, mouseY, null);
 		return super.mousePressed(mouseX, mouseY, e);
 	}
 	

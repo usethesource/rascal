@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis;
 
 import processing.core.PApplet;
-import processing.core.PConstants;
 import org.rascalmpl.library.vis.processing.Constants;
 
 public class FigureApplet {
@@ -14,7 +13,17 @@ public class FigureApplet {
 	
 	final public static int CENTER  = Constants.CENTER;
 	
-	final public static float PI = PConstants.PI;
+	final public static int TOP = Constants.TOP;
+	
+	final public static int BOTTOM  = Constants.BOTTOM;
+	
+	final public static int BASELINE  = Constants.BASELINE;
+	
+	final public static float PI = Constants.PI;
+	
+	final public static int OPEN = Constants.OPEN;
+	
+	final public static int CLOSE = Constants.CLOSE;
 
 	public static float min(float x, float y) {
 		return PApplet.min(x, y);
@@ -47,6 +56,11 @@ public class FigureApplet {
 	public static float radians(float x) {
 		// TODO Auto-generated method stub
 		return PApplet.radians(x);
+	}
+	
+	public static float degrees(float x) {
+		// TODO Auto-generated method stub
+		return PApplet.degrees(x);
 	}
 
 	public static float sin(float theta) {
