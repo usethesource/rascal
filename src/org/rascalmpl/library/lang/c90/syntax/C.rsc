@@ -173,25 +173,24 @@ syntax Keyword = "auto" |
 syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" {
                         list[Tree] specChildren;
                         if(appl(_,specChildren) := specs){
+                           TypeSpecifier theType = findType(specChildren);
+                           
                            for(spec <- specs){
 		                      if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
                                  if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
-                                    TypeSpecifier declType = findType(specChildren);
-                                    
                                     list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
                                     for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                                        str variable = variableTuple.var;
                                        InitDeclarator initDecl = variableTuple.initDecl;
                                        tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
-                                       typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                                       typeDefs += (variable:<theType, modifiers>); // Record the typedef.
                                     }
                                  }
                               }
                            }
                            
                            if(hasCustomType(specChildren)){
-                              TypeSpecifier declType = findType(specChildren);
-                              if(unparse(declType) notin typeDefs){
+                              if(unparse(theType) notin typeDefs){
                                  fail;
                               } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
                            }
@@ -232,7 +231,7 @@ syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarator
                                           str variable = variableTuple.var;
                                           InitDeclarator initDecl = variableTuple.initDecl;
                                           tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
-                                          typeDefs += (variable:<declType, modifiers>); // Record the typedef.
+                                          typeDefs += (variable:<theType, modifiers>); // Record the typedef.
                                        }
                                     }
                                  }
