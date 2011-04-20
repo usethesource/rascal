@@ -423,7 +423,6 @@ syntax ExternalDeclaration = FunctionDefinition |
                              GlobalDeclaration
                              ;
 
-// TODO: Fix 'func(void){}' like declarations.
 // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
 // TODO: Disallow storage class specifiers as specifiers.
 // TODO: Disallow ArrayDeclarators in the declarator.
