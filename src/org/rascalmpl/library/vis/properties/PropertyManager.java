@@ -98,8 +98,8 @@ public class PropertyManager implements IPropertyManager {
 	
 	public PropertyManager(IFigureApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		draggable = false;
-		setProperties(fpa, props, ctx);
 		inheritStdProperties(inherited);
+		setProperties(fpa, props, ctx);
 	}
 
 	private void setProperties(IFigureApplet fpa, IList props,
