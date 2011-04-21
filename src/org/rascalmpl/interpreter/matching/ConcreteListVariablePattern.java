@@ -159,7 +159,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		if (args.length() == 1) {
 			IConstructor arg = (IConstructor) args.get(0);
 			
-			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).isEqual(((IConstructor) prod))) {
+			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).isEqual(prod)) {
 				return arg;
 			}
 		}
