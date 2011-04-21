@@ -457,6 +457,10 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                                         if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
                                            if(identifier != theType) fail;
                                         }
+                                     }else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
+                                        if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
+                                           fail;
+                                        }
                                      }
                                   } // May be ambiguous with the K&R style function parameter definition thing.
                                }
@@ -478,6 +482,10 @@ syntax FunctionPrototype = Specifier* specs PrototypeDeclarator ";" {
                                     if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
                                        if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
                                           if(identifier != theType) fail;
+                                       }
+                                    }else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
+                                       if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
+                                          fail;
                                        }
                                     }
                                  } // May be ambiguous with the K&R style function parameter definition thing.
