@@ -1,9 +1,14 @@
 package org.rascalmpl.library.vis;
 
+import java.util.Random;
+
 import processing.core.PApplet;
 import org.rascalmpl.library.vis.processing.Constants;
 
 public class FigureApplet {
+	
+	final static int seed = 22;
+	static Random random = new Random(seed);
 
 	final public static int CORNERS = Constants.CORNERS;
 	
@@ -86,6 +91,11 @@ public class FigureApplet {
 	public static float asin(float f) {
 		// TODO Auto-generated method stub
 		return PApplet.asin(f);
+	}
+	
+	public static float random(float x,  float y) {
+		int k = random.nextInt((int) (y-x));
+		return x + k;
 	}
 
 }

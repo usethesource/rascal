@@ -14,12 +14,13 @@ package org.rascalmpl.library.vis.properties.descriptions;
 
 import java.util.HashMap;
 
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
 public enum ColorProp {
-	FILL_COLOR(255),     
-	FONT_COLOR(0),    
-	LINE_COLOR(0);
+	FILL_COLOR(FigureColorUtils.colorNames.get("white").intValue()),     
+	FONT_COLOR(FigureColorUtils.colorNames.get("black").intValue()),    
+	LINE_COLOR(FigureColorUtils.colorNames.get("black").intValue());
 	
 	int stdDefault;
 	

@@ -72,7 +72,6 @@ public interface IFigureApplet {
 	public void endShape(int arg0 );
 	public void print();
 	// From PApplet 
-	public float random(float lub, float hub);
 	public Object createFont(String fontName, float fontSize);
 	public void smooth();
 	

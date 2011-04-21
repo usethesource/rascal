@@ -173,7 +173,7 @@ public abstract class Container extends Figure {
 			innerDrawWithMouseOver(left, top);
 		Figure mo = getMouseOver();
 		if(mo != null && mo.isVisibleInMouseOver()){
-			System.err.printf("Mouse over width %f height %f", mo.width,mo.height);
+			// System.err.printf("Mouse over width %f height %f", mo.width,mo.height);
 			mo.drawWithMouseOver(max(0, left + mo.getHAlignProperty()*(width  - mo.width)),
 			    				 max(0, top  + mo.getVAlignProperty()*(height - mo.height)));
 		}

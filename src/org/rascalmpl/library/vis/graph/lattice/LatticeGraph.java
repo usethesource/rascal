@@ -216,8 +216,8 @@ public class LatticeGraph extends Figure implements
 		shapeCurved = tf.constructor(ts, propt, "shapeCurved", tf.boolType());
 		width = getWidthProperty();
 		height = getHeightProperty();
-		if (debug)
-			System.err.println("LatticeGraph");
+		// if (debug)
+			System.err.println("LatticeGraph:"+width+" "+height);
 		registered = new HashMap<String, LatticeGraphNode>();
 		for (IValue v : nodes) {
 			IConstructor c = (IConstructor) v;

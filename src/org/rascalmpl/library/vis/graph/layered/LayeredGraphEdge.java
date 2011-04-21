@@ -33,7 +33,7 @@ public class LayeredGraphEdge extends Figure {
 	Figure toArrow;
 	Figure fromArrow;
 	boolean reversed = false;
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private static boolean useSplines = false;
 	
 	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, PropertyManager properties, 

@@ -103,7 +103,7 @@ public class Text extends Figure {
 		applyProperties();
 		applyFontProperties();
 	
-		// if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
+		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
 		if(height > 0 && width > 0){
 			float angle = getTextAngleProperty();
 
