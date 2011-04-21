@@ -122,9 +122,9 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.getShell().setText(name);
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		gc = new GC(comp);
-		bbox();
-		figureWidth = (int) figure.width + 1;
-		figureHeight = (int) figure.height + 1;
+//		bbox();
+//		figureWidth = (int) figure.width + 1;
+//		figureHeight = (int) figure.height + 1;
 		comp.addMouseMoveListener(new MyMouseMoveListener());
 		comp.addMouseListener(new MyMouseListener());
 		comp.addPaintListener(new MyPaintListener());
@@ -140,6 +140,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
+	/*
 	public void bbox() {
 		if (computedValueChanged) {
 			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
@@ -148,6 +149,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			// computedValueChanged = false;
 		}
 	}
+	*/
 
 	public void draw() {
 		// System.err.println("draw:" + this.getClass() + " "
@@ -533,7 +535,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	private void drawCurved(Route r, Path p, boolean closed) {
-		System.err.println("drawCurved:" + r.size());
+		// System.err.println("drawCurved:" + r.size());
 		if (r.size() < 3)
 			return;
 		Interpolation.solve(r, closed);
@@ -597,11 +599,6 @@ public class FigureSWTApplet implements IFigureApplet {
 	public void print() {
 		// TODO Auto-generated method stub
 
-	}
-
-	public float random(float lub, float hub) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	public Object createFont(String fontName, float fontSize) {
@@ -724,7 +721,7 @@ public class FigureSWTApplet implements IFigureApplet {
 				gc.setTextAntialias(SWT.ON);
 				gc.setAntialias(SWT.ON);
 				gc.setAdvanced(true);
-				bbox();
+				// bbox();
 				System.err.println("StartPaintListener:" + figure.width + " "
 						+ figure.height + " " + gc);
 				figureWidth = (int) figure.width + 1;

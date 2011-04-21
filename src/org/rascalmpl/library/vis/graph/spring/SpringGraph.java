@@ -51,7 +51,7 @@ public class SpringGraph extends Figure {
 	protected float springConstant;
 	protected float springConstant2;
 	protected int temperature;
-	private static boolean debug = true;
+	private static boolean debug = false;
 
 	
 	public SpringGraph(IFigureApplet fpa, PropertyManager properties, IList nodes,
@@ -61,7 +61,6 @@ public class SpringGraph extends Figure {
 		this.ctx = ctx;
 		width = getWidthProperty();
 		height = getHeightProperty();
-
 		registered = new HashMap<String,SpringGraphNode>();
 		for(IValue v : nodes){
 
@@ -122,8 +121,8 @@ public class SpringGraph extends Figure {
 		for (SpringGraphNode n : nodes) {
 			n.figure.bbox(AUTO_SIZE, AUTO_SIZE);
 			if (n != root) {
-				n.setX(fpa.random(n.figure.width/2,  width  - n.figure.width/2));
-				n.setY(fpa.random(n.figure.height/2, height - n.figure.height/2));
+				n.setX(FigureApplet.random(n.figure.width/2,  width  - n.figure.width/2));
+				n.setY(FigureApplet.random(n.figure.height/2, height - n.figure.height/2));
 			}
 			
 			System.err.printf("Initial: node %s, width=%f, height=%f, x=%f, y=%f\n", n.name, n.figure.width, n.figure.height, n.getX(), n.getY());
