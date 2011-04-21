@@ -21,7 +21,8 @@ public enum BoolProp{
 	SHAPE_CONNECTED(false),
 	SHAPE_CURVED(false),
 	START_GAP(false),
-	END_GAP(false);
+	END_GAP(false),
+	SCALE_ALL(true);
 
 	Boolean stdDefault;
 	
@@ -37,6 +38,7 @@ public enum BoolProp{
 	put("shapeCurved", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));
 	put("startGap", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));
 	put("endGap", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));
+	put("scaleAll", new PropertySetters.SingleBooleanPropertySetter(SCALE_ALL));
 	// aliasses
 	put("capGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(START_GAP, END_GAP));
 	}};

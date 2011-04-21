@@ -25,6 +25,8 @@ public enum RealProp {
 	LINE_WIDTH(1.0f),
 	PROJECTX_GAP(10.0f),
 	PROJECTY_GAP(10.0f),
+	PROJECT_HALIGN(0.5f),
+	PROJECT_VALIGN(0.5f),
 	TEXT_ANGLE(0.0f), 	
 	FROM_ANGLE(0.0f),
 	TO_ANGLE(0.0f),			
@@ -49,6 +51,8 @@ public enum RealProp {
 	put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
 	put("projectXGap", new PropertySetters.SingleIntOrRealPropertySetter(PROJECTX_GAP));
 	put("projectYGap", new PropertySetters.SingleIntOrRealPropertySetter(PROJECTY_GAP));
+	put("projectHalign", new PropertySetters.SingleIntOrRealPropertySetter(PROJECT_HALIGN));
+	put("projectValign", new PropertySetters.SingleIntOrRealPropertySetter(PROJECT_VALIGN));
 	put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
 	put("fromAngle", new PropertySetters.SingleIntOrRealPropertySetter(FROM_ANGLE));
 	put("toAngle", new PropertySetters.SingleIntOrRealPropertySetter(TO_ANGLE));

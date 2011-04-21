@@ -61,6 +61,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public float height;		// height of element
 	                            // When this figure is used as mouseOver or inner figure, point back
 	                            // to generating Figure
+	protected float scaleX, scaleY;
 	
 	private boolean visibleInMouseOver = false;
 	private float leftDragged;
@@ -72,6 +73,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		String id = properties.getStringProperty(StrProp.ID);
 		if(id != null)
 			fpa.registerId(id, this);
+		scaleX = scaleY = 1.0f;
 	}
 	
 	protected void setLeft(float left) {
@@ -177,12 +179,12 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	
 	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
 		if(properties.isFigurePropertySet(FigureProp.PROJECTX)){
-			projections.add(new Chart.Projection(left + leftAlign(),
+			projections.add(new Chart.Projection(left + properties.getRealProperty(RealProp.PROJECT_HALIGN) * width,
 					 properties.getRealProperty(RealProp.PROJECTX_GAP),
 					 properties.getFigureProperty(FigureProp.PROJECTX),true));
 		} 
 		if(properties.isFigurePropertySet(FigureProp.PROJECTY)){
-			projections.add(new Chart.Projection(top + topAlign(),
+			projections.add(new Chart.Projection(top +  properties.getRealProperty(RealProp.PROJECT_VALIGN) * height,
 					properties.getRealProperty(RealProp.PROJECTY_GAP),
 					properties.getFigureProperty(FigureProp.PROJECTY),false));
 		}
@@ -232,7 +234,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 */
 
 	public abstract void draw(float left, float top);
-
+	
 	/**
 	 * Draw an arrow from an external position (fromX, fromY) directed to the center
 	 * (X,Y) of the current figure. The arrow is placed at At the intersection with the border of the
@@ -530,6 +532,12 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		}
 		return false;
 	}
+	
+	public void propagateScaling(float scaleX,float scaleY){
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
+	}
+	
 
 	public void setLeftDragged(float leftDragged) {
 		this.leftDragged = leftDragged;
@@ -604,22 +612,28 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public String getDirectionProperty(){return getStringProperty(StrProp.DIRECTION);}
 	public String getLayerProperty(){return getStringProperty(StrProp.LAYER);}
 	public boolean isWidthPropertySet(){return isRealPropertySet(RealProp.WIDTH);}
-	public float getWidthProperty(){ return getRealProperty(RealProp.WIDTH);}
 	public boolean isHeightPropertySet(){return isRealPropertySet(RealProp.HEIGHT);}
-	public float getHeightProperty(){return getRealProperty(RealProp.HEIGHT);}
 	public boolean isHGapPropertySet(){return isRealPropertySet(RealProp.HGAP);}
-	public float getHGapProperty(){return getRealProperty(RealProp.HGAP);}
+	
+	public boolean isVGapPropertySet(){return isRealPropertySet(RealProp.VGAP);}
+	// below are convience functions for measures, which are scaled (text and linewidth are not scaled)
+	public float getWidthProperty(){ return getRealProperty(RealProp.WIDTH) * scaleX;}
+	public float getHeightProperty(){return getRealProperty(RealProp.HEIGHT) * scaleY;}
+	public float getHGapProperty(){return getRealProperty(RealProp.HGAP) * scaleX;}
+	public float getVGapProperty(){return getRealProperty(RealProp.VGAP) * scaleY;}
+	// TODO: how to scale wedges!
+	public float getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS) * max(scaleX,scaleY);}
+	public float getProjectXGapProperty(){return getRealProperty(RealProp.PROJECTX_GAP) * scaleX;}
+	public float getProjectYGapProperty(){return getRealProperty(RealProp.PROJECTY_GAP) * scaleY;}
+	
 	public boolean isHGapFactorPropertySet(){return isRealPropertySet(RealProp.HGAP_FACTOR);}
 	public float getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
-	public boolean isVGapPropertySet(){return isRealPropertySet(RealProp.VGAP);}
-	public float getVGapProperty(){return getRealProperty(RealProp.VGAP);}
 	public boolean isVGapFactorPropertySet(){return isRealPropertySet(RealProp.VGAP_FACTOR);}
 	public float getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
 	public float getHAlignProperty(){return getRealProperty(RealProp.HALIGN);}
 	public float getVAlignProperty(){return getRealProperty(RealProp.VALIGN);}
 	public float getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
 	public float getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
-	public float getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}
 	public float getFromAngleProperty(){return getRealProperty(RealProp.FROM_ANGLE);}
 	public float getToAngleProperty(){return getRealProperty(RealProp.TO_ANGLE);}
 	public int getFillColorProperty(){return getColorProperty(ColorProp.FILL_COLOR);}
