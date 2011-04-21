@@ -1995,9 +1995,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			ASTBuilder AB = __eval.getBuilder();
-			return AB.make("Statement", "NonEmptyBlock", this.getTree(),
-					AB.make("Label", "Empty", this.getTree()),
+			return ASTBuilder.make("Statement", "NonEmptyBlock", this.getTree(),
+					ASTBuilder.make("Label", "Empty", this.getTree()),
 					this.getStatements()).interpret(__eval);
 		}
 	}
@@ -2836,9 +2835,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			IMatchingResult pat = this.getPattern().buildMatcher(__eval);
 			LinkedList<Name> names = new LinkedList<Name>();
 			names.add(this.getName());
-			ASTBuilder AB = __eval.getBuilder();
 			IMatchingResult var = new QualifiedNamePattern(__eval.__getCtx(),
-					this, AB.<org.rascalmpl.ast.QualifiedName> make(
+					this, ASTBuilder.<org.rascalmpl.ast.QualifiedName> make(
 							"QualifiedName", "Default", this.getTree(), names));
 			return new VariableBecomesPattern(__eval.__getCtx(), this, var, pat);
 

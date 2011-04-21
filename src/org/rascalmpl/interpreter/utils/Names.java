@@ -116,12 +116,12 @@ public class Names {
 	}
 	
 	static public Name toName(String name) {
-		return new ASTBuilder().make("Name", "Lexical", null, name);
+		return ASTBuilder.make("Name", "Lexical", null, name);
 	}
 	
 	static public QualifiedName toQualifiedName(String name) {
 		List<Name> list = new LinkedList<Name>();
 		list.add(toName(name));
-		return new ASTBuilder().make("QualifiedName", null, list);
+		return ASTBuilder.make("QualifiedName", null, list);
 	}
 }
