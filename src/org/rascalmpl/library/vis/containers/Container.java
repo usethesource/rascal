@@ -129,7 +129,7 @@ public abstract class Container extends Figure {
 				spacingY = desiredHeight - 2 * lw - innerFig.height;
 			}
 			innerFigX = lw + innerFig.getHAlignProperty()*spacingX;
-			innerFigY = lw + innerFig.getVAlignProperty()*spacingY;;
+			innerFigY = lw + innerFig.getVAlignProperty()*spacingY;
 		} else {
 			if(desiredWidth == AUTO_SIZE){
 				width = getWidthProperty();

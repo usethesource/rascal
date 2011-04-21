@@ -58,7 +58,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	}
 	
 	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr) {
-		this.parent = (Transaction) parent;
+		this.parent = parent;
 		if(parent != null)
 			this.registry = parent.registry;
 		else
