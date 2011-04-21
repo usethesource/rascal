@@ -27,9 +27,7 @@ import org.rascalmpl.library.vis.compose.HVCat;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
 import org.rascalmpl.library.vis.compose.Place;
-import org.rascalmpl.library.vis.compose.Shape;
 import org.rascalmpl.library.vis.compose.VCat;
-import org.rascalmpl.library.vis.compose.Vertex;
 import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Chart;
 import org.rascalmpl.library.vis.containers.Ellipse;
@@ -137,7 +135,6 @@ public class FigureFactory {
 	@SuppressWarnings("incomplete-switch")
 	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
 		String ename = c.getName();
-		System.err.print(ename);
 		properties = PropertyManager.extendProperties(fpa, c, properties, childProps, ctx);
 		IList childPropsNext = PropertyManager.getChildProperties((IList) c.get(c.arity()-1));
 		if(childProps != null){

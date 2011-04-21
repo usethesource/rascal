@@ -27,13 +27,10 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
 
 public class FigureSWTApplet implements IFigureApplet {
 
