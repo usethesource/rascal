@@ -32,6 +32,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
+import processing.core.PConstants;
+
 public class FigureSWTApplet implements IFigureApplet {
 
 	int halign = FigureApplet.LEFT, valign = FigureApplet.TOP;
@@ -547,7 +549,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void endShape() {
-		endShape(FigurePApplet.OPEN);
+		endShape(PConstants.OPEN);
 	}
 
 	public void endShape(int arg0) {

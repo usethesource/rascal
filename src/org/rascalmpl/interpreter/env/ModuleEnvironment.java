@@ -38,7 +38,6 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Test;
 import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.Environment.NameFlags;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;

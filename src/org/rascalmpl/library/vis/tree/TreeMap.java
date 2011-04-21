@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.tree;
 
-import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 

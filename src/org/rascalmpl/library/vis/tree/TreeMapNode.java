@@ -12,7 +12,6 @@
 
 package org.rascalmpl.library.vis.tree;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IList;

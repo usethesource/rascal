@@ -73,7 +73,7 @@ public class RascalFunction extends NamedFunction {
 	this(func, eval,
 			(FunctionType) func.getSignature().typeOf(env),
 			varargs, isDefault(func),
-			Arrays.asList(new Statement[] { eval.getBuilder().makeStat("Return", func.getTree(), eval.getBuilder().makeStat("Expression", func.getTree(), func.getExpression()))}),
+			Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getTree(), ASTBuilder.makeStat("Expression", func.getTree(), func.getExpression()))}),
 			env, accumulators);
 	this.name = Names.name(func.getSignature().getName());
    }
@@ -220,7 +220,6 @@ public class RascalFunction extends NamedFunction {
 	private IMatchingResult[] prepareFormals(IEvaluatorContext ctx) {
 		List<Expression> formals;
 		Parameters params;
-		ASTBuilder af = ctx.getBuilder();
 		
 		if (ast instanceof FunctionDeclaration) {
 			params = ((FunctionDeclaration) ast).getSignature().getParameters();
@@ -242,14 +241,14 @@ public class RascalFunction extends NamedFunction {
 			if (last.isTypedVariable()) {
 				org.rascalmpl.ast.Type oldType = last.getType();
 				INode origin = last.getTree();
-				Structured newType = af.make("Type","Structured", origin, af.make("StructuredType",origin, af.make("BasicType","List", origin), Arrays.asList(af.make("TypeArg","Default", origin,oldType))));
-				last = af.make("Expression","TypedVariable",origin, newType, last.getName());
+				Structured newType = ASTBuilder.make("Type","Structured", origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg","Default", origin,oldType))));
+				last = ASTBuilder.make("Expression","TypedVariable",origin, newType, last.getName());
 				formals = replaceLast(formals, last);
 			}
 			else if (last.isQualifiedName()) {
 				INode origin = last.getTree();
-				org.rascalmpl.ast.Type newType = af.make("Type","Structured",origin, af.make("StructuredType",origin, af.make("BasicType","List", origin), Arrays.asList(af.make("TypeArg",origin, af.make("Type","Basic", origin, af.make("BasicType","Value", origin))))));
-				last = af.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
+				org.rascalmpl.ast.Type newType = ASTBuilder.make("Type","Structured",origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg",origin, ASTBuilder.make("Type","Basic", origin, ASTBuilder.make("BasicType","Value", origin))))));
+				last = ASTBuilder.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
 				formals = replaceLast(formals, last);
 			}
 			else {
