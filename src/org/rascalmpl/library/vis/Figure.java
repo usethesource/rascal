@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IValue;

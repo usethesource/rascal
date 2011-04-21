@@ -23,7 +23,6 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.containers.Chart;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 
 /**
  * Abstract class for the composition of a list of visual elements.
