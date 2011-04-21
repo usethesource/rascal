@@ -25,10 +25,7 @@ import processing.core.PApplet;
 
 public class StandaloneSWTBridge   {
 	
-	final private PApplet applet;
-
 	public StandaloneSWTBridge (final PApplet pa){
-		this.applet = pa;
 		final Display display = new Display();
 		final Shell shell = new Shell(display);
 		final int defaultWidth = 600;
@@ -69,9 +66,5 @@ public class StandaloneSWTBridge   {
 		}
 		display.dispose();
 		pa.destroy();
-	}
-	
-	public PApplet getApplet(){
-		return applet;
 	}
 }
