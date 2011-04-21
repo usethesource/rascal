@@ -143,4 +143,10 @@ public abstract class Compose extends Figure {
 		}
 	}
 	
+	public void propagateScaling(float scaleX,float scaleY){
+		super.propagateScaling(scaleX, scaleY);
+		for(Figure fig : figures){
+			fig.propagateScaling(scaleX, scaleY);
+		}
+	}
 }

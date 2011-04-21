@@ -165,6 +165,7 @@ public list[str] java fontNames();
    return align(0.5, 0.5);
 }
 
+
  public FProperty stdLeft(){
    return stdHalign(0.0);
  }
@@ -192,6 +193,65 @@ public list[str] java fontNames();
  public FProperty stdCenter(){
    return stdAlign(0.5, 0.5);
 }
+
+
+ public FProperty projectLeft(){
+   return projectHalign(0.0);
+ }
+ 
+ public FProperty projectHcenter(){
+   return projectHalign(0.5);
+ }
+ 
+ public FProperty projectRight(){
+   return projectHalign(1.0);
+ }
+ 
+ public FProperty projectTop(){
+   return projectValign(0.0);
+ }
+ 
+ public FProperty projectVcenter(){
+   return projectValign(0.5);
+ }
+ 
+ public FProperty projectBottom(){
+   return projectValign(1.0);
+ }
+ 
+ public FProperty projectCenter(){
+   return projectValign(0.5, 0.5);
+}
+
+
+ public FProperty stdProjectLeft(){
+   return stdProjectHalign(0.0);
+ }
+ 
+ public FProperty stdProjectHcenter(){
+   return stdProjectHalign(0.5);
+ }
+ 
+ public FProperty stdProjectRight(){
+   return stdProjectHalign(1.0);
+ }
+ 
+ public FProperty stdProjectTop(){
+   return stdProjectValign(0.0);
+ }
+ 
+ public FProperty stdProjectVcenter(){
+   return stdProjectValign(0.5);
+ }
+ 
+ public FProperty stdProjectBottom(){
+   return stdProjectValign(1.0);
+ }
+ 
+ public FProperty stdProjectCenter(){
+   return stdProjectValign(0.5, 0.5);
+}
+
    
  
  alias computedBool = bool();
@@ -366,14 +426,28 @@ data FProperty =
    | projectY(computedFigure cInner)           
    | projectY(Like other)
    
-   | projectXGap(num radius)
-   | projectXGap(computedNum cRadius)
+   | projectXGap(num gap)
+   | projectXGap(computedNum cGap)
    | projectXGap(Like other)
    
-   | projectYGap(num radius)
-   | projectYGap(computedNum cRadius)
+   | projectYGap(num gap)
+   | projectYGap(computedNum cGap)
    | projectYGap(Like other)
+   
+   | scaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
+   | scaleAll(computedBool cAlg)
+   | scaleAll(Like other)   
 
+   | projectHalign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
+   | projectHalign(computedNum cAlign)
+   | projectHalign(Like other)
+   
+   | projectValign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
+   | projectValign(computedNum cAlign)
+   | projectValign(Like other)
+   
+   | projectAlign(num align)
+   | projectAlign(num alignH,num alignV)
    
    | _child(FProperties props)           // define properties for the children of a composition (one level deep)
 /* Standard properties: all the properties again! */
@@ -542,6 +616,18 @@ data FProperty =
    | stdProjectYGap(num radius)
    | stdProjectYGap(computedNum cRadius)
    | stdProjectYGap(Like other)
+   
+   | stdProjectHalign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
+   | stdProjectHalign(computedNum cAlign)
+   | stdProjectHalign(Like other)
+   
+   | stdProjectValign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
+   | stdProjectValign(computedNum cAlign)
+   | stdProjectValign(Like other)
+   
+   | stdScaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
+   | stdScaleAll(computedBool cAlg)
+   | stdScaleAll(Like other)   
    
    ;   
 

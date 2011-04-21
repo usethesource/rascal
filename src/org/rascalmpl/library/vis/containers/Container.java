@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
-import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -33,7 +32,6 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * - It draws itself (using drawContainer).
  * - It draws the inside element provided that it fits in the container.
  * - It always draws the inside element on mouseOver.
- * 
  * 
  * @author paulk
  * 
@@ -158,7 +156,7 @@ public abstract class Container extends Figure {
 		if(height > 0 && width > 0){
 			drawContainer();
 			if(innerFig != null && isNextVisible()){
-				//if(debug)System.err.printf("%s.draw2: hgap=%f, vgap=%f, inside.width=%f\n",  containerName(), hgap, vgap, innerFig.width);
+				if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
 				if(innerFits()) {
 					fpa.incDepth();
 					innerDraw();
@@ -387,5 +385,11 @@ public abstract class Container extends Figure {
 			innerFig.gatherProjections(left, top, projections);
 		}
 	}
-
+	
+	public void propagateScaling(float scaleX,float scaleY){
+		super.propagateScaling(scaleX, scaleY);
+		if(innerFig != null){
+			innerFig.propagateScaling(scaleX, scaleY);
+		}
+	}
 }

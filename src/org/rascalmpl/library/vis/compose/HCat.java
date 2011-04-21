@@ -15,7 +15,7 @@ public class HCat extends Compose {
 	float bottomAnchor = 0;
 	float minTopAnchor = Float.MAX_VALUE;
 	private float maxTopAnchor;
-	private static boolean debug = true;
+	private static boolean debug = false;
 	
 	boolean isWidthPropertySet, isHeightPropertySet, isHGapPropertySet, isHGapFactorPropertySet;
 	float getWidthProperty, getHeightProperty, getHGapProperty, getHGapFactorProperty, getValignProperty;
@@ -56,12 +56,12 @@ public class HCat extends Compose {
 		setProperties();
 		if(getStartGapProperty()){numberOfGaps+=0.5f;} 
 		if(getEndGapProperty()){numberOfGaps+=0.5f;} 
-		if(isWidthPropertySet) desiredWidth = getWidthProperty;
-		if(isHeightPropertySet) desiredHeight = getHeightProperty;
+		if(isWidthPropertySet) desiredWidth = getWidthProperty ;
+		if(isHeightPropertySet) desiredHeight = getHeightProperty ;
 		float desiredWidthPerElement, desiredWidthOfElements, desiredHeightPerElement, gapsSize;
 		gapsSize = 0.0f; // stops compiler from whining
 		if(isHGapPropertySet && !isHGapFactorPropertySet){
-			gapsSize = getHGapProperty;
+			gapsSize = getHGapProperty ;
 		}
 		// determine desired width of elements 
 		if(desiredWidth == Figure.AUTO_SIZE){
@@ -120,7 +120,7 @@ public class HCat extends Compose {
 				                              / (figures.length - numberOfNonResizeableWidthElements);
 			}
 		} while(!fixPointReached);
-		// Fixpoint for height depending on alignment
+		// Fixpoint for height depending on alignment?
 		if(desiredHeight != AUTO_SIZE){
 			float maxTopAnchor, maxBottomAnchor;
 			float maxTopAnchorR, maxBottomAnchorR;

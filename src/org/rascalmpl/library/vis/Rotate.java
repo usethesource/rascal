@@ -113,4 +113,9 @@ public class Rotate extends Figure {
 			fpa.rect(-figure.width/2, -figure.height/2, figure.width, figure.height);
 		}
 	}
+	
+	public void propagateScaling(float scaleX,float scaleY){
+		super.propagateScaling(scaleX, scaleY);
+		figure.propagateScaling(scaleX, scaleY);
+	}
 }
