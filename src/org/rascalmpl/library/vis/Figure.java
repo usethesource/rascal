@@ -122,7 +122,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public void applyFontProperties() {
 		fpa.textFont(fpa.createFont(getStringProperty(StrProp.FONT),
 				getIntegerProperty(IntProp.FONT_SIZE)));
-		fpa.fill(getColorProperty(ColorProp.FONT_COLOR));
+		fpa.textColor(getColorProperty(ColorProp.FONT_COLOR));
 	}
 	/*
 	public float leftAlign() {
