@@ -461,7 +461,7 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                                         if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
                                            fail;
                                         }
-                                     }
+                                     } // Certain storage parameters are not allowed.
                                   } // May be ambiguous with the K&R style function parameter definition thing.
                                }
                             }
@@ -487,7 +487,7 @@ syntax FunctionPrototype = Specifier* specs PrototypeDeclarator ";" {
                                        if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
                                           fail;
                                        }
-                                    }
+                                    } // Certain storage parameters are not allowed (also fixes ambiguity with declarations).
                                  } // May be ambiguous with the K&R style function parameter definition thing.
                               }
                            }
