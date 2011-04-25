@@ -105,6 +105,8 @@ public class SpringGraphEdge extends Figure {
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
 				to.name + ": " + to.getX() + "," + to.getY() + ")");
 
+		fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
+				left + getTo().figX(), top + getTo().figY());
 		if(toArrow != null){
 			getTo().figure.connectArrowFrom(left, top, 
 					getTo().figX(), getTo().figY(), 
@@ -118,9 +120,7 @@ public class SpringGraphEdge extends Figure {
 						getTo().figX(), getTo().figY(),
 						fromArrow
 				);
-		} else 
-			fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
-					left + getTo().figX(), top + getTo().figY());
+		}	
 	}
 
 	@Override

@@ -46,8 +46,8 @@ public class FigurePApplet extends PApplet implements IFigureApplet {
 	private int width;						// Current dimensions of canvas
 	private int height;
 	
-	final private int defaultWidth = 1000;	// Default dimensions of canvas
-	final private int defaultHeight = 1000;
+	final private int defaultWidth = 1500;	// Default dimensions of canvas
+	final private int defaultHeight = 1500;
 	
 	private Figure  figure;					// The figure that is drawn on the canvas
 	private float figureWidth = defaultWidth;

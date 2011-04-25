@@ -34,7 +34,7 @@ public class LayeredGraphEdge extends Figure {
 	Figure fromArrow;
 	boolean reversed = false;
 	private static boolean debug = false;
-	private static boolean useSplines = false;
+	private static boolean useSplines = true;
 	
 	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, PropertyManager properties, 
 			IString fromName, IString toName,
@@ -260,19 +260,36 @@ public class LayeredGraphEdge extends Figure {
 				float hgap = getHGapProperty();
 				float vgap = getVGapProperty();
 				
-				beginCurve(left + node.figX(),                   top + node.figY()-h/3);
-				addPointToCurve(left + node.figX(),              top + node.figY()-h/3);
-				addPointToCurve(left + node.figX(),              top + node.figY()-h/3-vgap);
-				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY()-h/3-vgap);
-				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY()-h/3);
-				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY());
-				addPointToCurve(left + node.figX() + w/2,        top + node.figY());
-				endCurve(left + node.figX() + w/2,        		 top + node.figY());
-				return;
-			}
+//				beginCurve(left + node.figX(),                   top + node.figY()-h/3);
+//				addPointToCurve(left + node.figX(),              top + node.figY()-h/3);
+//				addPointToCurve(left + node.figX(),              top + node.figY()-h/3-vgap);
+//				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY()-h/3-vgap);
+//				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY()-h/3);
+//				addPointToCurve(left + node.figX() + w/2 + hgap, top + node.figY());
+//				addPointToCurve(left + node.figX() + w/2,        top + node.figY());
+//				endCurve(left + node.figX() + w/2,        		 top + node.figY());
+				
+				beginCurve(left + node.figX(),                   top + node.figY()-h/2);
+				addPointToCurve(left + node.figX()+w/4,          top + node.figY()-(h/2+vgap/4));
+				addPointToCurve(left + node.figX()+w/2,          top + node.figY()-(h/2+vgap/2));
+				addPointToCurve(left + node.figX(),              top + node.figY()-(h+vgap));
+				addPointToCurve(left + node.figX(),              top + node.figY()-(h/2+vgap/4));
+				endCurve(left + node.figX(),                     top + node.figY()-h/2);
+				
+				if(toArrow != null){
+					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
+					getTo().figure.connectArrowFrom(left, top, 
+							getTo().figX(), getTo().figY(),
+							node.figX(),  node.figY()-(h/2+vgap/4),
+							toArrow
+					);
+					return;
+				}
+			} else {
 			
-			fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
+				fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
 					 left + getTo().figX(), top + getTo().figY());
+			}
 			
 			if(fromArrow != null || toArrow != null){
 				if(reversed){
