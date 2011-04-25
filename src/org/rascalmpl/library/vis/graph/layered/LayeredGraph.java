@@ -239,10 +239,14 @@ public class LayeredGraph extends Figure {
 		}
 		DELTA = maxNodeWidth + hgap;
 		System.err.println("DELTA = " + DELTA);
+		//DELTA=50; //TODO
 
+		switchWidthAndHeight();
 		computeGraphLayout();
 		translateToOrigin();
+		switchWidthAndHeight();
 		rotateToDirection();
+		
 	}
 	
 	/**
@@ -258,6 +262,8 @@ public class LayeredGraph extends Figure {
 		for (LayeredGraphNode n : nodes) {
 			float w2 = n.width() / 2;
 			float h2 = n.height() / 2;
+			if(n.x < 0)
+				System.err.println(n.name + " has negative x: " + n.x);
 			if (n.x - w2 < minx)
 				minx = n.x - w2;
 
@@ -277,6 +283,16 @@ public class LayeredGraph extends Figure {
 		}
 		width = maxx - minx;
 		height = maxy - miny;
+	}
+	
+	private void switchWidthAndHeight(){
+		String dir = getDirectionProperty();
+		if(dir.length() == 0 || dir.equals("TB") || dir.equals("BT"))
+			return;
+		
+		for (LayeredGraphNode n : nodes){
+			n.exchangeWidthAndHeight();
+		}
 	}
 	
 	private void rotateToDirection(){
@@ -403,6 +419,10 @@ public class LayeredGraph extends Figure {
 		if(debug)
 			print("reduceCrossings", layers);
 		
+		layers = moveInnerCrossingsDown(layers);
+		if(debug)
+			print("moveInnerCrossingsDown", layers);
+		
 		placeHorizontal(layers);
 		if(debug)
 			printGraph("Final graph");
@@ -488,7 +508,7 @@ public class LayeredGraph extends Figure {
 	 * @param W	TODO unused
 	 * @return
 	 */
-	private LinkedList<LinkedList<LayeredGraphNode>>assignLayers(float W){
+	private LinkedList<LinkedList<LayeredGraphNode>> assignLayers(float W){
 		if(nodes.size() == 0)
 			return new LinkedList<LinkedList<LayeredGraphNode>>();
 		
@@ -634,7 +654,7 @@ public class LayeredGraph extends Figure {
 			}
 		}
 		
-		return layers; //moveSourcesDown(moveSinksUp(layers));
+		return moveSourcesDown(moveSinksUp(layers));
 	}
 	
 	private LinkedList<LinkedList<LayeredGraphNode>> moveSinksUp(LinkedList<LinkedList<LayeredGraphNode>> layers){
@@ -773,18 +793,23 @@ public class LayeredGraph extends Figure {
 		
 		for(int i = 0; i < layers.size(); i++){
 			LinkedList<LayeredGraphNode> layer = layers.get(i);
-			float w = 0;
+			
 			for(int j = 0; j < layer.size(); j++){
 				LayeredGraphNode g = layer.get(j);
-				w += g.width();
+				g.x = (j+1) * 10;
 			}
-			w += (layer.size() - 1) * hgap; // account for gaps between nodes
-			float x = (MAXWIDTH - w)/2;
-			for(int j = 0; j < layer.size(); j++){
-				float wg =  layer.get(j).width();
-				layer.get(j).x = x + wg/2;
-				x += wg + hgap;
-			}
+//			float w = 0;
+//			for(int j = 0; j < layer.size(); j++){
+//				LayeredGraphNode g = layer.get(j);
+//				w += g.width();
+//			}
+//			w += (layer.size() - 1) * hgap; // account for gaps between nodes
+//			float x = (MAXWIDTH - w)/2;
+//			for(int j = 0; j < layer.size(); j++){
+//				float wg =  layer.get(j).width();
+//				layer.get(j).x = x + wg/2;
+//				x += wg + hgap;
+//			}
 		}
 		return layers;
 	}
@@ -1010,6 +1035,30 @@ public class LayeredGraph extends Figure {
 		return layers;
 	}
 	
+	private LinkedList<LinkedList<LayeredGraphNode>> moveInnerCrossingsDown(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		for(int i = 1; i < layers.size() - 1; i++){
+			LinkedList<LayeredGraphNode> lowerLayer = layers.get(i);
+			
+			for(int j = 0; j < lowerLayer.size() - 2; j++){
+				LayeredGraphNode w1 = lowerLayer.get(j);
+				LayeredGraphNode w2 = lowerLayer.get(j+1);
+				if(w1.isVirtual() && w2.isVirtual()){
+					LayeredGraphNode v1 = w1.in.get(0);
+					LayeredGraphNode v2 = w2.in.get(0);
+					System.err.println(" Exchange option: " + w1.name + " and " + w2.name);
+					if(v1.pos > v2.pos){
+						System.err.println("Exchange " + w1.name + " and " + w2.name);
+						int w1Pos = w1.pos;
+						int w2Pos = w2.pos;
+						lowerLayer.set(w1Pos, w2); w2.pos = w1Pos;
+						lowerLayer.set(w2Pos, w1); w1.pos = w2Pos;
+					}
+				}
+			}
+		}
+		return layers;
+	}
+	
 	/*
 	 * Horizontal placement is based on
 	 * Ulrik Brandes & Boris Kopf, Fast and Simple Horizontal Coordinate Assignment,
@@ -1045,23 +1094,29 @@ public class LayeredGraph extends Figure {
 		int h = layers.size()-1;
 		for(int i = 2; i <= h-2; i++){
 			int k0 = 0;
-			int l = 1;
+			int l = 0;
 			LinkedList<LayeredGraphNode> Li = layers.get(i);
 			int lastLi = Li.size() - 1;
 			LinkedList<LayeredGraphNode> Lip1 = layers.get(i+1);
 			int lastLip1 = Lip1.size()-1;
 			for(int l1 = 0; l1 <= lastLip1; l1++){
 				LayeredGraphNode vl1 = Lip1.get(l1);
-				if(l1 == lastLip1 || vl1.isVirtual()){
+				boolean incidence = vl1.incidentToInnerSegment(Li);
+				if(incidence)
+					System.err.println("incidence for: " + vl1.name);
+				if(l1 == lastLip1 || incidence){
 					int k1 = lastLi;
-					if(vl1.isVirtual()){
-						k1 = vl1.in.get(0).pos;
+					if(incidence){
+						k1 = vl1.rightMostConnectedNeighbour();
 					}
 					while (l <= l1){
 						LayeredGraphNode vl = Lip1.get(l);
+						System.err.println("vl = " + vl.name);
 						for(LayeredGraphNode vki : vl.getAllConnectedNeighbours(Li)){
+							System.err.println("vki = " + vki.name);
 							int k = vki.pos;
-							if((k < k0 || k > k1) && vki.isVirtual()){
+							System.err.printf("k=%d, k0=%d, k1=%d\n", k, k0, k1);
+							if(!(vl.isVirtual() && vki.isVirtual()) && (k < k0 || k > k1)){
 								if(debug)System.err.println("mark " + vki.name + " -> " + vl.name);
 								vki.marked = true;
 								mark(vki, vl);
@@ -1074,138 +1129,56 @@ public class LayeredGraph extends Figure {
 			}
 		}
 	}
-	
+
 	private void alignVertical(LinkedList<LinkedList<LayeredGraphNode>> layers, Direction dir){
-		switch(dir){
-		case TOP_LEFT: alignVerticalTL(layers); break;
-		case TOP_RIGHT: alignVerticalTR(layers); break;
-		case BOTTOM_LEFT: alignVerticalBL(layers); break;
-		case BOTTOM_RIGHT: alignVerticalBR(layers); break;
+		int layerStart, layerEnd, layerStep;
+		boolean topAlign = dir == Direction.TOP_LEFT || dir == Direction.TOP_RIGHT;
+		boolean leftAlign = dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT;
+		
+		if(topAlign){
+			layerStart = 1; layerEnd = layers.size(); layerStep = 1;
+		} else {	
+			layerStart = layers.size() - 2; layerEnd = -1; layerStep = -1;
 		}
-	}
-	
-	private void alignVerticalTL(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		int h = layers.size()-1;
-		for(int i = 1; i <= h; i++){
+		
+		for(int i = layerStart; i != layerEnd; i += layerStep){
 			LinkedList<LayeredGraphNode> Li = layers.get(i);
-			int r = -1;
-			for(int k = 0; k < Li.size(); k++){
+			LinkedList<LayeredGraphNode> neighbourLayer = layers.get(i + (topAlign ? -1 : 1));
+			
+			int r = leftAlign ? -1 : neighbourLayer.size();
+			
+			int nodeStart, nodeEnd, nodeStep;
+			
+			if(leftAlign){
+				nodeStart = 0; nodeEnd = Li.size(); nodeStep = 1;
+			}  else {
+				nodeStart = Li.size() - 1; nodeEnd = -1; nodeStep = -1;
+			}
+			for(int k = nodeStart; k != nodeEnd; k += nodeStep){
 				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> aboveVk = vk.getAllConnectedNeighboursAfter(layers.get(i-1), r);
+				LinkedList<LayeredGraphNode> neighbours = vk.getAllConnectedNeighbours(neighbourLayer);  //leftAlign ? vk.getAllConnectedNeighboursAfter(neighbourLayer, r) :
+																	  //vk.getAllConnectedNeighboursBefore(neighbourLayer, r);
+				if(debug)printList("vk = " + vk.name + ", r = " + r + ": ", neighbours);
 				
-				int d = aboveVk.size();
+				int d = neighbours.size();
 				if(d > 0){
-					int [] ms = { (d + 1)/2 -1, (d + 2)/2 - 1};
-					
-					for(int m : ms){
-						if(vk.align == vk){
-							LayeredGraphNode um = aboveVk.get(m);
-							if(!isMarked(um, vk) &&  r < um.pos){
-								um.align = vk;
-								vk.root = um.root;
-								vk.align = vk.root;
-								r = um.pos;
-								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
-							}
-						}
+					int m1 = (d + 1)/2 - 1;
+					int m2 = (d + 2)/2 - 1;
+					int [] medians;
+					if(m1 == m2) {
+						medians = new int[] { m1 };
+					} else {
+						medians = leftAlign ? new int[] { m1, m2 } : new int[] { m2, m1 };
 					}
-				}
-			}
-		}
-	}
-	
-	// TODO
-	
-	private void alignVerticalBL(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		int h = layers.size()-1;
-		for(int i = h - 1; i >= 0; i--){
-			LinkedList<LayeredGraphNode> Li = layers.get(i);
-			int r = -1;
-			for(int k = 0; k < Li.size(); k++){
-				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> belowVk = vk.getAllConnectedNeighboursAfter(layers.get(i+1), r);
-				if(debug)System.err.printf("alignVerticalBL: %s\n", vk.name);
-				int d = belowVk.size();
-				if(d > 0){
-					int [] ms = { (d + 1)/2 -1, (d + 2)/2 - 1};
 					
-					for(int m : ms){
+					for(int m : medians){
 						if(vk.align == vk){
-							LayeredGraphNode um = belowVk.get(m);
-							if(debug)System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
-							if(!isMarked(um, vk) &&  r < um.pos){
-//								vk.align = um;
-//								um.root = vk.root;
-//								um.align = vk.root;
-								
+							LayeredGraphNode um = neighbours.get(m);
+							if(isMarked(um, vk))
+								System.err.println("Encountered marked edge: " + um.name + " -> " + vk.name);
+							if(!isMarked(um, vk) && (leftAlign ? r < um.pos :  um.pos < r)){
 								um.align = vk;
-								vk.root = um.root;
-								vk.align = vk.root;
-								
-								r = um.pos;
-								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	// TODO
-	private void alignVerticalBR(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		int h = layers.size()-1;
-		for(int i = h - 1; i >= 0; i--){
-			LinkedList<LayeredGraphNode> Li = layers.get(i);
-			LinkedList<LayeredGraphNode> below =  layers.get(i+1);
-			int r = below.size();
-			for(int k = Li.size()-1; k >= 0; k--){
-				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> belowVk = vk.getAllConnectedNeighboursBefore(below, r);
-				if(debug)System.err.printf("alignVerticalBR: %s\n", vk.name);
-				int d = belowVk.size();
-				if(d > 0){
-					int [] ms = {  (d + 2)/2 - 1, (d + 1)/2 -1};
-					
-					for(int m : ms){
-						if(vk.align == vk){
-							LayeredGraphNode um = belowVk.get(m);
-							if(debug)System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
-							if(!isMarked(um, vk) && um.pos < r){
-								um.align = vk;
-								vk.root = um.root;
-								vk.align = vk.root;								
-								r = um.pos;
-								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private void alignVerticalTR(LinkedList<LinkedList<LayeredGraphNode>> layers){
-		int h = layers.size()-1;
-		for(int i = 1; i <= h; i++){
-			LinkedList<LayeredGraphNode> Li = layers.get(i);
-			LinkedList<LayeredGraphNode> above = layers.get(i-1);
-			int aboveSize = above.size();
-			int r = aboveSize;
-			for(int k = Li.size()-1; k >= 0; k--){
-				LayeredGraphNode vk = Li.get(k);
-				LinkedList<LayeredGraphNode> aboveVk = vk.getAllConnectedNeighboursBefore(above, r);
-				if(debug)System.err.printf("alignVerticalTR: %s\n", vk.name);
-				int d = aboveVk.size();
-				if(debug)System.err.println("d = " + d);
-				if(d > 0){
-					int [] ms = {  (d + 2)/2 - 1, (d + 1)/2 - 1};
-					
-					for(int m : ms){
-						if(vk.align == vk){
-							LayeredGraphNode um = aboveVk.get(m);
-							if(!isMarked(um, vk) && um.pos <  r){
-								um.align = vk;
+								um.blockWidth = max(um.blockWidth, vk.width());
 								vk.root = um.root;
 								vk.align = vk.root;
 								r = um.pos;
@@ -1219,80 +1192,43 @@ public class LayeredGraph extends Figure {
 	}
 
 	boolean useWidth = false;
-	
+
 	private void placeBlock(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
-		if(dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT)
-			placeBlockL(layers, v, dir);
-		else
-			placeBlockR(layers, v, dir);
-	}
-	
-	private void placeBlockL(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
 		if(v.getX(dir) == -1){
-			if(debug)System.err.println("placeBlockL: " + v.name + " x = " + v.getX(dir));
-			//v.setX(dir, useWidth ? v.width()/2 : 0);
-			v.setX(dir, 0);
+			if(debug)System.err.println("placeBlock: " + v.name + " x = " + v.getX(dir));
+			
+			boolean leftDir = dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT;
+			//v.setX(dir, leftDir ? v.width()/2 : MAXWIDTH - v.width()/2);
+			v.setX(dir, leftDir ? 0 : MAXWIDTH);
 		
 			LayeredGraphNode w = v;
 			do {
 				if(debug)System.err.println("placeBlock: v = " + v.name + " w = " + w.name);
-				if(w.pos > 0){
-					LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
-					LayeredGraphNode u = layer.get(w.pos-1).root;
-					placeBlockL(layers, u, dir);
-					//float dw = useWidth ? (v.width() + u.width())/2 : 0;
-					//float dw = useWidth ? MAXW : 0;
+				LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
+				if(leftDir ? w.pos > 0 : w.pos < layer.size() - 1){
+					
+					LayeredGraphNode u = layer.get(w.pos + (leftDir ? -1 : 1)).root;
+					placeBlock(layers, u, dir);
+					
 					if(v.sink == v){
 						v.sink = u.sink;
-						if(debug)System.err.println("placeBlockL: " + v.name + ".sink => " + u.sink.name);
+						if(debug)System.err.println("placeBlock: " + v.name + ".sink => " + u.sink.name);
 					}
+					float xDelta = 70; //hgap + (v.root.blockWidth + u.root.blockWidth)/2;
 					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - DELTA /*(hgap + dw)*/);
-						if(debug)System.err.println("placeBlockL: " + u.sink.name + ".sink.shift => " + u.sink.shift );
+						float s = leftDir ? v.getX(dir) - u.getX(dir) - xDelta : u.getX(dir) - v.getX(dir) - xDelta;
+						
+						u.sink.shift = leftDir ? min(u.sink.shift, s) : max(u.sink.shift, s);
+						if(debug)System.err.println("placeBlock: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, max(v.getX(dir), u.getX(dir) + DELTA /* hgap + dw*/));
+						v.setX(dir, leftDir ? max(v.getX(dir), u.getX(dir) + xDelta) : min(v.getX(dir), u.getX(dir) - xDelta));
 						if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 					w = w.align;
 				}
-			} while (w.pos > 0 && w != v);
+			} while (w != v && (leftDir ? w.pos > 0 : w.pos < layers.get(w.layer).size() - 1));
 		}
 		if(debug)System.err.println("placeBlockL =>  " + v.name + " x = " + v.getX(dir));
-	}
-	
-	private void placeBlockR(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
-		
-		if(v.getX(dir) == -1){
-			if(debug)System.err.println("placeBlockR: " + v.name + " x = " + v.getX(dir) + ", sink = " + v.sink.name);
-			//v.setX(dir, MAXWIDTH - (useWidth ? v.width()/2 : 0));
-			//v.setX(dir, MAXWIDTH - (useWidth ? MAXW/2 : 0));
-			v.setX(dir, MAXWIDTH);
-			LayeredGraphNode w = v;
-			do {
-				if(debug)System.err.println("placeBlockR: v = " + v.name + " w = " + w.name);
-				LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
-				if(w.pos < layer.size() - 1){
-					
-					LayeredGraphNode u = layer.get(w.pos+1).root;
-					placeBlockR(layers, u, dir);
-					//float dw = useWidth ? MAXW : 0;
-					//float dw = useWidth ? (v.width() + u.width())/2 : 0;
-					if(v.sink == v){   // OK?
-						v.sink = u.sink;
-						if(debug)System.err.println("placeBlockR: " + v.name + ".sink => " + u.sink.name);
-					}
-					if(v.sink != u.sink){
-						u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - DELTA /*(hgap + dw)*/);
-						if(debug)System.err.println("placeBlockR: " + u.sink.name + ".sink.shift => " + u.sink.shift );
-					} else {
-						v.setX(dir, max(/*useWidth ? v.width()/2 :*/ 0, min(v.getX(dir), u.getX(dir) - DELTA /*(hgap + dw)*/)));
-						if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
-					}
-					w = w.align;
-				}
-			} while (w.pos < layers.get(w.layer).size() - 1 && w != v);
-		}
-		if(debug)System.err.println("placeBlockR =>  " + v.name + " x = " + v.getX(dir));
 	}
 	
 	/**
@@ -1313,13 +1249,14 @@ public class LayeredGraph extends Figure {
 			if(debug)System.err.println("compactHorizontal2: " + v.name);
 
 			v.setX(dir, v.root.getX(dir));
-			if(v.root == v && v.sink.shift < INFINITY)
-				if(leftAligned)
-					v.setX(dir, v.getX(dir) + v.sink.shift);
-				else {
+			if(v.root == v && v.root.sink.shift < INFINITY){
+				//if(leftAligned)
+					v.setX(dir, v.getX(dir) + v.root.sink.shift);
+				//else {
 					//v.setX(dir, v.sink.shift - v.getX(dir));
-					v.setX(dir,  v.getX(dir) - v.sink.shift);
-				}
+				//	v.setX(dir,  v.getX(dir) - v.root.sink.shift);
+				//}
+			}
 		}
 	}
 	
@@ -1384,10 +1321,10 @@ public class LayeredGraph extends Figure {
 			}
 
 		} else {
-			//			Direction dir = Direction.TOP_LEFT;
+			 Direction 	dir = Direction.TOP_LEFT;
 			//			Direction dir = Direction.TOP_RIGHT;
 			//			Direction dir = Direction.BOTTOM_LEFT;
-						Direction dir = Direction.BOTTOM_RIGHT;
+			//			Direction dir = Direction.BOTTOM_RIGHT;
 
 			for(LayeredGraphNode g : nodes){
 					g.clearHorizontal();
@@ -1401,4 +1338,242 @@ public class LayeredGraph extends Figure {
 		}
 		return layers;
 	}
+	
+//	
+//	private void alignVerticalX(LinkedList<LinkedList<LayeredGraphNode>> layers, Direction dir){
+//		switch(dir){
+//		case TOP_LEFT: alignVerticalTL(layers); break;
+//		case TOP_RIGHT: alignVerticalTR(layers); break;
+//		case BOTTOM_LEFT: alignVerticalBL(layers); break;
+//		case BOTTOM_RIGHT: alignVerticalBR(layers); break;
+//		}
+//	}
+	
+	
+	/*	
+	private void alignVerticalTL(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		int h = layers.size()-1;
+		for(int i = 1; i <= h; i++){
+			LinkedList<LayeredGraphNode> Li = layers.get(i);
+			int r = -1;
+			for(int k = 0; k < Li.size(); k++){
+				LayeredGraphNode vk = Li.get(k);
+				LinkedList<LayeredGraphNode> aboveVk = vk.getAllConnectedNeighboursAfter(layers.get(i-1), r);
+				if(debug)printList("vk = " + vk.name + ", above after " + r + ": ", aboveVk);
+				
+				int d = aboveVk.size();
+				if(d > 0){
+					int [] ms = { (d + 1)/2 -1, (d + 2)/2 - 1};
+					
+					for(int m : ms){
+						if(vk.align == vk){
+							LayeredGraphNode um = aboveVk.get(m);
+							if(!isMarked(um, vk) &&  r < um.pos){
+								um.align = vk;
+								vk.root = um.root;
+								vk.align = vk.root;
+								r = um.pos;
+								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// TODO
+	
+	private void alignVerticalBL(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		int h = layers.size()-1;
+		for(int i = h - 1; i >= 0; i--){
+		//for(int i = 0; i < h; i++){
+			LinkedList<LayeredGraphNode> Li = layers.get(i);
+			int r = -1;
+			for(int k = 0; k < Li.size(); k++){
+				LayeredGraphNode vk = Li.get(k);
+				LinkedList<LayeredGraphNode> belowVk = vk.getAllConnectedNeighboursAfter(layers.get(i+1), r);
+				
+				if(debug)printList("vk = " + vk.name + ", below after " + r + ": ", belowVk);
+				int d = belowVk.size();
+				if(d > 0){
+					int [] ms = { (d + 1)/2 -1, (d + 2)/2 - 1};
+					
+					for(int m : ms){
+						if(vk.align == vk){
+							LayeredGraphNode um = belowVk.get(m);
+							if(debug)System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
+							if(!isMarked(um, vk) &&  r < um.pos){
+//								vk.align = um;
+//								um.root = vk.root;
+//								um.align = vk.root;
+								
+								um.align = vk;
+								vk.root = um.root;
+								vk.align = vk.root;
+								
+								r = um.pos;
+								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// TODO
+	private void alignVerticalBR(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		int h = layers.size()-1;
+		for(int i = h - 1; i >= 0; i--){
+		//for(int i = 0; i < h; i++){
+			LinkedList<LayeredGraphNode> Li = layers.get(i);
+			LinkedList<LayeredGraphNode> below =  layers.get(i+1);
+			int r = below.size();
+			for(int k = Li.size()-1; k >= 0; k--){
+				LayeredGraphNode vk = Li.get(k);
+				LinkedList<LayeredGraphNode> belowVk = vk.getAllConnectedNeighboursBefore(below, r);
+				
+				if(debug)printList("i = " + i + " k = " + k + " vk = " + vk.name + ", below before " + r + ": ", belowVk);
+				int d = belowVk.size();
+				if(d > 0){
+					int [] ms = {  (d + 2)/2 - 1, (d + 1)/2 -1};
+					
+					for(int m : ms){
+						if(vk.align == vk){
+							LayeredGraphNode um = belowVk.get(m);
+							if(debug)System.err.printf("um = %s, marked=%b, pos=%d, r=%d\n", um.name, um.marked, um.pos, r);
+							if(!isMarked(um, vk) && um.pos < r){ // && (um.align == um || um.align == vk)){
+								if(um.align != um && um.align != vk){
+									System.err.println(um.name + " already aligned with: " + um.align.name);
+								}
+								
+								um.align = vk;
+								vk.root = um.root;
+								vk.align = vk.root;								
+								r = um.pos;
+								
+								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.align.name);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void alignVerticalTR(LinkedList<LinkedList<LayeredGraphNode>> layers){
+		int h = layers.size()-1;
+		for(int i = 1; i <= h; i++){
+			LinkedList<LayeredGraphNode> Li = layers.get(i);
+			LinkedList<LayeredGraphNode> above = layers.get(i-1);
+			int aboveSize = above.size();
+			int r = aboveSize;
+			for(int k = Li.size()-1; k >= 0; k--){
+				LayeredGraphNode vk = Li.get(k);
+				LinkedList<LayeredGraphNode> aboveVk = vk.getAllConnectedNeighboursBefore(above, r);
+				if(debug)System.err.printf("alignVerticalTR: %s\n", vk.name);
+				if(debug)printList("vk = " + vk.name + ", above before " + r + ": ", aboveVk);
+				int d = aboveVk.size();
+				if(debug)System.err.println("d = " + d);
+				if(d > 0){
+					int [] ms = {  (d + 2)/2 - 1, (d + 1)/2 - 1};
+					
+					for(int m : ms){
+						if(vk.align == vk){
+							LayeredGraphNode um = aboveVk.get(m);
+							if(!isMarked(um, vk) && um.pos <  r){
+								um.align = vk;
+								vk.root = um.root;
+								vk.align = vk.root;
+								r = um.pos;
+								if(debug)System.err.printf("%s.align = %s, %s.root = %s, %s.align = %s\n", um.name, um.align.name, vk.name, vk.root.name, vk.name, vk.root.name);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+*/
+	
+//	private void placeBlockXXX(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
+//	if(dir == Direction.TOP_LEFT || dir == Direction.BOTTOM_LEFT)
+//		placeBlockL(layers, v, dir);
+//	else
+//		placeBlockR(layers, v, dir);
+//}
+	
+//	private void placeBlockL(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
+//	if(v.getX(dir) == -1){
+//		if(debug)System.err.println("placeBlockL: " + v.name + " x = " + v.getX(dir));
+//		//v.setX(dir, useWidth ? v.width()/2 : 0);
+//		v.setX(dir, DELTA/2);
+//	
+//		LayeredGraphNode w = v;
+//		do {
+//			if(debug)System.err.println("placeBlock: v = " + v.name + " w = " + w.name);
+//			if(w.pos > 0){
+//				LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
+//				LayeredGraphNode u = layer.get(w.pos-1).root;
+//				placeBlockL(layers, u, dir);
+//				//float dw = useWidth ? (v.width() + u.width())/2 : 0;
+//				//float dw = useWidth ? MAXW : 0;
+//				if(v.sink == v){
+//					v.sink = u.sink;
+//					if(debug)System.err.println("placeBlockL: " + v.name + ".sink => " + u.sink.name);
+//				}
+//				if(v.sink != u.sink){
+//					
+//					u.sink.shift = min(u.sink.shift, v.getX(dir) - u.getX(dir) - DELTA /*(hgap + dw)*/);
+//					if(debug)System.err.println("placeBlockL: " + u.sink.name + ".sink.shift => " + u.sink.shift );
+//				} else {
+//					v.setX(dir, max(v.getX(dir), u.getX(dir) + DELTA /* hgap + dw*/));
+//					if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
+//				}
+//				w = w.align;
+//			}
+//		} while (w != v && w.pos > 0);
+//	}
+//	if(debug)System.err.println("placeBlockL =>  " + v.name + " x = " + v.getX(dir));
+//}
+//
+//
+//private void placeBlockR(LinkedList<LinkedList<LayeredGraphNode>> layers, LayeredGraphNode v, Direction dir){
+//	
+//	if(v.getX(dir) == -1){
+//		if(debug)System.err.println("placeBlockR: " + v.name + " x = " + v.getX(dir) + ", align = " + v.align.name + ", sink = " + v.sink.name);
+//		//v.setX(dir, MAXWIDTH - (useWidth ? v.width()/2 : 0));
+//		//v.setX(dir, MAXWIDTH - (useWidth ? MAXW/2 : 0));
+//		v.setX(dir, MAXWIDTH-DELTA/2);
+//		LayeredGraphNode w = v;
+//		do {
+//			if(debug)System.err.println("placeBlockR: v = " + v.name + " w = " + w.name + " (layer: " + w.layer + ", pos: " + w.pos + ")");
+//			LinkedList<LayeredGraphNode> layer = layers.get(w.layer);
+//			if(w.pos < layer.size() - 1){
+//				
+//				LayeredGraphNode u = layer.get(w.pos+1).root;
+//				if(debug)System.err.println("root of successor (" + layer.get(w.pos+1).name + ") of " + w.name + " is " + u.name);
+//				placeBlockR(layers, u, dir);
+//				//float dw = useWidth ? MAXW : 0;
+//				//float dw = useWidth ? (v.width() + u.width())/2 : 0;
+//				if(v.sink == v){   // OK?
+//					v.sink = u.sink;
+//					if(debug)System.err.println("placeBlockR: " + v.name + ".sink => " + u.sink.name);
+//				}
+//				if(v.sink != u.sink){
+//					u.sink.shift = min(u.sink.shift, u.getX(dir) - v.getX(dir) - DELTA /*(hgap + dw)*/);
+//					
+//					if(debug)System.err.println("placeBlockR: " + u.sink.name + ".sink.shift => " + u.sink.shift );
+//				} else {
+//					v.setX(dir,min(v.getX(dir), u.getX(dir) - DELTA));
+//					//v.setX(dir, max(useWidth ? (v.width()/2) : 0, min(v.getX(dir), u.getX(dir) - DELTA /* (hgap + dw)*/)));
+//					if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
+//				}
+//				w = w.align;
+//			}
+//		} while (w != v && w.pos < layers.get(w.layer).size() - 1);
+//	}
+//	if(debug)System.err.println("placeBlockR =>  " + v.name + " x = " + v.getX(dir) + " sink=" + v.sink.name);
+//}
 }

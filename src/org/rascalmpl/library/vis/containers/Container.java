@@ -28,7 +28,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * Typical examples are Boxes and Ellipses that may contain another element.
  * 
  * A container has the following behaviour:
- * - It has a bounding box of its own unless interaction due to a moueOver overrules it.
+ * - It has a bounding box of its own unless interaction due to a mouseOver overrules it.
  * - It draws itself (using drawContainer).
  * - It draws the inside element provided that it fits in the container.
  * - It always draws the inside element on mouseOver.
