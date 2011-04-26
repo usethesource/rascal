@@ -12,7 +12,7 @@
   
   It also provides a number of convenience functions on character classes.
 }
-module lang::rascal::syntax::Characters
+module lang::rascal::grammar::Characters
 
 import ParseTree;
 import Grammar;
@@ -20,29 +20,65 @@ import List;
 
 public data CharRange = \empty-range();    
   
-rule empty range(int from, int to) => \empty-range() when to < from;
-rule empty \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) => \char-class(a+b);
+public CharRange range(int from, int to) {
+  if (to < from)
+    return \empty-range();
+  else
+    fail;
+}
 
-rule merge \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) =>
-           \char-class(a+[range(min([from1,from2]),max([to1,to2]))]+b+c)
-     when (from1 <= from2 && to1 >= from2 - 1) 
-       || (from2 <= from1 && to2 >= from1 - 1)
-       || (from1 >= from2 && to1 <= to2)
-       || (from2 >= from1 && to2 <= to1);
+public Symbol \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) 
+  = \char-class(a+b);
+
+public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) {
+  if ((from1 <= from2 && to1 >= from2 - 1) 
+     || (from2 <= from1 && to2 >= from1 - 1)
+     || (from1 >= from2 && to1 <= to2)
+     || (from2 >= from1 && to2 <= to1)) 
+       return \char-class(a+[range(min([from1,from2]),max([to1,to2]))]+b+c);
+    else 
+      fail;
+}
     
-rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) =>
-           \char-class(a + [range(o,p)]+b+[range(n,m)]+c)
-     when p < n;
+public Symbol \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) {
+  if (p < n) 
+    return \char-class(a + [range(o,p)]+b+[range(n,m)]+c);
+  else
+    fail;
+}
      
 test \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
 test \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
 test \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
 test \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
-rule compl complement(\char-class(list[CharRange] r1)) 										=> \char-class(complement(r1));
-rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(difference(r1,r2));
-rule union union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 			=> \char-class(union(r1,r2));
-rule inter intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(intersection(r1,r2));
+public Symbol complement(\char-class(list[CharRange] r1)) 
+  = \char-class(complement(r1));
+  
+public Symbol default complement(Symbol s) {
+  throw "unsupported symbol for character class complement: <s>";
+}
+  
+public Symbol difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	
+  = \char-class(difference(r1,r2));
+
+public Symbol default difference(Symbol s, Symbol t) {
+  throw "unsupported symbols for  character class difference: <s> and <t>";
+}
+
+public Symbol union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2))
+ = \char-class(union(r1,r2));
+ 
+public Symbol default union(Symbol s, Symbol t) {
+  throw "unsupported symbols for union: <s> and <t>";
+}
+
+public Symbol intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 
+ = \char-class(intersection(r1,r2));
+
+public Symbol default intersection(Symbol s, Symbol t) {
+  throw "unsupported symbols for intersection: <s> and <t>";
+}
 
 public bool lessThan(CharRange r1, CharRange r2) {
   if (range(s1,e1) := r1, range(s2,e2) := r2) {

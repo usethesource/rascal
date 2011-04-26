@@ -11,27 +11,27 @@
   This module provides functionality for merging the Rascal grammar and arbitrary user-defined grammars
 }
 @bootstrapParser
-module lang::rascal::syntax::Assimilator
+module lang::rascal::grammar::Assimilator
 
 import ValueIO;
 import List;
 import IO;
 import ParseTree;
 import Grammar;
-import lang::rascal::syntax::Definition;
-import lang::rascal::syntax::Normalization;
-import lang::rascal::syntax::Escape;
-import lang::rascal::syntax::Reject;
+import lang::rascal::grammar::Definition;
+import lang::rascal::grammar::Normalization;
+import lang::rascal::grammar::Escape;
+import lang::rascal::grammar::Reject;
 
 public data Symbol = meta(Symbol wrapped);
 
 bool isNonterminal(Symbol x) { 
-    return lit(_) !:= x 
-       && cilit(_) !:= x 
+    return \lit(_) !:= x 
+       && \cilit(_) !:= x 
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
+       && \keywords(_) !:= x
        && \start(_) !:= x
-       && \restricted(_) !:= x
        && \parameterized-sort(_,[\parameter(_),_*]) !:= x;
 }
   
@@ -85,7 +85,10 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \iter(s) : return [symbolLiterals(s),rl,lit("+")];
     case \iter-star(s) : return [symbolLiterals(s),rl,lit("*")];
     case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("+")];
-    case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")]; 
+    case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")];
+    case \empty() : return [lit("("), rl, lit(")")];
+    case \alt(alts) : return [lit("("),rl,tail(tail(tail([rl,lit("|"),rl,symbolLiterals(t) | t <- seps ]))),rl,lit(")")];
+    case \seq(elems) : return [lit("("),rl,tail([rl,symbolLiterals(t) | t <- elems]),rl,lit(")")];  
     case \parameterized-sort(n, params) : return [lit(n),rl,lit("["),rl,tail(tail(tail([rl,lit(","),rl,symbolLiterals(p) | p <- params]))),rl,lit("]")]; 
     case \parameter(n) : return [lit("&"),rl,lit(n)];
     case \char-class(list[CharRange] ranges) : return [lit("["),rl,tail([rl,rangeLiterals(r) | r <- ranges]),rl,lit("]")];

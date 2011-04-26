@@ -9,16 +9,20 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @bootstrapParser
-module lang::rascal::syntax::Bootstrap
+module lang::rascal::grammar::Bootstrap
 
-import lang::rascal::syntax::Grammar2Rascal;
-import lang::rascal::syntax::Definition;
-import Grammar;
-import lang::rascal::syntax::Generator;
 import lang::rascal::syntax::RascalRascal; 
-import lang::rascal::syntax::ASTGen;
-import lang::rascal::syntax::Parameters;
+
+import lang::rascal::format::Grammar2Rascal;
+
+import lang::rascal::grammar::Definition;
+import lang::rascal::grammar::ParserGenerator;
+import lang::rascal::grammar::SyntaxTreeGenerator;
+import lang::rascal::grammar::Parameters;
+
+import Grammar;
 import ParseTree;
+
 import IO;
 import ValueIO;  
 

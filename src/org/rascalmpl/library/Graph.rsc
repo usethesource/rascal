@@ -12,20 +12,26 @@ module Graph
 
 import Set;
 import Relation;
-import IO;      
+import IO;    
+import List;  
    
 alias Graph[&T] = rel[&T from, &T to];
 
-@doc{compute topological order of the nodes in a graph}
-public list[&T] order(Graph[&T] g) {
-  result = [];
-  b = bottom(g);
-  solve (g) {
-    t = top(g);
-    result = result + [e | e <- t];
-    g = { <from,to> | <from,to> <- g, from notin t};
+@doc{compute breadth-first order of the nodes in a graph}
+public list[&T] orderBreadthFirst(Graph[&T] g) {
+  return result:for (root <- top(g)) {
+    queue = [root];
+    done = {root};
+    append root;
+    while (queue != []) {
+      <item, queue> = takeOneFrom(queue);
+      for (w <- g[item], w notin done) {
+        done += w;
+        queue += w;
+        append result:w;
+      }
+    }
   }
-  return result + [e | e <- b];
 }
 
 @doc{ return the bottom nodes of a Graph.}

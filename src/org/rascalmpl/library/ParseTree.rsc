@@ -58,6 +58,7 @@ data Symbol
   | \opt(Symbol symbol)  
   | \sort(str string)   
   | \layouts(str name) 
+  | \keywords(str name)
   | \iter(Symbol symbol)   
   | \iter-star(Symbol symbol)   
   | \iter-seps(Symbol symbol, list[Symbol] separators)   
@@ -70,10 +71,11 @@ data Symbol
   | \at-column(int column) 
   | \start-of-line() 
   | \end-of-line()
-  | \follow(Symbol symbol, Symbol follow)
-  | \not-follow(Symbol symbol, Symbol follow)
-  | \precede(Symbol symbol, Symbol precede)
-  | \not-precede(Symbol symbol, Symbol precede)
+  | \follow(Symbol symbol, set[Symbol] follow)
+  | \not-follow(Symbol symbol, set[Symbol] follow)
+  | \precede(Symbol symbol, set[Symbol] precede)
+  | \not-precede(Symbol symbol, set[Symbol] precede)
+  | \reserve(Symbol symbol, set[Symbol] reserved)
   ;
      
 @doc{provides access to the source location of a parse tree node}
