@@ -36,7 +36,7 @@ data GrammarModule
   = \module(str name, set[str] imports, set[str] extends, Grammar grammar);
  
 data GrammarDefinition
-  = \definition(str main, set[GrammarModule] modules);
+  = \definition(str main, map[name, GrammarModule] modules);
 
 anno loc Production@\loc;
  
