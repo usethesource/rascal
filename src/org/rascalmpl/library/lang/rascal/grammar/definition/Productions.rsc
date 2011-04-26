@@ -13,6 +13,7 @@ module lang::rascal::grammar::Productions
 import lang::rascal::syntax::RascalRascal;
 import lang::rascal::grammar::Characters;
 import lang::rascal::grammar::Symbols;
+import lang::rascal::grammar::Attributes;
 
 import Grammar;
 import List; 
@@ -62,7 +63,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   for (sd <- defs) {
     switch (sd) {
       case (SyntaxDefinition) `layout <Nonterminal n> = <Prod p>;` : {
-        prods += prod2prod(\layouts("<n>"), p);
+        prods += attribute(prod2prod(\layouts("<n>"), p), visibility(\public()));
       }
       case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
         Symbol top = sort("<n>");
@@ -108,33 +109,3 @@ private Production prod2prod(Symbol nt, Prod p) {
   } 
 }
 
-@doc{adds an attribute to all productions it can find}
-private Production attribute(Production p, Attr a) {
-  return visit (p) {
-    case prod(lhs,rhs,\no-attrs()) => prod(lhs, rhs, attrs([a]))
-    case prod(lhs,rhs,attrs(list[Attributes] l)) => prod(lhs, rhs, attrs([l, a]))
-  }
-}
-
-private Attributes mods2attrs(Name name, ProdModifier* mods) {
-  return attrs([term("cons"("<name>"))] + [ mod2attr(m) | m <- mods]);
-}
-
-private Attributes mods2attrs(ProdModifier* mods) {
-  return attrs([mod2attr(m) | ProdModifier m <- mods]);
-}
- 
-private Attr mod2attr(ProdModifier m) {
-  switch (m) {
-    case (ProdModifier) `left`: return \assoc(\left());
-    case (ProdModifier) `right`: return \assoc(\right());
-    case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
-    case (ProdModifier) `assoc`: return \assoc(\assoc());
-    case (ProdModifier) `bracket`: return \bracket();
-    case (ProdModifier) `@ <Name n> = <StringConstant s>` : return \term("<n>"(unescape(s)));
-    case (ProdModifier) `@ <Name n> = <Literal l>` : return \term("<n>"("<l>"));
-    case (ProdModifier) `@ <Name n>` : return \term("<n>"());
-    case (ProdModifier) `@ <Name n> <TagString s>` : return \term("<n>"("<s>"));
-    default: throw "missed a case <m>";
-  }
-}

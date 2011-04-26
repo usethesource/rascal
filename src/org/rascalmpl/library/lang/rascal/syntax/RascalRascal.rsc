@@ -31,12 +31,13 @@ start syntax Module
 start syntax PreModule
     = Default: Header header Marker Rest;
 
-syntax Marker = 
+syntax Marker = Visibility // note that Visibility is nullable
               # "import"
               # "syntax"
               # "start"
               # "layout"
               # "lexical"
+              # "keyword"
               # "extend"
               ;
 
@@ -158,7 +159,7 @@ syntax Name
 	# [0-9 A-Z _ a-z] ;
 
 syntax SyntaxDefinition
-	=  @Foldable Layout  : "layout"  Sym defined "=" Prod production ";" 
+	=  @Foldable Layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
 	|  @Foldable Lexical : "lexical" Sym defined "=" Prod production ";" 
 	|  @Foldable Keyword : "keyword" Sym defined "=" Prod production ";"
 	|  @Foldable Language: Start start "syntax" Sym defined "=" Prod production ";" ;

@@ -24,15 +24,17 @@ public GrammarDefinition modules2definition(str main, set[Module] modules) {
 
 public Grammar fuseDefinition(GrammarDefinition def) {
   grammar = grammar({},());
-  for (/ \module(_,_,g) := def) 
-    grammar = compose(grammar, g);
+  for (/ \module(name, imps,exts, g) := def) 
+    grammar = compose(grammar, layouts(g, activeLayout(name, def)));
   return grammar;
 }
 
-@doc{
-  Converts the syntax definitions of a module to a grammar.
-  Note that this function does not implement the imports of a module
-} 
+public set[str] extendsClosure(set[str] extends, GrammarDefinition def) {
+  solve (extends)
+    extends += {def.modules[e].extends | e <- extends };  
+  return extends;
+}
+
 public GrammarModule module2grammar(Module mod) {
   <name, imports, extends> = getModuleMetaInf(mod);
   return \module(name, imports, extends, syntax2grammar(collect(mod)));

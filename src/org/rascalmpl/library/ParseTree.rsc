@@ -36,12 +36,20 @@ data Production =
 
 data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
   
-data Attr =
-     \assoc(Associativity \assoc) | 
-     \term(value \term) |  
-     \bracket() | \reject() |
-     \lex() | \literal() | \ciliteral();
+data Attr 
+  = \assoc(Associativity \assoc)  
+  | \visibility(Visibility vis) 
+  | \term(value \term) 
+  | \bracket() 
+  | \lex() 
+  | \literal() 
+  | \ciliteral();
 
+data Visibility 
+  = \public()
+  | \private()
+  ;
+  
 data Associativity =
      \left() | \right() | \assoc() | \non-assoc();
 

@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl - CWI}
 module lang::rascal::grammar::SyntaxTreeGenerator
 
 import Grammar;
