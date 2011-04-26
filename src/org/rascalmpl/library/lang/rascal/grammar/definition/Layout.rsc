@@ -39,15 +39,6 @@ public Symbol activeLayout(str name, GrammarModule mod, GrammarDefinition def, r
     return layouts(empty()); 
 }  
 
-
-private set[Symbol] importedLayouts(set[str] imports, GrammarDefinition def) {
-  return {l | i <- imports, m <- def.modules[i], /prod(_,l:layouts(_),_) := m};
-}
-
-private set[Symbol] importedLayouts(set[str] extends, GrammarDefinition def) {
-  return importedLayouts(extendsClosure(extends, def), def);
-}
-
 @doc{intersperses layout symbols in all non-lexical productions}
 public set[Production] \layouts(Grammar g, Symbol l) {
   return top-down-break visit (g) {
