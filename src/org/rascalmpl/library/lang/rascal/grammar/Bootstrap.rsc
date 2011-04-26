@@ -15,10 +15,10 @@ import lang::rascal::syntax::RascalRascal;
 
 import lang::rascal::format::Grammar2Rascal;
 
-import lang::rascal::grammar::Definition;
+import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::SyntaxTreeGenerator;
-import lang::rascal::grammar::Parameters;
+import lang::rascal::grammar::definition::Parameters;
 
 import Grammar;
 import ParseTree;

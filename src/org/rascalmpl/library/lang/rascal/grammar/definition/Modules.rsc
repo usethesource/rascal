@@ -10,6 +10,8 @@
 module lang::rascal::grammar::Modules
 
 import lang::rascal::grammar::Productions;
+import lang::rascal::grammar::Layout;
+import lang::rascal::grammar::Literals;
 
 // reading in definitions     
 public Grammar modules2grammar(str main, set[Module] modules) {

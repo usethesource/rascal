@@ -12,8 +12,10 @@
   
   It also provides a number of convenience functions on character classes.
 }
-module lang::rascal::grammar::Characters
+@bootstrapParser
+module lang::rascal::grammar::definition::Characters
 
+import lang::rascal::syntax::RascalRascal;
 import ParseTree;
 import Grammar;
 import List;
@@ -358,3 +360,43 @@ test intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == 
 
 test difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
 test difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
+
+
+public Symbol cc2ranges(Class cc) {
+   switch(cc) {
+     case (Class) `[<Range* ranges>]` : return \char-class([range(r) | r <- ranges]);
+     case (Class) `(<Class c>)`: return cc2ranges(c);
+     case (Class) `! <Class c>`: return complement(cc2ranges(c));
+     case (Class) `<Class l> && <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> || <Class r>`: return union(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l), cc2ranges(r));
+     default: throw "missed a case <cc>";
+   }
+}
+      
+private CharRange range(Range r) {
+  switch (r) {
+    case (Range) `<Char c>` : return range(character(c),character(c));
+    case (Range) `<Char l> - <Char r>`: return range(character(l),character(r));
+    default: throw "missed a case <r>";
+  }
+} 
+ 
+private int character(Char c) {
+  switch (c) {
+    case [Char] /\\n/ : return charAt("\n", 0);
+    case [Char] /\\t/ : return charAt("\t", 0);
+    case [Char] /\\b/ : return charAt("\b", 0);
+    case [Char] /\\r/ : return charAt("\r", 0);
+    case [Char] /\\f/ : return charAt("\f", 0);
+    case [Char] /\\\>/ : return charAt("\>", 0);
+    case [Char] /\\\</ : return charAt("\<", 0);
+    case [Char] /<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
+    case [Char] /\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
+    case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
+    case [Char] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    default: throw "missed a case <c>";
+  }
+}

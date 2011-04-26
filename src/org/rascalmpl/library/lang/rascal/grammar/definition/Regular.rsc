@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::rascal::syntax::Regular
+module lang::rascal::grammar::definition::Regular
 
 import Grammar;
 import ParseTree;
