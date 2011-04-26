@@ -11,9 +11,9 @@
 module lang::rascal::syntax::Lookahead
   
 import Grammar;
-import lang::rascal::syntax::Regular;
-import lang::rascal::syntax::Characters;
-import lang::rascal::syntax::Normalization;
+import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Characters;
+import lang::rascal::grammar::definition::Productions;
 import ParseTree;
 import List;
 import Set;

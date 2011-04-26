@@ -11,9 +11,10 @@
 module lang::rascal::grammar::ParserGenerator
 
 import Grammar;
-import lang::rascal::grammar::Parameters;
-import lang::rascal::grammar::Regular;
-import lang::rascal::grammar::Normalization;
+import lang::rascal::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::Lookahead;
 import lang::rascal::grammar::Actions;
 import lang::rascal::grammar::Assimilator;

@@ -9,7 +9,7 @@
 module lang::rascal::grammar::SyntaxTreeGenerator
 
 import Grammar;
-import lang::rascal::grammar::Parameters;
+import lang::rascal::grammar::definition::Parameters;
 import ParseTree;
 
 import IO;
@@ -17,9 +17,17 @@ import String;
 import List;
 import Set;
 
-data AST = ast(str name, set[Sig] sigs) | leaf(str name);
-data Sig = sig(str name, list[Arg] args);
-data Arg = arg(str typ, str name);
+data AST 
+  = ast(str name, set[Sig] sigs) 
+  | leaf(str name)
+  ;
+  
+data Sig 
+  = sig(str name, list[Arg] args)
+  ;
+  
+data Arg 
+  = arg(str typ, str name);
 
 public set[AST] grammarToASTModel(str pkg, Grammar g) {
   map[str, set[Sig]] m = ();
@@ -45,16 +53,11 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   return asts;
 }
 
-
-
-
 public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
   model = grammarToASTModel(pkg, g);
   grammarToVisitor(outdir, pkg, model);
   grammarToASTClasses(outdir, pkg, model);
 }
-
-
 
 public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
   ivisit = "package <pkg>;
@@ -102,7 +105,6 @@ public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   }
 }
 
-
 public str classForSort(str pkg, list[str] imports, AST ast) {
   allArgs = { arg | /Arg arg <- ast };
   return "package <pkg>;
@@ -137,7 +139,6 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '}"; 
 }
 
-
 public str classForProduction(str pkg, str super, Sig sig) {
   return "static public class <sig.name> extends <super> {
          '  // Production: <sig>
@@ -170,44 +171,43 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '}";
 }
 
-
 public str ambiguityClass(str pkg, str name) {
-return "static public class Ambiguity extends <name> {
-       '  private final java.util.List\<<pkg>.<name>\> alternatives;
-       '
-       '  public Ambiguity(INode node, java.util.List\<<pkg>.<name>\> alternatives) {
-       '    super(node);
-       '    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-       '  }
-       '  
-       '  @Override
-       '  public Result\<IValue\> interpret(Evaluator __eval) {
-       '    throw new Ambiguous((IConstructor) this.getTree());
-       '  }
-       '    
-       '  @Override
-       '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-       '    throw new Ambiguous((IConstructor) this.getTree());
-       '  }
-       '  
-       '  @Override
-       '  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
-       '    throw new Ambiguous((IConstructor) this.getTree());
-       '  }
-       '  
-       '  @Override
-       '  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-       '    throw new Ambiguous((IConstructor) this.getTree());
-       '  }
-       '    
-       '  public java.util.List\<<pkg>.<name>\> getAlternatives() {
-       '    return alternatives;
-       '  }
-       '  
-       '  public \<T\> T accept(IASTVisitor\<T\> v) {
-       '  	return v.visit<name>Ambiguity(this);
-       '  }
-       '}";
+  return "static public class Ambiguity extends <name> {
+         '  private final java.util.List\<<pkg>.<name>\> alternatives;
+         '
+         '  public Ambiguity(INode node, java.util.List\<<pkg>.<name>\> alternatives) {
+         '    super(node);
+         '    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         '  }
+         '  
+         '  @Override
+         '  public Result\<IValue\> interpret(Evaluator __eval) {
+         '    throw new Ambiguous((IConstructor) this.getTree());
+         '  }
+         '    
+         '  @Override
+         '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+         '    throw new Ambiguous((IConstructor) this.getTree());
+         '  }
+         '  
+         '  @Override
+         '  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+         '    throw new Ambiguous((IConstructor) this.getTree());
+         '  }
+         '  
+         '  @Override
+         '  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+         '    throw new Ambiguous((IConstructor) this.getTree());
+         '  }
+         '    
+         '  public java.util.List\<<pkg>.<name>\> getAlternatives() {
+         '    return alternatives;
+         '  }
+         '  
+         '  public \<T\> T accept(IASTVisitor\<T\> v) {
+         '  	return v.visit<name>Ambiguity(this);
+         '  }
+         '}";
 }
 
 
@@ -333,10 +333,10 @@ public str sortName(Production p) {
 }
 
 public bool  hasCons(Production p) {
- if (p.attributes == \no-attrs()) {
+  if (p.attributes == \no-attrs()) {
     return false;
- }
- return term("cons"(_)) <- p.attributes.attrs;
+  }
+  return term("cons"(_)) <- p.attributes.attrs;
 }
 
 public bool isLexical(Production p) {
@@ -347,6 +347,6 @@ public bool isLexical(Production p) {
 }
 
 private void loggedWriteFile(loc file, str src) {
- println("Writing <file>");
- writeFile(file, src);
+  println("Writing <file>");
+  writeFile(file, src);
 }

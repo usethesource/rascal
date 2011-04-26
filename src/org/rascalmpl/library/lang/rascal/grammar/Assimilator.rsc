@@ -18,10 +18,7 @@ import List;
 import IO;
 import ParseTree;
 import Grammar;
-import lang::rascal::grammar::Definition;
-import lang::rascal::grammar::Normalization;
-import lang::rascal::grammar::Escape;
-import lang::rascal::grammar::Reject;
+import lang::rascal::grammar::definition::Productions;
 
 public data Symbol = meta(Symbol wrapped);
 
@@ -63,10 +60,8 @@ public set[Production] fromRascal(Grammar object) {
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] toRascal(Grammar object) {
-  rejects = rejectedSymbols(object);
-  
   return  { prod([lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
-          | Symbol nont <- object.rules, isNonterminal(nont), nont notin rejects};
+          | Symbol nont <- object.rules, isNonterminal(nont)};
 }
 
 private list[Symbol] symbolLiterals(Symbol sym) {

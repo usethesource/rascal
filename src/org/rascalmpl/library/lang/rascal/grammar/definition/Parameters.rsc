@@ -10,10 +10,9 @@
 @doc{
   This module implements the support for parameterized syntax definitions
 }
-module lang::rascal::syntax::Parameters
+module lang::rascal::grammar::definition::Parameters
 
 import Grammar;
-import lang::rascal::syntax::Normalization; // this module assumes normalized grammars
 import ParseTree;
 import List;
 import Set;
