@@ -402,13 +402,22 @@ syntax Declarator = Identifier: Identifier |
                     PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
                     ;
 
+syntax IntegerConstant = lex [0-9]+ [uUlL]*
+                         # [0-9]
+                         ;
+
 syntax HexadecimalConstant = lex [0] [xX] [a-fA-F0-9]+ [uUlL]*
                              # [a-fA-F0-9]
                              ;
 
-syntax IntegerConstant = lex [0-9]+ [uUlL]*
-                         # [0-9]
-                         ;
+syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
+                               lex [0-9]* [.] [0-9]+ Exponent? [fFlL]? |
+                               lex [0-9]+ [.] Exponent? [fFlL]?
+                               # [0-9]
+                               ;
+
+syntax Exponent = lex [Ee] [+\-]? [0-9]+
+                  ;
 
 syntax CharacterConstant = lex [L]? [\'] CharacterConstantContent+ [\']
                            ;
@@ -417,26 +426,12 @@ syntax CharacterConstantContent = lex [\\] ![] |
                                   lex ![\\\']
                                   ;
 
-syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
-                               lex [0-9]* [.] [0-9]+ Exponent? [fFlL]? |
-                               lex [0-9]+ [.] Exponent? [fFlL]?
-                               # [0-9]
-                               ;
-
 syntax StringConstant = lex [L]? [\"] StringConstantContent* [\"]
                         ;
 
 syntax StringConstantContent = lex [\\] ![] |
                                lex ![\\\"]
                                ;
-
-syntax Exponent = lex [Ee] [+\-]? [0-9]+
-                  ;
-
-syntax ExternalDeclaration = FunctionDefinition |
-                             FunctionPrototype |
-                             GlobalDeclaration
-                             ;
 
 // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
 // TODO: Disallow storage class specifiers as specifiers.
@@ -492,6 +487,11 @@ syntax FunctionPrototype = Specifier* specs PrototypeDeclarator ";" {
                               }
                            }
                            ;
+
+syntax ExternalDeclaration = FunctionDefinition |
+                             FunctionPrototype |
+                             GlobalDeclaration
+                             ;
 
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
