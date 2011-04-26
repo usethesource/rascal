@@ -13,26 +13,30 @@ import lang::rascal::grammar::Productions;
 import lang::rascal::grammar::Layout;
 import lang::rascal::grammar::Literals;
 
-// reading in definitions     
+@doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
-  return fuseDefinition(modules2definition(main, modules));
+  return fuseDefinition(layouts(modules2definition(main, modules)));
 }
 
+@doc{Converts concrete syntax definitions to abstract grammar definitions}
 public GrammarDefinition modules2definition(str main, set[Module] modules) {
-  return \definition(main, {module2grammar(m) | m <- modules});
+  return \definition(main, (mod.name:mod | m <- modules, mod := module2grammar(m)));
 }
 
+@doc{Combines a set of modules into one big Grammar.}
 public Grammar fuseDefinition(GrammarDefinition def) {
   grammar = grammar({},());
-  for (/ \module(name, imps,exts, g) := def) 
-    grammar = compose(grammar, layouts(g, activeLayout(name, def)));
+  for (name <- def.modules) 
+    grammar = compose(grammar, def.modules[name].grammar);
   return grammar;
 }
 
-public set[str] extendsClosure(set[str] extends, GrammarDefinition def) {
-  solve (extends)
-    extends += {def.modules[e].extends | e <- extends };  
-  return extends;
+public rel[str, str] extends(GrammarDefinition def) {
+  return {<m,e> | m <- def, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
+}
+
+public rel[str,str] imports(GrammarDefinition def) {
+  return {<m,i> | m <- def, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
 
 public GrammarModule module2grammar(Module mod) {
