@@ -15,6 +15,12 @@ import lang::rascal::grammar::definition::Modules;
 import Grammar;
 
 
+public GrammarModule \layouts(Grammardefinition def) {
+  r = extends(def) + imports(def);
+  for (name <- def) 
+    def.modules[name].grammar = layouts(def.modules[name].grammar, activeLayout(name, mod, def, r));
+  return def;
+}
 
 @doc{computes which layout definitions are visible in a certain given module.
      if a module contains a layout definition, this overrides any imported layout definition
@@ -23,18 +29,15 @@ import Grammar;
      the static checker should check whether multiple visible layout definitions are active, because this function
      will just produce an arbitrary one if there are multiple definitions
 }
-public Symbol activeLayout(str name, GrammarDefinition def) {
-  GrammarModule mod = def.modules[name];
-  
+public Symbol activeLayout(str name, GrammarModule mod, GrammarDefinition def, rel[str, str] reachable) {
   if (/prod(_,l:layouts(_),_) := mod) 
     return l;
-  else if ({l, _*} := extendedLayouts(mod.extends, def)) 
-    return l;
-  else if ({l, _*} := importedLayouts(mod.imports, def))
+  else if (i <- reachable[name], /prod(_,l:layouts(_),_) := def.modules[i]) 
     return l;
   else 
     return layouts(empty()); 
 }  
+
 
 private set[Symbol] importedLayouts(set[str] imports, GrammarDefinition def) {
   return {l | i <- imports, m <- def.modules[i], /prod(_,l:layouts(_),_) := m};
