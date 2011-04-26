@@ -13,6 +13,7 @@ module lang::rascal::grammar::definition::Layout
 import lang::rascal::syntax::RascalRascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
+import ParseTree;
 
 
 public GrammarModule \layouts(Grammardefinition def) {
