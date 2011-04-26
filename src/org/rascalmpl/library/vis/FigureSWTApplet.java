@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 
 import processing.core.PConstants;
 
@@ -38,9 +39,11 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	int halign = FigureApplet.LEFT, valign = FigureApplet.TOP;
 
+	private boolean mousePressed = false;
+
 	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
 
-	private static Color getColor(final int which) {
+	public static Color getColor(final int which) {
 		Display display = Display.getCurrent();
 		if (display != null)
 			return display.getSystemColor(which);
@@ -124,9 +127,15 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.getShell().setText(name);
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		gc = new GC(comp);
-//		bbox();
-//		figureWidth = (int) figure.width + 1;
-//		figureHeight = (int) figure.height + 1;
+		int colnum = ColorProp.FILL_COLOR.getStdDefault();
+		Color color = new Color(comp.getDisplay(),
+				FigureColorUtils.getRed(colnum),
+				FigureColorUtils.getGreen(colnum),
+				FigureColorUtils.getBlue(colnum));
+		comp.setBackground(color);
+		// bbox();
+		// figureWidth = (int) figure.width + 1;
+		// figureHeight = (int) figure.height + 1;
 		comp.addMouseMoveListener(new MyMouseMoveListener());
 		comp.addMouseListener(new MyMouseListener());
 		comp.addPaintListener(new MyPaintListener());
@@ -143,15 +152,11 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	/*
-	public void bbox() {
-		if (computedValueChanged) {
-			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
-			figureWidth = figure.width;
-			figureHeight = figure.height;
-			// computedValueChanged = false;
-		}
-	}
-	*/
+	 * public void bbox() { if (computedValueChanged) {
+	 * figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE); figureWidth =
+	 * figure.width; figureHeight = figure.height; // computedValueChanged =
+	 * false; } }
+	 */
 
 	public void draw() {
 		// System.err.println("draw:" + this.getClass() + " "
@@ -248,6 +253,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		if (debug)
 			System.err.println("========= mouseReleased");
 		// focusSelected = false;
+		mousePressed = false;
 		figure.mouseReleased();
 
 	}
@@ -256,10 +262,14 @@ public class FigureSWTApplet implements IFigureApplet {
 		if (debug)
 			System.err.println("========= mouseMoved: " + mouseX + ", "
 					+ mouseY);
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		if (!figure.mouseOver(mouseX, mouseY, false))
-			unRegisterMouseOver(mouseOver);
+		if (mousePressed) {
+			figure.mouseDragged(mouseX, mouseY);
+		} else {
+			lastMouseX = mouseX;
+			lastMouseY = mouseY;
+			if (!figure.mouseOver(mouseX, mouseY, false))
+				unRegisterMouseOver(mouseOver);
+		}
 		comp.redraw();
 	}
 
@@ -290,6 +300,7 @@ public class FigureSWTApplet implements IFigureApplet {
 				System.err.println("" + this.getClass() + " " + focusSelected);
 		} else
 			unRegisterFocus(focus);
+		mousePressed = true;
 		comp.redraw();
 
 	}
@@ -366,7 +377,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public void strokeWeight(float arg0) {
 		int d = (int) arg0;
-		stroke =(d!=0);
+		stroke = (d != 0);
 		if (gc.isDisposed())
 			gc = new GC(comp);
 		gc.setLineWidth(d);
@@ -587,7 +598,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			drawCurved(r, p, arg0 == FigureApplet.CLOSE);
 		}
 		int alpha0 = gc.getAlpha();
-		if (fill /*arg0 == FigureApplet.CLOSE*/) {
+		if (fill /* arg0 == FigureApplet.CLOSE */) {
 			gc.setAlpha(alphaFill);
 			gc.fillPath(p);
 			gc.setAlpha(alpha0);
