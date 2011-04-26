@@ -37,7 +37,6 @@ public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
   <fst, fol> = firstAndFollow(simple(G2.start, { p | /Production p:prod(_,_,_) := G2}));
     
   return visit(G) {
-    case Production p:prod(_,restricted(_),_) => p
     case Production p:prod([], Symbol rhs, _) => lookahead(rhs, fol[rhs], p)
     case Production p:prod(list[Symbol] lhs, Symbol rhs, _) : {
       lhs = removeLabels(lhs);
@@ -63,8 +62,8 @@ public Grammar compileLookaheads(Grammar G) {
   // first we remove first and assoc groups for simplicity's sake
   G = visit (G) {
     case lookahead(rhs, {}, a) => choice(rhs, {})
-    case first(rhs, order)     => choice(rhs, {p | p <- order})
-    case \assoc(rhs, a, alts)  => choice(rhs, alts)
+    case priority(rhs, order)     => choice(rhs, {p | p <- order})
+    case associativity(rhs, a, alts)  => choice(rhs, alts)
   }
   // give the normalizer the chance to merge choices as much as possible 
   G.rules = (s:{choice(s,G.rules[s])} | s <- G.rules);
@@ -241,22 +240,6 @@ public SymbolUse first(Grammar G) {
   return FIRST;
 }
 
-/********* Original definition  ****
-public SymbolUse first(Grammar G) {
-  defSymbols = definedSymbols(G);
-
-  SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 
-                  + (S : {}      | Symbol S   <- defSymbols);
-	        
-  solve (FIRST) {
-    for (S <- defSymbols, prod(lhs, S, _) <- G.productions) {
-      FIRST[S] += isEmpty(lhs) ? {empty()} : first(lhs, FIRST); //- {empty()};
-    }
-  }
-		
-  return FIRST;
-}
-******************************/
 
 public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
@@ -279,38 +262,9 @@ public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    return FOLLOW;
 }
 
-/*******  Original definition
-
-public SymbolUse follow0(Grammar G,  SymbolUse FIRST){
-   defSymbols = definedSymbols(G);
-   SymbolUse FOLLOW = (S : {eoi()} | Symbol S <- G.start) + (S : {} | Symbol S <- defSymbols);
-  
-   solve (FOLLOW) {
-     for (Production p <- G.productions, [_*, current, symbols*] := p.lhs) {
-       flw =  first(symbols, FIRST);
-       if (current in defSymbols) {
-         if (empty() in flw || isEmpty(symbols)) {
-           FOLLOW[current] += FOLLOW[p.rhs] + (flw - {empty()});
-         }
-         else {
-           FOLLOW[current] += flw;
-         }
-       }
-     }
-   }
-
-   return FOLLOW;
-}
-
-***************************/
-
 public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
-  // try {
     fst = first(G);
     return <mergeCC(fst), mergeCC(follow(G,fst))>;
-  // }   
-  // catch NoSuchKey(Symbol s) : throw "Undefined non-terminal <s>";
-  // throw "wtf?";
 }
   
 private SymbolUse mergeCC(SymbolUse su) {

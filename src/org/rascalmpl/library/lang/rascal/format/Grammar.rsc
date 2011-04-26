@@ -12,12 +12,12 @@
   Convert the Rascal internal grammar representation format (Grammar) to 
   a syntax definition in Rascal source code.
 }
-module lang::rascal::syntax::Grammar2Rascal
+module lang::rascal::format::Grammar
 
 import ParseTree;
 import Grammar;
-import lang::rascal::syntax::Characters;
-import lang::rascal::syntax::Escape;
+import lang::rascal::grammar::Characters;
+import lang::rascal::grammar::Escape;
 import IO;
 import Set;
 import List;
@@ -25,8 +25,6 @@ import String;
 import ValueIO;
 import Graph;
 import Relation;
-
-bool debug = false;
 
 public str grammar2rascal(Grammar g, str name) {
   return "module <name> <grammar2rascal(g)>";
@@ -36,41 +34,14 @@ public str grammar2rascal(Grammar g) {
   deps = symbolDependencies(g);
   ordered = orderBreadthFirst(deps);
   unordered = [ e | e <- (g.rules<0> - carrier(deps))];
-  if ({e | e <- (ordered + unordered)} != g.rules<0>) {
-    iprintln(g.rules<0> - (ordered + unordered));
-    throw "???";
-  }
   return "<grammar2rascal(g, ordered)>
          '<grammar2rascal(g, unordered)>"; 
 }
 
 public str grammar2rascal(Grammar g, list[Symbol] nonterminals) {
-  return "<for (nont <- nonterminals, lit(_) !:= nont) {>
-         '<topProd2rascal(choice(nont, g.rules[nont]))>
-         '<}>
-         '<for (Symbol nont:lit(_) <- g.rules, p <- g.rules[nont]) {>
-         '<topProd2rascal(p)><}>";
-}
-
-tuple[set[Production],set[Production]] separateLiterals(set[Production] prods) {
-  literals = { p | p:prod(_,lit(_),_) <- prods } 
-           + { p | p:restrict(lit(_),_,_) <- prods };
-  return <prods - literals, literals>;
-}
-
-set[set[Production]] groupByNonTerminal(set[Production] productions) {
-  solve (productions) {
-    switch (productions) {
-      case {set[Production] r, Production p:prod(_,Symbol rhs,_)} : 
-        productions = {r, choice(rhs, {p})};
-      case {set[Production] r, choice(Symbol s, set[Production] a1), choice(s, set[Production] a2)} :
-        productions = {r, choice(s, a1 + a2)};
-      case {set[Production] r, choice(Symbol s, set[Production] a1), restrict(s, others(s), set[list[Symbol]] restr)} :
-        productions = {r, restrict(s,choice(s,a1), restr)};
-    }
-  }
-   
-  return group(productions, same);
+  return "<for (nont <- nonterminals) {>
+         '<topProd2rascal(g.rules[nont])>
+         '<}>";
 }
 
 bool same(Production p, Production q) {
@@ -96,7 +67,6 @@ public str alt2rascal(Production p) {
 }
 
 public str prod2rascal(Production p) {
-  if(debug) println("prod2rascal: <p>");
   switch (p) {
     case choice(s, alts) : 
         if (alts != {}) {

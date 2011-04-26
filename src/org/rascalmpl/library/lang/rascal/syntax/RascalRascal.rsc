@@ -113,8 +113,8 @@ syntax Sym
 	| CaseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
 	| Iter: Sym symbol "+" 
 	| IterStar: Sym symbol "*" 
-	| IterSep: "{" Sym symbol StringConstant sep "}" "+" 
-	| IterStarSep: "{" Sym symbol StringConstant sep "}" "*" 
+	| IterSep: "{" Sym symbol Symbol sep "}" "+" 
+	| IterStarSep: "{" Sym symbol Symbol sep "}" "*" 
 	| Optional: Sym symbol "?" 
 	| Alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| Sequence: "(" Sym first Sym+ sequence ")"
@@ -122,12 +122,13 @@ syntax Sym
 	| Column: "@" IntegerLiteral column
 	| EndOfLine: "$"
 	| StartOfLine: "^" 
-	> non-assoc ( Follow:     Sym symbol "\>\>" Sym match
-	            | NotFollow:  Sym symbol "!\>\>" Sym match
-	            | Precede:    Sym match "\<\<" Sym symbol
-	            | NotPrecede: Sym match "!\<\<" Sym symbol
-	            | Unequal:    Sym symbol "!=" Sym match
-	            )
+	> left ( Follow:     Sym symbol "\>\>" Sym match
+	       | NotFollow:  Sym symbol "!\>\>" Sym match
+	       )
+	> right ( Precede:    Sym match "\<\<" Sym symbol
+	        | NotPrecede: Sym match "!\<\<" Sym symbol
+	        )
+	> non-assoc Unequal:    Sym symbol "\\" Sym match
 	;
 
 syntax TimePartNoTZ
@@ -773,7 +774,8 @@ syntax Variant
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
 	| @Foldable Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
-	| @Foldable Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
+	| @Foldable Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
+	| @Foldable Body: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 syntax PreProtocolChars
 	= lex "|" URLChars "\<" ;
@@ -848,13 +850,10 @@ syntax Char
 
 syntax Prod
 	= Reference: ":" Name referenced 
-	| non-assoc Action: Prod prod LanguageAction action 
 	| Labeled: ProdModifier* modifiers Name name ":" Sym* args 
 	| Others: "..." 
 	| Unlabeled: ProdModifier* modifiers Sym* args
 	| @Foldable AssociativityGroup: Assoc associativity "(" Prod group ")" 
-	> left Reject: Prod lhs "-" Prod rhs 
-	> left Follow: Prod lhs "#" Prod rhs 
 	> left All   : Prod lhs "|" Prod rhs 
 	> left First : Prod lhs "\>" Prod rhs
 	;

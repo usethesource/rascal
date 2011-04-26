@@ -7,7 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module lang::rascal::syntax::Escape
+module lang::rascal::grammar::Escape
 
 import String;
 

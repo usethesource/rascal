@@ -6,10 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::rascal::syntax::ASTGen
+module lang::rascal::grammar::SyntaxTreeGenerator
 
 import Grammar;
-import lang::rascal::syntax::Parameters;
+import lang::rascal::grammar::Parameters;
 import ParseTree;
 
 import IO;
@@ -57,43 +57,43 @@ public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
 
 
 public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
-  ivisit = "
-package <pkg>;
+  ivisit = "package <pkg>;
+           '
+           'public interface IASTVisitor\<T\> {
+           '<for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
+           '  public T visit<sn><cn>(<sn>.<cn> x);
+           '<}>
+           '<for (leaf(sn) <- asts) {>
+           '  public T visit<sn>Lexical(<sn>.Lexical x);
+           '<}>
+           '<for (sn <- { a.name | a <- asts}) { >
+           '  public T visit<sn>Ambiguity(<sn>.Ambiguity x);<}>
+           '}";
 
-public interface IASTVisitor\<T\> {
-  <for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
-      public T visit<sn><cn>(<sn>.<cn> x);
-  <}>
-  <for (leaf(sn) <- asts) {>
-      public T visit<sn>Lexical(<sn>.Lexical x);
-  <}>
-  <for (sn <- { a.name | a <- asts}) { >
-      public T visit<sn>Ambiguity(<sn>.Ambiguity x);
-  <}>
+  loggedWriteFile(outdir + "/IASTVisitor.java", ivisit);
+
+  nullVisit = "package <pkg>;
+              '
+              'public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
+              '<for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
+              '  public T visit<sn><cn>(<sn>.<cn> x) { 
+              '    return null; 
+              '  }
+              '<}>
+              '<for (leaf(sn) <- asts) {>
+              '  public T visit<sn>Lexical(<sn>.Lexical x) { 
+              '    return null; 
+              '  }
+              '<}>
+              '<for (sn <- {a.name | a <- asts}) {>
+              '  public T visit<sn>Ambiguity(<sn>.Ambiguity x) { 
+              '    return null; 
+              '  }
+              '<}>
+              '}";
+
+   loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit);
 }
-";
-
- loggedWriteFile(outdir + "/IASTVisitor.java", ivisit);
-
- nullVisit = "
-package <pkg>;
-
-public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
-  <for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
-      public T visit<sn><cn>(<sn>.<cn> x) { return null; }
-  <}>
-  <for (leaf(sn) <- asts) {>
-      public T visit<sn>Lexical(<sn>.Lexical x) { return null; }
-  <}>
-  <for (sn <- {a.name | a <- asts}) {>
-      public T visit<sn>Ambiguity(<sn>.Ambiguity x) { return null; }
-  <}>
-}
-";
-
- loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit);
-}
-
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
@@ -105,144 +105,129 @@ public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
 
 public str classForSort(str pkg, list[str] imports, AST ast) {
   allArgs = { arg | /Arg arg <- ast };
-return "
-package <pkg>;
-
-<for (i <- imports) {>
-import <i>;
-<}>
-
-public abstract class <ast.name> extends AbstractAST {
-  public <ast.name>(INode node) {
-    super(node);
-  }
-  
-<for (arg(typ, lab) <- allArgs) { clabel = capitalize(lab); >
-  public boolean has<clabel>() {
-    return false;
-  }
-
-  public <typ> get<clabel>() {
-    throw new UnsupportedOperationException();
-  }
-<}>
-
-<ambiguityClass(pkg, ast.name)>
-
-<if (leaf(_) := ast) {>
- <lexicalClass(ast.name)>
-<}>
-
-<for (/Sig sig <- ast) { >
-  public boolean is<sig.name>() {
-    return false;
-  }
-  <classForProduction(pkg, ast.name, sig)>
-<}>
-
-}
-"; 
+  return "package <pkg>;
+         '
+         '<for (i <- imports) {>
+         'import <i>;<}>
+         '
+         'public abstract class <ast.name> extends AbstractAST {
+         '  public <ast.name>(INode node) {
+         '    super(node);
+         '  }
+         '
+         '  <for (arg(typ, lab) <- allArgs) { clabel = capitalize(lab); >
+         '  public boolean has<clabel>() {
+         '    return false;
+         '  }
+         '
+         '  public <typ> get<clabel>() {
+         '    throw new UnsupportedOperationException();
+         '  }<}>
+         '
+         '  <ambiguityClass(pkg, ast.name)>
+         '
+         '  <if (leaf(_) := ast) {><lexicalClass(ast.name)><}>
+         '
+         '  <for (/Sig sig <- ast) { >
+         '  public boolean is<sig.name>() {
+         '    return false;
+         '  }
+         '
+         '  <classForProduction(pkg, ast.name, sig)><}>
+         '}"; 
 }
 
 
 public str classForProduction(str pkg, str super, Sig sig) {
-  return "
-static public class <sig.name> extends <super> {
-  // Production: <sig>
-
-  <for (arg(typ, name) <- sig.args) {>
-     private final <typ> <name>;
-  <}>
-
-  <construct(sig)>
-
-  @Override
-  public boolean is<sig.name>() { 
-    return true; 
-  }
-
-  @Override
-  public \<T\> T accept(IASTVisitor\<T\> visitor) {
-    return visitor.visit<super><sig.name>(this);
-  }
-  
-  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
-     @Override
-     public <typ> get<cname>() {
-        return this.<name>;
-     }
-     
-     @Override
-     public boolean has<cname>() {
-        return true;
-     }
-  <}>	
-}
-";
-
+  return "static public class <sig.name> extends <super> {
+         '  // Production: <sig>
+         '
+         '  <for (arg(typ, name) <- sig.args) {>
+         '  private final <typ> <name>;<}>
+         '
+         '  <construct(sig)>
+         '
+         '  @Override
+         '  public boolean is<sig.name>() { 
+         '    return true; 
+         '  }
+         '
+         '  @Override
+         '  public \<T\> T accept(IASTVisitor\<T\> visitor) {
+         '    return visitor.visit<super><sig.name>(this);
+         '  }
+         '
+         '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
+         '  @Override
+         '  public <typ> get<cname>() {
+         '    return this.<name>;
+         '  }
+         '
+         '  @Override
+         '  public boolean has<cname>() {
+         '    return true;
+         '  }<}>	
+         '}";
 }
 
 
 public str ambiguityClass(str pkg, str name) {
 return "static public class Ambiguity extends <name> {
-  private final java.util.List\<<pkg>.<name>\> alternatives;
-
-  public Ambiguity(INode node, java.util.List\<<pkg>.<name>\> alternatives) {
-    super(node);
-    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-  }
-
-  @Override
-  public Result\<IValue\> interpret(Evaluator __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
-  }
-  
-  @Override
-  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-    throw new Ambiguous((IConstructor) this.getTree());
-  }
-  
-  @Override
-  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
-  }
-
-  @Override
-  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
-  }
-  
-  public java.util.List\<<pkg>.<name>\> getAlternatives() {
-   return alternatives;
-  }
-
-  public \<T\> T accept(IASTVisitor\<T\> v) {
-	return v.visit<name>Ambiguity(this);
-  }
-}
-";
+       '  private final java.util.List\<<pkg>.<name>\> alternatives;
+       '
+       '  public Ambiguity(INode node, java.util.List\<<pkg>.<name>\> alternatives) {
+       '    super(node);
+       '    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+       '  }
+       '  
+       '  @Override
+       '  public Result\<IValue\> interpret(Evaluator __eval) {
+       '    throw new Ambiguous((IConstructor) this.getTree());
+       '  }
+       '    
+       '  @Override
+       '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+       '    throw new Ambiguous((IConstructor) this.getTree());
+       '  }
+       '  
+       '  @Override
+       '  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+       '    throw new Ambiguous((IConstructor) this.getTree());
+       '  }
+       '  
+       '  @Override
+       '  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+       '    throw new Ambiguous((IConstructor) this.getTree());
+       '  }
+       '    
+       '  public java.util.List\<<pkg>.<name>\> getAlternatives() {
+       '    return alternatives;
+       '  }
+       '  
+       '  public \<T\> T accept(IASTVisitor\<T\> v) {
+       '  	return v.visit<name>Ambiguity(this);
+       '  }
+       '}";
 }
 
 
 public str lexicalClass(str name) {
-  return "
-static public class Lexical extends <name> {
-  private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
-    super(node);
-    this.string = string;
-  }
-  public java.lang.String getString() {
-    return string;
-  }
-  public java.lang.String toString() {
-    return string;
-  }
-  public \<T\> T accept(IASTVisitor\<T\> v) {
-    return v.visit<name>Lexical(this);
-  }
-}
-";
+  return "static public class Lexical extends <name> {
+         '  private final java.lang.String string;
+         '  public Lexical(INode node, java.lang.String string) {
+         '    super(node);
+         '    this.string = string;
+         '  }
+         '  public java.lang.String getString() {
+         '    return string;
+         '  }
+         '  public java.lang.String toString() {
+         '    return string;
+         '  }
+         '  public \<T\> T accept(IASTVisitor\<T\> v) {
+         '    return v.visit<name>Lexical(this);
+         '  }
+         '}";
 }
 
 
@@ -283,14 +268,11 @@ str actuals(list[Arg] args) {
 }
 
 public str construct(Sig sig) {
-  return "
-public <sig.name>(INode node <signature(sig.args)>) {
-  super(node);
-  <for (arg(_, name) <- sig.args) {>
-    this.<name> = <name>;
-  <}>
-}
-";
+  return "public <sig.name>(INode node <signature(sig.args)>) {
+         '  super(node);
+         '  <for (arg(_, name) <- sig.args) {>
+         '  this.<name> = <name>;<}>
+         '}";
 }
 
 

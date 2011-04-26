@@ -8,15 +8,15 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module lang::rascal::syntax::Generator
+module lang::rascal::grammar::ParserGenerator
 
 import Grammar;
-import lang::rascal::syntax::Parameters;
-import lang::rascal::syntax::Regular;
-import lang::rascal::syntax::Normalization;
-import lang::rascal::syntax::Lookahead;
-import lang::rascal::syntax::Actions;
-import lang::rascal::syntax::Assimilator;
+import lang::rascal::grammar::Parameters;
+import lang::rascal::grammar::Regular;
+import lang::rascal::grammar::Normalization;
+import lang::rascal::grammar::Lookahead;
+import lang::rascal::grammar::Actions;
+import lang::rascal::grammar::Assimilator;
 import ParseTree;
 import String;
 import List;
