@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Assignable;
@@ -815,7 +816,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						.getType();
 
 				if (subjectType.isSubtypeOf(TF.nodeType())) {
-					List<Case> alts = table.get(((IConstructor) value).getName());
+					List<Case> alts = table.get(((INode) value).getName());
 					if (alts != null) {
 						for (Case c : alts) {
 							PatternWithAction rule = c.getPatternWithAction();
