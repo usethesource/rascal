@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Visit extends AbstractAST {
-  public Visit(INode node) {
+  public Visit(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class Visit extends AbstractAST {
 static public class Ambiguity extends Visit {
   private final java.util.List<org.rascalmpl.ast.Visit> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Visit> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Visit> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -126,7 +126,7 @@ static public class DefaultStrategy extends Visit {
   
 
   
-public DefaultStrategy(INode node , org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
+public DefaultStrategy(IConstructor node , org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
   super(node);
   
     this.subject = subject;
@@ -186,7 +186,7 @@ static public class GivenStrategy extends Visit {
   
 
   
-public GivenStrategy(INode node , org.rascalmpl.ast.Strategy strategy,  org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
+public GivenStrategy(IConstructor node , org.rascalmpl.ast.Strategy strategy,  org.rascalmpl.ast.Expression subject,  java.util.List<org.rascalmpl.ast.Case> cases) {
   super(node);
   
     this.strategy = strategy;

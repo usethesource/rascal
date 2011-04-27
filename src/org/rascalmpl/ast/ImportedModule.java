@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ImportedModule extends AbstractAST {
-  public ImportedModule(INode node) {
+  public ImportedModule(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class ImportedModule extends AbstractAST {
 static public class Ambiguity extends ImportedModule {
   private final java.util.List<org.rascalmpl.ast.ImportedModule> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ImportedModule> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ImportedModule> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -126,7 +126,7 @@ static public class Renamings extends ImportedModule {
   
 
   
-public Renamings(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
+public Renamings(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
   super(node);
   
     this.name = name;
@@ -186,7 +186,7 @@ static public class ActualsRenaming extends ImportedModule {
   
 
   
-public ActualsRenaming(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals,  org.rascalmpl.ast.Renamings renamings) {
+public ActualsRenaming(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals,  org.rascalmpl.ast.Renamings renamings) {
   super(node);
   
     this.name = name;
@@ -254,7 +254,7 @@ static public class Default extends ImportedModule {
   
 
   
-public Default(INode node , org.rascalmpl.ast.QualifiedName name) {
+public Default(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
   super(node);
   
     this.name = name;
@@ -300,7 +300,7 @@ static public class Actuals extends ImportedModule {
   
 
   
-public Actuals(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals) {
+public Actuals(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleActuals actuals) {
   super(node);
   
     this.name = name;

@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ProtocolChars extends AbstractAST {
-  public ProtocolChars(INode node) {
+  public ProtocolChars(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class ProtocolChars extends AbstractAST {
 static public class Ambiguity extends ProtocolChars {
   private final java.util.List<org.rascalmpl.ast.ProtocolChars> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProtocolChars> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ProtocolChars> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -89,7 +89,7 @@ static public class Ambiguity extends ProtocolChars {
  
 static public class Lexical extends ProtocolChars {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

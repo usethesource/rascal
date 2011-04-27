@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Catch extends AbstractAST {
-  public Catch(INode node) {
+  public Catch(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Catch extends AbstractAST {
 static public class Ambiguity extends Catch {
   private final java.util.List<org.rascalmpl.ast.Catch> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Catch> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Catch> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -116,7 +116,7 @@ static public class Default extends Catch {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Statement body) {
+public Default(IConstructor node , org.rascalmpl.ast.Statement body) {
   super(node);
   
     this.body = body;
@@ -162,7 +162,7 @@ static public class Binding extends Catch {
   
 
   
-public Binding(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement body) {
+public Binding(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement body) {
   super(node);
   
     this.pattern = pattern;

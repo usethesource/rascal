@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Declaration extends AbstractAST {
-  public Declaration(INode node) {
+  public Declaration(IConstructor node) {
     super(node);
   }
   
@@ -194,7 +194,7 @@ public abstract class Declaration extends AbstractAST {
 static public class Ambiguity extends Declaration {
   private final java.util.List<org.rascalmpl.ast.Declaration> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Declaration> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Declaration> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -250,7 +250,7 @@ static public class Alias extends Declaration {
   
 
   
-public Alias(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.Type base) {
+public Alias(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.Type base) {
   super(node);
   
     this.tags = tags;
@@ -336,7 +336,7 @@ static public class Data extends Declaration {
   
 
   
-public Data(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  java.util.List<org.rascalmpl.ast.Variant> variants) {
+public Data(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  java.util.List<org.rascalmpl.ast.Variant> variants) {
   super(node);
   
     this.tags = tags;
@@ -424,7 +424,7 @@ static public class Annotation extends Declaration {
   
 
   
-public Annotation(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type annoType,  org.rascalmpl.ast.Type onType,  org.rascalmpl.ast.Name name) {
+public Annotation(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type annoType,  org.rascalmpl.ast.Type onType,  org.rascalmpl.ast.Name name) {
   super(node);
   
     this.tags = tags;
@@ -516,7 +516,7 @@ static public class Function extends Declaration {
   
 
   
-public Function(INode node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
+public Function(IConstructor node , org.rascalmpl.ast.FunctionDeclaration functionDeclaration) {
   super(node);
   
     this.functionDeclaration = functionDeclaration;
@@ -564,7 +564,7 @@ static public class Rule extends Declaration {
   
 
   
-public Rule(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.PatternWithAction patternAction) {
+public Rule(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.PatternWithAction patternAction) {
   super(node);
   
     this.tags = tags;
@@ -636,7 +636,7 @@ static public class DataAbstract extends Declaration {
   
 
   
-public DataAbstract(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user) {
+public DataAbstract(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user) {
   super(node);
   
     this.tags = tags;
@@ -710,7 +710,7 @@ static public class Variable extends Declaration {
   
 
   
-public Variable(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
+public Variable(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.Variable> variables) {
   super(node);
   
     this.tags = tags;
@@ -790,7 +790,7 @@ static public class Test extends Declaration {
   
 
   
-public Test(INode node , org.rascalmpl.ast.Test test) {
+public Test(IConstructor node , org.rascalmpl.ast.Test test) {
   super(node);
   
     this.test = test;
@@ -842,7 +842,7 @@ static public class Tag extends Declaration {
   
 
   
-public Tag(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Kind kind,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Type> types) {
+public Tag(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Kind kind,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Type> types) {
   super(node);
   
     this.tags = tags;
@@ -942,7 +942,7 @@ static public class View extends Declaration {
   
 
   
-public View(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Name view,  org.rascalmpl.ast.Name superType,  java.util.List<org.rascalmpl.ast.Alternative> alts) {
+public View(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Name view,  org.rascalmpl.ast.Name superType,  java.util.List<org.rascalmpl.ast.Alternative> alts) {
   super(node);
   
     this.tags = tags;

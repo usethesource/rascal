@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Variable;
@@ -30,7 +30,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 	static public class Default extends org.rascalmpl.ast.Declarator.Default {
 
-		public Default(INode __param1, org.rascalmpl.ast.Type __param2,
+		public Default(IConstructor __param1, org.rascalmpl.ast.Type __param2,
 				List<Variable> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -94,7 +94,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 	}
 
-	public Declarator(INode __param1) {
+	public Declarator(IConstructor __param1) {
 		super(__param1);
 	}
 }

@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Assignable extends AbstractAST {
-  public Assignable(INode node) {
+  public Assignable(IConstructor node) {
     super(node);
   }
   
@@ -130,7 +130,7 @@ public abstract class Assignable extends AbstractAST {
 static public class Ambiguity extends Assignable {
   private final java.util.List<org.rascalmpl.ast.Assignable> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -180,7 +180,7 @@ static public class Tuple extends Assignable {
   
 
   
-public Tuple(INode node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
+public Tuple(IConstructor node , java.util.List<org.rascalmpl.ast.Assignable> elements) {
   super(node);
   
     this.elements = elements;
@@ -224,7 +224,7 @@ static public class Variable extends Assignable {
   
 
   
-public Variable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+public Variable(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
   super(node);
   
     this.qualifiedName = qualifiedName;
@@ -270,7 +270,7 @@ static public class IfDefinedOrDefault extends Assignable {
   
 
   
-public IfDefinedOrDefault(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
+public IfDefinedOrDefault(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression defaultExpression) {
   super(node);
   
     this.receiver = receiver;
@@ -328,7 +328,7 @@ static public class Subscript extends Assignable {
   
 
   
-public Subscript(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
+public Subscript(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Expression subscript) {
   super(node);
   
     this.receiver = receiver;
@@ -384,7 +384,7 @@ static public class Bracket extends Assignable {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Assignable arg) {
+public Bracket(IConstructor node , org.rascalmpl.ast.Assignable arg) {
   super(node);
   
     this.arg = arg;
@@ -430,7 +430,7 @@ static public class FieldAccess extends Assignable {
   
 
   
-public FieldAccess(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
+public FieldAccess(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name field) {
   super(node);
   
     this.receiver = receiver;
@@ -488,7 +488,7 @@ static public class Constructor extends Assignable {
   
 
   
-public Constructor(INode node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
+public Constructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Assignable> arguments) {
   super(node);
   
     this.name = name;
@@ -546,7 +546,7 @@ static public class Annotation extends Assignable {
   
 
   
-public Annotation(INode node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
+public Annotation(IConstructor node , org.rascalmpl.ast.Assignable receiver,  org.rascalmpl.ast.Name annotation) {
   super(node);
   
     this.receiver = receiver;

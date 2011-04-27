@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.DataTypeSelector;
 import org.rascalmpl.ast.FunctionType;
@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.utils.Names;
 public abstract class Type extends org.rascalmpl.ast.Type {
 	static public class Basic extends org.rascalmpl.ast.Type.Basic {
 
-		public Basic(INode __param1, BasicType __param2) {
+		public Basic(IConstructor __param1, BasicType __param2) {
 			super(__param1, __param2);
 		}
 
@@ -40,7 +40,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class Bracket extends org.rascalmpl.ast.Type.Bracket {
 
-		public Bracket(INode __param1, org.rascalmpl.ast.Type __param2) {
+		public Bracket(IConstructor __param1, org.rascalmpl.ast.Type __param2) {
 			super(__param1, __param2);
 		}
 
@@ -55,7 +55,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class Function extends org.rascalmpl.ast.Type.Function {
 
-		public Function(INode __param1, FunctionType __param2) {
+		public Function(IConstructor __param1, FunctionType __param2) {
 			super(__param1, __param2);
 		}
 
@@ -70,7 +70,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class Selector extends org.rascalmpl.ast.Type.Selector {
 
-		public Selector(INode __param1, DataTypeSelector __param2) {
+		public Selector(IConstructor __param1, DataTypeSelector __param2) {
 			super(__param1, __param2);
 		}
 
@@ -85,7 +85,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class Structured extends org.rascalmpl.ast.Type.Structured {
 
-		public Structured(INode __param1, StructuredType __param2) {
+		public Structured(IConstructor __param1, StructuredType __param2) {
 			super(__param1, __param2);
 		}
 
@@ -98,7 +98,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class Symbol extends org.rascalmpl.ast.Type.Symbol {
 
-		public Symbol(INode __param1, Sym __param2) {
+		public Symbol(IConstructor __param1, Sym __param2) {
 			super(__param1, __param2);
 		}
 
@@ -112,7 +112,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class User extends org.rascalmpl.ast.Type.User {
 
-		public User(INode __param1, UserType __param2) {
+		public User(IConstructor __param1, UserType __param2) {
 			super(__param1, __param2);
 		}
 
@@ -127,7 +127,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	static public class Variable extends org.rascalmpl.ast.Type.Variable {
 
-		public Variable(INode __param1, TypeVar __param2) {
+		public Variable(IConstructor __param1, TypeVar __param2) {
 			super(__param1, __param2);
 		}
 
@@ -153,7 +153,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 
 	}
 
-	public Type(INode __param1) {
+	public Type(IConstructor __param1) {
 		super(__param1);
 	}
 }

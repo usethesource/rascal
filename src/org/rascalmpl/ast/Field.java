@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Field extends AbstractAST {
-  public Field(INode node) {
+  public Field(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Field extends AbstractAST {
 static public class Ambiguity extends Field {
   private final java.util.List<org.rascalmpl.ast.Field> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Field> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Field> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -116,7 +116,7 @@ static public class Name extends Field {
   
 
   
-public Name(INode node , org.rascalmpl.ast.Name fieldName) {
+public Name(IConstructor node , org.rascalmpl.ast.Name fieldName) {
   super(node);
   
     this.fieldName = fieldName;
@@ -160,7 +160,7 @@ static public class Index extends Field {
   
 
   
-public Index(INode node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
+public Index(IConstructor node , org.rascalmpl.ast.IntegerLiteral fieldIndex) {
   super(node);
   
     this.fieldIndex = fieldIndex;

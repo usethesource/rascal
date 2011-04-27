@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Renaming extends AbstractAST {
-  public Renaming(INode node) {
+  public Renaming(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Renaming extends AbstractAST {
 static public class Ambiguity extends Renaming {
   private final java.util.List<org.rascalmpl.ast.Renaming> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Renaming> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Renaming> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class Default extends Renaming {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Name from,  org.rascalmpl.ast.Name to) {
+public Default(IConstructor node , org.rascalmpl.ast.Name from,  org.rascalmpl.ast.Name to) {
   super(node);
   
     this.from = from;

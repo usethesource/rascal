@@ -16,7 +16,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class DatePart extends AbstractAST {
-  public DatePart(INode node) {
+  public DatePart(IConstructor node) {
     super(node);
   }
   
@@ -49,7 +49,7 @@ public abstract class DatePart extends AbstractAST {
 static public class Ambiguity extends DatePart {
   private final java.util.List<org.rascalmpl.ast.DatePart> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DatePart> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.DatePart> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -88,7 +88,7 @@ static public class Ambiguity extends DatePart {
  
 static public class Lexical extends DatePart {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Body extends AbstractAST {
-  public Body(INode node) {
+  public Body(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class Body extends AbstractAST {
 static public class Ambiguity extends Body {
   private final java.util.List<org.rascalmpl.ast.Body> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Body> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Body> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -108,7 +108,7 @@ static public class Toplevels extends Body {
   
 
   
-public Toplevels(INode node , java.util.List<org.rascalmpl.ast.Toplevel> toplevels) {
+public Toplevels(IConstructor node , java.util.List<org.rascalmpl.ast.Toplevel> toplevels) {
   super(node);
   
     this.toplevels = toplevels;

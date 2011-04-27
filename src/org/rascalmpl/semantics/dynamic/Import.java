@@ -15,7 +15,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.ImportedModule;
@@ -34,7 +34,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 	
 	static public class Extend extends org.rascalmpl.ast.Import.Extend {
 
-		public Extend(INode node, ImportedModule module) {
+		public Extend(IConstructor node, ImportedModule module) {
 			super(node, module);
 		}
 		
@@ -67,7 +67,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	static public class Default extends org.rascalmpl.ast.Import.Default {
 
-		public Default(INode __param1, ImportedModule __param2) {
+		public Default(IConstructor __param1, ImportedModule __param2) {
 			super(__param1, __param2);
 		}
 
@@ -136,7 +136,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	static public class Syntax extends org.rascalmpl.ast.Import.Syntax {
 
-		public Syntax(INode __param1, SyntaxDefinition __param2) {
+		public Syntax(IConstructor __param1, SyntaxDefinition __param2) {
 			super(__param1, __param2);
 		}
 
@@ -168,7 +168,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	}
 
-	public Import(INode __param1) {
+	public Import(IConstructor __param1) {
 		super(__param1);
 	}
 }

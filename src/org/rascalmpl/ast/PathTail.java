@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class PathTail extends AbstractAST {
-  public PathTail(INode node) {
+  public PathTail(IConstructor node) {
     super(node);
   }
   
@@ -82,7 +82,7 @@ public abstract class PathTail extends AbstractAST {
 static public class Ambiguity extends PathTail {
   private final java.util.List<org.rascalmpl.ast.PathTail> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PathTail> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PathTail> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -136,7 +136,7 @@ static public class Mid extends PathTail {
   
 
   
-public Mid(INode node , org.rascalmpl.ast.MidPathChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
+public Mid(IConstructor node , org.rascalmpl.ast.MidPathChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
   super(node);
   
     this.mid = mid;
@@ -204,7 +204,7 @@ static public class Post extends PathTail {
   
 
   
-public Post(INode node , org.rascalmpl.ast.PostPathChars post) {
+public Post(IConstructor node , org.rascalmpl.ast.PostPathChars post) {
   super(node);
   
     this.post = post;

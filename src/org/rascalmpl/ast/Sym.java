@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Sym extends AbstractAST {
-  public Sym(INode node) {
+  public Sym(IConstructor node) {
     super(node);
   }
   
@@ -160,7 +160,7 @@ public abstract class Sym extends AbstractAST {
 static public class Ambiguity extends Sym {
   private final java.util.List<org.rascalmpl.ast.Sym> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Sym> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Sym> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -212,7 +212,7 @@ static public class NotFollow extends Sym {
   
 
   
-public NotFollow(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+public NotFollow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
   super(node);
   
     this.symbol = symbol;
@@ -268,7 +268,7 @@ static public class Layout extends Sym {
   
 
   
-public Layout(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
+public Layout(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
   super(node);
   
     this.nonterminal = nonterminal;
@@ -314,7 +314,7 @@ static public class Sequence extends Sym {
   
 
   
-public Sequence(INode node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> sequence) {
+public Sequence(IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> sequence) {
   super(node);
   
     this.first = first;
@@ -370,7 +370,7 @@ static public class Nonterminal extends Sym {
   
 
   
-public Nonterminal(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
+public Nonterminal(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
   super(node);
   
     this.nonterminal = nonterminal;
@@ -414,7 +414,7 @@ static public class Keyword extends Sym {
   
 
   
-public Keyword(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
+public Keyword(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
   super(node);
   
     this.nonterminal = nonterminal;
@@ -458,7 +458,7 @@ static public class Parameter extends Sym {
   
 
   
-public Parameter(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
+public Parameter(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
   super(node);
   
     this.nonterminal = nonterminal;
@@ -502,7 +502,7 @@ static public class CaseInsensitiveLiteral extends Sym {
   
 
   
-public CaseInsensitiveLiteral(INode node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
+public CaseInsensitiveLiteral(IConstructor node , org.rascalmpl.ast.CaseInsensitiveStringConstant cistring) {
   super(node);
   
     this.cistring = cistring;
@@ -548,7 +548,7 @@ static public class Alternative extends Sym {
   
 
   
-public Alternative(INode node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> alternatives) {
+public Alternative(IConstructor node , org.rascalmpl.ast.Sym first,  java.util.List<org.rascalmpl.ast.Sym> alternatives) {
   super(node);
   
     this.first = first;
@@ -604,7 +604,7 @@ static public class Start extends Sym {
   
 
   
-public Start(INode node , org.rascalmpl.ast.Nonterminal nonterminal) {
+public Start(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
   super(node);
   
     this.nonterminal = nonterminal;
@@ -650,7 +650,7 @@ static public class NotPrecede extends Sym {
   
 
   
-public NotPrecede(INode node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+public NotPrecede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
   super(node);
   
     this.match = match;
@@ -706,7 +706,7 @@ static public class Iter extends Sym {
   
 
   
-public Iter(INode node , org.rascalmpl.ast.Sym symbol) {
+public Iter(IConstructor node , org.rascalmpl.ast.Sym symbol) {
   super(node);
   
     this.symbol = symbol;
@@ -752,7 +752,7 @@ static public class IterStarSep extends Sym {
   
 
   
-public IterStarSep(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
+public IterStarSep(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
   super(node);
   
     this.symbol = symbol;
@@ -806,7 +806,7 @@ static public class StartOfLine extends Sym {
   
 
   
-public StartOfLine(INode node ) {
+public StartOfLine(IConstructor node ) {
   super(node);
   
 }
@@ -836,7 +836,7 @@ static public class Empty extends Sym {
   
 
   
-public Empty(INode node ) {
+public Empty(IConstructor node ) {
   super(node);
   
 }
@@ -868,7 +868,7 @@ static public class Optional extends Sym {
   
 
   
-public Optional(INode node , org.rascalmpl.ast.Sym symbol) {
+public Optional(IConstructor node , org.rascalmpl.ast.Sym symbol) {
   super(node);
   
     this.symbol = symbol;
@@ -914,7 +914,7 @@ static public class Follow extends Sym {
   
 
   
-public Follow(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+public Follow(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
   super(node);
   
     this.symbol = symbol;
@@ -970,7 +970,7 @@ static public class CharacterClass extends Sym {
   
 
   
-public CharacterClass(INode node , org.rascalmpl.ast.Class charClass) {
+public CharacterClass(IConstructor node , org.rascalmpl.ast.Class charClass) {
   super(node);
   
     this.charClass = charClass;
@@ -1016,7 +1016,7 @@ static public class Labeled extends Sym {
   
 
   
-public Labeled(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+public Labeled(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
   super(node);
   
     this.symbol = symbol;
@@ -1072,7 +1072,7 @@ static public class IterStar extends Sym {
   
 
   
-public IterStar(INode node , org.rascalmpl.ast.Sym symbol) {
+public IterStar(IConstructor node , org.rascalmpl.ast.Sym symbol) {
   super(node);
   
     this.symbol = symbol;
@@ -1118,7 +1118,7 @@ static public class Parametrized extends Sym {
   
 
   
-public Parametrized(INode node , org.rascalmpl.ast.ParameterizedNonterminal pnonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
+public Parametrized(IConstructor node , org.rascalmpl.ast.ParameterizedNonterminal pnonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
   super(node);
   
     this.pnonterminal = pnonterminal;
@@ -1172,7 +1172,7 @@ static public class EndOfLine extends Sym {
   
 
   
-public EndOfLine(INode node ) {
+public EndOfLine(IConstructor node ) {
   super(node);
   
 }
@@ -1204,7 +1204,7 @@ static public class Literal extends Sym {
   
 
   
-public Literal(INode node , org.rascalmpl.ast.StringConstant string) {
+public Literal(IConstructor node , org.rascalmpl.ast.StringConstant string) {
   super(node);
   
     this.string = string;
@@ -1248,7 +1248,7 @@ static public class Column extends Sym {
   
 
   
-public Column(INode node , org.rascalmpl.ast.IntegerLiteral column) {
+public Column(IConstructor node , org.rascalmpl.ast.IntegerLiteral column) {
   super(node);
   
     this.column = column;
@@ -1294,7 +1294,7 @@ static public class IterSep extends Sym {
   
 
   
-public IterSep(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
+public IterSep(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.StringConstant sep) {
   super(node);
   
     this.symbol = symbol;
@@ -1352,7 +1352,7 @@ static public class Unequal extends Sym {
   
 
   
-public Unequal(INode node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
+public Unequal(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.Sym match) {
   super(node);
   
     this.symbol = symbol;
@@ -1410,7 +1410,7 @@ static public class Precede extends Sym {
   
 
   
-public Precede(INode node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
+public Precede(IConstructor node , org.rascalmpl.ast.Sym match,  org.rascalmpl.ast.Sym symbol) {
   super(node);
   
     this.match = match;

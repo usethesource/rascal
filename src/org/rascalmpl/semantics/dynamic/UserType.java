@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.env.Environment;
@@ -26,7 +26,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 	static public class Name extends org.rascalmpl.ast.UserType.Name {
 
-		public Name(INode __param1, QualifiedName __param2) {
+		public Name(IConstructor __param1, QualifiedName __param2) {
 			super(__param1, __param2);
 		}
 
@@ -66,7 +66,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 	static public class Parametric extends
 			org.rascalmpl.ast.UserType.Parametric {
 
-		public Parametric(INode __param1, QualifiedName __param2,
+		public Parametric(IConstructor __param1, QualifiedName __param2,
 				List<org.rascalmpl.ast.Type> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -113,7 +113,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 	}
 
-	public UserType(INode __param1) {
+	public UserType(IConstructor __param1) {
 		super(__param1);
 	}
 }

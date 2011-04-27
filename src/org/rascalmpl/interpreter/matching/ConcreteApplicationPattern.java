@@ -26,7 +26,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.rascalmpl.ast.Expression.CallOrTree;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -44,7 +44,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private boolean isLiteral;
 
 	public ConcreteApplicationPattern(
-			IEvaluatorContext ctx, CallOrTree x,
+			IEvaluatorContext ctx, Expression x,
 			List<IMatchingResult> list) {
 		super(ctx, x);
 		

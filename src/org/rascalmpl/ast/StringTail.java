@@ -16,7 +16,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class StringTail extends AbstractAST {
-  public StringTail(INode node) {
+  public StringTail(IConstructor node) {
     super(node);
   }
   
@@ -89,7 +89,7 @@ public abstract class StringTail extends AbstractAST {
 static public class Ambiguity extends StringTail {
   private final java.util.List<org.rascalmpl.ast.StringTail> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTail> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.StringTail> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -143,7 +143,7 @@ static public class MidTemplate extends StringTail {
   
 
   
-public MidTemplate(INode node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+public MidTemplate(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
   super(node);
   
     this.mid = mid;
@@ -215,7 +215,7 @@ static public class MidInterpolated extends StringTail {
   
 
   
-public MidInterpolated(INode node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+public MidInterpolated(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
   super(node);
   
     this.mid = mid;
@@ -283,7 +283,7 @@ static public class Post extends StringTail {
   
 
   
-public Post(INode node , org.rascalmpl.ast.PostStringChars post) {
+public Post(IConstructor node , org.rascalmpl.ast.PostStringChars post) {
   super(node);
   
     this.post = post;

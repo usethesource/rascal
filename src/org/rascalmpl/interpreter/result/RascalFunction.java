@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -240,13 +241,13 @@ public class RascalFunction extends NamedFunction {
 			Expression last = formals.get(formals.size() - 1);
 			if (last.isTypedVariable()) {
 				org.rascalmpl.ast.Type oldType = last.getType();
-				INode origin = last.getTree();
+				IConstructor origin = last.getTree();
 				Structured newType = ASTBuilder.make("Type","Structured", origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg","Default", origin,oldType))));
 				last = ASTBuilder.make("Expression","TypedVariable",origin, newType, last.getName());
 				formals = replaceLast(formals, last);
 			}
 			else if (last.isQualifiedName()) {
-				INode origin = last.getTree();
+				IConstructor origin = last.getTree();
 				org.rascalmpl.ast.Type newType = ASTBuilder.make("Type","Structured",origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg",origin, ASTBuilder.make("Type","Basic", origin, ASTBuilder.make("BasicType","Value", origin))))));
 				last = ASTBuilder.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
 				formals = replaceLast(formals, last);

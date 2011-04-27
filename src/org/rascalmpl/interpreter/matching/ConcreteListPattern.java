@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -35,9 +36,9 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
-	private CallOrTree callOrTree;
+	private Expression callOrTree;
 
-	public ConcreteListPattern(IEvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
+	public ConcreteListPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
 		super(ctx, x);
 		callOrTree = x;
 		initListPatternDelegate(list);

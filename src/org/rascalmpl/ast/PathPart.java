@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class PathPart extends AbstractAST {
-  public PathPart(INode node) {
+  public PathPart(IConstructor node) {
     super(node);
   }
   
@@ -82,7 +82,7 @@ public abstract class PathPart extends AbstractAST {
 static public class Ambiguity extends PathPart {
   private final java.util.List<org.rascalmpl.ast.PathPart> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PathPart> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PathPart> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -132,7 +132,7 @@ static public class NonInterpolated extends PathPart {
   
 
   
-public NonInterpolated(INode node , org.rascalmpl.ast.PathChars pathChars) {
+public NonInterpolated(IConstructor node , org.rascalmpl.ast.PathChars pathChars) {
   super(node);
   
     this.pathChars = pathChars;
@@ -180,7 +180,7 @@ static public class Interpolated extends PathPart {
   
 
   
-public Interpolated(INode node , org.rascalmpl.ast.PrePathChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
+public Interpolated(IConstructor node , org.rascalmpl.ast.PrePathChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.PathTail tail) {
   super(node);
   
     this.pre = pre;

@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class LanguageAction extends AbstractAST {
-  public LanguageAction(INode node) {
+  public LanguageAction(IConstructor node) {
     super(node);
   }
   
@@ -72,7 +72,7 @@ public abstract class LanguageAction extends AbstractAST {
 static public class Ambiguity extends LanguageAction {
   private final java.util.List<org.rascalmpl.ast.LanguageAction> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LanguageAction> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.LanguageAction> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -122,7 +122,7 @@ static public class Action extends LanguageAction {
   
 
   
-public Action(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
+public Action(IConstructor node , java.util.List<org.rascalmpl.ast.Statement> statements) {
   super(node);
   
     this.statements = statements;
@@ -166,7 +166,7 @@ static public class When extends LanguageAction {
   
 
   
-public When(INode node , java.util.List<org.rascalmpl.ast.Expression> conditions) {
+public When(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions) {
   super(node);
   
     this.conditions = conditions;
@@ -210,7 +210,7 @@ static public class Replace extends LanguageAction {
   
 
   
-public Replace(INode node , org.rascalmpl.ast.Expression expression) {
+public Replace(IConstructor node , org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.expression = expression;
@@ -256,7 +256,7 @@ static public class ReplaceWhen extends LanguageAction {
   
 
   
-public ReplaceWhen(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+public ReplaceWhen(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
   super(node);
   
     this.expression = expression;

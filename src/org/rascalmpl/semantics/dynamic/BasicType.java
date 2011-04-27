@@ -14,7 +14,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -30,7 +30,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Bag extends org.rascalmpl.ast.BasicType.Bag {
 
-		public Bag(INode __param1) {
+		public Bag(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -53,7 +53,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Bool extends org.rascalmpl.ast.BasicType.Bool {
 
-		public Bool(INode __param1) {
+		public Bool(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -80,7 +80,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class DateTime extends org.rascalmpl.ast.BasicType.DateTime {
 
-		public DateTime(INode __param1) {
+		public DateTime(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -105,7 +105,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Int extends org.rascalmpl.ast.BasicType.Int {
 
-		public Int(INode __param1) {
+		public Int(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -132,7 +132,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Lex extends org.rascalmpl.ast.BasicType.Lex {
 
-		public Lex(INode __param1) {
+		public Lex(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -153,7 +153,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class List extends org.rascalmpl.ast.BasicType.List {
 
-		public List(INode __param1) {
+		public List(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -181,7 +181,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Loc extends org.rascalmpl.ast.BasicType.Loc {
 
-		public Loc(INode __param1) {
+		public Loc(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -208,7 +208,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Map extends org.rascalmpl.ast.BasicType.Map {
 
-		public Map(INode __param1) {
+		public Map(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -238,7 +238,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Node extends org.rascalmpl.ast.BasicType.Node {
 
-		public Node(INode __param1) {
+		public Node(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -265,7 +265,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Num extends org.rascalmpl.ast.BasicType.Num {
 
-		public Num(INode __param1) {
+		public Num(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -292,7 +292,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Real extends org.rascalmpl.ast.BasicType.Real {
 
-		public Real(INode __param1) {
+		public Real(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -318,7 +318,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedAdt extends
 			org.rascalmpl.ast.BasicType.ReifiedAdt {
 
-		public ReifiedAdt(INode __param1) {
+		public ReifiedAdt(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -399,7 +399,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedConstructor extends
 			org.rascalmpl.ast.BasicType.ReifiedConstructor {
 
-		public ReifiedConstructor(INode __param1) {
+		public ReifiedConstructor(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -425,7 +425,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedFunction extends
 			org.rascalmpl.ast.BasicType.ReifiedFunction {
 
-		public ReifiedFunction(INode __param1) {
+		public ReifiedFunction(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -446,7 +446,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedNonTerminal extends
 			org.rascalmpl.ast.BasicType.ReifiedNonTerminal {
 
-		public ReifiedNonTerminal(INode __param1) {
+		public ReifiedNonTerminal(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -489,7 +489,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedReifiedType extends
 			org.rascalmpl.ast.BasicType.ReifiedReifiedType {
 
-		public ReifiedReifiedType(INode __param1) {
+		public ReifiedReifiedType(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -529,7 +529,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedType extends
 			org.rascalmpl.ast.BasicType.ReifiedType {
 
-		public ReifiedType(INode __param1) {
+		public ReifiedType(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -559,7 +559,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 	static public class ReifiedTypeParameter extends
 			org.rascalmpl.ast.BasicType.ReifiedTypeParameter {
 
-		public ReifiedTypeParameter(INode __param1) {
+		public ReifiedTypeParameter(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -567,7 +567,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Relation extends org.rascalmpl.ast.BasicType.Relation {
 
-		public Relation(INode __param1) {
+		public Relation(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -592,7 +592,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Set extends org.rascalmpl.ast.BasicType.Set {
 
-		public Set(INode __param1) {
+		public Set(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -621,7 +621,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class String extends org.rascalmpl.ast.BasicType.String {
 
-		public String(INode __param1) {
+		public String(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -647,7 +647,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Tuple extends org.rascalmpl.ast.BasicType.Tuple {
 
-		public Tuple(INode __param1) {
+		public Tuple(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -671,7 +671,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Value extends org.rascalmpl.ast.BasicType.Value {
 
-		public Value(INode __param1) {
+		public Value(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -697,7 +697,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	static public class Void extends org.rascalmpl.ast.BasicType.Void {
 
-		public Void(INode __param1) {
+		public Void(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -718,7 +718,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	}
 
-	public BasicType(INode __param1) {
+	public BasicType(IConstructor __param1) {
 		super(__param1);
 	}
 }

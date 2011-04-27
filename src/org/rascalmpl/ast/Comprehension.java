@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Comprehension extends AbstractAST {
-  public Comprehension(INode node) {
+  public Comprehension(IConstructor node) {
     super(node);
   }
   
@@ -82,7 +82,7 @@ public abstract class Comprehension extends AbstractAST {
 static public class Ambiguity extends Comprehension {
   private final java.util.List<org.rascalmpl.ast.Comprehension> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Comprehension> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Comprehension> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -134,7 +134,7 @@ static public class Set extends Comprehension {
   
 
   
-public Set(INode node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
   super(node);
   
     this.results = results;
@@ -194,7 +194,7 @@ static public class Map extends Comprehension {
   
 
   
-public Map(INode node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+public Map(IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to,  java.util.List<org.rascalmpl.ast.Expression> generators) {
   super(node);
   
     this.from = from;
@@ -264,7 +264,7 @@ static public class List extends Comprehension {
   
 
   
-public List(INode node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> results,  java.util.List<org.rascalmpl.ast.Expression> generators) {
   super(node);
   
     this.results = results;

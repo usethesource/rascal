@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Class extends AbstractAST {
-  public Class(INode node) {
+  public Class(IConstructor node) {
     super(node);
   }
   
@@ -88,7 +88,7 @@ public abstract class Class extends AbstractAST {
 static public class Ambiguity extends Class {
   private final java.util.List<org.rascalmpl.ast.Class> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Class> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Class> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -140,7 +140,7 @@ static public class Union extends Class {
   
 
   
-public Union(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+public Union(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -198,7 +198,7 @@ static public class Difference extends Class {
   
 
   
-public Difference(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+public Difference(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -254,7 +254,7 @@ static public class SimpleCharclass extends Class {
   
 
   
-public SimpleCharclass(INode node , java.util.List<org.rascalmpl.ast.Range> ranges) {
+public SimpleCharclass(IConstructor node , java.util.List<org.rascalmpl.ast.Range> ranges) {
   super(node);
   
     this.ranges = ranges;
@@ -300,7 +300,7 @@ static public class Intersection extends Class {
   
 
   
-public Intersection(INode node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+public Intersection(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -356,7 +356,7 @@ static public class Complement extends Class {
   
 
   
-public Complement(INode node , org.rascalmpl.ast.Class charClass) {
+public Complement(IConstructor node , org.rascalmpl.ast.Class charClass) {
   super(node);
   
     this.charClass = charClass;
@@ -400,7 +400,7 @@ static public class Bracket extends Class {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Class charclass) {
+public Bracket(IConstructor node , org.rascalmpl.ast.Class charclass) {
   super(node);
   
     this.charclass = charclass;

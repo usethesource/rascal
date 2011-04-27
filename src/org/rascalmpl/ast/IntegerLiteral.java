@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class IntegerLiteral extends AbstractAST {
-  public IntegerLiteral(INode node) {
+  public IntegerLiteral(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class IntegerLiteral extends AbstractAST {
 static public class Ambiguity extends IntegerLiteral {
   private final java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.IntegerLiteral> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -124,7 +124,7 @@ static public class OctalIntegerLiteral extends IntegerLiteral {
   
 
   
-public OctalIntegerLiteral(INode node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
+public OctalIntegerLiteral(IConstructor node , org.rascalmpl.ast.OctalIntegerLiteral octal) {
   super(node);
   
     this.octal = octal;
@@ -168,7 +168,7 @@ static public class HexIntegerLiteral extends IntegerLiteral {
   
 
   
-public HexIntegerLiteral(INode node , org.rascalmpl.ast.HexIntegerLiteral hex) {
+public HexIntegerLiteral(IConstructor node , org.rascalmpl.ast.HexIntegerLiteral hex) {
   super(node);
   
     this.hex = hex;
@@ -212,7 +212,7 @@ static public class DecimalIntegerLiteral extends IntegerLiteral {
   
 
   
-public DecimalIntegerLiteral(INode node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
+public DecimalIntegerLiteral(IConstructor node , org.rascalmpl.ast.DecimalIntegerLiteral decimal) {
   super(node);
   
     this.decimal = decimal;

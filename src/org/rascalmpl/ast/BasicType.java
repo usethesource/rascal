@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class BasicType extends AbstractAST {
-  public BasicType(INode node) {
+  public BasicType(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class BasicType extends AbstractAST {
 static public class Ambiguity extends BasicType {
   private final java.util.List<org.rascalmpl.ast.BasicType> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.BasicType> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.BasicType> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Map extends BasicType {
   
 
   
-public Map(INode node ) {
+public Map(IConstructor node ) {
   super(node);
   
 }
@@ -128,7 +128,7 @@ static public class Relation extends BasicType {
   
 
   
-public Relation(INode node ) {
+public Relation(IConstructor node ) {
   super(node);
   
 }
@@ -158,7 +158,7 @@ static public class Real extends BasicType {
   
 
   
-public Real(INode node ) {
+public Real(IConstructor node ) {
   super(node);
   
 }
@@ -188,7 +188,7 @@ static public class List extends BasicType {
   
 
   
-public List(INode node ) {
+public List(IConstructor node ) {
   super(node);
   
 }
@@ -218,7 +218,7 @@ static public class Lex extends BasicType {
   
 
   
-public Lex(INode node ) {
+public Lex(IConstructor node ) {
   super(node);
   
 }
@@ -248,7 +248,7 @@ static public class ReifiedAdt extends BasicType {
   
 
   
-public ReifiedAdt(INode node ) {
+public ReifiedAdt(IConstructor node ) {
   super(node);
   
 }
@@ -278,7 +278,7 @@ static public class ReifiedReifiedType extends BasicType {
   
 
   
-public ReifiedReifiedType(INode node ) {
+public ReifiedReifiedType(IConstructor node ) {
   super(node);
   
 }
@@ -308,7 +308,7 @@ static public class DateTime extends BasicType {
   
 
   
-public DateTime(INode node ) {
+public DateTime(IConstructor node ) {
   super(node);
   
 }
@@ -338,7 +338,7 @@ static public class Void extends BasicType {
   
 
   
-public Void(INode node ) {
+public Void(IConstructor node ) {
   super(node);
   
 }
@@ -368,7 +368,7 @@ static public class ReifiedTypeParameter extends BasicType {
   
 
   
-public ReifiedTypeParameter(INode node ) {
+public ReifiedTypeParameter(IConstructor node ) {
   super(node);
   
 }
@@ -398,7 +398,7 @@ static public class ReifiedFunction extends BasicType {
   
 
   
-public ReifiedFunction(INode node ) {
+public ReifiedFunction(IConstructor node ) {
   super(node);
   
 }
@@ -428,7 +428,7 @@ static public class String extends BasicType {
   
 
   
-public String(INode node ) {
+public String(IConstructor node ) {
   super(node);
   
 }
@@ -458,7 +458,7 @@ static public class ReifiedNonTerminal extends BasicType {
   
 
   
-public ReifiedNonTerminal(INode node ) {
+public ReifiedNonTerminal(IConstructor node ) {
   super(node);
   
 }
@@ -488,7 +488,7 @@ static public class Value extends BasicType {
   
 
   
-public Value(INode node ) {
+public Value(IConstructor node ) {
   super(node);
   
 }
@@ -518,7 +518,7 @@ static public class ReifiedType extends BasicType {
   
 
   
-public ReifiedType(INode node ) {
+public ReifiedType(IConstructor node ) {
   super(node);
   
 }
@@ -548,7 +548,7 @@ static public class Int extends BasicType {
   
 
   
-public Int(INode node ) {
+public Int(IConstructor node ) {
   super(node);
   
 }
@@ -578,7 +578,7 @@ static public class Bag extends BasicType {
   
 
   
-public Bag(INode node ) {
+public Bag(IConstructor node ) {
   super(node);
   
 }
@@ -608,7 +608,7 @@ static public class Tuple extends BasicType {
   
 
   
-public Tuple(INode node ) {
+public Tuple(IConstructor node ) {
   super(node);
   
 }
@@ -638,7 +638,7 @@ static public class Bool extends BasicType {
   
 
   
-public Bool(INode node ) {
+public Bool(IConstructor node ) {
   super(node);
   
 }
@@ -668,7 +668,7 @@ static public class Num extends BasicType {
   
 
   
-public Num(INode node ) {
+public Num(IConstructor node ) {
   super(node);
   
 }
@@ -698,7 +698,7 @@ static public class Loc extends BasicType {
   
 
   
-public Loc(INode node ) {
+public Loc(IConstructor node ) {
   super(node);
   
 }
@@ -728,7 +728,7 @@ static public class Set extends BasicType {
   
 
   
-public Set(INode node ) {
+public Set(IConstructor node ) {
   super(node);
   
 }
@@ -758,7 +758,7 @@ static public class ReifiedConstructor extends BasicType {
   
 
   
-public ReifiedConstructor(INode node ) {
+public ReifiedConstructor(IConstructor node ) {
   super(node);
   
 }
@@ -788,7 +788,7 @@ static public class Node extends BasicType {
   
 
   
-public Node(INode node ) {
+public Node(IConstructor node ) {
   super(node);
   
 }

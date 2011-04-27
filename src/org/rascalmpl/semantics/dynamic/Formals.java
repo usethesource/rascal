@@ -15,7 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.Environment;
@@ -25,7 +25,7 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 
 	static public class Default extends org.rascalmpl.ast.Formals.Default {
 
-		public Default(INode __param1,
+		public Default(IConstructor __param1,
 				List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
@@ -50,7 +50,7 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 
 	}
 
-	public Formals(INode __param1) {
+	public Formals(IConstructor __param1) {
 		super(__param1);
 	}
 }

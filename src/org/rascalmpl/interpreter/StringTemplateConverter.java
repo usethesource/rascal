@@ -59,7 +59,7 @@ public class StringTemplateConverter {
 		super();
 	}
 	
-	private Statement surroundWithSingleIterForLoop(INode src, Name label, Statement body) {
+	private Statement surroundWithSingleIterForLoop(IConstructor src, Name label, Statement body) {
 		Name dummy = ASTBuilder.make("Name","Lexical",src, "_");
 		Expression var = ASTBuilder.make("Expression","QualifiedName",src, ASTBuilder.make("QualifiedName", src, Arrays.asList(dummy)));
 		Expression truth = ASTBuilder.make("Expression","Literal",src, ASTBuilder.make("Literal","Boolean",src, ASTBuilder.make("BooleanLiteral","Lexical",src, "true")));
@@ -84,11 +84,11 @@ public class StringTemplateConverter {
 			this.label = label;
 		}
 
-		private Statement makeBlock(INode src, Statement ...stats) {
+		private Statement makeBlock(IConstructor src, Statement ...stats) {
 			return makeBlock(src, Arrays.asList(stats));
 		}
 		
-		private Statement makeBlock(INode src, List<Statement> stats) {
+		private Statement makeBlock(IConstructor src, List<Statement> stats) {
 			return ASTBuilder.make("Statement","NonEmptyBlock",src, ASTBuilder.make("Label", "Empty", src),
 					stats);
 		}
@@ -96,7 +96,7 @@ public class StringTemplateConverter {
 		
 		private class IndentingAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 
-			public IndentingAppend(INode __param1, DataTarget __param2,
+			public IndentingAppend(IConstructor __param1, DataTarget __param2,
 					Statement __param3) {
 				super(__param1, __param2, __param3);
 			} 
@@ -150,7 +150,7 @@ public class StringTemplateConverter {
 			private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 			protected final IString str;
 
-			public ConstAppend(INode __param1, DataTarget __param2, String arg) {
+			public ConstAppend(IConstructor __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, null);
 				str = initString(preprocess(arg));
 			}
@@ -190,7 +190,7 @@ public class StringTemplateConverter {
 			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'[^']*$");
 			private int indent;
 			
-			public IndentingStringFragmentAppend(INode __param1, DataTarget __param2, String arg) {
+			public IndentingStringFragmentAppend(IConstructor __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -215,7 +215,7 @@ public class StringTemplateConverter {
 		}
 
 		private static class PreAppend extends IndentingStringFragmentAppend {
-			public PreAppend(INode __param1, DataTarget __param2, String arg) {
+			public PreAppend(IConstructor __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -229,7 +229,7 @@ public class StringTemplateConverter {
 
 		private static class MidAppend extends IndentingStringFragmentAppend {
 
-			public MidAppend(INode __param1, DataTarget __param2, String arg) {
+			public MidAppend(IConstructor __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -243,7 +243,7 @@ public class StringTemplateConverter {
 		}
 
 		private static class PostAppend extends ConstAppend {
-			public PostAppend(INode __param1, DataTarget __param2, String arg) {
+			public PostAppend(IConstructor __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -257,19 +257,19 @@ public class StringTemplateConverter {
 		}		
 		
 		
-		private Statement makeConstAppend(INode tree, String str) {
+		private Statement makeConstAppend(IConstructor tree, String str) {
 			return new ConstAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
-		private Statement makePostAppend(INode tree, String str) {
+		private Statement makePostAppend(IConstructor tree, String str) {
 			return new PostAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
-		private Statement makePreAppend(INode tree, String str) {
+		private Statement makePreAppend(IConstructor tree, String str) {
 			return new PreAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
-		private Statement makeMidAppend(INode tree, String str) {
+		private Statement makeMidAppend(IConstructor tree, String str) {
 			return new MidAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
 		}
 
@@ -278,7 +278,7 @@ public class StringTemplateConverter {
 					ASTBuilder.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
 		}
 		
-		private  Statement combinePreBodyPost(INode src, List<Statement> pre, Statement body, List<Statement> post) {
+		private  Statement combinePreBodyPost(IConstructor src, List<Statement> pre, Statement body, List<Statement> post) {
 			List<Statement> stats = new ArrayList<Statement>();
 			stats.addAll(pre);
 			stats.add(body);

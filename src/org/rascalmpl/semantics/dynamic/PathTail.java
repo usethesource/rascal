@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidPathChars;
@@ -24,7 +24,7 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 
 	static public class Mid extends org.rascalmpl.ast.PathTail.Mid {
 
-		public Mid(INode __param1, MidPathChars __param2, Expression __param3,
+		public Mid(IConstructor __param1, MidPathChars __param2, Expression __param3,
 				org.rascalmpl.ast.PathTail __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -42,7 +42,7 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 
 	static public class Post extends org.rascalmpl.ast.PathTail.Post {
 
-		public Post(INode __param1, PostPathChars __param2) {
+		public Post(IConstructor __param1, PostPathChars __param2) {
 			super(__param1, __param2);
 		}
 
@@ -53,7 +53,7 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 
 	}
 
-	public PathTail(INode __param1) {
+	public PathTail(IConstructor __param1) {
 		super(__param1);
 	}
 }

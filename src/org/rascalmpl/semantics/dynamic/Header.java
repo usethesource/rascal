@@ -15,7 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.ModuleParameters;
@@ -28,7 +28,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 	static public class Default extends org.rascalmpl.ast.Header.Default {
 
-		public Default(INode __param1, Tags __param2, QualifiedName __param3,
+		public Default(IConstructor __param1, Tags __param2, QualifiedName __param3,
 				List<Import> __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -62,7 +62,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 	static public class Parameters extends org.rascalmpl.ast.Header.Parameters {
 
-		public Parameters(INode __param1, Tags __param2,
+		public Parameters(IConstructor __param1, Tags __param2,
 				QualifiedName __param3, ModuleParameters __param4,
 				List<Import> __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
@@ -86,7 +86,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 
 	}
 
-	public Header(INode __param1) {
+	public Header(IConstructor __param1) {
 		super(__param1);
 	}
 }

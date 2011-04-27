@@ -16,7 +16,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class DateTimeLiteral extends AbstractAST {
-  public DateTimeLiteral(INode node) {
+  public DateTimeLiteral(IConstructor node) {
     super(node);
   }
   
@@ -73,7 +73,7 @@ public abstract class DateTimeLiteral extends AbstractAST {
 static public class Ambiguity extends DateTimeLiteral {
   private final java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.DateTimeLiteral> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -123,7 +123,7 @@ static public class DateAndTimeLiteral extends DateTimeLiteral {
   
 
   
-public DateAndTimeLiteral(INode node , org.rascalmpl.ast.DateAndTime dateAndTime) {
+public DateAndTimeLiteral(IConstructor node , org.rascalmpl.ast.DateAndTime dateAndTime) {
   super(node);
   
     this.dateAndTime = dateAndTime;
@@ -167,7 +167,7 @@ static public class TimeLiteral extends DateTimeLiteral {
   
 
   
-public TimeLiteral(INode node , org.rascalmpl.ast.JustTime time) {
+public TimeLiteral(IConstructor node , org.rascalmpl.ast.JustTime time) {
   super(node);
   
     this.time = time;
@@ -211,7 +211,7 @@ static public class DateLiteral extends DateTimeLiteral {
   
 
   
-public DateLiteral(INode node , org.rascalmpl.ast.JustDate date) {
+public DateLiteral(IConstructor node , org.rascalmpl.ast.JustDate date) {
   super(node);
   
     this.date = date;

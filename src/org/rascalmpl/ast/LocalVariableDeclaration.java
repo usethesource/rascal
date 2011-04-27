@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class LocalVariableDeclaration extends AbstractAST {
-  public LocalVariableDeclaration(INode node) {
+  public LocalVariableDeclaration(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
 static public class Ambiguity extends LocalVariableDeclaration {
   private final java.util.List<org.rascalmpl.ast.LocalVariableDeclaration> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LocalVariableDeclaration> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.LocalVariableDeclaration> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -108,7 +108,7 @@ static public class Default extends LocalVariableDeclaration {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Declarator declarator) {
+public Default(IConstructor node , org.rascalmpl.ast.Declarator declarator) {
   super(node);
   
     this.declarator = declarator;
@@ -152,7 +152,7 @@ static public class Dynamic extends LocalVariableDeclaration {
   
 
   
-public Dynamic(INode node , org.rascalmpl.ast.Declarator declarator) {
+public Dynamic(IConstructor node , org.rascalmpl.ast.Declarator declarator) {
   super(node);
   
     this.declarator = declarator;

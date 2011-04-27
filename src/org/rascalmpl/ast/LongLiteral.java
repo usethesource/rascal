@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class LongLiteral extends AbstractAST {
-  public LongLiteral(INode node) {
+  public LongLiteral(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class LongLiteral extends AbstractAST {
 static public class Ambiguity extends LongLiteral {
   private final java.util.List<org.rascalmpl.ast.LongLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LongLiteral> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.LongLiteral> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -124,7 +124,7 @@ static public class OctalLongLiteral extends LongLiteral {
   
 
   
-public OctalLongLiteral(INode node , org.rascalmpl.ast.OctalLongLiteral octalLong) {
+public OctalLongLiteral(IConstructor node , org.rascalmpl.ast.OctalLongLiteral octalLong) {
   super(node);
   
     this.octalLong = octalLong;
@@ -168,7 +168,7 @@ static public class DecimalLongLiteral extends LongLiteral {
   
 
   
-public DecimalLongLiteral(INode node , org.rascalmpl.ast.DecimalLongLiteral decimalLong) {
+public DecimalLongLiteral(IConstructor node , org.rascalmpl.ast.DecimalLongLiteral decimalLong) {
   super(node);
   
     this.decimalLong = decimalLong;
@@ -212,7 +212,7 @@ static public class HexLongLiteral extends LongLiteral {
   
 
   
-public HexLongLiteral(INode node , org.rascalmpl.ast.HexLongLiteral hexLong) {
+public HexLongLiteral(IConstructor node , org.rascalmpl.ast.HexLongLiteral hexLong) {
   super(node);
   
     this.hexLong = hexLong;

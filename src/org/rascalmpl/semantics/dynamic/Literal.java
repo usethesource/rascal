@@ -15,7 +15,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -43,7 +43,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Boolean extends org.rascalmpl.ast.Literal.Boolean {
 
-		public Boolean(INode __param1, BooleanLiteral __param2) {
+		public Boolean(IConstructor __param1, BooleanLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -74,7 +74,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class DateTime extends org.rascalmpl.ast.Literal.DateTime {
 
-		public DateTime(INode __param1, DateTimeLiteral __param2) {
+		public DateTime(IConstructor __param1, DateTimeLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -94,7 +94,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Integer extends org.rascalmpl.ast.Literal.Integer {
 
-		public Integer(INode __param1, IntegerLiteral __param2) {
+		public Integer(IConstructor __param1, IntegerLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -118,7 +118,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Location extends org.rascalmpl.ast.Literal.Location {
 
-		public Location(INode __param1, LocationLiteral __param2) {
+		public Location(IConstructor __param1, LocationLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -138,7 +138,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class Real extends org.rascalmpl.ast.Literal.Real {
 
-		public Real(INode __param1, RealLiteral __param2) {
+		public Real(IConstructor __param1, RealLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -171,7 +171,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class RegExp extends org.rascalmpl.ast.Literal.RegExp {
 
-		public RegExp(INode __param1, RegExpLiteral __param2) {
+		public RegExp(IConstructor __param1, RegExpLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -200,7 +200,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class String extends org.rascalmpl.ast.Literal.String {
 
-		public String(INode __param1, StringLiteral __param2) {
+		public String(IConstructor __param1, StringLiteral __param2) {
 			super(__param1, __param2);
 		}
 
@@ -275,7 +275,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	}
 
-	public Literal(INode __param1) {
+	public Literal(IConstructor __param1) {
 		super(__param1);
 	}
 }

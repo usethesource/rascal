@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Visibility extends AbstractAST {
-  public Visibility(INode node) {
+  public Visibility(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class Visibility extends AbstractAST {
 static public class Ambiguity extends Visibility {
   private final java.util.List<org.rascalmpl.ast.Visibility> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Visibility> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Visibility> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Public extends Visibility {
   
 
   
-public Public(INode node ) {
+public Public(IConstructor node ) {
   super(node);
   
 }
@@ -128,7 +128,7 @@ static public class Default extends Visibility {
   
 
   
-public Default(INode node ) {
+public Default(IConstructor node ) {
   super(node);
   
 }
@@ -158,7 +158,7 @@ static public class Private extends Visibility {
   
 
   
-public Private(INode node ) {
+public Private(IConstructor node ) {
   super(node);
   
 }

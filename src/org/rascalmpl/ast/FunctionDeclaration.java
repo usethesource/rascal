@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class FunctionDeclaration extends AbstractAST {
-  public FunctionDeclaration(INode node) {
+  public FunctionDeclaration(IConstructor node) {
     super(node);
   }
   
@@ -90,7 +90,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
 static public class Ambiguity extends FunctionDeclaration {
   private final java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -144,7 +144,7 @@ static public class Abstract extends FunctionDeclaration {
   
 
   
-public Abstract(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature) {
+public Abstract(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature) {
   super(node);
   
     this.tags = tags;
@@ -218,7 +218,7 @@ static public class Expression extends FunctionDeclaration {
   
 
   
-public Expression(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression) {
+public Expression(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.tags = tags;
@@ -304,7 +304,7 @@ static public class Default extends FunctionDeclaration {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
+public Default(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Signature signature,  org.rascalmpl.ast.FunctionBody body) {
   super(node);
   
     this.tags = tags;

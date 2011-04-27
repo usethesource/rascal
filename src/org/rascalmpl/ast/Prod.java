@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Prod extends AbstractAST {
-  public Prod(INode node) {
+  public Prod(IConstructor node) {
     super(node);
   }
   
@@ -128,7 +128,7 @@ public abstract class Prod extends AbstractAST {
 static public class Ambiguity extends Prod {
   private final java.util.List<org.rascalmpl.ast.Prod> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -180,7 +180,7 @@ static public class All extends Prod {
   
 
   
-public All(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+public All(IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -238,7 +238,7 @@ static public class Follow extends Prod {
   
 
   
-public Follow(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+public Follow(IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -296,7 +296,7 @@ static public class First extends Prod {
   
 
   
-public First(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+public First(IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -354,7 +354,7 @@ static public class Unlabeled extends Prod {
   
 
   
-public Unlabeled(INode node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
+public Unlabeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  java.util.List<org.rascalmpl.ast.Sym> args) {
   super(node);
   
     this.modifiers = modifiers;
@@ -414,7 +414,7 @@ static public class Labeled extends Prod {
   
 
   
-public Labeled(INode node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> args) {
+public Labeled(IConstructor node , java.util.List<org.rascalmpl.ast.ProdModifier> modifiers,  org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.Sym> args) {
   super(node);
   
     this.modifiers = modifiers;
@@ -484,7 +484,7 @@ static public class Action extends Prod {
   
 
   
-public Action(INode node , org.rascalmpl.ast.Prod prod,  org.rascalmpl.ast.LanguageAction action) {
+public Action(IConstructor node , org.rascalmpl.ast.Prod prod,  org.rascalmpl.ast.LanguageAction action) {
   super(node);
   
     this.prod = prod;
@@ -540,7 +540,7 @@ static public class Reference extends Prod {
   
 
   
-public Reference(INode node , org.rascalmpl.ast.Name referenced) {
+public Reference(IConstructor node , org.rascalmpl.ast.Name referenced) {
   super(node);
   
     this.referenced = referenced;
@@ -586,7 +586,7 @@ static public class Reject extends Prod {
   
 
   
-public Reject(INode node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
+public Reject(IConstructor node , org.rascalmpl.ast.Prod lhs,  org.rascalmpl.ast.Prod rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -640,7 +640,7 @@ static public class Others extends Prod {
   
 
   
-public Others(INode node ) {
+public Others(IConstructor node ) {
   super(node);
   
 }
@@ -674,7 +674,7 @@ static public class AssociativityGroup extends Prod {
   
 
   
-public AssociativityGroup(INode node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
+public AssociativityGroup(IConstructor node , org.rascalmpl.ast.Assoc associativity,  org.rascalmpl.ast.Prod group) {
   super(node);
   
     this.associativity = associativity;

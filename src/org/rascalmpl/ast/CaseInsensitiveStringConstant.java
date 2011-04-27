@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class CaseInsensitiveStringConstant extends AbstractAST {
-  public CaseInsensitiveStringConstant(INode node) {
+  public CaseInsensitiveStringConstant(IConstructor node) {
     super(node);
   }
   
@@ -48,7 +48,7 @@ public abstract class CaseInsensitiveStringConstant extends AbstractAST {
 static public class Ambiguity extends CaseInsensitiveStringConstant {
   private final java.util.List<org.rascalmpl.ast.CaseInsensitiveStringConstant> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.CaseInsensitiveStringConstant> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.CaseInsensitiveStringConstant> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -87,7 +87,7 @@ static public class Ambiguity extends CaseInsensitiveStringConstant {
  
 static public class Lexical extends CaseInsensitiveStringConstant {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

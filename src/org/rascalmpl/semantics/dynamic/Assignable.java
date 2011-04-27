@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -51,7 +51,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 
-		public Annotation(INode __param1,
+		public Annotation(IConstructor __param1,
 				org.rascalmpl.ast.Assignable __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -114,7 +114,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Bracket extends org.rascalmpl.ast.Assignable.Bracket {
 
-		public Bracket(INode __param1, org.rascalmpl.ast.Assignable __param2) {
+		public Bracket(IConstructor __param1, org.rascalmpl.ast.Assignable __param2) {
 			super(__param1, __param2);
 		}
 
@@ -123,7 +123,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Constructor extends
 			org.rascalmpl.ast.Assignable.Constructor {
 
-		public Constructor(INode __param1, Name __param2,
+		public Constructor(IConstructor __param1, Name __param2,
 				List<org.rascalmpl.ast.Assignable> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -141,7 +141,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						this);
 			}
 
-			INode node = (INode) __eval.__getValue().getValue();
+			IConstructor node = (IConstructor) __eval.__getValue().getValue();
 			Type nodeType = node.getType();
 
 			if (nodeType.isAbstractDataType()) {
@@ -224,7 +224,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class FieldAccess extends
 			org.rascalmpl.ast.Assignable.FieldAccess {
 
-		public FieldAccess(INode __param1,
+		public FieldAccess(IConstructor __param1,
 				org.rascalmpl.ast.Assignable __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -370,7 +370,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class IfDefinedOrDefault extends
 			org.rascalmpl.ast.Assignable.IfDefinedOrDefault {
 
-		public IfDefinedOrDefault(INode __param1,
+		public IfDefinedOrDefault(IConstructor __param1,
 				org.rascalmpl.ast.Assignable __param2, Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -412,7 +412,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 	static public class Subscript extends
 			org.rascalmpl.ast.Assignable.Subscript {
 
-		public Subscript(INode __param1, org.rascalmpl.ast.Assignable __param2,
+		public Subscript(IConstructor __param1, org.rascalmpl.ast.Assignable __param2,
 				Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -473,7 +473,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (rec.getType().isNodeType()
 					&& subscript.getType().isIntegerType()) {
 				int index = ((IInteger) subscript.getValue()).intValue();
-				INode node = (INode) rec.getValue();
+				IConstructor node = (IConstructor) rec.getValue();
 
 				if (index >= node.arity()) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
@@ -615,7 +615,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Tuple extends org.rascalmpl.ast.Assignable.Tuple {
 
-		public Tuple(INode __param1, List<org.rascalmpl.ast.Assignable> __param2) {
+		public Tuple(IConstructor __param1, List<org.rascalmpl.ast.Assignable> __param2) {
 			super(__param1, __param2);
 		}
 
@@ -669,7 +669,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	static public class Variable extends org.rascalmpl.ast.Assignable.Variable {
 
-		public Variable(INode __param1, QualifiedName __param2) {
+		public Variable(IConstructor __param1, QualifiedName __param2) {
 			super(__param1, __param2);
 		}
 
@@ -719,7 +719,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 	}
 
-	public Assignable(INode __param1) {
+	public Assignable(IConstructor __param1) {
 		super(__param1);
 	}
 }

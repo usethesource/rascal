@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class LocationLiteral extends AbstractAST {
-  public LocationLiteral(INode node) {
+  public LocationLiteral(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class LocationLiteral extends AbstractAST {
 static public class Ambiguity extends LocationLiteral {
   private final java.util.List<org.rascalmpl.ast.LocationLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LocationLiteral> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.LocationLiteral> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class Default extends LocationLiteral {
   
 
   
-public Default(INode node , org.rascalmpl.ast.ProtocolPart protocolPart,  org.rascalmpl.ast.PathPart pathPart) {
+public Default(IConstructor node , org.rascalmpl.ast.ProtocolPart protocolPart,  org.rascalmpl.ast.PathPart pathPart) {
   super(node);
   
     this.protocolPart = protocolPart;

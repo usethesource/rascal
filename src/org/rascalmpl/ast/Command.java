@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Command extends AbstractAST {
-  public Command(INode node) {
+  public Command(IConstructor node) {
     super(node);
   }
   
@@ -90,7 +90,7 @@ public abstract class Command extends AbstractAST {
 static public class Ambiguity extends Command {
   private final java.util.List<org.rascalmpl.ast.Command> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Command> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Command> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -140,7 +140,7 @@ static public class Shell extends Command {
   
 
   
-public Shell(INode node , org.rascalmpl.ast.ShellCommand command) {
+public Shell(IConstructor node , org.rascalmpl.ast.ShellCommand command) {
   super(node);
   
     this.command = command;
@@ -184,7 +184,7 @@ static public class Import extends Command {
   
 
   
-public Import(INode node , org.rascalmpl.ast.Import imported) {
+public Import(IConstructor node , org.rascalmpl.ast.Import imported) {
   super(node);
   
     this.imported = imported;
@@ -228,7 +228,7 @@ static public class Expression extends Command {
   
 
   
-public Expression(INode node , org.rascalmpl.ast.Expression expression) {
+public Expression(IConstructor node , org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.expression = expression;
@@ -272,7 +272,7 @@ static public class Statement extends Command {
   
 
   
-public Statement(INode node , org.rascalmpl.ast.Statement statement) {
+public Statement(IConstructor node , org.rascalmpl.ast.Statement statement) {
   super(node);
   
     this.statement = statement;
@@ -316,7 +316,7 @@ static public class Declaration extends Command {
   
 
   
-public Declaration(INode node , org.rascalmpl.ast.Declaration declaration) {
+public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
   super(node);
   
     this.declaration = declaration;

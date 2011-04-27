@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Kind extends AbstractAST {
-  public Kind(INode node) {
+  public Kind(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class Kind extends AbstractAST {
 static public class Ambiguity extends Kind {
   private final java.util.List<org.rascalmpl.ast.Kind> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Kind> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Kind> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Module extends Kind {
   
 
   
-public Module(INode node ) {
+public Module(IConstructor node ) {
   super(node);
   
 }
@@ -128,7 +128,7 @@ static public class Rule extends Kind {
   
 
   
-public Rule(INode node ) {
+public Rule(IConstructor node ) {
   super(node);
   
 }
@@ -158,7 +158,7 @@ static public class Variable extends Kind {
   
 
   
-public Variable(INode node ) {
+public Variable(IConstructor node ) {
   super(node);
   
 }
@@ -188,7 +188,7 @@ static public class Anno extends Kind {
   
 
   
-public Anno(INode node ) {
+public Anno(IConstructor node ) {
   super(node);
   
 }
@@ -218,7 +218,7 @@ static public class Function extends Kind {
   
 
   
-public Function(INode node ) {
+public Function(IConstructor node ) {
   super(node);
   
 }
@@ -248,7 +248,7 @@ static public class Data extends Kind {
   
 
   
-public Data(INode node ) {
+public Data(IConstructor node ) {
   super(node);
   
 }
@@ -278,7 +278,7 @@ static public class Tag extends Kind {
   
 
   
-public Tag(INode node ) {
+public Tag(IConstructor node ) {
   super(node);
   
 }
@@ -308,7 +308,7 @@ static public class View extends Kind {
   
 
   
-public View(INode node ) {
+public View(IConstructor node ) {
   super(node);
   
 }
@@ -338,7 +338,7 @@ static public class Alias extends Kind {
   
 
   
-public Alias(INode node ) {
+public Alias(IConstructor node ) {
   super(node);
   
 }
@@ -368,7 +368,7 @@ static public class All extends Kind {
   
 
   
-public All(INode node ) {
+public All(IConstructor node ) {
   super(node);
   
 }

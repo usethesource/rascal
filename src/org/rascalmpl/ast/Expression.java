@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Expression extends AbstractAST {
-  public Expression(INode node) {
+  public Expression(IConstructor node) {
     super(node);
   }
   
@@ -314,7 +314,7 @@ public abstract class Expression extends AbstractAST {
 static public class Ambiguity extends Expression {
   private final java.util.List<org.rascalmpl.ast.Expression> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Expression> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -366,7 +366,7 @@ static public class Product extends Expression {
   
 
   
-public Product(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Product(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -424,7 +424,7 @@ static public class Division extends Expression {
   
 
   
-public Division(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Division(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -480,7 +480,7 @@ static public class Any extends Expression {
   
 
   
-public Any(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+public Any(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators) {
   super(node);
   
     this.generators = generators;
@@ -526,7 +526,7 @@ static public class NonEquals extends Expression {
   
 
   
-public NonEquals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public NonEquals(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -586,7 +586,7 @@ static public class StepRange extends Expression {
   
 
   
-public StepRange(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
+public StepRange(IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression second,  org.rascalmpl.ast.Expression last) {
   super(node);
   
     this.first = first;
@@ -656,7 +656,7 @@ static public class Enumerator extends Expression {
   
 
   
-public Enumerator(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+public Enumerator(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.pattern = pattern;
@@ -714,7 +714,7 @@ static public class Join extends Expression {
   
 
   
-public Join(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Join(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -772,7 +772,7 @@ static public class NoMatch extends Expression {
   
 
   
-public NoMatch(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.pattern = pattern;
@@ -830,7 +830,7 @@ static public class TypedVariable extends Expression {
   
 
   
-public TypedVariable(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+public TypedVariable(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
   super(node);
   
     this.type = type;
@@ -886,7 +886,7 @@ static public class Comprehension extends Expression {
   
 
   
-public Comprehension(INode node , org.rascalmpl.ast.Comprehension comprehension) {
+public Comprehension(IConstructor node , org.rascalmpl.ast.Comprehension comprehension) {
   super(node);
   
     this.comprehension = comprehension;
@@ -932,7 +932,7 @@ static public class In extends Expression {
   
 
   
-public In(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public In(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -988,7 +988,7 @@ static public class Set extends Expression {
   
 
   
-public Set(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
   super(node);
   
     this.elements = elements;
@@ -1034,7 +1034,7 @@ static public class FieldAccess extends Expression {
   
 
   
-public FieldAccess(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
+public FieldAccess(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name field) {
   super(node);
   
     this.expression = expression;
@@ -1092,7 +1092,7 @@ static public class FieldProject extends Expression {
   
 
   
-public FieldProject(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
+public FieldProject(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Field> fields) {
   super(node);
   
     this.expression = expression;
@@ -1150,7 +1150,7 @@ static public class Equals extends Expression {
   
 
   
-public Equals(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Equals(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -1208,7 +1208,7 @@ static public class Implication extends Expression {
   
 
   
-public Implication(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Implication(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -1264,7 +1264,7 @@ static public class Bracket extends Expression {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Expression expression) {
+public Bracket(IConstructor node , org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.expression = expression;
@@ -1310,7 +1310,7 @@ static public class ReifiedType extends Expression {
   
 
   
-public ReifiedType(INode node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
+public ReifiedType(IConstructor node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
   super(node);
   
     this.basicType = basicType;
@@ -1366,7 +1366,7 @@ static public class TransitiveClosure extends Expression {
   
 
   
-public TransitiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
+public TransitiveClosure(IConstructor node , org.rascalmpl.ast.Expression argument) {
   super(node);
   
     this.argument = argument;
@@ -1412,7 +1412,7 @@ static public class Subtraction extends Expression {
   
 
   
-public Subtraction(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Subtraction(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -1468,7 +1468,7 @@ static public class NonEmptyBlock extends Expression {
   
 
   
-public NonEmptyBlock(INode node , java.util.List<org.rascalmpl.ast.Statement> statements) {
+public NonEmptyBlock(IConstructor node , java.util.List<org.rascalmpl.ast.Statement> statements) {
   super(node);
   
     this.statements = statements;
@@ -1514,7 +1514,7 @@ static public class CallOrTree extends Expression {
   
 
   
-public CallOrTree(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
+public CallOrTree(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
   super(node);
   
     this.expression = expression;
@@ -1572,7 +1572,7 @@ static public class Range extends Expression {
   
 
   
-public Range(INode node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
+public Range(IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
   super(node);
   
     this.first = first;
@@ -1630,7 +1630,7 @@ static public class GetAnnotation extends Expression {
   
 
   
-public GetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+public GetAnnotation(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
   super(node);
   
     this.expression = expression;
@@ -1688,7 +1688,7 @@ static public class Guarded extends Expression {
   
 
   
-public Guarded(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
+public Guarded(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
   super(node);
   
     this.type = type;
@@ -1746,7 +1746,7 @@ static public class VariableBecomes extends Expression {
   
 
   
-public VariableBecomes(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+public VariableBecomes(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
   super(node);
   
     this.name = name;
@@ -1806,7 +1806,7 @@ static public class FieldUpdate extends Expression {
   
 
   
-public FieldUpdate(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
+public FieldUpdate(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name key,  org.rascalmpl.ast.Expression replacement) {
   super(node);
   
     this.expression = expression;
@@ -1874,7 +1874,7 @@ static public class Negation extends Expression {
   
 
   
-public Negation(INode node , org.rascalmpl.ast.Expression argument) {
+public Negation(IConstructor node , org.rascalmpl.ast.Expression argument) {
   super(node);
   
     this.argument = argument;
@@ -1918,7 +1918,7 @@ static public class Literal extends Expression {
   
 
   
-public Literal(INode node , org.rascalmpl.ast.Literal literal) {
+public Literal(IConstructor node , org.rascalmpl.ast.Literal literal) {
   super(node);
   
     this.literal = literal;
@@ -1966,7 +1966,7 @@ static public class Closure extends Expression {
   
 
   
-public Closure(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+public Closure(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
   super(node);
   
     this.type = type;
@@ -2036,7 +2036,7 @@ static public class LessThan extends Expression {
   
 
   
-public LessThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public LessThan(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2092,7 +2092,7 @@ static public class Map extends Expression {
   
 
   
-public Map(INode node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
+public Map(IConstructor node , java.util.List<org.rascalmpl.ast.Mapping_Expression> mappings) {
   super(node);
   
     this.mappings = mappings;
@@ -2140,7 +2140,7 @@ static public class TypedVariableBecomes extends Expression {
   
 
   
-public TypedVariableBecomes(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
+public TypedVariableBecomes(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression pattern) {
   super(node);
   
     this.type = type;
@@ -2208,7 +2208,7 @@ static public class Anti extends Expression {
   
 
   
-public Anti(INode node , org.rascalmpl.ast.Expression pattern) {
+public Anti(IConstructor node , org.rascalmpl.ast.Expression pattern) {
   super(node);
   
     this.pattern = pattern;
@@ -2254,7 +2254,7 @@ static public class Equivalence extends Expression {
   
 
   
-public Equivalence(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Equivalence(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2312,7 +2312,7 @@ static public class Match extends Expression {
   
 
   
-public Match(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+public Match(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.pattern = pattern;
@@ -2370,7 +2370,7 @@ static public class Composition extends Expression {
   
 
   
-public Composition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Composition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2428,7 +2428,7 @@ static public class LessThanOrEq extends Expression {
   
 
   
-public LessThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public LessThanOrEq(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2486,7 +2486,7 @@ static public class IfDefinedOtherwise extends Expression {
   
 
   
-public IfDefinedOtherwise(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public IfDefinedOtherwise(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2544,7 +2544,7 @@ static public class VoidClosure extends Expression {
   
 
   
-public VoidClosure(INode node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+public VoidClosure(IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
   super(node);
   
     this.parameters = parameters;
@@ -2602,7 +2602,7 @@ static public class Or extends Expression {
   
 
   
-public Or(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Or(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2658,7 +2658,7 @@ static public class All extends Expression {
   
 
   
-public All(INode node , java.util.List<org.rascalmpl.ast.Expression> generators) {
+public All(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators) {
   super(node);
   
     this.generators = generators;
@@ -2704,7 +2704,7 @@ static public class Addition extends Expression {
   
 
   
-public Addition(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Addition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2762,7 +2762,7 @@ static public class GreaterThan extends Expression {
   
 
   
-public GreaterThan(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public GreaterThan(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -2820,7 +2820,7 @@ static public class Subscript extends Expression {
   
 
   
-public Subscript(INode node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
+public Subscript(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> subscripts) {
   super(node);
   
     this.expression = expression;
@@ -2880,7 +2880,7 @@ static public class IfThenElse extends Expression {
   
 
   
-public IfThenElse(INode node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
+public IfThenElse(IConstructor node , org.rascalmpl.ast.Expression condition,  org.rascalmpl.ast.Expression thenExp,  org.rascalmpl.ast.Expression elseExp) {
   super(node);
   
     this.condition = condition;
@@ -2950,7 +2950,7 @@ static public class Modulo extends Expression {
   
 
   
-public Modulo(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Modulo(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -3006,7 +3006,7 @@ static public class ReifyType extends Expression {
   
 
   
-public ReifyType(INode node , org.rascalmpl.ast.Type type) {
+public ReifyType(IConstructor node , org.rascalmpl.ast.Type type) {
   super(node);
   
     this.type = type;
@@ -3050,7 +3050,7 @@ static public class Descendant extends Expression {
   
 
   
-public Descendant(INode node , org.rascalmpl.ast.Expression pattern) {
+public Descendant(IConstructor node , org.rascalmpl.ast.Expression pattern) {
   super(node);
   
     this.pattern = pattern;
@@ -3096,7 +3096,7 @@ static public class Has extends Expression {
   
 
   
-public Has(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+public Has(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
   super(node);
   
     this.expression = expression;
@@ -3154,7 +3154,7 @@ static public class GreaterThanOrEq extends Expression {
   
 
   
-public GreaterThanOrEq(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public GreaterThanOrEq(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -3212,7 +3212,7 @@ static public class Intersection extends Expression {
   
 
   
-public Intersection(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public Intersection(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -3268,7 +3268,7 @@ static public class Tuple extends Expression {
   
 
   
-public Tuple(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+public Tuple(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
   super(node);
   
     this.elements = elements;
@@ -3312,7 +3312,7 @@ static public class MultiVariable extends Expression {
   
 
   
-public MultiVariable(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+public MultiVariable(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
   super(node);
   
     this.qualifiedName = qualifiedName;
@@ -3358,7 +3358,7 @@ static public class Is extends Expression {
   
 
   
-public Is(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+public Is(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
   super(node);
   
     this.expression = expression;
@@ -3414,7 +3414,7 @@ static public class IsDefined extends Expression {
   
 
   
-public IsDefined(INode node , org.rascalmpl.ast.Expression argument) {
+public IsDefined(IConstructor node , org.rascalmpl.ast.Expression argument) {
   super(node);
   
     this.argument = argument;
@@ -3458,7 +3458,7 @@ static public class List extends Expression {
   
 
   
-public List(INode node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
   super(node);
   
     this.elements = elements;
@@ -3504,7 +3504,7 @@ static public class NotIn extends Expression {
   
 
   
-public NotIn(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public NotIn(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -3558,7 +3558,7 @@ static public class It extends Expression {
   
 
   
-public It(INode node ) {
+public It(IConstructor node ) {
   super(node);
   
 }
@@ -3592,7 +3592,7 @@ static public class And extends Expression {
   
 
   
-public And(INode node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+public And(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
   super(node);
   
     this.lhs = lhs;
@@ -3648,7 +3648,7 @@ static public class QualifiedName extends Expression {
   
 
   
-public QualifiedName(INode node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+public QualifiedName(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
   super(node);
   
     this.qualifiedName = qualifiedName;
@@ -3692,7 +3692,7 @@ static public class Negative extends Expression {
   
 
   
-public Negative(INode node , org.rascalmpl.ast.Expression argument) {
+public Negative(IConstructor node , org.rascalmpl.ast.Expression argument) {
   super(node);
   
     this.argument = argument;
@@ -3740,7 +3740,7 @@ static public class Reducer extends Expression {
   
 
   
-public Reducer(INode node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
+public Reducer(IConstructor node , org.rascalmpl.ast.Expression init,  org.rascalmpl.ast.Expression result,  java.util.List<org.rascalmpl.ast.Expression> generators) {
   super(node);
   
     this.init = init;
@@ -3808,7 +3808,7 @@ static public class TransitiveReflexiveClosure extends Expression {
   
 
   
-public TransitiveReflexiveClosure(INode node , org.rascalmpl.ast.Expression argument) {
+public TransitiveReflexiveClosure(IConstructor node , org.rascalmpl.ast.Expression argument) {
   super(node);
   
     this.argument = argument;
@@ -3856,7 +3856,7 @@ static public class SetAnnotation extends Expression {
   
 
   
-public SetAnnotation(INode node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
+public SetAnnotation(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression value) {
   super(node);
   
     this.expression = expression;
@@ -3926,7 +3926,7 @@ static public class Visit extends Expression {
   
 
   
-public Visit(INode node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
   super(node);
   
     this.label = label;

@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class RegExpLiteral extends AbstractAST {
-  public RegExpLiteral(INode node) {
+  public RegExpLiteral(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class RegExpLiteral extends AbstractAST {
 static public class Ambiguity extends RegExpLiteral {
   private final java.util.List<org.rascalmpl.ast.RegExpLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.RegExpLiteral> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.RegExpLiteral> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -89,7 +89,7 @@ static public class Ambiguity extends RegExpLiteral {
  
 static public class Lexical extends RegExpLiteral {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

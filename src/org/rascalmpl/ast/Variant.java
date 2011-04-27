@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Variant extends AbstractAST {
-  public Variant(INode node) {
+  public Variant(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Variant extends AbstractAST {
 static public class Ambiguity extends Variant {
   private final java.util.List<org.rascalmpl.ast.Variant> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Variant> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Variant> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class NAryConstructor extends Variant {
   
 
   
-public NAryConstructor(INode node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+public NAryConstructor(IConstructor node , org.rascalmpl.ast.Name name,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
   super(node);
   
     this.name = name;

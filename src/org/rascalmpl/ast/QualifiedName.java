@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class QualifiedName extends AbstractAST {
-  public QualifiedName(INode node) {
+  public QualifiedName(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class QualifiedName extends AbstractAST {
 static public class Ambiguity extends QualifiedName {
   private final java.util.List<org.rascalmpl.ast.QualifiedName> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.QualifiedName> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.QualifiedName> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -108,7 +108,7 @@ static public class Default extends QualifiedName {
   
 
   
-public Default(INode node , java.util.List<org.rascalmpl.ast.Name> names) {
+public Default(IConstructor node , java.util.List<org.rascalmpl.ast.Name> names) {
   super(node);
   
     this.names = names;

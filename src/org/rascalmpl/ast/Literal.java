@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Literal extends AbstractAST {
-  public Literal(INode node) {
+  public Literal(IConstructor node) {
     super(node);
   }
   
@@ -106,7 +106,7 @@ public abstract class Literal extends AbstractAST {
 static public class Ambiguity extends Literal {
   private final java.util.List<org.rascalmpl.ast.Literal> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Literal> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Literal> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -156,7 +156,7 @@ static public class Location extends Literal {
   
 
   
-public Location(INode node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
+public Location(IConstructor node , org.rascalmpl.ast.LocationLiteral locationLiteral) {
   super(node);
   
     this.locationLiteral = locationLiteral;
@@ -200,7 +200,7 @@ static public class String extends Literal {
   
 
   
-public String(INode node , org.rascalmpl.ast.StringLiteral stringLiteral) {
+public String(IConstructor node , org.rascalmpl.ast.StringLiteral stringLiteral) {
   super(node);
   
     this.stringLiteral = stringLiteral;
@@ -244,7 +244,7 @@ static public class RegExp extends Literal {
   
 
   
-public RegExp(INode node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
+public RegExp(IConstructor node , org.rascalmpl.ast.RegExpLiteral regExpLiteral) {
   super(node);
   
     this.regExpLiteral = regExpLiteral;
@@ -288,7 +288,7 @@ static public class Real extends Literal {
   
 
   
-public Real(INode node , org.rascalmpl.ast.RealLiteral realLiteral) {
+public Real(IConstructor node , org.rascalmpl.ast.RealLiteral realLiteral) {
   super(node);
   
     this.realLiteral = realLiteral;
@@ -332,7 +332,7 @@ static public class Boolean extends Literal {
   
 
   
-public Boolean(INode node , org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
+public Boolean(IConstructor node , org.rascalmpl.ast.BooleanLiteral booleanLiteral) {
   super(node);
   
     this.booleanLiteral = booleanLiteral;
@@ -376,7 +376,7 @@ static public class DateTime extends Literal {
   
 
   
-public DateTime(INode node , org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
+public DateTime(IConstructor node , org.rascalmpl.ast.DateTimeLiteral dateTimeLiteral) {
   super(node);
   
     this.dateTimeLiteral = dateTimeLiteral;
@@ -420,7 +420,7 @@ static public class Integer extends Literal {
   
 
   
-public Integer(INode node , org.rascalmpl.ast.IntegerLiteral integerLiteral) {
+public Integer(IConstructor node , org.rascalmpl.ast.IntegerLiteral integerLiteral) {
   super(node);
   
     this.integerLiteral = integerLiteral;

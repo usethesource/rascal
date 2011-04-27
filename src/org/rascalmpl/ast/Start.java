@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Start extends AbstractAST {
-  public Start(INode node) {
+  public Start(IConstructor node) {
     super(node);
   }
   
@@ -48,7 +48,7 @@ public abstract class Start extends AbstractAST {
 static public class Ambiguity extends Start {
   private final java.util.List<org.rascalmpl.ast.Start> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Start> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Start> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -96,7 +96,7 @@ static public class Absent extends Start {
   
 
   
-public Absent(INode node ) {
+public Absent(IConstructor node ) {
   super(node);
   
 }
@@ -126,7 +126,7 @@ static public class Present extends Start {
   
 
   
-public Present(INode node ) {
+public Present(IConstructor node ) {
   super(node);
   
 }

@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class SyntaxDefinition extends AbstractAST {
-  public SyntaxDefinition(INode node) {
+  public SyntaxDefinition(IConstructor node) {
     super(node);
   }
   
@@ -72,7 +72,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
 static public class Ambiguity extends SyntaxDefinition {
   private final java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.SyntaxDefinition> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -124,7 +124,7 @@ static public class Keyword extends SyntaxDefinition {
   
 
   
-public Keyword(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+public Keyword(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
   super(node);
   
     this.defined = defined;
@@ -184,7 +184,7 @@ static public class Language extends SyntaxDefinition {
   
 
   
-public Language(INode node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+public Language(IConstructor node , org.rascalmpl.ast.Start start,  org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
   super(node);
   
     this.start = start;
@@ -254,7 +254,7 @@ static public class Layout extends SyntaxDefinition {
   
 
   
-public Layout(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+public Layout(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
   super(node);
   
     this.defined = defined;
@@ -312,7 +312,7 @@ static public class Lexical extends SyntaxDefinition {
   
 
   
-public Lexical(INode node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+public Lexical(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
   super(node);
   
     this.defined = defined;

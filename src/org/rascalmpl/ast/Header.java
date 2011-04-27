@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Header extends AbstractAST {
-  public Header(INode node) {
+  public Header(IConstructor node) {
     super(node);
   }
   
@@ -82,7 +82,7 @@ public abstract class Header extends AbstractAST {
 static public class Ambiguity extends Header {
   private final java.util.List<org.rascalmpl.ast.Header> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Header> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Header> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -138,7 +138,7 @@ static public class Parameters extends Header {
   
 
   
-public Parameters(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleParameters params,  java.util.List<org.rascalmpl.ast.Import> imports) {
+public Parameters(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.ModuleParameters params,  java.util.List<org.rascalmpl.ast.Import> imports) {
   super(node);
   
     this.tags = tags;
@@ -222,7 +222,7 @@ static public class Default extends Header {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Import> imports) {
+public Default(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Import> imports) {
   super(node);
   
     this.tags = tags;

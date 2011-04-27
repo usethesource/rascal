@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Test extends AbstractAST {
-  public Test(INode node) {
+  public Test(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class Test extends AbstractAST {
 static public class Ambiguity extends Test {
   private final java.util.List<org.rascalmpl.ast.Test> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Test> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Test> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -126,7 +126,7 @@ static public class Unlabeled extends Test {
   
 
   
-public Unlabeled(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Expression expression) {
+public Unlabeled(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.tags = tags;
@@ -186,7 +186,7 @@ static public class Labeled extends Test {
   
 
   
-public Labeled(INode node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringLiteral labeled) {
+public Labeled(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringLiteral labeled) {
   super(node);
   
     this.tags = tags;

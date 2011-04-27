@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class TypeVar extends AbstractAST {
-  public TypeVar(INode node) {
+  public TypeVar(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class TypeVar extends AbstractAST {
 static public class Ambiguity extends TypeVar {
   private final java.util.List<org.rascalmpl.ast.TypeVar> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeVar> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.TypeVar> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -116,7 +116,7 @@ static public class Free extends TypeVar {
   
 
   
-public Free(INode node , org.rascalmpl.ast.Name name) {
+public Free(IConstructor node , org.rascalmpl.ast.Name name) {
   super(node);
   
     this.name = name;
@@ -162,7 +162,7 @@ static public class Bounded extends TypeVar {
   
 
   
-public Bounded(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Type bound) {
+public Bounded(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Type bound) {
   super(node);
   
     this.name = name;

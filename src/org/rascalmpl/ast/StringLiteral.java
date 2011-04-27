@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class StringLiteral extends AbstractAST {
-  public StringLiteral(INode node) {
+  public StringLiteral(IConstructor node) {
     super(node);
   }
   
@@ -90,7 +90,7 @@ public abstract class StringLiteral extends AbstractAST {
 static public class Ambiguity extends StringLiteral {
   private final java.util.List<org.rascalmpl.ast.StringLiteral> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringLiteral> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.StringLiteral> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -140,7 +140,7 @@ static public class NonInterpolated extends StringLiteral {
   
 
   
-public NonInterpolated(INode node , org.rascalmpl.ast.StringConstant constant) {
+public NonInterpolated(IConstructor node , org.rascalmpl.ast.StringConstant constant) {
   super(node);
   
     this.constant = constant;
@@ -188,7 +188,7 @@ static public class Template extends StringLiteral {
   
 
   
-public Template(INode node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+public Template(IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
   super(node);
   
     this.pre = pre;
@@ -260,7 +260,7 @@ static public class Interpolated extends StringLiteral {
   
 
   
-public Interpolated(INode node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+public Interpolated(IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
   super(node);
   
     this.pre = pre;
