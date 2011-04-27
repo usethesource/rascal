@@ -370,10 +370,15 @@ public abstract class SGTDBF implements IGTD{
 					AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
 					if(sharedNext == null){
 						AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
-						if(nextNextAltAlternative.isEmptyLeafNode()){
-							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
+						
+						AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
+						if(nextNextAltAlternative.isMatchable()){
+							if(nextNextAltAlternative.isEmptyLeafNode()){
+								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
+							}else{
+								nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
+							}
 						}else{
-							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
 							if(nextAltResultStore != null){
 								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
 							}else{
