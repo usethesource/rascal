@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Case extends AbstractAST {
-  public Case(INode node) {
+  public Case(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Case extends AbstractAST {
 static public class Ambiguity extends Case {
   private final java.util.List<org.rascalmpl.ast.Case> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Case> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Case> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -116,7 +116,7 @@ static public class PatternWithAction extends Case {
   
 
   
-public PatternWithAction(INode node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
+public PatternWithAction(IConstructor node , org.rascalmpl.ast.PatternWithAction patternWithAction) {
   super(node);
   
     this.patternWithAction = patternWithAction;
@@ -160,7 +160,7 @@ static public class Default extends Case {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Statement statement) {
+public Default(IConstructor node , org.rascalmpl.ast.Statement statement) {
   super(node);
   
     this.statement = statement;

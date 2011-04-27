@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Signature extends AbstractAST {
-  public Signature(INode node) {
+  public Signature(IConstructor node) {
     super(node);
   }
   
@@ -90,7 +90,7 @@ public abstract class Signature extends AbstractAST {
 static public class Ambiguity extends Signature {
   private final java.util.List<org.rascalmpl.ast.Signature> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Signature> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Signature> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -148,7 +148,7 @@ static public class WithThrows extends Signature {
   
 
   
-public WithThrows(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
+public WithThrows(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
   super(node);
   
     this.type = type;
@@ -246,7 +246,7 @@ static public class NoThrows extends Signature {
   
 
   
-public NoThrows(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
+public NoThrows(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
   super(node);
   
     this.type = type;

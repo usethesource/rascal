@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Assignment extends AbstractAST {
-  public Assignment(INode node) {
+  public Assignment(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class Assignment extends AbstractAST {
 static public class Ambiguity extends Assignment {
   private final java.util.List<org.rascalmpl.ast.Assignment> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assignment> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Assignment> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Addition extends Assignment {
   
 
   
-public Addition(INode node ) {
+public Addition(IConstructor node ) {
   super(node);
   
 }
@@ -128,7 +128,7 @@ static public class IfDefined extends Assignment {
   
 
   
-public IfDefined(INode node ) {
+public IfDefined(IConstructor node ) {
   super(node);
   
 }
@@ -158,7 +158,7 @@ static public class Division extends Assignment {
   
 
   
-public Division(INode node ) {
+public Division(IConstructor node ) {
   super(node);
   
 }
@@ -188,7 +188,7 @@ static public class Product extends Assignment {
   
 
   
-public Product(INode node ) {
+public Product(IConstructor node ) {
   super(node);
   
 }
@@ -218,7 +218,7 @@ static public class Intersection extends Assignment {
   
 
   
-public Intersection(INode node ) {
+public Intersection(IConstructor node ) {
   super(node);
   
 }
@@ -248,7 +248,7 @@ static public class Subtraction extends Assignment {
   
 
   
-public Subtraction(INode node ) {
+public Subtraction(IConstructor node ) {
   super(node);
   
 }
@@ -278,7 +278,7 @@ static public class Default extends Assignment {
   
 
   
-public Default(INode node ) {
+public Default(IConstructor node ) {
   super(node);
   
 }

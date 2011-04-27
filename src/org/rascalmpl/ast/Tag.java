@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Tag extends AbstractAST {
-  public Tag(INode node) {
+  public Tag(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class Tag extends AbstractAST {
 static public class Ambiguity extends Tag {
   private final java.util.List<org.rascalmpl.ast.Tag> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Tag> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Tag> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -126,7 +126,7 @@ static public class Default extends Tag {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.TagString contents) {
+public Default(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.TagString contents) {
   super(node);
   
     this.name = name;
@@ -184,7 +184,7 @@ static public class Expression extends Tag {
   
 
   
-public Expression(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
+public Expression(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.name = name;
@@ -240,7 +240,7 @@ static public class Empty extends Tag {
   
 
   
-public Empty(INode node , org.rascalmpl.ast.Name name) {
+public Empty(IConstructor node , org.rascalmpl.ast.Name name) {
   super(node);
   
     this.name = name;

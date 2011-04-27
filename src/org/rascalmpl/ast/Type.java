@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Type extends AbstractAST {
-  public Type(INode node) {
+  public Type(IConstructor node) {
     super(node);
   }
   
@@ -114,7 +114,7 @@ public abstract class Type extends AbstractAST {
 static public class Ambiguity extends Type {
   private final java.util.List<org.rascalmpl.ast.Type> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Type> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Type> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -164,7 +164,7 @@ static public class Basic extends Type {
   
 
   
-public Basic(INode node , org.rascalmpl.ast.BasicType basic) {
+public Basic(IConstructor node , org.rascalmpl.ast.BasicType basic) {
   super(node);
   
     this.basic = basic;
@@ -208,7 +208,7 @@ static public class Function extends Type {
   
 
   
-public Function(INode node , org.rascalmpl.ast.FunctionType function) {
+public Function(IConstructor node , org.rascalmpl.ast.FunctionType function) {
   super(node);
   
     this.function = function;
@@ -252,7 +252,7 @@ static public class Structured extends Type {
   
 
   
-public Structured(INode node , org.rascalmpl.ast.StructuredType structured) {
+public Structured(IConstructor node , org.rascalmpl.ast.StructuredType structured) {
   super(node);
   
     this.structured = structured;
@@ -296,7 +296,7 @@ static public class Bracket extends Type {
   
 
   
-public Bracket(INode node , org.rascalmpl.ast.Type type) {
+public Bracket(IConstructor node , org.rascalmpl.ast.Type type) {
   super(node);
   
     this.type = type;
@@ -340,7 +340,7 @@ static public class Variable extends Type {
   
 
   
-public Variable(INode node , org.rascalmpl.ast.TypeVar typeVar) {
+public Variable(IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
   super(node);
   
     this.typeVar = typeVar;
@@ -384,7 +384,7 @@ static public class Selector extends Type {
   
 
   
-public Selector(INode node , org.rascalmpl.ast.DataTypeSelector selector) {
+public Selector(IConstructor node , org.rascalmpl.ast.DataTypeSelector selector) {
   super(node);
   
     this.selector = selector;
@@ -428,7 +428,7 @@ static public class Symbol extends Type {
   
 
   
-public Symbol(INode node , org.rascalmpl.ast.Sym symbol) {
+public Symbol(IConstructor node , org.rascalmpl.ast.Sym symbol) {
   super(node);
   
     this.symbol = symbol;
@@ -472,7 +472,7 @@ static public class User extends Type {
   
 
   
-public User(INode node , org.rascalmpl.ast.UserType user) {
+public User(IConstructor node , org.rascalmpl.ast.UserType user) {
   super(node);
   
     this.user = user;

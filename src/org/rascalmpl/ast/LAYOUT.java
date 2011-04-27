@@ -14,7 +14,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class LAYOUT extends AbstractAST {
-  public LAYOUT(INode node) {
+  public LAYOUT(IConstructor node) {
     super(node);
   }
   
@@ -47,7 +47,7 @@ public abstract class LAYOUT extends AbstractAST {
 static public class Ambiguity extends LAYOUT {
   private final java.util.List<org.rascalmpl.ast.LAYOUT> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.LAYOUT> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.LAYOUT> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -86,7 +86,7 @@ static public class Ambiguity extends LAYOUT {
  
 static public class Lexical extends LAYOUT {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

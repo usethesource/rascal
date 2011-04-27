@@ -16,7 +16,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class StringMiddle extends AbstractAST {
-  public StringMiddle(INode node) {
+  public StringMiddle(IConstructor node) {
     super(node);
   }
   
@@ -81,7 +81,7 @@ public abstract class StringMiddle extends AbstractAST {
 static public class Ambiguity extends StringMiddle {
   private final java.util.List<org.rascalmpl.ast.StringMiddle> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringMiddle> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.StringMiddle> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -135,7 +135,7 @@ static public class Interpolated extends StringMiddle {
   
 
   
-public Interpolated(INode node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringMiddle tail) {
+public Interpolated(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringMiddle tail) {
   super(node);
   
     this.mid = mid;
@@ -207,7 +207,7 @@ static public class Template extends StringMiddle {
   
 
   
-public Template(INode node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
+public Template(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
   super(node);
   
     this.mid = mid;
@@ -275,7 +275,7 @@ static public class Mid extends StringMiddle {
   
 
   
-public Mid(INode node , org.rascalmpl.ast.MidStringChars mid) {
+public Mid(IConstructor node , org.rascalmpl.ast.MidStringChars mid) {
   super(node);
   
     this.mid = mid;

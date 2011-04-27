@@ -16,7 +16,6 @@
 package org.rascalmpl.ast;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -39,14 +38,14 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
-	protected final INode node;
+	protected final IConstructor node;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-	AbstractAST(INode node) {
+	AbstractAST(IConstructor node) {
 		this.node = node;
 	}
 	
@@ -111,7 +110,7 @@ public abstract class AbstractAST implements IVisitable {
 		return false;
 	}
 
-	public INode getTree() {
+	public IConstructor getTree() {
 		return node;
 	}
 

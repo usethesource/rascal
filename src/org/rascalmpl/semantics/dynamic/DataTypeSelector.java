@@ -15,7 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
@@ -32,7 +32,7 @@ public abstract class DataTypeSelector extends
 	static public class Selector extends
 			org.rascalmpl.ast.DataTypeSelector.Selector {
 
-		public Selector(INode __param1, QualifiedName __param2, Name __param3) {
+		public Selector(IConstructor __param1, QualifiedName __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
 
@@ -80,7 +80,7 @@ public abstract class DataTypeSelector extends
 
 	}
 
-	public DataTypeSelector(INode __param1) {
+	public DataTypeSelector(IConstructor __param1) {
 		super(__param1);
 	}
 }

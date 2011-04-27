@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class FunctionType extends AbstractAST {
-  public FunctionType(INode node) {
+  public FunctionType(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class FunctionType extends AbstractAST {
 static public class Ambiguity extends FunctionType {
   private final java.util.List<org.rascalmpl.ast.FunctionType> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionType> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.FunctionType> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class TypeArguments extends FunctionType {
   
 
   
-public TypeArguments(INode node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
+public TypeArguments(IConstructor node , org.rascalmpl.ast.Type type,  java.util.List<org.rascalmpl.ast.TypeArg> arguments) {
   super(node);
   
     this.type = type;

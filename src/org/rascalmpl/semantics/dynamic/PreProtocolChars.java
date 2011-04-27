@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -24,7 +24,7 @@ public abstract class PreProtocolChars extends
 	static public class Lexical extends
 			org.rascalmpl.ast.PreProtocolChars.Lexical {
 
-		public Lexical(INode __param1, String __param2) {
+		public Lexical(IConstructor __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
@@ -39,7 +39,7 @@ public abstract class PreProtocolChars extends
 		}
 	}
 
-	public PreProtocolChars(INode __param1) {
+	public PreProtocolChars(IConstructor __param1) {
 		super(__param1);
 	}
 }

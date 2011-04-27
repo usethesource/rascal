@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Bound extends AbstractAST {
-  public Bound(INode node) {
+  public Bound(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class Bound extends AbstractAST {
 static public class Ambiguity extends Bound {
   private final java.util.List<org.rascalmpl.ast.Bound> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Bound> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Bound> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -106,7 +106,7 @@ static public class Empty extends Bound {
   
 
   
-public Empty(INode node ) {
+public Empty(IConstructor node ) {
   super(node);
   
 }
@@ -138,7 +138,7 @@ static public class Default extends Bound {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Expression expression) {
+public Default(IConstructor node , org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.expression = expression;

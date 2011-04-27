@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Import extends AbstractAST {
-  public Import(INode node) {
+  public Import(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Import extends AbstractAST {
 static public class Ambiguity extends Import {
   private final java.util.List<org.rascalmpl.ast.Import> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Import> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Import> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -116,7 +116,7 @@ static public class Extend extends Import {
   
 
   
-public Extend(INode node , org.rascalmpl.ast.ImportedModule module) {
+public Extend(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
   super(node);
   
     this.module = module;
@@ -160,7 +160,7 @@ static public class Default extends Import {
   
 
   
-public Default(INode node , org.rascalmpl.ast.ImportedModule module) {
+public Default(IConstructor node , org.rascalmpl.ast.ImportedModule module) {
   super(node);
   
     this.module = module;
@@ -204,7 +204,7 @@ static public class Syntax extends Import {
   
 
   
-public Syntax(INode node , org.rascalmpl.ast.SyntaxDefinition syntax) {
+public Syntax(IConstructor node , org.rascalmpl.ast.SyntaxDefinition syntax) {
   super(node);
   
     this.syntax = syntax;

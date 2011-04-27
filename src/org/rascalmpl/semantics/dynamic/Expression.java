@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -105,7 +105,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Addition extends org.rascalmpl.ast.Expression.Addition {
 
-		public Addition(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Addition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -139,7 +139,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class All extends org.rascalmpl.ast.Expression.All {
 
-		public All(INode __param1,
+		public All(IConstructor __param1,
 				java.util.List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
@@ -214,7 +214,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class And extends org.rascalmpl.ast.Expression.And {
 
-		public And(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public And(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -246,7 +246,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Anti extends org.rascalmpl.ast.Expression.Anti {
 
-		public Anti(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Anti(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -264,7 +264,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Any extends org.rascalmpl.ast.Expression.Any {
 
-		public Any(INode __param1,
+		public Any(IConstructor __param1,
 				java.util.List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
@@ -321,7 +321,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Bracket extends org.rascalmpl.ast.Expression.Bracket {
 
-		public Bracket(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Bracket(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -354,7 +354,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		private Result<IValue> cachedPrefix = null;
 		private boolean registeredCacheHandler = false;
 
-		public CallOrTree(INode __param1,
+		public CallOrTree(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				java.util.List<org.rascalmpl.ast.Expression> __param3) {
 			super(__param1, __param2, __param3);
@@ -629,7 +629,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Closure extends org.rascalmpl.ast.Expression.Closure {
 
-		public Closure(INode __param1, org.rascalmpl.ast.Type __param2,
+		public Closure(IConstructor __param1, org.rascalmpl.ast.Type __param2,
 				Parameters __param3, java.util.List<Statement> __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -673,7 +673,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Composition extends
 			org.rascalmpl.ast.Expression.Composition {
 
-		public Composition(INode __param1,
+		public Composition(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -709,7 +709,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Comprehension extends
 			org.rascalmpl.ast.Expression.Comprehension {
 
-		public Comprehension(INode __param1,
+		public Comprehension(IConstructor __param1,
 				org.rascalmpl.ast.Comprehension __param2) {
 			super(__param1, __param2);
 		}
@@ -742,7 +742,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
-		public Descendant(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Descendant(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -761,7 +761,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Division extends org.rascalmpl.ast.Expression.Division {
 
-		public Division(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Division(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -796,7 +796,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Enumerator extends
 			org.rascalmpl.ast.Expression.Enumerator {
 
-		public Enumerator(INode __param1,
+		public Enumerator(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -834,7 +834,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Equals extends org.rascalmpl.ast.Expression.Equals {
 
-		public Equals(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Equals(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -867,7 +867,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Equivalence extends
 			org.rascalmpl.ast.Expression.Equivalence {
 
-		public Equivalence(INode __param1,
+		public Equivalence(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -901,7 +901,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class FieldAccess extends
 			org.rascalmpl.ast.Expression.FieldAccess {
 
-		public FieldAccess(INode __param1,
+		public FieldAccess(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -936,7 +936,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class FieldProject extends
 			org.rascalmpl.ast.Expression.FieldProject {
 
-		public FieldProject(INode __param1,
+		public FieldProject(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				java.util.List<Field> __param3) {
 			super(__param1, __param2, __param3);
@@ -1018,7 +1018,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class FieldUpdate extends
 			org.rascalmpl.ast.Expression.FieldUpdate {
 
-		public FieldUpdate(INode __param1,
+		public FieldUpdate(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2, Name __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -1057,7 +1057,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class GetAnnotation extends
 			org.rascalmpl.ast.Expression.GetAnnotation {
 
-		public GetAnnotation(INode __param1,
+		public GetAnnotation(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2, Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1091,7 +1091,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class GreaterThan extends
 			org.rascalmpl.ast.Expression.GreaterThan {
 
-		public GreaterThan(INode __param1,
+		public GreaterThan(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -1125,7 +1125,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class GreaterThanOrEq extends
 			org.rascalmpl.ast.Expression.GreaterThanOrEq {
 
-		public GreaterThanOrEq(INode __param1,
+		public GreaterThanOrEq(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -1158,7 +1158,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Guarded extends org.rascalmpl.ast.Expression.Guarded {
 
-		public Guarded(INode __param1, org.rascalmpl.ast.Type __param2,
+		public Guarded(IConstructor __param1, org.rascalmpl.ast.Type __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1223,7 +1223,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Has extends org.rascalmpl.ast.Expression.Has {
 
-		public Has(INode node, org.rascalmpl.ast.Expression expression,
+		public Has(IConstructor node, org.rascalmpl.ast.Expression expression,
 				Name name) {
 			super(node, expression, name);
 		}
@@ -1242,7 +1242,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class IfDefinedOtherwise extends
 			org.rascalmpl.ast.Expression.IfDefinedOtherwise {
 
-		public IfDefinedOtherwise(INode __param1,
+		public IfDefinedOtherwise(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -1268,7 +1268,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class IfThenElse extends
 			org.rascalmpl.ast.Expression.IfThenElse {
 
-		public IfThenElse(INode __param1,
+		public IfThenElse(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3,
 				org.rascalmpl.ast.Expression __param4) {
@@ -1310,7 +1310,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Implication extends
 			org.rascalmpl.ast.Expression.Implication {
 
-		public Implication(INode __param1,
+		public Implication(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -1344,7 +1344,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class In extends org.rascalmpl.ast.Expression.In {
 
-		public In(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public In(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1377,7 +1377,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Intersection extends
 			org.rascalmpl.ast.Expression.Intersection {
 
-		public Intersection(INode __param1,
+		public Intersection(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -1412,7 +1412,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Is extends org.rascalmpl.ast.Expression.Is {
 
-		public Is(INode node, org.rascalmpl.ast.Expression expression, Name name) {
+		public Is(IConstructor node, org.rascalmpl.ast.Expression expression, Name name) {
 			super(node, expression, name);
 		}
 
@@ -1430,7 +1430,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class IsDefined extends
 			org.rascalmpl.ast.Expression.IsDefined {
 
-		public IsDefined(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public IsDefined(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -1464,7 +1464,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class It extends org.rascalmpl.ast.Expression.It {
 
-		public It(INode __param1) {
+		public It(IConstructor __param1) {
 			super(__param1);
 		}
 
@@ -1484,7 +1484,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Join extends org.rascalmpl.ast.Expression.Join {
 
-		public Join(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Join(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1502,7 +1502,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class LessThan extends org.rascalmpl.ast.Expression.LessThan {
 
-		public LessThan(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public LessThan(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1535,7 +1535,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class LessThanOrEq extends
 			org.rascalmpl.ast.Expression.LessThanOrEq {
 
-		public LessThanOrEq(INode __param1,
+		public LessThanOrEq(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -1568,7 +1568,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class List extends org.rascalmpl.ast.Expression.List {
 
-		public List(INode __param1,
+		public List(IConstructor __param1,
 				java.util.List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
@@ -1702,7 +1702,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Literal extends org.rascalmpl.ast.Expression.Literal {
 
-		public Literal(INode __param1, org.rascalmpl.ast.Literal __param2) {
+		public Literal(IConstructor __param1, org.rascalmpl.ast.Literal __param2) {
 			super(__param1, __param2);
 		}
 
@@ -1736,7 +1736,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Map extends org.rascalmpl.ast.Expression.Map {
 
-		public Map(INode __param1, java.util.List<Mapping_Expression> __param2) {
+		public Map(IConstructor __param1, java.util.List<Mapping_Expression> __param2) {
 			super(__param1, __param2);
 		}
 
@@ -1802,7 +1802,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Match extends org.rascalmpl.ast.Expression.Match {
 
-		public Match(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Match(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1833,7 +1833,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Modulo extends org.rascalmpl.ast.Expression.Modulo {
 
-		public Modulo(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Modulo(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1868,7 +1868,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class MultiVariable extends
 			org.rascalmpl.ast.Expression.MultiVariable {
 
-		public MultiVariable(INode __param1,
+		public MultiVariable(IConstructor __param1,
 				org.rascalmpl.ast.QualifiedName __param2) {
 			super(__param1, __param2);
 		}
@@ -1908,7 +1908,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Negation extends org.rascalmpl.ast.Expression.Negation {
 
-		public Negation(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Negation(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -1938,7 +1938,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Negative extends org.rascalmpl.ast.Expression.Negative {
 
-		public Negative(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Negative(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -1958,7 +1958,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class NoMatch extends org.rascalmpl.ast.Expression.NoMatch {
 
-		public NoMatch(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public NoMatch(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -1989,7 +1989,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class NonEmptyBlock extends
 			org.rascalmpl.ast.Expression.NonEmptyBlock {
-		public NonEmptyBlock(INode __param1, java.util.List<Statement> __param2) {
+		public NonEmptyBlock(IConstructor __param1, java.util.List<Statement> __param2) {
 			super(__param1, __param2);
 		}
 
@@ -2004,7 +2004,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class NonEquals extends
 			org.rascalmpl.ast.Expression.NonEquals {
 
-		public NonEquals(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public NonEquals(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2036,7 +2036,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class NotIn extends org.rascalmpl.ast.Expression.NotIn {
 
-		public NotIn(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public NotIn(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2068,7 +2068,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Or extends org.rascalmpl.ast.Expression.Or {
 
-		public Or(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Or(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2100,7 +2100,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Product extends org.rascalmpl.ast.Expression.Product {
 
-		public Product(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Product(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2131,7 +2131,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class QualifiedName extends
 			org.rascalmpl.ast.Expression.QualifiedName {
 
-		public QualifiedName(INode __param1,
+		public QualifiedName(IConstructor __param1,
 				org.rascalmpl.ast.QualifiedName __param2) {
 			super(__param1, __param2);
 		}
@@ -2218,7 +2218,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Range extends org.rascalmpl.ast.Expression.Range {
 
-		public Range(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Range(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2253,7 +2253,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Reducer extends org.rascalmpl.ast.Expression.Reducer {
 
-		public Reducer(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Reducer(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3,
 				java.util.List<org.rascalmpl.ast.Expression> __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -2311,7 +2311,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class ReifiedType extends
 			org.rascalmpl.ast.Expression.ReifiedType {
 
-		public ReifiedType(INode __param1, BasicType __param2,
+		public ReifiedType(IConstructor __param1, BasicType __param2,
 				java.util.List<org.rascalmpl.ast.Expression> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2372,7 +2372,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class ReifyType extends
 			org.rascalmpl.ast.Expression.ReifyType {
 
-		public ReifyType(INode __param1, org.rascalmpl.ast.Type __param2) {
+		public ReifyType(IConstructor __param1, org.rascalmpl.ast.Type __param2) {
 			super(__param1, __param2);
 		}
 
@@ -2385,7 +2385,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Set extends org.rascalmpl.ast.Expression.Set {
 
-		public Set(INode __param1,
+		public Set(IConstructor __param1,
 				java.util.List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
@@ -2464,7 +2464,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class SetAnnotation extends
 			org.rascalmpl.ast.Expression.SetAnnotation {
 
-		public SetAnnotation(INode __param1,
+		public SetAnnotation(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2, Name __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -2493,7 +2493,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class StepRange extends
 			org.rascalmpl.ast.Expression.StepRange {
 
-		public StepRange(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public StepRange(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -2530,7 +2530,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Subscript extends
 			org.rascalmpl.ast.Expression.Subscript {
 
-		public Subscript(INode __param1, org.rascalmpl.ast.Expression __param2,
+		public Subscript(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				java.util.List<org.rascalmpl.ast.Expression> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2574,7 +2574,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class Subtraction extends
 			org.rascalmpl.ast.Expression.Subtraction {
 
-		public Subtraction(INode __param1,
+		public Subtraction(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
@@ -2610,7 +2610,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class TransitiveClosure extends
 			org.rascalmpl.ast.Expression.TransitiveClosure {
 
-		public TransitiveClosure(INode __param1,
+		public TransitiveClosure(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
@@ -2642,7 +2642,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class TransitiveReflexiveClosure extends
 			org.rascalmpl.ast.Expression.TransitiveReflexiveClosure {
 
-		public TransitiveReflexiveClosure(INode __param1,
+		public TransitiveReflexiveClosure(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
@@ -2675,7 +2675,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Tuple extends org.rascalmpl.ast.Expression.Tuple {
 
-		public Tuple(INode __param1,
+		public Tuple(IConstructor __param1,
 				java.util.List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, __param2);
 		}
@@ -2729,7 +2729,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class TypedVariable extends
 			org.rascalmpl.ast.Expression.TypedVariable {
-		public TypedVariable(INode __param1, org.rascalmpl.ast.Type __param2,
+		public TypedVariable(IConstructor __param1, org.rascalmpl.ast.Type __param2,
 				Name __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2785,7 +2785,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class TypedVariableBecomes extends
 			org.rascalmpl.ast.Expression.TypedVariableBecomes {
 
-		public TypedVariableBecomes(INode __param1,
+		public TypedVariableBecomes(IConstructor __param1,
 				org.rascalmpl.ast.Type __param2, Name __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, __param2, __param3, __param4);
@@ -2825,7 +2825,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class VariableBecomes extends
 			org.rascalmpl.ast.Expression.VariableBecomes {
 
-		public VariableBecomes(INode __param1, Name __param2,
+		public VariableBecomes(IConstructor __param1, Name __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2856,7 +2856,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class Visit extends org.rascalmpl.ast.Expression.Visit {
 
-		public Visit(INode __param1, Label __param2,
+		public Visit(IConstructor __param1, Label __param2,
 				org.rascalmpl.ast.Visit __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2873,7 +2873,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class VoidClosure extends
 			org.rascalmpl.ast.Expression.VoidClosure {
 
-		public VoidClosure(INode __param1, Parameters __param2,
+		public VoidClosure(IConstructor __param1, Parameters __param2,
 				java.util.List<Statement> __param3) {
 			super(__param1, __param2, __param3);
 		}
@@ -2909,7 +2909,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 
-	public Expression(INode __param1) {
+	public Expression(IConstructor __param1) {
 		super(__param1);
 	}
 }

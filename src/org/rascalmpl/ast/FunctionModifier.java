@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class FunctionModifier extends AbstractAST {
-  public FunctionModifier(INode node) {
+  public FunctionModifier(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class FunctionModifier extends AbstractAST {
 static public class Ambiguity extends FunctionModifier {
   private final java.util.List<org.rascalmpl.ast.FunctionModifier> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.FunctionModifier> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.FunctionModifier> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Default extends FunctionModifier {
   
 
   
-public Default(INode node ) {
+public Default(IConstructor node ) {
   super(node);
   
 }
@@ -128,7 +128,7 @@ static public class Java extends FunctionModifier {
   
 
   
-public Java(INode node ) {
+public Java(IConstructor node ) {
   super(node);
   
 }

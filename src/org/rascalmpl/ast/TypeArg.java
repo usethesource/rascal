@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class TypeArg extends AbstractAST {
-  public TypeArg(INode node) {
+  public TypeArg(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class TypeArg extends AbstractAST {
 static public class Ambiguity extends TypeArg {
   private final java.util.List<org.rascalmpl.ast.TypeArg> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.TypeArg> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.TypeArg> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class Named extends TypeArg {
   
 
   
-public Named(INode node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
+public Named(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name) {
   super(node);
   
     this.type = type;
@@ -174,7 +174,7 @@ static public class Default extends TypeArg {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Type type) {
+public Default(IConstructor node , org.rascalmpl.ast.Type type) {
   super(node);
   
     this.type = type;

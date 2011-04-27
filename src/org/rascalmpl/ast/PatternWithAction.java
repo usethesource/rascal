@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class PatternWithAction extends AbstractAST {
-  public PatternWithAction(INode node) {
+  public PatternWithAction(IConstructor node) {
     super(node);
   }
   
@@ -74,7 +74,7 @@ public abstract class PatternWithAction extends AbstractAST {
 static public class Ambiguity extends PatternWithAction {
   private final java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -126,7 +126,7 @@ static public class Replacing extends PatternWithAction {
   
 
   
-public Replacing(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
+public Replacing(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Replacement replacement) {
   super(node);
   
     this.pattern = pattern;
@@ -184,7 +184,7 @@ static public class Arbitrary extends PatternWithAction {
   
 
   
-public Arbitrary(INode node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
+public Arbitrary(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Statement statement) {
   super(node);
   
     this.pattern = pattern;

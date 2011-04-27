@@ -25,7 +25,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -66,9 +65,9 @@ public class ASTBuilder {
     
     private final Expression dummyEmptyTree;
     
-    private PointerEqualMappingsCache<INode, AbstractAST> ambCache = new PointerEqualMappingsCache<INode, AbstractAST>();
-    private PointerEqualMappingsCache<INode, AbstractAST> sortCache = new PointerEqualMappingsCache<INode, AbstractAST>();
-    private PointerEqualMappingsCache<INode, AbstractAST> lexCache = new PointerEqualMappingsCache<INode, AbstractAST>();
+    private PointerEqualMappingsCache<IConstructor, AbstractAST> ambCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
+    private PointerEqualMappingsCache<IConstructor, AbstractAST> sortCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
+    private PointerEqualMappingsCache<IConstructor, AbstractAST> lexCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
     
     private PointerEqualMappingsCache<IValue, Expression> matchCache = new PointerEqualMappingsCache<IValue, Expression>();
     private PointerEqualMappingsCache<IValue, Expression> constructorCache = new PointerEqualMappingsCache<IValue, Expression>();
@@ -81,32 +80,32 @@ public class ASTBuilder {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		
 		// this tree should never appear in "nature", so we can use it as a dummy
-		this.dummyEmptyTree = makeAmb("Expression", (INode) Factory.Tree_Amb.make(vf, vf.list())
+		this.dummyEmptyTree = makeAmb("Expression", (IConstructor) Factory.Tree_Amb.make(vf, vf.list())
 				, Collections.<Expression>emptyList());
 	}
 	
-	public static <T extends AbstractAST> T make(String sort, INode src, Object... args) {
+	public static <T extends AbstractAST> T make(String sort, IConstructor src, Object... args) {
 		return make(sort, "Default", src, args);
 	}
 	
-	public static  <T extends Expression> T makeExp(String cons, INode src, Object... args) {
+	public static  <T extends Expression> T makeExp(String cons, IConstructor src, Object... args) {
 		return make("Expression", cons, src, args);
 	}
 	
-	public static <T extends Statement> T makeStat(String cons, INode src, Object... args) {
+	public static <T extends Statement> T makeStat(String cons, IConstructor src, Object... args) {
 		return make("Statement", cons, src, args);
 	}
 	
-	public static <T extends AbstractAST> T makeAmb(String sort, INode src, Object... args) {
+	public static <T extends AbstractAST> T makeAmb(String sort, IConstructor src, Object... args) {
 		return make(sort, "Ambiguity", src, args);
 	}
 	
-	public static <T extends AbstractAST> T makeLex(String sort, INode src, Object... args) {
+	public static <T extends AbstractAST> T makeLex(String sort, IConstructor src, Object... args) {
 		return make(sort, "Lexical", src, args);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends AbstractAST> T make(String sort, String cons, INode src, Object... args) {
+	public static <T extends AbstractAST> T make(String sort, String cons, IConstructor src, Object... args) {
 		Class<?>[] formals = new Class<?>[args.length];
 		for (int i = 0; i < args.length; i++) {
 			Class<?> clazz = args[i].getClass();
@@ -150,7 +149,7 @@ public class ASTBuilder {
 				IList moduleArgs = (IList) tree.get(1);
 				IConstructor headerTree = (IConstructor) moduleArgs.get(0);
 				Header header = (Header) buildValue(headerTree);
-				return make("Module", tree, header, make("Body","Toplevels", (INode) moduleArgs.get(2), Collections.<Toplevel>emptyList())); 
+				return make("Module", tree, header, make("Body","Toplevels", (IConstructor) moduleArgs.get(2), Collections.<Toplevel>emptyList())); 
 			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
@@ -174,7 +173,7 @@ public class ASTBuilder {
 //					IConstructor headerTree = (IConstructor) moduleArgs.get(0);
 //					Header header = (Header) buildValue(headerTree);
 //					return new Module.Default(tree, header, 
-//							new Body.Toplevels((INode) moduleArgs.get(2), 
+//							new Body.Toplevels((IConstructor) moduleArgs.get(2), 
 //									Collections.<Toplevel>emptyList()));
 				}
 			}
@@ -613,7 +612,7 @@ public class ASTBuilder {
 		
 		Type type = pattern.getType();
 		if (type.isNodeType()) {
-			INode node = (INode) pattern;
+			IConstructor node = (IConstructor) pattern;
 			ASTStatistics stats = new ASTStatistics();
 			boolean isAmb = false;
 			ISourceLocation loc = null;
@@ -1044,7 +1043,7 @@ public class ASTBuilder {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 	
-	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], INode src, Object actuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], IConstructor src, Object actuals[]) {
 		try {
 			String name = sort + "$" + cons;
 			Class<?> clazz = astClasses.get(name);
@@ -1066,7 +1065,7 @@ public class ASTBuilder {
 			}
 
 			Class<?>[] realForms = new Class<?>[formals.length + 1];
-			realForms[0] = INode.class;
+			realForms[0] = IConstructor.class;
 			System.arraycopy(formals, 0, realForms, 1, formals.length);
 			Constructor<?> make = clazz.getConstructor(realForms);
 			Object[] params = new Object[actuals.length + 1];

@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ProdModifier extends AbstractAST {
-  public ProdModifier(INode node) {
+  public ProdModifier(IConstructor node) {
     super(node);
   }
   
@@ -64,7 +64,7 @@ public abstract class ProdModifier extends AbstractAST {
 static public class Ambiguity extends ProdModifier {
   private final java.util.List<org.rascalmpl.ast.ProdModifier> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProdModifier> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ProdModifier> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -114,7 +114,7 @@ static public class Associativity extends ProdModifier {
   
 
   
-public Associativity(INode node , org.rascalmpl.ast.Assoc associativity) {
+public Associativity(IConstructor node , org.rascalmpl.ast.Assoc associativity) {
   super(node);
   
     this.associativity = associativity;
@@ -158,7 +158,7 @@ static public class Tag extends ProdModifier {
   
 
   
-public Tag(INode node , org.rascalmpl.ast.Tag tag) {
+public Tag(IConstructor node , org.rascalmpl.ast.Tag tag) {
   super(node);
   
     this.tag = tag;
@@ -200,7 +200,7 @@ static public class Bracket extends ProdModifier {
   
 
   
-public Bracket(INode node ) {
+public Bracket(IConstructor node ) {
   super(node);
   
 }
@@ -230,7 +230,7 @@ static public class Lexical extends ProdModifier {
   
 
   
-public Lexical(INode node ) {
+public Lexical(IConstructor node ) {
   super(node);
   
 }

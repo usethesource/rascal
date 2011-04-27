@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Variable extends AbstractAST {
-  public Variable(INode node) {
+  public Variable(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class Variable extends AbstractAST {
 static public class Ambiguity extends Variable {
   private final java.util.List<org.rascalmpl.ast.Variable> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Variable> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Variable> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class Initialized extends Variable {
   
 
   
-public Initialized(INode node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression initial) {
+public Initialized(IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Expression initial) {
   super(node);
   
     this.name = name;
@@ -174,7 +174,7 @@ static public class UnInitialized extends Variable {
   
 
   
-public UnInitialized(INode node , org.rascalmpl.ast.Name name) {
+public UnInitialized(IConstructor node , org.rascalmpl.ast.Name name) {
   super(node);
   
     this.name = name;

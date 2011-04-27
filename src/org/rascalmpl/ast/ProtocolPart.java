@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ProtocolPart extends AbstractAST {
-  public ProtocolPart(INode node) {
+  public ProtocolPart(IConstructor node) {
     super(node);
   }
   
@@ -82,7 +82,7 @@ public abstract class ProtocolPart extends AbstractAST {
 static public class Ambiguity extends ProtocolPart {
   private final java.util.List<org.rascalmpl.ast.ProtocolPart> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProtocolPart> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ProtocolPart> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -132,7 +132,7 @@ static public class NonInterpolated extends ProtocolPart {
   
 
   
-public NonInterpolated(INode node , org.rascalmpl.ast.ProtocolChars protocolChars) {
+public NonInterpolated(IConstructor node , org.rascalmpl.ast.ProtocolChars protocolChars) {
   super(node);
   
     this.protocolChars = protocolChars;
@@ -180,7 +180,7 @@ static public class Interpolated extends ProtocolPart {
   
 
   
-public Interpolated(INode node , org.rascalmpl.ast.PreProtocolChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
+public Interpolated(IConstructor node , org.rascalmpl.ast.PreProtocolChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
   super(node);
   
     this.pre = pre;

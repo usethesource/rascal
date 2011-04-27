@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class UserType extends AbstractAST {
-  public UserType(INode node) {
+  public UserType(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class UserType extends AbstractAST {
 static public class Ambiguity extends UserType {
   private final java.util.List<org.rascalmpl.ast.UserType> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.UserType> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.UserType> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -118,7 +118,7 @@ static public class Parametric extends UserType {
   
 
   
-public Parametric(INode node , org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Type> parameters) {
+public Parametric(IConstructor node , org.rascalmpl.ast.QualifiedName name,  java.util.List<org.rascalmpl.ast.Type> parameters) {
   super(node);
   
     this.name = name;
@@ -174,7 +174,7 @@ static public class Name extends UserType {
   
 
   
-public Name(INode node , org.rascalmpl.ast.QualifiedName name) {
+public Name(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
   super(node);
   
     this.name = name;

@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Assoc extends AbstractAST {
-  public Assoc(INode node) {
+  public Assoc(IConstructor node) {
     super(node);
   }
   
@@ -48,7 +48,7 @@ public abstract class Assoc extends AbstractAST {
 static public class Ambiguity extends Assoc {
   private final java.util.List<org.rascalmpl.ast.Assoc> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Assoc> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Assoc> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -96,7 +96,7 @@ static public class Right extends Assoc {
   
 
   
-public Right(INode node ) {
+public Right(IConstructor node ) {
   super(node);
   
 }
@@ -126,7 +126,7 @@ static public class NonAssociative extends Assoc {
   
 
   
-public NonAssociative(INode node ) {
+public NonAssociative(IConstructor node ) {
   super(node);
   
 }
@@ -156,7 +156,7 @@ static public class Left extends Assoc {
   
 
   
-public Left(INode node ) {
+public Left(IConstructor node ) {
   super(node);
   
 }
@@ -186,7 +186,7 @@ static public class Associative extends Assoc {
   
 
   
-public Associative(INode node ) {
+public Associative(IConstructor node ) {
   super(node);
   
 }

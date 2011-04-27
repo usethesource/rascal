@@ -16,7 +16,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class MidStringChars extends AbstractAST {
-  public MidStringChars(INode node) {
+  public MidStringChars(IConstructor node) {
     super(node);
   }
   
@@ -49,7 +49,7 @@ public abstract class MidStringChars extends AbstractAST {
 static public class Ambiguity extends MidStringChars {
   private final java.util.List<org.rascalmpl.ast.MidStringChars> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.MidStringChars> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.MidStringChars> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -88,7 +88,7 @@ static public class Ambiguity extends MidStringChars {
  
 static public class Lexical extends MidStringChars {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

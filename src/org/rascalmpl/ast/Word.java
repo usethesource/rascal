@@ -14,7 +14,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Word extends AbstractAST {
-  public Word(INode node) {
+  public Word(IConstructor node) {
     super(node);
   }
   
@@ -47,7 +47,7 @@ public abstract class Word extends AbstractAST {
 static public class Ambiguity extends Word {
   private final java.util.List<org.rascalmpl.ast.Word> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Word> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Word> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -86,7 +86,7 @@ static public class Ambiguity extends Word {
  
 static public class Lexical extends Word {
   private final java.lang.String string;
-  public Lexical(INode node, java.lang.String string) {
+  public Lexical(IConstructor node, java.lang.String string) {
     super(node);
     this.string = string;
   }

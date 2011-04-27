@@ -15,7 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionBody;
@@ -38,7 +38,7 @@ public abstract class FunctionDeclaration extends
 	static public class Abstract extends
 			org.rascalmpl.ast.FunctionDeclaration.Abstract {
 
-		public Abstract(INode __param1, Tags __param2, Visibility __param3,
+		public Abstract(IConstructor __param1, Tags __param2, Visibility __param3,
 				Signature __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
@@ -70,7 +70,7 @@ public abstract class FunctionDeclaration extends
 	static public class Default extends
 			org.rascalmpl.ast.FunctionDeclaration.Default {
 
-		public Default(INode __param1, Tags __param2, Visibility __param3,
+		public Default(IConstructor __param1, Tags __param2, Visibility __param3,
 				Signature __param4, FunctionBody __param5) {
 			super(__param1, __param2, __param3, __param4, __param5);
 		}
@@ -115,7 +115,7 @@ public abstract class FunctionDeclaration extends
 	static public class Expression extends
 			org.rascalmpl.ast.FunctionDeclaration.Expression {
 
-		public Expression(INode node, Tags tags, Visibility visibility,
+		public Expression(IConstructor node, Tags tags, Visibility visibility,
 				Signature signature, org.rascalmpl.ast.Expression expression) {
 			super(node, tags, visibility, signature, expression);
 		}
@@ -157,7 +157,7 @@ public abstract class FunctionDeclaration extends
 		return false;
 	}
 
-	public FunctionDeclaration(INode __param1) {
+	public FunctionDeclaration(IConstructor __param1) {
 		super(__param1);
 	}
 }

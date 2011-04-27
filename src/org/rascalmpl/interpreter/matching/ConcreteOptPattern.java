@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -38,7 +39,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	private final IConstructor production;
 	private final IMatchingResult optArg;
 
-	public ConcreteOptPattern(IEvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
+	public ConcreteOptPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
@@ -29,7 +29,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 
 	static public class Lexical extends org.rascalmpl.ast.RegExpLiteral.Lexical {
 
-		public Lexical(INode __param1, String __param2) {
+		public Lexical(IConstructor __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
@@ -143,7 +143,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		}
 	}
 
-	public RegExpLiteral(INode __param1) {
+	public RegExpLiteral(IConstructor __param1) {
 		super(__param1);
 	}
 }

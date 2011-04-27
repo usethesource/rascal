@@ -14,7 +14,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class PreModule extends AbstractAST {
-  public PreModule(INode node) {
+  public PreModule(IConstructor node) {
     super(node);
   }
   
@@ -55,7 +55,7 @@ public abstract class PreModule extends AbstractAST {
 static public class Ambiguity extends PreModule {
   private final java.util.List<org.rascalmpl.ast.PreModule> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.PreModule> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PreModule> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -105,7 +105,7 @@ static public class Default extends PreModule {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Header header) {
+public Default(IConstructor node , org.rascalmpl.ast.Header header) {
   super(node);
   
     this.header = header;

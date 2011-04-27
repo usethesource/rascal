@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Parameters extends AbstractAST {
-  public Parameters(INode node) {
+  public Parameters(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class Parameters extends AbstractAST {
 static public class Ambiguity extends Parameters {
   private final java.util.List<org.rascalmpl.ast.Parameters> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Parameters> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Parameters> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -108,7 +108,7 @@ static public class VarArgs extends Parameters {
   
 
   
-public VarArgs(INode node , org.rascalmpl.ast.Formals formals) {
+public VarArgs(IConstructor node , org.rascalmpl.ast.Formals formals) {
   super(node);
   
     this.formals = formals;
@@ -152,7 +152,7 @@ static public class Default extends Parameters {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Formals formals) {
+public Default(IConstructor node , org.rascalmpl.ast.Formals formals) {
   super(node);
   
     this.formals = formals;

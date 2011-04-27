@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ProtocolTail extends AbstractAST {
-  public ProtocolTail(INode node) {
+  public ProtocolTail(IConstructor node) {
     super(node);
   }
   
@@ -82,7 +82,7 @@ public abstract class ProtocolTail extends AbstractAST {
 static public class Ambiguity extends ProtocolTail {
   private final java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -132,7 +132,7 @@ static public class Post extends ProtocolTail {
   
 
   
-public Post(INode node , org.rascalmpl.ast.PostProtocolChars post) {
+public Post(IConstructor node , org.rascalmpl.ast.PostProtocolChars post) {
   super(node);
   
     this.post = post;
@@ -180,7 +180,7 @@ static public class Mid extends ProtocolTail {
   
 
   
-public Mid(INode node , org.rascalmpl.ast.MidProtocolChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
+public Mid(IConstructor node , org.rascalmpl.ast.MidProtocolChars mid,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.ProtocolTail tail) {
   super(node);
   
     this.mid = mid;

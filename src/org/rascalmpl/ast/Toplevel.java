@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Toplevel extends AbstractAST {
-  public Toplevel(INode node) {
+  public Toplevel(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class Toplevel extends AbstractAST {
 static public class Ambiguity extends Toplevel {
   private final java.util.List<org.rascalmpl.ast.Toplevel> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Toplevel> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Toplevel> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -108,7 +108,7 @@ static public class GivenVisibility extends Toplevel {
   
 
   
-public GivenVisibility(INode node , org.rascalmpl.ast.Declaration declaration) {
+public GivenVisibility(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
   super(node);
   
     this.declaration = declaration;

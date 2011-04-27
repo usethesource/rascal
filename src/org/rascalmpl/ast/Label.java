@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Label extends AbstractAST {
-  public Label(INode node) {
+  public Label(IConstructor node) {
     super(node);
   }
   
@@ -58,7 +58,7 @@ public abstract class Label extends AbstractAST {
 static public class Ambiguity extends Label {
   private final java.util.List<org.rascalmpl.ast.Label> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Label> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Label> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -106,7 +106,7 @@ static public class Empty extends Label {
   
 
   
-public Empty(INode node ) {
+public Empty(IConstructor node ) {
   super(node);
   
 }
@@ -138,7 +138,7 @@ static public class Default extends Label {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Name name) {
+public Default(IConstructor node , org.rascalmpl.ast.Name name) {
   super(node);
   
     this.name = name;

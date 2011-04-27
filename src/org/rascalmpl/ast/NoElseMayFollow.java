@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class NoElseMayFollow extends AbstractAST {
-  public NoElseMayFollow(INode node) {
+  public NoElseMayFollow(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class NoElseMayFollow extends AbstractAST {
 static public class Ambiguity extends NoElseMayFollow {
   private final java.util.List<org.rascalmpl.ast.NoElseMayFollow> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.NoElseMayFollow> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.NoElseMayFollow> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Default extends NoElseMayFollow {
   
 
   
-public Default(INode node ) {
+public Default(IConstructor node ) {
   super(node);
   
 }

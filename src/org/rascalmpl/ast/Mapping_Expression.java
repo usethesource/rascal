@@ -14,7 +14,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Mapping_Expression extends AbstractAST {
-  public Mapping_Expression(INode node) {
+  public Mapping_Expression(IConstructor node) {
     super(node);
   }
   
@@ -63,7 +63,7 @@ public abstract class Mapping_Expression extends AbstractAST {
 static public class Ambiguity extends Mapping_Expression {
   private final java.util.List<org.rascalmpl.ast.Mapping_Expression> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Mapping_Expression> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Mapping_Expression> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -115,7 +115,7 @@ static public class Default extends Mapping_Expression {
   
 
   
-public Default(INode node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
+public Default(IConstructor node , org.rascalmpl.ast.Expression from,  org.rascalmpl.ast.Expression to) {
   super(node);
   
     this.from = from;

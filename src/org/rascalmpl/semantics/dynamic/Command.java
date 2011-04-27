@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.ShellCommand;
 import org.rascalmpl.interpreter.Evaluator;
@@ -25,7 +25,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 	static public class Declaration extends
 			org.rascalmpl.ast.Command.Declaration {
 
-		public Declaration(INode __param1,
+		public Declaration(IConstructor __param1,
 				org.rascalmpl.ast.Declaration __param2) {
 			super(__param1, __param2);
 		}
@@ -42,7 +42,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Expression extends org.rascalmpl.ast.Command.Expression {
 
-		public Expression(INode __param1, org.rascalmpl.ast.Expression __param2) {
+		public Expression(IConstructor __param1, org.rascalmpl.ast.Expression __param2) {
 			super(__param1, __param2);
 		}
 
@@ -65,7 +65,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Import extends org.rascalmpl.ast.Command.Import {
 
-		public Import(INode __param1, org.rascalmpl.ast.Import __param2) {
+		public Import(IConstructor __param1, org.rascalmpl.ast.Import __param2) {
 			super(__param1, __param2);
 		}
 
@@ -88,7 +88,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Shell extends org.rascalmpl.ast.Command.Shell {
 
-		public Shell(INode __param1, ShellCommand __param2) {
+		public Shell(IConstructor __param1, ShellCommand __param2) {
 			super(__param1, __param2);
 		}
 
@@ -104,7 +104,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	static public class Statement extends org.rascalmpl.ast.Command.Statement {
 
-		public Statement(INode __param1, org.rascalmpl.ast.Statement __param2) {
+		public Statement(IConstructor __param1, org.rascalmpl.ast.Statement __param2) {
 			super(__param1, __param2);
 		}
 
@@ -118,7 +118,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 	}
 
-	public Command(INode __param1) {
+	public Command(IConstructor __param1) {
 		super(__param1);
 	}
 }

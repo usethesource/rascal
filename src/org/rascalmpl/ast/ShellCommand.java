@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class ShellCommand extends AbstractAST {
-  public ShellCommand(INode node) {
+  public ShellCommand(IConstructor node) {
     super(node);
   }
   
@@ -66,7 +66,7 @@ public abstract class ShellCommand extends AbstractAST {
 static public class Ambiguity extends ShellCommand {
   private final java.util.List<org.rascalmpl.ast.ShellCommand> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.ShellCommand> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ShellCommand> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -116,7 +116,7 @@ static public class Unimport extends ShellCommand {
   
 
   
-public Unimport(INode node , org.rascalmpl.ast.QualifiedName name) {
+public Unimport(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
   super(node);
   
     this.name = name;
@@ -158,7 +158,7 @@ static public class Quit extends ShellCommand {
   
 
   
-public Quit(INode node ) {
+public Quit(IConstructor node ) {
   super(node);
   
 }
@@ -190,7 +190,7 @@ static public class Edit extends ShellCommand {
   
 
   
-public Edit(INode node , org.rascalmpl.ast.QualifiedName name) {
+public Edit(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
   super(node);
   
     this.name = name;
@@ -232,7 +232,7 @@ static public class ListModules extends ShellCommand {
   
 
   
-public ListModules(INode node ) {
+public ListModules(IConstructor node ) {
   super(node);
   
 }
@@ -262,7 +262,7 @@ static public class History extends ShellCommand {
   
 
   
-public History(INode node ) {
+public History(IConstructor node ) {
   super(node);
   
 }
@@ -292,7 +292,7 @@ static public class ListDeclarations extends ShellCommand {
   
 
   
-public ListDeclarations(INode node ) {
+public ListDeclarations(IConstructor node ) {
   super(node);
   
 }
@@ -322,7 +322,7 @@ static public class Help extends ShellCommand {
   
 
   
-public Help(INode node ) {
+public Help(IConstructor node ) {
   super(node);
   
 }
@@ -356,7 +356,7 @@ static public class SetOption extends ShellCommand {
   
 
   
-public SetOption(INode node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
+public SetOption(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
   super(node);
   
     this.name = name;
@@ -412,7 +412,7 @@ static public class Undeclare extends ShellCommand {
   
 
   
-public Undeclare(INode node , org.rascalmpl.ast.QualifiedName name) {
+public Undeclare(IConstructor node , org.rascalmpl.ast.QualifiedName name) {
   super(node);
   
     this.name = name;
@@ -454,7 +454,7 @@ static public class Test extends ShellCommand {
   
 
   
-public Test(INode node ) {
+public Test(IConstructor node ) {
   super(node);
   
 }

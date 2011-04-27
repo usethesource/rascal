@@ -17,7 +17,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -41,7 +41,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Strategy extends AbstractAST {
-  public Strategy(INode node) {
+  public Strategy(IConstructor node) {
     super(node);
   }
   
@@ -50,7 +50,7 @@ public abstract class Strategy extends AbstractAST {
 static public class Ambiguity extends Strategy {
   private final java.util.List<org.rascalmpl.ast.Strategy> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Strategy> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -98,7 +98,7 @@ static public class Outermost extends Strategy {
   
 
   
-public Outermost(INode node ) {
+public Outermost(IConstructor node ) {
   super(node);
   
 }
@@ -128,7 +128,7 @@ static public class TopDownBreak extends Strategy {
   
 
   
-public TopDownBreak(INode node ) {
+public TopDownBreak(IConstructor node ) {
   super(node);
   
 }
@@ -158,7 +158,7 @@ static public class Innermost extends Strategy {
   
 
   
-public Innermost(INode node ) {
+public Innermost(IConstructor node ) {
   super(node);
   
 }
@@ -188,7 +188,7 @@ static public class BottomUpBreak extends Strategy {
   
 
   
-public BottomUpBreak(INode node ) {
+public BottomUpBreak(IConstructor node ) {
   super(node);
   
 }
@@ -218,7 +218,7 @@ static public class BottomUp extends Strategy {
   
 
   
-public BottomUp(INode node ) {
+public BottomUp(IConstructor node ) {
   super(node);
   
 }
@@ -248,7 +248,7 @@ static public class TopDown extends Strategy {
   
 
   
-public TopDown(INode node ) {
+public TopDown(IConstructor node ) {
   super(node);
   
 }

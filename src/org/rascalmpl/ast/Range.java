@@ -15,7 +15,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class Range extends AbstractAST {
-  public Range(INode node) {
+  public Range(IConstructor node) {
     super(node);
   }
   
@@ -72,7 +72,7 @@ public abstract class Range extends AbstractAST {
 static public class Ambiguity extends Range {
   private final java.util.List<org.rascalmpl.ast.Range> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.Range> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Range> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -124,7 +124,7 @@ static public class FromTo extends Range {
   
 
   
-public FromTo(INode node , org.rascalmpl.ast.Char start,  org.rascalmpl.ast.Char end) {
+public FromTo(IConstructor node , org.rascalmpl.ast.Char start,  org.rascalmpl.ast.Char end) {
   super(node);
   
     this.start = start;
@@ -180,7 +180,7 @@ static public class Character extends Range {
   
 
   
-public Character(INode node , org.rascalmpl.ast.Char character) {
+public Character(IConstructor node , org.rascalmpl.ast.Char character) {
   super(node);
   
     this.character = character;

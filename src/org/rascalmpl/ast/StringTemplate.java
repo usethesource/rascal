@@ -16,7 +16,7 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 
 
 public abstract class StringTemplate extends AbstractAST {
-  public StringTemplate(INode node) {
+  public StringTemplate(IConstructor node) {
     super(node);
   }
   
@@ -145,7 +145,7 @@ public abstract class StringTemplate extends AbstractAST {
 static public class Ambiguity extends StringTemplate {
   private final java.util.List<org.rascalmpl.ast.StringTemplate> alternatives;
 
-  public Ambiguity(INode node, java.util.List<org.rascalmpl.ast.StringTemplate> alternatives) {
+  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.StringTemplate> alternatives) {
     super(node);
     this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
@@ -201,7 +201,7 @@ static public class IfThen extends StringTemplate {
   
 
   
-public IfThen(INode node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+public IfThen(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
   super(node);
   
     this.conditions = conditions;
@@ -293,7 +293,7 @@ static public class IfThenElse extends StringTemplate {
   
 
   
-public IfThenElse(INode node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStatsThen,  org.rascalmpl.ast.StringMiddle thenString,  java.util.List<org.rascalmpl.ast.Statement> postStatsThen,  java.util.List<org.rascalmpl.ast.Statement> preStatsElse,  org.rascalmpl.ast.StringMiddle elseString,  java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
+public IfThenElse(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStatsThen,  org.rascalmpl.ast.StringMiddle thenString,  java.util.List<org.rascalmpl.ast.Statement> postStatsThen,  java.util.List<org.rascalmpl.ast.Statement> preStatsElse,  org.rascalmpl.ast.StringMiddle elseString,  java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
   super(node);
   
     this.conditions = conditions;
@@ -415,7 +415,7 @@ static public class While extends StringTemplate {
   
 
   
-public While(INode node , org.rascalmpl.ast.Expression condition,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+public While(IConstructor node , org.rascalmpl.ast.Expression condition,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
   super(node);
   
     this.condition = condition;
@@ -501,7 +501,7 @@ static public class DoWhile extends StringTemplate {
   
 
   
-public DoWhile(INode node , java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats,  org.rascalmpl.ast.Expression condition) {
+public DoWhile(IConstructor node , java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats,  org.rascalmpl.ast.Expression condition) {
   super(node);
   
     this.preStats = preStats;
@@ -587,7 +587,7 @@ static public class For extends StringTemplate {
   
 
   
-public For(INode node , java.util.List<org.rascalmpl.ast.Expression> generators,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+public For(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
   super(node);
   
     this.generators = generators;
