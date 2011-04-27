@@ -30,4 +30,8 @@ public class VoidActionExecutor implements IActionExecutor{
 	public IConstructor filterCycle(IConstructor cycle){
 		return cycle;
 	}
+	
+	public void enteredProduction(IConstructor production){
+		// Don't do anything.
+	}
 }
