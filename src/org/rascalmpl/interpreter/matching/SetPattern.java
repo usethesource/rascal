@@ -64,7 +64,7 @@ public class SetPattern extends AbstractMatchingResult {
 	private Type staticSetSubjectType;
 	private Type staticSubjectElementType;
 	
-	public SetPattern(IEvaluatorContext ctx, Expression.Set x, List<IMatchingResult> list){
+	public SetPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list){
 		super(ctx, x);
 		this.patternChildren = list;
 		this.patternSize = list.size();
