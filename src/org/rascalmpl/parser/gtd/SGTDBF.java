@@ -295,19 +295,26 @@ public abstract class SGTDBF implements IGTD{
 				String nodeName = edge.getName();
 				int resultStoreId = getResultStoreId(edge.getId());
 				
-				if(!firstTimeReductions.contains(nodeName, resultStoreId)){
+				AbstractContainerNode resultStore = firstTimeReductions.get(nodeName, resultStoreId);
+				if(resultStore == null){
 					if(firstTimeRegistration.contains(nodeName, resultStoreId)) continue;
 					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
 					
 					if(filteredParents == null || !filteredParents.contains(edge.getId())){
-						AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
-						if(resultStore == null){ // If there are no previous reductions to this level, handle this.
+						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+						if(resultStore != null){
+							if(!resultStore.isRejected()) resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
+						}else{
 							resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-							levelResultStoreMap.putUnsafe(nodeName, getResultStoreId(edge.getId()), resultStore);
+							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
+							resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
+							
+							stacksWithNonTerminalsToReduce.push(edge, resultStore);
 							firstTimeReductions.putUnsafe(nodeName, resultStoreId, resultStore);
 						}
-						resultStore.addAlternative(production, new Link(edgePrefixes, nextResultStore));
 					}
+				}else{
+					stacksWithNonTerminalsToReduce.push(edge, resultStore);
 				}
 			}
 		}
