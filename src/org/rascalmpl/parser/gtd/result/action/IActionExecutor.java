@@ -19,4 +19,6 @@ public interface IActionExecutor{
 	IConstructor filterAmbiguity(IConstructor ambCluster);
 	
 	IConstructor filterCycle(IConstructor cycle);
+	
+	void enteredProduction(IConstructor production);
 }

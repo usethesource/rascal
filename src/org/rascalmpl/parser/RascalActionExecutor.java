@@ -70,6 +70,10 @@ public class RascalActionExecutor implements IActionExecutor{
 		// TODO Implement.
 		return cycle;
 	}
+	
+	public void enteredProduction(IConstructor production){
+		// TODO Implement.
+	}
 
 	/**
 	 * call takes care of executing an action and knowing whether something changed, and the scope management.
