@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.BooleanEvaluator;
@@ -25,9 +26,11 @@ import org.rascalmpl.interpreter.matching.ConcreteListPattern;
 import org.rascalmpl.interpreter.matching.ConcreteOptPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
+import org.rascalmpl.interpreter.matching.LiteralPattern;
+import org.rascalmpl.interpreter.matching.NodePattern;
+import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -37,8 +40,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public abstract class Tree {
   static public class Appl extends org.rascalmpl.ast.Expression {
 	protected final IConstructor production;
-	protected java.util.List<Expression> args;
-	protected Type type;
+	protected final java.util.List<Expression> args;
+	protected final Type type;
 
 	public Appl(IConstructor node, java.util.List<Expression> args) {
 		super(node);
@@ -124,11 +127,63 @@ public abstract class Tree {
 	}
   }
   
-  static public class Char extends CallOrTree {
-	  // TODO: special case for efficiency?
-	public Char(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
-			java.util.List<org.rascalmpl.ast.Expression> __param3) {
-		super(__param1, __param2, __param3);
+  static public class Amb extends  org.rascalmpl.ast.Expression {
+	private final Type type;
+	private final java.util.List<Expression> alts;
+
+	public Amb(IConstructor node, java.util.List<Expression> alternatives) {
+		super(node);
+		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
+		this.alts = alternatives;
 	}
+	
+	@Override
+	public Result<IValue> interpret(Evaluator eval) {
+		// TODO: add filtering semantics, function calling, constant caching
+		ISetWriter w = eval.getValueFactory().setWriter(Factory.Tree);
+		for (Expression a : alts) {
+			w.insert(a.interpret(eval).getValue());
+		}
+		return makeResult(type, Factory.Tree_Amb.make(eval.getValueFactory(), (IValue) w.done()), eval);
+	}
+	
+	@Override
+	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+		return new BasicBooleanResult(__eval.__getCtx(), this);
+	}
+	
+	@Override
+	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
+		for (Expression arg : alts) {
+			kids.add(arg.buildMatcher(eval));
+		}
+		
+		IMatchingResult setMatcher = new SetPattern(eval.__getCtx(), this, kids);
+		java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
+		wrap.add(setMatcher);
+		
+		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
+		return new NodePattern(eval.__getCtx(), this, 
+				new LiteralPattern(eval.__getCtx(), this, ambCons.getValue()), null, wrap);
+	} 
+  }
+  
+  static public class Char extends  org.rascalmpl.ast.Expression {
+	  public Char(IConstructor node) {
+		  super(node);
+	  }
+
+	  @Override
+	  public Result<IValue> interpret(Evaluator eval) {
+		  // TODO allow override
+		  return makeResult(Factory.Tree, node, eval);
+	  }
+	  
+	  @Override
+	  public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		  // TODO ?? is this really correct
+		  return new LiteralPattern(eval.__getCtx(), this, node);
+	  }
   }
 }
