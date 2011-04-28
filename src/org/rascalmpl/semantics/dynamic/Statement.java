@@ -254,7 +254,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				try {
 					body.interpret(__eval);
 
-					gen = __eval.makeBooleanResult(generator);
+					gen = generator.buildBooleanBacktracker(__eval);
 					gen.init();
 					if (__eval.__getInterrupt()) {
 						throw new InterruptException(__eval.getStackTrace());
@@ -368,7 +368,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			int i = 0;
 			boolean normalCflow = false;
 			try {
-				gens[0] = __eval.makeBooleanResult(generators.get(0));
+				gens[0] = generators.get(0).buildBooleanBacktracker(__eval);
 				olds[0] = __eval.getCurrentEnvt();
 				gens[0].init();
 				__eval.pushEnv();
@@ -386,8 +386,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							// __eval.pushEnv();
 						} else {
 							i++;
-							gens[i] = __eval.makeBooleanResult(generators
-									.get(i));
+							gens[i] = generators
+							.get(i).buildBooleanBacktracker(__eval);
 							olds[i] = __eval.getCurrentEnvt();
 							gens[i].init();
 							__eval.pushEnv();
@@ -470,7 +470,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			int i = 0;
 			try {
-				gens[0] = __eval.makeBooleanResult(generators.get(0));
+				gens[0] = generators.get(0).buildBooleanBacktracker(__eval);
 				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
@@ -487,7 +487,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						}
 
 						i++;
-						gens[i] = __eval.makeBooleanResult(generators.get(i));
+						gens[i] = generators.get(i).buildBooleanBacktracker(__eval);
 						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
 						__eval.pushEnv();
@@ -529,7 +529,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			int i = 0;
 			try {
-				gens[0] = __eval.makeBooleanResult(generators.get(0));
+				gens[0] = generators.get(0).buildBooleanBacktracker(__eval);
 				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
@@ -546,7 +546,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						}
 
 						i++;
-						gens[i] = __eval.makeBooleanResult(generators.get(i));
+						gens[i] = generators.get(i).buildBooleanBacktracker(__eval);
 						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
 						__eval.pushEnv();
@@ -1109,7 +1109,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			loop: while (true) {
 				int i = 0;
 				try {
-					gens[0] = __eval.makeBooleanResult(generators.get(0));
+					gens[0] = generators.get(0).buildBooleanBacktracker(__eval);
 					gens[0].init();
 					olds[0] = __eval.getCurrentEnvt();
 
@@ -1128,8 +1128,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							}
 
 							i++;
-							gens[i] = __eval.makeBooleanResult(generators
-									.get(i));
+							gens[i] = generators
+							.get(i).buildBooleanBacktracker(__eval);
 							gens[i].init();
 							olds[i] = __eval.getCurrentEnvt();
 						} else {

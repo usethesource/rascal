@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.eclipse.imp.pdb.facts.IValue;
 
-import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 import org.rascalmpl.interpreter.Evaluator;
@@ -66,7 +65,7 @@ static public class Ambiguity extends Visibility {
   }
   
   @Override
-  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
+  public IBooleanResult buildBooleanBacktracker(IEvaluatorContext __eval) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
 

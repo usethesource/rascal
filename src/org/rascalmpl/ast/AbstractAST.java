@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
-import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -62,9 +61,6 @@ public abstract class AbstractAST implements IVisitable {
 	}
 	
 	public void _setType(Type nonterminalType) {
-//	  if (_type != null) {
-//	    throw new ImplementationError("why set a type twice?");
-//	  }
 		if (_type != null && (! _type.equals(nonterminalType))) {
 			// For debugging purposes
 			System.err.println("In _setType, found two unequal types: " + _type.toString() + " and " + nonterminalType.toString());
@@ -72,7 +68,6 @@ public abstract class AbstractAST implements IVisitable {
 		this._type = nonterminalType;
 	}
 	
-//	abstract public <T> T accept(IASTVisitor<T> v);
 	public <T> T accept(IASTVisitor<T> v) {
 		return null;
 	}
@@ -161,7 +156,7 @@ public abstract class AbstractAST implements IVisitable {
 		return matcher;
 	}
 
-	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
+	public IBooleanResult buildBooleanBacktracker(IEvaluatorContext eval) {
 		throw new NotYetImplemented(this);
 	}
 	
