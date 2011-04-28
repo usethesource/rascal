@@ -107,45 +107,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> implements
 	}
 
 	
-	public List<IMatchingResult> visitArguments(CallOrTree x) {
-		List<Expression> elements = x.getArguments();
-		return this.visitElements(elements);
-	}
-
-	public List<IMatchingResult> visitConcreteLexicalArguments(CallOrTree x) {
-		Expression args = x.getArguments().get(1);
-
-		List<Expression> elements = args.getElements();
-		return this.visitElements(elements);
-	}
-
-	public List<IMatchingResult> visitConcreteArguments(CallOrTree x) {
-		Expression args = x.getArguments().get(1);
-
-		List<Expression> elements = args.getElements();
-		return this.visitConcreteElements(elements);
-	}
-
-	private List<IMatchingResult> visitConcreteElements(List<Expression> elements) {
-		int n = elements.size();
-		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>((n + 1) / 2);
-
-		for (int i = 0; i < n; i += 2) { // skip layout elements
-			Expression e = elements.get(i);
-			args.add(e.buildMatcher(this));
-		}
-		return args;
-	}
-
-	public List<IMatchingResult> visitElements(List<Expression> elements) {
-		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>(elements.size());
-
-		int i = 0;
-		for (Expression e : elements) {
-			args.add(i++, e.buildMatcher(this));
-		}
-		return args;
-	}
+	
 
 	public AbstractAST getCurrentAST() {
 		return this.__getCtx().getCurrentAST();

@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Label;
@@ -58,6 +59,7 @@ import org.rascalmpl.interpreter.matching.GuardedPattern;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.ListPattern;
+import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.MatchResult;
 import org.rascalmpl.interpreter.matching.MultiVariablePattern;
 import org.rascalmpl.interpreter.matching.NodePattern;
@@ -97,6 +99,8 @@ import org.rascalmpl.parser.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
 
+	
+	
 	static public class Addition extends org.rascalmpl.ast.Expression.Addition {
 
 		public Addition(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
@@ -113,13 +117,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
-
+	
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -335,9 +333,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			return this.getExpression().interpret(__eval);
-
 		}
 
 	}
@@ -380,6 +376,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 										new IConstructorDeclared() {
 											public void handleConstructorDeclaredEvent() {
 												cachedPrefix = null;
+												registeredCacheHandler = false;
 											}
 										});
 						registeredCacheHandler = true;
@@ -390,19 +387,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				// subclasses for NodePattern for each case.
 				if (nameExpr.isQualifiedName() && prefix == null) {
 					return new NodePattern(__eval.__getCtx(), this, null,
-							nameExpr.getQualifiedName(), __eval
-									.visitArguments(this));
+							nameExpr.getQualifiedName(), visitArguments(__eval));
 				} else if (nameExpr.isQualifiedName()
 						&& ((prefix instanceof AbstractFunction) || prefix instanceof OverloadedFunctionResult)) {
 					return new NodePattern(__eval.__getCtx(), this, null,
-							nameExpr.getQualifiedName(), __eval
-									.visitArguments(this));
+							nameExpr.getQualifiedName(), visitArguments(__eval));
 				}
 			}
 
 			return new NodePattern(__eval.__getCtx(), this, nameExpr
-					.buildMatcher(__eval), null, __eval.visitArguments(this));
+					.buildMatcher(__eval), null, visitArguments(__eval));
 
+		}
+		
+		private java.util.List<IMatchingResult> visitArguments(PatternEvaluator eval) {
+			return buildMatchers(getArguments(), eval);
 		}
 
 		@Override
@@ -1468,8 +1467,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-			return new ListPattern(__eval.__getCtx(), this, __eval
-					.visitElements(this.getElements()));
+			return new ListPattern(__eval.__getCtx(), this, buildMatchers(this.getElements(), __eval));
 		}
 
 		@Override
@@ -1603,6 +1601,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+		
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 			return this.getLiteral().buildMatcher(__eval);
@@ -2206,8 +2205,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 
 			BasicType basic = this.getBasicType();
-			java.util.List<IMatchingResult> args = __eval.visitElements(this
-					.getArguments());
+			java.util.List<IMatchingResult> args = buildMatchers(this
+					.getArguments(), __eval);
 
 			return new ReifiedTypePattern(__eval.__getCtx(), this, basic, args);
 
@@ -2287,10 +2286,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-
-			return new SetPattern(__eval.__getCtx(), this, __eval
-					.visitElements(this.getElements()));
-
+			return new SetPattern(__eval.__getCtx(), this, buildMatchers(this.getElements(), __eval));
 		}
 
 		@Override
@@ -2575,8 +2571,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-			return new TuplePattern(__eval.__getCtx(), this, __eval
-					.visitElements(this.getElements()));
+			return new TuplePattern(__eval.__getCtx(), this, buildMatchers(this.getElements(), __eval));
 		}
 
 		@Override
@@ -2797,5 +2792,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	public Expression(IConstructor __param1) {
 		super(__param1);
+	}
+	
+	public static java.util.List<IMatchingResult> buildMatchers(java.util.List<org.rascalmpl.ast.Expression> elements, PatternEvaluator eval) {
+		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>(elements.size());
+
+		int i = 0;
+		for (org.rascalmpl.ast.Expression e : elements) {
+			args.add(i++, e.buildMatcher(eval));
+		}
+		return args;
 	}
 }

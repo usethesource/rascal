@@ -44,7 +44,6 @@ public abstract class Expression extends AbstractAST {
   public Expression(IConstructor node) {
     super(node);
   }
-  
 
   public boolean hasReplacement() {
     return false;
@@ -2203,7 +2202,7 @@ public TypedVariableBecomes(IConstructor node , org.rascalmpl.ast.Type type,  or
 static public class Anti extends Expression {
   // Production: sig("Anti",[arg("org.rascalmpl.ast.Expression","pattern")])
 
-  
+ 
      private final org.rascalmpl.ast.Expression pattern;
   
 

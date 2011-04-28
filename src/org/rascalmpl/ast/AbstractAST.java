@@ -44,6 +44,7 @@ public abstract class AbstractAST implements IVisitable {
 	protected final TypeFactory TF = TypeFactory.getInstance();
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	protected IMatchingResult matcher;
 	
 	AbstractAST(IConstructor node) {
 		this.node = node;
@@ -152,6 +153,13 @@ public abstract class AbstractAST implements IVisitable {
 
 	public IMatchingResult buildMatcher(PatternEvaluator eval) {
 		throw new UnsupportedPatternError(toString(), this);
+	}
+	
+	public IMatchingResult getMatcher(PatternEvaluator eval) {
+		if (matcher == null) {
+			matcher = buildMatcher(eval);
+		}
+		return matcher;
 	}
 
 	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {

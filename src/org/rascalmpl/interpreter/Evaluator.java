@@ -1273,7 +1273,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		pushEnv();
 
 		try {
-			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) patternEvaluator);
+			IMatchingResult mp = pat.getMatcher((PatternEvaluator) patternEvaluator);
 			mp.initMatch(subject);
 
 			while (mp.hasNext()) {
@@ -1312,7 +1312,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
 		Environment old = getCurrentEnvt();
 		try {
-			IMatchingResult mp = pat.buildMatcher((PatternEvaluator) patternEvaluator);
+			IMatchingResult mp = pat.getMatcher((PatternEvaluator) patternEvaluator);
 			mp.initMatch(subject);
 
 			while (mp.hasNext()) {

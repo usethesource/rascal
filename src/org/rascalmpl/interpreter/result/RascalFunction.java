@@ -262,7 +262,7 @@ public class RascalFunction extends NamedFunction {
 		PatternEvaluator pe = new PatternEvaluator(ctx);
 		
 		for (int i = 0; i < size; i++) {
-			matchers[i] = formals.get(i).buildMatcher(pe);
+			matchers[i] = formals.get(i).getMatcher(pe);
 		}
 		
 		return matchers;

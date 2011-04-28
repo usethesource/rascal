@@ -41,7 +41,7 @@ public abstract class PatternWithAction extends
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			IMatchingResult pv = this.getPattern().buildMatcher(
+			IMatchingResult pv = this.getPattern().getMatcher(
 					(PatternEvaluator) __eval.__getPatternEvaluator());
 
 			Type pt = pv.getType(__eval.getCurrentEnvt());
@@ -84,7 +84,7 @@ public abstract class PatternWithAction extends
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			IMatchingResult pv = this.getPattern().buildMatcher(
+			IMatchingResult pv = this.getPattern().getMatcher(
 					(PatternEvaluator) __eval.__getPatternEvaluator());
 			Type pt = pv.getType(__eval.getCurrentEnvt());
 
