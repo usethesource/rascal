@@ -166,13 +166,9 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 				ambSetWriter.insert(gatheredAlternatives.get(i));
 			}
 			
-			if(ambSetWriter.size() > 1){
-				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-				
-				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-			}else{
-				result = (IConstructor) ambSetWriter.done().iterator().next(); // TODO Fix the root cause of this problem.
-			}
+			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
+			
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.
