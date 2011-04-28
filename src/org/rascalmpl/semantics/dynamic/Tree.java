@@ -233,7 +233,6 @@ public abstract class Tree {
 	  
 	  @Override
 	  public IMatchingResult buildMatcher(PatternEvaluator eval) {
-		  // TODO ?? is this really correct
 		  return new LiteralPattern(eval.__getCtx(), this, node);
 	  }
 	  

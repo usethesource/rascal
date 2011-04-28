@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
@@ -47,6 +48,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private QualifiedName qName;
 	private Type type;
 	private Result<IValue> cachedConstructors = null;
+	private boolean registeredCacheHandler = false;
 	
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(ctx, x);
@@ -214,6 +216,17 @@ public class NodePattern extends AbstractMatchingResult {
 			
 			 if (constructors == null) {
 				 this.cachedConstructors = constructors = env.getVariable(qName);
+				 
+				 if (!registeredCacheHandler) {
+					 ctx.getEvaluator().registerConstructorDeclaredListener(
+							 new IConstructorDeclared() {
+								 public void handleConstructorDeclaredEvent() {
+									 cachedConstructors = null;
+									 registeredCacheHandler = false;
+								 }
+							 });
+					 registeredCacheHandler = true;
+				 }
 			 }
 			 
 			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
