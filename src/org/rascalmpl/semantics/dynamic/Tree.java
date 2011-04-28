@@ -17,9 +17,11 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
 import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
 import org.rascalmpl.interpreter.matching.ConcreteListPattern;
@@ -38,28 +40,50 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * These classes special case Expression.CallOrTree for concrete syntax patterns
  */
 public abstract class Tree {
-  static public class Appl extends org.rascalmpl.ast.Expression {
-	protected final IConstructor production;
-	protected final java.util.List<Expression> args;
-	protected final Type type;
-
-	public Appl(IConstructor node, java.util.List<Expression> args) {
-		super(node);
-		this.production = TreeAdapter.getProduction(node);
-		this.type = RascalTypeFactory.getInstance().nonTerminalType(production);
-		this.args = args;
+	protected static boolean isConstant(java.util.List<Expression> args) {
+		boolean tmp = true;
+		for (org.rascalmpl.ast.Expression e : args) { 
+			if (e.getStats().getNestedMetaVariables() > 0) {
+				tmp = false;
+				break;
+			}
+		}
+		return tmp;
 	}
 	
+  static public class Appl extends org.rascalmpl.ast.Expression {
+	protected final IConstructor production;
+	protected final java.util.List<org.rascalmpl.ast.Expression> args;
+	protected final Type type;
+	protected final boolean constant;
+
+	public Appl(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
+		super(node);
+		this.production = TreeAdapter.getProduction(node);
+		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
+		this.args = args;
+		this.constant = isConstant(args);
+	}
+
 	@Override
 	public Type _getType() {
 		return type;
 	}
 	
 	@Override
+	public Type typeOf(Environment env) {
+		return type;
+	}
+	
+	@Override
 	public Result<IValue> interpret(Evaluator eval) {
-		// TODO add constant caching and function calling
+		if (constant) {
+			return makeResult(type, node, eval);
+		}
+		
+		// TODO add function calling
 		IListWriter w = eval.getValueFactory().listWriter(Factory.Tree);
-		for (Expression arg : args) {
+		for (org.rascalmpl.ast.Expression arg : args) {
 			w.append(arg.interpret(eval).getValue());
 		}
 		
@@ -73,23 +97,31 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		if (constant) {
+			return new LiteralPattern(eval.__getCtx(), this, node);
+		}
+		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (int i = 0; i < args.size(); i+=2) { // skip layout elements for efficiency
-			kids.add(args.get(i).buildMatcher(eval)); 
+			kids.add(args.get(i).buildMatcher(eval));
 		}
 		return new ConcreteApplicationPattern(eval.__getCtx(), this, kids);
 	}
   }
   
   static public class Lexical extends Appl {
-	public Lexical(IConstructor node, java.util.List<Expression> args) {
+	public Lexical(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 		super(node, args);
 	}
 	
 	@Override
 	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		if (constant) {
+			return new LiteralPattern(eval.__getCtx(), this, node);
+		}
+		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
-		for (Expression arg : args) {
+		for (org.rascalmpl.ast.Expression arg : args) {
 			kids.add(arg.buildMatcher(eval));
 		}
 		return new ConcreteApplicationPattern(eval.__getCtx(), this, kids);
@@ -97,7 +129,7 @@ public abstract class Tree {
   }
   
   static public class Optional extends Appl {
-	public Optional(IConstructor node, java.util.List<Expression> args) {
+	public Optional(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 		super(node, args);
 	}
 	
@@ -113,14 +145,18 @@ public abstract class Tree {
   }
   
   static public class List extends Appl {
-	public List(IConstructor node, java.util.List<Expression> args) {
+	public List(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 		super(node, args);
 	}
 	
 	@Override
 	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		if (constant) {
+			return new LiteralPattern(eval.__getCtx(), this, node);
+		}
+		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
-		for (Expression arg : args) {
+		for (org.rascalmpl.ast.Expression arg : args) {
 			kids.add(arg.buildMatcher(eval));
 		}
 		return new ConcreteListPattern(eval.__getCtx(), this, kids);
@@ -129,22 +165,33 @@ public abstract class Tree {
   
   static public class Amb extends  org.rascalmpl.ast.Expression {
 	private final Type type;
-	private final java.util.List<Expression> alts;
+	private final java.util.List<org.rascalmpl.ast.Expression> alts;
+	private final boolean constant;
 
-	public Amb(IConstructor node, java.util.List<Expression> alternatives) {
+	public Amb(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> alternatives) {
 		super(node);
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 		this.alts = alternatives;
+		this.constant = isConstant(alternatives);
 	}
 	
 	@Override
 	public Result<IValue> interpret(Evaluator eval) {
-		// TODO: add filtering semantics, function calling, constant caching
+		if (constant) {
+			return makeResult(type, node, eval);
+		}
+		
+		// TODO: add filtering semantics, function calling
 		ISetWriter w = eval.getValueFactory().setWriter(Factory.Tree);
-		for (Expression a : alts) {
+		for (org.rascalmpl.ast.Expression a : alts) {
 			w.insert(a.interpret(eval).getValue());
 		}
 		return makeResult(type, Factory.Tree_Amb.make(eval.getValueFactory(), (IValue) w.done()), eval);
+	}
+	
+	@Override
+	public Type typeOf(Environment env) {
+		return type;
 	}
 	
 	@Override
@@ -154,8 +201,12 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+		if (constant) {
+			return new LiteralPattern(eval.__getCtx(), this, node);
+		}
+		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
-		for (Expression arg : alts) {
+		for (org.rascalmpl.ast.Expression arg : alts) {
 			kids.add(arg.buildMatcher(eval));
 		}
 		
@@ -184,6 +235,11 @@ public abstract class Tree {
 	  public IMatchingResult buildMatcher(PatternEvaluator eval) {
 		  // TODO ?? is this really correct
 		  return new LiteralPattern(eval.__getCtx(), this, node);
+	  }
+	  
+	  @Override
+	  public Type typeOf(Environment env) {
+		  return Factory.Tree;
 	  }
   }
 }

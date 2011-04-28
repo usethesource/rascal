@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -43,7 +42,6 @@ import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -52,10 +50,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
-import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
-import org.rascalmpl.interpreter.matching.ConcreteListPattern;
 import org.rascalmpl.interpreter.matching.ConcreteListVariablePattern;
-import org.rascalmpl.interpreter.matching.ConcreteOptPattern;
 import org.rascalmpl.interpreter.matching.DescendantPattern;
 import org.rascalmpl.interpreter.matching.EnumeratorResult;
 import org.rascalmpl.interpreter.matching.EquivalenceResult;
@@ -94,7 +89,6 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
@@ -368,37 +362,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
 			org.rascalmpl.ast.Expression nameExpr = this.getExpression();
-			if (isConcreteSyntaxList()) {
-				org.rascalmpl.ast.Expression.List args = (org.rascalmpl.ast.Expression.List) this
-						.getArguments().get(1);
-				// TODO what if somebody writes a variable in the list
-				// production itself?
-				return new ConcreteListPattern(__eval.__getCtx(), this, __eval
-						.visitElements(args.getElements()));
-			}
-			if (isConcreteSyntaxOptional()) {
-				org.rascalmpl.ast.Expression.List args = (org.rascalmpl.ast.Expression.List) this
-						.getArguments().get(1);
-				return new ConcreteOptPattern(__eval.__getCtx(), this, __eval
-						.visitElements(args.getElements()));
-			}
-			if (isConcreteSyntaxAppl()) {
-				if (org.rascalmpl.values.uptr.TreeAdapter
-						.isLexical((IConstructor) this.getTree())) {
-					return new ConcreteApplicationPattern(__eval.__getCtx(),
-							this, __eval.visitConcreteLexicalArguments(this));
-				}
-
-				return new ConcreteApplicationPattern(__eval.__getCtx(), this,
-						__eval.visitConcreteArguments(this));
-			}
-			if (isConcreteSyntaxAmb()) {
-				new Ambiguous((IConstructor) this.getTree());
-				// return new AbstractPatternConcreteAmb(vf, new
-				// EvaluatorContext(ctx.getEvaluator(), this), this,
-				// visitArguments(this));
-			}
-
+		
 			if (nameExpr.isQualifiedName()) {
 				// If the name expression is just a name, enable caching of the
 				// name lookup result.
@@ -526,86 +490,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 		}
 
-		private boolean isConcreteListProd() {
-			if (!getExpression().isQualifiedName()) {
-				return false;
-			}
-
-			String name = Names.name(Names.lastName(getExpression()
-					.getQualifiedName()));
-
-			if (name.equals("regular")) {
-				org.rascalmpl.ast.Expression sym = getArguments().get(0);
-				if (Names.name(
-						Names.lastName(sym.getExpression().getQualifiedName()))
-						.startsWith("iter")) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		private boolean isConcreteOptionalProd() {
-			if (!getExpression().isQualifiedName()) {
-				return false;
-			}
-
-			String name = Names.name(Names.lastName(getExpression()
-					.getQualifiedName()));
-
-			if (name.equals("regular")) {
-				org.rascalmpl.ast.Expression sym = getArguments().get(0);
-				if (Names.name(
-						Names.lastName(sym.getExpression().getQualifiedName()))
-						.equals("opt")) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		public boolean isConcreteSyntaxAmb() {
-			if (!getExpression().isQualifiedName()) {
-				return false;
-			}
-			return Names.name(
-					Names.lastName(getExpression().getQualifiedName())).equals(
-					"amb")
-					&& _getType() instanceof NonTerminalType;
-		}
-
-		public boolean isConcreteSyntaxAppl() {
-			if (!getExpression().isQualifiedName()) {
-				return false;
-			}
-			return Names.name(
-					Names.lastName(getExpression().getQualifiedName())).equals(
-					"appl")
-					&& _getType() instanceof NonTerminalType;
-		}
-
-		public boolean isConcreteSyntaxList() {
-			return isConcreteSyntaxAppl()
-					&& ((org.rascalmpl.semantics.dynamic.Expression.CallOrTree) getArguments()
-							.get(0)).isConcreteListProd()
-					&& _getType() instanceof NonTerminalType;
-		}
-
-		public boolean isConcreteSyntaxOptional() {
-			return isConcreteSyntaxAppl()
-					&& ((org.rascalmpl.semantics.dynamic.Expression.CallOrTree) getArguments()
-							.get(0)).isConcreteOptionalProd()
-					&& _getType() instanceof NonTerminalType;
-		}
-
 		@Override
 		public Type typeOf(Environment env) {
-			if (isConcreteSyntaxAppl()) {
-				return _getType();
-			}
-
 			Type lambda = getExpression().typeOf(env);
 
 			if (lambda.isStringType()) {
