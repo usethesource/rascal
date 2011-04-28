@@ -90,7 +90,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IBooleanResult buildBooleanBacktracker(IEvaluatorContext eval) {
+	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
 		return new BasicBooleanResult(eval, this);
 	}
 	
@@ -194,7 +194,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IBooleanResult buildBooleanBacktracker(IEvaluatorContext __eval) {
+	public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 		return new BasicBooleanResult(__eval, this);
 	}
 	

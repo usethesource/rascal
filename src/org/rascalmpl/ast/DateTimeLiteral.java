@@ -88,7 +88,7 @@ static public class Ambiguity extends DateTimeLiteral {
   }
   
   @Override
-  public IBooleanResult buildBooleanBacktracker(IEvaluatorContext __eval) {
+  public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
 

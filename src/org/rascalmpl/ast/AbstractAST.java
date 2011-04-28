@@ -43,6 +43,7 @@ public abstract class AbstractAST implements IVisitable {
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected IMatchingResult matcher;
+	protected IBooleanResult backtracker;
 	
 	AbstractAST(IConstructor node) {
 		this.node = node;
@@ -145,6 +146,9 @@ public abstract class AbstractAST implements IVisitable {
 		throw new NotYetImplemented(this);
 	}
 
+	/**
+	 * Recursively build a matching data-structure, use getMatcher if you are just a client of IMatchingResult.
+	 */
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		throw new UnsupportedPatternError(toString(), this);
 	}
@@ -156,8 +160,18 @@ public abstract class AbstractAST implements IVisitable {
 		return matcher;
 	}
 
-	public IBooleanResult buildBooleanBacktracker(IEvaluatorContext eval) {
+	/**
+	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
+	 */
+	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
 		throw new NotYetImplemented(this);
+	}
+	
+	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
+		if (backtracker == null) {
+			backtracker = buildBacktracker(ctx);
+		}
+		return backtracker;
 	}
 	
 }
