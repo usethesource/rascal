@@ -147,23 +147,19 @@ public class ErrorSortBuilder{
 				ambSetWriter.insert(gatheredAlternatives.get(i));
 			}
 			
-			if(ambSetWriter.size() > 1){
-				if(isInTotalError.inError){
-					result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
-					// Don't filter error ambs.
-				}else{
-					result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-					result = actionExecutor.filterAmbiguity(result);
-					if(result == null){
-						// Build error amb.
-						result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
-					}
-				}
-				
-				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
+			if(isInTotalError.inError){
+				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+				// Don't filter error ambs.
 			}else{
-				result = (IConstructor) ambSetWriter.done().iterator().next(); // TODO Fix the root cause of this problem.
+				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
+				result = actionExecutor.filterAmbiguity(result);
+				if(result == null){
+					// Build error amb.
+					result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+				}
 			}
+			
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.

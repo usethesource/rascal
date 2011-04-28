@@ -41,7 +41,6 @@ import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -629,8 +628,8 @@ public abstract class SGTDBF implements IGTD{
 							resultStore.addAlternative(production, resultLink);
 							
 							stacksWithNonTerminalsToReduce.push(edge, resultStore);
+							firstTimeReductions.putUnsafe(resultStoreId, resultStore);
 						}
-						firstTimeReductions.putUnsafe(resultStoreId, resultStore);
 					}
 				}else{
 					stacksWithNonTerminalsToReduce.push(edge, resultStore);
