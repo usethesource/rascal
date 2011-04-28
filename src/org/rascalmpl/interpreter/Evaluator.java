@@ -1243,28 +1243,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return name;
 	}
 
-	public IBooleanResult makeBooleanResult(Expression pat) {
-		if (pat instanceof Ambiguity) {
-			// TODO: wrong exception here.
-			throw new Ambiguous((IConstructor) pat.getTree());
-		}
-
-		BooleanEvaluator pe = new BooleanEvaluator(this);
-		return pat.buildBooleanBacktracker(pe);
-	} 
-
-	public Result<IValue> evalBooleanExpression(Expression x) {
-		IBooleanResult mp = makeBooleanResult(x);
-		mp.init();
-		while (mp.hasNext()) {
-			if (interrupt)
-				throw new InterruptException(getStackTrace());
-			if (mp.next()) {
-				return ResultFactory.bool(true, this);
-			}
-		}
-		return ResultFactory.bool(false, this);
-	}
+	
 
 	public boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat) {
 		boolean debug = false;
@@ -1347,7 +1326,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 					int i = 0;
 					try {
-						gens[0] = makeBooleanResult(conditions.get(0));
+						gens[0] = conditions.get(0).buildBooleanBacktracker(this);
 						gens[0].init();
 						olds[0] = getCurrentEnvt();
 						pushEnv();
@@ -1365,7 +1344,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 								}
 
 								i++;
-								gens[i] = makeBooleanResult(conditions.get(i));
+								gens[i] = conditions.get(i).buildBooleanBacktracker(this);
 								gens[i].init();
 								olds[i] = getCurrentEnvt();
 								pushEnv();

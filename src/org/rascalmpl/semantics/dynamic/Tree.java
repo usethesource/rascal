@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -91,8 +90,8 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator eval) {
-		return new BasicBooleanResult(eval.__getCtx(), this);
+	public IBooleanResult buildBooleanBacktracker(IEvaluatorContext eval) {
+		return new BasicBooleanResult(eval, this);
 	}
 	
 	@Override
@@ -195,8 +194,8 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
-		return new BasicBooleanResult(__eval.__getCtx(), this);
+	public IBooleanResult buildBooleanBacktracker(IEvaluatorContext __eval) {
+		return new BasicBooleanResult(__eval, this);
 	}
 	
 	@Override
