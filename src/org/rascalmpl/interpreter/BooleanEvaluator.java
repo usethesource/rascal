@@ -18,18 +18,13 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
-import java.lang.String;
 import java.util.Stack;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.interpreter.Accumulator;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -41,7 +36,6 @@ import org.rascalmpl.uri.URIResolverRegistry;
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements IEvaluator<IBooleanResult> {
 	private final IEvaluatorContext ctx;
 	private final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
-	private final PatternEvaluator pe;
 
 	public ASTBuilder getBuilder() {
 		return ctx.getBuilder();
@@ -49,15 +43,10 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> implements 
 	
 	public BooleanEvaluator(IEvaluatorContext ctx) {
 		this.ctx = ctx;
-		this.pe = new PatternEvaluator(ctx);
 	}
 
 	public TypeFactory __getTf() {
 		return tf;
-	}
-
-	public PatternEvaluator __getPe() {
-		return pe;
 	}
 
 	public IEvaluatorContext __getCtx() {

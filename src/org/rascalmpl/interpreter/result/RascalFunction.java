@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -39,7 +38,6 @@ import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -259,10 +257,9 @@ public class RascalFunction extends NamedFunction {
 		
 		int size = formals.size();
 		IMatchingResult[] matchers = new IMatchingResult[size];
-		PatternEvaluator pe = new PatternEvaluator(ctx);
 		
 		for (int i = 0; i < size; i++) {
-			matchers[i] = formals.get(i).getMatcher(pe);
+			matchers[i] = formals.get(i).getMatcher(ctx);
 		}
 		
 		return matchers;

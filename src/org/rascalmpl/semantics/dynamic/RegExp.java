@@ -14,7 +14,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 
@@ -26,8 +26,8 @@ public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-			return new RegExpPatternValue(__eval.__getCtx(), this, this
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+			return new RegExpPatternValue(__eval, this, this
 					.getString(), java.util.Collections.<String> emptyList());
 		}
 	}

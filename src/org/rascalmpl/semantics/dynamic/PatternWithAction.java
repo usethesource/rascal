@@ -20,7 +20,6 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.NodePattern;
 import org.rascalmpl.interpreter.result.Result;
@@ -41,8 +40,7 @@ public abstract class PatternWithAction extends
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			IMatchingResult pv = this.getPattern().getMatcher(
-					(PatternEvaluator) __eval.__getPatternEvaluator());
+			IMatchingResult pv = this.getPattern().getMatcher(__eval);
 
 			Type pt = pv.getType(__eval.getCurrentEnvt());
 
@@ -84,8 +82,7 @@ public abstract class PatternWithAction extends
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			IMatchingResult pv = this.getPattern().getMatcher(
-					(PatternEvaluator) __eval.__getPatternEvaluator());
+			IMatchingResult pv = this.getPattern().getMatcher(__eval);
 			Type pt = pv.getType(__eval.getCurrentEnvt());
 
 			if (pv instanceof NodePattern) {

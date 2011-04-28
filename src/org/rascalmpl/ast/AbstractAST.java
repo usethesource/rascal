@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.PatternEvaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
@@ -151,11 +150,11 @@ public abstract class AbstractAST implements IVisitable {
 		throw new NotYetImplemented(this);
 	}
 
-	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		throw new UnsupportedPatternError(toString(), this);
 	}
 	
-	public IMatchingResult getMatcher(PatternEvaluator eval) {
+	public IMatchingResult getMatcher(IEvaluatorContext eval) {
 		if (matcher == null) {
 			matcher = buildMatcher(eval);
 		}
