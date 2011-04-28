@@ -141,13 +141,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
-
 		@SuppressWarnings("unchecked")
 		@Override
 		public Result interpret(Evaluator __eval) {
@@ -218,13 +211,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
-
-		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			return evalBooleanExpression(this, __eval);
 		}
@@ -260,13 +246,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			return new BasicBooleanResult(__eval, this);
-
-		}
-
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
 
 		}
 
@@ -518,12 +497,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -563,12 +537,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -598,12 +567,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+	
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -650,12 +614,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+	
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -719,13 +678,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
-
+	
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -776,12 +729,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+	
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -814,12 +762,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+	
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -896,12 +839,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -932,12 +870,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -967,12 +900,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1001,12 +929,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1208,12 +1131,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1244,12 +1162,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1367,21 +1280,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
-
-		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.lessThan(right);
-
 		}
-
 	}
 
 	static public class LessThanOrEq extends
@@ -1400,12 +1303,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1687,12 +1585,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+	
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1811,12 +1704,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1854,12 +1742,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1886,12 +1769,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -1940,10 +1818,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			throw new UnsupportedPatternError(this.toString(), this);
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -2057,12 +1932,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -2330,12 +2200,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+	
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -2364,13 +2229,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
-
+		
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -2411,12 +2270,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -2445,12 +2299,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					this);
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -2478,12 +2327,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
@@ -2708,12 +2552,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			throw new UnsupportedPatternError(this.toString(), this);
-
-		}
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
