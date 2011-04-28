@@ -81,7 +81,7 @@ static public class Ambiguity extends Variant {
   }
   
   @Override
-  public IBooleanResult buildBooleanBacktracker(IEvaluatorContext __eval) {
+  public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
 

@@ -1326,7 +1326,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 					int i = 0;
 					try {
-						gens[0] = conditions.get(0).buildBooleanBacktracker(this);
+						gens[0] = conditions.get(0).getBacktracker(this);
 						gens[0].init();
 						olds[0] = getCurrentEnvt();
 						pushEnv();
@@ -1344,7 +1344,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 								}
 
 								i++;
-								gens[i] = conditions.get(i).buildBooleanBacktracker(this);
+								gens[i] = conditions.get(i).getBacktracker(this);
 								gens[i].init();
 								olds[i] = getCurrentEnvt();
 								pushEnv();
