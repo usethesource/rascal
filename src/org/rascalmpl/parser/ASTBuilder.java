@@ -30,7 +30,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.ASTStatistics;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
@@ -38,16 +37,13 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Toplevel;
-import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Symbols;
+import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -69,7 +65,6 @@ public class ASTBuilder {
     private PointerEqualMappingsCache<IConstructor, AbstractAST> sortCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
     private PointerEqualMappingsCache<IConstructor, AbstractAST> lexCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
     
-    private PointerEqualMappingsCache<IValue, Expression> matchCache = new PointerEqualMappingsCache<IValue, Expression>();
     private PointerEqualMappingsCache<IValue, Expression> constructorCache = new PointerEqualMappingsCache<IValue, Expression>();
     private ISourceLocation lastSuccess = null;
     
@@ -354,7 +349,11 @@ public class ASTBuilder {
 				// TODO: Terrible hack to ensure we get the right class back
                 if (actuals[i].getClass().getPackage().getName().contains(".ast")) {
                     formals[i] = actuals[i].getClass().getSuperclass();
-                } else {
+                } 
+                else if (actuals[i].getClass().getName().contains("dynamic.Tree")) {
+                	formals[i] = org.rascalmpl.ast.Expression.class;
+                }
+                else {
                 	formals[i] = actuals[i].getClass().getSuperclass().getSuperclass();
                 }
 
@@ -568,7 +567,7 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST lift(IConstructor tree, boolean match) {
-		AbstractAST cached = (match ? matchCache : constructorCache).get(tree);
+		AbstractAST cached = constructorCache.get(tree);
 		if (cached != null) {
 			if (cached == dummyEmptyTree) {
 				return null;
@@ -576,15 +575,13 @@ public class ASTBuilder {
 			return cached;
 		}
 		
-		
 		if (TreeAdapter.isEpsilon(tree)) {
-			matchCache.putUnsafe(tree, dummyEmptyTree);
 			constructorCache.putUnsafe(tree, dummyEmptyTree);
 			return null;
 		}
 		
 		IConstructor pattern = getConcretePattern(tree);
-		Expression ast = lift(pattern, pattern, match, false);
+		Expression ast = liftRec(pattern);
 		
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
@@ -596,285 +593,115 @@ public class ASTBuilder {
 			}
 		}
 		
-		if (match) {
-			matchCache.putUnsafe(tree, ast);
-		} else {
-			constructorCache.putUnsafe(tree, ast);
-		}
+		constructorCache.putUnsafe(tree, ast);
 		return ast;
 	}
 
-	private Expression lift(IValue pattern, IConstructor source, boolean match, boolean inlist) {
-		Expression cached = (match ? matchCache : constructorCache).get(pattern);
+	private Expression stats(IConstructor in, Expression out, ASTStatistics a) {
+		constructorCache.putUnsafe(in, out);
+		if (out != null) {
+			out.setStats(a);
+		}
+		return out;
+	}
+	
+	private Expression liftRec(IConstructor tree) {
+		Expression cached = constructorCache.get(tree);
 		if (cached != null) {
 			return cached;
 		}
 		
-		Type type = pattern.getType();
-		if (type.isNodeType()) {
-			IConstructor node = (IConstructor) pattern;
-			ASTStatistics stats = new ASTStatistics();
-			boolean isAmb = false;
-			ISourceLocation loc = null;
-			Type nonterminalType = null;
+		ASTStatistics stats = new ASTStatistics();
+		Expression result;
+		
+		if (TreeAdapter.isAppl(tree)) {
+			String cons = TreeAdapter.getConstructorName(tree);
 			
-			if (type.isAbstractDataType()) {
-				IConstructor tree = (IConstructor) pattern;
-
-				if (TreeAdapter.isAppl(tree)) {
-					loc = TreeAdapter.getLocation(tree);
-					
-					if (TreeAdapter.isList(tree)) {
-						inlist = true;
-					}
-					
-					// normal variables
-					String cons = TreeAdapter.getConstructorName(tree);
-					if (cons != null && (cons.equals("MetaVariable")
-							// TODO: TypedMetaVariable does not exist in grammar
-							|| cons.equals("TypedMetaVariable"))) {
-						Expression result = liftVariable(tree);
-						// Set the nonterminal type of metavariables in concrete syntax patterns
-						if (result != null && result.hasType()) {
-							result._setType(RascalTypeFactory.getInstance().nonTerminalType(result.getType()));
-						}
-						(match ? matchCache : constructorCache).putUnsafe(pattern, result);
-						return result;
-					}
-					
-					if (match && SymbolAdapter.isCfOptLayout(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
-						Expression result = wildCard(tree);
-						(match ? matchCache : constructorCache).putUnsafe(pattern, result);
-						return result;
-					}
-					
-					if (!TreeAdapter.isLexical(tree) || TreeAdapter.isInjectionOrSingleton(tree)) {
-						stats.setInjections(1);
-					}
-					else if (TreeAdapter.isNonEmptyStarList(tree)) {
-						stats.setInjections(1);
-					}
-					else {
-						stats.setInjections(0); // bug
-					}
-
-					source = tree;
-					IConstructor sym =  ProductionAdapter.getRhs(TreeAdapter.getProduction(tree));
-					nonterminalType = RascalTypeFactory.getInstance().nonTerminalType(sym);
-				}
-				else if (TreeAdapter.isAmb(tree)) {
-					isAmb = true;
-					source = tree;
-					IConstructor sym = ProductionAdapter.getRhs(TreeAdapter.getProduction((IConstructor) TreeAdapter.getAlternatives(tree).iterator().next()));
-					nonterminalType = RascalTypeFactory.getInstance().nonTerminalType(sym);
-				}
-				else if (TreeAdapter.isChar(tree)) {
-					source = tree;
-				}
-			}
-			
-
-			String name = node.getName();
-			List<Expression> args = new ArrayList<Expression>(node.arity());
-
-			for (IValue child : node) {
-				Expression ast = lift(child, source, match, inlist);
-				if (ast == null) {
-					return null;
-				}
-				args.add(ast);
-				stats.add(ast.getStats());
-			}
-			
-			if (isAmb && ((Expression.Set)args.get(0)).getElements().size() == 1) {
-				Expression result = ((Expression.Set)args.get(0)).getElements().get(0);
-				(match ? matchCache : constructorCache).putUnsafe(pattern, result);
-				return result;
-			}
-			
-			if (isAmb) {
-				stats.setAmbiguous(true);
+			if (cons != null && (cons.equals("MetaVariable") || cons.equals("TypedMetaVariable"))) {
+				result = liftVariable(tree);
+				stats.setNestedMetaVariables(1);
+				return stats(tree, result, stats);
 			}
 
-			// this generates a node instead of a constructor for the cons name, to match the representation
-			// that is produced by SGLR
-			Expression func;
-			if (!name.equals("cons")) {
-				func = makeQualifiedName(source, name);
+			boolean lex = TreeAdapter.isLexical(tree);
+			boolean inj = TreeAdapter.isInjectionOrSingleton(tree);
+			boolean star = TreeAdapter.isNonEmptyStarList(tree);
+			
+			if (!lex || inj) {
+				stats.setInjections(1);
+			}
+			else if (star) {
+				stats.setInjections(1);
 			}
 			else {
-				func = makeStringExpression(source, name);
+				stats.setInjections(0);
 			}
-			Expression ast = makeExp("CallOrTree", source, func, args);
-			ast._setType(nonterminalType);
-
-			if (loc != null && !match) {
-				ast = addLocationAnnotationSetterExpression(source, loc, ast);
-			}
-			
-			ast.setStats(stats);
-			
-			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
-			return ast;
-		}
-		else if (type.isListType()) {
-			IList list = (IList) pattern;
-			List<Expression> result = new ArrayList<Expression>(list.length());
-			ASTStatistics stats = new ASTStatistics();
-			
-			if (list.length() == 1) {
-				stats.setInjections(1); 
-			}
-			
-			for (IValue arg: list) {
-				Expression ast = lift(arg, source, match, false);
 				
+			
+			IList args = TreeAdapter.getArgs(tree);
+			java.util.List<Expression> kids = new ArrayList<Expression>(args.length());
+			for (IValue arg : args) {
+				Expression ast = liftRec((IConstructor) arg);
 				if (ast == null) {
 					return null;
 				}
-				
-				// TODO: this does not deal with directly nested lists
-				if (inlist && isListAppl(ast)) {
-					// splicing can be necessary if filtering was successful
-					List<Expression> elements = ast.getArguments().get(1).getElements();
-					for (Expression elem : elements) {
-						stats.add(elem.getStats());
-						result.add(elem);
-					}
-				}
-				else {
-					stats.add(ast.getStats());
-					result.add(ast);
-				}
+				kids.add(ast);
+				stats.add(ast.getStats());
 			}
-			Expression.List ast = makeExp("List", source, result);
-			ast.setStats(stats);
-			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
-			return ast;
+
+			if (TreeAdapter.isLexical(tree)) {
+				return stats(tree, new Tree.Lexical(tree, kids), stats);
+			}
+			else if (TreeAdapter.isList(tree)) {
+				// TODO: splice element lists (can happen in case of ambiguous lists)
+				return stats(tree, new Tree.List(tree, kids), stats);
+			}
+			else if (TreeAdapter.isOpt(tree)) {
+				return stats(tree, new Tree.Optional(tree, kids), stats);
+			}
+			else { 
+				return stats(tree, new Tree.Appl(tree, kids), stats);
+			}
 		}
-		else if (type.isStringType()) {
-			Expression result = makeExp("Literal", source, 
-									make("Literal", "String", source,
-											make("StringLiteral","NonInterpolated", source, 
-													makeLex("StringConstant", source, pattern.toString()))));
-			matchCache.putUnsafe(pattern, result);
-			constructorCache.putUnsafe(pattern, result);
-			return result;
-		}
-		else if (type.isIntegerType()) {
-			Expression result = makeExp("Literal", source, make("Literal","Integer", source, make("IntegerLiteral","DecimalIntegerLiteral", source, makeLex("DecimalIntegerLiteral",source, pattern.toString()))));
-			matchCache.putUnsafe(pattern, result);
-			constructorCache.putUnsafe(pattern, result);
-			return result;
-		}
-		else if (type.isSetType()) {
-			// this code depends on the fact that only amb nodes can contain sets
-			ISet set = (ISet) pattern;
+		else if (TreeAdapter.isAmb(tree)) {
+			ISet args = TreeAdapter.getAlternatives(tree);
+			java.util.List<Expression> kids = new ArrayList<Expression>(args.size());
 			
-			List<Expression> result = new ArrayList<Expression>(set.size());
 			ASTStatistics ref = null;
 			
-			for (IValue elem : set) {
-				Expression ast = lift(elem, source, match, false);
-				
+			for (IValue arg : args) {
+				Expression ast = liftRec((IConstructor) arg);
 				if (ast != null) {
 					if (ref == null) {
 						ref = ast.getStats();
-						result.add(ast);
+						kids.add(ast);
 					}
 					else {
-						ref = filter(result, ast, ref);
+						ref = filter(kids, ast, ref);
 					}
 				}
 			}
 			
-			if (result.size() == 0) {
-				return null; // all alts filtered
+			if (kids.size() == 0) {
+				return null;
 			}
-			
-			Expression.Set ast = makeExp("Set", source, result);
-			ast.setStats(ref != null ? ref : new ASTStatistics());
-			(match ? matchCache : constructorCache).putUnsafe(pattern, ast);
-			return ast;
+			else {
+				stats = ref != null ? ref : new ASTStatistics();
+				if (kids.size() == 1) {
+					return kids.get(0);
+				}
+				else {
+					stats.setAmbiguous(true);
+					return stats(tree, new Tree.Amb(tree, kids), stats);
+				}
+			}
 		}
 		else {
-			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
+			if (!TreeAdapter.isChar(tree)) {
+				throw new ImplementationError("unexpected tree type: " + tree);
+			}
+			return stats(tree, new Tree.Char(tree), new ASTStatistics()); 
 		}
-	}
-
-	private org.rascalmpl.ast.Expression.Literal makeStringExpression(
-			IConstructor source, String name) {
-		return makeExp("Literal", source, make("Literal","String", source, make("StringLiteral","NonInterpolated", source, makeLex("StringConstant", source, "\""+  name + "\""))));
-	}
-
-	private Expression addLocationAnnotationSetterExpression(
-			IConstructor source, ISourceLocation loc, Expression ast) {
-		List<Expression> positions = new ArrayList<Expression>(4);
-		positions.add(createIntegerExpression(source, loc.getOffset()));
-		positions.add(createIntegerExpression(source, loc.getLength()));
-		
-		List<Expression> begin = new ArrayList<Expression>(2);
-		begin.add(createIntegerExpression(source, loc.getBeginLine()));
-		begin.add(createIntegerExpression(source, loc.getBeginColumn()));
-		positions.add(makeExp("Tuple", source, begin));
-		
-		List<Expression> end = new ArrayList<Expression>(2);
-		end.add(createIntegerExpression(source, loc.getEndLine()));
-		end.add(createIntegerExpression(source, loc.getEndColumn()));
-		positions.add(makeExp("Tuple", source, end));
-		
-		String host = loc.getURI().getAuthority();
-		String uriPath = loc.getURI().getPath();
-		String path = host != null ? host : "" + "/" + uriPath != null ? uriPath : "";
-		ast = makeExp("SetAnnotation", source, ast, Names.toName("loc"), 
-				makeExp("CallOrTree", source, makeExp("Literal", source, 
-						make("Literal","Location", source, 
-								make("LocationLiteral", source, 
-										make("ProtocolPart","NonInterpolated",source, 
-												makeLex("ProtocolChars", source, "|" + loc.getURI().getScheme() + "://")
-										), 
-										make("PathPart","NonInterpolated", source, 
-												makeLex("PathChars", source, path + "|"))))),
-												positions
-												));
-//		ast._setType(ast._getType());
-		return ast;
-	}
-
-	private org.rascalmpl.ast.Expression.Literal createIntegerExpression(
-			IConstructor source, int offset) {
-		return makeExp("Literal", source, make("Literal","Integer",source, make("IntegerLiteral","DecimalIntegerLiteral", source, makeLex("DecimalIntegerLiteral", source, Integer.toString(offset)))));
-	}
-
-	// TODO: optimize, this can be really slowing things down
-	private boolean isListAppl(Expression ast) {
-		if (!ast.isCallOrTree()) {
-			return false;
-		}
-		
-		if(!ast.getExpression().isQualifiedName()) {
-			return false;
-		}
-		
-		CallOrTree call = (CallOrTree) ast;
-		
-		String name = Names.name(Names.lastName(call.getExpression().getQualifiedName()));
-		
-		if (!name.equals("appl")) {
-			return false;
-		}
-		
-		CallOrTree prod = (CallOrTree) ast.getArguments().get(0);
-		name = Names.name(Names.lastName(prod.getExpression().getQualifiedName()));
-		
-		if (!name.equals("regular")) {
-			return false;
-		}
-		
-		CallOrTree sum = (CallOrTree) prod.getArguments().get(0);
-		name = Names.name(Names.lastName(sum.getExpression().getQualifiedName()));
-		
-		return name.startsWith("iter");
 	}
 
 	private Expression liftVariable(IConstructor tree) {
@@ -896,13 +723,6 @@ public class ASTBuilder {
 		throw new ImplementationError("Unexpected meta variable while lifting pattern");
 	}
 
-
-	private org.rascalmpl.ast.Expression makeQualifiedName(IConstructor node, String name) {
-		Name simple = makeLex("Name",node, name);
-		List<Name> list = new ArrayList<Name>(1);
-		list.add(simple);
-		return makeExp("QualifiedName", node, make("QualifiedName", node, list));
-	}
 
 	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {
 		if (exp.isTypedVariable()) {
@@ -944,10 +764,6 @@ public class ASTBuilder {
 		if (cons.equals("ConcreteQuoted")) {
 			return (IConstructor) getASTArgs(tree).get(0);
 		}
-		
-//		if (cons.equals("ConcreteUnquoted")) {
-//			return (IConstructor) getASTArgs(tree).get(0);
-//		}
 		
 		if (cons.equals("ConcreteTypedQuoted")) {
 			 return (IConstructor) TreeAdapter.getArgs(tree).get(8);
@@ -1003,10 +819,6 @@ public class ASTBuilder {
 		}
 		
 		return sort.toUpperCase();
-	}
-
-	private Expression wildCard(IConstructor node) {
-		return makeQualifiedName(node, "_");
 	}
 
 	private static ImplementationError unexpectedError(Throwable e) {
