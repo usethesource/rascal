@@ -19,11 +19,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.PatternEvaluator;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 
 public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 
@@ -33,13 +38,39 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			super(__param1, __param2);
 		}
 
-		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+		private String getValueAsString(String varName, IEvaluatorContext ctx) {
+			Environment env = ctx.getCurrentEnvt();
+			Result<IValue> res = env.getVariable(varName);
+			if (res != null && res.getValue() != null) {
+				if (res.getType().isStringType())
+					return ((IString) res.getValue()).getValue();
 
-			if (__eval.__getDebug()) {
-				System.err.println("visitRegExpLiteralLexical: "
-						+ this.getString());
+				return res.getValue().toString();
 			}
+
+			throw new UninitializedVariableError(varName, ctx.getCurrentAST());
+		}
+
+		/*
+		 * Interpolate all occurrences of <X> by the value of X
+		 */
+		private String interpolate(String re, IEvaluatorContext ctx) {
+			Pattern replacePat = java.util.regex.Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)>");
+			Matcher m = replacePat.matcher(re);
+			StringBuffer result = new StringBuffer();
+			int start = 0;
+			while (m.find()) {
+				// TODO: escape special chars?
+				result.append(re.substring(start, m.start(0))).append(getValueAsString(m.group(1), ctx)); 
+				start = m.end(0);
+			}
+			result.append(re.substring(start, re.length()));
+
+			return result.toString();
+		}
+
+		@Override
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 
 			String subjectPat = this.getString();
 
@@ -120,7 +151,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 					}
 					patternVars.add(varName);
 					resultRegExp.append("(").append(
-							__eval.interpolate(m.group(2))).append(")");
+							interpolate(m.group(2), __eval)).append(")");
 				} else { /* case (2): <X> */
 					int varIndex = patternVars.indexOf(varName);
 					if (varIndex >= 0) {
@@ -128,7 +159,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 						resultRegExp.append("(?:\\").append(1 + varIndex)
 								.append(")");
 					} else {
-						resultRegExp.append(__eval.getValueAsString(varName)); // TODO:
+						resultRegExp.append(getValueAsString(varName,__eval)); // TODO:
 						// escape
 						// special
 						// chars?
@@ -137,7 +168,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 				start = m.end(0);
 			}
 			resultRegExp.append(subjectPat.substring(start, end));
-			return new RegExpPatternValue(__eval.__getCtx(), this, resultRegExp
+			return new RegExpPatternValue(__eval, this, resultRegExp
 					.toString(), patternVars);
 
 		}

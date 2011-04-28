@@ -23,10 +23,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 
 import org.rascalmpl.interpreter.BooleanEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 
 import org.rascalmpl.interpreter.Evaluator;
 
-import org.rascalmpl.interpreter.PatternEvaluator;
 
 import org.rascalmpl.interpreter.env.Environment;
 
@@ -68,7 +68,7 @@ static public class Ambiguity extends LAYOUT {
   }
 
   @Override
-  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+  public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
     throw new Ambiguous((IConstructor) this.getTree());
   }
   

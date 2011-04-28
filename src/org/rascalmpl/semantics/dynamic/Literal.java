@@ -29,7 +29,7 @@ import org.rascalmpl.ast.RegExpLiteral;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringLiteral;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StringTemplateConverter;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -48,11 +48,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
-					__eval.__getCtx().getEvaluator()).getValue());
-
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+			return new LiteralPattern(__eval, this, this.interpret(
+					__eval.getEvaluator()).getValue());
 		}
 
 		@Override
@@ -99,9 +97,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
-					__eval.__getCtx().getEvaluator()).getValue());
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+			return new LiteralPattern(__eval, this, this.interpret(
+					__eval.getEvaluator()).getValue());
 		}
 
 		@Override
@@ -143,10 +141,10 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
-					__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval, this, this.interpret(
+					__eval.getEvaluator()).getValue());
 
 		}
 
@@ -176,7 +174,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 
 			return this.getRegExpLiteral().buildMatcher(__eval);
 
@@ -205,10 +203,10 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(PatternEvaluator __eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 
-			return new LiteralPattern(__eval.__getCtx(), this, this.interpret(
-					__eval.__getCtx().getEvaluator()).getValue());
+			return new LiteralPattern(__eval, this, this.interpret(
+					__eval.getEvaluator()).getValue());
 
 		}
 

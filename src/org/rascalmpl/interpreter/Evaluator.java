@@ -157,7 +157,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		super();
 		
 		this.vf = vf;
-		this.patternEvaluator = new PatternEvaluator(this);
 		this.strategyContextStack = new StrategyContextStack();
 		this.heap = heap;
 		this.typeDeclarator = new TypeDeclarationEvaluator(this);
@@ -1273,7 +1272,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		pushEnv();
 
 		try {
-			IMatchingResult mp = pat.getMatcher((PatternEvaluator) patternEvaluator);
+			IMatchingResult mp = pat.getMatcher(this);
 			mp.initMatch(subject);
 
 			while (mp.hasNext()) {
@@ -1312,7 +1311,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
 		Environment old = getCurrentEnvt();
 		try {
-			IMatchingResult mp = pat.getMatcher((PatternEvaluator) patternEvaluator);
+			IMatchingResult mp = pat.getMatcher(this);
 			mp.initMatch(subject);
 
 			while (mp.hasNext()) {

@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.BooleanEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.PatternEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
 import org.rascalmpl.interpreter.matching.ConcreteApplicationPattern;
@@ -96,16 +96,16 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(eval.__getCtx(), this, node);
+			return new LiteralPattern(eval, this, node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (int i = 0; i < args.size(); i+=2) { // skip layout elements for efficiency
 			kids.add(args.get(i).buildMatcher(eval));
 		}
-		return new ConcreteApplicationPattern(eval.__getCtx(), this, kids);
+		return new ConcreteApplicationPattern(eval, this, kids);
 	}
   }
   
@@ -115,16 +115,16 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(eval.__getCtx(), this, node);
+			return new LiteralPattern(eval, this, node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (org.rascalmpl.ast.Expression arg : args) {
 			kids.add(arg.buildMatcher(eval));
 		}
-		return new ConcreteApplicationPattern(eval.__getCtx(), this, kids);
+		return new ConcreteApplicationPattern(eval, this, kids);
 	}
   }
   
@@ -135,12 +135,12 @@ public abstract class Tree {
 	
 
 	@Override
-	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		java.util.List<IMatchingResult> kids = new ArrayList<IMatchingResult>(args.size());
 		if (args.size() == 1) {
 			kids.add(args.get(0).buildMatcher(eval));
 		}
-		return new ConcreteOptPattern(eval.__getCtx(), this, kids);
+		return new ConcreteOptPattern(eval, this, kids);
 	}
   }
   
@@ -150,16 +150,16 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(eval.__getCtx(), this, node);
+			return new LiteralPattern(eval, this, node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (org.rascalmpl.ast.Expression arg : args) {
 			kids.add(arg.buildMatcher(eval));
 		}
-		return new ConcreteListPattern(eval.__getCtx(), this, kids);
+		return new ConcreteListPattern(eval, this, kids);
 	}
   }
   
@@ -200,9 +200,9 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IMatchingResult buildMatcher(PatternEvaluator eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(eval.__getCtx(), this, node);
+			return new LiteralPattern(eval, this, node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
@@ -210,13 +210,13 @@ public abstract class Tree {
 			kids.add(arg.buildMatcher(eval));
 		}
 		
-		IMatchingResult setMatcher = new SetPattern(eval.__getCtx(), this, kids);
+		IMatchingResult setMatcher = new SetPattern(eval, this, kids);
 		java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
 		wrap.add(setMatcher);
 		
 		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval.__getCtx(), this, 
-				new LiteralPattern(eval.__getCtx(), this, ambCons.getValue()), null, wrap);
+		return new NodePattern(eval, this, 
+				new LiteralPattern(eval, this, ambCons.getValue()), null, wrap);
 	} 
   }
   
@@ -232,8 +232,8 @@ public abstract class Tree {
 	  }
 	  
 	  @Override
-	  public IMatchingResult buildMatcher(PatternEvaluator eval) {
-		  return new LiteralPattern(eval.__getCtx(), this, node);
+	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		  return new LiteralPattern(eval, this, node);
 	  }
 	  
 	  @Override
