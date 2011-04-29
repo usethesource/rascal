@@ -31,8 +31,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iWroteItMySelf;
 	
-	public QualifiedNamePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.ast.QualifiedName name){
-		super(ctx, x);
+	public QualifiedNamePattern(Expression x, org.rascalmpl.ast.QualifiedName name){
+		super(x);
 		this.name = name;
 		this.anonymous = getName().equals("_");
 		Environment env = ctx.getCurrentEnvt();
@@ -53,8 +53,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(Result<IValue> subject) {
-		super.initMatch(subject);
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
+		super.initMatch(ctx, subject);
 		// do not reinit iWroteItMyself!
 	}
 	

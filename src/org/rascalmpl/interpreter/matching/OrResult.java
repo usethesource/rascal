@@ -34,17 +34,17 @@ public class OrResult extends AbstractBooleanResult {
 	private final IBooleanResult left;
 	private final IBooleanResult right;
 
-	public OrResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
-		super(ctx);
+	public OrResult(IBooleanResult left, IBooleanResult right) {
+		super();
 		this.left = left;
 		this.right = right;
 	}
 
 	@Override
-	public void init() {
-		super.init();
-		left.init();
-		right.init();
+	public void init(IEvaluatorContext ctx) {
+		super.init(ctx);
+		left.init(ctx);
+		right.init(ctx);
 		hasNext = true;
 	}
 

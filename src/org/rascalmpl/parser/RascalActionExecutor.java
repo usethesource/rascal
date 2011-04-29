@@ -52,7 +52,8 @@ public class RascalActionExecutor implements IActionExecutor{
 	
 	public IConstructor filterProduction(IConstructor forest){
 		if (TreeAdapter.isAppl(forest)){ 
-			LanguageAction action = info.getAction(TreeAdapter.getProduction(forest));
+			IConstructor production = TreeAdapter.getProduction(forest);
+			LanguageAction action = info.getAction(production);
 			if(action != null){
 				return call(forest, action);
 			}
@@ -85,6 +86,7 @@ public class RascalActionExecutor implements IActionExecutor{
 	private IConstructor call(IConstructor tree, LanguageAction action) {
 		Environment old = eval.getCurrentEnvt();
 		AbstractAST oldAST = eval.getCurrentAST();
+		
 		
 		try{
 			// TODO: remove this hack and rather store the module names with the actions in the grammar representation
@@ -139,9 +141,9 @@ public class RascalActionExecutor implements IActionExecutor{
 		
 		IList args = TreeAdapter.getArgs(tree);
 		IList lhs = ProductionAdapter.getLhs(prod);
-		for(int i = lhs.length() - 1; i >= 0; --i){
+		for (int i = lhs.length() - 1; i >= 0; --i){
 			IConstructor sym = (IConstructor) lhs.get(i);
-			if(SymbolAdapter.isLabel(sym)){
+			if (SymbolAdapter.isLabel(sym)){
 				Type argType = RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.getLabeledSymbol(sym));
 				Result<IValue> val = makeResult(argType, args.get(i), eval);
 				eval.getCurrentEnvt().storeVariable(SymbolAdapter.getLabelName(sym), val);

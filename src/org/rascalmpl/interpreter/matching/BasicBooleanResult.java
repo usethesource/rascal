@@ -21,18 +21,16 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
 
 public class BasicBooleanResult extends AbstractBooleanResult {
-	private Result<IValue> result;
 	private org.rascalmpl.ast.Expression expr;
 	private boolean firstTime = true;
 
-	public BasicBooleanResult(IEvaluatorContext ctx, Expression expr) {
-		super(ctx);
+	public BasicBooleanResult(Expression expr) {
 		this.expr = expr;
 	}
 
 	@Override
-	public void init() {
-		super.init();
+	public void init(IEvaluatorContext ctx) {
+		super.init(ctx);
 		firstTime = true;
 	}
 	
@@ -46,7 +44,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 		if (firstTime) {
 			/* Evaluate expression only once */
 			firstTime = false;
-			result = expr.interpret(ctx.getEvaluator());
+			Result<IValue> result = expr.interpret(ctx.getEvaluator());
 			if (result.getType().isBoolType() && result.getValue() != null) {
 				if (result.getValue().isEqual(ctx.getValueFactory().bool(true))) {
 					return true;

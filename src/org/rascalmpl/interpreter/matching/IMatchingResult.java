@@ -14,6 +14,7 @@ package org.rascalmpl.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -32,9 +33,10 @@ public interface IMatchingResult extends IBooleanResult {
 	public Type getType(Environment env);
 	
 	/**
+	 * @param ctx current evaluator
 	 * @param subject to be matched is stored in the matching result, which initialized the state for lazy backtracking behavior.
 	 */
-	public void initMatch(Result<IValue> subject);
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject);
 	
 	/**
 	 * returns false if the static type of the pattern is incomparable with the given subject type.

@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -38,9 +37,9 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	private boolean anonymous = false;
 	private boolean debug = false;
 
-	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, 
+	public TypedVariablePattern(Expression x, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
-		super(ctx, x);
+		super(x);
 		this.name = Names.name(name);
 		this.declaredType = type;
 		this.anonymous = Names.name(name).equals("_");

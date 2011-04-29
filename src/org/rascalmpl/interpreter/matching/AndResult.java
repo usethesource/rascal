@@ -32,14 +32,15 @@ public class AndResult extends AbstractBooleanResult {
 	private boolean firstMatch = true;
 	private boolean leftResult;
 
-	public AndResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
-		super(ctx);
+	public AndResult(IBooleanResult left, IBooleanResult right) {
 		this.left = left;
 		this.right = right;
 	}
 
-	public void init() {
-		left.init();
+	public void init(IEvaluatorContext ctx) {
+		super.init(ctx);
+		leftResult = false;
+		left.init(ctx);
 		// do not right.init() yet since it may use variables introduced by the first left.next();
 		firstMatch = true;
 	}
@@ -60,7 +61,7 @@ public class AndResult extends AbstractBooleanResult {
 			leftResult = left.next();
 			
 			if (leftResult) {
-				right.init();
+				right.init(ctx);
 				return right.next();
 			}
 			return false;
@@ -77,7 +78,7 @@ public class AndResult extends AbstractBooleanResult {
 		leftResult = left.next();
 
 		if (leftResult) {
-			right.init();
+			right.init(ctx);
 			return right.next();
 		}
 		return false;

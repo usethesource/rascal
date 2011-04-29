@@ -168,7 +168,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 				start = m.end(0);
 			}
 			resultRegExp.append(subjectPat.substring(start, end));
-			return new RegExpPatternValue(__eval, this, resultRegExp
+			return new RegExpPatternValue(this, resultRegExp
 					.toString(), patternVars);
 
 		}

@@ -34,8 +34,8 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
 	private Expression callOrTree;
 
-	public ConcreteListPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
-		super(ctx, x);
+	public ConcreteListPattern(Expression x, List<IMatchingResult> list) {
+		super(x);
 		callOrTree = x;
 		initListPatternDelegate(list);
 		//System.err.println("ConcreteListPattern");
@@ -48,10 +48,10 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			IConstructor rhs = ((NonTerminalType) type).getSymbol();
 
 		   if (SymbolAdapter.isIterPlus(rhs) || SymbolAdapter.isIterStar(rhs)) {
-				pat = new ListPattern(ctx, callOrTree, list, 1);
+				pat = new ListPattern(callOrTree, list, 1);
 			}
 			else if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
-				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1);
+				pat = new ListPattern(callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1);
 			}
 			else {
 				throw new ImplementationError("crooked production: non (cf or lex) list symbol: " + rhs);
@@ -62,8 +62,8 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public void initMatch(Result<IValue> subject) {
-		super.initMatch(subject);
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
+		super.initMatch(ctx, subject);
 		if (!subject.getType().isSubtypeOf(Factory.Tree)) {
 			hasNext = false;
 			return;
@@ -74,7 +74,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		pat.initMatch(ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx));
+		pat.initMatch(ctx, ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx));
 		hasNext = true;
 	}
 	

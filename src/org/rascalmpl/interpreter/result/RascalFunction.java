@@ -185,7 +185,7 @@ public class RascalFunction extends NamedFunction {
 			return;
 		}
 		
-		matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
+		matchers[0].initMatch(ctx, makeResult(actuals[0].getType(), actuals[0], ctx));
 		olds[0] = ctx.getCurrentEnvt();
 		ctx.pushEnv();
 
@@ -202,7 +202,7 @@ public class RascalFunction extends NamedFunction {
 					return;
 				} else {
 					i++;
-					matchers[i].initMatch(makeResult(actuals[i].getType(), actuals[i], ctx));
+					matchers[i].initMatch(ctx, makeResult(actuals[i].getType(), actuals[i], ctx));
 					olds[i] = ctx.getCurrentEnvt();
 					ctx.pushEnv();
 				}

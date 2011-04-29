@@ -27,7 +27,7 @@ public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new RegExpPatternValue(__eval, this, this
+			return new RegExpPatternValue( this, this
 					.getString(), java.util.Collections.<String> emptyList());
 		}
 	}

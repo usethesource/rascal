@@ -254,7 +254,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					body.interpret(__eval);
 
 					gen = generator.getBacktracker(__eval);
-					gen.init();
+					gen.init(__eval);
 					if (__eval.__getInterrupt()) {
 						throw new InterruptException(__eval.getStackTrace());
 					}
@@ -369,7 +369,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
 				olds[0] = __eval.getCurrentEnvt();
-				gens[0].init();
+				gens[0].init(__eval);
 				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
@@ -388,7 +388,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							gens[i] = generators
 							.get(i).getBacktracker(__eval);
 							olds[i] = __eval.getCurrentEnvt();
-							gens[i].init();
+							gens[i].init(__eval);
 							__eval.pushEnv();
 						}
 					} else {
@@ -470,7 +470,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			int i = 0;
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
-				gens[0].init();
+				gens[0].init(__eval);
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
 
@@ -487,7 +487,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 						i++;
 						gens[i] = generators.get(i).getBacktracker(__eval);
-						gens[i].init();
+						gens[i].init(__eval);
 						olds[i] = __eval.getCurrentEnvt();
 						__eval.pushEnv();
 					} else {
@@ -529,7 +529,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			int i = 0;
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
-				gens[0].init();
+				gens[0].init(__eval);
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
 
@@ -546,7 +546,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 						i++;
 						gens[i] = generators.get(i).getBacktracker(__eval);
-						gens[i].init();
+						gens[i].init(__eval);
 						olds[i] = __eval.getCurrentEnvt();
 						__eval.pushEnv();
 					} else {
@@ -856,38 +856,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			return ResultFactory.nothing();
 		}
 
-		public Result<IValue> interpret2(Evaluator __eval) {
-
-			Result<IValue> subject = this.getExpression().interpret(__eval);
-
-			for (Case cs : this.getCases()) {
-				if (cs.isDefault()) {
-					// TODO: what if the default statement uses a fail
-					// statement?
-					return cs.getStatement().interpret(__eval);
-				}
-				PatternWithAction rule = cs.getPatternWithAction();
-				if (rule.isArbitrary()
-						&& __eval.matchAndEval(subject, rule.getPattern(), rule
-								.getStatement())) {
-					return org.rascalmpl.interpreter.result.ResultFactory
-							.nothing();
-					/*
-					 * } else if(rule.isGuarded()) {
-					 * org.meta_environment.rascal.ast.Type tp = rule.getType();
-					 * Type t = evalType(tp);
-					 * if(subject.getType().isSubtypeOf(t) &&
-					 * matchAndEval(subject.getValue(), rule.getPattern(),
-					 * rule.getStatement())){ return ResultFactory.nothing(); }
-					 */
-				} else if (rule.isReplacing()) {
-					throw new NotYetImplemented(rule);
-				}
-			}
-			return ResultFactory.nothing();
-
-		}
-
 		private boolean isConcreteSyntaxPattern(Case d) {
 			if (d.isDefault()) {
 				return false;
@@ -1109,7 +1077,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				int i = 0;
 				try {
 					gens[0] = generators.get(0).getBacktracker(__eval);
-					gens[0].init();
+					gens[0].init(__eval);
 					olds[0] = __eval.getCurrentEnvt();
 
 					while (i >= 0 && i < size) {
@@ -1129,7 +1097,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							i++;
 							gens[i] = generators
 							.get(i).getBacktracker(__eval);
-							gens[i].init();
+							gens[i].init(__eval);
 							olds[i] = __eval.getCurrentEnvt();
 						} else {
 							i--;

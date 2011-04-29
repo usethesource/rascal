@@ -24,8 +24,8 @@ public class AntiPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private boolean stop;
 
-	public AntiPattern(IEvaluatorContext ctx, Expression.Anti anti, IMatchingResult pat) {
-		super(ctx, anti);
+	public AntiPattern(Expression.Anti anti, IMatchingResult pat) {
+		super(anti);
 		this.pat = pat;
 	}
 
@@ -34,9 +34,9 @@ public class AntiPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(Result<IValue> subject){
-		super.initMatch(subject);
-		pat.initMatch(subject);
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject){
+		super.initMatch(ctx, subject);
+		pat.initMatch(ctx, subject);
 		stop = false;
 	}
 	

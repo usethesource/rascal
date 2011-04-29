@@ -26,15 +26,15 @@ import org.rascalmpl.interpreter.env.Environment;
 public class NotResult extends AbstractBooleanResult {
 	private final IBooleanResult arg;
 
-	public NotResult(IEvaluatorContext ctx, IBooleanResult arg) {
-		super(ctx);
+	public NotResult(IBooleanResult arg) {
+		super();
 		this.arg = arg;
 	}
 
 	@Override
-	public void init() {
-		super.init();
-		arg.init();
+	public void init(IEvaluatorContext ctx) {
+		super.init(ctx);
+		arg.init(ctx);
 	}
 
 	@Override

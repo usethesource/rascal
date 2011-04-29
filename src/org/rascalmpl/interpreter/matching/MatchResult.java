@@ -30,8 +30,7 @@ public class MatchResult extends AbstractBooleanResult {
 	private boolean firstTime;
 	private Expression pattern;
 	
-	public MatchResult(IEvaluatorContext ctx, Expression pattern, boolean positive, Expression expression) {
-		super(ctx);
+	public MatchResult(Expression pattern, boolean positive, Expression expression) {
     	this.positive = positive;
     	this.pattern = pattern;
     	this.mp = null;
@@ -39,8 +38,8 @@ public class MatchResult extends AbstractBooleanResult {
 	}
 
     @Override
-    public void init() {
-    	super.init();
+    public void init(IEvaluatorContext ctx) {
+    	super.init(ctx);
     	
     	// because the right hand side may introduce types that are needed
     	// in the left-hand side, we first need to evaluate the expression
@@ -48,11 +47,9 @@ public class MatchResult extends AbstractBooleanResult {
 		Result<IValue> result = expression.interpret(ctx.getEvaluator());
 		Type subjectType = result.getType();
 
-		if (mp == null) {
-			mp = pattern.getMatcher(ctx);
-		}
+		mp = pattern.getMatcher(ctx);
 		
-    	mp.initMatch(expression.interpret(ctx.getEvaluator()));
+    	mp.initMatch(ctx, expression.interpret(ctx.getEvaluator()));
 
     	if(!mp.mayMatch(subjectType, ctx.getCurrentEnvt())) {
     		throw new UnexpectedTypeError(mp.getType(ctx.getCurrentEnvt()), subjectType, ctx.getCurrentAST());

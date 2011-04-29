@@ -30,8 +30,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 	protected Result<IValue> subject = null;
 	private final AbstractAST ast;
 	
-	public AbstractMatchingResult(IEvaluatorContext ctx, AbstractAST ast) {
-		super(ctx);
+	public AbstractMatchingResult(AbstractAST ast) {
 		this.ast = ast;
 	}
 	
@@ -39,8 +38,8 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		return ast;
 	}
 	
-	public void initMatch(Result<IValue> subject) {
-		init();
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
+		init(ctx);
 		this.subject = subject;
 	}
 	
