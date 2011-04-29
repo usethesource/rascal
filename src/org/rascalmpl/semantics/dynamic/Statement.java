@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -730,7 +729,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			private final Hashtable<IConstructor, List<Case>> table = new Hashtable<IConstructor, List<Case>>();
 
 			void add(Case c) {
-				IConstructor key = TreeAdapter.getProduction((IConstructor) c
+				IConstructor key = TreeAdapter.getProduction(c
 						.getPatternWithAction().getPattern().getTree());
 				List<Case> same = table.get(key);
 				if (same == null) {

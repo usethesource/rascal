@@ -20,8 +20,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-
 import org.eclipse.imp.pdb.facts.IValue;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -55,22 +53,22 @@ static public class Ambiguity extends JustTime {
 
   @Override
   public Result<IValue> interpret(Evaluator __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
+    throw new Ambiguous(this.getTree());
   }
   
   @Override
   public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-    throw new Ambiguous((IConstructor) this.getTree());
+    throw new Ambiguous(this.getTree());
   }
   
   @Override
   public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
+    throw new Ambiguous(this.getTree());
   }
 
   @Override
   public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
+    throw new Ambiguous(this.getTree());
   }
   
   public java.util.List<org.rascalmpl.ast.JustTime> getAlternatives() {

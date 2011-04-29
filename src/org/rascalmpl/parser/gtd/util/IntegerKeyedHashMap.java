@@ -29,7 +29,7 @@ public class IntegerKeyedHashMap<V>{
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = (Entry<V>[]) new Entry[nrOfEntries];
+		entries = new Entry[nrOfEntries];
 		
 		threshold = nrOfEntries;
 		load = 0;
@@ -40,7 +40,7 @@ public class IntegerKeyedHashMap<V>{
 		int newHashMask = nrOfEntries - 1;
 		
 		Entry<V>[] oldEntries = entries;
-		Entry<V>[] newEntries = (Entry<V>[]) new Entry[nrOfEntries];
+		Entry<V>[] newEntries = new Entry[nrOfEntries];
 		
 		Entry<V> currentEntryRoot = new Entry<V>(-1, null, null);
 		Entry<V> shiftedEntryRoot = new Entry<V>(-1, null, null);
@@ -169,7 +169,7 @@ public class IntegerKeyedHashMap<V>{
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = (Entry<V>[]) new Entry[nrOfEntries];
+		entries = new Entry[nrOfEntries];
 		
 		threshold = nrOfEntries;
 		load = 0;

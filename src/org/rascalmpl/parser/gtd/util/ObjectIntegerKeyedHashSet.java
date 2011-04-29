@@ -28,7 +28,7 @@ public class ObjectIntegerKeyedHashSet<E>{
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = (Entry<E>[]) new Entry[nrOfEntries];
+		entries = new Entry[nrOfEntries];
 		
 		threshold = nrOfEntries;
 		load = 0;
@@ -39,7 +39,7 @@ public class ObjectIntegerKeyedHashSet<E>{
 		int newHashMask = nrOfEntries - 1;
 		
 		Entry<E>[] oldEntries = entries;
-		Entry<E>[] newEntries = (Entry<E>[]) new Entry[nrOfEntries];
+		Entry<E>[] newEntries = new Entry[nrOfEntries];
 		
 		Entry<E> currentEntryRoot = new Entry<E>(null, 0, 0, null);
 		Entry<E> shiftedEntryRoot = new Entry<E>(null, 0, 0, null);
@@ -159,7 +159,7 @@ public class ObjectIntegerKeyedHashSet<E>{
 	}
 	
 	public void clear(){
-		entries = (Entry<E>[]) new Entry[entries.length];
+		entries = new Entry[entries.length];
 		
 		load = 0;
 	}

@@ -259,13 +259,13 @@ public abstract class AbstractStackNode{
 	public void addEdgeWithPrefix(AbstractStackNode edge, Link prefix, int startLocation){
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
-			prefixesMap = (ArrayList<Link>[]) new ArrayList[(edgesMapSize + 1) << 1];
+			prefixesMap = new ArrayList[(edgesMapSize + 1) << 1];
 		}else{
 			int prefixesMapSize = prefixesMap.length;
 			int possibleMaxSize = edgesMapSize + 1;
 			if(prefixesMapSize < possibleMaxSize){
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize << 1];
+				prefixesMap = new ArrayList[possibleMaxSize << 1];
 				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
 			}
 		}
@@ -308,7 +308,7 @@ public abstract class AbstractStackNode{
 			edgesMap = new LinearIntegerKeyedMap<ArrayList<AbstractStackNode>>(edgesMapToAdd);
 
 			if(prefixesMap == null){
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
+				prefixesMap = new ArrayList[edgesMap.size()];
 			}
 			
 			if(prefixesMapToAdd == null){
@@ -330,11 +330,11 @@ public abstract class AbstractStackNode{
 			int edgesMapSize = edgesMap.size();
 			int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 			if(prefixesMap == null){
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+				prefixesMap = new ArrayList[possibleMaxSize];
 			}else{
 				if(prefixesMap.length < possibleMaxSize){
 					ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-					prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+					prefixesMap = new ArrayList[possibleMaxSize];
 					System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
 				}
 			}
@@ -368,7 +368,7 @@ public abstract class AbstractStackNode{
 			}
 		}else{
 			if(prefixesMap == null){
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[edgesMap.size()];
+				prefixesMap = new ArrayList[edgesMap.size()];
 			}
 			
 			if(prefixesMapToAdd == null){
@@ -396,11 +396,11 @@ public abstract class AbstractStackNode{
 		int edgesMapSize = edgesMap.size();
 		int possibleMaxSize = edgesMapSize + potentialNewEdges;
 		if(prefixesMap == null){
-			prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+			prefixesMap = new ArrayList[possibleMaxSize];
 		}else{
 			if(prefixesMap.length < possibleMaxSize){
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize];
+				prefixesMap = new ArrayList[possibleMaxSize];
 				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
 			}
 		}

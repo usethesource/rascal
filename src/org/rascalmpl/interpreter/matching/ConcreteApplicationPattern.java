@@ -49,7 +49,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-		this.production = TreeAdapter.getProduction((IConstructor) getAST().getTree());
+		this.production = TreeAdapter.getProduction(getAST().getTree());
 		
 		// use a tuple pattern to match the children of this pattern
 		this.tupleMatcher = new TuplePattern(ctx, x, list);
