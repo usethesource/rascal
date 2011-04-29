@@ -79,11 +79,14 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		System.err.println("\tlabel = " + label);
 		System.err.println("\tlayer = " + layer);
 		System.err.println("\tpos   = " + pos);
+		System.err.println("\tlayerHeight   = " + layerHeight);
 		System.err.println("\troot  = " + (root  != null ? root.name:  "null"));
 		System.err.println("\talign = " + (align != null ? align.name: "null"));
 		System.err.println("\tsink  = " +  (sink != null ? sink.name:  "null"));
 		System.err.println("\tsink.shift  = " +  (sink != null ? sink.shift :  -1));
 		System.err.println("\tthis.X= " +  x);
+		System.err.println("\tthis.Y= " +  y);
+		System.err.println("\tblockWidth = " + blockWidth);
 		System.err.println("\tthis.shift  = " +  shift);
 	}
 	
@@ -287,7 +290,6 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return compare(SOut, TOut);
 	}
 	/* Methods for layering */
-	
 
 	public LayeredGraphNode lowestIn(){
 		LayeredGraphNode low = null;
@@ -359,43 +361,43 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return connected;
 	}
 	
-	/**
-	 * @param layer
-	 * @param k
-	 * @return list of leftmost consecutive neighbors of this node that occur after index k in layer
-	 */
-	public LinkedList<LayeredGraphNode> getAllConnectedNeighboursAfter(LinkedList<LayeredGraphNode> layer, int k){
-		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
-		//boolean inSeq = false;
-		for(int i = k + 1; i < layer.size(); i++){
-			LayeredGraphNode g = layer.get(i);
-			if(in.contains(g) || out.contains(g)){
-				//inSeq = true;
-				connected.add(g);
-			}
-			//else if(inSeq) return connected;
-		}
-		return connected;
-	}
+//	/**
+//	 * @param layer
+//	 * @param k
+//	 * @return list of leftmost consecutive neighbors of this node that occur after index k in layer
+//	 */
+//	public LinkedList<LayeredGraphNode> getAllConnectedNeighboursAfter(LinkedList<LayeredGraphNode> layer, int k){
+//		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
+//		//boolean inSeq = false;
+//		for(int i = k + 1; i < layer.size(); i++){
+//			LayeredGraphNode g = layer.get(i);
+//			if(in.contains(g) || out.contains(g)){
+//				//inSeq = true;
+//				connected.add(g);
+//			}
+//			//else if(inSeq) return connected;
+//		}
+//		return connected;
+//	}
 	
-	/**
-	 * @param layer
-	 * @param k
-	 * @return list of rightmost consecutive neighbors of this node that occur before index k in layer
-	 */
-	public LinkedList<LayeredGraphNode> getAllConnectedNeighboursBefore(LinkedList<LayeredGraphNode> layer, int k){
-		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
-		//boolean inSeq = false;
-		for(int i = k - 1; i >= 0 ; i--){
-			LayeredGraphNode g = layer.get(i);
-			if(in.contains(g) || out.contains(g)){
-				//inSeq = true;
-				connected.addFirst(g);
-			}
-			//else if(inSeq) return connected;
-		}
-		return connected;
-	}
+//	/**
+//	 * @param layer
+//	 * @param k
+//	 * @return list of rightmost consecutive neighbors of this node that occur before index k in layer
+//	 */
+//	public LinkedList<LayeredGraphNode> getAllConnectedNeighboursBefore(LinkedList<LayeredGraphNode> layer, int k){
+//		LinkedList<LayeredGraphNode> connected = new LinkedList<LayeredGraphNode>();
+//		//boolean inSeq = false;
+//		for(int i = k - 1; i >= 0 ; i--){
+//			LayeredGraphNode g = layer.get(i);
+//			if(in.contains(g) || out.contains(g)){
+//				//inSeq = true;
+//				connected.addFirst(g);
+//			}
+//			//else if(inSeq) return connected;
+//		}
+//		return connected;
+//	}
 	
 	public int rightMostConnectedNeighbour(){
 		int maxIn = -1;
@@ -427,12 +429,12 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		
 	}
 	
-	public LayeredGraphNode virtualOutNeighbour(){
-		for(LayeredGraphNode g : out)
-			if(g.isVirtual())
-				return g;
-		return null;
-	}
+//	public LayeredGraphNode virtualOutNeighbour(){
+//		for(LayeredGraphNode g : out)
+//			if(g.isVirtual())
+//				return g;
+//		return null;
+//	}
 	
 	
 	
@@ -446,7 +448,6 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		root = align = sink = this;
 		x = -1;
 		shift = INFINITY;
-		blockWidth = width();
 	}
 	
 	/**
@@ -465,13 +466,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * @return The x value for that direction
 	 */
 	public float getX(Direction dir){
-		switch(dir){
-		case TOP_LEFT: return xs[0];
-		case TOP_RIGHT: return xs[1];
-		case BOTTOM_LEFT: return xs[2];
-		case BOTTOM_RIGHT: return xs[3];
-		}
-		return -1;
+		return xs[Direction.ord(dir)];
 	}
 	
 	/**
@@ -480,13 +475,14 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * @param x		the x value for that direction
 	 */
 	public void setX(Direction dir, float x){
-		//System.err.println("setX: " + name + " => " + x);
-		switch(dir){
-		case TOP_LEFT: this.x = xs[0] = x; return;
-		case TOP_RIGHT: this.x = xs[1] = x; return;
-		case BOTTOM_LEFT: this.x = xs[2] = x; return;
-		case BOTTOM_RIGHT: this.x = xs[3] = x; return;
-		} 
+		this.x = xs[Direction.ord(dir)] = x;
+	}
+	
+	public void shiftX(float shift[]){
+		for(Direction dir : Direction.dirs){
+			int k = Direction.ord(dir);
+			xs[k] += shift[k];
+		}
 	}
 	
 	/* Standard figure elements and operations */
@@ -503,6 +499,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	void bbox(){
 		if(figure != null){
 			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
+			blockWidth = figure.width;
 		}
 	}
 	

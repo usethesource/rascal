@@ -12,5 +12,26 @@
 package org.rascalmpl.library.vis.graph.layered;
 
 public enum Direction {
-	TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT 
+	TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT;
+	
+	static Direction[] dirs = {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT,BOTTOM_RIGHT};
+	
+	public static int ord(Direction dir){
+		switch(dir){
+		case TOP_LEFT: return 0;
+		case TOP_RIGHT: return 1;
+		case BOTTOM_LEFT: return 2;
+		case BOTTOM_RIGHT: return 3;
+		default:
+			return -1;
+		} 
+	}
+	
+	public static boolean isTopDirection(Direction dir){
+		return dir == TOP_LEFT || dir == TOP_RIGHT;
+	}
+		
+	public static boolean isLeftDirection(Direction dir){
+		return dir == TOP_LEFT || dir == BOTTOM_LEFT;	
+	}
 }
