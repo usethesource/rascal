@@ -40,6 +40,7 @@ public class SortContainerNode extends AbstractContainerNode{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor);
 		}else{
+			actionExecutor.enteredProduction(production);
 			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation, filteringTracker, actionExecutor);
 		}
 	}
@@ -53,7 +54,10 @@ public class SortContainerNode extends AbstractContainerNode{
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
 			for(int i = 0; i < postFixLength; ++i){
 				IConstructor node = postFix[i].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-				if(node == null) return;
+				if(node == null){
+					actionExecutor.exitedProduction(production, true);
+					return;
+				}
 				constructedPostFix[i] = node;
 			}
 			
@@ -86,12 +90,14 @@ public class SortContainerNode extends AbstractContainerNode{
 		result = actionExecutor.filterProduction(result);
 		if(result == null){
 			filteringTracker.setLastFilered(offset, endOffset);
+			actionExecutor.exitedProduction(production, true);
 			return;
 		}
 		
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		
 		gatheredAlternatives.add(result);
+		actionExecutor.exitedProduction(production, false);
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
