@@ -51,8 +51,6 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
-import org.rascalmpl.ast.Expression.Ambiguity;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
@@ -71,7 +69,6 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -595,6 +592,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			setMonitor(old);
 		}
 	}
+	
+	private ParserGenerator parserGenerator;
 	
 	private ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
@@ -1368,9 +1367,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
-	private ParserGenerator parserGenerator;
-	
-
 	
 	public void updateProperties() {
 		Evaluator.doProfiling = Configuration.getProfilingProperty();

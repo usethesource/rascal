@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -43,7 +42,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-		this.production = TreeAdapter.getProduction((IConstructor) getAST().getTree());
+		this.production = TreeAdapter.getProduction(getAST().getTree());
 		
 		if (list.size() == 0) {
 			type = Opt.NotExist;

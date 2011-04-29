@@ -58,8 +58,9 @@ public class ASTBuilder {
 	private static final String RASCAL_SORT_PREFIX = "_";
 	private static final String MODULE_SORT = "Module";
 	private static final String PRE_MODULE_SORT = "PreModule";
-    
-    private final Expression dummyEmptyTree;
+
+	// this tree should never appear in "nature", so we can use it as a dummy
+    private static Expression dummyEmptyTree;
     
     private PointerEqualMappingsCache<IConstructor, AbstractAST> ambCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
     private PointerEqualMappingsCache<IConstructor, AbstractAST> sortCache = new PointerEqualMappingsCache<IConstructor, AbstractAST>();
@@ -71,12 +72,13 @@ public class ASTBuilder {
     private final static HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
 	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
     
-	public ASTBuilder() {
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	public ASTBuilder(){
+		super();
 		
-		// this tree should never appear in "nature", so we can use it as a dummy
-		this.dummyEmptyTree = makeAmb("Expression", (IConstructor) Factory.Tree_Amb.make(vf, vf.list())
-				, Collections.<Expression>emptyList());
+		if(dummyEmptyTree == null){
+			IValueFactory vf = ValueFactoryFactory.getValueFactory();
+			dummyEmptyTree = makeAmb("Expression", (IConstructor) Factory.Tree_Amb.make(vf, vf.list()), Collections.<Expression>emptyList());
+		}
 	}
 	
 	public static <T extends AbstractAST> T make(String sort, IConstructor src, Object... args) {
@@ -468,8 +470,7 @@ public class ASTBuilder {
 		return ast;
 	}
 
-	private <T extends AbstractAST> ASTStatistics filter(java.util.List<T> altsOut,
-			T ast, ASTStatistics ref) {
+	private <T extends AbstractAST> ASTStatistics filter(java.util.List<T> altsOut, T ast, ASTStatistics ref) {
 		ASTStatistics stats = ast.getStats();
 		return filter(altsOut, ast, ref, stats);
 	}
@@ -589,7 +590,7 @@ public class ASTBuilder {
 			stats.setConcreteFragmentSize(TreeAdapter.getLocation(pattern).getLength());
 			
 			if (stats.isAmbiguous()) {
-				throw new Ambiguous((IConstructor) ast.getTree());
+				throw new Ambiguous(ast.getTree());
 			}
 		}
 		
@@ -685,16 +686,14 @@ public class ASTBuilder {
 			if (kids.size() == 0) {
 				return null;
 			}
-			else {
-				stats = ref != null ? ref : new ASTStatistics();
-				if (kids.size() == 1) {
-					return kids.get(0);
-				}
-				else {
-					stats.setAmbiguous(true);
-					return stats(tree, new Tree.Amb(tree, kids), stats);
-				}
+			
+			stats = ref != null ? ref : new ASTStatistics();
+			if (kids.size() == 1) {
+				return kids.get(0);
 			}
+			
+			stats.setAmbiguous(true);
+			return stats(tree, new Tree.Amb(tree, kids), stats);
 		}
 		else {
 			if (!TreeAdapter.isChar(tree)) {

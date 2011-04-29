@@ -27,7 +27,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = (Entry<K, V>[]) new Entry[nrOfEntries];
+		entries = new Entry[nrOfEntries];
 		
 		threshold = nrOfEntries;
 		load = 0;
@@ -38,7 +38,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		int newHashMask = nrOfEntries - 1;
 		
 		Entry<K, V>[] oldEntries = entries;
-		Entry<K, V>[] newEntries = (Entry<K, V>[]) new Entry[nrOfEntries];
+		Entry<K, V>[] newEntries = new Entry[nrOfEntries];
 		
 		Entry<K, V> currentEntryRoot = new Entry<K, V>(null, 0, null, 0, null);
 		Entry<K, V> shiftedEntryRoot = new Entry<K, V>(null, 0, null, 0, null);
@@ -174,7 +174,7 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 	}
 	
 	public void clear(){
-		entries = (Entry<K, V>[]) new Entry[entries.length];
+		entries = new Entry[entries.length];
 		
 		load = 0;
 	}

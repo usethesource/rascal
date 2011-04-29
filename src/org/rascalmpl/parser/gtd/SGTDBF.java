@@ -920,7 +920,7 @@ public abstract class SGTDBF implements IGTD{
 				int queueDepth = todoLists.length;
 				if(length >= queueDepth){
 					Stack<AbstractStackNode>[] oldTodoLists = todoLists;
-					todoLists = (Stack<AbstractStackNode>[]) new Stack[length + 1];
+					todoLists = new Stack[length + 1];
 					System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
 					System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
 					queueDepth = length + 1;
@@ -1032,7 +1032,7 @@ public abstract class SGTDBF implements IGTD{
 		
 		positionStore.index(input);
 		
-		todoLists = (Stack<AbstractStackNode>[]) new Stack[DEFAULT_TODOLIST_CAPACITY];
+		todoLists = new Stack[DEFAULT_TODOLIST_CAPACITY];
 		
 		AbstractStackNode rootNode = startNode.getCleanCopy();
 		rootNode.setStartLocation(0);

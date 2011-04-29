@@ -2842,7 +2842,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// System.err.println("eXs0:"+conditions.size());
 		for (Iterator<AbstractAST> iterator = conditions.iterator(); iterator
 				.hasNext();) {
-			AbstractAST expression = (AbstractAST) iterator.next();
+			AbstractAST expression = iterator.next();
 			// System.err.println("eXs1:"+expression);
 			if (expression == null)
 				continue;
@@ -2996,12 +2996,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	IList getComment(AbstractAST a, int ind) {
-		IList z = TreeAdapter.getArgs((IConstructor) a.getTree());
+		IList z = TreeAdapter.getArgs(a.getTree());
 		return getComment(z, ind);
 	}
 
 	private IList getTreeList(AbstractAST a, int ind) {
-		IList z = TreeAdapter.getArgs((IConstructor) a.getTree());
+		IList z = TreeAdapter.getArgs(a.getTree());
 		IList listToplevels = TreeAdapter.getArgs((IConstructor) z.get(ind));
 		return listToplevels;
 	}

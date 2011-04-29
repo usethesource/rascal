@@ -29,7 +29,7 @@ public class ValueCache<E>{
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		data = (Entry<E>[]) new Entry[tableSize];
+		data = new Entry[tableSize];
 		
 		threshold = tableSize;
 		
@@ -40,7 +40,7 @@ public class ValueCache<E>{
 		int nrOfEntries = 1 << (++modSize);
 		int newHashMask = nrOfEntries - 1;
 		
-		Entry<E>[] newData = (Entry<E>[]) new Entry[nrOfEntries];
+		Entry<E>[] newData = new Entry[nrOfEntries];
 		
 		Entry<E> currentEntryRoot = new Entry<E>(0, null, null);
 		Entry<E> shiftedEntryRoot = new Entry<E>(0, null, null);

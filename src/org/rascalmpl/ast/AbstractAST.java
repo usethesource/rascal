@@ -74,7 +74,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	public ISourceLocation getLocation() {
-		return TreeAdapter.getLocation((IConstructor) node);
+		return TreeAdapter.getLocation(node);
 	}
 
 	public ASTStatistics getStats() {
@@ -120,7 +120,7 @@ public abstract class AbstractAST implements IVisitable {
 	 * For debugging purposes
 	 */
 	public String toString() {
-		return TreeAdapter.yield((IConstructor) node);
+		return TreeAdapter.yield(node);
 	}
 
 	public Result<IValue> interpret(Evaluator eval) {

@@ -29,7 +29,7 @@ public class PointerEqualMappingsCache<K, V>{
 		
 		int tableSize = 1 << DEFAULT_INITIAL_LOG_SIZE;
 		hashMask = tableSize - 1;
-		data = (Entry<K, V>[]) new Entry[tableSize];
+		data = new Entry[tableSize];
 
 		threshold = tableSize;
 		
@@ -42,7 +42,7 @@ public class PointerEqualMappingsCache<K, V>{
 		
 		int tableSize = 1 << initialLogSize;
 		hashMask = tableSize - 1;
-		data = (Entry<K, V>[]) new Entry[tableSize];
+		data = new Entry[tableSize];
 
 		threshold = tableSize;
 		
@@ -55,7 +55,7 @@ public class PointerEqualMappingsCache<K, V>{
 		
 		int tableSize = 1 << initialLogSize;
 		hashMask = tableSize - 1;
-		data = (Entry<K, V>[]) new Entry[tableSize];
+		data = new Entry[tableSize];
 
 		threshold = (int) (tableSize * loadFactor);
 		
@@ -68,7 +68,7 @@ public class PointerEqualMappingsCache<K, V>{
 		
 		int tableSize = data.length << 1;
 		int newHashMask = tableSize - 1;
-		Entry<K, V>[] newData = (Entry<K, V>[]) new Entry[tableSize];
+		Entry<K, V>[] newData = new Entry[tableSize];
 		
 		// Construct temporary entries that function as roots for the entries that remain in the current bucket
 		// and those that are being shifted.
@@ -193,7 +193,7 @@ public class PointerEqualMappingsCache<K, V>{
 	@SuppressWarnings("unchecked")
 	public void clear() {
 		// the current length is a reasonable prediction for what is needed the next time
-		data = (Entry<K, V>[]) new Entry[data.length];
+		data = new Entry[data.length];
 		load = 0;
 	}
 }

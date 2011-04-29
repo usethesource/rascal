@@ -77,7 +77,7 @@ public class Rascalify {
 			writer.write("import experiments::JVMBytecode::SerializeClass;\n\n");
 			writer.write("public Class generate" + moduleName.getValue() + "Class() {\n");
 			writer.write("\treturn class(" + cn.version + ", " + cn.access + ", \"" + escape(cn.name) + "\", " + checkNull(cn.signature) + ", " + checkNull(cn.superName) + ",\n\t\t");
-			writeStrings(writer, (List<String>)cn.interfaces);
+			writeStrings(writer, cn.interfaces);
 			writer.write(", " + checkNull(cn.sourceFile) + ", " + checkNull(cn.sourceDebug) + ", " + checkNull(cn.outerClass) + ", " + checkNull(cn.outerMethod) + ", " + checkNull(cn.outerMethodDesc) + ",\n\t\t");
 			writerInnerClasses(cn, writer);
 			writer.write(",\n\t\t");
@@ -130,7 +130,7 @@ public class Rascalify {
 		for (MethodNode mn : (List<MethodNode>)cn.methods) {
 			if (first) { first = false; } else { writer.write(",\n"); }
 			writer.write("\t\t\tmethod(" + mn.access + ", " + "\"" + escape(mn.name) + "\", " + "\"" + escape(mn.desc) + "\", " + checkNull(mn.signature) + ", ");
-			writeStrings(writer, (List<String>)mn.exceptions);
+			writeStrings(writer, mn.exceptions);
 			writer.write(",\n\t\t\t");
 			writeInstructions(writer, mn);
 			writer.write(",\n\t\t\t");
@@ -161,7 +161,7 @@ public class Rascalify {
 	private static void writeInstructions(OutputStreamWriter writer, MethodNode mn) throws IOException {
 		writer.write("[");
 		boolean first = true;
-		for (AbstractInsnNode ai : (AbstractInsnNode[])mn.instructions.toArray()) {
+		for (AbstractInsnNode ai : mn.instructions.toArray()) {
 			if (first) { first = false; } else { writer.write(","); }
 			if (ai instanceof FieldInsnNode) {
 				FieldInsnNode n = ((FieldInsnNode)ai);

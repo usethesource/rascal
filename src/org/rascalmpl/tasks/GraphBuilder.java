@@ -24,7 +24,7 @@ public class GraphBuilder {
 	public ITuple getGraph() {
 		ISetWriter sw = vf.setWriter(tf.tupleType(tf.stringType(),
 				tf.stringType(), tf.stringType(), tf.integerType()));
-		sw.insertAll((Collection<IValue>) ids.values());
+		sw.insertAll(ids.values());
 		return vf.tuple(sw.done(), edges);
 	}
 

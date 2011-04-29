@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class RealResult extends ElementResult<IReal> {
-	public static final int PRECISION = 80*80; // ONE PAGE OF DIGITS
+	public static final int PRECISION = 64;
 
 	public RealResult(IReal real, IEvaluatorContext ctx) {
 		this(real.getType(), real, ctx);
