@@ -101,7 +101,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.INode","org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IConstructor","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.BooleanEvaluator","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.PatternEvaluator","org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.matching.IBooleanResult","org.rascalmpl.interpreter.matching.IMatchingResult","org.rascalmpl.interpreter.result.Result"], a); 
+     class = classForSort(pkg, ["org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.BooleanEvaluator","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.PatternEvaluator","org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.matching.IBooleanResult","org.rascalmpl.interpreter.matching.IMatchingResult","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -114,7 +114,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          'import <i>;<}>
          '
          'public abstract class <ast.name> extends AbstractAST {
-         '  public <ast.name>(INode node) {
+         '  public <ast.name>(IConstructor node) {
          '    super(node);
          '  }
          '
@@ -176,29 +176,29 @@ public str ambiguityClass(str pkg, str name) {
   return "static public class Ambiguity extends <name> {
          '  private final java.util.List\<<pkg>.<name>\> alternatives;
          '
-         '  public Ambiguity(INode node, java.util.List\<<pkg>.<name>\> alternatives) {
+         '  public Ambiguity(IConstructor node, java.util.List\<<pkg>.<name>\> alternatives) {
          '    super(node);
          '    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          '  }
          '  
          '  @Override
          '  public Result\<IValue\> interpret(Evaluator __eval) {
-         '    throw new Ambiguous((IConstructor) this.getTree());
+         '    throw new Ambiguous(this.getTree());
          '  }
          '    
          '  @Override
          '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-         '    throw new Ambiguous((IConstructor) this.getTree());
+         '    throw new Ambiguous(this.getTree());
          '  }
          '  
          '  @Override
          '  public IBooleanResult buildBooleanBacktracker(BooleanEvaluator __eval) {
-         '    throw new Ambiguous((IConstructor) this.getTree());
+         '    throw new Ambiguous(this.getTree());
          '  }
          '  
          '  @Override
          '  public IMatchingResult buildMatcher(PatternEvaluator __eval) {
-         '    throw new Ambiguous((IConstructor) this.getTree());
+         '    throw new Ambiguous(this.getTree());
          '  }
          '    
          '  public java.util.List\<<pkg>.<name>\> getAlternatives() {
@@ -215,7 +215,7 @@ public str ambiguityClass(str pkg, str name) {
 public str lexicalClass(str name) {
   return "static public class Lexical extends <name> {
          '  private final java.lang.String string;
-         '  public Lexical(INode node, java.lang.String string) {
+         '  public Lexical(IConstructor node, java.lang.String string) {
          '    super(node);
          '    this.string = string;
          '  }
@@ -269,7 +269,7 @@ str actuals(list[Arg] args) {
 }
 
 public str construct(Sig sig) {
-  return "public <sig.name>(INode node <signature(sig.args)>) {
+  return "public <sig.name>(IConstructor node <signature(sig.args)>) {
          '  super(node);
          '  <for (arg(_, name) <- sig.args) {>
          '  this.<name> = <name>;<}>
