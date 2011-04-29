@@ -15,15 +15,14 @@ package org.rascalmpl.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression.CallOrTree;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 
 class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 
 	public ConcreteAmbiguityPattern(
-			IEvaluatorContext ctx, CallOrTree x,
+			CallOrTree x,
 			java.util.List<AbstractBooleanResult> args) {
-		super(ctx, x);
+		super(x);
 	}
 
 	public Type getType(Environment env) {

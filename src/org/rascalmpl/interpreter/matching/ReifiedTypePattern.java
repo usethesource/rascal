@@ -27,10 +27,10 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 	private final BasicType basic;
 	private final NodePattern nodePattern;
 
-	public ReifiedTypePattern(IEvaluatorContext ctx, Expression x, BasicType type, java.util.List<IMatchingResult> arguments) {
-		super(ctx, x);
+	public ReifiedTypePattern(Expression x, BasicType type, java.util.List<IMatchingResult> arguments) {
+		super(x);
 		this.basic = type;
-        this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, type, ctx.getValueFactory().string(basic.toString())), null, arguments);
+        this.nodePattern = new NodePattern(x, new LiteralPattern(type, ctx.getValueFactory().string(basic.toString())), null, arguments);
 	}
 
 	@Override
@@ -40,9 +40,9 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public void initMatch(final Result<IValue> subject) {
-		super.initMatch(subject);
-		nodePattern.initMatch(subject);
+	public void initMatch(IEvaluatorContext ctx, final Result<IValue> subject) {
+		super.initMatch(ctx, subject);
+		nodePattern.initMatch(ctx, subject);
 		hasNext = nodePattern.hasNext();
 	}
 	

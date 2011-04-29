@@ -19,13 +19,10 @@ public abstract class AbstractBooleanResult implements IBooleanResult {
 	protected boolean initialized = false;
 	protected boolean hasNext = true;
 	protected final TypeFactory tf = TypeFactory.getInstance();
-	protected final IEvaluatorContext ctx;
+	protected IEvaluatorContext ctx;
 	
-	public AbstractBooleanResult(IEvaluatorContext ctx) {
+	public void init(IEvaluatorContext ctx) {
 		this.ctx = ctx;
-	}
-	
-	public void init() {
 		this.initialized = true;
 		this.hasNext = true;
 	}

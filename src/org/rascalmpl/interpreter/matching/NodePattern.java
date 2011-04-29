@@ -50,8 +50,8 @@ public class NodePattern extends AbstractMatchingResult {
 	private Result<IValue> cachedConstructors = null;
 	private boolean registeredCacheHandler = false;
 	
-	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
-		super(ctx, x);
+	public NodePattern(Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
+		super(x);
 		
 		if (matchPattern != null) {
 			list.add(0, matchPattern);
@@ -59,12 +59,12 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		else if (name != null) {
 			IString nameVal = ctx.getValueFactory().string(Names.name(Names.lastName(name)));
-			list.add(0, new ValuePattern(ctx, x, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
+			list.add(0, new ValuePattern( x, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
 			isGenericNodeType = false;
 			qName = name;
 		}
 		
-		this.tuple = new TuplePattern(ctx, x, list);
+		this.tuple = new TuplePattern(x, list);
 		this.tupleSubject = new NodeWrapperTuple();
 	}
 	
@@ -160,7 +160,7 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(Result<IValue> subject) {
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
 		if (!subject.getValue().getType().isNodeType()) {
 			hasNext = false;
 			return;
@@ -175,7 +175,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		Type subjectType = subject.getType();
 		if (patternType.comparable(subjectType)) {
-			tuple.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
+			tuple.initMatch(ctx, ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			hasNext = tuple.hasNext;
 		}
 		else {

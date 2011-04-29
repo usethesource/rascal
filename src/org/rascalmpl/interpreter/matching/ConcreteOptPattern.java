@@ -38,8 +38,8 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	private final IConstructor production;
 	private final IMatchingResult optArg;
 
-	public ConcreteOptPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
-		super(ctx, x);
+	public ConcreteOptPattern(Expression x, List<IMatchingResult> list) {
+		super(x);
 		
 		// retrieve the static value of the production of this pattern
 		this.production = TreeAdapter.getProduction(getAST().getTree());
@@ -65,8 +65,8 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public void initMatch(Result<IValue> subject) {
-		super.initMatch(subject);
+	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
+		super.initMatch(ctx, subject);
 		
 		if (!subject.getType().isSubtypeOf(Factory.Tree)) {
 			hasNext = false;
@@ -89,7 +89,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		
 		switch (type) {
 		case MayExist:
-			optArg.initMatch(subject);
+			optArg.initMatch(ctx, subject);
 			hasNext = optArg.hasNext();
 			return;
 		case Exist:
@@ -97,7 +97,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 				IConstructor arg = (IConstructor) args.get(0);
 				Type argType = RascalTypeFactory.getInstance().nonTerminalType(arg);
 				Result<IValue> argResult = ResultFactory.makeResult(argType, arg, ctx);
-				optArg.initMatch(argResult);
+				optArg.initMatch(ctx, argResult);
 				hasNext = optArg.hasNext();
 				return;
 			}

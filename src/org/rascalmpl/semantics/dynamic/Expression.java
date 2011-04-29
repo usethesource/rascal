@@ -137,7 +137,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -154,7 +154,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			try {
 				gens[0] = producers.get(0).getBacktracker(__eval);
-				gens[0].init();
+				gens[0].init(__eval);
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
 
@@ -174,7 +174,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						} else {
 							i++;
 							gens[i] = producers.get(i).getBacktracker(__eval);
-							gens[i].init();
+							gens[i].init(__eval);
 							olds[i] = __eval.getCurrentEnvt();
 							__eval.pushEnv();
 						}
@@ -204,7 +204,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new AndResult(__eval, this.getLhs()
+			return new AndResult( this.getLhs()
 					.buildBacktracker(__eval), this.getRhs()
 					.buildBacktracker(__eval));
 
@@ -226,7 +226,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 			IMatchingResult absPat = this.getPattern().buildMatcher(__eval);
-			return new AntiPattern(__eval, this, absPat);
+			return new AntiPattern( this, absPat);
 		}
 
 		@Override
@@ -245,7 +245,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult( this);
 
 		}
 
@@ -260,7 +260,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			int i = 0;
 			gens[0] = generators.get(0).getBacktracker(__eval);
-			gens[0].init();
+			gens[0].init(__eval);
 			while (i >= 0 && i < size) {
 				if (__eval.__getInterrupt()) {
 					throw new InterruptException(__eval.getStackTrace());
@@ -273,7 +273,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 					i++;
 					gens[i] = generators.get(i).getBacktracker(__eval);
-					gens[i].init();
+					gens[i].init(__eval);
 				} else {
 					i--;
 				}
@@ -321,7 +321,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 		}
 
 		@Override
@@ -355,16 +355,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				// TODO: get rid of __eval if-then-else by introducing
 				// subclasses for NodePattern for each case.
 				if (nameExpr.isQualifiedName() && prefix == null) {
-					return new NodePattern(__eval, this, null,
+					return new NodePattern(this, null,
 							nameExpr.getQualifiedName(), visitArguments(__eval));
 				} else if (nameExpr.isQualifiedName()
 						&& ((prefix instanceof AbstractFunction) || prefix instanceof OverloadedFunctionResult)) {
-					return new NodePattern(__eval, this, null,
+					return new NodePattern(this, null,
 							nameExpr.getQualifiedName(), visitArguments(__eval));
 				}
 			}
 
-			return new NodePattern(__eval, this, nameExpr
+			return new NodePattern(this, nameExpr
 					.buildMatcher(__eval), null, visitArguments(__eval));
 
 		}
@@ -588,7 +588,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 			IMatchingResult absPat = this.getPattern().buildMatcher(__eval);
-			return new DescendantPattern(__eval, this, absPat);
+			return new DescendantPattern(this, absPat);
 		}
 
 		@Override
@@ -638,7 +638,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new EnumeratorResult(__eval, this.getPattern()
+			return new EnumeratorResult(this.getPattern()
 					.buildMatcher(__eval.getEvaluator()), this.getExpression());
 		}
 
@@ -648,7 +648,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Environment old = __eval.getCurrentEnvt();
 			try {
 				IBooleanResult gen = this.getBacktracker(__eval);
-				gen.init();
+				gen.init(__eval);
 				__eval.pushEnv();
 				if (gen.hasNext() && gen.next()) {
 					return org.rascalmpl.interpreter.result.ResultFactory.bool(
@@ -674,7 +674,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -701,7 +701,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new EquivalenceResult(__eval, this.getLhs()
+			return new EquivalenceResult(this.getLhs()
 					.buildBacktracker(__eval), this.getRhs()
 					.buildBacktracker(__eval));
 		}
@@ -725,7 +725,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -866,7 +866,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -896,7 +896,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -925,7 +925,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -953,7 +953,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 			Type type = getType().typeOf(__eval.getCurrentEnvt());
 			IMatchingResult absPat = this.getPattern().buildMatcher(__eval);
-			return new GuardedPattern(__eval, this, type, absPat);
+			return new GuardedPattern(this, type, absPat);
 		}
 
 		@Override
@@ -1016,7 +1016,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-			return new BasicBooleanResult(eval, this);
+			return new BasicBooleanResult(this);
 		}
 
 		@Override
@@ -1063,7 +1063,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 		}
 
 		@Override
@@ -1104,8 +1104,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new OrResult(__eval,
-					new NotResult(__eval, this.getLhs()
+			return new OrResult(
+					new NotResult(this.getLhs()
 							.buildBacktracker(__eval)), this.getRhs()
 							.buildBacktracker(__eval));
 		}
@@ -1127,7 +1127,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1183,7 +1183,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-			return new BasicBooleanResult(eval, this);
+			return new BasicBooleanResult(this);
 		}
 
 		@Override
@@ -1202,7 +1202,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1275,7 +1275,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1299,7 +1299,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1332,7 +1332,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new ListPattern(__eval, this, buildMatchers(this.getElements(), __eval));
+			return new ListPattern(this, buildMatchers(this.getElements(), __eval));
 		}
 
 		@Override
@@ -1458,7 +1458,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 			if (this.getLiteral().isBoolean()) {
-				return new BasicBooleanResult(__eval, this);
+				return new BasicBooleanResult(this);
 			}
 			throw new UnexpectedTypeError(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
@@ -1559,7 +1559,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new MatchResult(__eval, this.getPattern(), true, this.getExpression());
+			return new MatchResult(this.getPattern(), true, this.getExpression());
 		}
 
 		@Override
@@ -1608,7 +1608,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new MultiVariablePattern(__eval, this, this
+			return new MultiVariablePattern(this, this
 					.getQualifiedName());
 		}
 
@@ -1647,13 +1647,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new NotResult(__eval, this.getArgument()
+			return new NotResult(this.getArgument()
 					.buildBacktracker(__eval));
 		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new NotPattern(__eval, this, this.getArgument()
+			return new NotPattern(this, this.getArgument()
 					.buildMatcher(__eval));
 		}
 
@@ -1699,7 +1699,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new MatchResult(__eval, this.getPattern(), false,
+			return new MatchResult(this.getPattern(), false,
 					this.getExpression());
 
 		}
@@ -1738,7 +1738,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1765,7 +1765,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1791,7 +1791,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			return new OrResult(__eval, this.getLhs()
+			return new OrResult(this.getLhs()
 					.buildBacktracker(__eval), this.getRhs()
 					.buildBacktracker(__eval));
 		}
@@ -1840,7 +1840,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -1856,7 +1856,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (r != null) {
 				if (r.getValue() != null) {
 					// Previously declared and initialized variable
-					return new QualifiedNamePattern(__eval, this,
+					return new QualifiedNamePattern(this,
 							name);
 				}
 
@@ -1864,24 +1864,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (type instanceof NonTerminalType) {
 					NonTerminalType cType = (NonTerminalType) type;
 					if (cType.isConcreteListType()) {
-						return new ConcreteListVariablePattern(__eval
-								, this, type,
+						return new ConcreteListVariablePattern(this, type,
 								org.rascalmpl.interpreter.utils.Names
 										.lastName(name));
 					}
 				}
 
-				return new QualifiedNamePattern(__eval, this, name);
+				return new QualifiedNamePattern(this, name);
 			}
 
 			if (__eval.getCurrentEnvt().isTreeConstructorName(name,
 					signature)) {
-				return new NodePattern(__eval, this, null, name,
+				return new NodePattern(this, null, name,
 						new ArrayList<IMatchingResult>());
 			}
 
 			// Completely fresh variable
-			return new QualifiedNamePattern(__eval, this, name);
+			return new QualifiedNamePattern(this, name);
 			// return new AbstractPatternTypedVariable(vf, env,
 			// ev.tf.valueType(), name);
 
@@ -1969,7 +1968,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			try {
 				gens[0] = generators.get(0).getBacktracker(eval);
-				gens[0].init();
+				gens[0].init(eval);
 				olds[0] = eval.getCurrentEnvt();
 				eval.pushEnv();
 
@@ -1985,7 +1984,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						} else {
 							i++;
 							gens[i] = generators.get(i).getBacktracker(eval);
-							gens[i].init();
+							gens[i].init(eval);
 							olds[i] = eval.getCurrentEnvt();
 							eval.pushEnv();
 						}
@@ -2018,7 +2017,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.List<IMatchingResult> args = buildMatchers(this
 					.getArguments(), __eval);
 
-			return new ReifiedTypePattern(__eval, this, basic, args);
+			return new ReifiedTypePattern(this, basic, args);
 
 		}
 
@@ -2096,7 +2095,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new SetPattern(__eval, this, buildMatchers(this.getElements(), __eval));
+			return new SetPattern(this, buildMatchers(this.getElements(), __eval));
 		}
 
 		@Override
@@ -2225,7 +2224,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			return new BasicBooleanResult(__eval, this);
+			return new BasicBooleanResult(this);
 
 		}
 
@@ -2355,7 +2354,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new TuplePattern(__eval, this, buildMatchers(this.getElements(), __eval));
+			return new TuplePattern(this, buildMatchers(this.getElements(), __eval));
 		}
 
 		@Override
@@ -2416,11 +2415,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (type instanceof NonTerminalType) {
 				NonTerminalType cType = (NonTerminalType) type;
 				if (cType.isConcreteListType()) {
-					return new ConcreteListVariablePattern(__eval,
+					return new ConcreteListVariablePattern(
 							this, type, this.getName());
 				}
 			}
-			return new TypedVariablePattern(__eval, this, type, this
+			return new TypedVariablePattern(this, type, this
 					.getName());
 		}
 
@@ -2467,9 +2466,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 			Type type = getType().typeOf(__eval.getCurrentEnvt());
 			IMatchingResult pat = this.getPattern().buildMatcher(__eval);
-			IMatchingResult var = new TypedVariablePattern(__eval,
+			IMatchingResult var = new TypedVariablePattern(
 					this, type, this.getName());
-			return new VariableBecomesPattern(__eval, this, var, pat);
+			return new VariableBecomesPattern(this, var, pat);
 
 		}
 
@@ -2500,10 +2499,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			IMatchingResult pat = this.getPattern().buildMatcher(__eval);
 			LinkedList<Name> names = new LinkedList<Name>();
 			names.add(this.getName());
-			IMatchingResult var = new QualifiedNamePattern(__eval,
+			IMatchingResult var = new QualifiedNamePattern(
 					this, ASTBuilder.<org.rascalmpl.ast.QualifiedName> make(
 							"QualifiedName", "Default", this.getTree(), names));
-			return new VariableBecomesPattern(__eval, this, var, pat);
+			return new VariableBecomesPattern(this, var, pat);
 
 		}
 
@@ -2585,7 +2584,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	
 	private static Result<IValue> evalBooleanExpression(org.rascalmpl.ast.Expression x, IEvaluatorContext ctx) {
 		IBooleanResult mp = x.getBacktracker(ctx);
-		mp.init();
+		mp.init(ctx);
 		while (mp.hasNext()) {
 			if (ctx.isInterrupted())
 				throw new InterruptException(ctx.getStackTrace());

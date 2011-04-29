@@ -33,15 +33,14 @@ public class EnumeratorResult extends BasicBooleanResult {
 	 * Constructor for a standard enumerator
 	 */
 	
-	public EnumeratorResult(IEvaluatorContext ctx, IMatchingResult matchPattern, Expression expression){
-		super(ctx, expression);
+	public EnumeratorResult(IMatchingResult matchPattern, Expression expression){
+		super(expression);
 		this.pat = matchPattern;
 		this.expression = expression;
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void init(IEvaluatorContext ctx) {
 		firstTime = true;
 	}
 	
@@ -83,7 +82,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 			IValue v = (IValue) iterator.next();
 			
 			// TODO: extract the proper static element type that will be generated
-			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
+			pat.initMatch(ctx, ResultFactory.makeResult(v.getType(), v, ctx));
 			while(pat.hasNext()){
 				if(pat.next()){
 					return true;						

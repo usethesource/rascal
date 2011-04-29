@@ -49,7 +49,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new LiteralPattern(__eval, this, this.interpret(
+			return new LiteralPattern(this, this.interpret(
 					__eval.getEvaluator()).getValue());
 		}
 
@@ -98,7 +98,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new LiteralPattern(__eval, this, this.interpret(
+			return new LiteralPattern(this, this.interpret(
 					__eval.getEvaluator()).getValue());
 		}
 
@@ -143,7 +143,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 
-			return new LiteralPattern(__eval, this, this.interpret(
+			return new LiteralPattern(this, this.interpret(
 					__eval.getEvaluator()).getValue());
 
 		}
@@ -205,65 +205,34 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
 
-			return new LiteralPattern(__eval, this, this.interpret(
+			return new LiteralPattern( this, this.interpret(
 					__eval.getEvaluator()).getValue());
 
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			StringLiteral lit = this.getStringLiteral();
-			IValueFactory vf = __eval.__getVf();
 
-//			// To prevent infinite recursion detect non-interpolated strings
-//			// first. TODO: design flaw?
-//			if (lit.isNonInterpolated()) {
-//				java.lang.String base = ((Lexical) lit.getConstant()).getString();
-//				// No escaping here; is done in appends. Sigh. This part needs serious refactoring
-//				
-//				IValue v;
-//				if (vf instanceof OriginValueFactory) {
-//					OriginValueFactory of = (OriginValueFactory) vf;
-//
-//					ISourceLocation loc = ((Lexical) lit.getConstant())
-//							.getLocation();
-//
-//					// Remove quotes from location
-//					loc = of.sourceLocation(loc.getURI(), loc.getOffset() + 1,
-//							loc.getLength() - 2, loc.getBeginLine(), loc
-//									.getEndLine(), loc.getBeginColumn() + 1,
-//							loc.getEndColumn() - 1);
-//					v = of.literal(loc, base);
-//				} else {
-//					v = vf.string(base);
-//				}
-//				return org.rascalmpl.interpreter.result.ResultFactory
-//						.makeResult(org.rascalmpl.interpreter.Evaluator
-//								.__getTf().stringType(), v, __eval);
-//
-//			} else {
-				Statement stat = new StringTemplateConverter().convert(lit);
-				Result<IValue> value = stat.interpret(__eval);
-				if (!value.getType().isListType()) {
-					throw new ImplementationError(
-							"template eval returns non-list");
-				}
-				IList list = (IList) value.getValue();
+			Statement stat = new StringTemplateConverter().convert(lit);
+			Result<IValue> value = stat.interpret(__eval);
+			if (!value.getType().isListType()) {
+				throw new ImplementationError(
+						"template eval returns non-list");
+			}
+			IList list = (IList) value.getValue();
 
-				// list is always non-empty
-				Result<IValue> s = ResultFactory.makeResult(TF.stringType(),
-						list.get(0), __eval);
+			// list is always non-empty
+			Result<IValue> s = ResultFactory.makeResult(TF.stringType(),
+					list.get(0), __eval);
 
-				// lazy concat!
-				for (int i = 1; i < list.length(); i++) {
-					IString str = (IString) list.get(i);
-					s = s.add(ResultFactory.makeResult(TF.stringType(), str, __eval));
-				}
+			// lazy concat!
+			for (int i = 1; i < list.length(); i++) {
+				IString str = (IString) list.get(i);
+				s = s.add(ResultFactory.makeResult(TF.stringType(), str, __eval));
+			}
 
-				return s;
-//			}
-
+			return s;
 		}
 
 		@Override

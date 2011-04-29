@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
@@ -41,9 +40,9 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iDeclaredItMyself;
 	
-	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
+	public ConcreteListVariablePattern(AbstractAST x,
 			org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
-		super(ctx, x);
+		super(x);
 		this.name = Names.name(name);
 		this.declaredType = (NonTerminalType) type;
 		this.anonymous = Names.name(name).equals("_");

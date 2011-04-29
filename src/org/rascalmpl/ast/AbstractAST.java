@@ -155,6 +155,7 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public IMatchingResult getMatcher(IEvaluatorContext eval) {
 		if (matcher == null) {
+			// TODO: building a matcher should not require an evaluation context, yet it does (big change!)
 			matcher = buildMatcher(eval);
 		}
 		return matcher;
@@ -168,7 +169,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 	
 	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
-		if (true || backtracker == null) { // one of the IBooleanResults does not refresh its state on init()
+		if (backtracker == null) { // one of the IBooleanResults does not refresh its state on init()
 			backtracker = buildBacktracker(ctx);
 		}
 		return backtracker;
