@@ -21,4 +21,6 @@ public interface IActionExecutor{
 	IConstructor filterCycle(IConstructor cycle);
 	
 	void enteredProduction(IConstructor production);
+	
+	void exitedProduction(IConstructor production, boolean filtered);
 }

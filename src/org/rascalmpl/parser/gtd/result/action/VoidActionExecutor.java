@@ -34,4 +34,8 @@ public class VoidActionExecutor implements IActionExecutor{
 	public void enteredProduction(IConstructor production){
 		// Don't do anything.
 	}
+	
+	public void exitedProduction(IConstructor production, boolean filtered){
+		// Don't do anything.
+	}
 }

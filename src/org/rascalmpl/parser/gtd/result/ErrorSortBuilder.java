@@ -44,6 +44,7 @@ public class ErrorSortBuilder{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, isInError, isInTotalError);
 		}else{
+			actionExecutor.enteredProduction(production);
 			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, isInError, sourceLocation, actionExecutor);
 		}
 	}
@@ -51,10 +52,17 @@ public class ErrorSortBuilder{
 	private static void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, boolean isInError, IsInError isInTotalError){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
+			actionExecutor.enteredProduction(production);
+			
 			int postFixLength = postFix.length;
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
 			for(int i = 0; i < postFixLength; ++i){
-				constructedPostFix[i] = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
+				IConstructor node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
+				if(node == null){
+					actionExecutor.exitedProduction(production, true);
+					return;
+				}
+				constructedPostFix[i] = node;
 			}
 			
 			buildAlternative(production, constructedPostFix, gatheredAlternatives, isInError, sourceLocation, actionExecutor);
@@ -90,6 +98,9 @@ public class ErrorSortBuilder{
 		}
 		if(result == null){
 			result = VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), AbstractContainerNode.EMPTY_LIST);
+			actionExecutor.exitedProduction(production, true);
+		}else{
+			actionExecutor.exitedProduction(production, false);
 		}
 		
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);

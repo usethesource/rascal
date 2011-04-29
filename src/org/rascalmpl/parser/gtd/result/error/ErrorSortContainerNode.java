@@ -29,6 +29,8 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
+import sun.net.InetAddressCachePolicy;
+
 public class ErrorSortContainerNode extends AbstractContainerNode{
 	private IList unmatchedInput;
 	
@@ -51,22 +53,28 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor);
 		}else{
-			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation);
+			actionExecutor.enteredProduction(production);
+			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation, actionExecutor);
 		}
 	}
 	
 	private void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
+			actionExecutor.enteredProduction(production);
+			
 			int postFixLength = postFix.length;
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
 			for(int i = 0; i < postFixLength; ++i){
 				IConstructor node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
-				if(node == null) return;
+				if(node == null){
+					actionExecutor.exitedProduction(production, true);
+					return;
+				}
 				constructedPostFix[i] = node;
 			}
 			
-			buildAlternative(production, constructedPostFix, gatheredAlternatives, sourceLocation);
+			buildAlternative(production, constructedPostFix, gatheredAlternatives, sourceLocation, actionExecutor);
 			return;
 		}
 		
@@ -84,7 +92,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		}
 	}
 	
-	private void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation){
+	private void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
@@ -95,6 +103,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		
 		gatheredAlternatives.add(result);
+		actionExecutor.exitedProduction(production, false);
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
