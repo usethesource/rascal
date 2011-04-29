@@ -517,7 +517,12 @@ public class ListContainerNode extends AbstractContainerNode{
 		IConstructor result = ErrorListBuilder.toErrorListTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
 
 		if(depth < cycleMark.depth){
-			cachedResult = result;
+			Type type = result.getConstructorType();
+			if(!(type == Factory.Tree_Error || type == Factory.Tree_Error_Amb || type == Factory.Tree_Error_Cycle)){
+				cachedResult = result;
+			}else{
+				cachedResult = VF.constructor(FILTERED_RESULT_TYPE, result);
+			}
 		}
 		
 		return result;

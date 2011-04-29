@@ -176,6 +176,18 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			}
 			
 			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
+			result = actionExecutor.filterAmbiguity(result);
+			if(result == null){
+				// Build error amb.
+				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
+				
+				if(depth < cycleMark.depth){
+					cachedResult = VF.constructor(FILTERED_RESULT_TYPE, result);
+				}
+				
+				return result;
+			}
 			
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
