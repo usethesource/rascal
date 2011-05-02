@@ -32,7 +32,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParserGenerator {
