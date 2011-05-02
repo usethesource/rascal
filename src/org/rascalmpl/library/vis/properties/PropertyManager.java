@@ -28,6 +28,7 @@ import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -53,6 +54,7 @@ public class PropertyManager implements IPropertyManager {
 		EnumMap<BoolProp, IPropertyValue<Boolean>> boolValues;
 		EnumMap<IntProp, IPropertyValue<Integer>> intValues;
 		EnumMap<RealProp, IPropertyValue<Float>> realValues;
+		EnumMap<MeasureProp, IPropertyValue<Measure>> measureValues;
 		EnumMap<StrProp, IPropertyValue<String>> strValues;
 		EnumMap<ColorProp, IPropertyValue<Integer>> colorValues;
 		EnumMap<FigureProp, IPropertyValue<Figure>> figureValues;
@@ -161,6 +163,11 @@ public class PropertyManager implements IPropertyManager {
 					values.handlerValues = new EnumMap<HandlerProp, IPropertyValue<Void>>(HandlerProp.class);
 				}
 				HandlerProp.propertySetters.get(pname).execute(values.handlerValues, c, fpa, ctx, this);
+			} else if(MeasureProp.propertySetters.containsKey(pname)){
+				if(values.measureValues == null){
+					values.measureValues = new EnumMap<MeasureProp, IPropertyValue<Measure>>(MeasureProp.class);
+				}
+				MeasureProp.propertySetters.get(pname).execute(values.measureValues, c, fpa, ctx, this);
 			} else {
 				throw RuntimeExceptionFactory.illegalArgument(c, ctx
 						.getCurrentAST(), ctx.getStackTrace());
@@ -239,6 +246,15 @@ public class PropertyManager implements IPropertyManager {
 					}
 				}
 			}
+			if(stdValues.measureValues == null){
+				stdValues.measureValues = inherited.stdValues.measureValues;
+			} else if(inherited.stdValues.measureValues != null){
+				for(MeasureProp p : MeasureProp.values()){
+					if(!stdValues.measureValues.containsKey(p) && inherited.stdValues.measureValues.containsKey(p)){
+						stdValues.measureValues.put(p, inherited.stdValues.measureValues.get(p));
+					}
+				}
+			}
 		}
 	}
 	
@@ -291,6 +307,24 @@ public class PropertyManager implements IPropertyManager {
 		} else if(stdValues!= null && stdValues.realValues != null && 
 				stdValues.realValues.containsKey(property)){
 			return stdValues.realValues.get(property).getValue();
+		} else {
+			return property.getStdDefault(); 
+		}
+	}
+	
+	public boolean isMeasurePropertySet(MeasureProp property){
+		return explicitValues != null && 
+	       explicitValues.measureValues != null &&
+	       explicitValues.measureValues.containsKey(property);
+	}
+	
+	
+	public Measure getMeasureProperty(MeasureProp property){
+		if(isMeasurePropertySet(property)){
+			return explicitValues.measureValues.get(property).getValue();
+		} else if(stdValues!= null && stdValues.measureValues != null && 
+				stdValues.measureValues.containsKey(property)){
+			return stdValues.measureValues.get(property).getValue();
 		} else {
 			return property.getStdDefault(); 
 		}
@@ -386,4 +420,5 @@ public class PropertyManager implements IPropertyManager {
 	public boolean isDraggable(){
 		return draggable;
 	}
+
 }

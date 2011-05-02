@@ -2,20 +2,20 @@ package org.rascalmpl.library.vis.compose;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 
 public class HCat extends Compose {
 
 	float gapSize;
 	float numberOfGaps;
-	float topAnchor = 0;
-	float bottomAnchor = 0;
 	float minTopAnchor = Float.MAX_VALUE;
 	private float maxTopAnchor;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	
 	boolean isWidthPropertySet, isHeightPropertySet, isHGapPropertySet, isHGapFactorPropertySet;
 	float getWidthProperty, getHeightProperty, getHGapProperty, getHGapFactorProperty, getValignProperty;
@@ -151,7 +151,6 @@ public class HCat extends Compose {
 				}
 				float topCap = (topExtraSpacePart / (topExtraSpacePart + bottomExtraSpacePart)) * spaceForResize + maxTopAnchor;
 				float bottomCap = (bottomExtraSpacePart / (topExtraSpacePart + bottomExtraSpacePart)) * spaceForResize + maxBottomAnchor;
-				
 				for(int i = 0 ; i < figures.length ; i++){
 					if(mayBeResized[i]){
 						float topAdjust = min(getTopAnchor(figures[i]), topCap);
@@ -186,7 +185,7 @@ public class HCat extends Compose {
 		minTopAnchor = Float.MAX_VALUE;
 		for(Figure fig : figures){
 			totalElementsWidth += getFigureWidth(fig);
-			maxBottomAnchor = max(height,getBottomAnchor(fig));
+			maxBottomAnchor = max(maxBottomAnchor,getBottomAnchor(fig));
 			maxTopAnchor = max(maxTopAnchor,getTopAnchor(fig));
 			minTopAnchor = min(minTopAnchor,getTopAnchor(fig));
 		}
@@ -202,9 +201,11 @@ public class HCat extends Compose {
 		}
 		width = totalElementsWidth + gapsSize;
 		gapSize = gapsSize / numberOfGaps;
+		
 		height =  maxTopAnchor + maxBottomAnchor;
-		if(debug)System.err.printf("hcat: width=%f, height=%f, topAnchor=%f, bottomAnchor=%f minTopAnchor %f maxTopAnchor %f\n", width, height, topAnchor, bottomAnchor,minTopAnchor,maxTopAnchor);
+		System.out.printf("height %f maxTopAnchor %f maxBottomAnchor %f\n", height,maxTopAnchor, maxBottomAnchor);
 		determinePlacement();
+		System.out.printf("Done bbox!\n");
 	}
 
 	private void determinePlacement() {
@@ -220,4 +221,27 @@ public class HCat extends Compose {
 			left += getFigureWidth(figures[i]) + gapSize;
 		}
 	}	
+	
+	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
+		if(result.gotData()){
+			return result;
+		} else {
+			Extremes[] extremesList = new Extremes[figures.length];
+			for(int i = 0 ; i < figures.length ; i++){
+				extremesList[i] = figures[i].getExtremesForAxis(axisId, offset, horizontal);
+				if(correctOrientation(horizontal) && gapSize == 0 && extremesList[i].gotData()){
+					offset += extremesList[i].getMaximum();
+				}
+			}
+			return Extremes.merge(extremesList);
+		}
+	}
+	
+	protected boolean correctOrientation(boolean horizontal){
+		return horizontal;
+	}
+	
+
+	
 }

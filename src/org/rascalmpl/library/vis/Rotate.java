@@ -12,11 +12,16 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import java.util.HashMap;
+import java.util.Vector;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class Rotate extends Figure {
@@ -114,8 +119,20 @@ public class Rotate extends Figure {
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY){
-		super.propagateScaling(scaleX, scaleY);
-		figure.propagateScaling(scaleX, scaleY);
+
+	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+		super.propagateScaling(scaleX, scaleY, axisScales);
+		figure.propagateScaling(scaleX, scaleY, axisScales);
+	}
+	
+	
+	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+		if(figure!=null){
+			figure.gatherProjections(left, top, projections, first, screenId, horizontal);
+		}
+	}
+	
+	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+		throw new UnsupportedOperationException("No rotate on axises yet");
 	}
 }

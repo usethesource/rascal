@@ -252,7 +252,10 @@ public list[str] java fontNames();
    return stdProjectValign(0.5, 0.5);
 }
 
-   
+data Like = like(str id);
+public data Measure = measure(num quantity,str axisId);
+
+public alias FProperties = list[FProperty];
  
  alias computedBool = bool();
  alias computedInt	= int();
@@ -261,10 +264,9 @@ public list[str] java fontNames();
  alias computedStr 	= str();
  alias computedColor = Color();
  alias computedFigure = Figure();
+ alias computedMeasure = Measure();
  
- data Like = like(str id);
- 
-public alias FProperties = list[FProperty];
+
 
 
 data FProperty =
@@ -280,31 +282,66 @@ data FProperty =
    | size(Like other)
    
    | size(num width, num height)            // sets width and height to separate values
-//   | size(computedNum cWidth, computedNum cHeight)  // sets width and height to separate values
+   | size(computedNum cWidth, computedNum cHeight)
+   | size(Like otherA, Like otherBt)  // sets width and height to separate values
+   
+   | hgap(num width)                      // sets hor gap
+   | hgap(computedNum cWidth)
+   | hgap(Like other)
+   
+   | vgap(num height)                     // set vert gap
+   | vgap(computedNum cHeight)
+   | vgap(Like other)
    
    | gap(num amount)                    // sets hor and vert gap between elements in composition to same value
    | gap(computedNum cAmount) 
    | gap(Like other) 
    
-   | gap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
- //  | gap(computedNum cWidth, computedNum cHeight) 
+   | gap(num width, num height) 
+   | gap(computedNum cWidth, computedNum cHeight)
+   | gap(Like otherA, Like otherB)
+    
+   
+   | width(Measure mwidth)                   // sets width of element
+   | width(computedMeasure cmWidth)         // sets width of element
+   | height(Measure mheight)                 // sets height of element
+   | height(computedMeasure cmHeight)       // sets height of element
+   | size(Measure msize)					    // sets width and height to same value
+   | size(computedMeasure cmSize)			// sets width and height to same value
+   
+   | size(num m1width, Measure m1height)            // sets width and height to separate values
+   | size(computedNum cm1Width, computedMeasure cm1Height)  // sets width and height to separate values
+   | size(Measure m2width, num m2height)            // sets width and height to separate values
+   | size(computedMeasure cm2Width, computedNum cm2Height)  // sets width and height to separate values
+   | size(Measure m3width, Measure m3height)            // sets width and height to separate values
+   | size(computedMeasure cm3Width, computedMeasure cm3Height)  // sets width and height to separate values
+   
+   | hgap(Measure mwidth)                      // sets hor gap
+   | hgap(computedMeasure cmWidth)
+   
+   | vgap(Measure mheight)                     // set vert gap
+   | vgap(computedMeasure cmHeight)
+   
+   | gap(Measure mamount)                    // sets hor and vert gap between elements in composition to same value
+   | gap(computedMeasure cmAmount) 
+   
+   | gap(num m1width, Measure m1height) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(computedNum cm1width, computedMeasure cm1height) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(Measure m2width, num m2height) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(computedMeasure cm2width, computedNum cm2height) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(Measure m3width, Measure m3height) 			// sets hor and vert gap between elements in composition to separate values
+   | gap(computedMeasure cm3width, computedMeasure cm3height) 			// sets hor and vert gap between elements in composition to separate values
    
    | gapFactor(num amount)
    | gapFactor(computedNum cAmount)
    | gapFactor(Like other)
    | gapFactor(num hfactor,num vfactor)
    
-   | hgap(num width)                      // sets hor gap
-   | hgap(computedNum cWidth)
-   | hgap(Like other)
+
    
    | hgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
    | hgapFactor(computedNum cFactor)   
    | hgapFactor(Like other)   
-   
-   | vgap(num height)                     // set vert gap
-   | vgap(computedNum cHeight)
-   | vgap(Like other)
    
    | vgapFactor(num factor)                 //  the factor of the total height which is whitespace (i.e. 0.2 means 20% whitespace)
    | vgapRatio(computedNum cFactor)   
@@ -359,6 +396,10 @@ data FProperty =
    | innerRadius(num radius)
    | innerRadius(computedNum cRadius)
    | innerRadius(Like other)
+   
+   | innerRadius(Measure mRadius)
+   | innerRadius(computedMeasure cmRadius)
+   
 
 /* shape properties */
    | shapeConnected(bool b)              // shapes consist of connected points
@@ -417,37 +458,15 @@ data FProperty =
    | direction(str name)
    | direction(computedStr cname)
    | direction(Like other)
-   
-   | projectX(Figure inner)            // projection on chart x axis
-   | projectX(computedFigure cInner)           
-   | projectX(Like other)
-   
-   | projectY(Figure inner)            // projection on chart x axis
-   | projectY(computedFigure cInner)           
-   | projectY(Like other)
-   
-   | projectXGap(num gap)
-   | projectXGap(computedNum cGap)
-   | projectXGap(Like other)
-   
-   | projectYGap(num gap)
-   | projectYGap(computedNum cGap)
-   | projectYGap(Like other)
+  
    
    | scaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
    | scaleAll(computedBool cAlg)
    | scaleAll(Like other)   
-
-   | projectHalign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
-   | projectHalign(computedNum cAlign)
-   | projectHalign(Like other)
    
-   | projectValign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
-   | projectValign(computedNum cAlign)
-   | projectValign(Like other)
-   
-   | projectAlign(num align)
-   | projectAlign(num alignH,num alignV)
+   | drawScreen(bool b)
+   | drawScreen(computedBool cAlg)
+   | drawScreen(Like other)   
    
    | _child(FProperties props)           // define properties for the children of a composition (one level deep)
 /* Standard properties: all the properties again! */
@@ -463,31 +482,66 @@ data FProperty =
    | stdSize(Like other)
    
    | stdSize(num width, num height)            // sets width and height to separate values
-//   | stdsize(computedNum cWidth, computedNum cHeight)  // sets width and height to separate values
+   | stdSize(computedNum cWidth, computedNum cHeight)
+   | stdSize(Like otherA, Like otherBt)  // sets width and height to separate values
+   
+   | stdHgap(num width)                      // sets hor gap
+   | stdHgap(computedNum cWidth)
+   | stdHgap(Like other)
+   
+   | stdVgap(num height)                     // set vert gap
+   | stdVgap(computedNum cHeight)
+   | stdVgap(Like other)
    
    | stdGap(num amount)                    // sets hor and vert gap between elements in composition to same value
    | stdGap(computedNum cAmount) 
    | stdGap(Like other) 
    
-   | stdGap(num width, num height) 			// sets hor and vert gap between elements in composition to separate values
- //  | stdGap(computedNum cWidth, computedNum cHeight) 
+   | stdGap(num width, num height) 
+   | stdGap(computedNum cWidth, computedNum cHeight)
+   | stdGap(Like otherA, Like otherB)
+    
+   
+   | stdWidth(Measure mwidth)                   // sets width of element
+   | stdWidth(computedMeasure cmWidth)         // sets width of element
+   | stdHeight(Measure mheight)                 // sets height of element
+   | stdHeight(computedMeasure cmHeight)       // sets height of element
+   | stdSize(Measure msize)					    // sets width and height to same value
+   | stdSize(computedMeasure cmSize)			// sets width and height to same value
+   
+   | stdSize(num m1width, Measure m1height)            // sets width and height to separate values
+   | stdSize(computedNum cm1Width, computedMeasure cm1Height)  // sets width and height to separate values
+   | stdSize(Measure m2width, num m2height)            // sets width and height to separate values
+   | stdSize(computedMeasure cm2Width, computedNum cm2Height)  // sets width and height to separate values
+   | stdSize(Measure m3width, Measure m3height)            // sets width and height to separate values
+   | stdSize(computedMeasure cm3Width, computedMeasure cm3Height)  // sets width and height to separate values
+   
+   | stdHgap(Measure mwidth)                      // sets hor gap
+   | stdHgap(computedMeasure cmWidth)
+   
+   | stdVgap(Measure mheight)                     // set vert gap
+   | stdVgap(computedMeasure cmHeight)
+   
+   | stdGap(Measure mamount)                    // sets hor and vert gap between elements in composition to same value
+   | stdGap(computedMeasure cmAmount) 
+   
+   | stdGap(num m1width, Measure m1height) 			// sets hor and vert gap between elements in composition to separate values
+   | stdGap(computedNum cm1width, computedMeasure cm1height) 			// sets hor and vert gap between elements in composition to separate values
+   | stdGap(Measure m2width, num m2height) 			// sets hor and vert gap between elements in composition to separate values
+   | stdGap(computedMeasure cm2width, computedNum cm2height) 			// sets hor and vert gap between elements in composition to separate values
+   | stdGap(Measure m3width, Measure m3height) 			// sets hor and vert gap between elements in composition to separate values
+   | stdGap(computedMeasure cm3width, computedMeasure cm3height) 			// sets hor and vert gap between elements in composition to separate values
+   
    
    | stdGapFactor(num amount)
    | stdGapFactor(computedNum cAmount)
    | stdGapFactor(Like other)
    | stdGapFactor(num hfactor,num vfactor)
    
-   | stdHgap(num width)                      // sets hor gap
-   | stdHgap(computedNum cWidth)
-   | stdHgap(Like other)
    
    | stdHgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
    | stdHgapFactor(computedNum cFactor)   
    | stdHgapFactor(Like other)      
-   
-   | stdVgap(num height)                     // set vert gap
-   | stdVgap(computedNum cHeight)
-   | stdVgap(Like other)
 
    | stdVgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
    | stdVgapFactor(computedNum cFactor)   
@@ -542,6 +596,9 @@ data FProperty =
    | stdInnerRadius(num radius)
    | stdInnerRadius(computedNum cRadius)
    | stdInnerRadius(Like other)
+   
+   | stdInnerRadius(Measure mRadius)
+   | stdInnerRadius(computedMeasure cmRadius)
 
 /* shape properties */
    | stdShapeConnected(bool b)              // shapes consist of connected points
@@ -601,33 +658,13 @@ data FProperty =
    | stdDirection(computedStr cname)
    | stdDirection(Like other)
    
-   | stdProjectX(Figure inner)            // projection on chart x axis
-   | stdProjectX(computedFigure cInner)           
-   | stdProjectX(Like other)
-   
-   | stdProjectY(Figure inner)            // projection on chart x axis
-   | stdProjectY(computedFigure cInner)           
-   | stdProjectY(Like other)
-   
-   | stdProjectXGap(num radius)
-   | stdProjectXGap(computedNum cRadius)
-   | stdProjectXGap(Like other)
-   
-   | stdProjectYGap(num radius)
-   | stdProjectYGap(computedNum cRadius)
-   | stdProjectYGap(Like other)
-   
-   | stdProjectHalign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
-   | stdProjectHalign(computedNum cAlign)
-   | stdProjectHalign(Like other)
-   
-   | stdProjectValign(num align) // the alignment of the projection (i.e. 0.5f means project from center)
-   | stdProjectValign(computedNum cAlign)
-   | stdProjectValign(Like other)
-   
    | stdScaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
    | stdScaleAll(computedBool cAlg)
    | stdScaleAll(Like other)   
+   
+   | stdDrawScreen(bool b)
+   | stdDrawScreen(computedBool cAlg)
+   | stdDrawScreen(Like other)   
    
    ;   
 
@@ -644,15 +681,39 @@ public FProperty grandChild(FProperty props ...){
  */
 
 data Vertex = 
-     _vertex(num x, num y, FProperties props)             	    // vertex in a shape          
-   | _vertex(num x, num y, Figure marker, FProperties props)    // vertex with marker
+     _vertex(Measure x, Measure y, FProperties props)             	    // vertex in a shape          
+   | _vertex(Measure x, Measure y, Figure marker, FProperties props)    // vertex with marker
    ;
    
 public Vertex vertex(num x, num y, FProperty props ...){
-   return _vertex(x, y, props);
+   return _vertex(measure(x,""), measure(y,""), props);
 }
 
 public Vertex vertex(num x, num y, Figure marker, FProperty props ...){
+   return _vertex(measure(x,""), measure(y,""), marker, props);
+}
+
+public Vertex vertex(num x, Measure y, FProperty props ...){
+   return _vertex(measure(x,""), y, props);
+}
+
+public Vertex vertex(num x, Measure y, Figure marker, FProperty props ...){
+   return _vertex(measure(x,""), y, marker, props);
+}
+
+public Vertex vertex(Measure x, num y, FProperty props ...){
+   return _vertex(x, measure(y,""), props);
+}
+
+public Vertex vertex(Measure x, num y, Figure marker, FProperty props ...){
+   return _vertex(x, measure(y,""), marker, props);
+}
+
+public Vertex vertex(Measure x, Measure y, FProperty props ...){
+   return _vertex(x, y, props);
+}
+
+public Vertex vertex(Measure x, Measure y, Figure marker, FProperty props ...){
    return _vertex(x, y, marker, props);
 }
    
@@ -705,10 +766,18 @@ data Figure =
    
    | _space(FProperties props)			      	// invisible box (used for spacing)
    | _space(Figure inner, FProperties props)     // invisible box with visible inner element
+| _hscreen(FProperties props)                  // a screen on which things can be projected      
+   | _hscreen(Figure inner, FProperties props)
+   
+   | _haxis(Figure inner, FProperties props)
+   | _vaxis(Figure inner, FProperties props)
+   
+   | _vscreen(FProperties props)                  // a screen on which things can be projected      
+   | _vscreen(Figure inner, FProperties props)
+   
+   | _projection(Figure fig, str id, Figure project,FProperties props)   // project from the location of fig to the screen id 
+   | _projection(Figure fig, Figure project,FProperties props)   // project from the location of fig to the nearest screen    
 
-   | _chart(FProperties props)                  // chart (work in progress)      
-   | _chart(Figure inner, FProperties props)   
- 
 /* composition */
    
    | _use(Figure elem)                           // use another elem
@@ -800,12 +869,28 @@ public Figure space(Figure fig, FProperty props ...){
   return _space(fig, props);
 }
 
-public Figure chart(FProperty props ...){
-  return _chart(props);
+public Figure haxis(Figure fig, FProperty props ...){
+  return _haxis(fig, props);
 }
 
-public Figure chart(Figure fig, FProperty props ...){
-  return _chart(fig, props);
+public Figure vaxis(Figure fig, FProperty props ...){
+  return _vaxis(fig, props);
+}
+
+public Figure hscreen(Figure fig, FProperty props ...){
+  return _hscreen(fig, props);
+}
+
+public Figure vscreen(Figure fig, FProperty props ...){
+  return _vscreen(fig, props);
+}
+
+public Figure projection(Figure fig, str id, Figure project,FProperty props ...){
+  return _projection(fig,id,project,props);
+}
+
+public Figure projection(Figure fig, Figure project,FProperty props ...){
+  return _projection(fig,project,props);
 }
 
 public Figure place(Figure fig, str at, Figure base, FProperty props ...){

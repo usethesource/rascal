@@ -12,11 +12,13 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -28,7 +30,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * Typical examples are Boxes and Ellipses that may contain another element.
  * 
  * A container has the following behaviour:
- * - It has a bounding box of its own unless interaction due to a mouseOver overrules it.
+ * - It has a bounding box of its own unless interaction due to a moueOver overrules it.
  * - It draws itself (using drawContainer).
  * - It draws the inside element provided that it fits in the container.
  * - It always draws the inside element on mouseOver.
@@ -104,7 +106,7 @@ public abstract class Container extends Figure {
 				innerDesiredHeight = Figure.AUTO_SIZE;
 			}
 			innerFig.bbox(innerDesiredWidth,innerDesiredHeight);
-			if(desiredWidth == AUTO_SIZE){
+			if(desiredWidth == AUTO_SIZE || innerFig.width > innerDesiredWidth){
 				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
 					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
 					spacingX = (innerFig.width / (1/getHGapFactorProperty() - 1));
@@ -113,7 +115,7 @@ public abstract class Container extends Figure {
 				}
 				width = innerFig.width + spacingX + 2*lw;
 			}
-			if(desiredHeight == AUTO_SIZE){
+			if(desiredHeight == AUTO_SIZE || innerFig.height > innerDesiredHeight){
 				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
 					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
 					spacingY = (innerFig.height / (1/getVGapFactorProperty() - 1));
@@ -129,7 +131,7 @@ public abstract class Container extends Figure {
 				spacingY = desiredHeight - 2 * lw - innerFig.height;
 			}
 			innerFigX = lw + innerFig.getHAlignProperty()*spacingX;
-			innerFigY = lw + innerFig.getVAlignProperty()*spacingY;
+			innerFigY = lw + innerFig.getVAlignProperty()*spacingY;;
 		} else {
 			if(desiredWidth == AUTO_SIZE){
 				width = getWidthProperty();
@@ -173,7 +175,7 @@ public abstract class Container extends Figure {
 			innerDrawWithMouseOver(left, top);
 		Figure mo = getMouseOver();
 		if(mo != null && mo.isVisibleInMouseOver()){
-			// System.err.printf("Mouse over width %f height %f", mo.width,mo.height);
+			//System.err.printf("Mouse over width %f height %f", mo.width,mo.height);
 			mo.drawWithMouseOver(max(0, left + mo.getHAlignProperty()*(width  - mo.width)),
 			    				 max(0, top  + mo.getVAlignProperty()*(height - mo.height)));
 		}
@@ -379,17 +381,44 @@ public abstract class Container extends Figure {
 			innerFig.destroy();
 	}
 	
-	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
-		super.gatherProjections(left, top, projections);
+	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(innerFig!=null){
-			innerFig.gatherProjections(left, top, projections);
+			innerFig.gatherProjections(left + innerFigX, top + innerFigY, projections, first, screenId, horizontal);
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY){
-		super.propagateScaling(scaleX, scaleY);
+	public void propagateScaling(float scaleX,float scaleY,HashMap<String,Float> axisScales){
+		super.propagateScaling(scaleX, scaleY,axisScales);
 		if(innerFig != null){
-			innerFig.propagateScaling(scaleX, scaleY);
+			innerFig.propagateScaling(scaleX, scaleY,axisScales);
+		}
+	}
+	
+	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
+		if(result.gotData()){
+			return result;
+		} else if(innerFig != null){
+			return innerFig.getExtremesForAxis(axisId, offset, horizontal);
+		} else {
+			return new Extremes();
+		}
+	}
+	
+	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
+		float result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Float.MAX_VALUE){
+			return result;
+		} else if (innerFig != null){
+			float off = 0.0f;
+			if(horizontal){
+				off = innerFigX;
+			} else {
+				off = innerFigY;
+			}
+			return min(offset,offset + off);
+		} else {
+			return Float.MAX_VALUE;
 		}
 	}
 }

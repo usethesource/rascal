@@ -12,11 +12,15 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import java.util.HashMap;
+import java.util.Vector;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 
@@ -43,7 +47,7 @@ public class Scale extends Figure {
 	@Override
 	public
 	void bbox(float desiredWidth, float desiredHeight) {
-		if(properties.getBooleanProperty(BoolProp.SCALE_ALL) && !propagated) propagateScaling(1.0f, 1.0f);
+		if(properties.getBooleanProperty(BoolProp.SCALE_ALL) && !propagated) propagateScaling(1.0f, 1.0f,null);
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 	}
 
@@ -61,16 +65,20 @@ public class Scale extends Figure {
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY){
-		if(!properties.getBooleanProperty(BoolProp.SCALE_ALL)){
-			scaleX*= xscale;
-			scaleY*= yscale;
+	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+		super.propagateScaling(scaleX, scaleY, axisScales);
+		figure.propagateScaling(scaleX, scaleY, axisScales);
+	}
+	
+	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+		if(figure!=null){
+			figure.gatherProjections(left, top, projections, first, screenId, horizontal);
 		}
-		
-		
-		super.propagateScaling(scaleX, scaleY);
-		figure.propagateScaling(scaleX, scaleY);
-		propagated = true;
+	}
+	
+
+	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+		throw new UnsupportedOperationException("No rotate on axises yet");
 	}
 
 }

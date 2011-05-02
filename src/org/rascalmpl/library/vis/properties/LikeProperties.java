@@ -19,6 +19,7 @@ import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
@@ -112,6 +113,22 @@ public class LikeProperties {
 		@Override
 		public String getValue() {
 			return fig.properties.getStringProperty(property);
+		}
+	}
+	
+	static class LikeMeasureProperty extends LikeProperty<Measure>{
+
+		MeasureProp property;
+		
+		public LikeMeasureProperty(MeasureProp property, String id, IFigureApplet fpa,
+				IEvaluatorContext ctx) {
+			super( id, fpa, ctx);
+			this.property = property;
+		}
+
+		@Override
+		public Measure getValue() {
+			return fig.properties.getMeasureProperty(property);
 		}
 	}
 	

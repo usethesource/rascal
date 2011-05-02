@@ -21,7 +21,7 @@ public enum StrProp {
 	LAYER(""),		
 	HINT(""),			
 	ID(""), 		
-	FONT("Helvetica"),           
+	FONT("Helvetica"),
 	TEXT("");
 
 	String stdDefault;

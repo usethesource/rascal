@@ -63,7 +63,10 @@ public class VCat extends HCat {
 	float getFigureHeight(Figure fig){return fig.width;}
 	float getTopAnchor(Figure fig){return fig.leftAlign();}
 	float getBottomAnchor(Figure fig){return fig.rightAlign();}
-	void  bboxOfFigure(Figure fig,float desiredWidth,float desiredHeight, float scaleX, float scaleY){ fig.bbox(desiredHeight,desiredWidth);}
+	void  bboxOfFigure(Figure fig,float desiredWidth,float desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
 	float getHeight(){return width;}
 	
+	protected boolean correctOrientation(boolean horizontal) {
+		return !horizontal;
+	}
 }

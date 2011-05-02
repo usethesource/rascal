@@ -32,6 +32,7 @@ import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
@@ -276,6 +277,46 @@ public class PropertyParsers {
 		@Override
 		IPropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedColorProperty(arg, fpa);
+		}
+	}
+	
+	
+	static class MeasureArgParser extends AbstractPropertyParser<MeasureProp,Measure>{
+		@Override
+		boolean isLiteralType(Type type) {
+			return  type.isIntegerType() || type.isRealType() || type.getName().equals("Measure");
+		}
+
+		@Override
+		IPropertyValue<Measure> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+			Measure val;
+			if(arg.getType().isIntegerType()){
+				val = new Measure(((IInteger) arg).intValue());
+			} else if(arg.getType().isRealType()) {
+				val = new Measure(((IReal) arg).floatValue());
+			} else { // measure
+				IConstructor cons = (IConstructor) arg;
+				float quantity;
+				if(cons.get(0).getType().isIntegerType()){
+					quantity = ((IInteger) cons.get(0)).intValue();
+				} else {
+					quantity = ((IReal) cons.get(0)).floatValue();
+				}
+				String id = ((IString)cons.get(1)).getValue();
+				val = new Measure(quantity,id);
+			}
+			return new ConstantProperties.ConstantMeasureProperty(val);
+		}
+
+		@Override
+		IPropertyValue<Measure> makeLikeProperty(MeasureProp prop, String id,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new LikeProperties.LikeMeasureProperty(prop, id, fpa, ctx);
+		}
+
+		@Override
+		IPropertyValue<Measure> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new ComputedProperties.ComputedMeasureProperty(arg, fpa);
 		}
 	}
 	
