@@ -66,12 +66,13 @@ public class ListPattern extends AbstractMatchingResult  {
 	private Type staticListSubjectType;
 
 	
-	public ListPattern(AbstractAST x, List<IMatchingResult> list){
-		this(x, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
+	public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list){
+		this(ctx, x, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	
-	ListPattern(AbstractAST x, List<IMatchingResult> list, int delta){
-		super(x);
+	ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, int delta){
+		super(ctx, x);
+		
 		if(delta < 1)
 			throw new ImplementationError("Wrong delta");
 		this.delta = delta;
@@ -107,8 +108,8 @@ public class ListPattern extends AbstractMatchingResult  {
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject){
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
 		
 		if(debug) {
 			System.err.println("List: initMatch: subject=" + subject);
@@ -395,7 +396,7 @@ public class ListPattern extends AbstractMatchingResult  {
 
 		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
 		// TODO : check if we can use a static type here!?
-		child.initMatch(ctx, ResultFactory.makeResult(sublist.getType(), sublist, ctx));
+		child.initMatch(ResultFactory.makeResult(sublist.getType(), sublist, ctx));
 	
 		if(child.next()){
 			subjectCursor = start + length;
@@ -556,7 +557,7 @@ public class ListPattern extends AbstractMatchingResult  {
 					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
 					IValue childValue = listSubject.get(subjectCursor);
 					// TODO: check if we can use a static type here?!
-					child.initMatch(ctx, ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+					child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 					if(child.next()){
 						subjectCursor += delta;
 						patternCursor += delta;

@@ -94,7 +94,7 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 
 		try {
 			gens[0] = generators.get(0).getBacktracker(eval);
-			gens[0].init(eval);
+			gens[0].init();
 			olds[0] = eval.getCurrentEnvt();
 			eval.pushEnv();
 
@@ -109,7 +109,7 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 					} else {
 						i++;
 						gens[i] = generators.get(i).getBacktracker(eval);
-						gens[i].init(eval);
+						gens[i].init();
 						olds[i] = eval.getCurrentEnvt();
 						eval.pushEnv();
 					}

@@ -64,8 +64,8 @@ public class SetPattern extends AbstractMatchingResult {
 	private Type staticSetSubjectType;
 	private Type staticSubjectElementType;
 	
-	public SetPattern(Expression x, List<IMatchingResult> list){
-		super(x);
+	public SetPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list){
+		super(ctx, x);
 		this.patternChildren = list;
 		this.patternSize = list.size();
 	}
@@ -136,9 +136,8 @@ public class SetPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
-		
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
 		
 		if (!subject.getValue().getType().isSetType()) {
 			hasNext = false;
@@ -363,7 +362,7 @@ public class SetPattern extends AbstractMatchingResult {
 		}
 		
 		// TODO: see if we can use a static ttype here?!
-		varPat[i].initMatch(ctx, ResultFactory.makeResult(elem.getType(), elem, ctx));
+		varPat[i].initMatch(ResultFactory.makeResult(elem.getType(), elem, ctx));
 		return varPat[i].next();
 	}
 	

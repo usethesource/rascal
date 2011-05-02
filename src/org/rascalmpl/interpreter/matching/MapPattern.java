@@ -15,14 +15,16 @@ package org.rascalmpl.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 
 /* package */ class MapPattern extends AbstractMatchingResult {
 	private java.util.List<IMatchingResult> children;
 	
-	MapPattern(Expression.Map x, java.util.List<IMatchingResult> children){
-		super(x);
+	MapPattern(IEvaluatorContext ctx, Expression.Map x, java.util.List<IMatchingResult> children){
+		super(ctx, x);
+		
 		this.children = children;
 	}
 	

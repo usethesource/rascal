@@ -24,14 +24,14 @@ import org.rascalmpl.interpreter.result.Result;
 public class NotPattern extends AbstractMatchingResult {
 	private final IMatchingResult arg;
 
-	public NotPattern(Expression x, IMatchingResult arg) {
-		super(x);
+	public NotPattern(IEvaluatorContext ctx, Expression x, IMatchingResult arg) {
+		super(ctx, x);
 		this.arg = arg;
 	}
 
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
-		arg.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject) {
+		arg.initMatch(subject);
 	}
 
 	@Override

@@ -26,8 +26,8 @@ import org.rascalmpl.interpreter.result.Result;
 public class ValuePattern extends AbstractMatchingResult {
 	private Result<?> val;
 
-	public ValuePattern(Expression x, Result<?> val) {
-		super(x);
+	public ValuePattern(IEvaluatorContext ctx, Expression x, Result<?> val) {
+		super(ctx, x);
 		this.val = val;
 	}
 
@@ -37,8 +37,8 @@ public class ValuePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
 		hasNext = ((IBool) subject.equals(val).getValue()).getValue();
 	}
 

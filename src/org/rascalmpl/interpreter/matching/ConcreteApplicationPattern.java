@@ -43,16 +43,14 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private final Type myType;
 	private boolean isLiteral;
 
-	public ConcreteApplicationPattern(
-			Expression x,
-			List<IMatchingResult> list) {
-		super(x);
+	public ConcreteApplicationPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
+		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
 		this.production = TreeAdapter.getProduction(getAST().getTree());
 		
 		// use a tuple pattern to match the children of this pattern
-		this.tupleMatcher = new TuplePattern(x, list);
+		this.tupleMatcher = new TuplePattern(ctx, x, list);
 		
 		// this prototype can be used for every subject that comes through initMatch
 		this.tupleSubject = ProductionAdapter.isLexical(production) ? new LexicalTreeAsTuple() : new TreeAsTuple();
@@ -168,10 +166,10 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	
 
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
+	public void initMatch(Result<IValue> subject) {
 		hasNext = false;
 		Type subjectType = subject.getValue().getType();
-		super.initMatch(ctx, subject);
+		super.initMatch(subject);
 
 		if(subjectType.isAbstractDataType()){
 			IConstructor treeSubject = (IConstructor)subject.getValue();
@@ -190,7 +188,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				}
 				
 				this.subjectArgs = TreeAdapter.getArgs(treeSubject);
-				tupleMatcher.initMatch(ctx, ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
+				tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			
 				hasNext = tupleMatcher.hasNext();
 				isLiteral = false;

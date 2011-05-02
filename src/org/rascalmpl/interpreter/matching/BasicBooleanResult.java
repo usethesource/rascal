@@ -24,13 +24,15 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 	private org.rascalmpl.ast.Expression expr;
 	private boolean firstTime = true;
 
-	public BasicBooleanResult(Expression expr) {
+	public BasicBooleanResult(IEvaluatorContext ctx, Expression expr) {
+		super(ctx);
+		
 		this.expr = expr;
 	}
 
 	@Override
-	public void init(IEvaluatorContext ctx) {
-		super.init(ctx);
+	public void init() {
+		super.init();
 		firstTime = true;
 	}
 	

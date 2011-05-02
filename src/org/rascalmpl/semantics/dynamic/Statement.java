@@ -254,7 +254,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					body.interpret(__eval);
 
 					gen = generator.getBacktracker(__eval);
-					gen.init(__eval);
+					gen.init();
 					if (__eval.__getInterrupt()) {
 						throw new InterruptException(__eval.getStackTrace());
 					}
@@ -369,7 +369,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
 				olds[0] = __eval.getCurrentEnvt();
-				gens[0].init(__eval);
+				gens[0].init();
 				__eval.pushEnv();
 
 				while (i >= 0 && i < size) {
@@ -388,7 +388,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							gens[i] = generators
 							.get(i).getBacktracker(__eval);
 							olds[i] = __eval.getCurrentEnvt();
-							gens[i].init(__eval);
+							gens[i].init();
 							__eval.pushEnv();
 						}
 					} else {
@@ -470,7 +470,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			int i = 0;
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
-				gens[0].init(__eval);
+				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
 
@@ -487,7 +487,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 						i++;
 						gens[i] = generators.get(i).getBacktracker(__eval);
-						gens[i].init(__eval);
+						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
 						__eval.pushEnv();
 					} else {
@@ -529,7 +529,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			int i = 0;
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
-				gens[0].init(__eval);
+				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
 
@@ -546,7 +546,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 						i++;
 						gens[i] = generators.get(i).getBacktracker(__eval);
-						gens[i].init(__eval);
+						gens[i].init();
 						olds[i] = __eval.getCurrentEnvt();
 						__eval.pushEnv();
 					} else {
@@ -1077,7 +1077,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				int i = 0;
 				try {
 					gens[0] = generators.get(0).getBacktracker(__eval);
-					gens[0].init(__eval);
+					gens[0].init();
 					olds[0] = __eval.getCurrentEnvt();
 
 					while (i >= 0 && i < size) {
@@ -1097,7 +1097,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 							i++;
 							gens[i] = generators
 							.get(i).getBacktracker(__eval);
-							gens[i].init(__eval);
+							gens[i].init();
 							olds[i] = __eval.getCurrentEnvt();
 						} else {
 							i--;

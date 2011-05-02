@@ -13,11 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
-
-
 public interface IBooleanResult {
-	public void init(IEvaluatorContext ctx);
+	public void init();
 	
 	/**
 	 * @returns true iff next will return true, but will not actually advance the iterator or have any side-effects

@@ -48,8 +48,9 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 //	private static HashMap<String,Matcher> matcherCache = 
 //		new HashMap<String,Matcher>();
 	
-	public RegExpPatternValue(AbstractAST x, String s, List<String> patternVars) {
-		super(x);
+	public RegExpPatternValue(IEvaluatorContext ctx, AbstractAST x, String s, List<String> patternVars) {
+		super(ctx, x);
+		
 		RegExpAsString = removeRascalSpecificEscapes(s);
 		this.patternVars = patternVars;
 		initialized = false;
@@ -83,8 +84,8 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	}
 
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
 		
 		if(!subject.getValue().getType().isSubtypeOf(tf.stringType())) {
 			hasNext = false;

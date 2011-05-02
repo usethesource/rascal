@@ -127,7 +127,7 @@ public class RascalFunction extends NamedFunction {
 					actuals = computeVarArgsActuals(actuals, getFormals());
 				}
 
-				assignFormals(actuals, ctx.getCurrentEnvt());
+				assignFormals(actuals);
 
 				if (callTracing) {
 					printStartTrace();
@@ -175,7 +175,7 @@ public class RascalFunction extends NamedFunction {
 		}
 	}
 	
-	private void assignFormals(IValue[] actuals, Environment env) {
+	private void assignFormals(IValue[] actuals) {
 		// we assume here the list of formals is just as long as the list of actuals
 		int size = actuals.length;
 		Environment[] olds = new Environment[size];
@@ -185,7 +185,7 @@ public class RascalFunction extends NamedFunction {
 			return;
 		}
 		
-		matchers[0].initMatch(ctx, makeResult(actuals[0].getType(), actuals[0], ctx));
+		matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
 		olds[0] = ctx.getCurrentEnvt();
 		ctx.pushEnv();
 
@@ -200,12 +200,12 @@ public class RascalFunction extends NamedFunction {
 				if (i == size - 1) {
 					// formals are now bound by side effect of the pattern matcher
 					return;
-				} else {
-					i++;
-					matchers[i].initMatch(ctx, makeResult(actuals[i].getType(), actuals[i], ctx));
-					olds[i] = ctx.getCurrentEnvt();
-					ctx.pushEnv();
 				}
+				
+				i++;
+				matchers[i].initMatch(makeResult(actuals[i].getType(), actuals[i], ctx));
+				olds[i] = ctx.getCurrentEnvt();
+				ctx.pushEnv();
 			} else {
 				ctx.unwind(olds[i]);
 				i--;

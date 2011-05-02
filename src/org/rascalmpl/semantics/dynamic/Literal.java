@@ -47,9 +47,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new LiteralPattern(this, this.interpret(
-					__eval.getEvaluator()).getValue());
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
 		@Override
@@ -96,9 +95,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new LiteralPattern(this, this.interpret(
-					__eval.getEvaluator()).getValue());
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
 		@Override
@@ -140,11 +138,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			return new LiteralPattern(this, this.interpret(
-					__eval.getEvaluator()).getValue());
-
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
 		@Override
@@ -202,11 +197,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-
-			return new LiteralPattern( this, this.interpret(
-					__eval.getEvaluator()).getValue());
-
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
 		@Override

@@ -91,20 +91,20 @@ public abstract class Tree {
 	
 	@Override
 	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-		return new BasicBooleanResult(this);
+		return new BasicBooleanResult(eval, this);
 	}
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(this,  node);
+			return new LiteralPattern(eval, this,  node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (int i = 0; i < args.size(); i+=2) { // skip layout elements for efficiency
 			kids.add(args.get(i).buildMatcher(eval));
 		}
-		return new ConcreteApplicationPattern(this,  kids);
+		return new ConcreteApplicationPattern(eval, this,  kids);
 	}
   }
   
@@ -116,14 +116,14 @@ public abstract class Tree {
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(this,  node);
+			return new LiteralPattern(eval, this,  node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (org.rascalmpl.ast.Expression arg : args) {
 			kids.add(arg.buildMatcher(eval));
 		}
-		return new ConcreteApplicationPattern(this,  kids);
+		return new ConcreteApplicationPattern(eval, this,  kids);
 	}
   }
   
@@ -139,7 +139,7 @@ public abstract class Tree {
 		if (args.size() == 1) {
 			kids.add(args.get(0).buildMatcher(eval));
 		}
-		return new ConcreteOptPattern(this,  kids);
+		return new ConcreteOptPattern(eval, this,  kids);
 	}
   }
   
@@ -151,14 +151,14 @@ public abstract class Tree {
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(this,  node);
+			return new LiteralPattern(eval, this,  node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 		for (org.rascalmpl.ast.Expression arg : args) {
 			kids.add(arg.buildMatcher(eval));
 		}
-		return new ConcreteListPattern(this,  kids);
+		return new ConcreteListPattern(eval, this,  kids);
 	}
   }
   
@@ -194,14 +194,14 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-		return new BasicBooleanResult(this);
+	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+		return new BasicBooleanResult(eval, this);
 	}
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		if (constant) {
-			return new LiteralPattern(this,  node);
+			return new LiteralPattern(eval, this,  node);
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
@@ -209,13 +209,12 @@ public abstract class Tree {
 			kids.add(arg.buildMatcher(eval));
 		}
 		
-		IMatchingResult setMatcher = new SetPattern(this,  kids);
+		IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
 		java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
 		wrap.add(setMatcher);
 		
 		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(this,  
-				new LiteralPattern(this,  ambCons.getValue()), null, wrap);
+		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, wrap);
 	} 
   }
   
@@ -232,7 +231,7 @@ public abstract class Tree {
 	  
 	  @Override
 	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		  return new LiteralPattern(this,  node);
+		  return new LiteralPattern(eval, this,  node);
 	  }
 	  
 	  @Override

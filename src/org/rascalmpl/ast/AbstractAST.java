@@ -169,10 +169,9 @@ public abstract class AbstractAST implements IVisitable {
 	}
 	
 	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
-		if (backtracker == null) { // one of the IBooleanResults does not refresh its state on init()
+		if (true || backtracker == null) { // one of the IBooleanResults does not refresh its state on init()
 			backtracker = buildBacktracker(ctx);
 		}
 		return backtracker;
 	}
-	
 }

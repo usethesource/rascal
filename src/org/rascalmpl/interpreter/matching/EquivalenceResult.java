@@ -27,16 +27,18 @@ public class EquivalenceResult extends AbstractBooleanResult {
 	private boolean firstMatch = true;
 	private boolean leftResult;
 
-	public EquivalenceResult(IBooleanResult left, IBooleanResult right) {
+	public EquivalenceResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+		super(ctx);
+		
 		this.left = left;
 		this.right = right;
 	}
 
 	@Override
-	public void init(IEvaluatorContext ctx) {
-		super.init(ctx);
-		left.init(ctx);
-		right.init(ctx);
+	public void init() {
+		super.init();
+		left.init();
+		right.init();
 		firstMatch = true;
 		leftResult = false;
 	}
@@ -94,7 +96,7 @@ public class EquivalenceResult extends AbstractBooleanResult {
 		}
 		
 		try {
-			right.init(ctx);
+			right.init();
 			return leftResult == right.next();
 		}
 		finally {
