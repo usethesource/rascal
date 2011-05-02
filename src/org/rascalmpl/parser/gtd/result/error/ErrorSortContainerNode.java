@@ -29,8 +29,6 @@ import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
-import sun.net.InetAddressCachePolicy;
-
 public class ErrorSortContainerNode extends AbstractContainerNode{
 	private IList unmatchedInput;
 	

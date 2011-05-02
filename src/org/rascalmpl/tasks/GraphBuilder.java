@@ -1,6 +1,5 @@
 package org.rascalmpl.tasks;
 
-import java.util.Collection;
 import java.util.IdentityHashMap;
 
 import org.eclipse.imp.pdb.facts.IRelation;
