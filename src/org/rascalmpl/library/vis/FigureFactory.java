@@ -27,13 +27,15 @@ import org.rascalmpl.library.vis.compose.HVCat;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
 import org.rascalmpl.library.vis.compose.Place;
-import org.rascalmpl.library.vis.compose.Shape;
 import org.rascalmpl.library.vis.compose.VCat;
-import org.rascalmpl.library.vis.compose.Vertex;
 import org.rascalmpl.library.vis.containers.Box;
-import org.rascalmpl.library.vis.containers.Chart;
+import org.rascalmpl.library.vis.containers.HAxis;
+import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.containers.Ellipse;
+import org.rascalmpl.library.vis.containers.Projection;
 import org.rascalmpl.library.vis.containers.Space;
+import org.rascalmpl.library.vis.containers.VAxis;
+import org.rascalmpl.library.vis.containers.VScreen;
 import org.rascalmpl.library.vis.containers.Wedge;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraph;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraphEdge;
@@ -74,17 +76,19 @@ public class FigureFactory {
 		COMPUTEFIGURE,
 		CONTROLON,
 		CONTROLOFF,
-		CHART,
 		EDGE, 
 		ELLIPSE, 
 		GRAPH, 
 		GRID,
+		HAXIS,
 		HCAT, 
+		HSCREEN,
 		HVCAT,
 		OUTLINE,
 		OVERLAY, 
 		PACK, 
 		PLACE,
+		PROJECTION,
 		ROTATE,
 		SCALE,
 		SHAPE,
@@ -94,8 +98,10 @@ public class FigureFactory {
 		TREE,
 		TREEMAP,
 		USE,
+		VAXIS,
 		VCAT,
 		VERTEX,
+		VSCREEN,
 		WEDGE,
 		XAXIS
 		}
@@ -105,19 +111,21 @@ public class FigureFactory {
     	put("_box",			Primitives.BOX);
     	put("_button", 		Primitives.BUTTON);
     	put("_checkbox",	Primitives.CHECKBOX);
-    	put("_chart",      Primitives.CHART);
     	put("_choice", 		Primitives.CHOICE);
     	put("_computeFigure",Primitives.COMPUTEFIGURE);
     	put("_edge",		Primitives.EDGE);
     	put("_ellipse",		Primitives.ELLIPSE);
     	put("_graph",		Primitives.GRAPH);
     	put("_grid",		Primitives.GRID);
+    	put("_haxis",       Primitives.HAXIS);      
     	put("_hcat",		Primitives.HCAT);
+    	put("_hscreen",      Primitives.HSCREEN);
     	put("_hvcat",		Primitives.HVCAT);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
     	put("_pack",		Primitives.PACK);	
     	put("_place",		Primitives.PLACE);
+    	put("_projection",	Primitives.PROJECTION);
     	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
     	put("_shape",		Primitives.SHAPE);
@@ -127,7 +135,9 @@ public class FigureFactory {
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
     	put("_use",			Primitives.USE);
+    	put("_vaxis",       Primitives.VAXIS);  
     	put("_vcat",		Primitives.VCAT);
+    	put("_vscreen",      Primitives.VSCREEN);
     	put("_vertex",		Primitives.VERTEX);
     	put("_wedge",		Primitives.WEDGE);
     	put("_xaxis",		Primitives.XAXIS);
@@ -157,9 +167,6 @@ public class FigureFactory {
 		case BUTTON:
 			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
 		
-		case CHART:
-			return new Chart(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
-			
 		case CHECKBOX:
 			return new Checkbox(fpa, properties, (IString) c.get(0), c.get(1), ctx);
 			
@@ -182,8 +189,14 @@ public class FigureFactory {
 		case GRID: 
 			return new Grid(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
 
+		case HAXIS:
+			return new HAxis(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
+			
 		case HCAT:
 			return new HCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			
+		case HSCREEN:
+			return new HScreen(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
 			
 		case HVCAT:
 			return new HVCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
@@ -199,7 +212,12 @@ public class FigureFactory {
 			
 		case PLACE:
 			return new Place(fpa, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
-			
+
+		case PROJECTION:
+			if(c.arity() == 4)
+				return new Projection(((IString) c.get(1)).getValue(),(IConstructor) c.get(2), fpa, properties, (IConstructor) c.get(0), childPropsNext, ctx);
+			else 
+				return new Projection("",(IConstructor) c.get(1), fpa, properties, (IConstructor) c.get(0), childPropsNext, ctx);
 		case ROTATE:
 			//TODO
 			return new Rotate(fpa, properties, c.get(0), (IConstructor) c.get(1), ctx);
@@ -237,8 +255,14 @@ public class FigureFactory {
 		case USE:			
 			return new Use(fpa, properties, (IConstructor) c.get(0), ctx);
 			
+		case VAXIS:
+			return new VAxis(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
+			
 		case VCAT:
 			return new VCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+		
+		case VSCREEN:
+			return new VScreen( c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
 			
 		case VERTEX:			
 			return new Vertex(fpa, properties, c.get(0), c.get(1), c.arity() == 4 ? (IConstructor) c.get(2) : null, ctx);
