@@ -13,19 +13,21 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.library.vis.containers.Chart;
+import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
+import org.rascalmpl.library.vis.properties.Measure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -50,6 +52,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	private final boolean debug = false;
 	public IFigureApplet fpa;
 	protected static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	protected HashMap<String, Float> axisScales;
 
 	public PropertyManager properties;
 
@@ -100,11 +103,11 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return getTop() + height/2;
 	}
 
-	public float max(float a, float b) {
+	public static float max(float a, float b) {
 		return a > b ? a : b;
 	}
 
-	public float min(float a, float b) {
+	public static float min(float a, float b) {
 		return a < b ? a : b;
 	}
 
@@ -122,7 +125,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public void applyFontProperties() {
 		fpa.textFont(fpa.createFont(getStringProperty(StrProp.FONT),
 				getIntegerProperty(IntProp.FONT_SIZE)));
-		fpa.textColor(getColorProperty(ColorProp.FONT_COLOR));
+		fpa.fill(getColorProperty(ColorProp.FONT_COLOR));
 	}
 	/*
 	public float leftAlign() {
@@ -176,17 +179,39 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		// return fpa.isVisible(properties.getDOI() + 1);
 	}
 	
-	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
-		if(properties.isFigurePropertySet(FigureProp.PROJECTX)){
-			projections.add(new Chart.Projection(left + properties.getRealProperty(RealProp.PROJECT_HALIGN) * width,
-					 properties.getRealProperty(RealProp.PROJECTX_GAP),
-					 properties.getFigureProperty(FigureProp.PROJECTX),true));
-		} 
-		if(properties.isFigurePropertySet(FigureProp.PROJECTY)){
-			projections.add(new Chart.Projection(top +  properties.getRealProperty(RealProp.PROJECT_VALIGN) * height,
-					properties.getRealProperty(RealProp.PROJECTY_GAP),
-					properties.getFigureProperty(FigureProp.PROJECTY),false));
+	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+		
+	}
+
+	
+	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
+			float val = getMeasureProperty(MeasureProp.WIDTH).value;
+			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
+		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
+			float val = getMeasureProperty(MeasureProp.HEIGHT).value;
+			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
+		} else {
+			return new Extremes();
 		}
+	}
+	
+	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
+		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
+			return offset;
+		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
+			return offset;
+		} else {
+			return Float.MAX_VALUE;
+		}
+	}
+	
+	public Extremes getHorizontalBorders(){
+		return new Extremes(0,width);
+	}
+	
+	public Extremes getVerticalBorders(){
+		return new Extremes(0,height);
 	}
 
 
@@ -532,9 +557,10 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return false;
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY){
+	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
+		this.axisScales = axisScales;
 	}
 	
 
@@ -592,6 +618,13 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return properties.getColorProperty(property);
 	}
 	
+	public boolean isMeasurePropertySet(MeasureProp property){
+		return properties.isMeasurePropertySet(property);
+	}
+	public Measure getMeasureProperty(MeasureProp property) {
+		return properties.getMeasureProperty(property);
+	}
+	
 	public boolean isDraggable(){
 		return properties.isDraggable();
 	}
@@ -603,6 +636,24 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return getMouseOver() != null;
 	}
 	
+	float getScaled(Measure m, boolean horizontal){
+		float scale;
+		if(horizontal){
+			scale = scaleX;
+		} else {
+			scale = scaleY;
+		}
+		if(axisScales != null && axisScales.containsKey(m.axisName) && !m.axisName.equals("")){
+			scale*= axisScales.get(m.axisName);
+		}
+		return m.value * scale;
+	}
+	
+	float getScaled(MeasureProp prop, boolean horizontal){
+		Measure m = getMeasureProperty(prop);
+		return getScaled(m,horizontal);
+	}
+	
 	// short-hand functions for selected properties(boilerplate)
 	public boolean getClosedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CLOSED);}
 	public boolean getCurvedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CURVED);}
@@ -610,20 +661,18 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public String getIdProperty(){return getStringProperty(StrProp.ID);}
 	public String getDirectionProperty(){return getStringProperty(StrProp.DIRECTION);}
 	public String getLayerProperty(){return getStringProperty(StrProp.LAYER);}
-	public boolean isWidthPropertySet(){return isRealPropertySet(RealProp.WIDTH);}
-	public boolean isHeightPropertySet(){return isRealPropertySet(RealProp.HEIGHT);}
-	public boolean isHGapPropertySet(){return isRealPropertySet(RealProp.HGAP);}
+	public boolean isWidthPropertySet(){return isMeasurePropertySet(MeasureProp.WIDTH);}
+	public boolean isHeightPropertySet(){return isMeasurePropertySet(MeasureProp.HEIGHT);}
+	public boolean isHGapPropertySet(){return isMeasurePropertySet(MeasureProp.HGAP);}
 	
-	public boolean isVGapPropertySet(){return isRealPropertySet(RealProp.VGAP);}
+	public boolean isVGapPropertySet(){return isMeasurePropertySet(MeasureProp.VGAP);}
 	// below are convience functions for measures, which are scaled (text and linewidth are not scaled)
-	public float getWidthProperty(){ return getRealProperty(RealProp.WIDTH) * scaleX;}
-	public float getHeightProperty(){return getRealProperty(RealProp.HEIGHT) * scaleY;}
-	public float getHGapProperty(){return getRealProperty(RealProp.HGAP) * scaleX;}
-	public float getVGapProperty(){return getRealProperty(RealProp.VGAP) * scaleY;}
+	public float getWidthProperty(){ return getScaled(MeasureProp.WIDTH,true);}
+	public float getHeightProperty(){return  getScaled(MeasureProp.HEIGHT,false);}
+	public float getHGapProperty(){return getScaled(MeasureProp.HGAP,true);}
+	public float getVGapProperty(){return getScaled(MeasureProp.VGAP,false);}
 	// TODO: how to scale wedges!
-	public float getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS) * max(scaleX,scaleY);}
-	public float getProjectXGapProperty(){return getRealProperty(RealProp.PROJECTX_GAP) * scaleX;}
-	public float getProjectYGapProperty(){return getRealProperty(RealProp.PROJECTY_GAP) * scaleY;}
+	public float getInnerRadiusProperty(){return getMeasureProperty(MeasureProp.INNERRADIUS).value * max(scaleX,scaleY);}
 	
 	public boolean isHGapFactorPropertySet(){return isRealPropertySet(RealProp.HGAP_FACTOR);}
 	public float getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
@@ -639,8 +688,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public int getFontColorProperty(){return getColorProperty(ColorProp.FONT_COLOR);}
 	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}
 	public boolean getEndGapProperty(){ return getBooleanProperty(BoolProp.END_GAP);}
-	public boolean widthExplicitlySet(){return isRealPropertySet(RealProp.WIDTH);}
-	public boolean heightExplicitlySet(){return isRealPropertySet(RealProp.HEIGHT);}
-	
-	
+	public boolean widthExplicitlySet(){return isMeasurePropertySet(MeasureProp.WIDTH);}
+	public boolean heightExplicitlySet(){return isMeasurePropertySet(MeasureProp.HEIGHT);}
 }

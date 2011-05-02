@@ -23,6 +23,7 @@ import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
@@ -98,6 +99,19 @@ public class PropertySetters {
 	public static class SingleIntOrRealPropertySetter extends SinglePropertySetter<RealProp,Float>{
 		public SingleIntOrRealPropertySetter(RealProp property) {
 			super(property, new PropertyParsers.IntOrRealArgParser());
+		}
+	}
+	
+	public static class SingleMeasurePropertySetter extends SinglePropertySetter<MeasureProp,Measure>{
+		public SingleMeasurePropertySetter(MeasureProp property) {
+			super(property, new PropertyParsers.MeasureArgParser());
+		}
+	}
+	
+
+	public static class DualOrRepeatMeasurePropertySetter extends DualOrRepeatSinglePropertySetter<MeasureProp,Measure>{
+		public DualOrRepeatMeasurePropertySetter(MeasureProp property1,MeasureProp property2) {
+			super(property1,property2, new PropertyParsers.MeasureArgParser());
 		}
 	}
 	

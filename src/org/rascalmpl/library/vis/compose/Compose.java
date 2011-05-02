@@ -12,16 +12,18 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.containers.Chart;
+import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -135,17 +137,51 @@ public abstract class Compose extends Figure {
 		}
 	}
 	
-	public void gatherProjections(float left, float top, Vector<Chart.Projection> projections){
-		super.gatherProjections(left,top,projections);
-		for(int i = 0 ; i < figures.length ; i++){
-			figures[i].gatherProjections(left + xPos[i], top + yPos[i], projections);
+	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+		super.propagateScaling(scaleX, scaleY, axisScales);
+		for(Figure fig : figures){
+			fig.propagateScaling(scaleX, scaleY, axisScales);
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY){
-		super.propagateScaling(scaleX, scaleY);
-		for(Figure fig : figures){
-			fig.propagateScaling(scaleX, scaleY);
+	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+		for(int i = 0 ; i < figures.length ; i++){
+			figures[i].gatherProjections(left + xPos[i], top + yPos[i], projections, first, screenId, horizontal);
 		}
 	}
+	
+
+	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
+		if(result.gotData()){
+			return result;
+		} else {
+			Extremes[] extremesList = new Extremes[figures.length];
+			for(int i = 0 ; i < figures.length ; i++){
+				extremesList[i] = figures[i].getExtremesForAxis(axisId, offset, horizontal);
+			}
+			return Extremes.merge(extremesList);
+		}
+	}
+	
+
+	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
+		float result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Float.MAX_VALUE){
+			return result;
+		} else {
+			for(int i = 0 ; i < figures.length ; i++){
+				float off = 0.0f;
+				if(horizontal){
+					off = xPos[i];
+				} else {
+					off = yPos[i];
+				}
+				//System.out.printf("offset %f off %f %s\n",offset, off,this);
+				result = min(result,figures[i].getOffsetForAxis(axisId, off+offset, horizontal));
+			}
+			return result;
+		}
+	}
+	
 }

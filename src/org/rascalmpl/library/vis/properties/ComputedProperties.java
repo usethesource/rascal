@@ -126,6 +126,19 @@ public class ComputedProperties {
 		}
 	}
 	
+	static class ComputedMeasureProperty extends ComputedProperty<Measure>{
+
+		public ComputedMeasureProperty(IValue fun, IFigureApplet fpa) {
+			super(fun, fpa);
+		}
+
+		@Override
+		Measure convertValue(Result<IValue> res) {
+			return ((Measure) res.getValue());
+		}
+
+	}
+	
 	static class ComputedFigureProperty extends ComputedProperty<Figure>{
 		PropertyManager parentPm;
 		IFigureApplet fpa;

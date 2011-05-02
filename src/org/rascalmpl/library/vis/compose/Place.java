@@ -12,6 +12,8 @@
 package org.rascalmpl.library.vis.compose;
 
 
+import java.util.Vector;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -19,6 +21,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.containers.HScreen.ProjectionPlacement;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /*
@@ -99,5 +102,13 @@ public class Place extends Figure {
 	public void destroy(){
 		bottomFigure.destroy();
         topFigure.destroy();
+	}
+
+	@Override
+	public void gatherProjections(float left, float top,
+			Vector<ProjectionPlacement> projections, boolean first,
+			String screenId, boolean horizontal) {
+		// TODO: Implement this...
+		
 	}
 }
