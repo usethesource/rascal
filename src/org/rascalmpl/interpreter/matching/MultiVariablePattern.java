@@ -13,11 +13,12 @@
 package org.rascalmpl.interpreter.matching;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class MultiVariablePattern extends QualifiedNamePattern {
 
-	public MultiVariablePattern(Expression.MultiVariable x, org.rascalmpl.ast.QualifiedName name) {
-		super(x, name);
+	public MultiVariablePattern(IEvaluatorContext ctx, Expression.MultiVariable x, org.rascalmpl.ast.QualifiedName name) {
+		super(ctx, x, name);
 	}
 	
 	@Override

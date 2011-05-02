@@ -31,8 +31,8 @@ public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
 	private IMatchingResult pat;
 	
-	public GuardedPattern(Expression.Guarded x, Type type, IMatchingResult pat){
-		super(x);
+	public GuardedPattern(IEvaluatorContext ctx, Expression.Guarded x, Type type, IMatchingResult pat){
+		super(ctx, x);
 		this.type = type;
 		this.pat = pat;
 	}
@@ -52,15 +52,15 @@ public class GuardedPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject){
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
 		
 		Environment env = ctx.getCurrentEnvt();
 		
 		if (type instanceof NonTerminalType && pat.getType(env).isSubtypeOf(tf.stringType()) && subject.getValue().getType().isSubtypeOf(Factory.Tree)) {
 			if (subject.getValue().getType().isSubtypeOf(type)) {
 				subject = ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(TreeAdapter.yield((IConstructor) subject.getValue())), ctx);
-				pat.initMatch(ctx, subject);
+				pat.initMatch(subject);
 				this.hasNext = pat.hasNext();
 			}
 			else {
@@ -68,7 +68,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 			}
 		}
 		else {
-			pat.initMatch(ctx, subject);
+			pat.initMatch(subject);
 			// this code triggers during a visit which might encounter other stuff that would never match
 //			if (!mayMatch(pat.getType(env), type)) {
 //				throw new UnexpectedTypeError(pat.getType(env), type, ctx.getCurrentAST());

@@ -33,14 +33,15 @@ public class TuplePattern extends AbstractMatchingResult {
 	private int nextChild;
 	private Type type;
 	
-	public TuplePattern(Expression x, List<IMatchingResult> list){
-		super(x);
+	public TuplePattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list){
+		super(ctx, x);
+		
 		this.children = list;
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject){
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
 		hasNext = false;
 		
 		if (!subject.getValue().getType().isTupleType()) {
@@ -57,7 +58,7 @@ public class TuplePattern extends AbstractMatchingResult {
 		for (int i = 0; i < children.size(); i += 1){
 			IValue childValue = treeSubject.get(i);
 			IMatchingResult child = children.get(i);
-			child.initMatch(ctx, ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 			hasNext = child.hasNext();
 			if (!hasNext) {
 				break; // saves time!
@@ -125,7 +126,7 @@ public class TuplePattern extends AbstractMatchingResult {
 					for (int i = nextChild + 1; i < children.size(); i++) {
 						IValue childValue = treeSubject.get(i);
 						IMatchingResult tailChild = children.get(i);
-						tailChild.initMatch(ctx, ResultFactory.makeResult(childValue.getType(), childValue, ctx));
+						tailChild.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 					}
 				}
 			}

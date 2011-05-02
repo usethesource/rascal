@@ -31,8 +31,8 @@ public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;
 	private boolean isPattern = false;
 	
-	public LiteralPattern(AbstractAST x, IValue literal){
-		super(x);
+	public LiteralPattern(IEvaluatorContext ctx, AbstractAST x, IValue literal){
+		super(ctx, x);
 		this.literal = literal;
 	}
 	
@@ -47,8 +47,8 @@ public class LiteralPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
 		isPattern = true;
 	}
 	

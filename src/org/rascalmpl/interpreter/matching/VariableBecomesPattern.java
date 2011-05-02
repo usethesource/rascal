@@ -26,19 +26,19 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
 	private IMatchingResult var;
 
-	public VariableBecomesPattern(Expression x,
-			IMatchingResult var, IMatchingResult pat){
-		super(x);
+	public VariableBecomesPattern(IEvaluatorContext ctx, Expression x, IMatchingResult var, IMatchingResult pat){
+		super(ctx, x);
+		
 		this.pat = pat;
 		this.var = var;
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject){
-		super.initMatch(ctx, subject);
-		var.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
+		var.initMatch(subject);
 		if (var.hasNext()) { 
-			pat.initMatch(ctx, subject);
+			pat.initMatch(subject);
 			hasNext = pat.hasNext();
 		}
 		else {

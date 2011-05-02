@@ -30,8 +30,9 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
 	private Iterator<?> iterator;
 
-	public DescendantPattern(Expression.Descendant x, IMatchingResult pat) {
-		super(x);
+	public DescendantPattern(IEvaluatorContext ctx, Expression.Descendant x, IMatchingResult pat) {
+		super(ctx, x);
+		
 		this.pat = pat;
 	}
 
@@ -52,8 +53,8 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	}
 	
 	@Override
-	public void initMatch(IEvaluatorContext ctx, Result<IValue> subject) {
-		super.initMatch(ctx, subject);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
 		iterator = IteratorFactory.make(ctx, pat, subject, false);
 		hasNext = true;
 	}
@@ -90,7 +91,7 @@ public class DescendantPattern extends AbstractMatchingResult  {
 			IValue v = (IValue) iterator.next();
 			
 			// TODO: extract the proper static element type that will be generated
-			pat.initMatch(ctx, ResultFactory.makeResult(v.getType(), v, ctx));
+			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
 			while(pat.hasNext()){
 				if(pat.next()){
 					return true;						

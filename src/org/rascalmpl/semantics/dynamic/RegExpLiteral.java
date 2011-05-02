@@ -70,7 +70,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 
 			String subjectPat = this.getString();
 
@@ -151,7 +151,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 					}
 					patternVars.add(varName);
 					resultRegExp.append("(").append(
-							interpolate(m.group(2), __eval)).append(")");
+							interpolate(m.group(2), eval)).append(")");
 				} else { /* case (2): <X> */
 					int varIndex = patternVars.indexOf(varName);
 					if (varIndex >= 0) {
@@ -159,7 +159,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 						resultRegExp.append("(?:\\").append(1 + varIndex)
 								.append(")");
 					} else {
-						resultRegExp.append(getValueAsString(varName,__eval)); // TODO:
+						resultRegExp.append(getValueAsString(varName, eval)); // TODO:
 						// escape
 						// special
 						// chars?
@@ -168,8 +168,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 				start = m.end(0);
 			}
 			resultRegExp.append(subjectPat.substring(start, end));
-			return new RegExpPatternValue(this, resultRegExp
-					.toString(), patternVars);
+			return new RegExpPatternValue(eval, this, resultRegExp.toString(), patternVars);
 
 		}
 	}
