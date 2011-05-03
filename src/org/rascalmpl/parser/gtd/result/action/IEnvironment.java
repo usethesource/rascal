@@ -6,4 +6,6 @@ public interface IEnvironment{
 	boolean isRoot();
 	
 	boolean isEqual(IEnvironment environment);
+	
+	IEnvironment split();
 }
