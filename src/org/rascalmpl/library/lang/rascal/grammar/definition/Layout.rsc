@@ -17,9 +17,9 @@ import ParseTree;
 
 
 public GrammarModule \layouts(Grammardefinition def) {
-  r = extends(def) + imports(def);
+  deps = extends(def) + imports(def);
   for (name <- def) 
-    def.modules[name].grammar = layouts(def.modules[name].grammar, activeLayout(name, mod, def, r));
+    def.modules[name].grammar = layouts(def.modules[name].grammar, activeLayout(name, deps[name], def));
   return def;
 }
 
@@ -30,10 +30,10 @@ public GrammarModule \layouts(Grammardefinition def) {
      the static checker should check whether multiple visible layout definitions are active, because this function
      will just produce an arbitrary one if there are multiple definitions
 }
-public Symbol activeLayout(str name, GrammarModule mod, GrammarDefinition def, rel[str, str] reachable) {
-  if (/prod(_,l:layouts(_),_) := mod) 
+public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
+  if (/prod(_,l:layouts(_),_) := def.modules[name]) 
     return l;
-  else if (i <- reachable[name], /prod(_,l:layouts(_),_) := def.modules[i]) 
+  else if (i <- deps, /prod(_,l:layouts(_),_) := def.modules[i]) 
     return l;
   else 
     return layouts(empty()); 
@@ -47,7 +47,7 @@ public set[Production] \layouts(Grammar g, Symbol l) {
     case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs, l),rhs,\no-attrs()) 
       when start(_) !:= rhs
   }
-}
+} 
 
 private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
   if (syms == []) 
