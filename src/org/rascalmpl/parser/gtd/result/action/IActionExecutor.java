@@ -14,6 +14,8 @@ package org.rascalmpl.parser.gtd.result.action;
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 public interface IActionExecutor{
+	IEnvironment createEnvironment(IEnvironment parent);
+	
 	IConstructor filterProduction(IConstructor tree);
 	
 	IConstructor filterAmbiguity(IConstructor ambCluster);
