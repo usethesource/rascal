@@ -45,6 +45,7 @@ public GrammarModule module2grammar(Module mod) {
 } 
 
 public tuple[str, set[str]] getModuleMetaInf(mod) {
+  // TODO: implement module type parameters
   if ((Module) `module <QualifiedName name> <ModuleParameters _> <Import* is> <Body _>` := mod) {
     return <"<name>", { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
                     , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 

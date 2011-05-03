@@ -80,18 +80,18 @@ public str prod2rascal(Production p) {
 		}
     case first(s, alts) :
         return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
-               '\> <prod2rascal(pr)><}>";
-    case \assoc(s, a, alts) : {
+               '\> <prod2rascal(pr)><}>"; 
+    case \assoc(s, a, alts) : {  
     		<fst, rest> = takeOneFrom(alts);
     		return "<attr2mod(\assoc(a))> 
     		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
     		       '  | <prod2rascal(pr)><}>
     		       '  )";
  		}
-    case diff(s,q,alts) : {
+    case diff(s,q,alts) : {         
       <fst, rest> = takeOneFrom(alts);
       return "<prod2rascal(q)><for (pr <- alts) {>
-             '- <prod2rascal(pr)><}>";
+             '- <prod2rascal(pr)><}>";  
     }
  
     case restrict(rhs, language, restrictions):
@@ -229,6 +229,16 @@ public str symbol2rascal(Symbol sym) {
         return "^";
     case \end-of-line():
         return "$";
+    case reject(s, rs) :
+        return "<symbol2rascal(s)> <for (r <- rs) {>\\ <symbol2rascal(r)><}>"; // should be != ??
+    case follow(s, fs) :
+        return "<symbol2rascal(s)> <for (f <- fs) {>\>\> <symbol2rascal(f)><}>";
+    case \not-follow(s, fs) :
+        return "<symbol2rascal(s)> <for (f <- fs) {>!\>\> <symbol2rascal(f)><}>";
+    case precede(s, ps) :
+        return "<for (f <- fs) {><symbol2rascal(f)> \<\< <}><symbol2rascal(s)> ";
+    case \not-precede(s, ps) :
+        return "<for (f <- fs) {><symbol2rascal(f)> !\<\< <}><symbol2rascal(s)> ";            
   }
   throw "symbol2rascal: missing case <sym>";
 }
