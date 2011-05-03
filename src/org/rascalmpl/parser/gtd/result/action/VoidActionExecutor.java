@@ -14,7 +14,7 @@ package org.rascalmpl.parser.gtd.result.action;
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 public class VoidActionExecutor implements IActionExecutor{
-	private final static VoidEnvironment ROOT_VOID_ENVIRONMENT = new VoidEnvironment(null);
+	private final static VoidEnvironment ROOT_VOID_ENVIRONMENT = new VoidEnvironment();
 	
 	public VoidActionExecutor(){
 		super();
