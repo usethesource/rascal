@@ -20,4 +20,8 @@ public class VoidEnvironment implements IEnvironment{
 	public boolean isRoot(){
 		return false;
 	}
+	
+	public IEnvironment split(){
+		return this; // Don't split.
+	}
 }
