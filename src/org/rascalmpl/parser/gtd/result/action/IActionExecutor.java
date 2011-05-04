@@ -14,7 +14,7 @@ package org.rascalmpl.parser.gtd.result.action;
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 public interface IActionExecutor{
-	IEnvironment createEnvironment(IEnvironment parent);
+	IEnvironment createEnvironment(IEnvironment parent, IConstructor production);
 	
 	IEnvironment split(IEnvironment environment, IConstructor production);
 	
