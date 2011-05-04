@@ -16,13 +16,13 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 public interface IActionExecutor{
 	IEnvironment createEnvironment(IEnvironment parent);
 	
+	void enteredProduction(IConstructor production);
+	
+	void exitedProduction(IConstructor production, boolean filtered);
+	
 	IConstructor filterProduction(IConstructor tree);
 	
 	IConstructor filterAmbiguity(IConstructor ambCluster);
 	
 	IConstructor filterCycle(IConstructor cycle);
-	
-	void enteredProduction(IConstructor production);
-	
-	void exitedProduction(IConstructor production, boolean filtered);
 }

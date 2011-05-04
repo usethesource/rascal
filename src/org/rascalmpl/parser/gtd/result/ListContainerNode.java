@@ -14,7 +14,6 @@ package org.rascalmpl.parser.gtd.result;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -30,7 +29,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ListContainerNode extends AbstractContainerNode{
-	protected IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
+	protected IConstructor cachedResult;
 	
 	public ListContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -143,14 +142,8 @@ public class ListContainerNode extends AbstractContainerNode{
 		}
 		
 		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
-		elements = actionExecutor.filterProduction(elements);
-		if(elements == null){
-			return null;
-		}
 		
 		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
-		constructedCycle = actionExecutor.filterAmbiguity(constructedCycle);
-		if(constructedCycle == null) return null;
 		
 		return new IConstructor[]{constructedCycle};
 	}
@@ -294,54 +287,25 @@ public class ListContainerNode extends AbstractContainerNode{
 			gatheredAlternatives.add(newPostFix, production);
 		}else{
 			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
-			IConstructor lastAlternativeSubList = null;
 			
 			for(int i = nrOfGatheredPrefixes - 1; i >= 0; --i){
 				IConstructor alternativeSubList = VF.constructor(Factory.Tree_Appl, production, VF.list(gatheredPrefixes.getFirst(i)));
-				alternativeSubList = actionExecutor.filterProduction(alternativeSubList);
-				if(alternativeSubList != null){
-					lastAlternativeSubList = alternativeSubList;
-					ambSublist.insert(alternativeSubList);
-				}
+				ambSublist.insert(alternativeSubList);
 			}
 			
-			int nrOfAmbSubLists = ambSublist.size();
-			if(nrOfAmbSubLists == 1){ // Filtered and no longer ambiguous; flatten it.
-				IList childrenList = (IList) lastAlternativeSubList.get(1);
-				int nrOfChildren = childrenList.length();
-				IConstructor[] children = new IConstructor[nrOfChildren];
-				for(int i = nrOfChildren - 1; i >= 0; --i){
-					children[i] = (IConstructor) childrenList.get(i);
-				}
-				
-				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-				if(constructedPrefix == null) return;
-				
-				int length = constructedPrefix.length;
-				IConstructor[] newPostFix = new IConstructor[nrOfChildren + length];
-				System.arraycopy(children, 0, newPostFix, 0, nrOfChildren);
-				System.arraycopy(constructedPrefix, 0, newPostFix, nrOfChildren, length);
-				gatheredAlternatives.add(newPostFix, production);
-				
-				sharedPrefixCache.put(prefixes, children);
-			}else if(nrOfAmbSubLists > 1){ // Ambiguous after filtering.
-				IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
-				prefixResult = actionExecutor.filterAmbiguity(prefixResult);
-				if(prefixResult == null) return;
-				
-				IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
-				if(constructedPrefix == null) return;
-				
-				int length = constructedPrefix.length;
-				IConstructor[] newPostFix = new IConstructor[length + 1];
-				System.arraycopy(constructedPrefix, 0, newPostFix, 1, length);
-				newPostFix[0] = prefixResult;
-				
-				gatheredAlternatives.add(newPostFix, production);
-				
-				sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
-			}
-			// Filtering caused it to be discarded.
+			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
+			
+			IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor);
+			if(constructedPrefix == null) return;
+			
+			int length = constructedPrefix.length;
+			IConstructor[] newPostFix = new IConstructor[length + 1];
+			System.arraycopy(constructedPrefix, 0, newPostFix, 1, length);
+			newPostFix[0] = prefixResult;
+			
+			gatheredAlternatives.add(newPostFix, production);
+			
+			sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
 		}
 	}
 	
@@ -449,43 +413,21 @@ public class ListContainerNode extends AbstractContainerNode{
 			IConstructor production = gatheredAlternatives.getSecond(0);
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
-			result = actionExecutor.filterProduction(result);
-			if(result != null){
-				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-			}else{
-				filteringTracker.setLastFilered(offset, endOffset);
-			}
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}else if(nrOfAlternatives > 0){ // Ambiguous.
 			ISetWriter ambSetWriter = VF.setWriter(Factory.Tree);
-			IConstructor lastAlternative = null;
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; --i){
 				IConstructor production = gatheredAlternatives.getSecond(i);
 				IValue[] alternative = gatheredAlternatives.getFirst(i);
 				
 				IConstructor alt = buildAlternative(production, alternative);
-				alt = actionExecutor.filterProduction(alt);
-				if(alt != null){
-					if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
-					lastAlternative = alt;
-					ambSetWriter.insert(alt);
-				}
+				if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
+				ambSetWriter.insert(alt);
 			}
 			
-			if(ambSetWriter.size() == 1){
-				result = lastAlternative;
-			}else if(ambSetWriter.size() == 0){
-				filteringTracker.setLastFilered(offset, endOffset);
-			}else{
-				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-				result = actionExecutor.filterAmbiguity(result);
-				if(result == null){
-					cachedResult = FILTERED_RESULT;
-					return null;
-				}
-				
-				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-			}
+			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.

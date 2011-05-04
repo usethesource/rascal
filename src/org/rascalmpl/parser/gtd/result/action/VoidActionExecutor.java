@@ -14,14 +14,13 @@ package org.rascalmpl.parser.gtd.result.action;
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 public class VoidActionExecutor implements IActionExecutor{
-	private final static VoidEnvironment ROOT_VOID_ENVIRONMENT = new VoidEnvironment();
 	
 	public VoidActionExecutor(){
 		super();
 	}
 	
 	public IEnvironment createEnvironment(IEnvironment parent){
-		return ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
 	public IConstructor filterProduction(IConstructor tree){
