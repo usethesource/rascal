@@ -23,6 +23,10 @@ public class VoidActionExecutor implements IActionExecutor{
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
+	public IEnvironment split(IEnvironment environment, IConstructor production){
+		return environment;
+	}
+	
 	public IConstructor filterProduction(IConstructor tree){
 		return tree;
 	}

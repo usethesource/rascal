@@ -16,6 +16,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 public interface IActionExecutor{
 	IEnvironment createEnvironment(IEnvironment parent);
 	
+	IEnvironment split(IEnvironment environment, IConstructor production);
+	
 	void enteredProduction(IConstructor production);
 	
 	void exitedProduction(IConstructor production, boolean filtered);

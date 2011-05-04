@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
+import org.rascalmpl.parser.gtd.result.action.VoidEnvironment;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -54,7 +55,13 @@ public class RascalActionExecutor implements IActionExecutor{
 	public IEnvironment createEnvironment(IEnvironment parent){
 		// TODO Implement.
 		
-		return null; // Temp.
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
+	}
+	
+	public IEnvironment split(IEnvironment environment, IConstructor production){
+		// TODO Implement.
+		
+		return environment; // Temp.
 	}
 	
 	public IConstructor filterProduction(IConstructor forest){
@@ -93,7 +100,6 @@ public class RascalActionExecutor implements IActionExecutor{
 	private IConstructor call(IConstructor tree, LanguageAction action) {
 		Environment old = eval.getCurrentEnvt();
 		AbstractAST oldAST = eval.getCurrentAST();
-		
 		
 		try{
 			// TODO: remove this hack and rather store the module names with the actions in the grammar representation

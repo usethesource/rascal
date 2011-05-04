@@ -10,8 +10,4 @@ public class VoidEnvironment implements IEnvironment{
 	public boolean isEqual(IEnvironment environment){
 		return false;
 	}
-	
-	public IEnvironment split(){
-		return this; // Don't split.
-	}
 }
