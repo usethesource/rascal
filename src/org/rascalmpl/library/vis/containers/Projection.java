@@ -34,7 +34,7 @@ public class Projection extends Figure {
 				projections.add(new HScreen.ProjectionPlacement(left, top + getVAlignProperty() * innerFig.height, getHGapProperty(), projection));
 			}
 		} 
-		System.out.printf("Got %s looking for %s", screenId, projectOn);
+		//System.out.printf("Got %s looking for %s", screenId, projectOn);
 		innerFig.gatherProjections(left , top , projections, false, screenId, horizontal);
 	}
 

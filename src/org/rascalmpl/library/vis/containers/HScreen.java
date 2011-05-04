@@ -68,7 +68,7 @@ public class HScreen extends Figure {
 		}
 		innerFigX = shiftX;
 		innerFigY = shiftY;
-		System.out.printf("hscreen w %f h %f shiftX %f shiftY %f\n",innerFigX,innerFigY,shiftX,shiftY);
+		//System.out.printf("hscreen w %f h %f shiftX %f shiftY %f\n",innerFigX,innerFigY,shiftX,shiftY);
 	}
 
 	void setBorders(float shiftX,float shiftY, float oldWidth, float oldHeight) {
@@ -112,7 +112,7 @@ public class HScreen extends Figure {
 	}
 
 	void drawScreen(float left, float top) {
-		System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
+		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
 		if(properties.getBooleanProperty(BoolProp.DRAW_SCREEN_X)){
 			fpa.line(left + innerFigX + innerFig.getHorizontalBorders().getMinimum(),
 					top + innerFigY + getVAlignProperty() * innerFig.height,

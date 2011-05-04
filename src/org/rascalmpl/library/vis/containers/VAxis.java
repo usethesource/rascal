@@ -82,12 +82,14 @@ public class VAxis extends HAxis {
 		for(Tick tick : ticks){
 			float tickWidth = direction * (tick.major ? MAJOR_TICK_WIDTH : MINOR_TICK_WIDTH);
 			String label = tick.measurePos + "";
+			float pixelPos = (float)tick.pixelPos;
 			if(tick.major){
+				
 				fpa.stroke(230);
 				fpa.line( left + innerFigX ,
-						top + innerFigY + bottom - tick.pixelPos,
+						top + innerFigY + bottom - pixelPos,
 						 left + innerFigX + innerFig.width,
-						 top + innerFigY +  bottom - tick.pixelPos);
+						 top + innerFigY +  bottom - pixelPos);
 				fpa.stroke(0);
 				float labelYPos ;
 				if(getHAlignProperty() > 0.5f){
@@ -95,12 +97,12 @@ public class VAxis extends HAxis {
 				} else {
 					labelYPos = labelY + textWidth - fpa.textWidth(label);
 				}
-				fpa.text(label, left + labelYPos , top + innerFigY + bottom -  tick.pixelPos);
+				fpa.text(label, left + labelYPos , top + innerFigY + bottom -  pixelPos);
 			}
 			fpa.line(left + axisY + tickWidth,
-					top + innerFigY +  bottom - tick.pixelPos ,
+					top + innerFigY +  bottom - pixelPos ,
 					left + axisY,
-					top + innerFigY + bottom - tick.pixelPos );
+					top + innerFigY + bottom -pixelPos);
 		}
 		innerFig.draw(left + innerFigX, top + innerFigY);
 	

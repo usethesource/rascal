@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
@@ -180,6 +182,14 @@ public class Vertex extends Figure {
 			return marker.getOffsetForAxis(axisId, offset, horizontal);
 		} else {
 			return Float.MAX_VALUE;
+		}
+	}
+	
+
+	public void propagateScaling(float scaleX,float scaleY,HashMap<String,Float> axisScales){
+		super.propagateScaling(scaleX, scaleY,axisScales);
+		if(marker != null){
+			marker.propagateScaling(scaleX, scaleY,axisScales);
 		}
 	}
 
