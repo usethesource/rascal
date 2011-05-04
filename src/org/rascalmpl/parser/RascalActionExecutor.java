@@ -52,7 +52,7 @@ public class RascalActionExecutor implements IActionExecutor{
 		this.info = info;
 	}
 	
-	public IEnvironment createEnvironment(IEnvironment parent){
+	public IEnvironment createEnvironment(IEnvironment parent, IConstructor production){
 		// TODO Implement.
 		
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.

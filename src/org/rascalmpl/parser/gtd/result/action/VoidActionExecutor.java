@@ -19,7 +19,7 @@ public class VoidActionExecutor implements IActionExecutor{
 		super();
 	}
 	
-	public IEnvironment createEnvironment(IEnvironment parent){
+	public IEnvironment createEnvironment(IEnvironment parent, IConstructor production){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
