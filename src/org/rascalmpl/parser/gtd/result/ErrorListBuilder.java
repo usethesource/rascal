@@ -92,16 +92,8 @@ public class ErrorListBuilder{
 		}
 		
 		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
-		elements = actionExecutor.filterProduction(elements);
-		if(elements == null){
-			elements = VF.constructor(Factory.Tree_Error, production, VF.list(convertedCycle), AbstractContainerNode.EMPTY_LIST);
-		}
 		
 		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
-		constructedCycle = actionExecutor.filterAmbiguity(constructedCycle);
-		if(constructedCycle == null){
-			constructedCycle = VF.constructor(Factory.Tree_Error_Amb, VF.set(elements, cycle));
-		}
 		
 		return new IConstructor[]{constructedCycle};
 	}
@@ -241,18 +233,10 @@ public class ErrorListBuilder{
 			
 			for(int i = nrOfGatheredPrefixes - 1; i >= 0; --i){
 				IConstructor alternativeSubList = VF.constructor(Factory.Tree_Appl, production, VF.list(gatheredPrefixes.getFirst(i)));
-				alternativeSubList = actionExecutor.filterProduction(alternativeSubList);
-				if(alternativeSubList == null){
-					alternativeSubList = VF.constructor(Factory.Tree_Error, production, VF.list(gatheredPrefixes.getFirst(i)), AbstractContainerNode.EMPTY_LIST);
-				}
 				ambSublist.insert(alternativeSubList);
 			}
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
-			prefixResult = actionExecutor.filterAmbiguity(prefixResult);
-			if(prefixResult == null){
-				prefixResult = VF.constructor(Factory.Tree_Error_Amb, ambSublist.done());
-			}
 			
 			IConstructor[] constructedPrefix = constructPostFix(postFix, production, stack, depth, cycleMark, positionStore, actionExecutor);
 			
@@ -363,54 +347,21 @@ public class ErrorListBuilder{
 			IConstructor production = gatheredAlternatives.getSecond(0);
 			IValue[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative, node.rejected);
-			result = actionExecutor.filterProduction(result);
-			if(result == null){
-				// Build error alternative.
-				result = buildAlternative(production, alternative, true);
-			}
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}else if(nrOfAlternatives > 0){ // Ambiguous.
 			ISetWriter ambSetWriter = VF.setWriter(Factory.Tree);
-			IConstructor lastAlternative = null;
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; --i){
 				IConstructor production = gatheredAlternatives.getSecond(i);
 				IValue[] alternative = gatheredAlternatives.getFirst(i);
 				
 				IConstructor alt = buildAlternative(production, alternative, node.rejected);
-				alt = actionExecutor.filterProduction(alt);
-				if(alt != null){
-					if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
-					lastAlternative = alt;
-					ambSetWriter.insert(alt);
-				}
+				if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
+				ambSetWriter.insert(alt);
 			}
 			
-			if(ambSetWriter.size() == 1){
-				result = lastAlternative;
-			}else if(ambSetWriter.size() == 0){
-				// Build error trees for the alternatives.
-				for(int i = nrOfAlternatives - 1; i >= 0; --i){
-					IConstructor production = gatheredAlternatives.getSecond(i);
-					IValue[] alternative = gatheredAlternatives.getFirst(i);
-					
-					IConstructor alt = buildAlternative(production, alternative, true);
-					if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
-					ambSetWriter.insert(alt);
-				}
-				
-				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
-				// Don't filter error ambs.
-			}else{
-				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-				result = actionExecutor.filterAmbiguity(result);
-				if(result == null){
-					// Build error amb.
-					result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
-				}
-				
-				if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
-			}
+			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
+			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.
