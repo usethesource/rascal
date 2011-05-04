@@ -44,7 +44,7 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		if (!prefix.startsWith("/")) {
 			prefix = "/" + prefix;
 		}
-		while (prefix.endsWith("/")) {
+		while (prefix.endsWith("/") && prefix.length() > 1) {
 			prefix = prefix.substring(0, prefix.length() - 2);
 		}
 		return prefix;
