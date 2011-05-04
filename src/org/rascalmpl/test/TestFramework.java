@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -32,9 +31,9 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -114,24 +113,13 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
-		//resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "rascal-test", TestFramework.class, "/"));
 		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
-		resolverRegistry.registerInput(modules);
 		
 		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
+		resolverRegistry.registerInput(modules);
 		
-		// to load modules from benchmarks
-		evaluator.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
-			public void contributePaths(List<URI> path) {
-				path.add(URI.create("rascal-test:///org/rascalmpl/benchmark"));
-				path.add(URI.create("rascal-test:///org/rascalmpl/test/data"));
-			}
-			
-			@Override
-			public String toString() {
-				return "[test library]";
-			}
-		});
+		evaluator.addRascalSearchPath(URI.create("benchmarks:///"));
+		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 	}
 	
 	public TestFramework() {
