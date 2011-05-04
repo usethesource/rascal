@@ -223,13 +223,17 @@ public class HCat extends Compose {
 	}	
 	
 	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
-		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
-		if(result.gotData()){
-			return result;
+		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
+			float val = getMeasureProperty(MeasureProp.WIDTH).value;
+			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
+		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
+			float val = getMeasureProperty(MeasureProp.HEIGHT).value;
+			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 			Extremes[] extremesList = new Extremes[figures.length];
 			for(int i = 0 ; i < figures.length ; i++){
 				extremesList[i] = figures[i].getExtremesForAxis(axisId, offset, horizontal);
+				System.out.printf("Got extreme %s %f %f\n", extremesList[i], extremesList[i].getMinimum(), extremesList[i].getMaximum());
 				if(correctOrientation(horizontal) && gapSize == 0 && extremesList[i].gotData()){
 					offset += extremesList[i].getMaximum();
 				}

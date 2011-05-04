@@ -24,6 +24,7 @@ public class HAxis extends Figure {
 	float labelY;
 	float axisY;
 	float scale;
+	static final boolean debug = true;
 	
 	
 	public HAxis(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
@@ -38,7 +39,7 @@ public class HAxis extends Figure {
 	@Override
 	public void bbox(float desiredWidth, float desiredHeight) {
 		range = innerFig.getExtremesForAxis(getIdProperty(), 0, horizontal());
-		System.out.printf("range for %s : %f %f %s\n",getIdProperty(),range.getMinimum(),range.getMaximum(),this);
+		if(debug) System.out.printf("range for %s : %f %f %s\n",getIdProperty(),range.getMinimum(),range.getMaximum(),this);
 		if(axisScales == null){
 			axisScales = new HashMap<String, Float>();
 		}
@@ -49,8 +50,8 @@ public class HAxis extends Figure {
 		} else {
 			scale = 1.0f;
 		}
-		//System.out.printf("width %f heihgt %f %s\n",width,height,this);
-		System.out.printf("scale for %s becomes %f\n",getIdProperty(),scale);
+		if(debug) System.out.printf("width %f heihgt %f %s\n",width,height,this);
+		if(debug) System.out.printf("scale for %s becomes %f\n",getIdProperty(),scale);
 		axisScales.put(getIdProperty(), scale);
 		innerFig.propagateScaling(1.0f, 1.0f,axisScales);
 		innerFig.bbox(width, height);
@@ -84,8 +85,9 @@ public class HAxis extends Figure {
 
 	void addAxisToBBox() {
 		axisY = getVAlignProperty() * innerFig.height;
+		applyFontProperties();
 		if(getVAlignProperty() > 0.5f){
-			labelY = axisY + getVGapProperty() + fpa.textAscent();
+			labelY = axisY + getVGapProperty() + fpa.textAscent() ;
 			float bottomLabelY = labelY + fpa.textDescent();
 			height = max(height,bottomLabelY);
 		} else {
@@ -94,6 +96,7 @@ public class HAxis extends Figure {
 			innerFigY = max(0,-topLabelY);
 			axisY+=innerFigY ;
 			labelY+=innerFigY ;
+			height+=innerFigY;
 		}
 	}
 
@@ -107,69 +110,60 @@ public class HAxis extends Figure {
 		}
 		return scale;
 	}
-	
-	float signum(float a){
-		if(a < 0.0f){
-			return -1f;
-		} else if( a == 0.0f){
-			return 0.0f;
-		} else {
-			return 1.0f;
-		}
-	}
 
 	class Tick{
-		float pixelPos;
-		float measurePos;
+		double pixelPos;
+		double measurePos;
 		boolean major;
 	}
 	
-	Tick[] getTicks(float majorTickPixelsInteval, float leftBorder, float leftInnerBorder, float rightInnerBorder,float rightBorder, float leftVal, float rightVal){
-		//System.out.printf("left %f leftInner %f rightInner %f right %f",leftBorder,leftInnerBorder,rightInnerBorder,rightBorder);
+
+	Tick[] getTicks(double majorTickPixelsInteval, double leftBorder, double leftInnerBorder, double rightInnerBorder,double rightBorder, double leftVal, float rightVal){
+		//if(debug)System.out.printf("left %f leftInner %f rightInner %f right %f",leftBorder,leftInnerBorder,rightInnerBorder,rightBorder);
 		//float pixelsWidth = rightBorder - leftBorder;
-		float pixelsInnerWidth = rightInnerBorder - leftInnerBorder;
-		float rangeInterval = rightVal - leftVal;
-		float nrOfInnerMajorTickIntervals = pixelsInnerWidth / majorTickPixelsInteval;
-		float tickInterval = rangeInterval / nrOfInnerMajorTickIntervals;
-		int numberOfDigits =  PApplet.floor(PApplet.log(tickInterval) / PApplet.log(10.0f));
-		float closest10fold = PApplet.pow(10.0f, numberOfDigits);
-		float tenMultiple = (int)(tickInterval / closest10fold);
+		double pixelsInnerWidth = rightInnerBorder - leftInnerBorder;
+		double rangeInterval = rightVal - leftVal;
+		double nrOfInnerMajorTickIntervals = pixelsInnerWidth / majorTickPixelsInteval;
+		double tickInterval = rangeInterval / nrOfInnerMajorTickIntervals;
+		int numberOfDigits =  (int)Math.floor(Math.log10(tickInterval));
+		double closest10fold = Math.pow(10.0, numberOfDigits);
+		double tenMultiple = (int)(tickInterval / closest10fold);
 		int nrMinorTicks;
-		float closestRoundedNumber;
-		if(tenMultiple < 1.25f){
-			closestRoundedNumber = closest10fold * 1.0f;
+		double closestRoundedNumber;
+		if(tenMultiple < 1.25){
+			closestRoundedNumber = closest10fold * 1.0;
 			nrMinorTicks=10;
-		} else if(tenMultiple < 3.75f){
-			closestRoundedNumber = closest10fold * 2.5f;
+		} else if(tenMultiple < 3.75){
+			closestRoundedNumber = closest10fold * 2.5;
 			nrMinorTicks = 2;
-		} else if(tenMultiple < 6.25f){
-			closestRoundedNumber = closest10fold * 5.0f;
+		} else if(tenMultiple < 6.25){
+			closestRoundedNumber = closest10fold * 5.0;
 			nrMinorTicks = 5;
-		} else if(tenMultiple < 8.75f){
-			closestRoundedNumber = closest10fold * 7.5f;
+		} else if(tenMultiple < 8.75){
+			closestRoundedNumber = closest10fold * 7.5;
 			nrMinorTicks = 4;
 		} else {
-			closestRoundedNumber = closest10fold * 10.0f;
+			closestRoundedNumber = closest10fold * 10.0;
 			nrMinorTicks = 10;
 		}
-		float widthPixelsPerMajorTick = closestRoundedNumber * scale; 
-		float widthPixelsPerMinorTick = widthPixelsPerMajorTick / (float)nrMinorTicks;
-		float startOffset = signum(range.getMinimum()) *
-							(int)(PApplet.abs(leftVal) / closestRoundedNumber) * closestRoundedNumber;
+		double widthPixelsPerMajorTick = closestRoundedNumber * scale; 
+		double widthPixelsPerMinorTick = widthPixelsPerMajorTick / (double)nrMinorTicks;
+		double startOffset = Math.signum(range.getMinimum()) *
+							(Math.ceil(Math.abs(leftVal) / closestRoundedNumber)) * closestRoundedNumber;
 
-		float startOffsetPixels = leftInnerBorder + (startOffset - range.getMinimum())* scale; 
+		double startOffsetPixels = leftInnerBorder + (startOffset - range.getMinimum())* scale; 
 		int startOffsetTickIndex = (int)((startOffsetPixels - leftBorder ) / widthPixelsPerMinorTick);
 		//int startOffsetTickIndex = PApplet.floor((startOffsetPixels - leftBorder) / widthPixelsPerMinorTick);
-		//System.out.printf("\nstartOffsetTickIndex %f %d\n", (startOffsetPixels - leftBorder ) / widthPixelsPerMinorTick, startOffsetTickIndex);
+		//if(debug) System.out.printf("\nstartOffsetTickIndex %f %d\n", (startOffsetPixels - leftBorder ) / widthPixelsPerMinorTick, startOffsetTickIndex);
 		int numberOfTicks = startOffsetTickIndex + (int)((rightBorder - startOffsetPixels) / widthPixelsPerMinorTick) + 1;
 		Tick[] result = new Tick[numberOfTicks];
-		float measurePerTick = closestRoundedNumber / (float)nrMinorTicks;
+		double measurePerTick = closestRoundedNumber / (float)nrMinorTicks;
 		for(int i = 0 ; i < numberOfTicks ; i++){
 			result[i] = new Tick();
 			result[i].measurePos = startOffset + (i - startOffsetTickIndex) * measurePerTick ;
 			result[i].pixelPos = startOffsetPixels + (i - startOffsetTickIndex) * widthPixelsPerMinorTick ;
 			result[i].major = (i - startOffsetTickIndex) % nrMinorTicks == 0;
-			//System.out.printf("Tick %d measure %f pixels %f major %s\n",i - startOffsetTickIndex,result[i].measurePos,result[i].pixelPos,result[i].major);
+			//if(debug) System.out.printf("Tick %d measure %f pixels %f major %s\n",i - startOffsetTickIndex,result[i].measurePos,result[i].pixelPos,result[i].major);
 		}
 		return result;
 	}
@@ -187,31 +181,36 @@ public class HAxis extends Figure {
 		
 		applyProperties();
 		applyFontProperties();
-		fpa.line(left + innerFig.getHorizontalBorders().getMinimum(),
-				top + axisY,
-				left + innerFig.getHorizontalBorders().getMaximum(),
-				top + axisY);
+		
 		float direction = getVAlignProperty() > 0.5f ? 1.0f : -1.0f;
-
+		fpa.fill(255);
+		fpa.rect(left,top, width,height);
 		fpa.textAlign(PApplet.CENTER, PApplet.CENTER);
 		for(Tick tick : ticks){
 			float tickHeight = direction * (tick.major ? 7 : 3);
 			String label = tick.measurePos + "";
 			if(tick.major){
 				fpa.stroke(230);
-				fpa.line( tick.pixelPos ,
+				fpa.line( (float)tick.pixelPos ,
 						top + innerFigY,
-						 tick.pixelPos,
+						 (float)tick.pixelPos,
 						top + innerFigY + innerFig.height);
 				fpa.stroke(0);
-				fpa.text(label,  tick.pixelPos , top + labelY );
+				fpa.text(label,  (float)tick.pixelPos , top + labelY );
 			}
-			fpa.line(tick.pixelPos ,
+			fpa.line((float)tick.pixelPos ,
 					top + axisY + tickHeight,
-					tick.pixelPos,
+					(float)tick.pixelPos,
 					top + axisY );
 		}
 		innerFig.draw(left + innerFigX, top + innerFigY);
+		fpa.line(left + innerFig.getHorizontalBorders().getMinimum(),
+				top + axisY,
+				left + innerFig.getHorizontalBorders().getMaximum(),
+				top + axisY);
+		
+	
+
 	}
 	
 	public Extremes getHorizontalExtremes(){

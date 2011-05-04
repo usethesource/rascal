@@ -637,6 +637,10 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	
 	float getScaled(Measure m, boolean horizontal){
+		return getScaled(m,horizontal,null);
+	}
+	
+	float getScaled(Measure m, boolean horizontal,MeasureProp prop){
 		float scale;
 		if(horizontal){
 			scale = scaleX;
@@ -644,14 +648,16 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 			scale = scaleY;
 		}
 		if(axisScales != null && axisScales.containsKey(m.axisName) && !m.axisName.equals("")){
+			
 			scale*= axisScales.get(m.axisName);
+			//System.out.printf("Getting on %s axis %s prop %s scale %f value %f scaledValued %f\n" , this, m.axisName, prop, scale, m.value, m.value*scale );
 		}
 		return m.value * scale;
 	}
 	
 	float getScaled(MeasureProp prop, boolean horizontal){
 		Measure m = getMeasureProperty(prop);
-		return getScaled(m,horizontal);
+		return getScaled(m,horizontal,prop);
 	}
 	
 	// short-hand functions for selected properties(boilerplate)

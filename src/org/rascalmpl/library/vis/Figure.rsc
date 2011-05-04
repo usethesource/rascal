@@ -612,6 +612,7 @@ data FProperty =
    | stdShapeCurved(bool b)                // use curves instead of straight lines
    | stdShapeCurved(computedBool cB)
    | stdShapeCurved(Like other)
+   
  
 /* font and text properties */
    | stdFont(str fontName)             	// named font

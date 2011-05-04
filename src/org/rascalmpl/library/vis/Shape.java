@@ -13,10 +13,13 @@ package org.rascalmpl.library.vis;
 
 
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.compose.Compose;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 
 import processing.core.PConstants;
 
@@ -34,7 +37,7 @@ import processing.core.PConstants;
  */
 public class Shape extends Compose {
 	static boolean debug = false;
-	float minX, minY;
+	float zeroX,zeroY;
 	float[] anchorPointsX, anchorPointsY;
 	Shape(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
@@ -45,24 +48,32 @@ public class Shape extends Compose {
 	@Override
 	public
 	void bbox(float desiredWidth, float desiredHeight){
-		minX = minY = Float.MAX_VALUE;
+		float minX = 0.0f;		
+		float maxX = 0.0f;
+		float minY = 0.0f;
+		float maxY = 0.0f;
+
 		for(int i = 0 ; i < figures.length ; i++){
 			Vertex ver = (Vertex)figures[i];
 			ver.bbox(AUTO_SIZE, AUTO_SIZE);
 			anchorPointsX[i] = ver.getDeltaX();
 			xPos[i] = anchorPointsX[i] - ver.leftAlign();
-			anchorPointsY[i] = -ver.getDeltaY();
+			anchorPointsY[i] = - ver.getDeltaY();
 			yPos[i] = anchorPointsY[i]-  ver.topAlign();
-			minX = min(minX,xPos[i]);
-			minY = min(minY,yPos[i]);
+			minY = min(minY, -ver.getDeltaY() - ver.topAlign());
+			maxY = max(maxY,-ver.getDeltaY() + ver.bottomAlign());
+			minX = min(minX, ver.getDeltaX() - ver.leftAlign());
+			maxX = max(maxX,ver.getDeltaX() + ver.rightAlign());
 		}
+		zeroX = -minX;
+		zeroY = -minY;
+		height = maxY - minY;
+		width = maxX - minX;
 		for(int i = 0 ; i < figures.length ; i++){
-			xPos[i]-= minX;
-			anchorPointsX[i]-=minX;
-			width = max(width,anchorPointsX[i] + figures[i].rightAlign());
-			yPos[i]-= minY;
-			anchorPointsY[i]-=minY;
-			height = max(height,anchorPointsY[i] + figures[i].bottomAlign());
+			anchorPointsX[i]+=zeroX;
+			xPos[i]+=zeroX;
+			anchorPointsY[i]+=zeroY;
+			yPos[i]+=zeroY;
 		}
 		if(debug)System.err.printf("bbox.shape: width = %f , height = %f \n", 
 				width, height);
@@ -82,7 +93,7 @@ public class Shape extends Compose {
 		boolean connected = closed ||  getConnectedProperty() || curved;
 		
 		if(connected){
-			fpa.noFill();
+			//fpa.noFill();
 			fpa.beginShape();
 		}
 		
@@ -92,31 +103,31 @@ public class Shape extends Compose {
 		 * Therefore we subtract deltay from bottom
 		 */
 		int next = 0;
-		if(connected && closed){
+		if(closed && connected){
 			// Add a vertex at origin
-			fpa.vertex(left + minX, top + minY);
-			fpa.vertex(anchorPointsX[next], anchorPointsY[next]);
+			fpa.vertex(left +zeroX, top + zeroY);
+			fpa.vertex(left + anchorPointsX[next], top + anchorPointsY[next]);
 		}
 		if(connected && curved)
-			fpa.curveVertex(anchorPointsX[next], anchorPointsY[next]);
+			fpa.curveVertex(left + anchorPointsX[next], top + anchorPointsY[next]);
 		
-		for(int i = 0 ; i < figures.length ; i++){
-			applyProperties();
-			if(connected){
-				if(!closed)
-						fpa.noFill();
-				if(curved)
-					fpa.curveVertex(anchorPointsX[i], anchorPointsY[i]);
-				else
-					fpa.vertex(anchorPointsX[i], anchorPointsY[i]);
+		if(connected){
+			for(int i = 0 ; i < figures.length ; i++){
+				applyProperties();
+					if(!closed)
+							fpa.noFill();
+					if(curved)
+						fpa.curveVertex(left + anchorPointsX[i], top +  anchorPointsY[i]);
+					else
+						fpa.vertex(left + anchorPointsX[i], top + anchorPointsY[i]);
 			}
 		}
 		if(connected){
 			if(curved){
-				fpa.curveVertex(anchorPointsX[figures.length - 1], anchorPointsY[figures.length - 1]);
+				fpa.curveVertex(left + anchorPointsX[figures.length - 1], top + anchorPointsY[figures.length - 1]);
 			}
 			if(closed){
-				fpa.vertex(anchorPointsX[figures.length - 1], anchorPointsY[figures.length - 1]);
+				fpa.vertex(left + anchorPointsX[figures.length - 1], top+ zeroY);
 				fpa.endShape(PConstants.CLOSE);
 			} else 
 				fpa.endShape();
@@ -128,12 +139,15 @@ public class Shape extends Compose {
 	}
 	
 	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
-		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
-		if(result.gotData()){
-			return result;
+		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
+			float val = getMeasureProperty(MeasureProp.WIDTH).value;
+			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
+		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
+			float val = getMeasureProperty(MeasureProp.HEIGHT).value;
+			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 		
-			Extremes[] extremesList = new Extremes[figures.length];
+			Extremes[] extremesList = new Extremes[figures.length + 1];
 			for(int i = 0 ; i < figures.length ; i++ ){
 				Vertex fig = (Vertex) figures[i];
 				float offsetHere = offset;
@@ -147,11 +161,21 @@ public class Shape extends Compose {
 					}
 				}
 				extremesList[i] = figures[i].getExtremesForAxis(axisId, offsetHere, horizontal);
+				System.out.printf("Shape %s extreme %d: %f %f\n", this, i, extremesList[i].getMinimum(), extremesList[i].getMaximum());
 				if(!extremesList[i].gotData()){
-					extremesList[i] = new Extremes(offsetHere);
+					extremesList[i] = new Extremes(offset,offsetHere);
 				}
 			}
+			extremesList[figures.length] = new Extremes(offset);
 			return Extremes.merge(extremesList);
+		}
+	}
+	
+
+	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+		super.propagateScaling(scaleX, scaleY, axisScales);
+		for(Figure fig : figures){
+			fig.propagateScaling(scaleX, scaleY, axisScales);
 		}
 	}
 	
@@ -177,7 +201,6 @@ public class Shape extends Compose {
 						offsetHere = figures[i].getOffsetForAxis(axisId, offset + yPos[i], horizontal);
 					}
 				}
-				System.out.printf("got %f %f\n", offset, result);
 				result = min(result,offsetHere );
 			}
 			return result;
