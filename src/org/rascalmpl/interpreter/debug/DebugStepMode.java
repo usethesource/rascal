@@ -7,7 +7,7 @@
  *
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Emilie Balland - emilie.balland@inria.fr (INRIA)
+ *   * Emilie Balland - (CWI)
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
