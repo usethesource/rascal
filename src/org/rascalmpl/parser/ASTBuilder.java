@@ -361,7 +361,6 @@ public class ASTBuilder {
 				if (actuals[i] == null) { // filtered
 					return null;
 				}
-				// TODO: Terrible hack to ensure we get the right class back
                 if (actuals[i].getClass().getPackage().getName().contains(".ast")) {
                     formals[i] = actuals[i].getClass().getSuperclass();
                 } else {

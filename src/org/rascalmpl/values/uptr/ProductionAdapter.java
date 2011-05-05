@@ -136,7 +136,6 @@ public class ProductionAdapter {
 			if (attr.isEqual(wanted)) {
 				return true;
 			}
-			// TODO: quick hack to work around the fact that attrs are sometimes "nodes" and sometimes constructors
 			if (attr.toString().equals(wanted.toString())) {
 				return true;
 			}
