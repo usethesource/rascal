@@ -14,6 +14,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -37,6 +39,16 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 	
 	public ListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
 		super(id, dot, followRestrictions);
+		
+		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
+		
+		this.children = generateChildren(child);
+		this.emptyChild = isPlusList ? null : generateEmptyChild();
+	}
+	
+	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.

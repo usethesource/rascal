@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class PrecedeRequirement implements IExpansionFilter{
+public class PrecedeRequirement implements IEnterFilter{
 	private final char[] required;
 	
 	public PrecedeRequirement(char[] required){

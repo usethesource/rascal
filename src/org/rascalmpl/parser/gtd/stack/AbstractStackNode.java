@@ -15,7 +15,8 @@ package org.rascalmpl.parser.gtd.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.stack.filter.IReductionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
@@ -41,7 +42,8 @@ public abstract class AbstractStackNode{
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
 	private IMatchableStackNode[] followRestrictions;
-	private IReductionFilter[] reductionFilters;
+	private final IEnterFilter[] enterFilters;
+	private final ICompletionFilter[] completionFilters;
 	private boolean isReject;
 	
 	public AbstractStackNode(int id, int dot){
@@ -50,7 +52,10 @@ public abstract class AbstractStackNode{
 		this.id = id;
 		this.dot = dot;
 		
-		startLocation = -1;
+		this.startLocation = -1;
+		
+		this.enterFilters = null;
+		this.completionFilters = null;
 	}
 	
 	public AbstractStackNode(int id, int dot, IMatchableStackNode[] followRestrictions){
@@ -59,9 +64,23 @@ public abstract class AbstractStackNode{
 		this.id = id;
 		this.dot = dot;
 		
-		startLocation = -1;
+		this.startLocation = -1;
 		
 		this.followRestrictions = followRestrictions;
+		this.enterFilters = null;
+		this.completionFilters = null;
+	}
+	
+	public AbstractStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super();
+		
+		this.id = id;
+		this.dot = dot;
+		
+		this.startLocation = -1;
+		
+		this.enterFilters = enterFilters;
+		this.completionFilters = completionFilters;
 	}
 	
 	protected AbstractStackNode(AbstractStackNode original){
@@ -81,7 +100,8 @@ public abstract class AbstractStackNode{
 		
 		parentProduction = original.parentProduction;
 		followRestrictions = original.followRestrictions;
-		reductionFilters = original.reductionFilters;
+		enterFilters = original.enterFilters;
+		completionFilters = original.completionFilters;
 		isReject = original.isReject;
 	}
 	
@@ -151,12 +171,12 @@ public abstract class AbstractStackNode{
 		return followRestrictions;
 	}
 	
-	public void setReductionFilters(IReductionFilter[] reductionFilters){
-		this.reductionFilters = reductionFilters;
+	public IEnterFilter[] getEnterFilters(){
+		return enterFilters;
 	}
 	
-	public IReductionFilter[] getReductionFilters(){
-		return reductionFilters;
+	public ICompletionFilter[] getCompletionFilters(){
+		return completionFilters;
 	}
 	
 	public boolean isReductionFiltered(char[] input, int location){
@@ -169,9 +189,9 @@ public abstract class AbstractStackNode{
 			}
 		}
 		
-		if(reductionFilters != null){
-			for(int i = reductionFilters.length - 1; i >= 0; --i){
-				if(reductionFilters[i].isFiltered(input, startLocation, location)) return true;
+		if(completionFilters != null){
+			for(int i = completionFilters.length - 1; i >= 0; --i){
+				if(completionFilters[i].isFiltered(input, startLocation, location)) return true;
 			}
 		}
 		

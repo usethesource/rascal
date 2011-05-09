@@ -14,6 +14,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public final class CharStackNode extends AbstractStackNode implements IMatchableStackNode{
@@ -23,6 +25,12 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 	
 	public CharStackNode(int id, int dot, char[][] ranges){
 		super(id, dot);
+
+		this.ranges = ranges;
+	}
+	
+	public CharStackNode(int id, int dot, char[][] ranges, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
 
 		this.ranges = ranges;
 	}

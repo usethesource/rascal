@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class MatchRestriction implements IReductionFilter{
+public class MatchRestriction implements ICompletionFilter{
 	private final char[] restricted;
 	
 	public MatchRestriction(char[] restricted){

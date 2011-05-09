@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class PrecedeRestriction implements IExpansionFilter{
+public class PrecedeRestriction implements IEnterFilter{
 	private final char[] restricted;
 	
 	public PrecedeRestriction(char[] restricted){
