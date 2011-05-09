@@ -12,11 +12,15 @@ public class FigureApplet {
 
 	final public static int CORNERS = Constants.CORNERS;
 	
+	final public static int CORNER = Constants.CORNER;
+	
+	final public static int CENTER  = Constants.CENTER;
+	
+	final public static int RADIUS  = Constants.RADIUS;
+	
 	final public static int LEFT = Constants.LEFT;
 
 	final public static int RIGHT  = Constants.RIGHT;
-	
-	final public static int CENTER  = Constants.CENTER;
 	
 	final public static int TOP = Constants.TOP;
 	

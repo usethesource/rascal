@@ -39,6 +39,12 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	int halign = FigureApplet.LEFT, valign = FigureApplet.TOP;
 
+	public enum Mode {
+		CORNER, CORNERS, CENTER, RADIUS
+	};
+
+	Mode ellipseM = Mode.CORNER, rectM = Mode.CORNER;
+
 	private boolean mousePressed = false;
 
 	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
@@ -61,8 +67,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-	// private int width; // Current dimensions of canvas
-	// private int height;
 
 	private final int defaultWidth = 5000; // Default dimensions of canvas
 	private final int defaultHeight = 5000;
@@ -78,8 +82,11 @@ public class FigureSWTApplet implements IFigureApplet {
 	private boolean computedValueChanged = true;
 
 	private static boolean debug = false;
+	@SuppressWarnings("unused")
 	private boolean saveFigure = true;
+	@SuppressWarnings("unused")
 	private String file;
+	@SuppressWarnings("unused")
 	private float scale = 1.0f;
 	private int left = 0;
 	private int top = 0;
@@ -133,9 +140,6 @@ public class FigureSWTApplet implements IFigureApplet {
 				FigureColorUtils.getGreen(colnum),
 				FigureColorUtils.getBlue(colnum));
 		comp.setBackground(color);
-		// bbox();
-		// figureWidth = (int) figure.width + 1;
-		// figureHeight = (int) figure.height + 1;
 		comp.addMouseMoveListener(new MyMouseMoveListener());
 		comp.addMouseListener(new MyMouseListener());
 		comp.addPaintListener(new MyPaintListener());
@@ -314,48 +318,80 @@ public class FigureSWTApplet implements IFigureApplet {
 		gc.drawLine((int) arg0, (int) arg1, (int) arg2, (int) arg3);
 	}
 
-	public void rect(float arg0, float arg1, float arg2, float arg3) {
+	public void rect(float x, float y, float width, float height) {
 		int alpha0 = gc.getAlpha();
+		int arg0 = FigureApplet.round(x), arg1 = FigureApplet.round(y), arg2 = FigureApplet
+				.round(width), arg3 = FigureApplet.round(height);
 		if (fill) {
 			gc.setAlpha(alphaFill);
-			gc.fillRectangle((int) arg0, (int) arg1, (int) arg2, (int) arg3);
+			paintShape(new FillRectangle(), arg0, arg1, arg2, arg3);
 			gc.setAlpha(alpha0);
 		}
 		if (stroke) {
 			gc.setAlpha(alphaStroke);
-			gc.drawRectangle((int) arg0, (int) arg1, (int) arg2, (int) arg3);
+			paintShape(new DrawRectangle(), arg0, arg1, arg2, arg3);
 			gc.setAlpha(alpha0);
 		}
 
 	}
 
-	public void ellipse(float arg0, float arg1, float arg2, float arg3) {
+	private void paintShape(PaintShape p, int arg0, int arg1, int arg2, int arg3) {
+		switch (p.getMode()) {
+		case CORNERS:
+			p.paintShape(arg0, arg1, (arg2 - arg0), (arg3 - arg1));
+			return;
+		case CORNER:
+			p.paintShape(arg0, arg1, arg2, arg3);
+			return;
+		case CENTER:
+			p.paintShape(arg0 - arg2 / 2, arg1 - arg3 / 2, arg2, arg3);
+			return;
+		case RADIUS:
+			p.paintShape(arg0 - arg2, arg1 - arg3, 2 * arg2, 2 * arg3);
+			return;
+		}
+	}
+
+	public void ellipse(float x1, float y1, float x2, float y2) {
 		// CORNERS
+		int arg0 = FigureApplet.round(x1), arg1 = FigureApplet.round(y1), arg2 = FigureApplet
+				.round(x2), arg3 = FigureApplet.round(y2);
 		int alpha0 = gc.getAlpha();
 		if (fill) {
 			gc.setAlpha(alphaFill);
-			gc.fillOval((int) arg0, (int) arg1, (int) (arg2 - arg0),
-					(int) (arg3 - arg1));
+			paintShape(new FillOval(), arg0, arg1, arg2, arg3);
 			gc.setAlpha(alpha0);
 
 		}
 		if (stroke) {
 			gc.setAlpha(alphaStroke);
-			gc.drawOval((int) arg0, (int) arg1, (int) (arg2 - arg0),
-					(int) (arg3 - arg1));
+			paintShape(new DrawOval(), arg0, arg1, arg2, arg3);
 			gc.setAlpha(alpha0);
 		}
 
 	}
 
 	public void rectMode(int arg0) {
-		// TODO Auto-generated method stub
+		switch (arg0) {
+		case FigureApplet.CORNER:
+			rectM = Mode.CORNER;
+			return;
+		case FigureApplet.CORNERS:
+			rectM = Mode.CORNERS;
+			return;
+		}
 
 	}
 
 	public void ellipseMode(int arg0) {
-		// TODO Auto-generated method stub
-
+		switch (arg0) {
+		case FigureApplet.CORNER:
+			ellipseM = Mode.CORNER;
+			return;
+		case FigureApplet.CORNERS:
+			ellipseM = Mode.CORNERS;
+			return;
+		}
 	}
 
 	public void fill(int arg0) {
@@ -451,7 +487,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			y -= height;
 		int alpha0 = gc.getAlpha();
 		gc.setAlpha(alphaFont);
-		gc.drawText(arg0, (int) x, (int) y);
+		gc.drawText(arg0, (int) x, (int) y, true);
 		gc.setAlpha(alpha0);
 	}
 
@@ -509,9 +545,11 @@ public class FigureSWTApplet implements IFigureApplet {
 		fill = false;
 	}
 
-	public void arc(float arg0, float arg1, float arg2, float arg3, float arg4,
-			float arg5) {
-		// TODO Auto-generated method stub
+	public void arc(float x, float y, float width, float height,
+			float startAngle, float stopAngle) {
+		gc.drawArc((int) x, (int) y, (int) width, (int) height,
+				(int) FigureApplet.degrees(startAngle),
+				(int) FigureApplet.degrees(stopAngle));
 
 	}
 
@@ -742,6 +780,68 @@ public class FigureSWTApplet implements IFigureApplet {
 				gc.setBackground(getColor(SWT.COLOR_WHITE));
 				gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 			}
+		}
+	}
+
+	interface PaintShape {
+		public Mode getMode();
+
+		public void paintShape(int x1, int y1, int x2, int y2);
+	}
+
+	class DrawOval implements PaintShape {
+		Mode mode = ellipseM;
+
+		@Override
+		public void paintShape(int x, int y, int width, int height) {
+			gc.drawOval(x, y, width, height);
+		}
+
+		@Override
+		public Mode getMode() {
+			return mode;
+		}
+	}
+
+	class DrawRectangle implements PaintShape {
+		Mode mode = rectM;
+
+		@Override
+		public void paintShape(int x, int y, int width, int height) {
+			gc.drawRectangle(x, y, width, height);
+		}
+
+		@Override
+		public Mode getMode() {
+			return mode;
+		}
+	}
+
+	class FillOval implements PaintShape {
+		Mode mode = ellipseM;
+
+		@Override
+		public void paintShape(int x, int y, int width, int height) {
+			gc.fillOval(x, y, width, height);
+		}
+
+		@Override
+		public Mode getMode() {
+			return mode;
+		}
+	}
+
+	class FillRectangle implements PaintShape {
+		Mode mode = rectM;
+
+		@Override
+		public void paintShape(int x, int y, int width, int height) {
+			gc.fillRectangle(x, y, width, height);
+		}
+
+		@Override
+		public Mode getMode() {
+			return mode;
 		}
 	}
 
