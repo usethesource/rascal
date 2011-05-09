@@ -64,6 +64,12 @@ public class RascalActionExecutor implements IActionExecutor{
 		return environment; // Temp.
 	}
 	
+	public IEnvironment merge(IEnvironment[] environments){
+		// TODO Implement.
+		
+		return environments[0]; // Temp.
+	}
+	
 	public IConstructor filterProduction(IConstructor forest){
 		if (TreeAdapter.isAppl(forest)){ 
 			IConstructor production = TreeAdapter.getProduction(forest);
