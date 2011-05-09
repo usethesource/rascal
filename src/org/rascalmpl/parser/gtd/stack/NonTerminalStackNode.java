@@ -13,6 +13,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public final class NonTerminalStackNode extends AbstractStackNode{
@@ -26,6 +28,12 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	
 	public NonTerminalStackNode(int id, int dot, IMatchableStackNode[] followRestrictions, String expectIdentifier){
 		super(id, dot, followRestrictions);
+		
+		this.expectIdentifier = expectIdentifier;
+	}
+	
+	public NonTerminalStackNode(int id, int dot, String expectIdentifier, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
 		
 		this.expectIdentifier = expectIdentifier;
 	}

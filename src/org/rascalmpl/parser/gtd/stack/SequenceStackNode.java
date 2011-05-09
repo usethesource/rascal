@@ -13,6 +13,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public class SequenceStackNode extends AbstractStackNode implements IExpandableStackNode{
@@ -39,7 +41,16 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		this.children = generateChildren(children);
 	}
 	
-	public SequenceStackNode(SequenceStackNode original){
+	public SequenceStackNode(int id, int dot, IConstructor production, AbstractStackNode[] children, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
+		
+		this.production = production;
+		this.name = String.valueOf(id);
+		
+		this.children = generateChildren(children);
+	}
+	
+	private SequenceStackNode(SequenceStackNode original){
 		super(original);
 		
 		production = original.production;

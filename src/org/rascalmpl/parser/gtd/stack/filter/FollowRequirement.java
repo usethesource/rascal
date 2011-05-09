@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class FollowRequirement implements IReductionFilter{
+public class FollowRequirement implements ICompletionFilter{
 	private final char[] required;
 	
 	public FollowRequirement(char[] required){

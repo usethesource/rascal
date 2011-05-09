@@ -14,6 +14,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.EpsilonNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public final class EpsilonStackNode extends AbstractStackNode implements IMatchableStackNode{
@@ -21,6 +23,10 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 	
 	public EpsilonStackNode(int id, int dot){
 		super(id, dot);
+	}
+	
+	public EpsilonStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
 	}
 	
 	private EpsilonStackNode(EpsilonStackNode original){

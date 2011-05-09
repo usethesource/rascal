@@ -15,6 +15,8 @@ package org.rascalmpl.parser.gtd.stack;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
@@ -39,6 +41,21 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		this.ciLiteral = fill(ciLiteral);
 	}
 	
+	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, char[] ciLiteral, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
+		
+		this.production = production;
+		
+		this.ciLiteral = fill(ciLiteral);
+	}
+	
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original){
+		super(original);
+		
+		production = original.production;
+		ciLiteral = original.ciLiteral;
+	}
+	
 	private char[][] fill(char[] ciLiteral){
 		int nrOfCharacters = ciLiteral.length;
 		char[][] ciLiteralResult = new char[nrOfCharacters][];
@@ -54,13 +71,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 			}
 		}
 		return ciLiteralResult;
-	}
-	
-	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original){
-		super(original);
-		
-		production = original.production;
-		ciLiteral = original.ciLiteral;
 	}
 	
 	public boolean isEmptyLeafNode(){

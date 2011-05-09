@@ -14,6 +14,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.AtColumnNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public class AtColumnStackNode extends AbstractStackNode implements IMatchableStackNode, ILocatableStackNode{
@@ -25,6 +27,13 @@ public class AtColumnStackNode extends AbstractStackNode implements IMatchableSt
 	
 	public AtColumnStackNode(int id, int dot, int column){
 		super(id, dot);
+		
+		this.result = new AtColumnNode(column);
+		this.column = column;
+	}
+	
+	public AtColumnStackNode(int id, int dot, int column, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
 		
 		this.result = new AtColumnNode(column);
 		this.column = column;

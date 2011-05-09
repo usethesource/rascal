@@ -13,6 +13,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public class AlternativeStackNode extends AbstractStackNode implements IExpandableStackNode{
@@ -39,7 +41,16 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		this.children = generateAlternatives(alternatives);
 	}
 	
-	public AlternativeStackNode(AlternativeStackNode original){
+	public AlternativeStackNode(int id, int dot, IConstructor production, AbstractStackNode[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
+		
+		this.production = production;
+		this.name = String.valueOf(id);
+		
+		this.children = generateAlternatives(alternatives);
+	}
+	
+	private AlternativeStackNode(AlternativeStackNode original){
 		super(original);
 		
 		production = original.production;

@@ -14,6 +14,8 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -37,6 +39,16 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 	
 	public OptionalStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode optional){
 		super(id, dot, followRestrictions);
+		
+		this.production = production;
+		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
+		
+		this.children = generateChildren(optional);
+		this.emptyChild = generateEmptyChild();
+	}
+	
+	public OptionalStackNode(int id, int dot, IConstructor production, AbstractStackNode optional, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
 		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.

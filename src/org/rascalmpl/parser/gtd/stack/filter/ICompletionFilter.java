@@ -11,6 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public interface IReductionFilter{
+public interface ICompletionFilter{
 	boolean isFiltered(char[] input, int start, int end);
 }

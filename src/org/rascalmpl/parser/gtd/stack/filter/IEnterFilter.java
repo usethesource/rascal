@@ -11,6 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public interface IExpansionFilter{
+public interface IEnterFilter{
 	boolean isFiltered(char[] input, int start);
 }
