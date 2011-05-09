@@ -18,8 +18,6 @@ public interface IActionExecutor{
 	
 	IEnvironment split(IEnvironment environment, IConstructor production);
 	
-	IEnvironment merge(IEnvironment[] environments);
-	
 	void enteredProduction(IConstructor production);
 	
 	void exitedProduction(IConstructor production, boolean filtered);
