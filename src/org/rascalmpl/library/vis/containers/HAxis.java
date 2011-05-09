@@ -147,7 +147,7 @@ public class HAxis extends Figure {
 			nrMinorTicks = 10;
 		}
 		double widthPixelsPerMajorTick = closestRoundedNumber * scale; 
-		double widthPixelsPerMinorTick = widthPixelsPerMajorTick / (double)nrMinorTicks;
+		double widthPixelsPerMinorTick = widthPixelsPerMajorTick / nrMinorTicks;
 		double startOffset = Math.signum(range.getMinimum()) *
 							(Math.ceil(Math.abs(leftVal) / closestRoundedNumber)) * closestRoundedNumber;
 
@@ -157,7 +157,7 @@ public class HAxis extends Figure {
 		//if(debug) System.out.printf("\nstartOffsetTickIndex %f %d\n", (startOffsetPixels - leftBorder ) / widthPixelsPerMinorTick, startOffsetTickIndex);
 		int numberOfTicks = startOffsetTickIndex + (int)((rightBorder - startOffsetPixels) / widthPixelsPerMinorTick) + 1;
 		Tick[] result = new Tick[numberOfTicks];
-		double measurePerTick = closestRoundedNumber / (float)nrMinorTicks;
+		double measurePerTick = closestRoundedNumber / nrMinorTicks;
 		for(int i = 0 ; i < numberOfTicks ; i++){
 			result[i] = new Tick();
 			result[i].measurePos = startOffset + (i - startOffsetTickIndex) * measurePerTick ;
