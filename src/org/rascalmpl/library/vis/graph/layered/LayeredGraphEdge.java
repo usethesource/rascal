@@ -12,12 +12,12 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.layered;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureFactory;
+import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -32,14 +32,19 @@ public class LayeredGraphEdge extends Figure {
 	private LayeredGraphNode to;
 	Figure toArrow;
 	Figure fromArrow;
+	Figure label;
+	float labelX;
+	float labelMinX;
+	float labelMaxX;
+	float labelMinY;
+	float labelMaxY;
+	float labelY;
 	boolean reversed = false;
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private static boolean useSplines = true;
 	
 	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, PropertyManager properties, 
-			IString fromName, IString toName,
-			IConstructor toArrowCons, IConstructor fromArrowCons, 
-			IEvaluatorContext ctx) {
+			IString fromName, IString toName, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.from = G.getRegisteredNodeId(fromName.getValue());
 		
@@ -51,16 +56,14 @@ public class LayeredGraphEdge extends Figure {
 		if(to == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+		toArrow = super.getToArrow();
 		
-		if(toArrowCons != null){
-			 toArrow = FigureFactory.make(fpa, toArrowCons, properties, null, ctx);
-		}
-		if(fromArrowCons != null){
-			 fromArrow = FigureFactory.make(fpa, fromArrowCons, properties, null, ctx);
-		}
+		fromArrow = super.getFromArrow(); 
+		
+		label = getLabel();
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue() +
-				", arrows (to/from): " + toArrow + " " + fromArrow);
+				", arrows (to/from): " + toArrow + " " + fromArrow + " " + label);
 	}
 	
 	public LayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, PropertyManager properties, 
@@ -97,11 +100,11 @@ public class LayeredGraphEdge extends Figure {
 		return to;
 	}
 	
-	Figure getFromArrow(){
+	public Figure getFromArrow(){
 		return fromArrow;
 	}
 	
-	Figure getToArrow(){
+	public Figure getToArrow(){
 		return toArrow;
 	}
 
@@ -330,6 +333,9 @@ public class LayeredGraphEdge extends Figure {
 					}
 				}
 			}
+			if(label != null){
+				label.draw(left + labelX - label.width/2, top + labelY - label.height/2);
+			}
 		}
 	}
 	
@@ -358,10 +364,72 @@ public class LayeredGraphEdge extends Figure {
 			currentNode.figure.connectArrowFrom(left, top, currentNode.figX(), currentNode.figY(), imX, imY, getToArrow());
 		}
 	}
+	
+	public void setLabelCoordinates(){
+		if(label != null){
+			labelX = getFrom().x + (getTo().x - getFrom().x)/2;
+			labelY = getFrom().y + (getTo().y - getFrom().y)/2;
+			
+			labelMinX = labelX - 1.5f * label.width;
+			labelMaxX = labelX + 1.5f * label.width;
+			
+			labelMinY = labelY - 1.5f * label.height;
+			labelMaxY = labelY + 1.5f * label.height;
+			
+			System.err.printf("edge %s->%s: labelX=%f, labelY=%f\n", from.name, to.name, labelX, labelY);
+		}
+	}
+	
+	public void shiftLabelCoordinates(float dx, float dy){
+		if(label != null){
+			System.err.printf("shiftLabelCoordinates %s-> %s: %f, %f\n", from.name, to.name, dx, dy);
+			labelX = min(max(labelMinX, labelX + dx), labelMaxX);
+			labelY = min(max(labelMinY, labelY + dy), labelMaxY);
+		}
+	}
+	
+	public void reduceOverlap(LayeredGraphEdge other){
+		float ax1 = labelX - label.width/2;
+		float ax2 = labelX + label.width/2;
+		float bx1 = other.labelX - other.label.width/2;
+		float bx2 = other.labelX + other.label.width/2;
+		float distX;
+		
+		if(ax1 < bx1){
+			distX = bx1 - ax2;
+		} else
+			distX = ax1 - bx2;
+		
+		float ay1 = labelY - label.height/2;
+		float ay2 = labelY + label.height/2;
+		float by1 = other.labelY - other.label.height/2;
+		float by2 = other.labelY + other.label.height/2;
+		
+		float distY;
+		
+		if(ay1 < by1){
+			distY = by1 - ay2 - 2;
+		} else
+			distY = ay1 - by2 - 2;
+		
+		System.err.printf("reduceOverlap %s->%s, %s->%s: distX=%f, distY=%f\n", from.name, to.name, other.from.name, other.to.name, distX, distY);
+		if(distX > 0)
+			return;
+		
+		distX = distX > 0 ? 0 : -distX;
+		distY = distY > 0 ? 0 : -distY;
+		shiftLabelCoordinates(-distX/2, -distY/2);
+		other.shiftLabelCoordinates(distX/2, distY/2);
+	}
 
 	@Override
 	public
 	void bbox(float desiredWidth, float desiredHeight) {
-		// TODO Auto-generated method stub
+		if(fromArrow != null)
+			fromArrow.bbox(desiredWidth, desiredHeight);
+		if(toArrow != null)
+			toArrow.bbox(desiredWidth, desiredHeight);
+		if(label != null)
+			label.bbox(desiredWidth, desiredHeight);
 	}
 }

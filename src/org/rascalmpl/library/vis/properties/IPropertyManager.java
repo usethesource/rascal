@@ -39,4 +39,7 @@ public interface IPropertyManager {
 	// public IFigureApplet getFPA();
 	public boolean isDraggable();
 	public Figure getMouseOver();
+	public Figure getToArrow();
+	public Figure getFromArrow();
+	public Figure getLabel();
 }

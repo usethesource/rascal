@@ -413,6 +413,21 @@ public class PropertyManager implements IPropertyManager {
 			return res;
 	}
 	
+	public Figure getFromArrow() {
+		Figure res = getFigureProperty(FigureProp.FROM_ARROW);
+		return res;
+	}
+	
+	public Figure getToArrow() {
+		Figure res = getFigureProperty(FigureProp.TO_ARROW);
+		return res;
+	}
+	
+	public Figure getLabel() {
+		Figure res = getFigureProperty(FigureProp.LABEL);
+		return res;
+	}
+	
 	public IValue getOnClick(){
 			return onClickHandler;
 	}
