@@ -286,9 +286,9 @@ public class FigureFactory {
 			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
-		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
-		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-		return new LayeredGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow, ctx);
+//		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
+//		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
+		return new LayeredGraphEdge(G, fpa, properties, from, to, ctx);
 	}
 	
 	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureApplet fpa, IConstructor c,

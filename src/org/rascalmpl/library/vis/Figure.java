@@ -636,6 +636,18 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return getMouseOver() != null;
 	}
 	
+	public Figure getToArrow(){
+		return properties.getToArrow();
+	}
+	
+	public Figure getFromArrow(){
+		return properties.getFromArrow();
+	}
+		
+	public Figure getLabel(){
+		return properties.getLabel();
+	}
+	
 	float getScaled(Measure m, boolean horizontal){
 		return getScaled(m,horizontal,null);
 	}
@@ -694,6 +706,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public int getFontColorProperty(){return getColorProperty(ColorProp.FONT_COLOR);}
 	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}
 	public boolean getEndGapProperty(){ return getBooleanProperty(BoolProp.END_GAP);}
+
 	public boolean widthExplicitlySet(){return isMeasurePropertySet(MeasureProp.WIDTH);}
 	public boolean heightExplicitlySet(){return isMeasurePropertySet(MeasureProp.HEIGHT);}
 }

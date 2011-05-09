@@ -458,7 +458,18 @@ data FProperty =
    | direction(str name)
    | direction(computedStr cname)
    | direction(Like other)
-  
+   
+   | toArrow(Figure fig)
+   | toArrow(computedFigure cFig)
+   | toArrow(Like other)
+   
+   | fromArrow(Figure fig)
+   | fromArrow(computedFigure cFig)
+   | fromArrow(Like other)
+   
+   | label(Figure fig)
+   | label(computedFigure cFig)
+   | label(Like other)
    
    | scaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
    | scaleAll(computedBool cAlg)
@@ -720,8 +731,8 @@ public Vertex vertex(Measure x, Measure y, Figure marker, FProperty props ...){
    
 data Edge =			 							// edge between between two elements in complex shapes like tree or graph
      _edge(str from, str to, FProperties prop)
-   | _edge(str from, str to, Figure toArrow, FProperties prop)
-   | _edge(str from, str to, Figure toArrow, Figure fromArrow, FProperties prop)
+ //  | _edge(str from, str to, Figure toArrow, FProperties prop)
+ //  | _edge(str from, str to, Figure toArrow, Figure fromArrow, FProperties prop)
    ;
    
 public alias Edges = list[Edge];
@@ -730,13 +741,12 @@ public Edge edge(str from, str to, FProperty props ...){
   return _edge(from, to, props);
 }
 
-public Edge edge(str from, str to, Figure toArrow, FProperty props ...){
-  return _edge(from, to, toArrow, props);
-}
-
-public Edge edge(str from, str to, Figure toArrow, Figure fromArrow, FProperty props ...){
-  return _edge(from, to, toArrow, fromArrow, props);
-}
+//public Edge edge(str from, str to, Figure toArrow, FProperty props ...){
+//  return _edge(from, to, toArrow, props);
+//}
+//public Edge edge(str from, str to, Figure toArrow, Figure fromArrow, FProperty props ...){
+//  return _edge(from, to, toArrow, fromArrow, props);
+//}
 
 /*
  * Figure: a visual element, the principal visualization datatype
