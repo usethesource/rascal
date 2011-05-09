@@ -61,13 +61,13 @@ public class RascalActionExecutor implements IActionExecutor{
 	public IEnvironment split(IEnvironment environment, IConstructor production){
 		// TODO Implement.
 		
-		return environment; // Temp.
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
 	}
 	
 	public IEnvironment merge(IEnvironment[] environments){
 		// TODO Implement.
 		
-		return environments[0]; // Temp.
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
 	}
 	
 	public IConstructor filterProduction(IConstructor forest){
