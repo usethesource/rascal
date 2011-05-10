@@ -96,10 +96,10 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	
 	@Override 
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues);
+		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, defaultCandidates.size() <= 0);
 		
-		if (result == null) {
-			result = callWith(defaultCandidates, argTypes, argValues);
+		if (result == null && defaultCandidates.size() > 0) {
+			result = callWith(defaultCandidates, argTypes, argValues, true);
 		}
 
 		if (result == null) {
@@ -112,7 +112,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return result;
 	}
 
-	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues) {
+	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
 		Type tuple = getTypeFactory().tupleType(argTypes);
 		AbstractFunction failed = null;
 		
@@ -132,7 +132,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			}
 		}
 		
-		if (failed != null) {
+		if (failed != null && mustSucceed) {
 			throw new UnguardedFailError(failed.ast);
 		}
 		

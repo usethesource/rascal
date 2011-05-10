@@ -8,7 +8,7 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Emilie Balland - emilie.balland@inria.fr (INRIA)
+ *   * Emilie Balland - (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/

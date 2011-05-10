@@ -5,21 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
-/**
- * This code is taken from http://www.ibm.com/developerworks/java/library/j-jcomp
- * It was written by David Biesack at IBM.
+ * This code was originally taken from http://www.ibm.com/developerworks/java/library/j-jcomp
  *
- * Downloaded and changed slightly by Jurgen Vinju on July 20th 2010
- *  
- * Nevertheless, the current copy of this code is licensed as follows:
- * 
- * TODO include BSD license here
- */
+ * Contributors:
+ *   * David Biesak - IBM (initial version)
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI
+*******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
 import java.io.ByteArrayInputStream;

@@ -934,7 +934,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> result = this.getPattern().interpret(__eval);
 			Type expected = getType().typeOf(__eval.getCurrentEnvt());
 
-			// TODO: clean up __eval hack
+			// TODO: there must be a cleaner way to do this
 			if (expected instanceof NonTerminalType
 					&& result.getType().isSubtypeOf(TF.stringType())) {
 				String command = '(' + expected.toString() + ')' + '`'
