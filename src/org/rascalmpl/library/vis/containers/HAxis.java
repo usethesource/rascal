@@ -8,22 +8,21 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-
-import processing.core.PApplet;
 
 
 public class HAxis extends Figure {
 	
 	Figure innerFig;
-	float innerFigX, innerFigY;
+	double innerFigX, innerFigY;
 	Extremes offsets;
 	Extremes range;
-	float labelY;
-	float axisY;
-	float scale;
+	double labelY;
+	double axisY;
+	double scale;
 	static final boolean debug = true;
 	
 	
@@ -37,14 +36,14 @@ public class HAxis extends Figure {
 	}
 	
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		range = innerFig.getExtremesForAxis(getIdProperty(), 0, horizontal());
 		if(debug) System.out.printf("range for %s : %f %f %s\n",getIdProperty(),range.getMinimum(),range.getMaximum(),this);
 		if(axisScales == null){
-			axisScales = new HashMap<String, Float>();
+			axisScales = new HashMap<String, Double>();
 		}
 		setWidthHeight(desiredWidth,desiredHeight);
-		float rangeInterval = range.getMaximum() - range.getMinimum(); 
+		double rangeInterval = range.getMaximum() - range.getMinimum(); 
 		if(range.gotData()){
 			scale = getWidth() / (rangeInterval);
 		} else {
@@ -56,7 +55,7 @@ public class HAxis extends Figure {
 		innerFig.propagateScaling(1.0f, 1.0f,axisScales);
 		innerFig.bbox(width, height);
 		
-		float startOffset = innerFig.getOffsetForAxis(getIdProperty(), 0.0f, horizontal());
+		double startOffset = innerFig.getOffsetForAxis(getIdProperty(), 0.0f, horizontal());
 		offsets = new Extremes(
 				startOffset, 
 				startOffset + getWidth());
@@ -66,11 +65,11 @@ public class HAxis extends Figure {
 		addAxisToBBox();
 	}
 
-	float getWidth() {
+	double getWidth() {
 		return width;
 	}
 
-	void setWidthHeight(float desiredWidth,float desiredHeight) {
+	void setWidthHeight(double desiredWidth,double desiredHeight) {
 		if(isWidthPropertySet() || desiredWidth == AUTO_SIZE){
 			width = getWidthProperty();
 		} else {
@@ -88,11 +87,11 @@ public class HAxis extends Figure {
 		applyFontProperties();
 		if(getVAlignProperty() > 0.5f){
 			labelY = axisY + getVGapProperty() + fpa.textAscent() ;
-			float bottomLabelY = labelY + fpa.textDescent();
+			double bottomLabelY = labelY + fpa.textDescent();
 			height = max(height,bottomLabelY);
 		} else {
 			labelY = axisY -  getVGapProperty() - fpa.textAscent() - fpa.textDescent() ;
-			float topLabelY = labelY - fpa.textDescent() ;
+			double topLabelY = labelY - fpa.textDescent() ;
 			innerFigY = max(0,-topLabelY);
 			axisY+=innerFigY ;
 			labelY+=innerFigY ;
@@ -100,9 +99,9 @@ public class HAxis extends Figure {
 		}
 	}
 
-	float getScale(float width) {
+	double getScale(double width) {
 		//System.out.printf("Max %f min %f range axis %s",range.getMaximum(),range.getMinimum(),getIdProperty());
-		float scale ;
+		double scale ;
 		if(range.gotData()){
 			scale = width / (range.getMaximum() - range.getMinimum());
 		} else {
@@ -118,9 +117,9 @@ public class HAxis extends Figure {
 	}
 	
 
-	Tick[] getTicks(double majorTickPixelsInteval, double leftBorder, double leftInnerBorder, double rightInnerBorder,double rightBorder, double leftVal, float rightVal){
+	Tick[] getTicks(double majorTickPixelsInteval, double leftBorder, double leftInnerBorder, double rightInnerBorder,double rightBorder, double leftVal, double rightVal){
 		//if(debug)System.out.printf("left %f leftInner %f rightInner %f right %f",leftBorder,leftInnerBorder,rightInnerBorder,rightBorder);
-		//float pixelsWidth = rightBorder - leftBorder;
+		//double pixelsWidth = rightBorder - leftBorder;
 		double pixelsInnerWidth = rightInnerBorder - leftInnerBorder;
 		double rangeInterval = rightVal - leftVal;
 		double nrOfInnerMajorTickIntervals = pixelsInnerWidth / majorTickPixelsInteval;
@@ -169,7 +168,7 @@ public class HAxis extends Figure {
 	}
 	
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		setLeft(left);
 		setTop(top);
 		Tick[] ticks = getTicks(65.0f, left + innerFigX + innerFig.getHorizontalBorders().getMinimum()
@@ -182,25 +181,25 @@ public class HAxis extends Figure {
 		applyProperties();
 		applyFontProperties();
 		
-		float direction = getVAlignProperty() > 0.5f ? 1.0f : -1.0f;
+		double direction = getVAlignProperty() > 0.5f ? 1.0f : -1.0f;
 		fpa.fill(255);
 		fpa.rect(left,top, width,height);
-		fpa.textAlign(PApplet.CENTER, PApplet.CENTER);
+		fpa.textAlign(FigureApplet.CENTER, FigureApplet.CENTER);
 		for(Tick tick : ticks){
-			float tickHeight = direction * (tick.major ? 7 : 3);
+			double tickHeight = direction * (tick.major ? 7 : 3);
 			String label = tick.measurePos + "";
 			if(tick.major){
 				fpa.stroke(230);
-				fpa.line( (float)tick.pixelPos ,
+				fpa.line( (double)tick.pixelPos ,
 						top + innerFigY,
-						 (float)tick.pixelPos,
+						 (double)tick.pixelPos,
 						top + innerFigY + innerFig.height);
 				fpa.stroke(0);
-				fpa.text(label,  (float)tick.pixelPos , top + labelY );
+				fpa.text(label,  (double)tick.pixelPos , top + labelY );
 			}
-			fpa.line((float)tick.pixelPos ,
+			fpa.line((double)tick.pixelPos ,
 					top + axisY + tickHeight,
-					(float)tick.pixelPos,
+					(double)tick.pixelPos,
 					top + axisY );
 		}
 		innerFig.draw(left + innerFigX, top + innerFigY);
@@ -217,20 +216,20 @@ public class HAxis extends Figure {
 		return offsets;
 	}
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(innerFig!=null){
 			innerFig.gatherProjections(left + innerFigX, top + innerFigY, projections, first, screenId, horizontal);
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY,HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY,axisScales);
 		if(innerFig != null){
 			innerFig.propagateScaling(scaleX, scaleY,axisScales);
 		}
 	}
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
 		if(result.gotData()){
 			return result;
@@ -239,12 +238,12 @@ public class HAxis extends Figure {
 		}
 	}
 	
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
-		float result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Float.MAX_VALUE){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
+		double result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Double.MAX_VALUE){
 			return result;
 		} else {
-			float off = 0.0f;
+			double off = 0.0f;
 			if(horizontal){
 				off = innerFigX;
 			} else {

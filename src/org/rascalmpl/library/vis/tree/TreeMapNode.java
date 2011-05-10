@@ -31,8 +31,8 @@ public class TreeMapNode extends Figure {
 	Figure rootFigure;
 	TreeMap treemap;
 	private ArrayList<TreeMapNode> children;
-	private float[] childLeft;
-	private float[] childTop;
+	private double[] childLeft;
+	private double[] childTop;
 	private static boolean debug = true;
 	
 	public TreeMapNode(IFigureApplet fpa, TreeMap treeMap, PropertyManager properties,
@@ -48,24 +48,24 @@ public class TreeMapNode extends Figure {
 		children.add(toNode);
 	}
 	
-	public void place(float width, float height, boolean hor) {
+	public void place(double width, double height, boolean hor) {
 		this.width = width;
 		this.height = height;
 		
-		float hgap = getHGapProperty();
-		float vgap = getHGapProperty();
+		double hgap = getHGapProperty();
+		double vgap = getHGapProperty();
 		
 		String id = rootFigure.getIdProperty();
 		if(debug)System.err.printf("%s: %f,%f,%s\n", id, width,height, hor? "hor":"vert");
 		
 		int n = children.size();
 		
-		childLeft = new float[n];
-		childTop = new float[n];
-		float ratio[] = new float[n];
-		float chsurf = 0;
-		float awidth = width - (n+1) * hgap;
-		float aheight = height - (n+1) * vgap;
+		childLeft = new double[n];
+		childTop = new double[n];
+		double ratio[] = new double[n];
+		double chsurf = 0;
+		double awidth = width - (n+1) * hgap;
+		double aheight = height - (n+1) * vgap;
 		for(int i = 0; i < n; i++){
 			TreeMapNode child = children.get(i);
 			child.bbox(AUTO_SIZE, AUTO_SIZE);
@@ -77,20 +77,20 @@ public class TreeMapNode extends Figure {
 			if(debug)System.err.printf("%s: ratio = %f\n", child.rootFigure.getIdProperty(), ratio[i]);
 		}
 		if(hor){
-			float x = hgap;
+			double x = hgap;
 			for(int i = 0; i < n; i++){	
 				TreeMapNode child = children.get(i);
-				float dw = ratio[i] * awidth;
+				double dw = ratio[i] * awidth;
 				child.place(dw, height - 2* vgap, !hor);
 				childLeft[i] = x;
 				childTop[i] = vgap;
 				x += dw + hgap;
 			}
 		} else {
-			float y = vgap;
+			double y = vgap;
 			for(int i = 0; i < n; i++){	
 				TreeMapNode child = children.get(i);
-				float dh =  ratio[i] * aheight;
+				double dh =  ratio[i] * aheight;
 				child.place(width - 2 * hgap, dh, !hor);
 				childLeft[i] = hgap;
 				childTop[i] = y;
@@ -102,7 +102,7 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		rootFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = rootFigure.width;
 		height = rootFigure.height;
@@ -110,7 +110,7 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top){
+	void draw(double left, double top){
 		this.setLeft(left);
 		this.setTop(top);
 		if(debug)System.err.printf("draw: %s at %f, %f (%s)\n", 
@@ -142,7 +142,7 @@ public class TreeMapNode extends Figure {
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
 		if(debug)System.err.printf("TreeMapNode.mouseover: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
 		if(debug)System.err.printf("TreeMapNode.mouseover: left=%f, top=%f\n", getLeft(), getTop());
 		if(!isVisible())

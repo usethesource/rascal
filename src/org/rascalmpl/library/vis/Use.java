@@ -43,7 +43,7 @@ public class Use extends Figure {
 
 	@Override
 	public 
-	void bbox(float desiredWidth, float desiredHeight){
+	void bbox(double desiredWidth, double desiredHeight){
 		
 		inside.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = inside.width;
@@ -53,7 +53,7 @@ public class Use extends Figure {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		applyProperties();
@@ -63,27 +63,27 @@ public class Use extends Figure {
 	}
 /*	
 	@Override
-	protected float leftAnchor(){
+	protected double leftAnchor(){
 		return inside.leftAnchor();
 	}
 	
 	@Override
-	protected float rightAnchor(){
+	protected double rightAnchor(){
 		return inside.rightAnchor();
 	}
 	
 	@Override
-	protected float topAnchor(){
+	protected double topAnchor(){
 		return inside.topAnchor();
 	}
 	
 	@Override
-	protected float bottomAnchor(){
+	protected double bottomAnchor(){
 		return inside.bottomAnchor();
 	}
 */	
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
 		return inside.mouseOver(mousex, mousey, centerX, centerY, false);
 	}
 	

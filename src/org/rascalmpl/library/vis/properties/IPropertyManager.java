@@ -28,7 +28,7 @@ public interface IPropertyManager {
 	public int getIntegerProperty(IntProp property) ;
 	
 	public boolean isRealPropertySet(RealProp property);
-	public float getRealProperty(RealProp property);
+	public double getRealProperty(RealProp property);
 	
 	public boolean isStringPropertySet(StrProp property);
 	public String getStringProperty(StrProp property);

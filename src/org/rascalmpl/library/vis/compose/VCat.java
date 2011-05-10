@@ -48,23 +48,23 @@ public class VCat extends HCat {
 		getHGapFactorProperty = getVGapFactorProperty();
 	}
 	
-	public void bbox(float desiredWidth,float desiredHeight){
+	public void bbox(double desiredWidth,double desiredHeight){
 		super.bbox(desiredHeight,desiredWidth);
-		float tmp = width;
+		double tmp = width;
 		width = height;
 		height = tmp;
-		float[] tmpPos = xPos;
+		double[] tmpPos = xPos;
 		xPos = yPos;
 		yPos = tmpPos;
 		
 	}
 	
-	float getFigureWidth(Figure fig){ return fig.height; }
-	float getFigureHeight(Figure fig){return fig.width;}
-	float getTopAnchor(Figure fig){return fig.leftAlign();}
-	float getBottomAnchor(Figure fig){return fig.rightAlign();}
-	void  bboxOfFigure(Figure fig,float desiredWidth,float desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
-	float getHeight(){return width;}
+	double getFigureWidth(Figure fig){ return fig.height; }
+	double getFigureHeight(Figure fig){return fig.width;}
+	double getTopAnchor(Figure fig){return fig.leftAlign();}
+	double getBottomAnchor(Figure fig){return fig.rightAlign();}
+	void  bboxOfFigure(Figure fig,double desiredWidth,double desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
+	double getHeight(){return width;}
 	
 	protected boolean correctOrientation(boolean horizontal) {
 		return !horizontal;

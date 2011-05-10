@@ -48,8 +48,8 @@ public class SpringGraph extends Figure {
 	IEvaluatorContext ctx;
 	
 	// Fields for force layout
-	protected float springConstant;
-	protected float springConstant2;
+	protected double springConstant;
+	protected double springConstant2;
 	protected int temperature;
 	private static boolean debug = false;
 
@@ -86,7 +86,7 @@ public class SpringGraph extends Figure {
 			e.getTo().addIn(e.getFrom());
 		}
 
-		// float connectivity = edges.length()/nodes.length();
+		// double connectivity = edges.length()/nodes.length();
 		springConstant = // (connectivity > 1 ? 0.5f : 0.3f) *
 		                 FigureApplet.sqrt((width * height) / nodes.length());
 		if (debug)
@@ -129,17 +129,17 @@ public class SpringGraph extends Figure {
 		}
 	}
 
-	protected float attract(float d) {
+	protected double attract(double d) {
 		return (d * d) / springConstant;
 	}
 
-	protected float repel(float d) {
+	protected double repel(double d) {
 		return springConstant2 / d;
 	}
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 
 		initialPlacement();
 			
@@ -160,14 +160,14 @@ public class SpringGraph extends Figure {
 
 
 		// Now scale (back or up) to the desired width x height frame
-//		float minx = Float.MAX_VALUE;
-//		float maxx = Float.MIN_VALUE;
-//		float miny = Float.MAX_VALUE;
-//		float maxy = Float.MIN_VALUE;
+//		double minx = Double.MAX_VALUE;
+//		double maxx = Double.MIN_VALUE;
+//		double miny = Double.MAX_VALUE;
+//		double maxy = Double.MIN_VALUE;
 //
 //		for(SpringGraphNode n : nodes){
-//			float w2 = n.width()/2;
-//			float h2 = n.height()/2;
+//			double w2 = n.width()/2;
+//			double h2 = n.height()/2;
 //			if(n.x - w2 < minx)
 //
 //				minx = n.x - w2;
@@ -180,8 +180,8 @@ public class SpringGraph extends Figure {
 //				maxy = n.y + h2;
 //		}
 //
-//		float scalex = width / (maxx - minx);
-//		float scaley = height / (maxy - miny);
+//		double scalex = width / (maxx - minx);
+//		double scaley = height / (maxy - miny);
 //
 //		for (SpringGraphNode n : nodes) {
 //			n.x = n.x - minx;
@@ -193,7 +193,7 @@ public class SpringGraph extends Figure {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 
@@ -208,7 +208,7 @@ public class SpringGraph extends Figure {
 	}
 
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent) {
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent) {
 		for (SpringGraphNode n : nodes) {
 			if (n.mouseOver(mousex, mousey, mouseInParent))
 				return true;

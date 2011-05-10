@@ -46,28 +46,28 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 
-	public static final float AUTO_SIZE = -1.0f;
+	public static final double AUTO_SIZE = -1.0;
 	
 	@SuppressWarnings("unused")
 	private final boolean debug = false;
 	public IFigureApplet fpa;
 	protected static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	protected HashMap<String, Float> axisScales;
+	protected HashMap<String, Double> axisScales;
 
 	public PropertyManager properties;
 
 	
-	private float left;		// coordinates of top left corner of
-	private float top;		// the element's bounding box
-	public float width;			// width of element
-	public float height;		// height of element
+	private double left;		// coordinates of top left corner of
+	private double top;		// the element's bounding box
+	public double width;			// width of element
+	public double height;		// height of element
 	                            // When this figure is used as mouseOver or inner figure, point back
 	                            // to generating Figure
-	protected float scaleX, scaleY;
+	protected double scaleX, scaleY;
 	
 	private boolean visibleInMouseOver = false;
-	private float leftDragged;
-	private float topDragged;
+	private double leftDragged;
+	private double topDragged;
 		
 	protected Figure(IFigureApplet fpa, PropertyManager properties){
 		this.fpa = fpa;
@@ -78,40 +78,40 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		scaleX = scaleY = 1.0f;
 	}
 	
-	protected void setLeft(float left) {
+	protected void setLeft(double left) {
 		this.left = left;
 	}
 	
 
-	public float getLeft() {
+	public double getLeft() {
 		return left + getLeftDragged();
 	}
 
-	protected void setTop(float top) {
+	protected void setTop(double top) {
 		this.top = top + getTopDragged();
 	}
 
-	public float getTop() {
+	public double getTop() {
 		return top;
 	}
 	
-	public float getCenterX(){
+	public double getCenterX(){
 		return getLeft() + width/2;
 	}
 	
-	public float getCenterY(){
+	public double getCenterY(){
 		return getTop() + height/2;
 	}
 
-	public static float max(float a, float b) {
+	public static double max(double a, double b) {
 		return a > b ? a : b;
 	}
 
-	public static float min(float a, float b) {
+	public static double min(double a, double b) {
 		return a < b ? a : b;
 	}
 
-	public float abs(float a) {
+	public double abs(double a) {
 		return a >= 0 ? a : -a;
 	}
 
@@ -125,45 +125,45 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public void applyFontProperties() {
 		fpa.textFont(fpa.createFont(getStringProperty(StrProp.FONT),
 				getIntegerProperty(IntProp.FONT_SIZE)));
-		fpa.fill(getColorProperty(ColorProp.FONT_COLOR));
+		fpa.textColor(getColorProperty(ColorProp.FONT_COLOR));
 	}
 	/*
-	public float leftAlign() {
-		float res= (getRealProperty(RealProp.HALIGN) * width);
+	public double leftAlign() {
+		double res= (getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
-	public float rightAlign() {
-		float res =  (width - getRealProperty(RealProp.HALIGN) * width);
+	public double rightAlign() {
+		double res =  (width - getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
-	public float topAlign() {
+	public double topAlign() {
 		return (getRealProperty(RealProp.VALIGN) * height);
 	}
 
-	public float bottomAlign() {
+	public double bottomAlign() {
 		return (height - getRealProperty(RealProp.VALIGN)  * height);
 	}
 	*/
 	
 	// Anchors
 
-	public float leftAlign() {
-		float res= (getRealProperty(RealProp.HALIGN) * width);
+	public double leftAlign() {
+		double res= (getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
-	public float rightAlign() {
-		float res =  (width - getRealProperty(RealProp.HALIGN) * width);
+	public double rightAlign() {
+		double res =  (width - getRealProperty(RealProp.HALIGN) * width);
 		return res;
 	}
 
-	public float topAlign() {
+	public double topAlign() {
 		return (getRealProperty(RealProp.VALIGN) * height);
 	}
 
-	public float bottomAlign() {
+	public double bottomAlign() {
 		return (height - getRealProperty(RealProp.VALIGN) * height);
 	}
 
@@ -179,30 +179,30 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		// return fpa.isVisible(properties.getDOI() + 1);
 	}
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		
 	}
 
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
-			float val = getMeasureProperty(MeasureProp.WIDTH).value;
+			double val = getMeasureProperty(MeasureProp.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
 		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
-			float val = getMeasureProperty(MeasureProp.HEIGHT).value;
+			double val = getMeasureProperty(MeasureProp.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 			return new Extremes();
 		}
 	}
 	
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
 		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
 			return offset;
 		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
 			return offset;
 		} else {
-			return Float.MAX_VALUE;
+			return Double.MAX_VALUE;
 		}
 	}
 	
@@ -221,13 +221,13 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(Figure o) {
-		float r = (height > width) ? height / width : width / height;
-		float or = (o.height > o.width) ? o.height / o.width : o.width
+		double r = (height > width) ? height / width : width / height;
+		double or = (o.height > o.width) ? o.height / o.width : o.width
 				/ o.height;
 
 		if (r < 2f && or < 2f) {
-			float s = height * width;
-			float os = o.height * o.width;
+			double s = height * width;
+			double os = o.height * o.width;
 			return s < os ? 1 : (s == os ? 0 : -1);
 		}
 		return r < or ? 1 : (r == or ? 0 : -1);
@@ -246,7 +246,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param desiredHeight TODO
 	 */
 
-	public abstract void bbox(float desiredWidth, float desiredHeight);
+	public abstract void bbox(double desiredWidth, double desiredHeight);
 
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
@@ -257,7 +257,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 *            y-coordinate of corner
 	 */
 
-	public abstract void draw(float left, float top);
+	public abstract void draw(double left, double top);
 	
 	/**
 	 * Draw an arrow from an external position (fromX, fromY) directed to the center
@@ -279,13 +279,13 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param toArrow
 	 *            the figure to be used as arrow
 	 */
-	public void connectArrowFrom(float left, float top, float X, float Y,
-			float fromX, float fromY, Figure toArrow) {
+	public void connectArrowFrom(double left, double top, double X, double Y,
+			double fromX, double fromY, Figure toArrow) {
 		if (fromX == X)
 			fromX += 0.00001;
-		float s = (fromY - Y) / (fromX - X);
+		double s = (fromY - Y) / (fromX - X);
 
-		float theta = FigureApplet.atan(s);
+		double theta = FigureApplet.atan(s);
 		if (theta < 0) {
 			if (fromX < X)
 				theta += FigureApplet.PI;
@@ -293,11 +293,11 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 			if (fromX < X)
 				theta += FigureApplet.PI;
 		}
-		float IX;
-		float IY;
+		double IX;
+		double IY;
 
-		float h2 = height / 2;
-		float w2 = width / 2;
+		double h2 = height / 2;
+		double w2 = width / 2;
 
 		if ((-h2 <= s * w2) && (s * w2 <= h2)) {
 			if (fromX > X) { // right
@@ -338,7 +338,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param X
 	 * @return Y value
 	 */
-	private float yLine(float slope, float X1, float Y1, float X) {
+	private double yLine(double slope, double X1, double Y1, double X) {
 		return slope * (X - X1) + Y1;
 	}
 
@@ -351,7 +351,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param Y
 	 * @return X value
 	 */
-	private float xLine(float slope, float X1, float Y1, float Y) {
+	private double xLine(double slope, double X1, double Y1, double Y) {
 		return X1 + (Y - Y1) / slope;
 	}
 
@@ -367,25 +367,25 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param toY
 	 * @return true when line and figure intersect
 	 */
-	public boolean intersects(float X, float Y, float fromX, float fromY,
-			float toX, float toY) {
-		float s = (fromY - toY) / (fromX - toX);
-		float h2 = height / 2;
-		float w2 = width / 2;
+	public boolean intersects(double X, double Y, double fromX, double fromY,
+			double toX, double toY) {
+		double s = (fromY - toY) / (fromX - toX);
+		double h2 = height / 2;
+		double w2 = width / 2;
 
-		float ly = yLine(s, fromX, fromY, X - w2);
+		double ly = yLine(s, fromX, fromY, X - w2);
 		if (ly > Y - h2 && ly < Y + h2)
 			return true;
 
-		float ry = yLine(s, fromX, fromY, X + w2);
+		double ry = yLine(s, fromX, fromY, X + w2);
 		if (ry > Y - h2 && ry < Y + h2)
 			return true;
 
-		float tx = xLine(s, fromX, fromY, Y - h2);
+		double tx = xLine(s, fromX, fromY, Y - h2);
 		if (tx > X - w2 && tx < X + w2)
 			return true;
 
-		float bx = xLine(s, fromX, fromY, Y + h2);
+		double bx = xLine(s, fromX, fromY, Y + h2);
 		if (bx > X - w2 && tx < X + w2)
 			return true;
 		return false;
@@ -425,7 +425,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param top
 	 *            top corner of enclosing figure
 	 */
-	public void drawWithMouseOver(float left, float top) {
+	public void drawWithMouseOver(double left, double top) {
 		draw(left, top);
 		if (hasMouseOverFigure()) {
 			Figure mo = getMouseOver();
@@ -444,10 +444,10 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return b;
 	}
 
-	public boolean mouseInside(int mouseX, int mouseY, float centerX,
-			float centerY) {
-		float left = max(0, centerX - width / 2);
-		float top = max(0, centerY - height / 2);
+	public boolean mouseInside(int mouseX, int mouseY, double centerX,
+			double centerY) {
+		double left = max(0, centerX - width / 2);
+		double top = max(0, centerY - height / 2);
 		boolean b = (mouseX > left && mouseX < left + width)
 				&& (mouseY > top && mouseY < top + height);
 
@@ -473,7 +473,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @return true if element was affected.
 	 */
 	
-	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
 		// System.err.println("Figure.MouseOver: " + this);
 		if(mouseInside(mouseX, mouseY, centerX, centerY)){
 		   fpa.registerMouseOver(this);
@@ -539,7 +539,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return false;
 	}
 	
-	public void drag(float mousex, float mousey){
+	public void drag(double mousex, double mousey){
 		System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
 		if(!isDraggable())
 			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
@@ -557,26 +557,26 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return false;
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.axisScales = axisScales;
 	}
 	
 
-	public void setLeftDragged(float leftDragged) {
+	public void setLeftDragged(double leftDragged) {
 		this.leftDragged = leftDragged;
 	}
 
-	public float getLeftDragged() {
+	public double getLeftDragged() {
 		return leftDragged;
 	}
 
-	public void setTopDragged(float topDragged) {
+	public void setTopDragged(double topDragged) {
 		this.topDragged = topDragged;
 	}
 
-	public float getTopDragged() {
+	public double getTopDragged() {
 		return topDragged;
 	}
 	
@@ -602,7 +602,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public boolean isRealPropertySet(RealProp property){
 		return properties.isRealPropertySet(property);
 	}
-	public float getRealProperty(RealProp property){
+	public double getRealProperty(RealProp property){
 		return properties.getRealProperty(property);
 	}
 	public boolean isStringPropertySet(StrProp property){
@@ -648,12 +648,12 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return properties.getLabel();
 	}
 	
-	float getScaled(Measure m, boolean horizontal){
+	double getScaled(Measure m, boolean horizontal){
 		return getScaled(m,horizontal,null);
 	}
 	
-	float getScaled(Measure m, boolean horizontal,MeasureProp prop){
-		float scale;
+	double getScaled(Measure m, boolean horizontal,MeasureProp prop){
+		double scale;
 		if(horizontal){
 			scale = scaleX;
 		} else {
@@ -667,7 +667,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return m.value * scale;
 	}
 	
-	float getScaled(MeasureProp prop, boolean horizontal){
+	double getScaled(MeasureProp prop, boolean horizontal){
 		Measure m = getMeasureProperty(prop);
 		return getScaled(m,horizontal,prop);
 	}
@@ -685,23 +685,23 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	
 	public boolean isVGapPropertySet(){return isMeasurePropertySet(MeasureProp.VGAP);}
 	// below are convience functions for measures, which are scaled (text and linewidth are not scaled)
-	public float getWidthProperty(){ return getScaled(MeasureProp.WIDTH,true);}
-	public float getHeightProperty(){return  getScaled(MeasureProp.HEIGHT,false);}
-	public float getHGapProperty(){return getScaled(MeasureProp.HGAP,true);}
-	public float getVGapProperty(){return getScaled(MeasureProp.VGAP,false);}
+	public double getWidthProperty(){ return getScaled(MeasureProp.WIDTH,true);}
+	public double getHeightProperty(){return  getScaled(MeasureProp.HEIGHT,false);}
+	public double getHGapProperty(){return getScaled(MeasureProp.HGAP,true);}
+	public double getVGapProperty(){return getScaled(MeasureProp.VGAP,false);}
 	// TODO: how to scale wedges!
-	public float getInnerRadiusProperty(){return getMeasureProperty(MeasureProp.INNERRADIUS).value * max(scaleX,scaleY);}
+	public double getInnerRadiusProperty(){return getMeasureProperty(MeasureProp.INNERRADIUS).value * max(scaleX,scaleY);}
 	
 	public boolean isHGapFactorPropertySet(){return isRealPropertySet(RealProp.HGAP_FACTOR);}
-	public float getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
+	public double getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
 	public boolean isVGapFactorPropertySet(){return isRealPropertySet(RealProp.VGAP_FACTOR);}
-	public float getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
-	public float getHAlignProperty(){return getRealProperty(RealProp.HALIGN);}
-	public float getVAlignProperty(){return getRealProperty(RealProp.VALIGN);}
-	public float getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
-	public float getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
-	public float getFromAngleProperty(){return getRealProperty(RealProp.FROM_ANGLE);}
-	public float getToAngleProperty(){return getRealProperty(RealProp.TO_ANGLE);}
+	public double getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
+	public double getHAlignProperty(){return getRealProperty(RealProp.HALIGN);}
+	public double getVAlignProperty(){return getRealProperty(RealProp.VALIGN);}
+	public double getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
+	public double getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
+	public double getFromAngleProperty(){return getRealProperty(RealProp.FROM_ANGLE);}
+	public double getToAngleProperty(){return getRealProperty(RealProp.TO_ANGLE);}
 	public int getFillColorProperty(){return getColorProperty(ColorProp.FILL_COLOR);}
 	public int getFontColorProperty(){return getColorProperty(ColorProp.FONT_COLOR);}
 	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}

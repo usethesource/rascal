@@ -21,8 +21,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import processing.core.PApplet;
-import processing.core.PFont;
 
 /**
  * 
@@ -32,7 +30,7 @@ import processing.core.PFont;
  *
  */
 
-public class FigureLibrary extends PApplet {
+public class FigureLibrary  {
 
 	private  static final long serialVersionUID = 1L;
 	
@@ -44,6 +42,7 @@ public class FigureLibrary extends PApplet {
 		vf = factory;
 	}
 	
+	/*
 	public void render(IConstructor fig, IEvaluatorContext ctx){
 		PApplet pa = new FigurePApplet(fig, ctx);
 		new StandaloneSWTBridge(pa);
@@ -66,6 +65,7 @@ public class FigureLibrary extends PApplet {
 			pa.destroy();
 		}
 	}
+
 		
 	public IList fontNames(){
 		if(fontNames == null){
@@ -81,6 +81,7 @@ public class FigureLibrary extends PApplet {
 		}
 		return fontNames;
 	}
+	*/
 	
 }
 

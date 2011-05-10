@@ -25,8 +25,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 
 public class Scale extends Figure {
-	float xscale;
-	float yscale;
+	double xscale;
+	double yscale;
 	Figure figure;
 	boolean propagated;
 
@@ -46,14 +46,14 @@ public class Scale extends Figure {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		if(properties.getBooleanProperty(BoolProp.SCALE_ALL) && !propagated) propagateScaling(1.0f, 1.0f,null);
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 	}
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(properties.getBooleanProperty(BoolProp.SCALE_ALL)){
 			fpa.pushMatrix();
 			fpa.translate(left, top);
@@ -65,19 +65,19 @@ public class Scale extends Figure {
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY, axisScales);
 		figure.propagateScaling(scaleX, scaleY, axisScales);
 	}
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(figure!=null){
 			figure.gatherProjections(left, top, projections, first, screenId, horizontal);
 		}
 	}
 	
 
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		throw new UnsupportedOperationException("No rotate on axises yet");
 	}
 

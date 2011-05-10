@@ -2,7 +2,6 @@ package org.rascalmpl.library.vis;
 
 import java.util.Arrays;
 
-import processing.core.PApplet;
 
 public class FloatVsDouble {
 
@@ -52,8 +51,8 @@ public class FloatVsDouble {
 		for(int i = 0 ; i < NR_TESTS ; i++){
 			tmp = Math.sin(testValues[i]);
 			tmp += Math.sqrt(testValues[i]);
-			tmp += Math.exp(testValues[i]);
-			tmp += Math.log(testValues[i] + 1.0);
+			// tmp += Math.exp(testValues[i]);
+			// tmp += Math.log(testValues[i] + 1.0);
 			tmp += Math.toRadians(testValues[i]);
 		}
 		long dur = System.nanoTime() - start;
@@ -62,11 +61,11 @@ public class FloatVsDouble {
 		float tmpF;
 		start = System.nanoTime();
 		for(int i = 0 ; i < NR_TESTS ; i++){
-			tmpF = PApplet.sin(testValuesF[i]);
-			tmpF += PApplet.sqrt(testValuesF[i]);
-			tmpF += PApplet.exp(testValuesF[i]);
-			tmpF += PApplet.log(testValuesF[i] + 1.0f);
-			tmpF += PApplet.radians(testValuesF[i]);
+			tmpF = (float) FigureApplet.sin(testValuesF[i]);
+			tmpF += (float) FigureApplet.sqrt(testValuesF[i]);
+			// tmpF += (float) FigureApplet.exp(testValuesF[i]);
+			// tmpF += (float) FigureApplet.log(testValuesF[i] + 1.0f);
+			tmpF += FigureApplet.radians(testValuesF[i]);
 		}
 		long dur2 = System.nanoTime() - start;
 		System.out.printf("float took: %d\n", dur2);

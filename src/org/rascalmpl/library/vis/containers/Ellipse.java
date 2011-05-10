@@ -20,9 +20,6 @@ import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
-// import processing.core.FigureApplet;
-// import processing.core.FigureApplet;
-
 
 
 /**
@@ -61,12 +58,12 @@ public class Ellipse extends Container {
 	 * @param toArrow	the figure to be used as arrow
 	 */
 	@Override
-	public void connectArrowFrom(float left, float top, float X, float Y, float fromX, float fromY,
+	public void connectArrowFrom(double left, double top, double X, double Y, double fromX, double fromY,
 			Figure toArrow){
 		
 		if(fromX == X)
 			fromX += 0.00001;
-        float theta = FigureApplet.atan((fromY - Y) / (fromX - X));
+        double theta = FigureApplet.atan((fromY - Y) / (fromX - X));
         if(theta < 0){
         	if(fromX < X )
         		theta += FigureApplet.PI;
@@ -74,11 +71,11 @@ public class Ellipse extends Container {
         	if(fromX < X )
         		theta += FigureApplet.PI;
         }
-        float sint = FigureApplet.sin(theta);
-        float cost = FigureApplet.cos(theta);
-        float r = height * width / (4 * FigureApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
-        float IX = X + r * cost;
-        float IY = Y + r * sint;
+        double sint = FigureApplet.sin(theta);
+        double cost = FigureApplet.cos(theta);
+        double r = height * width / (4 * FigureApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
+        double IX = X + r * cost;
+        double IY = Y + r * sint;
         
    //     fpa.line(left + fromX, top + fromY, left + IX, top + IY);
         
@@ -107,23 +104,23 @@ public class Ellipse extends Container {
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		float w2 = width/2;
-		float h2 = height/2;
-		float X = getLeft() + w2;
-		float Y = getTop() + h2;
-		float ex =  (mousex - X) / w2;
-		float ey = 	(mousey - Y) / h2;
+		double w2 = width/2;
+		double h2 = height/2;
+		double X = getLeft() + w2;
+		double Y = getTop() + h2;
+		double ex =  (mousex - X) / w2;
+		double ey = 	(mousey - Y) / h2;
 		boolean b =  ex * ex + ey * ey <= 1;
 		//System.err.println("ellipse.mouseInside: " + b);
 		return b;
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey, float centerX, float centerY){
-		float w2 = width/2;
-		float h2 = height/2;
-		float ex =  (mousex - centerX) / w2;
-		float ey = 	(mousey - centerY) / h2;
+	public boolean mouseInside(int mousex, int mousey, double centerX, double centerY){
+		double w2 = width/2;
+		double h2 = height/2;
+		double ex =  (mousex - centerX) / w2;
+		double ey = 	(mousey - centerY) / h2;
 		boolean b =  ex * ex + ey * ey <= 1;
 		//System.err.println("ellipse.mouseInside: " + b);
 		return b;

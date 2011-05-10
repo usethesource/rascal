@@ -29,33 +29,33 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  */
 public class HVCat extends Compose {
 	
-	float leftElem[];
-	float topRowElem[];
-	float rowHeight[];
-	float rowWidth[];
+	double leftElem[];
+	double topRowElem[];
+	double rowHeight[];
+	double rowWidth[];
 	int inRow[];
 	
 	static boolean debug = false;
 
 	public HVCat(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
-		leftElem = new float[elems.length()];
-		topRowElem = new float[elems.length()];
-		rowHeight = new float[elems.length()];
-		rowWidth = new float[elems.length()];
+		leftElem = new double[elems.length()];
+		topRowElem = new double[elems.length()];
+		rowHeight = new double[elems.length()];
+		rowWidth = new double[elems.length()];
 		inRow = new int[elems.length()];
 	}
 	
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight){
+	public void bbox(double desiredWidth, double desiredHeight){
 		width = getWidthProperty();
 		height = 0;
-		float w = 0;
-		float hrow = 0;
-		float toprow = 0;
+		double w = 0;
+		double hrow = 0;
+		double toprow = 0;
 		int nrow = 0;
-		float hgap = getHGapProperty();
-		float vgap = getVGapProperty();
+		double hgap = getHGapProperty();
+		double vgap = getVGapProperty();
 		for(int i = 0; i < figures.length; i++){
 			Figure fig = figures[i];
 			fig.bbox(AUTO_SIZE, AUTO_SIZE);
@@ -91,8 +91,8 @@ public class HVCat extends Compose {
 	private void determinePlacement() {
 		for(int i = 0; i < figures.length; i++){
 			Figure fig = figures[i];
-			float hrow = rowHeight[inRow[i]];
-			float rfiller = width - rowWidth[inRow[i]];
+			double hrow = rowHeight[inRow[i]];
+			double rfiller = width - rowWidth[inRow[i]];
 			xPos[i] = leftElem[i] + fig.getHAlignProperty()  * rfiller;
 			yPos[i] = topRowElem[i] +  fig.getVAlignProperty() * (hrow - fig.height);              
 		}

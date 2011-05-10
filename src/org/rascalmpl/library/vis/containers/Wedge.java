@@ -36,32 +36,32 @@ import org.rascalmpl.library.vis.FigureApplet;
  */
 
 public class Wedge extends Container {
-	private float fromAngle;
-	private float toAngle;
-	private float radius;
-	private float innerRadius;
-	private float leftAnchor;
-	private float rightAnchor;
-	private float topAnchor;
-	private float bottomAnchor;
+	private double fromAngle;
+	private double toAngle;
+	private double radius;
+	private double innerRadius;
+	private double leftAnchor;
+	private double rightAnchor;
+	private double topAnchor;
+	private double bottomAnchor;
 	
-	private float centerX;
-	private float centerY;
+	private double centerX;
+	private double centerY;
 	
-	private float IX;	// center of inner element, relative to (centerX, centerY)
-	private float IY;
+	private double IX;	// center of inner element, relative to (centerX, centerY)
+	private double IY;
 	
-	float Ax;	// start of outer arc (relative to center)
-	float Ay;
+	double Ax;	// start of outer arc (relative to center)
+	double Ay;
 	
-	float Bx;	// end of outer arc
-	float By;
+	double Bx;	// end of outer arc
+	double By;
 	
-	float Cx;	// start of inner arc
-	float Cy;
+	double Cx;	// start of inner arc
+	double Cy;
 	
-	float Dx;	// end of inner arc
-	float Dy;
+	double Dx;	// end of inner arc
+	double Dy;
 	
 	int qFrom;	// Quadrant of fromAngle;
 	int qTo;	// Quadrant of toAngle;
@@ -93,9 +93,9 @@ public class Wedge extends Container {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight){
+	void bbox(double desiredWidth, double desiredHeight){
 		radius = getHeightProperty();
-		float lw = getLineWidthProperty();
+		double lw = getLineWidthProperty();
 		innerRadius = getInnerRadiusProperty();
 
 		fromAngle = FigureApplet.radians(getFromAngleProperty());
@@ -108,16 +108,16 @@ public class Wedge extends Container {
 		if(innerFig != null)	// Compute bounding box of inside object.
 			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
 		
-		float sinFrom = FigureApplet.sin(fromAngle);
-		float cosFrom = FigureApplet.cos(fromAngle);
-		float sinTo = FigureApplet.sin(toAngle);
-		float cosTo = FigureApplet.cos(toAngle);
+		double sinFrom = FigureApplet.sin(fromAngle);
+		double cosFrom = FigureApplet.cos(fromAngle);
+		double sinTo = FigureApplet.sin(toAngle);
+		double cosTo = FigureApplet.cos(toAngle);
 		
-		float rsinFrom = radius * abs(sinFrom);
-		float rcosFrom = radius * abs(cosFrom);
+		double rsinFrom = radius * abs(sinFrom);
+		double rcosFrom = radius * abs(cosFrom);
 		
-		float rsinTo = radius * Math.abs(sinTo);
-		float rcosTo = radius * Math.abs(cosTo);
+		double rsinTo = radius * Math.abs(sinTo);
+		double rcosTo = radius * Math.abs(cosTo);
 		
 		Ax = radius*cosFrom;  // start of outer arc
 		Ay = radius*sinFrom;
@@ -133,9 +133,9 @@ public class Wedge extends Container {
 		
 		// Compute center and max (approximate) width of inner element
 		
-		float middleAngle = fromAngle + (toAngle-fromAngle)/2;
+		double middleAngle = fromAngle + (toAngle-fromAngle)/2;
 		
-		float raux = innerRadius + 0.5f*(radius-innerRadius);
+		double raux = innerRadius + 0.5f*(radius-innerRadius);
 
 		switch(quadrant(middleAngle)){
 		case 1:	IX = raux * FigureApplet.cos(middleAngle);
@@ -228,20 +228,20 @@ public class Wedge extends Container {
 	 * @param fromAngle		begin angle
 	 * @param toAngle		end angle
 	 */
-	void arcVertex(float r, float fromAngle, float toAngle){
+	void arcVertex(double r, double fromAngle, double toAngle){
 		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
 	    if(abs(toAngle - fromAngle) < FigureApplet.PI/2){
-			float middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
-			float middleR = abs(r / FigureApplet.cos(middleAngle));	// radius of control point M
+			double middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
+			double middleR = abs(r / FigureApplet.cos(middleAngle));	// radius of control point M
 			
-			float Mx = centerX + middleR * FigureApplet.cos(fromAngle + middleAngle);	// coordinates of M
-			float My = centerY + middleR * FigureApplet.sin(fromAngle + middleAngle);
+			double Mx = centerX + middleR * FigureApplet.cos(fromAngle + middleAngle);	// coordinates of M
+			double My = centerY + middleR * FigureApplet.sin(fromAngle + middleAngle);
 			
-			float Fx = centerX + r * FigureApplet.cos(fromAngle);	// coordinates of start point
-			float Fy = centerY + r * FigureApplet.sin(fromAngle);
+			double Fx = centerX + r * FigureApplet.cos(fromAngle);	// coordinates of start point
+			double Fy = centerY + r * FigureApplet.sin(fromAngle);
 			
-			float Tx = centerX + r * FigureApplet.cos(toAngle);		// coordinates of end point
-			float Ty = centerY + r * FigureApplet.sin(toAngle);
+			double Tx = centerX + r * FigureApplet.cos(toAngle);		// coordinates of end point
+			double Ty = centerY + r * FigureApplet.sin(toAngle);
 			if (debug){
 				System.err.printf("arcVertex: fromAngle=%f, middleAngle=%f, toAngle=%f, r=%f, middleR=%f\n", 
 								fromAngle, middleAngle, toAngle, r, middleR);
@@ -256,7 +256,7 @@ public class Wedge extends Container {
 	    	/*
 	    	 * Split when difference is larger than PI/2
 	    	 */
-	    	float medium = (toAngle - fromAngle)/2;
+	    	double medium = (toAngle - fromAngle)/2;
 	    	arcVertex(r, fromAngle, fromAngle + medium);
 	    	arcVertex(r, fromAngle + medium, toAngle);
 	    }
@@ -315,31 +315,31 @@ public class Wedge extends Container {
 	}
 	
 	@Override
-	public float leftAlign(){
+	public double leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAlign(){
+	public double rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAlign(){
+	public double topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAlign(){
+	public double bottomAlign(){
 		return bottomAnchor;
 	}
 	
 	@Override
 	public boolean mouseInside(int mousex, int mousey){
-		float dx = mousex - centerX;
-		float dy = mousey - centerY;
-		float dist = FigureApplet.sqrt(dx*dx + dy*dy);
-		float angle;
+		double dx = mousex - centerX;
+		double dy = mousey - centerY;
+		double dist = FigureApplet.sqrt(dx*dx + dy*dy);
+		double angle;
 		if(dx > 0 && dy > 0)
 			angle = FigureApplet.asin(dy/dist);
 		else if(dx < 0 && dy > 0)

@@ -79,16 +79,16 @@ public class SpringGraphEdge extends Figure {
 	}
 	
 	void relax(SpringGraph G){
-		float vx = to.xdistance(getFrom());
-		float vy = to.ydistance(getFrom());
+		double vx = to.xdistance(getFrom());
+		double vy = to.ydistance(getFrom());
 		
-		float dlen = FigureApplet.mag(vx, vy);
+		double dlen = FigureApplet.mag(vx, vy);
 		//dlen = (dlen == 0) ? .0001f : dlen;
 
-		//float attract = G.attract(dlen);
-		float attract = dlen * dlen / G.springConstant;
-		float dx = (vx / dlen) * attract;
-		float dy = (vy / dlen) * attract;
+		//double attract = G.attract(dlen);
+		double attract = dlen * dlen / G.springConstant;
+		double dx = (vx / dlen) * attract;
+		double dy = (vy / dlen) * attract;
 
 		to.dispx += -dx;
 		to.dispy += -dy;
@@ -100,7 +100,7 @@ public class SpringGraphEdge extends Figure {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		applyProperties();
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
 				to.name + ": " + to.getX() + "," + to.getY() + ")");
@@ -125,7 +125,7 @@ public class SpringGraphEdge extends Figure {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		// TODO Auto-generated method stub
 		
 	}

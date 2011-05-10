@@ -65,7 +65,7 @@ public class Button extends Figure {
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		width = button.getWidth();
 		height = button.getHeight();
 	}
@@ -81,7 +81,7 @@ public class Button extends Figure {
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		button.setBackground(new Color(getFillColorProperty()));

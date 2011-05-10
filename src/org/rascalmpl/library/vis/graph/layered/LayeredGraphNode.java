@@ -32,10 +32,10 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	protected String name;
 	protected Figure figure;
-	protected float x = -1;
-	protected float y = -1;
+	protected double x = -1;
+	protected double y = -1;
 	
-	private float[] xs = {-1f, -1f, -1f, -1f};
+	private double[] xs = {-1f, -1f, -1f, -1f};
 	
 	protected LinkedList<LayeredGraphNode> in;
 	protected LinkedList<LayeredGraphNode> out;
@@ -51,9 +51,9 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	LayeredGraphNode align;
 	LayeredGraphNode sink;
 	final int INFINITY = 1000000;
-	float shift = INFINITY;
-	public float layerHeight;
-	public float blockWidth;
+	double shift = INFINITY;
+	public double layerHeight;
+	public double blockWidth;
 	
 	LayeredGraphNode(String name, Figure fig){
 		this.name = name;
@@ -139,13 +139,13 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	public void exchangeWidthAndHeight(){
 		if(figure != null){
-			float tmp = figure.width; 
+			double tmp = figure.width; 
 			figure.width = figure.height; 
 			figure.height = tmp;
 		}
 	}
 	
-	public float baryCenter(LinkedList<LayeredGraphNode> above,LinkedList<LayeredGraphNode> below){
+	public double baryCenter(LinkedList<LayeredGraphNode> above,LinkedList<LayeredGraphNode> below){
 		int sum = 0;
 		LinkedList<LayeredGraphNode> aboveG = getAllConnectedNeighbours(above);
 		LinkedList<LayeredGraphNode> belowG = getAllConnectedNeighbours(below);
@@ -159,7 +159,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return degree > 0 ? sum/degree : 0;
 	}
 	
-	public float median(LinkedList<LayeredGraphNode> above){
+	public double median(LinkedList<LayeredGraphNode> above){
 		LinkedList<LayeredGraphNode> aboveG = getAllConnectedNeighbours(above);
 		int nAbove = aboveG.size();
 		return nAbove > 0 ? aboveG.get(nAbove/2).x : 0;
@@ -465,7 +465,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * @param dir	a given alignment direction
 	 * @return The x value for that direction
 	 */
-	public float getX(Direction dir){
+	public double getX(Direction dir){
 		return xs[Direction.ord(dir)];
 	}
 	
@@ -474,11 +474,11 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * @param dir	a given alignment direction
 	 * @param x		the x value for that direction
 	 */
-	public void setX(Direction dir, float x){
+	public void setX(Direction dir, double x){
 		this.x = xs[Direction.ord(dir)] = x;
 	}
 	
-	public void shiftX(float shift[]){
+	public void shiftX(double shift[]){
 		for(Direction dir : Direction.dirs){
 			int k = Direction.ord(dir);
 			xs[k] += shift[k];
@@ -488,11 +488,11 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	/* Standard figure elements and operations */
 
 	
-	public float figX(){
+	public double figX(){
 		return x;
 	}
 	
-	public float figY(){
+	public double figY(){
 		return y;
 	}
 	
@@ -503,11 +503,11 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		}
 	}
 	
-	float width(){
+	double width(){
 		return figure != null ? figure.width : 0;
 	}
 	
-	float height(){
+	double height(){
 		return figure != null ? figure.height : 0;
 	}
 	
@@ -515,7 +515,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return figure != null ? figure.getLayerProperty() : "";
 	}
 
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(figure != null){
 			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			figure.draw(x + left - figure.width/2, y + top - figure.height/2);

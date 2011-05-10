@@ -30,8 +30,8 @@ public class ConstantProperties {
 
 	}
 	
-	static class ConstantRealProperty extends ConstantProperty<Float>{
-		public ConstantRealProperty(Float value) {
+	static class ConstantRealProperty extends ConstantProperty<Double>{
+		public ConstantRealProperty(Double value) {
 			super(value);
 		}
 	}

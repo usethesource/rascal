@@ -17,7 +17,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -33,12 +32,12 @@ public class LayeredGraphEdge extends Figure {
 	Figure toArrow;
 	Figure fromArrow;
 	Figure label;
-	float labelX;
-	float labelMinX;
-	float labelMaxX;
-	float labelMinY;
-	float labelMaxY;
-	float labelY;
+	double labelX;
+	double labelMinX;
+	double labelMaxX;
+	double labelMinY;
+	double labelMaxY;
+	double labelY;
 	boolean reversed = false;
 	private static boolean debug = true;
 	private static boolean useSplines = true;
@@ -134,14 +133,14 @@ public class LayeredGraphEdge extends Figure {
 	 * Primitives for drawing a multi-vertex edge
 	 */
 	
-	float points[];
+	double points[];
 	int cp;
-	float x1;
-	float y1;
+	double x1;
+	double y1;
 	
-	private void beginCurve(float x, float y){
+	private void beginCurve(double x, double y){
 		if(useSplines){
-			points = new float[20];
+			points = new double[20];
 			cp = 0;
 			addPointToCurve(x, y);
 		} else {
@@ -149,10 +148,10 @@ public class LayeredGraphEdge extends Figure {
 		}
 	}
 	
-	private void addPointToCurve(float x, float y){
+	private void addPointToCurve(double x, double y){
 		if(useSplines){
 			if(cp == points.length){
-				float points1[] = new float[2*points.length];
+				double points1[] = new double[2*points.length];
 				for(int i = 0; i < cp; i++)
 					points1[i] = points[i];
 				points = points1;
@@ -165,7 +164,7 @@ public class LayeredGraphEdge extends Figure {
 		}
 	}
 	
-	private void endCurve(float x, float y){
+	private void endCurve(double x, double y){
 		if(useSplines){
 			addPointToCurve(x, y);
 			drawCurve();
@@ -184,12 +183,12 @@ public class LayeredGraphEdge extends Figure {
 		fpa.smooth();
 		fpa.noFill();
 		fpa.beginShape();
-		float x1 = points[0];
-		float y1 = points[1];
-		float xc = 0.0f;
-		float yc = 0.0f;
-		float x2 = 0.0f;
-		float y2 = 0.0f;
+		double x1 = points[0];
+		double y1 = points[1];
+		double xc = 0.0f;
+		double yc = 0.0f;
+		double x2 = 0.0f;
+		double y2 = 0.0f;
 		fpa.vertex(x1, y1);
 		for (int i = 2; i < cp - 4; i += 2) {
 			xc = points[i];
@@ -213,7 +212,7 @@ public class LayeredGraphEdge extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		applyProperties();
 		
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
@@ -226,11 +225,11 @@ public class LayeredGraphEdge extends Figure {
 			if(debug)System.err.println("Drawing a shape, inverted=" + reversed);
 			LayeredGraphNode currentNode = getTo();
 			
-			float dx = currentNode.figX() - getFrom().figX();
-			float dy = (currentNode.figY() - getFrom().figY());
-			float imScale = 0.4f;
-			float imX = getFrom().figX() + dx/2;
-			float imY = getFrom().figY() + dy * imScale;
+			double dx = currentNode.figX() - getFrom().figX();
+			double dy = (currentNode.figY() - getFrom().figY());
+			double imScale = 0.4f;
+			double imX = getFrom().figX() + dx/2;
+			double imY = getFrom().figY() + dy * imScale;
 			
 			if(debug)System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",	getFrom().figX(), getFrom().figY(),	currentNode.figX(), currentNode.figY(), imX, imY);
 			
@@ -258,10 +257,10 @@ public class LayeredGraphEdge extends Figure {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
 			if(getTo() == getFrom()){  // Drawing a self edge
 				LayeredGraphNode node = getTo();
-				float h = node.figure.height;
-				float w = node.figure.width;
-				float hgap = getHGapProperty();
-				float vgap = getVGapProperty();
+				double h = node.figure.height;
+				double w = node.figure.width;
+				double hgap = getHGapProperty();
+				double vgap = getVGapProperty();
 				
 //				beginCurve(left + node.figX(),                   top + node.figY()-h/3);
 //				addPointToCurve(left + node.figX(),              top + node.figY()-h/3);
@@ -339,12 +338,12 @@ public class LayeredGraphEdge extends Figure {
 		}
 	}
 	
-	private void drawLastSegment(float left, float top, float startImX, float startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
-		float dx = currentNode.figX() - prevNode.figX();
-		float dy = (currentNode.figY() - prevNode.figY());
-		float imScale = 0.6f;
-		float imX = prevNode.figX() + dx / 2;
-		float imY = prevNode.figY() + dy * imScale;
+	private void drawLastSegment(double left, double top, double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
+		double dx = currentNode.figX() - prevNode.figX();
+		double dy = (currentNode.figY() - prevNode.figY());
+		double imScale = 0.6f;
+		double imX = prevNode.figX() + dx / 2;
+		double imY = prevNode.figY() + dy * imScale;
 		
 		if(debug)
 			System.err.printf("drawLastSegment: (%f,%f) -> (%f,%f), imX=%f, imY=%f\n",
@@ -380,7 +379,7 @@ public class LayeredGraphEdge extends Figure {
 		}
 	}
 	
-	public void shiftLabelCoordinates(float dx, float dy){
+	public void shiftLabelCoordinates(double dx, double dy){
 		if(label != null){
 			System.err.printf("shiftLabelCoordinates %s-> %s: %f, %f\n", from.name, to.name, dx, dy);
 			labelX = min(max(labelMinX, labelX + dx), labelMaxX);
@@ -389,23 +388,23 @@ public class LayeredGraphEdge extends Figure {
 	}
 	
 	public void reduceOverlap(LayeredGraphEdge other){
-		float ax1 = labelX - label.width/2;
-		float ax2 = labelX + label.width/2;
-		float bx1 = other.labelX - other.label.width/2;
-		float bx2 = other.labelX + other.label.width/2;
-		float distX;
+		double ax1 = labelX - label.width/2;
+		double ax2 = labelX + label.width/2;
+		double bx1 = other.labelX - other.label.width/2;
+		double bx2 = other.labelX + other.label.width/2;
+		double distX;
 		
 		if(ax1 < bx1){
 			distX = bx1 - ax2;
 		} else
 			distX = ax1 - bx2;
 		
-		float ay1 = labelY - label.height/2;
-		float ay2 = labelY + label.height/2;
-		float by1 = other.labelY - other.label.height/2;
-		float by2 = other.labelY + other.label.height/2;
+		double ay1 = labelY - label.height/2;
+		double ay2 = labelY + label.height/2;
+		double by1 = other.labelY - other.label.height/2;
+		double by2 = other.labelY + other.label.height/2;
 		
-		float distY;
+		double distY;
 		
 		if(ay1 < by1){
 			distY = by1 - ay2 - 2;
@@ -424,7 +423,7 @@ public class LayeredGraphEdge extends Figure {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		if(fromArrow != null)
 			fromArrow.bbox(desiredWidth, desiredHeight);
 		if(toArrow != null)

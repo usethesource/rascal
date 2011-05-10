@@ -32,8 +32,8 @@ public class TreeNode extends Figure {
 	Figure rootFigure;                        // Figure associated with this TreeNode
 	private ArrayList<TreeNode> children;     // Child nodes
 	private ArrayList<PropertyManager> edgeProperties;
-	private float[] childRoot;                // Root position of each child
-	private float rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
+	private double[] childRoot;                // Root position of each child
+	private double rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
 	public TreeNode(IFigureApplet fpa, PropertyManager properties, Figure fig) {
@@ -54,7 +54,7 @@ public class TreeNode extends Figure {
 	 * Distance between rootPosition and leftmost border of this node
 	 */
 	
-	public float leftExtent(){
+	public double leftExtent(){
 		return rootPosition;
 	}
 	
@@ -62,7 +62,7 @@ public class TreeNode extends Figure {
 	 * Distance between rootPosition and rightmost border of this node
 	 */
 	
-	public float rightExtent(){
+	public double rightExtent(){
 		return width - rootPosition;
 	}
 	
@@ -74,15 +74,15 @@ public class TreeNode extends Figure {
 	 * @param raster	NodeRaster to be used
 	 * @return the x position of the center of the root
 	 */
-	float shapeTree(float rootMidX, float rootTop, TreeNodeRaster raster) {
+	double shapeTree(double rootMidX, double rootTop, TreeNodeRaster raster) {
         String id = rootFigure.getIdProperty();
 		if(debug)System.err.printf("shapeTree: id=%s, rootMidX=%f, rootTop=%f\n", id, rootMidX, rootTop);
 		rootFigure.bbox(AUTO_SIZE, AUTO_SIZE);
-		float hgap = getHGapProperty();
-		float vgap = getVGapProperty();
+		double hgap = getHGapProperty();
+		double vgap = getVGapProperty();
 		
 		// Initial placement of figure of this TreeNode
-		float position = raster.leftMostPosition(rootMidX, rootTop, rootFigure.width, rootFigure.height, hgap);
+		double position = raster.leftMostPosition(rootMidX, rootTop, rootFigure.width, rootFigure.height, hgap);
 		rootPosition = position;
 		height = rootFigure.height;
 		width = rootFigure.width;
@@ -98,10 +98,10 @@ public class TreeNode extends Figure {
 			
 			// Compute position of leftmost child
 			
-			float branchPosition = position;
+			double branchPosition = position;
 			
 			if(nChildren > 1){
-				float widthDirectChildren = (children.get(0).rootFigure.width + children.get(nChildren-1).rootFigure.width)/2 +
+				double widthDirectChildren = (children.get(0).rootFigure.width + children.get(nChildren-1).rootFigure.width)/2 +
 				                            (nChildren-1) * hgap;
 				for(int i = 1; i < nChildren - 1; i++){
 					widthDirectChildren += children.get(i).rootFigure.width;
@@ -109,15 +109,15 @@ public class TreeNode extends Figure {
 				branchPosition = position - widthDirectChildren/2; 		// Position of leftmost child
 			}
 			
-			float childTop = rootTop + rootFigure.height + vgap;         // Top of all children
+			double childTop = rootTop + rootFigure.height + vgap;         // Top of all children
 			 
-			childRoot = new float[nChildren];
+			childRoot = new double[nChildren];
 			
 			// Place leftmost child
-			float leftPosition = childRoot[0] = children.get(0).shapeTree(branchPosition, childTop, raster);
-			float rightPosition = leftPosition;
-			float heightChildren = children.get(0).height;
-			float rightExtentChildren = leftPosition + children.get(0).rightExtent();
+			double leftPosition = childRoot[0] = children.get(0).shapeTree(branchPosition, childTop, raster);
+			double rightPosition = leftPosition;
+			double heightChildren = children.get(0).height;
+			double rightExtentChildren = leftPosition + children.get(0).rightExtent();
 			
 			for(int i = 1; i < nChildren; i++){
 				TreeNode childi = children.get(i);
@@ -148,13 +148,13 @@ public class TreeNode extends Figure {
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public
-	void draw(float left, float top){
+	void draw(double left, double top){
 		
 		this.setLeft(left);
 		this.setTop(top);
@@ -167,8 +167,8 @@ public class TreeNode extends Figure {
 		
 		applyProperties();
 		
-		float positionRoot = left + rootPosition;
-		float leftRootFig = positionRoot - rootFigure.width/2;
+		double positionRoot = left + rootPosition;
+		double leftRootFig = positionRoot - rootFigure.width/2;
 		
 		if(debug)System.err.printf("draw %s, %f, %f, rootFig at %f, %f\n", id, left, top, leftRootFig, top);
 		
@@ -180,10 +180,10 @@ public class TreeNode extends Figure {
 		
 		fpa.incDepth();
 		
-		float bottomRootFig = top + rootFigure.height;
-		float vgap          = getVGapProperty();
-		float childTop      = bottomRootFig + vgap; 
-		float horLine       = bottomRootFig + vgap/2;
+		double bottomRootFig = top + rootFigure.height;
+		double vgap          = getVGapProperty();
+		double childTop      = bottomRootFig + vgap; 
+		double horLine       = bottomRootFig + vgap/2;
 		
 		// Vertical line from bottom of root figure to horizontal line
 		fpa.line(positionRoot, bottomRootFig, positionRoot, horLine);
@@ -196,7 +196,7 @@ public class TreeNode extends Figure {
 		
 		for(int i = 0; i < nChildren; i++){
 			TreeNode child = children.get(i);
-			float positionChild = left + childRoot[i];
+			double positionChild = left + childRoot[i];
 			if(debug)System.err.printf("draw %s, child %d at posChild=%f, widthChild=%f, posRoot=%f\n", id, i, positionChild, child.width, child.rootPosition, childTop);
 
 			// Vertical line from horizontal line to top of this child
@@ -219,12 +219,12 @@ public class TreeNode extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey, float centerX, float centerY){
+	public boolean mouseInside(int mousex, int mousey, double centerX, double centerY){
 		return rootFigure.mouseInside(mousex, mousey, rootFigure.getCenterX(), rootFigure.getCenterY());
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
 		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
 		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", getLeft(), getTop());
 		if(rootFigure.mouseOver(mousex, mousey, false))

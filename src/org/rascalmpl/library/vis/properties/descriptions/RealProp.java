@@ -17,27 +17,27 @@ import java.util.HashMap;
 import org.rascalmpl.library.vis.properties.PropertySetters;
 
 public enum RealProp {
-	HALIGN(0.5f),
+	HALIGN(0.5),
 
 
-	HGAP_FACTOR(0.0f),
+	HGAP_FACTOR(0.0),
 
-	LINE_WIDTH(1.0f),
-	TEXT_ANGLE(0.0f), 	
-	FROM_ANGLE(0.0f),
-	TO_ANGLE(0.0f),			
-	VALIGN(0.5f),		
+	LINE_WIDTH(1.0),
+	TEXT_ANGLE(0.0), 	
+	FROM_ANGLE(0.0),
+	TO_ANGLE(0.0),			
+	VALIGN(0.5),		
 	
-	VGAP_FACTOR(0.0f);
+	VGAP_FACTOR(0.0);
 	
-	float stdDefault;
+	double stdDefault;
 	
-	RealProp(float stdDefault){
+	RealProp(double stdDefault){
 		this.stdDefault = stdDefault;
 	}
 
 	@SuppressWarnings("serial")
-	public static final HashMap<String, PropertySetters.PropertySetter<RealProp,Float>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<RealProp,Float>>() {{
+	public static final HashMap<String, PropertySetters.PropertySetter<RealProp, Double>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<RealProp, Double>>() {{
 	put("halign", new PropertySetters.SingleRealPropertySetter(HALIGN));
 	put("hgapFactor", new PropertySetters.SingleIntOrRealPropertySetter(HGAP_FACTOR));
 	put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
@@ -51,7 +51,7 @@ public enum RealProp {
 	put("gapFactor", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP_FACTOR, VGAP_FACTOR));
 	}};
 
-	public Float getStdDefault() {
+	public Double getStdDefault() {
 		return stdDefault;
 	}	
 }

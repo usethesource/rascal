@@ -30,15 +30,15 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  */
 public class Vertex extends Figure {
 	Figure marker;
-	float deltax;
-	float deltay;
-	float leftAnchor;
-	float rightAnchor;
-	float topAnchor;
-	float bottomAnchor;
+	double deltax;
+	double deltay;
+	double leftAnchor;
+	double rightAnchor;
+	double topAnchor;
+	double bottomAnchor;
 	private static boolean debug = false;
 
-	private float getIntOrReal(IValue v){
+	private double getIntOrReal(IValue v){
 		if(v.getType().isIntegerType())
 			return ((IInteger) v).intValue();
 		if(v.getType().isRealType())
@@ -63,7 +63,7 @@ public class Vertex extends Figure {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight){
+	void bbox(double desiredWidth, double desiredHeight){
 
 		if(marker != null){
 			//TODO is this ok?
@@ -103,7 +103,7 @@ public class Vertex extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		applyProperties();
@@ -118,22 +118,22 @@ public class Vertex extends Figure {
 	}
 	
 	@Override
-	public float leftAlign(){
+	public double leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAlign(){
+	public double rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAlign(){
+	public double topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAlign(){
+	public double bottomAlign(){
 		return bottomAnchor;
 	}
 

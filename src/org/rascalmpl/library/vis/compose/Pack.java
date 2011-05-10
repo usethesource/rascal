@@ -42,7 +42,7 @@ public class Pack extends Compose {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		if(initialized)
 			return;
 		width = getWidthProperty();
@@ -50,10 +50,10 @@ public class Pack extends Compose {
 
 		Node.hgap = getHGapProperty();
 		Node.vgap = getVGapProperty();
-		float surface = 0;
-		float maxw = 0;
-		float maxh = 0;
-		float ratio = 1;
+		double surface = 0;
+		double maxw = 0;
+		double maxh = 0;
+		double ratio = 1;
 		for(Figure fig : figures){
 			fig.bbox(AUTO_SIZE, AUTO_SIZE);
 			maxw = max(maxw, fig.width);
@@ -61,7 +61,7 @@ public class Pack extends Compose {
 			surface += fig.width * fig.height;
 			ratio = (ratio +fig.height/fig.width)/2;
 		}
-		float opt = FigureApplet.sqrt(surface);
+		double opt = FigureApplet.sqrt(surface);
 		width = opt;
 		height = ratio * opt;
 		//width = opt/maxw < 1.2 ? 1.2f * maxw : 1.2f*opt;
@@ -99,7 +99,7 @@ public class Pack extends Compose {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
 		if(!isNextVisible())
 			return;
@@ -119,17 +119,17 @@ public class Pack extends Compose {
 }
 
 class Node {
-	static float hgap;
-	static float vgap;
+	static double hgap;
+	static double vgap;
 	Node lnode;
 	Node rnode;
 	Figure figure;
-	float left;
-	float top;
-	float right;
-	float bottom;
+	double left;
+	double top;
+	double right;
+	double bottom;
 	
-	Node (float left, float top, float right, float bottom){
+	Node (double left, double top, double right, double bottom){
 		lnode  = rnode = null;
 		figure = null;
 		this.left = left;
@@ -165,16 +165,16 @@ class Node {
 			return null;
 		}
 		
-		float width = right - left;
-		float height = bottom - top;
+		double width = right - left;
+		double height = bottom - top;
 		
 		// If we are too small return
 		
 		if(width <= 0.01f || height <= 0.01f)
 			return null;
 		
-		float dw = width - fig.width;
-        float dh = height - fig.height;
+		double dw = width - fig.width;
+        double dh = height - fig.height;
         
        if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
 		
@@ -204,7 +204,7 @@ class Node {
         return lnode.insert(fig);
 	}
 	
-	void draw(float left, float top){
+	void draw(double left, double top){
 		if(lnode != null) lnode.draw(left, top);
 		if(rnode != null) rnode.draw(left, top);
 		if(figure != null){

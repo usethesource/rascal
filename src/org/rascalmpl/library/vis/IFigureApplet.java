@@ -37,42 +37,42 @@ public interface IFigureApplet {
 	public void mouseDragged();
 	public void mousePressed();
 	public void setComputedValueChanged();
-	public void line(float arg0, float arg1, float arg2, float arg3);
-	public void rect(float arg0, float arg1, float arg2, float arg3);
-	public void ellipse(float arg0, float arg1, float arg2, float arg3);
+	public void line(double arg0, double arg1, double arg2, double arg3);
+	public void rect(double arg0, double arg1, double arg2, double arg3);
+	public void ellipse(double arg0, double arg1, double arg2, double arg3);
 	public void rectMode(int arg0);
 	public void ellipseMode(int arg0);
 	public void fill(int arg0);
 	public void stroke(int arg0);
-	public void strokeWeight(float arg0);
-	public void textSize(float arg0);
+	public void strokeWeight(double arg0);
+	public void textSize(double arg0);
 	public void textColor(int arg0);
 	public void textAlign(int arg0, int arg1);
 	public void textAlign(int arg0);
 	public void textFont(Object arg0);
-	public float textWidth(String txt);
-	public float textAscent();
-	public float textDescent();
-	public void text(String arg0, float arg1, float arg2);
+	public double textWidth(String txt);
+	public double textAscent();
+	public double textDescent();
+	public void text(String arg0, double arg1, double arg2);
 	public void pushMatrix();
 	public void popMatrix();
-	public void rotate(float arg0);
-	public void translate(float arg0, float arg1);
-	public void scale(float arg0, float arg1);
-	public void bezierVertex(float arg0, float arg1, float arg2, float arg3,
-			float arg4, float arg5);
-	public void vertex(float arg0, float arg1);
-	public void curveVertex(float arg0, float arg1);
+	public void rotate(double arg0);
+	public void translate(double arg0, double arg1);
+	public void scale(double arg0, double arg1);
+	public void bezierVertex(double arg0, double arg1, double arg2, double arg3,
+			double arg4, double arg5);
+	public void vertex(double arg0, double arg1);
+	public void curveVertex(double arg0, double arg1);
 	public void noFill();
-	public void arc(float arg0, float arg1, float arg2, float arg3, float arg4,
-			float arg5);
+	public void arc(double arg0, double arg1, double arg2, double arg3, double arg4,
+			double arg5);
 	public void beginShape();
 	public void beginShape(int arg0);
 	public void endShape();
 	public void endShape(int arg0 );
 	public void print();
 	// From PApplet 
-	public Object createFont(String fontName, float fontSize);
+	public Object createFont(String fontName, double fontSize);
 	public void smooth();
 	
 	// From awt  
@@ -84,7 +84,7 @@ public interface IFigureApplet {
 	public void setForeground(Object color);	
 	public void invalidate();
 	public void validate();
-	public void stroke(float arg0, float arg1, float arg2);
+	public void stroke(double arg0, double arg1, double arg2);
 	public String getName();
 	// Needed by SpringGraph
 }

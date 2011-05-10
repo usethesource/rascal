@@ -16,32 +16,32 @@ package org.rascalmpl.library.vis.graph.lattice;
  * 
  */
 public class LinSolve {
-	float y;
-	float x;
-	float e1ToX, e1ToY, e2ToX, e2ToY;
-	float e1FromY, e1FromX, e2FromX, e2FromY;
-	final float eps = 0.1f;
-	final float eps1 = 10f;
+	double y;
+	double x;
+	double e1ToX, e1ToY, e2ToX, e2ToY;
+	double e1FromY, e1FromX, e2FromX, e2FromY;
+	final double eps = 0.1;
+	final double eps1 = 10;
 	final boolean debug = false;
 
 	class LineEquation {
-		final float c;
-		final float cx;
-		final float cy;
+		final double c;
+		final double cx;
+		final double cy;
 
-		LineEquation(float eFromX, float eFromY, float eToX, float eToY) {
+		LineEquation(double eFromX, double eFromY, double eToX, double eToY) {
 			cx = eToY - eFromY;
 			cy = -(eToX - eFromX);
 			c = eFromX * eToY - eFromY * eToX;
 			if (debug) {
-				float c1 = cx * eFromX + cy * eFromY;
-				float c2 = cx * eToX + cy * eToY;
+				double c1 = cx * eFromX + cy * eFromY;
+				double c2 = cx * eToX + cy * eToY;
 				System.err.println(" c1=" + c1 + " c2=" + c2);
 			}
 		}
 		
 		private boolean isOnEdge(LatticeGraphNode n) {
-		  final float d = (float) Math.hypot(cx, cy);
+		  final double d = (double) Math.hypot(cx, cy);
 		  return Math.abs(cx * n.x + cy * n.y - c) < eps1*d;
 		}
 	}
@@ -71,8 +71,8 @@ public class LinSolve {
 		solve();
 	}
 
-	public void solve(float e1FromX, float e1FromY, float e1ToX, float e1ToY,
-			float e2FromX, float e2FromY, float e2ToX, float e2ToY) {
+	public void solve(double e1FromX, double e1FromY, double e1ToX, double e1ToY,
+			double e2FromX, double e2FromY, double e2ToX, double e2ToY) {
 		this.e1FromX = e1FromX;
 		this.e1FromY = e1FromY;
 		this.e1ToX = e1ToX;
@@ -91,11 +91,11 @@ public class LinSolve {
 	private void solve() {
 		final LineEquation eq1 = new LineEquation(e1FromX, e1FromY, e1ToX,
 				e1ToY), eq2 = new LineEquation(e2FromX, e2FromY, e2ToX, e2ToY);
-		final float det = (eq1.cx * eq2.cy - eq2.cx * eq1.cy);
+		final double det = (eq1.cx * eq2.cy - eq2.cx * eq1.cy);
 		x = (eq1.c * eq2.cy - eq2.c * eq1.cy) / det;
 		y = (-eq1.c * eq2.cx + eq2.c * eq1.cx) / det;
 		if (debug) {
-			final float c1t = eq1.cx * x + eq1.cy * y, c2t = eq2.cx * x
+			final double c1t = eq1.cx * x + eq1.cy * y, c2t = eq2.cx * x
 					+ eq2.cy * y;
 			System.err.println("c1t=" + c1t + " " + eq1.c);
 			assert (Math.abs(eq1.c - c1t) < eps);
@@ -104,13 +104,13 @@ public class LinSolve {
 		}
 	}
 
-	private boolean isInInterval(float b1, float b2, float x) {
-		final float m = Math.min(b1, b2), M = Math.max(b1, b2);
+	private boolean isInInterval(double b1, double b2, double x) {
+		final double m = Math.min(b1, b2), M = Math.max(b1, b2);
 		return m < x && x < M;
 	}
 	
-	private boolean isInSegment(float b1, float b2, float x) {
-		final float m = Math.min(b1, b2), M = Math.max(b1, b2);
+	private boolean isInSegment(double b1, double b2, double x) {
+		final double m = Math.min(b1, b2), M = Math.max(b1, b2);
 		return m <= x && x <= M;
 	}
 	
@@ -137,14 +137,14 @@ public class LinSolve {
 	/**
 	 * @return the x coordinate of cutting point
 	 */
-	public float getX() {
+	public double getX() {
 		return x;
 	}
 
 	/**
 	 * @return the y coordinate of cutting point
 	 */
-	public float getY() {
+	public double getY() {
 		return y;
 	}
 

@@ -23,12 +23,12 @@ import org.rascalmpl.library.vis.FigureApplet;
  */
 public class Text extends Figure {
 	private static boolean debug = false;
-	private float topAnchor = 0;
-	private float bottomAnchor = 0;
-	private float leftAnchor;
-	private float rightAnchor;
-	private float hfill = 0;
-	private float vfill = 0;
+	private double topAnchor = 0;
+	private double bottomAnchor = 0;
+	private double leftAnchor;
+	private double rightAnchor;
+	private double hfill = 0;
+	private double vfill = 0;
 	private IPropertyValue<String> txt;
 	private int textAlignH = FigureApplet.CENTER;	
 
@@ -40,8 +40,8 @@ public class Text extends Figure {
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight){
-		float halign = getHAlignProperty();
+	void bbox(double desiredWidth, double desiredHeight){
+		double halign = getHAlignProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 		applyFontProperties();
 		topAnchor = fpa.textAscent() ;
@@ -67,13 +67,13 @@ public class Text extends Figure {
 		}
 		*/
 		if(getTextAngleProperty() != 0){
-			float angle = FigureApplet.radians(getTextAngleProperty());
-			float sina = FigureApplet.sin(angle);
-			float cosa = FigureApplet.cos(angle);
-			float h1 = abs(width * sina);
-			float w1 = abs(width * cosa);
-			float h2 = abs(height *  cosa);
-			float w2 = abs(height *  sina);
+			double angle = FigureApplet.radians(getTextAngleProperty());
+			double sina = FigureApplet.sin(angle);
+			double cosa = FigureApplet.cos(angle);
+			double h1 = abs(width * sina);
+			double w1 = abs(width * cosa);
+			double h2 = abs(height *  cosa);
+			double w2 = abs(height *  sina);
 			
 			width = w1 + w2;
 			height = h1 + h2;
@@ -96,7 +96,7 @@ public class Text extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		
@@ -105,13 +105,13 @@ public class Text extends Figure {
 	
 		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
 		if(height > 0 && width > 0){
-			float angle = getTextAngleProperty();
+			double angle = getTextAngleProperty();
 
 			fpa.textAlign(textAlignH,FigureApplet.CENTER);
 			if(angle != 0){
 				fpa.pushMatrix();
 				fpa.translate(left + hfill, top + vfill);
-				fpa.rotate(FigureApplet.radians(angle));
+				fpa.rotate((FigureApplet.radians(angle)));
 				fpa.text(txt.getValue(), 0, 0);
 				fpa.popMatrix();
 			} else {
@@ -123,26 +123,26 @@ public class Text extends Figure {
 	}
 	
 //	@Override
-//	public float leftAnchor(){
-//		float res= leftAnchor;
+//	public double leftAnchor(){
+//		double res= leftAnchor;
 //		System.err.println(this + ".leftAnchor = " + res);
 //		return res;
 //	}
 //	
 //	@Override
-//	public float rightAnchor(){
-//		float res = rightAnchor;
+//	public double rightAnchor(){
+//		double res = rightAnchor;
 //		System.err.println(this + ".rightAnchor = " + res);
 //		return res;
 //	}
 	
 	@Override
-	public float topAlign(){
+	public double topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAlign(){
+	public double bottomAlign(){
 		return bottomAnchor;
 	}
 	

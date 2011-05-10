@@ -81,7 +81,7 @@ public class Checkbox extends Figure {
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		width = checkbox.getWidth();
 		height = checkbox.getHeight();
 	}
@@ -99,7 +99,7 @@ public class Checkbox extends Figure {
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		checkbox.setBackground(new Color(getFillColorProperty()));

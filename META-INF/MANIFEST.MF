@@ -6,7 +6,6 @@ Bundle-Version: 0.2.1.qualifier
 Bundle-ClassPath: rascal.jar,
  lib/jline-0.9.94.jar,
  lib/junit-4.5.jar,
- lib/core.jar,
  lib/asm-all-3.3.jar,
  lib/joda-time-1.6.jar,
  lib/xercesImpl.jar,
@@ -57,9 +56,7 @@ Export-Package: org.jdom,
  org.rascalmpl.values.errors,
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
- org.rascalmpl.values.uptr.visitors,
- processing.core,
- processing.xml
+ org.rascalmpl.values.uptr.visitors
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt
 Import-Package: javax.servlet,

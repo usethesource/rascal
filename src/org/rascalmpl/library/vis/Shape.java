@@ -21,7 +21,6 @@ import org.rascalmpl.library.vis.compose.Compose;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
 
-import processing.core.PConstants;
 
 
 /**
@@ -37,21 +36,21 @@ import processing.core.PConstants;
  */
 public class Shape extends Compose {
 	static boolean debug = false;
-	float zeroX,zeroY;
-	float[] anchorPointsX, anchorPointsY;
+	double zeroX,zeroY;
+	double[] anchorPointsX, anchorPointsY;
 	Shape(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
-		anchorPointsX = new float[figures.length];
-		anchorPointsY = new float[figures.length];
+		anchorPointsX = new double[figures.length];
+		anchorPointsY = new double[figures.length];
 	}
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight){
-		float minX = 0.0f;		
-		float maxX = 0.0f;
-		float minY = 0.0f;
-		float maxY = 0.0f;
+	void bbox(double desiredWidth, double desiredHeight){
+		double minX = 0.0;		
+		double maxX = 0.0;
+		double minY = 0.0;
+		double maxY = 0.0;
 
 		for(int i = 0 ; i < figures.length ; i++){
 			Vertex ver = (Vertex)figures[i];
@@ -81,7 +80,7 @@ public class Shape extends Compose {
 	
 	@Override
 	public
-	void draw(float left, float top){
+	void draw(double left, double top){
 		
 		this.setLeft(left);
 		this.setTop(top);
@@ -128,7 +127,7 @@ public class Shape extends Compose {
 			}
 			if(closed){
 				fpa.vertex(left + anchorPointsX[figures.length - 1], top+ zeroY);
-				fpa.endShape(PConstants.CLOSE);
+				fpa.endShape(FigureApplet.CLOSE);
 			} else 
 				fpa.endShape();
 		}
@@ -138,19 +137,19 @@ public class Shape extends Compose {
 		}
 	}
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
-			float val = getMeasureProperty(MeasureProp.WIDTH).value;
+			double val = getMeasureProperty(MeasureProp.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
 		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
-			float val = getMeasureProperty(MeasureProp.HEIGHT).value;
+			double val = getMeasureProperty(MeasureProp.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 		
 			Extremes[] extremesList = new Extremes[figures.length + 1];
 			for(int i = 0 ; i < figures.length ; i++ ){
 				Vertex fig = (Vertex) figures[i];
-				float offsetHere = offset;
+				double offsetHere = offset;
 				if(horizontal){
 					if(fig.getDeltaXMeasure().axisName.equals(axisId)){
 						offsetHere+=fig.getDeltaXMeasure().value;
@@ -172,7 +171,7 @@ public class Shape extends Compose {
 	}
 	
 
-	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY, axisScales);
 		for(Figure fig : figures){
 			fig.propagateScaling(scaleX, scaleY, axisScales);
@@ -180,14 +179,14 @@ public class Shape extends Compose {
 	}
 	
 
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
-		float result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Float.MAX_VALUE){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
+		double result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Double.MAX_VALUE){
 			return result;
 		} else {
 			for(int i = 0 ; i < figures.length ; i++ ){
 				Vertex fig = (Vertex) figures[i];
-				float offsetHere ;
+				double offsetHere ;
 				if(horizontal){
 					if(fig.getDeltaXMeasure().axisName.equals(axisId)){
 						offsetHere= offset + anchorPointsX[i];

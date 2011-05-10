@@ -2,8 +2,8 @@ package org.rascalmpl.library.vis;
 
 import java.util.Random;
 
-import processing.core.PApplet;
-import org.rascalmpl.library.vis.processing.Constants;
+import org.rascalmpl.library.vis.swt.Constants;
+import java.lang.Math;
 
 public class FigureApplet {
 	
@@ -28,76 +28,72 @@ public class FigureApplet {
 	
 	final public static int BASELINE  = Constants.BASELINE;
 	
-	final public static float PI = Constants.PI;
+	final public static double PI = Math.PI;
 	
 	final public static int OPEN = Constants.OPEN;
 	
 	final public static int CLOSE = Constants.CLOSE;
 
-	public static float min(float x, float y) {
-		return PApplet.min(x, y);
+	public static double min(double x, double y) {
+		return Math.min(x, y);
 	}
 
-	public static float max(float x, float y) {
-		return PApplet.max(x, y);
+	public static double max(double x, double y) {
+		return Math.max(x, y);
 	}
 
-	public static float abs(float dlensq) {
-		return PApplet.abs(dlensq);
+	public static double abs(double dlensq) {
+		return Math.abs(dlensq);
 	}
 
-	public static float dist(float x, float y, float x2, float y2) {
-		return PApplet.dist(x, y, x2, y2);
+	public static double dist(double x, double y, double x2, double y2) {
+		return Math.hypot(x-x2, y-y2);
 	}
 
-	public static float mag(float x, float y) {
-		return PApplet.mag(x, y);
+	public static double mag(double x, double y) {
+		return Math.hypot(x, y);
 	}
 
-	public static float constrain(float x, float y, float z) {
-		return PApplet.constrain(x, y, z);
+	public static double constrain(double value, double minimum, double maximum) {
+		if (value<minimum) return  minimum;
+		if (value>maximum) return  maximum;
+		return value;
 	}
 
-	public static float sqrt(float x) {
-		return PApplet.sqrt(x);
+	public static double sqrt(double x) {
+		return Math.sqrt(x);
 	}
 
-	public static float radians(float x) {
-		// TODO Auto-generated method stub
-		return PApplet.radians(x);
+	public static double radians(double x) {
+		return Math.toRadians(x);
 	}
 	
-	public static float degrees(float x) {
-		// TODO Auto-generated method stub
-		return PApplet.degrees(x);
+	public static double degrees(double x) {
+		return Math.toDegrees(x);
 	}
 
-	public static float sin(float theta) {
+	public static double sin(double theta) {
 		// TODO Auto-generated method stub
-		return PApplet.sin(theta);
+		return Math.sin(theta);
 	}
 
-	public static float cos(float theta) {
-		// TODO Auto-generated method stub
-		return PApplet.cos(theta);
+	public static double cos(double theta) {
+		return Math.cos(theta);
 	}
 
-	public static float atan(float theta) {
-		// TODO Auto-generated method stub
-		return PApplet.atan(theta);
+	public static double atan(double theta) {
+		return Math.atan(theta);
 	}
 
-	public static int round(float f) {
-		// TODO Auto-generated method stub
-		return PApplet.round(f);
+	public static int round(double f) {
+		return (int) Math.round(f);
 	}
 
-	public static float asin(float f) {
-		// TODO Auto-generated method stub
-		return PApplet.asin(f);
+	public static double asin(double f) {
+		return Math.asin(f);
 	}
 	
-	public static float random(float x,  float y) {
+	public static double random(double x,  double y) {
 		int k = random.nextInt((int) (y-x));
 		return x + k;
 	}

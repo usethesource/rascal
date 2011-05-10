@@ -128,10 +128,11 @@ public str palette(int n){
 }
 
 
-
+/*
 @doc{Create a list of font names}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public list[str] java fontNames();
+*/
 
 /*
  * FProperty -- visual properties of visual elements

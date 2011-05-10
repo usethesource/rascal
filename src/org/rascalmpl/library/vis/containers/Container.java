@@ -42,8 +42,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public abstract class Container extends Figure {
 
 	final protected Figure innerFig;
-	float innerFigX;
-	float innerFigY;
+	double innerFigX;
+	double innerFigY;
 	final private static boolean debug = false;
 
 	public Container(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
@@ -57,8 +57,8 @@ public abstract class Container extends Figure {
 
 	@Override
 	public 
-	void bbox(float desiredWidth, float desiredHeight){
-		float lw = getLineWidthProperty();
+	void bbox(double desiredWidth, double desiredHeight){
+		double lw = getLineWidthProperty();
 		if(desiredWidth != Figure.AUTO_SIZE){ 
 			if(desiredWidth < 1.0f){
 				desiredWidth = width = 1.0f;
@@ -81,9 +81,9 @@ public abstract class Container extends Figure {
 		} 
 		
 		if(innerFig != null){
-			float innerDesiredWidth,
+			double innerDesiredWidth,
 			      innerDesiredHeight;
-			float spacingX, spacingY;
+			double spacingX, spacingY;
 			spacingX = spacingY = 0;
 			if(desiredWidth != AUTO_SIZE){
 				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
@@ -146,7 +146,7 @@ public abstract class Container extends Figure {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(!isVisible())
 			return;
 		this.setLeft(left);
@@ -169,7 +169,7 @@ public abstract class Container extends Figure {
 	}
 	
 	@Override
-	public void drawWithMouseOver(float left, float top){
+	public void drawWithMouseOver(double left, double top){
 		draw(left, top);
 		if(innerFig != null && innerFig.isVisibleInMouseOver())
 			innerDrawWithMouseOver(left, top);
@@ -196,10 +196,10 @@ public abstract class Container extends Figure {
 			    	  max(0, getTop()  + innerFigY));
 	}
 	
-	void innerDrawWithMouseOver(float left, float top){
+	void innerDrawWithMouseOver(double left, double top){
 		if(innerFig != null){
-			float hgap = getHGapProperty();
-			float vgap = getVGapProperty();
+			double hgap = getHGapProperty();
+			double vgap = getVGapProperty();
 			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHAlignProperty()*(width  - innerFig.width  - 2 * hgap)),
 			    	                   max(0, top  + vgap + innerFig.getVAlignProperty()*(height - innerFig.height - 2 * vgap)));
 		}
@@ -219,7 +219,7 @@ public abstract class Container extends Figure {
 	abstract String containerName();
 	
 	@Override
-	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
 		if(debug){System.err.println("mouseOver: " + this);
 				System.err.printf("mouse: %d, %d; center: %f, %f\n", mouseX, mouseY, centerX, centerY);
 		}
@@ -299,7 +299,7 @@ public abstract class Container extends Figure {
 	}
 	
 	@Override
-	public void drag(float mousex, float mousey){
+	public void drag(double mousex, double mousey){
 		if (debug) System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
 		if(!isDraggable())
 			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
@@ -332,8 +332,8 @@ public abstract class Container extends Figure {
 //	//		System.err.println("\t" + f);
 //		
 //		Figure root = below.pop();
-//		float cX = root.getCenterX();
-//		float cY = root.getCenterY();
+//		double cX = root.getCenterX();
+//		double cY = root.getCenterY();
 //		
 //	//	System.err.println("cX = " + cX + ", cY = " + cY);
 //		
@@ -381,20 +381,20 @@ public abstract class Container extends Figure {
 			innerFig.destroy();
 	}
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(innerFig!=null){
 			innerFig.gatherProjections(left + innerFigX, top + innerFigY, projections, first, screenId, horizontal);
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY,HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY,axisScales);
 		if(innerFig != null){
 			innerFig.propagateScaling(scaleX, scaleY,axisScales);
 		}
 	}
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
 		if(result.gotData()){
 			return result;
@@ -405,12 +405,12 @@ public abstract class Container extends Figure {
 		}
 	}
 	
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
-		float result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Float.MAX_VALUE){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
+		double result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Double.MAX_VALUE){
 			return result;
 		} else if (innerFig != null){
-			float off = 0.0f;
+			double off = 0.0f;
 			if(horizontal){
 				off = innerFigX;
 			} else {
@@ -418,7 +418,7 @@ public abstract class Container extends Figure {
 			}
 			return min(offset,offset + off);
 		} else {
-			return Float.MAX_VALUE;
+			return Double.MAX_VALUE;
 		}
 	}
 }
