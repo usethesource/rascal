@@ -19,31 +19,31 @@ public class VoidActionExecutor implements IActionExecutor{
 		super();
 	}
 	
-	public IEnvironment createEnvironment(IEnvironment parent, IConstructor production){
+	public IEnvironment createRootEnvironment(){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public IEnvironment split(IEnvironment environment, IConstructor production){
+	public IEnvironment enteredProduction(IConstructor production, IEnvironment environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public IConstructor filterProduction(IConstructor tree){
+	public IEnvironment split(IEnvironment environment, IConstructor production, int index){
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
+	}
+	
+	public void exitedProduction(IConstructor production, IEnvironment environment, boolean filtered){
+		// Don't do anything.
+	}
+	
+	public IConstructor filterProduction(IConstructor tree, IEnvironment environment){
 		return tree;
 	}
 	
-	public IConstructor filterAmbiguity(IConstructor ambCluster){
+	public IConstructor filterAmbiguity(IConstructor ambCluster, IEnvironment environment){
 		return ambCluster;
 	}
 	
-	public IConstructor filterCycle(IConstructor cycle){
+	public IConstructor filterCycle(IConstructor cycle, IEnvironment environment){
 		return cycle;
-	}
-	
-	public void enteredProduction(IConstructor production){
-		// Don't do anything.
-	}
-	
-	public void exitedProduction(IConstructor production, boolean filtered){
-		// Don't do anything.
 	}
 }

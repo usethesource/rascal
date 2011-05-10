@@ -13,6 +13,7 @@ package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
@@ -54,11 +55,11 @@ public class EndOfLineNode extends AbstractNode{
 		return ENDOFLINE;
 	}
 	
-	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		return result; 
 	}
 	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
 		return result; 
 	}
 }

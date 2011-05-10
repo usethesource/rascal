@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
@@ -44,35 +45,46 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		this.unmatchedInput = unmatchedInput;
 	}
 	
-	protected void gatherAlternatives(Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor){
+	protected void gatherAlternatives(Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
-			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor);
+			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		}else{
-			actionExecutor.enteredProduction(production);
-			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation, actionExecutor);
+			IEnvironment newEnvironment = actionExecutor.enteredProduction(production, environment);
+			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
 		}
 	}
 	
-	private void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor){
+	private void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
-			actionExecutor.enteredProduction(production);
+			IEnvironment newEnvironment = actionExecutor.enteredProduction(production, environment);
 			
 			int postFixLength = postFix.length;
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
-			for(int i = 0; i < postFixLength; ++i){
-				IConstructor node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
+			
+			// We don't need to split for the first iteration, so do the work for index 0 separately.
+			IConstructor node = postFix[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
+			if(node == null){
+				actionExecutor.exitedProduction(production, newEnvironment, true);
+				return;
+			}
+			constructedPostFix[0] = node;
+			
+			for(int i = 1; i < postFixLength; ++i){
+				newEnvironment = actionExecutor.split(newEnvironment, production, i);
+				
+				node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 				if(node == null){
-					actionExecutor.exitedProduction(production, true);
+					actionExecutor.exitedProduction(production, newEnvironment, true);
 					return;
 				}
 				constructedPostFix[i] = node;
 			}
 			
-			buildAlternative(production, constructedPostFix, gatheredAlternatives, sourceLocation, actionExecutor);
+			buildAlternative(production, constructedPostFix, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
 			return;
 		}
 		
@@ -85,12 +97,12 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 				AbstractNode[] newPostFix = new AbstractNode[length + 1];
 				System.arraycopy(postFix, 0, newPostFix, 1, length);
 				newPostFix[0] = resultNode;
-				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor);
+				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 			}
 		}
 	}
 	
-	private void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor){
+	private void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
@@ -101,14 +113,14 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		
 		gatheredAlternatives.add(result);
-		actionExecutor.exitedProduction(production, false);
+		actionExecutor.exitedProduction(production, environment, false);
 	}
 	
-	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		throw new UnsupportedOperationException("This type of node can only build error trees.");
 	}
 	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
 		if(depth <= cycleMark.depth){
 			if(cachedResult != null){
 				if(cachedResult.getConstructorType() != FILTERED_RESULT_TYPE){
@@ -139,7 +151,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		int index = stack.contains(this);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(firstProduction), VF.integer(depth - index));
-			cycle = actionExecutor.filterCycle(cycle);
+			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);
@@ -153,10 +165,10 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		
 		// Gather
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor);
+		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor);
+				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 			}
 		}
 		
@@ -174,7 +186,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			}
 			
 			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-			result = actionExecutor.filterAmbiguity(result);
+			result = actionExecutor.filterAmbiguity(result, environment);
 			if(result == null){
 				// Build error amb.
 				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
