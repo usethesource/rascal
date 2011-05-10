@@ -9,19 +9,12 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
 @contributor{Vadim Zaytsev - Vadim.Zaytsev@cwi.nl - CWI}
 @doc{
-  This modules defines an simple but effective internal format for the representation of 
-  context-free grammars.
-  
-  The core of the format is the Production type from the ParseTree module. 
-  A grammar is a structuted collection of such productions. 
-  Where there is interaction (disambiguation filters) between productions, 
-  the Production type is extended with combinators.
+  This modules defines an simple but effective internal format for the representation of context-free grammars.
 }
 module Grammar
 
 import ParseTree;
 import Set;
-import Graph;
 
 @doc{
   Grammar is the internal representation (AST) of syntax definitions used in Rascal.
@@ -36,12 +29,15 @@ data GrammarModule
   = \module(str name, set[str] imports, set[str] extends, Grammar grammar);
  
 data GrammarDefinition
-  = \definition(str main, map[name, GrammarModule] modules);
+  = \definition(str main, map[str name, GrammarModule mod] modules);
 
 anno loc Production@\loc;
  
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
-  return grammar(starts, index(prods, Symbol (Production p) { return p.rhs; }));
+  rules = ();
+  for (p <- prods)
+    rules[p.rhs] = p.rhs in rules ? choice(p.rhs, {p, rules[p.rhs]}) : choice(p.rhs, {p}); 
+  return grammar(starts, rules);
 }
            
 @doc{
@@ -71,27 +67,10 @@ data Symbol
   = intersection(Symbol lhs, Symbol rhs)
   | union(Symbol lhs, Symbol rhs)
   | difference(Symbol lhs, Symbol rhs)
-  | complement(Symbol cc);
-            
+  | complement(Symbol cc)
+  ;
+  
 @doc{
-  Compose two grammars, by adding the rules of g2 to the rules of g1.
-  The start symbols of g1 will be the start symbols of the resulting grammar.
-}
-public Grammar compose(Grammar g1, Grammar g2) {
-  set[Production] empty = {};
-  for (s <- g2.rules)
-    if (g1.rules[s]?)
-      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
-    else
-      g1.rules[s] = g2.rules[s];
-  return g1;
-}    
-
-@doc{
-  Compute the symbol dependency graph. This graph does not report intermediate nodes
-  for regular expressions.
-}
-@experimental
-public Graph[Symbol] symbolDependencies(Grammar g) {
-  return { <from,to> | /prod([_*,/Symbol to:sort(_),_*],Symbol from:sort(_),_) := g};
-}
+  An item is an index into the symbol list of a production rule
+}  
+data Item = item(Production prod, int index);

@@ -14,12 +14,14 @@ import lang::rascal::syntax::RascalRascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
+import List;
 
 
-public GrammarModule \layouts(Grammardefinition def) {
+public GrammarDefinition \layouts(GrammarDefinition def) {
   deps = extends(def) + imports(def);
-  for (name <- def) 
+  for (str name <- def.modules) {
     def.modules[name].grammar = layouts(def.modules[name].grammar, activeLayout(name, deps[name], def));
+  }
   return def;
 }
 
@@ -36,12 +38,13 @@ public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
   else if (i <- deps, /prod(_,l:layouts(_),_) := def.modules[i]) 
     return l;
   else 
-    return layouts(empty()); 
+    return layouts("***default***"); // TODO: replace this by something like layouts(empty()), (high impact change) 
 }  
 
 @doc{intersperses layout symbols in all non-lexical productions}
-public set[Production] \layouts(Grammar g, Symbol l) {
+public Grammar \layouts(Grammar g, Symbol l) {
   return top-down-break visit (g) {
+    case prod([Symbol x],start(x),as) => prod([l, x, l], start(x), as)
     case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs, l),rhs,attrs(as)) 
       when start(_) !:= rhs, \lex() notin as  
     case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs, l),rhs,\no-attrs()) 

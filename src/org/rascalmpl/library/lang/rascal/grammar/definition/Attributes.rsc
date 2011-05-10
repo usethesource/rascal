@@ -31,6 +31,7 @@ public Attr mod2attr(ProdModifier m) {
     case (ProdModifier) `@ <Name n> = <Literal l>` : return \term("<n>"("<l>"));
     case (ProdModifier) `@ <Name n>` : return \term("<n>"());
     case (ProdModifier) `@ <Name n> <TagString s>` : return \term("<n>"("<s>"));
+    case (ProdModifier) `lex` : return \term("lex"()); // TODO remove
     default: throw "missed a case <m>";
   }
 }

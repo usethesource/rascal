@@ -2,8 +2,15 @@
 module lang::rascal::grammar::definition::Symbols
 
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Characters;
 import lang::rascal::syntax::RascalRascal;
 import ParseTree;
+
+public bool match(Symbol checked, Symbol referenced) {
+  checked = condition(t, _) := checked ? t : checked;
+  referenced = condition(t, _) := referenced ? t : referenced;
+  return referenced == checked || label(_, referenced) := checked;
+}
 
 
 public Symbol sym2symbol(Sym sym) {
@@ -42,28 +49,34 @@ public Symbol sym2symbol(Sym sym) {
       return \iter-star(sym2symbol(s));
     case (Sym) `<Sym s> +?` : 
       return \iter(sym2symbol(s));
-    case (Sym) `{<Sym s> <Sym sep>}*`  : 
+    //case (Sym) `{<Sym s> <Sym sep>}*`  : {
+    case (Sym) `{<Sym s> <StringConstant l>}*` : {
+      sep = (Sym) `<StringConstant l>`; // TODO: support arbitrary separators
       return \iter-star-seps(sym2symbol(s), [sym2symbol(sep)]);
-    case (Sym) `{<Sym s> <Sym sep>}+`  : 
+    }
+    //case (Sym) `{<Sym s> <Sym sep>}+`  : {
+    case (Sym) `{<Sym s> <StringConstant l>}+`  : {
+      sep = (Sym) `<StringConstant l>`; // TODO: support arbitrary separators
       return \iter-seps(sym2symbol(s), [sym2symbol(sep)]);
+    }
     case (Sym) `(<Sym first> <Sym+ sequence>)` : 
       return seq([sym2symbol(first)] + [sym2symbol(elem) | elem <- sequence]);
-    case (Sym) `^` : 
+    case (Sym) `^` : // TODO: turn into conditional 
       return \start-of-line();
-    case (Sym) `$` : 
+    case (Sym) `$` : // TODO: turn into conditional
       return \end-of-line();
-    case (Sym) `<Sym s> >> <Sym r>` : 
-      return follow(sym2symbol(s), {sym2symbol(r)});
-    case (Sym) `<Sym s> !>> <Sym r>` : 
-      return \not-follow(sym2symbol(s), {sym2symbol(r)});
-    case (Sym) `<Sym s> << <Sym r>` : 
-      return precede(sym2symbol(r), {sym2symbol(s)});
-    case (Sym) `<Sym s> !<< <Sym r>` : 
-      return \not-precede(sym2symbol(r), {sym2symbol(s)});
-    case (Sym) `<Sym s> != <Sym r>` :  //  case (Sym) `<Sym s> \ <Sym r>` :
-      return \reserve(sym2symbol(s), {sym2symbol(r)});
-    case (Sym) `@ <IntegerLiteral i>` : 
+    case (Sym) `@ <IntegerLiteral i>` : // TODO: turn into conditional
       return \at-column(toInt("<i>")); 
+    case (Sym) `<Sym s> >> <Sym r>` : 
+      return conditional(sym2symbol(s), {follow(sym2symbol(r))});
+    case (Sym) `<Sym s> !>> <Sym r>` : 
+      return conditional(sym2symbol(s), {\not-follow(sym2symbol(r))});
+    case (Sym) `<Sym s> << <Sym r>` : 
+      return conditional(sym2symbol(r), {precede(sym2symbol(s))});
+    case (Sym) `<Sym s> !<< <Sym r>` : 
+      return conditional(sym2symbol(r), {\not-precede(sym2symbol(s))});
+    case (Sym) `<Sym s> \ <Sym r>` : 
+      return conditional(sym2symbol(s), {\delete(sym2symbol(r))});
     default: 
       throw "missed a case <sym>";
   }
@@ -77,17 +90,12 @@ private list[Symbol] separgs2symbols({Sym ","}+ args) {
   return [sym2symbol(s) | Sym s <- args];
 }
 
-// flattening rules
+// flattening rules for regular expressions
 public Symbol \seq([list[Symbol] a, \seq(list[Symbol] b), list[Symbol] c]) = \seq(a + b + c);
 
 public Symbol \alt({set[Symbol] a, \alt(set[Symbol] b)}) = \alt(a + b);
 
-public Symbol \follow(\follow(Symbol s, set[Symbol] a), set[Symbol] b) = \follow(s, a + b);
+// flattening for conditionals
 
-public Symbol \not-follow(\not-follow(Symbol s, set[Symbol] a), set[Symbol] b) = \not-follow(s, a + b);
-
-public Symbol \precede(\precede(Symbol s, set[Symbol] a), set[Symbol] b) = \precede(s, a + b);
-
-public Symbol \not-precede(\not-precede(Symbol s, set[Symbol] a), set[Symbol] b) = \not-precede(s, a + b);
-
-public Symbol \reserve(\reserve(Symbol s, set[Symbol] a), set[Symbol] b) = reserve(s, a + b);
+public Symbol \conditional(\conditional(Symbol s, set[Condition] cs1), set[Condition] cs2) 
+  = \conditional(s, cs1 + cs2);

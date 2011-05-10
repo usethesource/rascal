@@ -15,8 +15,8 @@ import lang::rascal::grammar::definition::Parameters;
 import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::Lookahead;
-import lang::rascal::grammar::Actions;
 import lang::rascal::grammar::Assimilator;
 import ParseTree;
 import String;
@@ -27,8 +27,6 @@ import Map;
 import IO;
 import Exception;
   
-private data Item = item(Production production, int index);
-
 // TODO: replace this complex data structure with several simple ones
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 public anno str Symbol@prefix;
@@ -284,6 +282,17 @@ public &T <: value unmeta(&T <: value p) {
   }
 }
 
+rel[int,int] computeDontNests(Items items, Grammar grammar) {
+  // first we compute a map from productions to their last items (which identify each production)
+  prodItems = (p:items[rhs][item(p,size(lhs)-1)].itemId | /Production p:prod(list[Symbol] lhs,Symbol rhs, _) := grammar);
+  
+  // now we get the "don't nest" relation, which is defined by associativity and priority declarations
+  dnn       = {doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
+   
+  // finally we produce a relation between item id for use the internals of the parser
+  return {<items[father.rhs][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
+}
+
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
@@ -354,10 +363,7 @@ public str generateExpect(Items items, Production p, bool reject){
     
     switch (p) {
       case prod(_,_,_) : 
-        if (restricted(_) !:= p.rhs) 
 	       return "// <p>\n\texpect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.rhs)>.<value2id(p)>);";
-	    else 
-	       return ""; 
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
                '  <generateExpect(items, q, reject)>
@@ -373,15 +379,9 @@ public str generateExpect(Items items, Production p, bool reject){
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){>
                '<generateExpect(items, q, reject)><}>";
-      case restrict(_, Production q, set[Production] restrictions) : 
-        return generateExpect(items, q, reject);
-      case diff(_, Production n, set[Production] rejects) :
-        return "<for (Production q <- rejects){>
-               '<generateExpect(items, q, true)><}>
-               '<generateExpect(items, n, false)>";
-      case first(_, list[Production] ps) : 
+      case priority(_, list[Production] ps) : 
         return generateExpect(items, choice(p.rhs, { q | q <- ps }), reject);
-      case \assoc(_,_,set[Production] ps) :
+      case associativity(_,_,set[Production] ps) :
         return generateExpect(items, choice(p.rhs, ps), reject); 
     }
     
@@ -412,123 +412,7 @@ str generateRangeConditional(CharRange r) {
   }
 }
 
-rel[int,int] computeDontNests(Items items, Grammar grammar) {
-  // first we compute a map from productions to their last items (which identify each production)
-  prodItems = ( p:items[rhs][item(p,size(lhs)-1)].itemId | /Production p:prod(list[Symbol] lhs,Symbol rhs, _) := grammar);
-   
-  return {computeDontNests(items, prodItems, p) | Symbol s <- grammar.rules, Production p <- grammar.rules[s]};
-}
 
-rel[int,int] computeDontNests(Items items, map[Production, int] prodItems, Production p) {
-  switch (p) {
-    case prod(_,_,attrs([_*,\assoc(Associativity a),_*])) : 
-      return computeAssociativities(items, prodItems, a, {p});
-    case prod(_,_,_) : return {};
-    case regular(_,_) : return {};
-    case choice(_, set[Production] alts) : 
-      return { computeDontNests(items, prodItems, a) | a <- alts };
-    case diff(_,Production a,_) :
-      return computeDontNests(items, prodItems, a);
-    case restrict(_,Production a,_) :
-      return computeDontNests(items, prodItems,a);
-    case first(_, list[Production] levels) : {
-      return computePriorities(items, prodItems, levels);
-    }
-    case \assoc(_, Associativity a, set[Production] alts) : {
-      return computeAssociativities(items, prodItems, a, alts);
-    }
-    case \lookahead(_,_,q) :
-      return computeDontNests(items,prodItems,q); 
-    case \others(_) : return {};
-    default:
-      throw "missed a case <p>";
-  }
-}
-
-rel[int,int] computeAssociativities(Items items, map[Production, int] prodItems, Associativity a, set[Production] alts) {
-  result = {};
-  // assoc is not transitive, but it is reflexive
-  
-  switch (a) {
-    case \left(): {
-      for (Production p1 <- alts, Production p2:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, symbolMatch(r,rhs)) {
-        result += {<items[rhs][item(p2,size(lhs)-1)].itemId,prodItems[p1]>};
-      }  
-    }
-    case \assoc():
-      for (Production p1 <- alts, Production p2:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, symbolMatch(r,rhs)) {
-        result += {<items[rhs][item(p2,size(lhs)-1)].itemId,prodItems[p1]>};
-      }
-    case \right():
-      for (Production p1 <- alts, Production p2:prod(lhs:[Symbol l,_*],Symbol rhs,_) <- alts, symbolMatch(l,rhs)) {
-        result += {<items[rhs][item(p2,0)].itemId,prodItems[p1]>};
-      }
-    case \non-assoc(): {
-      for (Production p1 <- alts, Production p2:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, symbolMatch(r,rhs)) {
-        result += {<items[rhs][item(p2,size(lhs)-1)].itemId,prodItems[p1]>};
-      }
-      for (Production p1 <- alts, Production p2:prod(lhs:[Symbol l,_*],Symbol rhs,_) <- alts, symbolMatch(l,rhs)) {
-        result += {<items[rhs][item(p2,0)].itemId,prodItems[p1]>};
-      }
-    }
-  }
-  
-  return result;
-}
-
-rel[int,int] computePriorities(Items items, map[Production, int] prodItems, list[Production] levels) {
-  // collect basic filter
-  ordering = { <p1,p2> | [pre*,Production p1, Production p2, post*] := levels };
-
-  // flatten nested structure to obtain direct relations
-  todo = ordering;
-  ordering = {};
-  while (todo != {}) {
-    <prio,todo> = takeOneFrom(todo);
-    switch (prio) {
-      case <choice(_,set[Production] alts),Production p2> :
-        todo += alts * {p2};
-      case <Production p1, choice(_,set[Production] alts)> :
-        todo += {p1} * alts;
-      case <\assoc(_,_,set[Production] alts),Production p2> :
-        todo += alts * {p2};
-      case <Production p1, \assoc(_,_,set[Production] alts)> :
-        todo += {p1} * alts;
-      default:
-        ordering += prio;
-    }
-  }
-  
-  ordering = ordering+; // priority is transitive
-
-  result = {};
-  for (<Production p1, Production p2> <- ordering) {
-    switch (p1) {
-      case prod(lhs:[Symbol l,_*,Symbol r],Symbol rhs,_) :
-        if (symbolMatch(l,rhs) && symbolMatch(l,rhs)) {
-          result += {<items[rhs][item(p1,0)].itemId,prodItems[p2]>,<items[rhs][item(p1,size(lhs) - 1)].itemId,prodItems[p2]>};   
-        }
-        else fail;
-      case prod(lhs:[Symbol l,_*],Symbol rhs,_) :
-        if (symbolMatch(l,rhs)) {
-          result += {<items[rhs][item(p1,0)].itemId,prodItems[p2]>};   
-        }
-        else fail;
-      case prod(lhs:[_*,Symbol r],Symbol rhs,_) :
-        if (symbolMatch(r,rhs)) {
-          result += {<items[rhs][item(p1,size(lhs) - 1)].itemId,prodItems[p2]>};   
-        }
-        else fail;
-    }
-  }
-  
-  // and we recurse to find the nested associativity declarations
-  return result + { computeDontNests(items, prodItems, l) | l <- levels };
-}                     
-
-private bool symbolMatch(Symbol checked, Symbol referenced) {
-  return referenced == checked || label(_, referenced) := checked;
-}
 
 @doc{
   generate stack nodes for the restrictions. Note that although the abstract grammar for restrictions
@@ -606,11 +490,21 @@ public str ciliterals2ints(list[Symbol] chars){
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
     itemId = id();
     
+    // generate conditions
+    filters = "";
+    
+    if (condition(_, conds) := sym) {
+      filters += ""; 
+      filters += "";
+      filters += "";
+      sym = sym.symbol;
+    }
+    
     switch ((meta(_) := sym) ? sym.wrapped : sym) {
         case \label(_,s) : 
             return sym2newitem(grammar, s, id, dot); // ignore labels
         case \sort(n) : 
-            return <"new NonTerminalStackNode(<itemId>, <dot> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
+            return <"new NonTerminalStackNode(<itemId>, <dot> <filters>, \"<sym2name(sym)>\")", itemId>;
         case \layouts(_) :
             return <"new NonTerminalStackNode(<itemId>, <dot> <generateRestrictions(grammar, sym, id)>, \"<sym2name(sym)>\")", itemId>;
         case \parameterized-sort(n,args): 
@@ -642,6 +536,12 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \opt(s) : {
             reg =  regular(sym,\no-attrs());
             return <"new OptionalStackNode(<itemId>, <dot>, <value2id(reg)> <generateRestrictions(grammar, sym, id)>, <sym2newitem(grammar, s, id, 0).new>)", itemId>;
+        }
+        case \alt(as) : {
+            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<sym2newitem(grammar, head(alts), id, 0)> <for (a <- tail(alts)) {>, <sym2newitem(grammar, a, id, 0)><}>})", itemId>;
+        }
+        case \seq(ss) : {
+            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<sym2newitem(grammar, head(ss), id, 0)> <for (i <- tail(index(ss))) {>, <sym2newitem(grammar, ss[i], id, i)><}>})", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode(<itemId>, <dot>, new char[][]{<generateCharClassArrays(ranges)>})", itemId>;

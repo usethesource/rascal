@@ -31,27 +31,38 @@ syntax EXP = id: ID name
            | strcon: STR string
            | natcon: NAT natcon
            | bracket "(" EXP e ")"
-           > concat: EXP lhs "||" EXP rhs
-           > left (add: EXP lhs "+" EXP rhs
-                  |min: EXP lhs "-" EXP rhs
+           > right concat: EXP lhs "||" EXP rhs
+           > left ( add: EXP lhs "+" EXP rhs
+                  | min: EXP lhs "-" EXP rhs
                   )
            ;
+          
+lexical NAT = [0-9]+ ;
+lexical STR = "\"" ![\"]*  "\"";
 
-           
-syntax ID  = lex [a-z][a-z0-9]* # [a-z0-9];
-syntax NAT = lex [0-9]+ ;
-syntax STR = lex "\"" ![\"]*  "\"";
-
-layout Pico = WhitespaceAndComment*  
-            # [\ \t\n\r]
-            # "%"
+layout Pico = WhitespaceAndComment* !>> [\ \t\n\r%]  
             ;
 
-syntax WhitespaceAndComment 
-   = lex [\ \t\n\r]
-   | lex "%" ![%]* "%"
-   | lex "%%" ![\n]* "\n"
+lexical WhitespaceAndComment 
+   = [\ \t\n\r]
+   | "%" ![%]* "%"
+   | "%%" ![\n]* "\n"
    ;
+
+lexical ID  = ([a-z] !<< [a-z] [a-z0-9]* !>> [a-z0-9]) \ keyword[Pico]; 
+            
+keyword Pico 
+  = "begin" 
+  | "end" 
+  | "if" 
+  | "then" 
+  | "else" 
+  | "fi" 
+  | "while" 
+  | "do" 
+  | "od" 
+  | "declare"
+  ;  
 
 public PROGRAM program(str s) {
   return parse(#PROGRAM, s);
