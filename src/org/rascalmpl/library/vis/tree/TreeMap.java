@@ -92,7 +92,7 @@ public class TreeMap extends Figure {
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", getLeft(), getTop());
 		width = getWidthProperty();
 		if(width == 0) 
@@ -105,7 +105,7 @@ public class TreeMap extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(!isVisible())
 			return;
 		this.setLeft(left);
@@ -123,7 +123,7 @@ public class TreeMap extends Figure {
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
 		return root.mouseOver(mousex, mousey, centerX, centerY, false) ||
 		        super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
 	}

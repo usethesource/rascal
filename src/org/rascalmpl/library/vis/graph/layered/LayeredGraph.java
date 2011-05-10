@@ -55,9 +55,9 @@ public class LayeredGraph extends Figure {
 	protected HashMap<String, LinkedList<LayeredGraphNode>> registeredLayerIds;
 	IEvaluatorContext ctx;
 	
-	float hgap;
-	float vgap;
-	float MAXWIDTH;
+	double hgap;
+	double vgap;
+	double MAXWIDTH;
 	private static final int INFINITY = 1000000;
 	
 	private static final boolean debug = true;
@@ -224,14 +224,14 @@ public class LayeredGraph extends Figure {
 	}
 	
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		MAXWIDTH = width = getWidthProperty();
 		//MAXWIDTH = width = 1000;
 		height = getHeightProperty();
 		hgap = getHGapProperty();
 		vgap = getVGapProperty();
 		
-		float maxNodeWidth = 0;
+		double maxNodeWidth = 0;
 		
 		for(LayeredGraphNode g : nodes){
 			g.bbox();
@@ -259,14 +259,14 @@ public class LayeredGraph extends Figure {
 	 * and compute actual dimensions
 	 */
 	private void translateToOrigin(){
-		float minx = Float.MAX_VALUE;
-		float maxx = Float.MIN_VALUE;
-		float miny = Float.MAX_VALUE;
-		float maxy = Float.MIN_VALUE;
+		double minx = Double.MAX_VALUE;
+		double maxx = Double.MIN_VALUE;
+		double miny = Double.MAX_VALUE;
+		double maxy = Double.MIN_VALUE;
 
 		for (LayeredGraphNode n : nodes) {
-			float w2 = n.width() / 2;
-			float h2 = n.height() / 2;
+			double w2 = n.width() / 2;
+			double h2 = n.height() / 2;
 			if(n.x < 0)
 				System.err.println(n.name + " has negative x: " + n.x);
 			if (n.x - w2 < minx)
@@ -284,8 +284,8 @@ public class LayeredGraph extends Figure {
 		
 		for (LayeredGraphEdge e : edges) {
 			if(e.label != null){
-			float w2 = e.label.width / 2;
-			float h2 = e.label.height / 2;
+			double w2 = e.label.width / 2;
+			double h2 = e.label.height / 2;
 			
 			if (e.labelX - w2 < minx)
 				minx = e.labelX - w2;
@@ -334,8 +334,8 @@ public class LayeredGraph extends Figure {
 	 * - right top/bottom is aligned to maximum of narrowest
 	 */
 	private void alignToSmallest(){
-		float minX[] = {INFINITY, INFINITY, INFINITY, INFINITY};
-		float maxX[] = {-1, -1, -1, -1};
+		double minX[] = {INFINITY, INFINITY, INFINITY, INFINITY};
+		double maxX[] = {-1, -1, -1, -1};
 		
 		for(Direction dir : Direction.dirs){
 			for(LayeredGraphNode n : nodes){
@@ -347,19 +347,19 @@ public class LayeredGraph extends Figure {
 			}
 		}
 		
-		float narrowest = INFINITY;
+		double narrowest = INFINITY;
 		int dirNarrowest = -1;
 		
 		for(Direction dir : Direction.dirs){
 			int k = Direction.ord(dir);
-			float w = maxX[k] - minX[k];
+			double w = maxX[k] - minX[k];
 			if(w < narrowest){
 				narrowest = w;
 				dirNarrowest = k;
 			}
 		}
 		
-		float shifts[] = {0, 0, 0, 0};
+		double shifts[] = {0, 0, 0, 0};
 		for(Direction dir : Direction.dirs){
 			int k = Direction.ord(dir);
 			if(Direction.isLeftDirection(dir)){
@@ -386,7 +386,7 @@ public class LayeredGraph extends Figure {
 			}
 			return;
 		}
-		float tmp;
+		double tmp;
 		if(dir.equals("LR")){
 			for (LayeredGraphNode n : nodes){
 				tmp = n.x; n.x = n.y; n.y = width - tmp;
@@ -405,7 +405,7 @@ public class LayeredGraph extends Figure {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 
@@ -421,7 +421,7 @@ public class LayeredGraph extends Figure {
 	}
 
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent) {
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent) {
 		for (LayeredGraphNode n : nodes) {
 			if (n.mouseOver(mousex, mousey,mouseInParent))
 				return true;
@@ -590,7 +590,7 @@ public class LayeredGraph extends Figure {
 	 * @param W	TODO unused
 	 * @return
 	 */
-	private LinkedList<LinkedList<LayeredGraphNode>> assignLayers(float W){
+	private LinkedList<LinkedList<LayeredGraphNode>> assignLayers(double W){
 		if(nodes.size() == 0)
 			return new LinkedList<LinkedList<LayeredGraphNode>>();
 		
@@ -898,15 +898,15 @@ public class LayeredGraph extends Figure {
 				LayeredGraphNode g = layer.get(j);
 				g.x = (j+1) * 10;
 			}
-//			float w = 0;
+//			double w = 0;
 //			for(int j = 0; j < layer.size(); j++){
 //				LayeredGraphNode g = layer.get(j);
 //				w += g.width();
 //			}
 //			w += (layer.size() - 1) * hgap; // account for gaps between nodes
-//			float x = (MAXWIDTH - w)/2;
+//			double x = (MAXWIDTH - w)/2;
 //			for(int j = 0; j < layer.size(); j++){
-//				float wg =  layer.get(j).width();
+//				double wg =  layer.get(j).width();
 //				layer.get(j).x = x + wg/2;
 //				x += wg + hgap;
 //			}
@@ -949,8 +949,8 @@ public class LayeredGraph extends Figure {
 				LayeredGraphNode g = L.get(j);
 				if(debug)System.err.println("Node " + g.name);
 			
-				float baryCenter = g.baryCenter(P, N);
-				float median = g.median(P);
+				double baryCenter = g.baryCenter(P, N);
+				double median = g.median(P);
 				
 				if(debug){System.err.println("median = " + median);
 					System.err.println("baryCenter = " + baryCenter);
@@ -968,7 +968,7 @@ public class LayeredGraph extends Figure {
 					}
 					if(k > 0 && baryCenter == lrG.x){
 						if(debug)System.err.println("Tie for " + g.name + " and " + lrG.name);
-						float prevX = LR.get(k-1).x;
+						double prevX = LR.get(k-1).x;
 						g.x = prevX + (baryCenter - prevX)/2 -k;
 						LR.add(k-1,g);
 						added = true;
@@ -1314,10 +1314,10 @@ public class LayeredGraph extends Figure {
 						v.sink = u.sink;
 						if(debug)System.err.println("placeBlock: " + v.name + ".sink => " + u.sink.name);
 					}
-					float xDelta = hgap + (v.root.blockWidth + u.root.blockWidth)/2;
+					double xDelta = hgap + (v.root.blockWidth + u.root.blockWidth)/2;
 					
 					if(v.sink != u.sink){
-						float s = leftDir ? v.getX(dir) - u.getX(dir) - xDelta : u.getX(dir) - v.getX(dir) - xDelta;
+						double s = leftDir ? v.getX(dir) - u.getX(dir) - xDelta : u.getX(dir) - v.getX(dir) - xDelta;
 						
 						u.sink.shift = leftDir ? min(u.sink.shift, s) : max(u.sink.shift, s);
 						if(debug)System.err.println("placeBlock: " + u.sink.name + ".sink.shift => " + u.sink.shift );
@@ -1367,10 +1367,10 @@ public class LayeredGraph extends Figure {
 	 */
 	private void assignY(LinkedList<LinkedList<LayeredGraphNode>> layers){
 		
-		float y = 0;
+		double y = 0;
 		
 		for(LinkedList<LayeredGraphNode> layer : layers){
-			float hlayer = 0;
+			double hlayer = 0;
 			for(LayeredGraphNode g : layer){
 				if(!g.isVirtual()){
 					

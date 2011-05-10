@@ -4,16 +4,16 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
-import processing.core.PApplet;
 
 public class VAxis extends HAxis {
 	
 	private static final int MINOR_TICK_WIDTH = 3;
 	private static final int MAJOR_TICK_WIDTH = 7;
-	private float textWidth;
+	private double textWidth;
 
 	public VAxis(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
 		super(innerCons, fpa, properties,  childProps, ctx);
@@ -23,7 +23,7 @@ public class VAxis extends HAxis {
 		return false;
 	}
 	
-	void setWidthHeight(float desiredWidth,float desiredHeight) {
+	void setWidthHeight(double desiredWidth,double desiredHeight) {
 		if(isWidthPropertySet()){
 			width = getWidthProperty();
 		} else {
@@ -54,11 +54,11 @@ public class VAxis extends HAxis {
 		}
 	}
 	
-	float getWidth() {
+	double getWidth() {
 		return height;
 	}
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		
 		setLeft(left);
 		setTop(top);
@@ -71,18 +71,18 @@ public class VAxis extends HAxis {
 		
 		applyProperties();
 		applyFontProperties();
-		float bottom = top + innerFigY + innerFig.height;
+		double bottom = top + innerFigY + innerFig.height;
 		fpa.line(left + axisY,
 				top +  innerFig.getVerticalBorders().getMinimum(),
 				left + axisY,
 				top + innerFig.getVerticalBorders().getMaximum());
-		float direction = getHAlignProperty() > 0.5f ? 1.0f : -1.0f;
+		double direction = getHAlignProperty() > 0.5f ? 1.0f : -1.0f;
 
-		fpa.textAlign(PApplet.LEFT, PApplet.CENTER);
+		fpa.textAlign(FigureApplet.LEFT, FigureApplet.CENTER);
 		for(Tick tick : ticks){
-			float tickWidth = direction * (tick.major ? MAJOR_TICK_WIDTH : MINOR_TICK_WIDTH);
+			double tickWidth = direction * (tick.major ? MAJOR_TICK_WIDTH : MINOR_TICK_WIDTH);
 			String label = tick.measurePos + "";
-			float pixelPos = (float)tick.pixelPos;
+			double pixelPos = (double)tick.pixelPos;
 			if(tick.major){
 				
 				fpa.stroke(230);
@@ -91,7 +91,7 @@ public class VAxis extends HAxis {
 						 left + innerFigX + innerFig.width,
 						 top + innerFigY +  bottom - pixelPos);
 				fpa.stroke(0);
-				float labelYPos ;
+				double labelYPos ;
 				if(getHAlignProperty() > 0.5f){
 					labelYPos = labelY;
 				} else {

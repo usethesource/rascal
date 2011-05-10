@@ -35,8 +35,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public abstract class Compose extends Figure {
 
 	final protected Figure[] figures;
-	protected float[] xPos;
-	protected float[] yPos;
+	protected double[] xPos;
+	protected double[] yPos;
 	final private static boolean debug = false;
 
 	protected Compose(IFigureApplet fpa, PropertyManager properties,
@@ -44,8 +44,8 @@ public abstract class Compose extends Figure {
 		super(fpa, properties);
 		int n = elems.length();
 		figures = new Figure[n];
-		xPos = new float[figures.length];
-		yPos = new float[figures.length];
+		xPos = new double[figures.length];
+		yPos = new double[figures.length];
 		for (int i = 0; i < n; i++) {
 			IValue v = elems.get(i);
 			IConstructor c = (IConstructor) v;
@@ -66,8 +66,8 @@ public abstract class Compose extends Figure {
 	}
 
 	@Override
-	public boolean mouseInside(int mousex, int mousey, float centerX,
-			float centerY) {
+	public boolean mouseInside(int mousex, int mousey, double centerX,
+			double centerY) {
 		if(super.mouseInside(mousex, mousey, centerX, centerY)){
 			for (int i = figures.length - 1; i >= 0; i--)
 				if (figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(),
@@ -79,7 +79,7 @@ public abstract class Compose extends Figure {
 	
 	// Visit figures front to back
 	@Override
-	public boolean mouseOver(int mouseX, int mouseY,  float centerX, float centerY, boolean mouseInParent) {
+	public boolean mouseOver(int mouseX, int mouseY,  double centerX, double centerY, boolean mouseInParent) {
 		// System.err.println("Compose.MouseOver2: " + this.getClass());
 		if(super.mouseInside(mouseX, mouseY)){
 			for (int i = figures.length - 1; i >= 0; i--){
@@ -128,7 +128,7 @@ public abstract class Compose extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top){
+	void draw(double left, double top){
 		setLeft(left);
 		setTop(top);
 		applyProperties();
@@ -137,21 +137,21 @@ public abstract class Compose extends Figure {
 		}
 	}
 	
-	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY, axisScales);
 		for(Figure fig : figures){
 			fig.propagateScaling(scaleX, scaleY, axisScales);
 		}
 	}
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		for(int i = 0 ; i < figures.length ; i++){
 			figures[i].gatherProjections(left + xPos[i], top + yPos[i], projections, first, screenId, horizontal);
 		}
 	}
 	
 
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
 		if(result.gotData()){
 			return result;
@@ -165,13 +165,13 @@ public abstract class Compose extends Figure {
 	}
 	
 
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
-		float result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Float.MAX_VALUE){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
+		double result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Double.MAX_VALUE){
 			return result;
 		} else {
 			for(int i = 0 ; i < figures.length ; i++){
-				float off = 0.0f;
+				double off = 0.0f;
 				if(horizontal){
 					off = xPos[i];
 				} else {

@@ -2,14 +2,14 @@ package org.rascalmpl.library.vis.properties;
 
 public class Measure {
 	public String axisName;
-	public float value;
+	public double value;
 	
-	public Measure(float value){
+	public Measure(double value){
 		this.value = value;
 		axisName = "";
 	}
 	
-	public Measure(float value, String axisName){
+	public Measure(double value, String axisName){
 		this.value = value;
 		this.axisName = axisName;
 	}

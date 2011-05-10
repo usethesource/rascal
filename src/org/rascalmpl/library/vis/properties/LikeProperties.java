@@ -85,7 +85,7 @@ public class LikeProperties {
 		}
 	}
 	
-	static class LikeRealProperty extends LikeProperty<Float>{
+	static class LikeRealProperty extends LikeProperty<Double>{
 		RealProp property;
 		
 		public LikeRealProperty(RealProp property, String id, IFigureApplet fpa,
@@ -95,7 +95,7 @@ public class LikeProperties {
 		}
 
 		@Override
-		public Float getValue() {
+		public Double getValue() {
 			return fig.properties.getRealProperty(property);
 		}
 	}

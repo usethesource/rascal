@@ -16,10 +16,10 @@ class TypedPoint {
 	enum kind {
 		CURVED, NORMAL, BEZIER;
 	}
-	final float x, y;
+	final double x, y;
 	final kind curved;
 
-	TypedPoint(float x, float y, kind curved) {
+	TypedPoint(double x, double y, kind curved) {
 		this.x = x;
 		this.y = y;
 		this.curved = curved;

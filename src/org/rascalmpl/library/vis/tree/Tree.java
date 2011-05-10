@@ -103,7 +103,7 @@ public class Tree extends Figure {
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		//System.err.printf("Tree.bbox()\n");
 		raster.clear();
 		root.shapeTree(0, 0, raster);
@@ -113,7 +113,7 @@ public class Tree extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(!isNextVisible())
 			return;
 		this.setLeft(left);
@@ -131,13 +131,13 @@ public class Tree extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey, float centerX, float centerY){
+	public boolean mouseInside(int mousex, int mousey, double centerX, double centerY){
 		return root.mouseInside(mousex, mousey, centerX, centerY) || 
 		       super.mouseInside(mousex, mousey, centerX, centerY);
 	}
 	
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
 		return root.mouseOver(mousex, mousey, centerX, centerY, false) ||
 		       super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
 	}

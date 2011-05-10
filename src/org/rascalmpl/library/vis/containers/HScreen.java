@@ -17,8 +17,8 @@ public class HScreen extends Figure {
 	
 	Figure innerFig;
 	Vector<ProjectionPlacement> projections; 
-	float innerFigX, innerFigY;
-	float borderMin, borderMax;
+	double innerFigX, innerFigY;
+	double borderMin, borderMax;
 	
 	public HScreen(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties);
@@ -27,10 +27,10 @@ public class HScreen extends Figure {
 	}
 	
 	public static class ProjectionPlacement{
-		float xPos, yPos , originalXposition, originalYPosition;
-		float gap;
+		double xPos, yPos , originalXposition, originalYPosition;
+		double gap;
 		Figure fig;
-		public ProjectionPlacement(float originalXposition, float originalYPosition, float gap, Figure fig) {
+		public ProjectionPlacement(double originalXposition, double originalYPosition, double gap, Figure fig) {
 			this.originalXposition = originalXposition;
 			this.originalYPosition = originalYPosition;
 			this.gap = gap;
@@ -39,16 +39,16 @@ public class HScreen extends Figure {
 	}
 	
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		innerFig.bbox(desiredWidth, desiredHeight);
 		width = innerFig.width;
 		height = innerFig.height;
 		innerFigX = innerFigY = 0.0f;
 		startGatheringProjections();
-		float shiftX, shiftY;
+		double shiftX, shiftY;
 		shiftX = shiftY = 0.0f;
-		float oldWidth = width;
-		float oldHeight = height;
+		double oldWidth = width;
+		double oldHeight = height;
 		for(ProjectionPlacement p : projections){
 			p.fig.bbox(AUTO_SIZE,AUTO_SIZE);
 			placeProjection(p);
@@ -71,16 +71,16 @@ public class HScreen extends Figure {
 		//System.out.printf("hscreen w %f h %f shiftX %f shiftY %f\n",innerFigX,innerFigY,shiftX,shiftY);
 	}
 
-	void setBorders(float shiftX,float shiftY, float oldWidth, float oldHeight) {
+	void setBorders(double shiftX,double shiftY, double oldWidth, double oldHeight) {
 		borderMin = shiftY;
 		borderMax = oldHeight + shiftY;
 	}
 
-	float addHorizontalSpacing(float shiftX, float oldWidth) {
+	double addHorizontalSpacing(double shiftX, double oldWidth) {
 		return shiftX;
 	}
 	
-	float addVerticalSpacing(float shiftY, float oldHeight) {
+	double addVerticalSpacing(double shiftY, double oldHeight) {
 		if(shiftY > 0.0f){
 			shiftY += getHGapProperty();
 		} 
@@ -101,7 +101,7 @@ public class HScreen extends Figure {
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		setLeft(left);
 		setTop(top);
 		innerFig.draw(left + innerFigX, top + innerFigY);
@@ -111,7 +111,7 @@ public class HScreen extends Figure {
 		drawScreen(left, top);
 	}
 
-	void drawScreen(float left, float top) {
+	void drawScreen(double left, double top) {
 		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
 		if(properties.getBooleanProperty(BoolProp.DRAW_SCREEN_X)){
 			fpa.line(left + innerFigX + innerFig.getHorizontalBorders().getMinimum(),
@@ -121,11 +121,11 @@ public class HScreen extends Figure {
 		}
 	}
 
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		innerFig.gatherProjections(left + innerFigX, top + innerFigY, projections, false, screenId, horizontal);
 	}
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
 		if(result.gotData()){
 			return result;
@@ -134,12 +134,12 @@ public class HScreen extends Figure {
 		}
 	}
 	
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
-		float result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Float.MAX_VALUE){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
+		double result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Double.MAX_VALUE){
 			return result;
 		} else {
-			float off = 0.0f;
+			double off = 0.0f;
 			if(horizontal){
 				off = innerFigX;
 			} else {
@@ -150,7 +150,7 @@ public class HScreen extends Figure {
 	}
 	
 
-	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY, axisScales);
 		innerFig.propagateScaling(scaleX, scaleY, axisScales);
 	}

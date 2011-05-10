@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 
-import processing.core.PConstants;
 
 public class FigureSWTApplet implements IFigureApplet {
 
@@ -67,13 +66,12 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-
 	private final int defaultWidth = 5000; // Default dimensions of canvas
 	private final int defaultHeight = 5000;
 
 	private Figure figure; // The figure that is drawn on the canvas
-	private float figureWidth = defaultWidth;
-	private float figureHeight = defaultHeight;
+	private double figureWidth = defaultWidth;
+	private double figureHeight = defaultHeight;
 
 	private Figure focus = null;
 	private boolean focusSelected = false;
@@ -87,7 +85,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	@SuppressWarnings("unused")
 	private String file;
 	@SuppressWarnings("unused")
-	private float scale = 1.0f;
+	private double scale = 1.0f;
 	private int left = 0;
 	private int top = 0;
 	volatile GC gc;
@@ -95,7 +93,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	@SuppressWarnings("serial")
 	class Route extends ArrayList<TypedPoint> {
 
-		void add(float x, float y, TypedPoint.kind curved) {
+		void add(double x, double y, TypedPoint.kind curved) {
 			super.add(new TypedPoint(x, y, curved));
 		}
 	}
@@ -314,11 +312,11 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-	public void line(float arg0, float arg1, float arg2, float arg3) {
+	public void line(double arg0, double arg1, double arg2, double arg3) {
 		gc.drawLine((int) arg0, (int) arg1, (int) arg2, (int) arg3);
 	}
 
-	public void rect(float x, float y, float width, float height) {
+	public void rect(double x, double y, double width, double height) {
 		int alpha0 = gc.getAlpha();
 		int arg0 = FigureApplet.round(x), arg1 = FigureApplet.round(y), arg2 = FigureApplet
 				.round(width), arg3 = FigureApplet.round(height);
@@ -352,7 +350,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-	public void ellipse(float x1, float y1, float x2, float y2) {
+	public void ellipse(double x1, double y1, double x2, double y2) {
 		// CORNERS
 		int arg0 = FigureApplet.round(x1), arg1 = FigureApplet.round(y1), arg2 = FigureApplet
 				.round(x2), arg3 = FigureApplet.round(y2);
@@ -411,7 +409,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		stroke = true;
 	}
 
-	public void strokeWeight(float arg0) {
+	public void strokeWeight(double arg0) {
 		int d = (int) arg0;
 		stroke = (d != 0);
 		if (gc.isDisposed())
@@ -419,7 +417,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		gc.setLineWidth(d);
 	}
 
-	public void textSize(float arg0) {
+	public void textSize(double arg0) {
 		if (gc.isDisposed())
 			gc = new GC(comp);
 		if (gc.getFont().getFontData().length < 1)
@@ -450,32 +448,32 @@ public class FigureSWTApplet implements IFigureApplet {
 				FigureColorUtils.getBlue(arg0)));
 	}
 
-	public float textWidth(String txt) {
+	public double textWidth(String txt) {
 		if (gc.isDisposed())
 			gc = new GC(comp);
 		return gc.textExtent(txt).x;
 	}
 
-	public float textAscent() {
+	public double textAscent() {
 		if (gc.isDisposed())
 			gc = new GC(comp);
 		return gc.getFontMetrics().getAscent();
 	}
 
-	public float textDescent() {
+	public double textDescent() {
 		// TODO Auto-generated method stub
 		if (gc.isDisposed())
 			gc = new GC(comp);
 		return gc.getFontMetrics().getDescent();
 	}
 
-	public void text(String arg0, float x, float y) {
+	public void text(String arg0, double x, double y) {
 		// TODO Auto-generated method stub
-		float width = textWidth(arg0);
+		double width = textWidth(arg0);
 		String[] lines = arg0.split("\n");
 		int nlines = lines.length;
-		float topAnchor = textAscent(), bottomAnchor = textDescent();
-		float height = nlines > 1 ? (nlines * (topAnchor + bottomAnchor) + bottomAnchor)
+		double topAnchor = textAscent(), bottomAnchor = textDescent();
+		double height = nlines > 1 ? (nlines * (topAnchor + bottomAnchor) + bottomAnchor)
 				: (topAnchor + bottomAnchor);
 		if (halign == FigureApplet.CENTER)
 			x -= width / 2;
@@ -502,41 +500,41 @@ public class FigureSWTApplet implements IFigureApplet {
 		gc.setTransform(transform);
 	}
 
-	public void rotate(float angle) {
+	public void rotate(double angle) {
 		Transform transform = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.rotate(FigureApplet.degrees(angle));
+		transform.rotate((float) FigureApplet.degrees(angle));
 		gc.setTransform(transform);
 	}
 
-	public void translate(float x, float y) {
+	public void translate(double x, double y) {
 		Transform transform = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.translate(x, y);
+		transform.translate((float) x, (float) y);
 		gc.setTransform(transform);
 	}
 
-	public void scale(float scaleX, float scaleY) {
+	public void scale(double scaleX, double scaleY) {
 		Transform transform = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.scale(scaleX, scaleY);
+		transform.scale((float) scaleX, (float) scaleY);
 		gc.setTransform(transform);
 	}
 
-	public void bezierVertex(float cx1, float cy1, float cx2, float cy2,
-			float x, float y) {
+	public void bezierVertex(double cx1, double cy1, double cx2, double cy2,
+			double x, double y) {
 		Route r = stackPath.peek();
 		r.add(cx1, cy1, TypedPoint.kind.BEZIER);
 		r.add(cx2, cy2, TypedPoint.kind.BEZIER);
 		r.add(x, y, TypedPoint.kind.BEZIER);
 	}
 
-	public void vertex(float x, float y) {
+	public void vertex(double x, double y) {
 		Route r = stackPath.peek();
 		r.add(x, y, TypedPoint.kind.NORMAL);
 	}
 
-	public void curveVertex(float x, float y) {
+	public void curveVertex(double x, double y) {
 		Route r = stackPath.peek();
 		r.add(x, y, TypedPoint.kind.CURVED);
 	}
@@ -545,8 +543,8 @@ public class FigureSWTApplet implements IFigureApplet {
 		fill = false;
 	}
 
-	public void arc(float x, float y, float width, float height,
-			float startAngle, float stopAngle) {
+	public void arc(double x, double y, double width, double height,
+			double startAngle, double stopAngle) {
 		gc.drawArc((int) x, (int) y, (int) width, (int) height,
 				(int) FigureApplet.degrees(startAngle),
 				(int) FigureApplet.degrees(stopAngle));
@@ -569,16 +567,17 @@ public class FigureSWTApplet implements IFigureApplet {
 			TypedPoint z = r.get(0);
 			// System.err.println("Curved:" + z.curved);
 			if (z.curved == TypedPoint.kind.NORMAL) {
-				p.lineTo(z.x, z.y);
+				p.lineTo((float) z.x, (float) z.y);
 				r.remove(0);
 			} else if (z.curved == TypedPoint.kind.BEZIER) {
-				float c1x = z.x, c1y = z.y;
+				double c1x = z.x, c1y = z.y;
 				r.remove(0);
 				z = r.remove(0);
-				float c2x = z.x, c2y = z.y;
+				double c2x = z.x, c2y = z.y;
 				z = r.remove(0);
-				float x = z.x, y = z.y;
-				p.cubicTo(c1x, c1y, c2x, c2y, x, y);
+				double x = z.x, y = z.y;
+				p.cubicTo((float) c1x, (float) c1y, (float) c2x, (float) c2y,
+						(float) x, (float) y);
 			} else {
 				break;
 			}
@@ -592,13 +591,13 @@ public class FigureSWTApplet implements IFigureApplet {
 		Interpolation.solve(r, closed);
 		int n = Interpolation.P0.length;
 		for (int i = 0; i < n; i++)
-			p.cubicTo(Interpolation.P1[i].x, Interpolation.P1[i].y,
-					Interpolation.P2[i].x, Interpolation.P2[i].y,
-					Interpolation.P3[i].x, Interpolation.P3[i].y);
+			p.cubicTo((float) Interpolation.P1[i].x, (float) Interpolation.P1[i].y,
+					(float) Interpolation.P2[i].x, (float) Interpolation.P2[i].y,
+					(float) Interpolation.P3[i].x, (float) Interpolation.P3[i].y);
 	}
 
 	public void endShape() {
-		endShape(PConstants.OPEN);
+		endShape(FigureApplet.OPEN);
 	}
 
 	public void endShape(int arg0) {
@@ -625,7 +624,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		TypedPoint q = r.get(0);
 		if (q.curved != TypedPoint.kind.CURVED)
 			r.remove(0);
-		p.moveTo(q.x, q.y);
+		p.moveTo((float)q.x, (float) q.y);
 		if (debug)
 			System.err.println("q=(" + q.x + "," + q.y + " " + q.curved + ")");
 		if (arg0 == FigureApplet.CLOSE) {
@@ -652,7 +651,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-	public Object createFont(String fontName, float fontSize) {
+	public Object createFont(String fontName, double fontSize) {
 		// TODO Auto-generated method stub
 		FontData fd = new FontData(fontName, (int) fontSize, SWT.NORMAL);
 		return new Font(comp.getDisplay(), fd);
@@ -705,7 +704,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-	public void stroke(float arg0, float arg1, float arg2) {
+	public void stroke(double arg0, double arg1, double arg2) {
 		// TODO Auto-generated method stub
 
 	}

@@ -30,17 +30,17 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public class Overlay extends Compose {
 	
 	private static boolean debug = false;
-	float topAnchor = 0;
-	float bottomAnchor = 0;
-	float leftAnchor = 0;
-	float rightAnchor = 0;
+	double topAnchor = 0;
+	double bottomAnchor = 0;
+	double leftAnchor = 0;
+	double rightAnchor = 0;
 
 	public Overlay(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
 	}
 	
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight){
+	public void bbox(double desiredWidth, double desiredHeight){
 		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		

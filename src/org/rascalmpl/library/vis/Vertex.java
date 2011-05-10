@@ -33,13 +33,13 @@ public class Vertex extends Figure {
 	Figure marker;
 	Measure deltax;
 	Measure deltay;
-	float leftAnchor;
-	float rightAnchor;
-	float topAnchor;
-	float bottomAnchor;
+	double leftAnchor;
+	double rightAnchor;
+	double topAnchor;
+	double bottomAnchor;
 	private static boolean debug = false;
 
-	private float getIntOrReal(IValue v){
+	private double getIntOrReal(IValue v){
 		if(v.getType().isIntegerType())
 			return ((IInteger) v).intValue();
 		if(v.getType().isRealType())
@@ -75,17 +75,17 @@ public class Vertex extends Figure {
 		return deltay;
 	}
 
-	public float getDeltaX(){
+	public double getDeltaX(){
 		return getScaled(deltax,true);
 	}
 	
-	public float getDeltaY(){
+	public double getDeltaY(){
 		return getScaled(deltay,false);
 	}
 	
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight){
+	void bbox(double desiredWidth, double desiredHeight){
 		/*
 		if(marker != null){
 			//TODO is this ok?
@@ -135,7 +135,7 @@ public class Vertex extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		applyProperties();
@@ -150,26 +150,26 @@ public class Vertex extends Figure {
 	}
 	
 	@Override
-	public float leftAlign(){
+	public double leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAlign(){
+	public double rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAlign(){
+	public double topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAlign(){
+	public double bottomAlign(){
 		return bottomAnchor;
 	}
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		if(marker!=null){
 			return marker.getExtremesForAxis(axisId, offset, horizontal);
 		} else {
@@ -177,16 +177,16 @@ public class Vertex extends Figure {
 		}
 	}
 	
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
 		if(marker!=null){
 			return marker.getOffsetForAxis(axisId, offset, horizontal);
 		} else {
-			return Float.MAX_VALUE;
+			return Double.MAX_VALUE;
 		}
 	}
 	
 
-	public void propagateScaling(float scaleX,float scaleY,HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY,axisScales);
 		if(marker != null){
 			marker.propagateScaling(scaleX, scaleY,axisScales);

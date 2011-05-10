@@ -62,14 +62,14 @@ public class LatticeGraphEdge extends Figure {
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		applyProperties();
 		if (debug)
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
 					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x
 					+ "," + to.y + ")");
 		if (getCurvedProperty()) {
-			float mx = (left + getFrom().figX() + left + getTo().figX()) / 2 + 20, my = (top
+			double mx = (left + getFrom().figX() + left + getTo().figX()) / 2 + 20, my = (top
 					+ getFrom().figY() + top + getTo().figY()) / 2;
 			fpa.noFill();
 			fpa.beginShape();
@@ -91,7 +91,7 @@ public class LatticeGraphEdge extends Figure {
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		// TODO Auto-generated method stub
 
 	}

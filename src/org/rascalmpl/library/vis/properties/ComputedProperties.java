@@ -65,19 +65,19 @@ public class ComputedProperties {
 	}
 	
 
-	static class ComputedRealProperty extends ComputedProperty<Float>{
+	static class ComputedRealProperty extends ComputedProperty<Double>{
 
 		public ComputedRealProperty(IValue fun, IFigureApplet fpa) {
 			super(fun, fpa);
 		}
 
-		Float convertValue(Result<IValue> res){
+		Double convertValue(Result<IValue> res){
 			if(res.getType().isIntegerType())
-				return (float)((IInteger) res.getValue()).intValue();
+				return (double)((IInteger) res.getValue()).intValue();
 			else if(res.getType().isRealType())
-				return ((IReal) res.getValue()).floatValue();
+				return (double) ((IReal) res.getValue()).floatValue();
 			else
-				return ((INumber) res.getValue()).toReal().floatValue();
+				return (double) ((INumber) res.getValue()).toReal().floatValue();
 		}
 	}
 	

@@ -23,20 +23,22 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
+
+
 public class Rotate extends Figure {
 	private Figure figure;
-	private float angle;
-	private float leftAnchor;
-	private float rightAnchor;
-	private float topAnchor;
-	private float bottomAnchor;
+	private double angle;
+	private double leftAnchor;
+	private double rightAnchor;
+	private double topAnchor;
+	private double bottomAnchor;
 	private static boolean debug = false;
-	private float sina;
-	private float cosa;
+	private double sina;
+	private double cosa;
 	
 	Rotate(IFigureApplet fpa, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
 		super(fpa, inherited);
-		float a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
+		double a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
 				                                    : ((IReal) rangle).floatValue();
 		angle = FigureApplet.radians(a);
 		figure = FigureFactory.make(fpa, c, properties, null, ctx);
@@ -44,18 +46,18 @@ public class Rotate extends Figure {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight) {
+	void bbox(double desiredWidth, double desiredHeight) {
 		
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 		
-		sina = abs(FigureApplet.sin(angle));
-		cosa = abs(FigureApplet.cos(angle));
+		sina = FigureApplet.abs(FigureApplet.sin(angle));
+		cosa =  FigureApplet.abs(FigureApplet.cos(angle));
 		
-		float hanch = figure.getHAlignProperty();
-		float vanch = figure.getVAlignProperty();
+		double hanch = figure.getHAlignProperty();
+		double vanch = figure.getVAlignProperty();
 		
-		float w = figure.width;
-		float h = figure.height;
+		double w = figure.width;
+		double h = figure.height;
 		
 		width  = h * sina + w * cosa;
 		height = h * cosa + w * sina;
@@ -72,7 +74,7 @@ public class Rotate extends Figure {
 
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		
@@ -87,22 +89,22 @@ public class Rotate extends Figure {
 	}
 	
 	@Override
-	public float leftAlign(){
+	public double leftAlign(){
 		return leftAnchor;
 	}
 	
 	@Override
-	public float rightAlign(){
+	public double rightAlign(){
 		return rightAnchor;
 	}
 	
 	@Override
-	public float topAlign(){
+	public double topAlign(){
 		return topAnchor;
 	}
 	
 	@Override
-	public float bottomAlign(){
+	public double bottomAlign(){
 		return bottomAnchor;
 	}
 	
@@ -119,19 +121,19 @@ public class Rotate extends Figure {
 	}
 	
 
-	public void propagateScaling(float scaleX,float scaleY, HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY, axisScales);
 		figure.propagateScaling(scaleX, scaleY, axisScales);
 	}
 	
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(figure!=null){
 			figure.gatherProjections(left, top, projections, first, screenId, horizontal);
 		}
 	}
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		throw new UnsupportedOperationException("No rotate on axises yet");
 	}
 }

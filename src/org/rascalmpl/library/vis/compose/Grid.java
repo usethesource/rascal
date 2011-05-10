@@ -29,33 +29,33 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  */
 public class Grid extends Compose {
 	
-	float leftFig[];
-	float topFig[];
+	double leftFig[];
+	double topFig[];
 	
-	float extTop = 0;
-	float extBot = 0;
-	float extLeft = 0;
-	float extRight = 0;
+	double extTop = 0;
+	double extBot = 0;
+	double extLeft = 0;
+	double extRight = 0;
 	
 	private static boolean debug = false;
 	
 
 	public Grid(IFigureApplet fpa, PropertyManager properties, IList elems, IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
-		leftFig = new float[elems.length()];
-		topFig = new float[elems.length()];
+		leftFig = new double[elems.length()];
+		topFig = new double[elems.length()];
 	}
 	
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight){
+	public void bbox(double desiredWidth, double desiredHeight){
 		
 		width = getWidthProperty();
 		height = 0;
-		float w = 0;
+		double w = 0;
 		int nrow = 0;
 		
-		float hgap = getHGapProperty();
-		float vgap = getVGapProperty();
+		double hgap = getHGapProperty();
+		double vgap = getVGapProperty();
 		
 		int lastRow = (hgap == 0) ? 0 : figures.length / (1 + (int) (width / hgap)) - 1;
 		if(debug)System.err.printf("lastRow = %d\n", lastRow);

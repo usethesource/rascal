@@ -90,13 +90,13 @@ public class PropertySetters {
 		}
 	}
 	
-	public static class SingleRealPropertySetter extends SinglePropertySetter<RealProp,Float>{
+	public static class SingleRealPropertySetter extends SinglePropertySetter<RealProp,Double>{
 		public SingleRealPropertySetter(RealProp property) {
 			super(property, new PropertyParsers.RealArgParser());
 		}
 	}
 	
-	public static class SingleIntOrRealPropertySetter extends SinglePropertySetter<RealProp,Float>{
+	public static class SingleIntOrRealPropertySetter extends SinglePropertySetter<RealProp,Double>{
 		public SingleIntOrRealPropertySetter(RealProp property) {
 			super(property, new PropertyParsers.IntOrRealArgParser());
 		}
@@ -115,13 +115,13 @@ public class PropertySetters {
 		}
 	}
 	
-	public static class DualOrRepeatSingleRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Float>{
+	public static class DualOrRepeatSingleRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Double>{
 		public DualOrRepeatSingleRealPropertySetter(RealProp property1,RealProp property2) {
 			super(property1,property2, new PropertyParsers.RealArgParser());
 		}
 	}
 	
-	public static class DualOrRepeatSingleIntOrRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Float>{
+	public static class DualOrRepeatSingleIntOrRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Double>{
 		public DualOrRepeatSingleIntOrRealPropertySetter(RealProp property1,RealProp property2) {
 			super(property1,property2, new PropertyParsers.IntOrRealArgParser());
 		}

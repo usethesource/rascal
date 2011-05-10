@@ -53,7 +53,7 @@ public class PropertyManager implements IPropertyManager {
 	class Values{
 		EnumMap<BoolProp, IPropertyValue<Boolean>> boolValues;
 		EnumMap<IntProp, IPropertyValue<Integer>> intValues;
-		EnumMap<RealProp, IPropertyValue<Float>> realValues;
+		EnumMap<RealProp, IPropertyValue<Double>> realValues;
 		EnumMap<MeasureProp, IPropertyValue<Measure>> measureValues;
 		EnumMap<StrProp, IPropertyValue<String>> strValues;
 		EnumMap<ColorProp, IPropertyValue<Integer>> colorValues;
@@ -140,7 +140,7 @@ public class PropertyManager implements IPropertyManager {
 				IntProp.propertySetters.get(pname).execute(values.intValues, c,  fpa, ctx, this);
 			}  else if(RealProp.propertySetters.containsKey(pname)){
 				if(values.realValues == null){
-					 values.realValues = new EnumMap<RealProp, IPropertyValue<Float>>(RealProp.class);
+					 values.realValues = new EnumMap<RealProp, IPropertyValue<Double>>(RealProp.class);
 				}
 				RealProp.propertySetters.get(pname).execute(values.realValues, c,  fpa, ctx, this);
 			} else if(StrProp.settersStr.containsKey(pname)){
@@ -301,7 +301,7 @@ public class PropertyManager implements IPropertyManager {
 	       explicitValues.realValues.containsKey(property);
 
 	}
-	public float getRealProperty(RealProp property) {
+	public double getRealProperty(RealProp property) {
 		if(isRealPropertySet(property)){
 			return explicitValues.realValues.get(property).getValue();
 		} else if(stdValues!= null && stdValues.realValues != null && 

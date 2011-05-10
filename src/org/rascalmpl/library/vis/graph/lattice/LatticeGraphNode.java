@@ -33,8 +33,8 @@ public class LatticeGraphNode {
 	LinkedList<LatticeGraphNode> in;
 	LinkedList<LatticeGraphNode> out;
 	HashSet<LatticeGraphNode> reached = new HashSet<LatticeGraphNode>();
-	float x, cX[]; // Candidates of x
-	float y;
+	double x, cX[]; // Candidates of x
+	double y;
 	public int rank;
 	public int rankTop;
 	public int rankBottom;
@@ -48,11 +48,11 @@ public class LatticeGraphNode {
 		out = new LinkedList<LatticeGraphNode>();
 	}
 
-	public float figX() {
+	public double figX() {
 		return x;
 	}
 
-	public float figY() {
+	public double figY() {
 		return y;
 	}
 
@@ -62,15 +62,15 @@ public class LatticeGraphNode {
 		}
 	}
 
-	float width() {
+	double width() {
 		return figure != null ? figure.width : 0;
 	}
 
-	float height() {
+	double height() {
 		return figure != null ? figure.height : 0;
 	}
 
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if (figure != null) {
 			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			figure.draw(x + left - figure.width / 2, y + top - figure.height

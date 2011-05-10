@@ -32,6 +32,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.FigureApplet;
+
 
 /**
  * 
@@ -71,14 +73,14 @@ public class LatticeGraph extends Figure implements
 	private HashMap<LatticeGraphNode, LatticeGraphNode> visit = new HashMap<LatticeGraphNode, LatticeGraphNode>();
 
 	class Organism {
-		float[][] x = new float[layers.length][],
-				aux = new float[layers.length][];
+		double[][] x = new double[layers.length][],
+				aux = new double[layers.length][];
 
-		final float fitness;
+		final double fitness;
 
 		final int cut;
 
-		private float fitnessDefinition() {
+		private double fitnessDefinition() {
 			set();
 			return -LatticeGraph.this.Z();
 		}
@@ -86,8 +88,8 @@ public class LatticeGraph extends Figure implements
 		Organism() {
 			int i = 0;
 			for (Layer ns : layers) {
-				x[i] = new float[ns.data.size()];
-				aux[i] = new float[ns.data.size()];
+				x[i] = new double[ns.data.size()];
+				aux[i] = new double[ns.data.size()];
 				i++;
 			}
 			init();
@@ -101,8 +103,8 @@ public class LatticeGraph extends Figure implements
 			mutate(r, p);
 		}
 
-		private boolean isTriggered(float x, float step) {
-			float d = Math.abs((x - lmargin) / step);
+		private boolean isTriggered(double x, double step) {
+			double d = Math.abs((x - lmargin) / step);
 			if (d - Math.floor(d) < 0.001)
 				return false;
 			return true;
@@ -110,12 +112,12 @@ public class LatticeGraph extends Figure implements
 
 		private void mutate(int cut, int p) {
 			final int n = x[cut].length;
-			// final float step = width / (n + 1);
+			// final double step = width / (n + 1);
 			for (int i = 0; i < p; i++)
 				if (n > 0) {
 					int m = rand.nextInt(n * 4);
 					int k = m / 4;
-					float s = x[cut][k];
+					double s = x[cut][k];
 					final int l = rand.nextInt(n);
 					x[cut][k] = x[cut][l];
 					x[cut][l] = s;
@@ -130,8 +132,8 @@ public class LatticeGraph extends Figure implements
 
 		Organism(Organism o) {
 			for (int i = 0; i < o.x.length; i++) {
-				x[i] = new float[o.x[i].length];
-				aux[i] = new float[x[i].length];
+				x[i] = new double[o.x[i].length];
+				aux[i] = new double[x[i].length];
 			}
 			for (int i = 0; i < o.x.length; i++)
 				for (int j = 0; j < o.x[i].length; j++) {
@@ -145,8 +147,8 @@ public class LatticeGraph extends Figure implements
 
 		Organism(Organism o1, Organism o2) {
 			for (int i = 0; i < o1.x.length; i++) {
-				x[i] = new float[o1.x[i].length];
-				aux[i] = new float[x[i].length];
+				x[i] = new double[o1.x[i].length];
+				aux[i] = new double[x[i].length];
 			}
 			cut = o1.x.length > 3 ? 1 + rand.nextInt(o1.x.length - 2) : 0;
 			for (int i = 0; i < cut; i++)
@@ -194,7 +196,7 @@ public class LatticeGraph extends Figure implements
 	class Layer {
 		final int rank;
 		final ArrayList<LatticeGraphNode> data;
-		final float step;
+		final double step;
 
 		Layer(ArrayList<LatticeGraphNode> data, int rank) {
 			this.data = data;
@@ -273,18 +275,18 @@ public class LatticeGraph extends Figure implements
 
 	private void initialPlacement() {
 		int i = 0;
-		float y = border;
+		double y = border;
 		for (Layer layer : layers) {
 			int s = layer.data.size();
 			// System.err.println("layer.size:"+s);
 			if (s > 0) {
-				float step = width / (s + 1);
+				double step = width / (s + 1);
 				// System.err.println("width:"+width);
 				// System.err.println("step:"+step);
-				// float x = i % 2 == 0 ? step / 2 : (width - step / 2);
-				float x = lmargin + step;
+				// double x = i % 2 == 0 ? step / 2 : (width - step / 2);
+				double x = lmargin + step;
 				for (LatticeGraphNode n : layer.data) {
-					// n.x = (float) (n.x*Math.cos(phi)+n.y*Math.sin(phi));
+					// n.x = (double) (n.x*Math.cos(phi)+n.y*Math.sin(phi));
 					n.x = x;
 					n.y = y;
 					// x += (i % 2 == 0 ? step : -step);
@@ -310,7 +312,7 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		applyProperties();
@@ -335,8 +337,8 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public boolean mouseOver(int mousex, int mousey, float centerX,
-			float centerY, boolean mouseInParent) {
+	public boolean mouseOver(int mousex, int mousey, double centerX,
+			double centerY, boolean mouseInParent) {
 		for (LatticeGraphNode n : nodes) {
 			if (n.mouseOver(mousex, mousey, mouseInParent))
 				return true;
@@ -502,26 +504,26 @@ public class LatticeGraph extends Figure implements
 		return b.reached.contains(a);
 	}
 
-	private float C() {
-		float r = 0;
+	private double C() {
+		double r = 0;
 		int i = 0;
 		for (LatticeGraphNode n : nodes)
 			for (LatticeGraphNode m : n.reached) {
-				float t = (n.x - m.x) * (n.x - m.x) + (n.y - m.y) * (n.y - m.y);
+				double t = (n.x - m.x) * (n.x - m.x) + (n.y - m.y) * (n.y - m.y);
 				r += t;
 				i++;
 			}
 		return r / i;
 	}
 
-	private float Y() {
-		float r = 0;
+	private double Y() {
+		double r = 0;
 		// int i = 0;
 		for (Layer ns : layers) {
 			for (LatticeGraphNode n : ns.data)
 				for (LatticeGraphNode m : ns.data)
 					if (!m.equals(n)) {
-						final float k = (n.x - m.x) * (n.x - m.x);
+						final double k = (n.x - m.x) * (n.x - m.x);
 						r += k;
 					}
 		}
@@ -529,7 +531,7 @@ public class LatticeGraph extends Figure implements
 	}
 
 	/* Number Of Crossings */
-	private float Z() {
+	private double Z() {
 		int r = 0, s = 0;
 		for (LatticeGraphEdge e1 : edges)
 			for (LatticeGraphEdge e2 : edges)
@@ -579,11 +581,11 @@ public class LatticeGraph extends Figure implements
 
 	public int compare(Organism o1, Organism o2) {
 		// The biggest first
-		return Math.round(o2.fitness - o1.fitness);
+		return FigureApplet.round(o2.fitness - o1.fitness);
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 	}
 
 }

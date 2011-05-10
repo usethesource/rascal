@@ -46,22 +46,22 @@ public class Place extends Figure {
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		bottomFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		topFigure.bbox(AUTO_SIZE, AUTO_SIZE);
 		
-		float halign = getHAlignProperty();
-		float valign = getVAlignProperty();
+		double halign = getHAlignProperty();
+		double valign = getVAlignProperty();
 		width = max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
 		height = max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		setLeft(left);
 		setTop(top);
-		float halign = getHAlignProperty();
-		float valign = getVAlignProperty();
+		double halign = getHAlignProperty();
+		double valign = getVAlignProperty();
 		bottomFigure.draw(left, top);
 		topFigure.draw(refFigure.getLeft() + halign * refFigure.width - topFigure.width/2,
 				       refFigure.getTop()  + valign * refFigure.height - topFigure.height/2);
@@ -74,14 +74,14 @@ public class Place extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mouseX, int mouseY, float centerX,
-			float centerY) {
+	public boolean mouseInside(int mouseX, int mouseY, double centerX,
+			double centerY) {
 		return bottomFigure.mouseInside(mouseX, mouseY, centerX, centerY) || 
 		       topFigure.mouseInside(mouseX, mouseY, centerX, centerY);
 	}
 	
 	@Override
-	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
 		return bottomFigure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent) || 
 		       topFigure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);
 	}
@@ -105,7 +105,7 @@ public class Place extends Figure {
 	}
 
 	@Override
-	public void gatherProjections(float left, float top,
+	public void gatherProjections(double left, double top,
 			Vector<ProjectionPlacement> projections, boolean first,
 			String screenId, boolean horizontal) {
 		// TODO: Implement this...

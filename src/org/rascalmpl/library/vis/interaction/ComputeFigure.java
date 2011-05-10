@@ -51,7 +51,7 @@ public class ComputeFigure extends Figure {
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		
 		Result<IValue> figureVal;
 		
@@ -78,7 +78,7 @@ public class ComputeFigure extends Figure {
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
 		this.setLeft(left);
 		this.setTop(top);
@@ -86,22 +86,22 @@ public class ComputeFigure extends Figure {
 	}
 	
 	@Override 
-	public float topAlign(){
+	public double topAlign(){
 		return figure != null ? figure.topAlign() : 0;
 	}
 	
 	@Override 
-	public float bottomAlign(){
+	public double bottomAlign(){
 		return figure != null ? figure.bottomAlign() : 0;
 	}
 	
 	@Override 
-	public float leftAlign(){
+	public double leftAlign(){
 		return figure != null ? figure.leftAlign() : 0;
 	}
 	
 	@Override 
-	public float rightAlign(){
+	public double rightAlign(){
 		return figure != null ? figure.rightAlign() : 0;
 	}
 	
@@ -115,7 +115,7 @@ public class ComputeFigure extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mouseX, int mouseY, float centerX, float centerY){
+	public boolean mouseInside(int mouseX, int mouseY, double centerX, double centerY){
 		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
 				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
 		if(figure != null){
@@ -137,7 +137,7 @@ public class ComputeFigure extends Figure {
 	}
 	
 	@Override
-	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
 		// System.err.println("ComputeFigure.mouseOver2: " + figure);
 		if(figure != null){
 			return figure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);

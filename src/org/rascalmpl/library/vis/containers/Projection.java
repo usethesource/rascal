@@ -26,7 +26,7 @@ public class Projection extends Figure {
 		this.projection = FigureFactory.make(fpa, projection, this.properties, childProps, ctx);
 	}
 	
-	public void gatherProjections(float left, float top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
+	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(projectOn.equals(screenId) || (projectOn.equals("") && first)){
 			if(horizontal){
 				projections.add(new HScreen.ProjectionPlacement(left + getHAlignProperty() * innerFig.width, top, getVGapProperty(), projection));
@@ -39,37 +39,37 @@ public class Projection extends Figure {
 	}
 
 	@Override
-	public void bbox(float desiredWidth, float desiredHeight) {
+	public void bbox(double desiredWidth, double desiredHeight) {
 		innerFig.bbox(desiredWidth, desiredHeight);
 		this.width = innerFig.width;
 		this.height = innerFig.height;
 	}
 
 	@Override
-	public void draw(float left, float top) {
+	public void draw(double left, double top) {
 		innerFig.draw(left, top);
 		
 	}
 	
 
-	public float leftAlign() {
+	public double leftAlign() {
 		return innerFig.leftAlign();
 	}
 
-	public float rightAlign() {
+	public double rightAlign() {
 		return innerFig.rightAlign();
 	}
 
-	public float topAlign() {
+	public double topAlign() {
 		return innerFig.topAlign();
 	}
 
-	public float bottomAlign() {
+	public double bottomAlign() {
 		return innerFig.bottomAlign();
 	}
 	
 	
-	public Extremes getExtremesForAxis(String axisId, float offset, boolean horizontal){
+	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
 		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
 		if(result.gotData()){
 			return result;
@@ -78,9 +78,9 @@ public class Projection extends Figure {
 		}
 	}
 	
-	public float getOffsetForAxis(String axisId, float offset, boolean horizontal){
-		float result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Float.MAX_VALUE){
+	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
+		double result = super.getOffsetForAxis(axisId, offset, horizontal);
+		if(result != Double.MAX_VALUE){
 			return result;
 		} else {
 			return innerFig.getOffsetForAxis(axisId, offset, horizontal);
@@ -88,7 +88,7 @@ public class Projection extends Figure {
 	}
 	
 
-	public void propagateScaling(float scaleX,float scaleY,HashMap<String,Float> axisScales){
+	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
 		super.propagateScaling(scaleX, scaleY,axisScales);
 		if(innerFig != null){
 			innerFig.propagateScaling(scaleX, scaleY,axisScales);

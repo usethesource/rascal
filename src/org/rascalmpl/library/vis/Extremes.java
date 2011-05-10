@@ -15,12 +15,12 @@ package org.rascalmpl.library.vis;
 // immutable extremes (minimum and maximum) helper class
 public class Extremes {
 
-	private float minimum, maximum;
+	private double minimum, maximum;
 	
-	public Extremes(float ... values){
-		minimum = Float.MAX_VALUE;
-		maximum = Float.MIN_VALUE;
-		for(float val : values){
+	public Extremes(double ... values){
+		minimum = Double.MAX_VALUE;
+		maximum = Double.MIN_VALUE;
+		for(double val : values){
 			processValue(val);
 		}
 	}
@@ -34,15 +34,15 @@ public class Extremes {
 		return result;
 	}
 	
-	private void processLow(float value){
+	private void processLow(double value){
 		minimum = Figure.min(minimum, value);
 	}
 	
-	private void processHigh(float value){
+	private void processHigh(double value){
 		maximum = Figure.max(maximum, value);
 	}
 	
-	private void processValue(float value){
+	private void processValue(double value){
 		processLow(value);
 		processHigh(value);
 	}
@@ -52,11 +52,11 @@ public class Extremes {
 	}
 
 	
-	public float getMinimum(){
+	public double getMinimum(){
 		return minimum;
 	}
 	
-	public float getMaximum(){
+	public double getMaximum(){
 		return maximum;
 	}
 

@@ -181,25 +181,25 @@ public class PropertyParsers {
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
-	static class RealArgParser extends AbstractPropertyParser<RealProp,Float>{
+	static class RealArgParser extends AbstractPropertyParser<RealProp,Double>{
 		@Override
 		boolean isLiteralType(Type type) {
 			return type.isRealType();
 		}
 
 		@Override
-		IPropertyValue<Float> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
-			return new ConstantProperties.ConstantRealProperty(((IReal) arg).floatValue());
+		IPropertyValue<Double> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new ConstantProperties.ConstantRealProperty((double) ((IReal) arg).floatValue());
 		}
 
 		@Override
-		IPropertyValue<Float> makeLikeProperty(RealProp prop, String id,
+		IPropertyValue<Double> makeLikeProperty(RealProp prop, String id,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeRealProperty(prop, id, fpa, ctx);
 		}
 
 		@Override
-		IPropertyValue<Float> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		IPropertyValue<Double> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedRealProperty(arg, fpa);
 		}
 	}
@@ -221,8 +221,8 @@ public class PropertyParsers {
 		}
 		
 		@Override
-		IPropertyValue<Float> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
-			float value;
+		IPropertyValue<Double> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+			double value;
 			if(arg.getType().isIntegerType()){
 				value = ((IInteger) arg).intValue();
 			} else {

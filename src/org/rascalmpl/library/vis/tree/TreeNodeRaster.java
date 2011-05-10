@@ -55,7 +55,7 @@ public class TreeNodeRaster {
 	/*
 	 * Add -- add an element to the raster
 	 */
-	public void add(float position, float top, float width, float height){
+	public void add(double position, double top, double width, double height){
 		int itop = FigureApplet.round(top);
 		int ibot = FigureApplet.round(top + height);
 		if(ibot > RMAX){
@@ -72,9 +72,9 @@ public class TreeNodeRaster {
 	 * Returns the x position of the center of the element
 	 */
 	
-	public float leftMostPosition(float position, float top, float width, float height, float gap){
+	public double leftMostPosition(double position, double top, double width, double height, double gap){
 		int itop = FigureApplet.round(top);
-		float l = position >= 0 ? position : 0;
+		double l = position >= 0 ? position : 0;
 		int ibot = FigureApplet.round(top + height);
 		if(ibot > RMAX){
 			extend(ibot);

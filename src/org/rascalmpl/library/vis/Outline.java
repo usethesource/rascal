@@ -37,8 +37,8 @@ public class Outline extends Figure {
 
 	@Override
 	public
-	void bbox(float desiredWidth, float desiredHeight){
-		float lw = getLineWidthProperty();
+	void bbox(double desiredWidth, double desiredHeight){
+		double lw = getLineWidthProperty();
 		width = getWidthProperty();
 		height = getHeightProperty();
 		width += 2*lw;
@@ -50,11 +50,11 @@ public class Outline extends Figure {
 	
 	@Override
 	public
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
 		
-		float lw = getLineWidthProperty();
+	    double lw = getLineWidthProperty();
 		applyProperties();
 		if(debug) System.err.println("Outline.draw => " + width + ", " + height);
 		if(height > 0 && width > 0){
@@ -86,14 +86,14 @@ public class Outline extends Figure {
 				}
 
 				fpa.stroke(color);
-				float vpos = top + (lino * height) /maxLine ;
+				double vpos = top + (lino * height) /maxLine ;
 				fpa.line(left + lw, vpos, left + width - lw, vpos);
 			}
 		}
 	}
 	
 	@Override
-	public boolean mouseOver(int mouseX, int mouseY, float centerX, float centerY, boolean mouseInParent){
+	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
 		if(debug)System.err.println("Outline.MouseOver: " + this);
 		if(mouseInside(mouseX, mouseY, centerX, centerY)){
 		   fpa.registerMouseOver(this);

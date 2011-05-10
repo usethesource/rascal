@@ -28,11 +28,11 @@ public class SpringGraphNode {
 	private final SpringGraph G;
 	protected final String name;
 	protected final Figure figure;
-	private float x;
-	private float y;
+	private double x;
+	private double y;
 
-	protected float dispx = 0f;
-	protected float dispy = 0f;
+	protected double dispx = 0f;
+	protected double dispy = 0f;
 	
 	protected LinkedList<SpringGraphNode> in;
 	protected LinkedList<SpringGraphNode> out;
@@ -56,8 +56,8 @@ public class SpringGraphNode {
 			out.add(n);
 	}
 	
-	public float xdistance(SpringGraphNode other){
-		float vx = getX() - other.getX();
+	public double xdistance(SpringGraphNode other){
+		double vx = getX() - other.getX();
 //		return vx;
 		if(vx > 0){
 			return FigureApplet.max(vx - (figure.width/2 + other.figure.width/2), 0.01f);
@@ -65,8 +65,8 @@ public class SpringGraphNode {
 		return FigureApplet.min(vx + (figure.width/2 + other.figure.width/2), -0.01f);	
 	}
 	
-	public float ydistance(SpringGraphNode other){
-		float vy = getY() - other.getY() ;
+	public double ydistance(SpringGraphNode other){
+		double vy = getY() - other.getY() ;
 //		return vy;
 		if(vy > 0){
 			return FigureApplet.max(vy - (figure.height/2 + other.figure.height/2), 0.01f);
@@ -74,19 +74,19 @@ public class SpringGraphNode {
 		return FigureApplet.min(vy + (figure.height/2 + other.figure.height/2), -0.01f);
 	}
 	
-//	public float getMass(){
+//	public double getMass(){
 //		return 1.0f;
 //	}
 	
-	private void repulsion(float vx, float vy){
+	private void repulsion(double vx, double vy){
 		// Inline version of repel(d) = SpringCon^2/d
 		
-		float dlensq = vx * vx + vy * vy;
+		double dlensq = vx * vx + vy * vy;
 		
 		if(FigureApplet.abs(dlensq) < 1){
 			dlensq = dlensq < 0 ? -0.01f : 0.01f;
-			float r1 = (float) Math.random();
-			float r2 = (float) Math.random();
+			double r1 = (double) Math.random();
+			double r2 = (double) Math.random();
 			
 			vx = vx > 0 ? vx + r1 : vx - r1;
 			vy = vy > 0 ? vy + r2 : vy - r2;
@@ -115,9 +115,9 @@ public class SpringGraphNode {
 			SpringGraphNode from = e.getFrom();
 			SpringGraphNode to = e.getTo();
 			if(from != this && to != this){
-				float vlen = FigureApplet.dist(from.getX(), from.getY(), to.getX(), to.getY());
-				float lenToFrom = FigureApplet.dist(getX(), getY(), from.getX(), from.getY());
-				float lenToTo = FigureApplet.dist(getX(), getY(), to.getX(), to.getY());
+				double vlen = FigureApplet.dist(from.getX(), from.getY(), to.getX(), to.getY());
+				double lenToFrom = FigureApplet.dist(getX(), getY(), from.getX(), from.getY());
+				double lenToTo = FigureApplet.dist(getX(), getY(), to.getX(), to.getY());
 				if(lenToFrom + lenToTo - vlen < 1f){
 					dispx += 1;
 					dispy += 1;
@@ -133,11 +133,11 @@ public class SpringGraphNode {
 	}
 	
 	void update(SpringGraph G){
-		float dlen = FigureApplet.mag(dispx, dispy);
+		double dlen = FigureApplet.mag(dispx, dispy);
 		if(dlen > 0){
 			if(debug)System.err.printf("update %s, dispx=%f, dispy=%f, from %f, %f\n", name, dispx, dispy, getX(), getY());
-			float cdispx = FigureApplet.constrain(dispx, -G.temperature, G.temperature);
-			float cdispy = FigureApplet.constrain(dispy, -G.temperature, G.temperature);
+			double cdispx = FigureApplet.constrain(dispx, -G.temperature, G.temperature);
+			double cdispy = FigureApplet.constrain(dispy, -G.temperature, G.temperature);
 			System.err.printf("cdispx=%f, cdispy=%f\n", cdispx, cdispy);
 			setX(FigureApplet.constrain (getX() + cdispx, figure.width/2, G.width-figure.width/2));
 			setY(FigureApplet.constrain (getY() + cdispy, figure.height/2, G.height-figure.height/2));
@@ -145,11 +145,11 @@ public class SpringGraphNode {
 		}
 	}
 	
-	public float figX(){
+	public double figX(){
 		return getX();
 	}
 	
-	public float figY(){
+	public double figY(){
 		return getY();
 	}
 	
@@ -159,15 +159,15 @@ public class SpringGraphNode {
 		}
 	}
 	
-	float width(){
+	double width(){
 		return figure != null ? figure.width : 0;
 	}
 	
-	float height(){
+	double height(){
 		return figure != null ? figure.height : 0;
 	}
 
-	void draw(float left, float top) {
+	void draw(double left, double top) {
 		if(figure != null){
 			figure.draw(getX() + left - figure.width/2, getY() + top - figure.height/2);
 		}
@@ -181,23 +181,23 @@ public class SpringGraphNode {
 		return figure.mousePressed(mousex, mousey, null);
 	}
 
-	protected void setX(float x) {
+	protected void setX(double x) {
 		if(x < figure.width/2 || x > G.width - figure.width/2)
 			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name, x);
 		this.x = x;
 	}
 
-	protected float getX() {
+	protected double getX() {
 		return x;
 	}
 
-	protected void setY(float y) {
+	protected void setY(double y) {
 		if(y < figure.height/2 || y > G.height - figure.height/2)
 			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name, y);
 		this.y = y;
 	}
 
-	protected float getY() {
+	protected double getY() {
 		return y;
 	}
 }
