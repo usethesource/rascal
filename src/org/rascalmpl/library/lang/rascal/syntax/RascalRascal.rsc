@@ -38,6 +38,7 @@ syntax Marker =
               # "layout"
               # "lexical"
               # "extend"
+              # "keyword"
               ;
 
 syntax Rest = Word*;
@@ -122,12 +123,19 @@ syntax Sym
 	| Column: "@" IntegerLiteral column
 	| EndOfLine: "$"
 	| StartOfLine: "^" 
-	> non-assoc ( Follow:     Sym symbol "\>\>" Sym match
-	            | NotFollow:  Sym symbol "!\>\>" Sym match
-	            | Precede:    Sym match "\<\<" Sym symbol
-	            | NotPrecede: Sym match "!\<\<" Sym symbol
-	            | Unequal:    Sym symbol "!=" Sym match
-	            )
+	>  
+	assoc ( 
+	  left  ( Follow:     Sym symbol "\>\>" Sym match
+	        | NotFollow:  Sym symbol "!\>\>" Sym match
+	        )
+	  | 
+	  right (
+	          Precede:    Sym match "\<\<" Sym symbol 
+	        | NotPrecede: Sym match "!\<\<" Sym symbol
+	        )
+	)
+	> 
+	left Unequal:  Sym symbol "\\" Sym match 
 	;
 
 syntax TimePartNoTZ

@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2009-2011 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
 
 package org.rascalmpl.ast;
 
@@ -124,26 +109,6 @@ public interface IASTVisitor<T> {
   
       public T visitDateTimeLiteralDateLiteral(DateTimeLiteral.DateLiteral x);
   
-      public T visitDeclarationAlias(Declaration.Alias x);
-  
-      public T visitDeclarationData(Declaration.Data x);
-  
-      public T visitDeclarationAnnotation(Declaration.Annotation x);
-  
-      public T visitDeclarationFunction(Declaration.Function x);
-  
-      public T visitDeclarationRule(Declaration.Rule x);
-  
-      public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
-  
-      public T visitDeclarationVariable(Declaration.Variable x);
-  
-      public T visitDeclarationTest(Declaration.Test x);
-  
-      public T visitDeclarationTag(Declaration.Tag x);
-  
-      public T visitDeclarationView(Declaration.View x);
-  
       public T visitLongLiteralOctalLongLiteral(LongLiteral.OctalLongLiteral x);
   
       public T visitLongLiteralDecimalLongLiteral(LongLiteral.DecimalLongLiteral x);
@@ -219,6 +184,24 @@ public interface IASTVisitor<T> {
       public T visitStrategyBottomUp(Strategy.BottomUp x);
   
       public T visitStrategyTopDown(Strategy.TopDown x);
+  
+      public T visitDeclarationAlias(Declaration.Alias x);
+  
+      public T visitDeclarationData(Declaration.Data x);
+  
+      public T visitDeclarationAnnotation(Declaration.Annotation x);
+  
+      public T visitDeclarationFunction(Declaration.Function x);
+  
+      public T visitDeclarationRule(Declaration.Rule x);
+  
+      public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
+  
+      public T visitDeclarationVariable(Declaration.Variable x);
+  
+      public T visitDeclarationTest(Declaration.Test x);
+  
+      public T visitDeclarationTag(Declaration.Tag x);
   
       public T visitDataTargetEmpty(DataTarget.Empty x);
   

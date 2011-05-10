@@ -157,21 +157,12 @@ public class ASTBuilder {
 				// This *prefers* the first Rascal Module it encounters in the set of alts.
 				// So if the Rascal syntax for modules itself would be ambiguous
 				// you get just one of them (unknown which).
-				if (sortName(t).equals(MODULE_SORT)) {
+				if (sortName((IConstructor) val).equals(MODULE_SORT)) {
 					// t must be an appl so call buildValue directly
 					return (Module) buildValue(t);
 				}
-				else if (sortName(t).equals(PRE_MODULE_SORT)) {
-					// TODO temporary solution while bootstrapping (if we regenerate the ast hierarchy this can be solved more elegantly)
+				else if (sortName((IConstructor) val).equals(PRE_MODULE_SORT)) {
 					throw new Ambiguous(parseTree);
-//					IList startArgs = (IList) ((IConstructor) val).get(1);
-//					IConstructor moduleTop = (IConstructor) startArgs.get(1);
-//					IList moduleArgs = (IList) moduleTop.get(1);
-//					IConstructor headerTree = (IConstructor) moduleArgs.get(0);
-//					Header header = (Header) buildValue(headerTree);
-//					return new Module.Default(tree, header, 
-//							new Body.Toplevels((IConstructor) moduleArgs.get(2), 
-//									Collections.<Toplevel>emptyList()));
 				}
 			}
 		}
@@ -348,7 +339,7 @@ public class ASTBuilder {
 				if (actuals[i] == null) { // filtered
 					return null;
 				}
-				// TODO: Terrible hack to ensure we get the right class back
+				// TODO: find a better way to ensure we get the right class back
                 if (actuals[i].getClass().getPackage().getName().contains(".ast")) {
                     formals[i] = actuals[i].getClass().getSuperclass();
                 } 

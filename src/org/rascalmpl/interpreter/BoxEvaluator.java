@@ -87,7 +87,6 @@ import org.rascalmpl.ast.Declaration.Function;
 import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Declaration.Test;
-import org.rascalmpl.ast.Declaration.View;
 import org.rascalmpl.ast.Expression.All;
 import org.rascalmpl.ast.Expression.And;
 import org.rascalmpl.ast.Expression.Anti;
@@ -784,10 +783,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 						cList(H(1, eX(x.getVisibility()), getComment(x, 1),
 								eX(x.getType())), getComment(x, 3),
 								eXs0(x.getVariables(), l)), BoxADT.semicolumn()));
-	}
-
-	public IValue visitDeclarationView(View x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitDeclaratorAmbiguity(

@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2009-2011 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
 
 package org.rascalmpl.ast;
 
@@ -124,26 +109,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   
       public T visitDateTimeLiteralDateLiteral(DateTimeLiteral.DateLiteral x) { return null; }
   
-      public T visitDeclarationAlias(Declaration.Alias x) { return null; }
-  
-      public T visitDeclarationData(Declaration.Data x) { return null; }
-  
-      public T visitDeclarationAnnotation(Declaration.Annotation x) { return null; }
-  
-      public T visitDeclarationFunction(Declaration.Function x) { return null; }
-  
-      public T visitDeclarationRule(Declaration.Rule x) { return null; }
-  
-      public T visitDeclarationDataAbstract(Declaration.DataAbstract x) { return null; }
-  
-      public T visitDeclarationVariable(Declaration.Variable x) { return null; }
-  
-      public T visitDeclarationTest(Declaration.Test x) { return null; }
-  
-      public T visitDeclarationTag(Declaration.Tag x) { return null; }
-  
-      public T visitDeclarationView(Declaration.View x) { return null; }
-  
       public T visitLongLiteralOctalLongLiteral(LongLiteral.OctalLongLiteral x) { return null; }
   
       public T visitLongLiteralDecimalLongLiteral(LongLiteral.DecimalLongLiteral x) { return null; }
@@ -219,6 +184,24 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
       public T visitStrategyBottomUp(Strategy.BottomUp x) { return null; }
   
       public T visitStrategyTopDown(Strategy.TopDown x) { return null; }
+  
+      public T visitDeclarationAlias(Declaration.Alias x) { return null; }
+  
+      public T visitDeclarationData(Declaration.Data x) { return null; }
+  
+      public T visitDeclarationAnnotation(Declaration.Annotation x) { return null; }
+  
+      public T visitDeclarationFunction(Declaration.Function x) { return null; }
+  
+      public T visitDeclarationRule(Declaration.Rule x) { return null; }
+  
+      public T visitDeclarationDataAbstract(Declaration.DataAbstract x) { return null; }
+  
+      public T visitDeclarationVariable(Declaration.Variable x) { return null; }
+  
+      public T visitDeclarationTest(Declaration.Test x) { return null; }
+  
+      public T visitDeclarationTag(Declaration.Tag x) { return null; }
   
       public T visitDataTargetEmpty(DataTarget.Empty x) { return null; }
   

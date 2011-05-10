@@ -137,7 +137,7 @@ public class ProductionAdapter {
 			if (attr.isEqual(wanted)) {
 				return true;
 			}
-			// TODO: quick hack to work around the fact that attrs are sometimes "nodes" and sometimes constructors
+			// TODO: this is quick workaround, around the fact that attrs are sometimes "nodes" and sometimes constructors, perhaps this can be removed by now?
 			if (attr.toString().equals(wanted.toString())) {
 				return true;
 			}

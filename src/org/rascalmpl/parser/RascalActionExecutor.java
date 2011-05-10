@@ -102,7 +102,7 @@ public class RascalActionExecutor implements IActionExecutor{
 		AbstractAST oldAST = eval.getCurrentAST();
 		
 		try{
-			// TODO: remove this hack and rather store the module names with the actions in the grammar representation
+			// TODO: store the module names with the actions in the grammar representation
 			String modName = eval.getHeap().getModuleForURI(action.getLocation().getURI());
 			ModuleEnvironment scope;
 			if(modName != null){

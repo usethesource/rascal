@@ -69,10 +69,10 @@ private Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   for ((SyntaxDefinition) `syntax <Sym u> = <Prod p>;` <- defs) {
      prods += prod2prod(arg2symbol(u, false, layoutName), p, layoutName, false);
   }
-
+  
   return grammar(starts, \layouts(prods, layoutName) 
                        + {layoutProd, prod([],layouts("EMPTY_LAYOUT"),\no-attrs())}  
-                       + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(top) <- starts} 
+                       + {prod([\layouts(layoutName), top,\layouts(layoutName)],start(top),\no-attrs()) | start(Symbol top) <- starts} 
                        + {prod(str2syms(s),lit(s),attrs([\literal()])) | /lit(s) <- (prods+{layoutProd})}
                        + {prod(cistr2syms(s),cilit(s),attrs([\ciliteral()])) | /cilit(s) <- (prods+{layoutProd})}
                 );

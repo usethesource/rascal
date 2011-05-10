@@ -1,32 +1,16 @@
-/*******************************************************************************
- * Copyright (c) 2009-2011 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
 
 package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 import org.eclipse.imp.pdb.facts.IValue;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
-
 import org.rascalmpl.interpreter.Evaluator;
 
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 
 import org.rascalmpl.interpreter.env.Environment;
 
@@ -48,6 +32,14 @@ public abstract class Declaration extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Visibility getVisibility() {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean hasTags() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Tags getTags() {
     throw new UnsupportedOperationException();
   }
 
@@ -75,19 +67,11 @@ public abstract class Declaration extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
-  public boolean hasAlts() {
+  public boolean hasVariants() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Alternative> getAlts() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasView() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Name getView() {
+  public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
     throw new UnsupportedOperationException();
   }
 
@@ -99,11 +83,27 @@ public abstract class Declaration extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
+  public boolean hasVariables() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Variable> getVariables() {
+    throw new UnsupportedOperationException();
+  }
+
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean hasUser() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.UserType getUser() {
     throw new UnsupportedOperationException();
   }
 
@@ -123,59 +123,19 @@ public abstract class Declaration extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
-  public boolean hasTypes() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Type> getTypes() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasTags() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Tags getTags() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasVariants() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasSuperType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Name getSuperType() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasVariables() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Variable> getVariables() {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean hasUser() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.UserType getUser() {
-    throw new UnsupportedOperationException();
-  }
-
   public boolean hasTest() {
     return false;
   }
 
   public org.rascalmpl.ast.Test getTest() {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean hasTypes() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Type> getTypes() {
     throw new UnsupportedOperationException();
   }
 
@@ -198,22 +158,12 @@ static public class Ambiguity extends Declaration {
 
   @Override
   public Result<IValue> interpret(Evaluator __eval) {
-    throw new Ambiguous(this.getTree());
+    throw new Ambiguous((IConstructor) this.getTree());
   }
   
   @Override
   public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-    throw new Ambiguous(this.getTree());
-  }
-  
-  @Override
-  public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-    throw new Ambiguous(this.getTree());
-  }
-
-  @Override
-  public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-    throw new Ambiguous(this.getTree());
+    throw new Ambiguous((IConstructor) this.getTree());
   }
   
   public java.util.List<org.rascalmpl.ast.Declaration> getAlternatives() {
@@ -913,106 +863,6 @@ public Tag(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.V
      
      @Override
      public boolean hasTypes() {
-        return true;
-     }
-  	
-}
-
-
-  public boolean isView() {
-    return false;
-  }
-  
-static public class View extends Declaration {
-  // Production: sig("View",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.Name","view"),arg("org.rascalmpl.ast.Name","superType"),arg("java.util.List\<org.rascalmpl.ast.Alternative\>","alts")])
-
-  
-     private final org.rascalmpl.ast.Tags tags;
-  
-     private final org.rascalmpl.ast.Visibility visibility;
-  
-     private final org.rascalmpl.ast.Name view;
-  
-     private final org.rascalmpl.ast.Name superType;
-  
-     private final java.util.List<org.rascalmpl.ast.Alternative> alts;
-  
-
-  
-public View(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.Name view,  org.rascalmpl.ast.Name superType,  java.util.List<org.rascalmpl.ast.Alternative> alts) {
-  super(node);
-  
-    this.tags = tags;
-  
-    this.visibility = visibility;
-  
-    this.view = view;
-  
-    this.superType = superType;
-  
-    this.alts = alts;
-  
-}
-
-
-  @Override
-  public boolean isView() { 
-    return true; 
-  }
-
-  @Override
-  public <T> T accept(IASTVisitor<T> visitor) {
-    return visitor.visitDeclarationView(this);
-  }
-  
-  
-     @Override
-     public org.rascalmpl.ast.Tags getTags() {
-        return this.tags;
-     }
-     
-     @Override
-     public boolean hasTags() {
-        return true;
-     }
-  
-     @Override
-     public org.rascalmpl.ast.Visibility getVisibility() {
-        return this.visibility;
-     }
-     
-     @Override
-     public boolean hasVisibility() {
-        return true;
-     }
-  
-     @Override
-     public org.rascalmpl.ast.Name getView() {
-        return this.view;
-     }
-     
-     @Override
-     public boolean hasView() {
-        return true;
-     }
-  
-     @Override
-     public org.rascalmpl.ast.Name getSuperType() {
-        return this.superType;
-     }
-     
-     @Override
-     public boolean hasSuperType() {
-        return true;
-     }
-  
-     @Override
-     public java.util.List<org.rascalmpl.ast.Alternative> getAlts() {
-        return this.alts;
-     }
-     
-     @Override
-     public boolean hasAlts() {
         return true;
      }
   	
