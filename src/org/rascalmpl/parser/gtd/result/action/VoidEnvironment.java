@@ -7,6 +7,10 @@ public class VoidEnvironment implements IEnvironment{
 		super();
 	}
 	
+	public IEnvironment getParent(){
+		return this;
+	}
+	
 	public boolean isEqual(IEnvironment environment){
 		return false;
 	}
