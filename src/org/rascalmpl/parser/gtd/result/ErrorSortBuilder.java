@@ -61,17 +61,17 @@ public class ErrorSortBuilder{
 			// We don't need to split for the first iteration, so do the work for index 0 separately.
 			IConstructor node = postFix[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 			if(node == null){
-				actionExecutor.exitedProduction(production, newEnvironment, true);
+				actionExecutor.exitedProduction(production, true, newEnvironment);
 				return;
 			}
 			constructedPostFix[0] = node;
 			
 			for(int i = 1; i < postFixLength; ++i){
-				newEnvironment = actionExecutor.split(newEnvironment, production, i);
+				newEnvironment = actionExecutor.split(production, i, newEnvironment);
 				
 				node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 				if(node == null){
-					actionExecutor.exitedProduction(production, newEnvironment, true);
+					actionExecutor.exitedProduction(production, true, newEnvironment);
 					return;
 				}
 				constructedPostFix[i] = node;
@@ -110,9 +110,9 @@ public class ErrorSortBuilder{
 		}
 		if(result == null){
 			result = VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), AbstractContainerNode.EMPTY_LIST);
-			actionExecutor.exitedProduction(production, environment, true);
+			actionExecutor.exitedProduction(production, true, environment);
 		}else{
-			actionExecutor.exitedProduction(production, environment, false);
+			actionExecutor.exitedProduction(production, false, environment);
 		}
 		
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
