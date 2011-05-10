@@ -68,17 +68,17 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 			// We don't need to split for the first iteration, so do the work for index 0 separately.
 			IConstructor node = postFix[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 			if(node == null){
-				actionExecutor.exitedProduction(production, newEnvironment, true);
+				actionExecutor.exitedProduction(production, true, newEnvironment);
 				return;
 			}
 			constructedPostFix[0] = node;
 			
 			for(int i = 1; i < postFixLength; ++i){
-				newEnvironment = actionExecutor.split(newEnvironment, production, i);
+				newEnvironment = actionExecutor.split(production, i, newEnvironment);
 				
 				node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 				if(node == null){
-					actionExecutor.exitedProduction(production, newEnvironment, true);
+					actionExecutor.exitedProduction(production, true, newEnvironment);
 					return;
 				}
 				constructedPostFix[i] = node;
@@ -113,7 +113,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		
 		gatheredAlternatives.add(result);
-		actionExecutor.exitedProduction(production, environment, false);
+		actionExecutor.exitedProduction(production, false, environment);
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){

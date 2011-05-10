@@ -62,13 +62,13 @@ public class RascalActionExecutor implements IActionExecutor{
 		return environment; // Temp.
 	}
 	
-	public IEnvironment split(IEnvironment environment, IConstructor production, int index){
+	public IEnvironment split(IConstructor production, int index, IEnvironment environment){
 		// TODO Implement.
 		
 		return environment; // Temp.
 	}
 	
-	public void exitedProduction(IConstructor production, IEnvironment environment, boolean filtered){
+	public void exitedProduction(IConstructor production, boolean filtered, IEnvironment environment){
 		// TODO Implement.
 	}
 	

@@ -27,11 +27,11 @@ public class VoidActionExecutor implements IActionExecutor{
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public IEnvironment split(IEnvironment environment, IConstructor production, int index){
+	public IEnvironment split(IConstructor production, int index, IEnvironment environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public void exitedProduction(IConstructor production, IEnvironment environment, boolean filtered){
+	public void exitedProduction(IConstructor production, boolean filtered, IEnvironment environment){
 		// Don't do anything.
 	}
 	
