@@ -14,17 +14,17 @@ package org.rascalmpl.parser.gtd.result.action;
 import org.eclipse.imp.pdb.facts.IConstructor;
 
 public interface IActionExecutor{
-	IEnvironment createEnvironment(IEnvironment parent, IConstructor production);
+	IEnvironment createRootEnvironment();
 	
-	IEnvironment split(IEnvironment environment, IConstructor production);
+	IEnvironment enteredProduction(IConstructor production, IEnvironment parent);
 	
-	void enteredProduction(IConstructor production);
+	IEnvironment split(IEnvironment environment, IConstructor production, int index);
 	
-	void exitedProduction(IConstructor production, boolean filtered);
+	void exitedProduction(IConstructor production, IEnvironment environment, boolean filtered);
 	
-	IConstructor filterProduction(IConstructor tree);
+	IConstructor filterProduction(IConstructor tree, IEnvironment environment);
 	
-	IConstructor filterAmbiguity(IConstructor ambCluster);
+	IConstructor filterAmbiguity(IConstructor ambCluster, IEnvironment environment);
 	
-	IConstructor filterCycle(IConstructor cycle);
+	IConstructor filterCycle(IConstructor cycle, IEnvironment environment);
 }

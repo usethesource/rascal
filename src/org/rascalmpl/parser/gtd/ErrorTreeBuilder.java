@@ -296,7 +296,7 @@ public class ErrorTreeBuilder{
 		// Construct the rest of the input as separate character nodes.
 		IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
 		for(int i = input.length - 1; i >= location; --i){
-			rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor));
+			rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, actionExecutor.createRootEnvironment()));
 		}
 		
 		// Find the top node.
@@ -307,6 +307,6 @@ public class ErrorTreeBuilder{
 		((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
 		
 		// Flatten error tree.
-		return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor);
+		return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, actionExecutor.createRootEnvironment());
 	}
 }

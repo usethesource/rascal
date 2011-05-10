@@ -52,19 +52,27 @@ public class RascalActionExecutor implements IActionExecutor{
 		this.info = info;
 	}
 	
-	public IEnvironment createEnvironment(IEnvironment parent, IConstructor production){
+	public IEnvironment createRootEnvironment(){
 		// TODO Implement.
-		
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
 	}
 	
-	public IEnvironment split(IEnvironment environment, IConstructor production){
+	public IEnvironment enteredProduction(IConstructor production, IEnvironment environment){
 		// TODO Implement.
-		
-		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
+		return environment; // Temp.
 	}
 	
-	public IConstructor filterProduction(IConstructor forest){
+	public IEnvironment split(IEnvironment environment, IConstructor production, int index){
+		// TODO Implement.
+		
+		return environment; // Temp.
+	}
+	
+	public void exitedProduction(IConstructor production, IEnvironment environment, boolean filtered){
+		// TODO Implement.
+	}
+	
+	public IConstructor filterProduction(IConstructor forest, IEnvironment environment){
 		if (TreeAdapter.isAppl(forest)){ 
 			IConstructor production = TreeAdapter.getProduction(forest);
 			LanguageAction action = info.getAction(production);
@@ -76,22 +84,14 @@ public class RascalActionExecutor implements IActionExecutor{
 		return forest;
 	}
 	
-	public IConstructor filterAmbiguity(IConstructor ambCluster){
+	public IConstructor filterAmbiguity(IConstructor ambCluster, IEnvironment environment){
 		// TODO Implement.
 		return ambCluster;
 	}
 	
-	public IConstructor filterCycle(IConstructor cycle){
+	public IConstructor filterCycle(IConstructor cycle, IEnvironment environment){
 		// TODO Implement.
 		return cycle;
-	}
-	
-	public void enteredProduction(IConstructor production){
-		// TODO Implement.
-	}
-	
-	public void exitedProduction(IConstructor production, boolean filtered){
-		// TODO Implement.
 	}
 
 	/**

@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
@@ -73,12 +74,12 @@ public class ExpectedNode extends AbstractNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		if(cachedResult != null) return cachedResult;
 		
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
-			childrenListWriter.insert(mismatchedChildren[i].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor));
+			childrenListWriter.insert(mismatchedChildren[i].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment));
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
@@ -91,12 +92,12 @@ public class ExpectedNode extends AbstractNode{
 		return (cachedResult = result);
 	}
 	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
 		if(cachedResult != null) return cachedResult;
 		
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
-			childrenListWriter.insert(mismatchedChildren[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor));
+			childrenListWriter.insert(mismatchedChildren[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, environment));
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());

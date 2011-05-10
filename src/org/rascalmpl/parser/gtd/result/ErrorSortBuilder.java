@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
@@ -37,35 +38,46 @@ public class ErrorSortBuilder{
 		public boolean inError;
 	}
 	
-	protected static void gatherAlternatives(Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, boolean isInError, IsInError isInTotalError){
+	protected static void gatherAlternatives(Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
-			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, isInError, isInTotalError);
+			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
 		}else{
-			actionExecutor.enteredProduction(production);
-			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, isInError, sourceLocation, actionExecutor);
+			IEnvironment newEnvironment = actionExecutor.enteredProduction(production, environment);
+			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, isInError, sourceLocation, actionExecutor, newEnvironment);
 		}
 	}
 	
-	private static void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, boolean isInError, IsInError isInTotalError){
+	private static void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
-			actionExecutor.enteredProduction(production);
+			IEnvironment newEnvironment = actionExecutor.enteredProduction(production, environment);
 			
 			int postFixLength = postFix.length;
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
-			for(int i = 0; i < postFixLength; ++i){
-				IConstructor node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor);
+			
+			// We don't need to split for the first iteration, so do the work for index 0 separately.
+			IConstructor node = postFix[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
+			if(node == null){
+				actionExecutor.exitedProduction(production, newEnvironment, true);
+				return;
+			}
+			constructedPostFix[0] = node;
+			
+			for(int i = 1; i < postFixLength; ++i){
+				newEnvironment = actionExecutor.split(newEnvironment, production, i);
+				
+				node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 				if(node == null){
-					actionExecutor.exitedProduction(production, true);
+					actionExecutor.exitedProduction(production, newEnvironment, true);
 					return;
 				}
 				constructedPostFix[i] = node;
 			}
 			
-			buildAlternative(production, constructedPostFix, gatheredAlternatives, isInError, sourceLocation, actionExecutor);
+			buildAlternative(production, constructedPostFix, gatheredAlternatives, isInError, sourceLocation, actionExecutor, newEnvironment);
 			return;
 		}
 		
@@ -81,11 +93,11 @@ public class ErrorSortBuilder{
 			AbstractNode[] newPostFix = new AbstractNode[length + 1];
 			System.arraycopy(postFix, 0, newPostFix, 1, length);
 			newPostFix[0] = resultNode;
-			gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, isInError, isInTotalError);
+			gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
 		}
 	}
 	
-	private static void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, boolean error, ISourceLocation sourceLocation, IActionExecutor actionExecutor){
+	private static void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, boolean error, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
@@ -94,13 +106,13 @@ public class ErrorSortBuilder{
 		IConstructor result = null;
 		if(!error){
 			result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-			result = actionExecutor.filterProduction(result);
+			result = actionExecutor.filterProduction(result, environment);
 		}
 		if(result == null){
 			result = VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), AbstractContainerNode.EMPTY_LIST);
-			actionExecutor.exitedProduction(production, true);
+			actionExecutor.exitedProduction(production, environment, true);
 		}else{
-			actionExecutor.exitedProduction(production, false);
+			actionExecutor.exitedProduction(production, environment, false);
 		}
 		
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
@@ -108,7 +120,7 @@ public class ErrorSortBuilder{
 		gatheredAlternatives.add(result);
 	}
 	
-	public static IConstructor toErrorSortTree(SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
+	public static IConstructor toErrorSortTree(SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
 		ISourceLocation sourceLocation = null;
 		if(!(node.isLayout || node.input == null)){
 			int beginLine = positionStore.findLine(node.offset);
@@ -119,7 +131,7 @@ public class ErrorSortBuilder{
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(node.firstProduction), VF.integer(depth - index));
-			cycle = actionExecutor.filterCycle(cycle);
+			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle == null){
 				cycle = VF.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getRhs(node.firstProduction), VF.integer(depth - index));
 			}
@@ -139,10 +151,10 @@ public class ErrorSortBuilder{
 		IsInError isInTotalError = new IsInError();
 		isInTotalError.inError = node.rejected;
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(node.firstAlternative, gatheredAlternatives, node.firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, false, isInTotalError);
+		gatherAlternatives(node.firstAlternative, gatheredAlternatives, node.firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, false, isInTotalError);
 		if(node.alternatives != null){
 			for(int i = node.alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(node.alternatives.get(i), gatheredAlternatives, node.productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, false, isInTotalError);
+				gatherAlternatives(node.alternatives.get(i), gatheredAlternatives, node.productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, false, isInTotalError);
 			}
 		}
 		
@@ -163,7 +175,7 @@ public class ErrorSortBuilder{
 				// Don't filter error ambs.
 			}else{
 				result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-				result = actionExecutor.filterAmbiguity(result);
+				result = actionExecutor.filterAmbiguity(result, environment);
 				if(result == null){
 					// Build error amb.
 					result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());

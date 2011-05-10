@@ -14,6 +14,7 @@ package org.rascalmpl.parser.gtd.result;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.specific.PositionStore;
@@ -78,7 +79,7 @@ public class LiteralNode extends AbstractNode{
 		return sb.toString();
 	}
 	
-	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor){
+	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		int numberOfCharacters = content.length;
 		
 		IListWriter listWriter = VF.listWriter(Factory.Tree);
@@ -89,7 +90,7 @@ public class LiteralNode extends AbstractNode{
 		return VF.constructor(Factory.Tree_Appl, production, listWriter.done());
 	}
 	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
-		return toTree(stack, depth, cycleMark, positionStore, null, actionExecutor);
+	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+		return toTree(stack, depth, cycleMark, positionStore, null, actionExecutor, environment);
 	}
 }
