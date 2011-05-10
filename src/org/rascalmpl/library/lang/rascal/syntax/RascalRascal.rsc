@@ -102,16 +102,19 @@ syntax HexLongLiteral
 	# [0-9 A-Z _ a-z] ;
 
 syntax Sym
+// named non-terminals
 	= Nonterminal: Nonterminal nonterminal
 	| Parameter: "&" Nonterminal nonterminal 
 	| Parametrized: ParameterizedNonterminal pnonterminal "[" {Sym ","}+ parameters "]"
 	| Keyword: "keyword" "[" Nonterminal nonterminal "]"
 	| Start: "start" "[" Nonterminal nonterminal "]"
 	| Layout: "layout" "[" Nonterminal nonterminal "]"
+	| Labeled: Sym symbol NonterminalLabel label
+// literals 
 	| CharacterClass: Class charClass 
 	| Literal: StringConstant string 
-	| Labeled: Sym symbol NonterminalLabel label 
 	| CaseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
+// regular expressions
 	| Iter: Sym symbol "+" 
 	| IterStar: Sym symbol "*" 
 	| IterSep: "{" Sym symbol Symbol sep "}" "+" 
@@ -119,17 +122,28 @@ syntax Sym
 	| Optional: Sym symbol "?" 
 	| Alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| Sequence: "(" Sym first Sym+ sequence ")"
+	// TODO: MinimalIter: Sym symbol IntegerConstant minimal "+"
+	// TODO: MinimalIterSep: "{" Sym symbol Symbol sep "}" IntegerConstant minimal "+"
+	// TODO | Permutation: "(" Sym first "~" {Sym "~"}+ participants ")"
+	// TODO | Combination: "(" Sym first "#" {Sym "#"}+ elements ")"
 	| Empty: "(" ")"
-	| Column: "@" IntegerLiteral column
-	| EndOfLine: "$"
-	| StartOfLine: "^" 
-	> left ( Follow:     Sym symbol "\>\>" Sym match
-	       | NotFollow:  Sym symbol "!\>\>" Sym match
-	       )
-	> right ( Precede:    Sym match "\<\<" Sym symbol
+// conditionals
+	| Column: "@" IntegerLiteral column // TODO: make unary conditional of symbol
+	| EndOfLine: "$" // TODO: make unary conditional of symbol
+	| StartOfLine: "^" // TODO: make unary conditional of symbol
+	>  
+	assoc ( 
+	  left  ( Follow:     Sym symbol "\>\>" Sym match
+	        | NotFollow:  Sym symbol "!\>\>" Sym match
+	        )
+	  | 
+	  right (
+	        | Precede:    Sym match "\<\<" Sym symbol 
 	        | NotPrecede: Sym match "!\<\<" Sym symbol
 	        )
-	> non-assoc Unequal:    Sym symbol "\\" Sym match
+	)
+	> 
+	left Unequal:  Sym symbol "\\" Sym match 
 	;
 
 syntax TimePartNoTZ
@@ -850,7 +864,10 @@ syntax Char
 	| @category="Constant" lex OctalEscapeSequence ;
 
 syntax Prod
-	= Reference: ":" Name referenced 
+	= Reference: ":" Name referenced
+	// TODO: uncomment below and make Sym*->Sym+ in Labeled and Unlabeled 
+	// | LabeledEmpty: ProdModifier* modifiers Name name ":" "(" ")"
+	// | UnlabeledEmpty: ProdModifier* modifiers "(" ")"
 	| Labeled: ProdModifier* modifiers Name name ":" Sym* args 
 	| Others: "..." 
 	| Unlabeled: ProdModifier* modifiers Sym* args

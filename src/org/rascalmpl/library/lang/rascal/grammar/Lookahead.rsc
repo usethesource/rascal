@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module lang::rascal::syntax::Lookahead
+module lang::rascal::grammar::Lookahead
   
 import Grammar;
 import lang::rascal::grammar::definition::Regular;

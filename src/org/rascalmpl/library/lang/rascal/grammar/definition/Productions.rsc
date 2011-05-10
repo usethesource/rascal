@@ -8,12 +8,13 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @bootstrapParser
-module lang::rascal::grammar::Productions
+module lang::rascal::grammar::definition::Productions
      
 import lang::rascal::syntax::RascalRascal;
-import lang::rascal::grammar::Characters;
-import lang::rascal::grammar::Symbols;
-import lang::rascal::grammar::Attributes;
+import lang::rascal::grammar::definition::Characters;
+import lang::rascal::grammar::definition::Symbols;
+import lang::rascal::grammar::definition::Attributes;
+import lang::rascal::grammar::definition::Lexical;
 
 import Grammar;
 import List; 
@@ -56,8 +57,12 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
    
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
+    case (Prod) `<ProdModifier* ms> <Name n> : ()` :
+      return attribute(prod([], nt, mods2attrs(ms)), term("cons"("<n>")));
+    case (Prod) `<ProdModifier* ms> ()` :
+      return prod([], nt, mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return prod(args2symbols(args), nt, mods2attrs(n, ms));
+      return attribute(prod(args2symbols(args), nt, mods2attrs(ms)), term("cons"("<n>")));
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
       return prod(args2symbols(args), nt, mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
@@ -65,13 +70,13 @@ private Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<Prod l> > <Prod r>` : 
       return priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
     case (Prod) `left (<Prod q>)` :
-      return associativity(nt, \left(), {attribute(prod2prod(nt, q), \assoc(\left()))});
+      return associativity(nt, \left(), {prod2prod(nt, q)});
     case (Prod) `right (<Prod q>)` :
-      return associativity(nt, \right(), {attribute(prod2prod(nt, q), \assoc(\right()))});
+      return associativity(nt, \right(), {prod2prod(nt, q)});
     case (Prod) `non-assoc (<Prod q>)` :
-      return associativity(nt, \non-assoc(), {attribute(prod2prod(nt, q), \assoc(\non-assoc()))});
+      return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
     case (Prod) `assoc(<Prod q>)` :
-      return associativity(nt, \left(), {attribute(prod2prod(nt, q),\assoc(\assoc()))});
+      return associativity(nt, \left(), {prod2prod(nt, q)});
     case (Prod) `...`: return \others(nt);
     case (Prod) `: <Name n>`: return \reference(nt, "<n>");
     default: throw "missed a case <p>";
@@ -88,16 +93,34 @@ public Production priority(Symbol s, [list[Production] a, priority(Symbol t, lis
 public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
   
-public Production choice(Symbol s, {others(Symbol t)}) 
-  = others(t);
-             
-public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) 
-  = associativity(rhs, a, rest + alts);
 
+     
+@doc{Nested equal associativity is flattened}             
+public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
+  if (a == b)  
+    return associativity(rhs, a, rest + alts) ;
+  else
+    fail;
+}
+
+@doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
+  
+@doc{In a group a single production inherits the group's associativity, unless contradicted.}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, Production p:prod(_,_,_)}) { 
+   if (!/\assoc(_) := p.attributes) 
+     return associativity(s, as, {a, attribute(p, \assoc(as))});
+   else
+     fail; 
+}
  
-public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) = choice(s, a);
+public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) {
+  if (a == {})
+    return others(t);
+  else
+    return choice(s, a);
+}
 
 public Production choice(Symbol s, {set[Production] a, priority(Symbol t, [list[Production] b, others(Symbol u), list[Production] c])}) 
   = priority(s, b + [choice(s, a)] + c);

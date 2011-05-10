@@ -58,34 +58,43 @@ data CharRange = range(int start, int end);
 alias CharClass = list[CharRange];
 
 data Symbol 
-  = \start(Symbol symbol) 
-  | \label(str name, Symbol symbol) 
-  | \lit(str string) 
-  | \cilit(str string)  
-  | \empty()  
-  | \opt(Symbol symbol)  
+  = \start(Symbol symbol)
+// named non-terminals 
   | \sort(str string)   
   | \layouts(str name) 
   | \keywords(str name)
+  | \parameterized-sort(str sort, list[Symbol] parameters)  
+  | \parameter(str name)
+  | \label(str name, Symbol symbol) 
+// terminals 
+  | \lit(str string) 
+  | \cilit(str string)
+  | \char-class(list[CharRange] ranges)  
+// regular expressions
+  | \empty()  
+  | \opt(Symbol symbol)  
   | \iter(Symbol symbol)   
   | \iter-star(Symbol symbol)   
   | \iter-seps(Symbol symbol, list[Symbol] separators)   
   | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
   | \alt(set[Symbol] alternatives)
   | \seq(list[Symbol] sequence)
-  | \parameterized-sort(str sort, list[Symbol] parameters)  
-  | \parameter(str name) 
-  | \char-class(list[CharRange] ranges) 
-  | \at-column(int column) 
-  | \start-of-line() 
-  | \end-of-line()
-  | \follow(Symbol symbol, set[Symbol] follow)
-  | \not-follow(Symbol symbol, set[Symbol] follow)
-  | \precede(Symbol symbol, set[Symbol] precede)
-  | \not-precede(Symbol symbol, set[Symbol] precede)
-  | \reserve(Symbol symbol, set[Symbol] reserved)
+// conditions   
+  | \at-column(int column) // TODO: change into condition
+  | \start-of-line()  // TODO: change into condition
+  | \end-of-line()  // TODO: change into condition
+  | \conditional(Symbol symbol, set[Condition] conditions)
   ;
-     
+
+@doc{Conditions on symbols give rise to disambiguation filters.}    
+data Condition
+  = \follow(Symbol follow)
+  | \not-follow(Symbol follow)
+  | \precede(Symbol precede)
+  | \not-precede(Symbol precede)
+  | \delete(Symbol deleted)
+  ;
+       
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
 
