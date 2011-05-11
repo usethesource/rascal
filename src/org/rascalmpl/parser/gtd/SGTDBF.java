@@ -731,7 +731,7 @@ public abstract class SGTDBF implements IGTD{
 		if(completionFilters != null){
 			int startLocation = node.getStartLocation();
 			for(int i = completionFilters.length - 1; i >= 0; --i){
-				if(completionFilters[i].isFiltered(input, startLocation, location)) return;
+				if(completionFilters[i].isFiltered(input, startLocation, location, positionStore)) return;
 			}
 		}
 		
@@ -898,7 +898,7 @@ public abstract class SGTDBF implements IGTD{
 		IEnterFilter[] enterFilters = stack.getEnterFilters();
 		if(enterFilters != null){
 			for(int i = enterFilters.length - 1; i >= 0; --i){
-				if(enterFilters[i].isFiltered(input, location)) return;
+				if(enterFilters[i].isFiltered(input, location, positionStore)) return;
 			}
 		}
 		
@@ -906,8 +906,6 @@ public abstract class SGTDBF implements IGTD{
 			int length = stack.getLength();
 			int endLocation = location + length;
 			if(endLocation <= input.length){
-				if(stack.isLocatable()) stack.setPositionStore(positionStore); // Ugly, but necessary.
-				
 				if(!stack.match(input)){
 					unmatchableNodes.push(stack);
 					return;

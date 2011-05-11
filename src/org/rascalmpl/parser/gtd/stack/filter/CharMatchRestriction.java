@@ -1,5 +1,7 @@
 package org.rascalmpl.parser.gtd.stack.filter;
 
+import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+
 public class CharMatchRestriction implements ICompletionFilter{
 	private final char[][] ranges;
 	
@@ -9,7 +11,7 @@ public class CharMatchRestriction implements ICompletionFilter{
 		this.ranges = ranges;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end){
+	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
 		if((end - start) != 1) return false;
 		
 		char character = input[start];

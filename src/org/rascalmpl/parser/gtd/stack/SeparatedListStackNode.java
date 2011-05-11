@@ -102,10 +102,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return name;
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}

@@ -90,10 +90,6 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		return name;
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}
