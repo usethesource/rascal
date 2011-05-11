@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascal::grammar::definition::Regular
 
+import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
 import Set;
@@ -15,7 +16,7 @@ import IO;
 
 public Grammar expandRegularSymbols(Grammar G) {
   for (Symbol rhs <- G.rules) {
-    if ({regular(rhs,_)} := G.rules[rhs]) { 
+    if (choice(rhs, {regular(rhs, _)}) := G.rules[rhs]) { 
       set[Production] init = {};
       
       for (p <- expand(rhs)) {

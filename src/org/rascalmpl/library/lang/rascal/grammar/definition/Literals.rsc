@@ -10,8 +10,10 @@
 module lang::rascal::grammar::definition::Literals
 
 import lang::rascal::syntax::RascalRascal;
+import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
+import String;
 
 public Grammar literals(Grammar g) {
   return compose(g, grammar({}, {prod(str2syms(s),lit(s),attrs([\literal()])) | /lit(s) <- g}

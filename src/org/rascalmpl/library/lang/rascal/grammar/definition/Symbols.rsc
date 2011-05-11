@@ -7,9 +7,12 @@ import lang::rascal::syntax::RascalRascal;
 import ParseTree;
 
 public bool match(Symbol checked, Symbol referenced) {
-  checked = condition(t, _) := checked ? t : checked;
-  referenced = condition(t, _) := referenced ? t : referenced;
-  return referenced == checked || label(_, referenced) := checked;
+  while (checked is condition || checked is label)
+    checked = checked.symbol;
+  while (referenced is condition || referenced is label)
+    referenced = referenced.symbol;
+    
+  return referenced == checked;
 }
 
 
