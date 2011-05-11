@@ -19,10 +19,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
-import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -35,8 +32,6 @@ public class ComputedProperties {
 		private IFigureApplet fpa;
 		
 		IValue fun;
-		Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
-		IValue[] argVals = new IValue[0];		// Argument values of callback: argList
 		PropType value;
 
 		public ComputedProperty(IValue fun, IFigureApplet fpa){
@@ -47,15 +42,8 @@ public class ComputedProperties {
 		abstract PropType convertValue(Result<IValue> res);
 		
 		public synchronized PropType getValue() {
-			
-			Result<IValue> res;
 			PropType old = value;
-			synchronized(fpa){
-				if(fun instanceof RascalFunction)
-					res = ((RascalFunction) fun).call(argTypes, argVals);
-				else
-					res = ((OverloadedFunctionResult) fun).call(argTypes, argVals);
-			}
+			Result<IValue> res = fpa.executeRascalCallBackWithoutArguments(fun);
 			
 			value = convertValue(res);
 			if(value != old)
@@ -75,9 +63,9 @@ public class ComputedProperties {
 			if(res.getType().isIntegerType())
 				return (double)((IInteger) res.getValue()).intValue();
 			else if(res.getType().isRealType())
-				return (double) ((IReal) res.getValue()).floatValue();
+				return ((IReal) res.getValue()).doubleValue();
 			else
-				return (double) ((INumber) res.getValue()).toReal().floatValue();
+				return ((INumber) res.getValue()).toReal().doubleValue();
 		}
 	}
 	
@@ -153,7 +141,6 @@ public class ComputedProperties {
 
 		@Override
 		Figure convertValue(Result<IValue> res) {
-			System.err.print("Computing figure..");
 			Figure fig = FigureFactory.make(fpa, ((IConstructor) res.getValue()), parentPm, null, ctx);
 			fig.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 			fig.setVisibleInMouseOver(true);

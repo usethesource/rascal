@@ -709,4 +709,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 
 	public boolean widthExplicitlySet(){return isMeasurePropertySet(MeasureProp.WIDTH);}
 	public boolean heightExplicitlySet(){return isMeasurePropertySet(MeasureProp.HEIGHT);}
+	
+	
+	
 }

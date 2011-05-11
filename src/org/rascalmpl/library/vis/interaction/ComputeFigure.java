@@ -15,12 +15,7 @@ import java.awt.Cursor;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
-import org.rascalmpl.interpreter.result.RascalFunction;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -32,8 +27,6 @@ public class ComputeFigure extends Figure {
 	
 	final private IValue callback;
 	
-	final Type[] argTypes = new Type[0];			// Argument types of callback
-	final IValue[] argVals = new IValue[0];		// Argument values of callback
 	
 	final private IEvaluatorContext ctx;
 
@@ -43,32 +36,20 @@ public class ComputeFigure extends Figure {
 	
 		this.ctx = ctx;
 
-		if(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult))){
-			this.callback = fun;
-		} else
-			this.callback = null;
-			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
+		fpa.checkIfIsCallBack(fun, ctx);
+		this.callback = fun;
 	}
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
 		
-		Result<IValue> figureVal;
 		
 		if(figure != null){
 			figure.destroy();
 		}
 		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
-		synchronized(fpa){
-			if(callback instanceof RascalFunction)
-				figureVal = ((RascalFunction) callback).call(argTypes, argVals);
-			else
-				figureVal = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
-		}
+		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
 		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-			
-		System.err.println("callback returns: " + figureVal.getValue());
-		IConstructor figureCons = (IConstructor) figureVal.getValue();
 		figure = FigureFactory.make(fpa, figureCons, properties, null, ctx);
 		fpa.setComputedValueChanged();
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);

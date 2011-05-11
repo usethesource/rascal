@@ -12,7 +12,6 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -22,8 +21,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.RascalFunction;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -32,7 +29,7 @@ import org.rascalmpl.library.vis.FigureApplet;
 
 public class Choice extends Figure {
 	
-	final private RascalFunction callback;
+	final private IValue callback;
 	
 	final Type[] argTypes = new Type[1];			// Argument types of callback: [str]
 	final IValue[] argVals = new IValue[1];		    // Argument values of callback: [str]
@@ -42,12 +39,8 @@ public class Choice extends Figure {
 	public Choice(IFigureApplet fpa, PropertyManager properties, IList choices, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
-		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
-			this.callback = (RascalFunction) fun;
-		} else {
-			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
-			 this.callback = null;
-		}
+		fpa.checkIfIsCallBack(fun, ctx);
+		this.callback = fun;
 		
 		TypeFactory tf = TypeFactory.getInstance();
 		argTypes[0] = tf.stringType();
@@ -80,12 +73,7 @@ public class Choice extends Figure {
 	}
 	
 	public void doCallBack(String s){
-		argVals[0] = vf.string(s);
-		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
-		synchronized(fpa){
-			callback.call(argTypes, argVals);
-		}
-		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().stringType(), vf.string(s));
 		fpa.setComputedValueChanged();
 	}
 

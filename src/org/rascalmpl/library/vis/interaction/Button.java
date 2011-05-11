@@ -12,39 +12,27 @@
 package org.rascalmpl.library.vis.interaction;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.RascalFunction;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
-import org.rascalmpl.library.vis.FigureApplet;
-
 
 public class Button extends Figure {
-	final private RascalFunction callback;
-	
-	final Type[] argTypes = new Type[0];		// Argument types of callback: []
-	final IValue[] argVals = new IValue[0];		// Argument values of callback: []
+	final private IValue callback;
 	
 	final java.awt.Button button = new java.awt.Button();
 
 	public Button(IFigureApplet fpa, PropertyManager properties, IString tname, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
-		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
-			this.callback = (RascalFunction) fun;
-		} else {
-			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
-			 this.callback = null;
-		}
+		fpa.checkIfIsCallBack(fun, ctx);
+		this.callback = fun;
 		
 	    button.addMouseListener(
 	    	      new MouseAdapter() {
@@ -71,12 +59,7 @@ public class Button extends Figure {
 	}
 	
 	public void doCallBack(){
-		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
-		//System.err.println("Button, call callback");
-		synchronized(fpa){
-			callback.call(argTypes, argVals);
-		}
-		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.executeRascalCallBackWithoutArguments(callback);
 		fpa.setComputedValueChanged();
 	}
 

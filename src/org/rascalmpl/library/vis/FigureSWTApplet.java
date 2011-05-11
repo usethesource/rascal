@@ -12,10 +12,13 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -31,6 +34,10 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.RascalFunction;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 
 
@@ -850,5 +857,40 @@ public class FigureSWTApplet implements IFigureApplet {
 			return mode;
 		}
 	}
+	
 
+	public void checkIfIsCallBack(IValue fun,IEvaluatorContext ctx){
+		if(! 
+		  (fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult))
+		   )){
+			 throw RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+	}
+	
+	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals){
+		setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		Result<IValue> result;
+		synchronized(this){
+			if(callback instanceof RascalFunction)
+				result = ((RascalFunction) callback).call(argTypes, argVals);
+			else
+				result = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
+		}
+		setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		return result;
+		
+	}
+	
+	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback){
+		Type[] argTypes = {};
+		IValue[] argVals = {};
+		return executeRascalCallBack(callback, argTypes, argVals);
+	}
+	
+	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg){
+		Type[] argTypes = {type};
+		IValue[] argVals = {arg};
+		return executeRascalCallBack(callback, argTypes, argVals);
+	}
+	
 }

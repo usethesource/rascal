@@ -14,7 +14,6 @@ package org.rascalmpl.library.vis.interaction;
 
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -24,12 +23,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.RascalFunction;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-
-import org.rascalmpl.library.vis.FigureApplet;
 
 public class Checkbox extends Figure {
 											
@@ -43,13 +40,8 @@ public class Checkbox extends Figure {
 	public Checkbox(IFigureApplet fpa, PropertyManager properties, IString name, IValue fun, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		
-		if(fun.getType().isExternalType() && (fun instanceof RascalFunction)){
-			this.callback = (RascalFunction) fun;
-
-		} else {
-			 RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
-			 this.callback = null;
-		}
+		fpa.checkIfIsCallBack(fun, ctx);
+		this.callback = (RascalFunction) fun;
 		TypeFactory tf = TypeFactory.getInstance();
 
 		argTypes[0] = tf.boolType();
@@ -88,12 +80,7 @@ public class Checkbox extends Figure {
 	
 	public void doCallBack(boolean selected){
 		System.err.println("Calling callback: " + callback + " with selected = " + selected);
-		argVals[0] = vf.bool(selected);
-		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
-		synchronized(fpa){
-			callback.call(argTypes, argVals);
-		}
-		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().boolType(), vf.bool(selected));
 		checkbox.getParent().validate();
 		fpa.setComputedValueChanged();
 	}
