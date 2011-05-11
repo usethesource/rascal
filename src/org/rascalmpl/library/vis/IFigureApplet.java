@@ -13,6 +13,11 @@
 
 package org.rascalmpl.library.vis;
 
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.result.Result;
+
 public interface IFigureApplet {
 	public Object getComp(); // get Composite. Needed by swt variant
 	public void init();
@@ -87,4 +92,12 @@ public interface IFigureApplet {
 	public void stroke(double arg0, double arg1, double arg2);
 	public String getName();
 	// Needed by SpringGraph
+
+	void checkIfIsCallBack(IValue fun,IEvaluatorContext ctx);
+	
+	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals);
+	
+	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback);
+	
+	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg);
 }
