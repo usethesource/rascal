@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
+import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+
 public class StringPrecedeRequirement implements IEnterFilter{
 	private final char[] string;
 	
@@ -20,7 +22,7 @@ public class StringPrecedeRequirement implements IEnterFilter{
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int location){
+	public boolean isFiltered(char[] input, int location, PositionStore positionStore){
 		if((location - string.length) >= 0){
 			int startLocation = location - string.length;
 			for(int i = string.length - 1; i >= 0; --i){

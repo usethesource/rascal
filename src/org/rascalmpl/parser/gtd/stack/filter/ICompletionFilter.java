@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
+import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+
 public interface ICompletionFilter{
-	boolean isFiltered(char[] input, int start, int end);
+	boolean isFiltered(char[] input, int start, int end, PositionStore positionStore);
 }

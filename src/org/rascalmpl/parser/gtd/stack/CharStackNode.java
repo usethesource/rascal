@@ -49,10 +49,6 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		char next = input[startLocation];
 		for(int i = ranges.length - 1; i >= 0; --i){

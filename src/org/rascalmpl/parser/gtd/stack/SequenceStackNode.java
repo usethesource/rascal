@@ -83,10 +83,6 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		return name;
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}

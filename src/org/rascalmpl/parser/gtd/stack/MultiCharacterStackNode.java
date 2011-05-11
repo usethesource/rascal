@@ -54,10 +54,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		int nrOfCharacters = characters.length;
 		char[] resultArray = new char[nrOfCharacters];

@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
+import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+
 public class StringFollowRestriction implements ICompletionFilter{
 	private final char[] string;
 	
@@ -20,7 +22,7 @@ public class StringFollowRestriction implements ICompletionFilter{
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end){
+	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
 		if((end + string.length) <= input.length){
 			for(int i = string.length - 1; i >= 0; --i){
 				if(input[end + i] != string[i]) return false;

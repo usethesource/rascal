@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
+import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+
 public interface IEnterFilter{
-	boolean isFiltered(char[] input, int start);
+	boolean isFiltered(char[] input, int start, PositionStore positionStore);
 }

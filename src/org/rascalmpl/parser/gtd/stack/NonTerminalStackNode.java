@@ -52,10 +52,6 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return expectIdentifier;
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}

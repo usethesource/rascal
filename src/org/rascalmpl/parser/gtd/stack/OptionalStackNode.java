@@ -89,10 +89,6 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		return name;
 	}
 	
-	public void setPositionStore(PositionStore positionStore){
-		throw new UnsupportedOperationException();
-	}
-	
 	public boolean match(char[] input){
 		throw new UnsupportedOperationException();
 	}

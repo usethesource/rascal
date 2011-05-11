@@ -138,10 +138,6 @@ public abstract class AbstractStackNode{
 		return (this instanceof IMatchableStackNode);
 	}
 	
-	public final boolean isLocatable(){
-		return (this instanceof ILocatableStackNode);
-	}
-	
 	public final boolean isExpandable(){
 		return (this instanceof IExpandableStackNode);
 	}
@@ -149,8 +145,6 @@ public abstract class AbstractStackNode{
 	public abstract boolean isEmptyLeafNode();
 	
 	public abstract String getName();
-	
-	public abstract void setPositionStore(PositionStore positionStore);
 	
 	public abstract boolean match(char[] input);
 	
@@ -186,12 +180,6 @@ public abstract class AbstractStackNode{
 				IMatchableStackNode followRestriction = followRestrictions[i];
 				if((location + followRestriction.getLength()) <= input.length &&
 					followRestriction.matchWithoutResult(input, location)) return true;
-			}
-		}
-		
-		if(completionFilters != null){
-			for(int i = completionFilters.length - 1; i >= 0; --i){
-				if(completionFilters[i].isFiltered(input, startLocation, location)) return true;
 			}
 		}
 		
