@@ -2,14 +2,18 @@ module lang::rascal::grammar::definition::Priorities
 
 import ParseTree;
 import Grammar;
+import Set;
+import List;
+import IO;
 
-
+import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::definition::Symbols;
 
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
-    case prod([o*,t],s,attrs([_*,\assoc(left()),_*])) :
+    case prod([list[Symbol] o,t],s,attrs([_*,\assoc(left()),_*])) :
       if (match(t, s)) return {<p, size(o), p>};
     case prod([o*,t],s,attrs([_*,\assoc(\assoc()),_*])) :
       if (match(t, s)) return {<p, size(o), p>};
@@ -27,7 +31,7 @@ public DoNotNest doNotNest(Production p) {
       return doNotNest(q); 
     case priority(_, list[Production] levels) : 
       return priority(levels);
-    case \assocativity(_, Associativity a, set[Production] alts) : 
+    case \associativity(_, Associativity a, set[Production] alts) : 
       return associativity(a, alts);
   }
   
@@ -36,7 +40,7 @@ public DoNotNest doNotNest(Production p) {
 
 DoNotNest associativity(Associativity a, set[Production] alts) {
   result = {};
-
+  
   // note that there are nested groups and that each member of one group needs to be paired
   // with all the members of the other group. This explains the use of the / deep match operator.
   for ({Production pivot, set[Production] rest} := alts, /Production child:prod(_,_,_) := pivot) {
@@ -59,7 +63,7 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
     } 
   }
   
-  return result + {dontNest(a) | a <- alts};
+  return result + {doNotNest(x) | x <- alts};
 }
 
 DoNotNest priority(list[Production] levels) {
@@ -76,9 +80,9 @@ DoNotNest priority(list[Production] levels) {
         todo += alts * {child};
       case <Production father, choice(_,set[Production] alts)> :
         todo += {father} * alts;
-      case <\assoc(_,_,set[Production] alts),Production child> :
+      case <associativity(_,_,set[Production] alts),Production child> :
         todo += alts * {child};
-      case <Production father, \assoc(_,_,set[Production] alts)> :
+      case <Production father, associativity(_,_,set[Production] alts)> :
         todo += {father} * alts;
       default:
         ordering += prio;
@@ -90,15 +94,15 @@ DoNotNest priority(list[Production] levels) {
   result = {};
   for (<Production father, Production child> <- ordering) {
     switch (father) {
-      case prod([Symbol l,_*,Symbol r],Symbol rhs,_) :
+      case prod(lhs:[Symbol l,_*,Symbol r],Symbol rhs,_) :
         if (match(l,rhs) && match(l,rhs)) 
-          result += {<father, 0, child>};   
+          result += {<father, 0, child>, <father, size(lhs) - 1, child>};   
         else fail;
-      case prod([Symbol l,_*],Symbol rhs,_) :
+      case prod(lhs:[Symbol l,_*],Symbol rhs,_) :
         if (match(l,rhs))
           result += {<father, 0, child>};   
         else fail;
-      case prod([_*,Symbol r],Symbol rhs,_) :
+      case prod(lhs:[_*,Symbol r],Symbol rhs,_) :
         if (match(r,rhs))
           result += {<father, size(lhs) - 1, child>};   
         else fail;

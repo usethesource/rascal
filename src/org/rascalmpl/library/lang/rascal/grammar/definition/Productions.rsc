@@ -106,15 +106,7 @@ public Production associativity(Symbol rhs, Associativity a, {associativity(Symb
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
-  
-@doc{In a group a single production inherits the group's associativity, unless contradicted.}
-public Production associativity(Symbol s, Associativity as, {set[Production] a, Production p:prod(_,_,_)}) { 
-   if (!/\assoc(_) := p.attributes) 
-     return associativity(s, as, {a, attribute(p, \assoc(as))});
-   else
-     fail; 
-}
- 
+   
 public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) {
   if (a == {})
     return others(t);

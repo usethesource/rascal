@@ -18,8 +18,7 @@ import List;
 import Set;
 
 public Grammar expandParameterizedSymbols(Grammar g) {
-  g.rules = index(expand({ g.rules[s] | s <- g.rules }), Symbol (Production p) { return p.rhs; });
-  return g;
+  return grammar(g.start, expand({g.rules[nt] | nt <- g.rules}));
 } 
  
 set[Production] expand(set[Production] prods) {
