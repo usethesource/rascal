@@ -644,12 +644,6 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode(<itemId>, <dot>, new char[][]{<generateCharClassArrays(ranges)>})", itemId>;
-        case \start-of-line() : 
-            return <"new StartOfLineStackNode(<itemId>, <dot>)", itemId>;
-        case \end-of-line() :
-            return <"new EndOfLineStackNode(<itemId>, <dot>)", itemId>;
-        case \at-column(int column) :
-            return <"new AtColumnStackNode(<itemId>, <dot>, <column>)",itemId>; 
         default: 
             throw "not yet implemented <sym>";
     }

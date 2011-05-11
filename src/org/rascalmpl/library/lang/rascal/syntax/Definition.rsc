@@ -161,9 +161,6 @@ private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex, str layoutName
    
 private Symbol arg2symbol(Sym sym, bool isLex, str layoutName) {
   switch (sym) {
-    case (Sym) `^` : return \start-of-line();
-    case (Sym) `$` : return \end-of-line();
-    case (Sym) `@ <IntegerLiteral i>` : return \at-column(toInt("<i>")); 
     case (Sym) `<Nonterminal n>`          : return sort("<n>");
     case (Sym) `<StringConstant l>` : return lit(unescape(l));
     case (Sym) `<ParameterizedNonterminal n>[<{Sym ","}+ syms>]` : return \parameterized-sort("<n>",separgs2symbols(syms,isLex,layoutName));
