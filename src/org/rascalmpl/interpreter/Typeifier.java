@@ -139,12 +139,21 @@ public class Typeifier {
 				}
 
 				public Type visitRelationType(Type type) {
-					IList fields = (IList) next.get("fields");
-					for (IValue child : fields) {
-						ITuple field = (ITuple) child;
-						todo.add((IConstructor) field.get(0));
+					if (next.getConstructorType().hasField("fields")) {
+						IList fields =  (IList) next.get("fields");
+						for (IValue child : fields) {
+							ITuple field = (ITuple) child;
+							todo.add((IConstructor) field.get(0));
+						}
+						return type;
 					}
-					return type;
+					else {
+						IList fields =  (IList) next.get("arguments");
+						for (IValue child : fields) {
+							todo.add((IConstructor) child);
+						}
+						return type;
+					}
 				}
 
 				public Type visitSet(Type type) {
