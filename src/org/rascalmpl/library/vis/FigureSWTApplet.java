@@ -124,6 +124,13 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this(comp, "Figure", fig, ctx);
 	}
+	
+	private static GC createGC(Composite comp) {
+	    GC g = new GC(comp);
+	    g.setAntialias(SWT.ON);
+	    g.setTextAntialias(SWT.ON);
+	    return g;
+	}
 
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
 			IEvaluatorContext ctx) {
@@ -131,7 +138,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		saveFigure = false;
 		comp.getShell().setText(name);
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
-		gc = new GC(comp);
+		gc = createGC(comp);
 		int colnum = ColorProp.FILL_COLOR.getStdDefault();
 		Color color = new Color(comp.getDisplay(),
 				FigureColorUtils.getRed(colnum),
@@ -413,13 +420,13 @@ public class FigureSWTApplet implements IFigureApplet {
 		int d = (int) arg0;
 		stroke = (d != 0);
 		if (gc.isDisposed())
-			gc = new GC(comp);
+			gc = createGC(comp);
 		gc.setLineWidth(d);
 	}
 
 	public void textSize(double arg0) {
 		if (gc.isDisposed())
-			gc = new GC(comp);
+			gc = createGC(comp);
 		if (gc.getFont().getFontData().length < 1)
 			return;
 		gc.getFont().getFontData()[0].setHeight((int) arg0);
@@ -437,7 +444,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public void textFont(Object arg0) {
 		if (gc.isDisposed())
-			gc = new GC(comp);
+			gc = createGC(comp);
 		gc.setFont((Font) arg0);
 	}
 
@@ -450,20 +457,20 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public double textWidth(String txt) {
 		if (gc.isDisposed())
-			gc = new GC(comp);
+			gc = createGC(comp);
 		return gc.textExtent(txt).x;
 	}
 
 	public double textAscent() {
 		if (gc.isDisposed())
-			gc = new GC(comp);
+			gc = createGC(comp);
 		return gc.getFontMetrics().getAscent();
 	}
 
 	public double textDescent() {
 		// TODO Auto-generated method stub
 		if (gc.isDisposed())
-			gc = new GC(comp);
+			gc = createGC(comp);
 		return gc.getFontMetrics().getDescent();
 	}
 
