@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -20,7 +19,6 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
-import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public abstract class AbstractStackNode{
 	public final static int START_SYMBOL_ID = -1;

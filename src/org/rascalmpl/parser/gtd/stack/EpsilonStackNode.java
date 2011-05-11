@@ -11,12 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public final class EpsilonStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();

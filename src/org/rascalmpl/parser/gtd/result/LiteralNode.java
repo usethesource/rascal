@@ -24,6 +24,8 @@ public class LiteralNode extends AbstractNode{
 	private final IConstructor production;
 	private final char[] content;
 	
+	private IConstructor cachedResult;
+	
 	public LiteralNode(IConstructor production, char[] content){
 		super();
 		
@@ -80,6 +82,8 @@ public class LiteralNode extends AbstractNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+		if(cachedResult != null) return cachedResult;
+		
 		int numberOfCharacters = content.length;
 		
 		IListWriter listWriter = VF.listWriter(Factory.Tree);
@@ -87,7 +91,9 @@ public class LiteralNode extends AbstractNode{
 			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(CharNode.getNumericCharValue(content[i]))));
 		}
 		
-		return VF.constructor(Factory.Tree_Appl, production, listWriter.done());
+		IConstructor result = VF.constructor(Factory.Tree_Appl, production, listWriter.done());
+		cachedResult = result;
+		return result;
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
