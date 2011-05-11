@@ -28,9 +28,10 @@ import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
+import org.rascalmpl.library.vis.util.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -54,7 +55,7 @@ public class PropertyManager implements IPropertyManager {
 		EnumMap<BoolProp, IPropertyValue<Boolean>> boolValues;
 		EnumMap<IntProp, IPropertyValue<Integer>> intValues;
 		EnumMap<RealProp, IPropertyValue<Double>> realValues;
-		EnumMap<MeasureProp, IPropertyValue<Measure>> measureValues;
+		EnumMap<DimensionalProp, IPropertyValue<Measure>> measureValues;
 		EnumMap<StrProp, IPropertyValue<String>> strValues;
 		EnumMap<ColorProp, IPropertyValue<Integer>> colorValues;
 		EnumMap<FigureProp, IPropertyValue<Figure>> figureValues;
@@ -163,11 +164,11 @@ public class PropertyManager implements IPropertyManager {
 					values.handlerValues = new EnumMap<HandlerProp, IPropertyValue<Void>>(HandlerProp.class);
 				}
 				HandlerProp.propertySetters.get(pname).execute(values.handlerValues, c, fpa, ctx, this);
-			} else if(MeasureProp.propertySetters.containsKey(pname)){
+			} else if(DimensionalProp.propertySetters.containsKey(pname)){
 				if(values.measureValues == null){
-					values.measureValues = new EnumMap<MeasureProp, IPropertyValue<Measure>>(MeasureProp.class);
+					values.measureValues = new EnumMap<DimensionalProp, IPropertyValue<Measure>>(DimensionalProp.class);
 				}
-				MeasureProp.propertySetters.get(pname).execute(values.measureValues, c, fpa, ctx, this);
+				DimensionalProp.propertySetters.get(pname).execute(values.measureValues, c, fpa, ctx, this);
 			} else {
 				throw RuntimeExceptionFactory.illegalArgument(c, ctx
 						.getCurrentAST(), ctx.getStackTrace());
@@ -249,7 +250,7 @@ public class PropertyManager implements IPropertyManager {
 			if(stdValues.measureValues == null){
 				stdValues.measureValues = inherited.stdValues.measureValues;
 			} else if(inherited.stdValues.measureValues != null){
-				for(MeasureProp p : MeasureProp.values()){
+				for(DimensionalProp p : DimensionalProp.values()){
 					if(!stdValues.measureValues.containsKey(p) && inherited.stdValues.measureValues.containsKey(p)){
 						stdValues.measureValues.put(p, inherited.stdValues.measureValues.get(p));
 					}
@@ -312,14 +313,16 @@ public class PropertyManager implements IPropertyManager {
 		}
 	}
 	
-	public boolean isMeasurePropertySet(MeasureProp property){
+
+	
+	public boolean isMeasurePropertySet(DimensionalProp property){
 		return explicitValues != null && 
 	       explicitValues.measureValues != null &&
 	       explicitValues.measureValues.containsKey(property);
 	}
 	
 	
-	public Measure getMeasureProperty(MeasureProp property){
+	public Measure getMeasureProperty(DimensionalProp property){
 		if(isMeasurePropertySet(property)){
 			return explicitValues.measureValues.get(property).getValue();
 		} else if(stdValues!= null && stdValues.measureValues != null && 
@@ -328,6 +331,14 @@ public class PropertyManager implements IPropertyManager {
 		} else {
 			return property.getStdDefault(); 
 		}
+	}
+	
+	public boolean isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
+		return isMeasurePropertySet(prop.getDimensionalProp(d));
+	}
+	
+	public Measure getMeasureProperty(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
+		return getMeasureProperty(prop.getDimensionalProp(d));
 	}
 	
 	public boolean isStringPropertySet(StrProp property){

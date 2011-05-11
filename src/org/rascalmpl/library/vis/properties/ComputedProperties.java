@@ -122,7 +122,21 @@ public class ComputedProperties {
 
 		@Override
 		Measure convertValue(Result<IValue> res) {
-			return ((Measure) res.getValue());
+			if(res.getType().isIntegerType()){
+				return new Measure((double)((IInteger)res.getValue()).intValue());
+			}
+			else if(res.getType().isRealType()){
+				return new Measure((((IReal)res.getValue()).doubleValue()));
+			}
+			else if(res.getType().isNumberType()){
+				return new Measure((((INumber)res.getValue()).toReal().doubleValue()));
+			} else { // if(res.getType().isAbstractDataType() && res.getType().getName().equals("Measure")){
+				Measure result;
+				IConstructor c = (IConstructor)res.getValue();
+				double val = ((INumber)c.get(0)).toReal().doubleValue();
+				String name = ((IString)c.get(1)).getValue();
+				return new Measure(val,name);
+			} 
 		}
 
 	}

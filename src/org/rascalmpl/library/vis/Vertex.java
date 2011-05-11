@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.properties.Measure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.Dimension;
 
 /**
  * Vertex: a point that is part of a shape.
@@ -76,11 +77,11 @@ public class Vertex extends Figure {
 	}
 
 	public double getDeltaX(){
-		return getScaled(deltax,true);
+		return getScaled(deltax,Dimension.X);
 	}
 	
 	public double getDeltaY(){
-		return getScaled(deltay,false);
+		return getScaled(deltay,Dimension.Y);
 	}
 	
 	@Override

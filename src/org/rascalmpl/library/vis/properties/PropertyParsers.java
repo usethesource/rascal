@@ -32,7 +32,7 @@ import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
@@ -281,10 +281,10 @@ public class PropertyParsers {
 	}
 	
 	
-	static class MeasureArgParser extends AbstractPropertyParser<MeasureProp,Measure>{
+	static class MeasureArgParser extends AbstractPropertyParser<DimensionalProp,Measure>{
 		@Override
 		boolean isLiteralType(Type type) {
-			return  type.isIntegerType() || type.isRealType() || type.getName().equals("Measure");
+			return  type.isIntegerType() || type.isRealType() || (type.isAbstractDataType() && type.getName().equals("Measure"));
 		}
 
 		@Override
@@ -309,7 +309,7 @@ public class PropertyParsers {
 		}
 
 		@Override
-		IPropertyValue<Measure> makeLikeProperty(MeasureProp prop, String id,
+		IPropertyValue<Measure> makeLikeProperty(DimensionalProp prop, String id,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeMeasureProperty(prop, id, fpa, ctx);
 		}

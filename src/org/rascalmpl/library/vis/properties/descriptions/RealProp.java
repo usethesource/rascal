@@ -18,16 +18,13 @@ import org.rascalmpl.library.vis.properties.PropertySetters;
 
 public enum RealProp {
 	HALIGN(0.5),
-
-
 	HGAP_FACTOR(0.0),
-
+	INNERRADIUS(0.0f), // TODO: innerradisu is not axis aligned
 	LINE_WIDTH(1.0),
 	TEXT_ANGLE(0.0), 	
 	FROM_ANGLE(0.0),
 	TO_ANGLE(0.0),			
 	VALIGN(0.5),		
-	
 	VGAP_FACTOR(0.0);
 	
 	double stdDefault;
@@ -40,6 +37,7 @@ public enum RealProp {
 	public static final HashMap<String, PropertySetters.PropertySetter<RealProp, Double>> propertySetters = new HashMap<String, PropertySetters.PropertySetter<RealProp, Double>>() {{
 	put("halign", new PropertySetters.SingleRealPropertySetter(HALIGN));
 	put("hgapFactor", new PropertySetters.SingleIntOrRealPropertySetter(HGAP_FACTOR));
+	put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
 	put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
 	put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
 	put("fromAngle", new PropertySetters.SingleIntOrRealPropertySetter(FROM_ANGLE));

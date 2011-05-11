@@ -23,7 +23,7 @@ import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
@@ -102,15 +102,15 @@ public class PropertySetters {
 		}
 	}
 	
-	public static class SingleMeasurePropertySetter extends SinglePropertySetter<MeasureProp,Measure>{
-		public SingleMeasurePropertySetter(MeasureProp property) {
+	public static class SingleMeasurePropertySetter extends SinglePropertySetter<DimensionalProp,Measure>{
+		public SingleMeasurePropertySetter(DimensionalProp property) {
 			super(property, new PropertyParsers.MeasureArgParser());
 		}
 	}
 	
 
-	public static class DualOrRepeatMeasurePropertySetter extends DualOrRepeatSinglePropertySetter<MeasureProp,Measure>{
-		public DualOrRepeatMeasurePropertySetter(MeasureProp property1,MeasureProp property2) {
+	public static class DualOrRepeatMeasurePropertySetter extends DualOrRepeatSinglePropertySetter<DimensionalProp,Measure>{
+		public DualOrRepeatMeasurePropertySetter(DimensionalProp property1,DimensionalProp property2) {
 			super(property1,property2, new PropertyParsers.MeasureArgParser());
 		}
 	}

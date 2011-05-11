@@ -27,9 +27,10 @@ import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
+import org.rascalmpl.library.vis.util.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -185,11 +186,11 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 
 	
 	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
-			double val = getMeasureProperty(MeasureProp.WIDTH).value;
+		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
+			double val = getMeasureProperty(DimensionalProp.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
-		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
-			double val = getMeasureProperty(MeasureProp.HEIGHT).value;
+		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
+			double val = getMeasureProperty(DimensionalProp.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 			return new Extremes();
@@ -197,9 +198,9 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	
 	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
+		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
 			return offset;
-		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
+		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
 			return offset;
 		} else {
 			return Double.MAX_VALUE;
@@ -618,11 +619,19 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return properties.getColorProperty(property);
 	}
 	
-	public boolean isMeasurePropertySet(MeasureProp property){
+	public boolean isMeasurePropertySet(DimensionalProp property){
 		return properties.isMeasurePropertySet(property);
 	}
-	public Measure getMeasureProperty(MeasureProp property) {
+	public Measure getMeasureProperty(DimensionalProp property) {
 		return properties.getMeasureProperty(property);
+	}
+	
+	public boolean isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
+		return properties.isMeasurePropertySet(prop, d);
+	}
+	
+	public Measure getMeasureProperty(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
+		return properties.getMeasureProperty(prop, d);
 	}
 	
 	public boolean isDraggable(){
@@ -648,16 +657,16 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return properties.getLabel();
 	}
 	
-	double getScaled(Measure m, boolean horizontal){
-		return getScaled(m,horizontal,null);
+	double getScaled(Measure m, Dimension dimension){
+		return getScaled(m,dimension,null);
 	}
 	
-	double getScaled(Measure m, boolean horizontal,MeasureProp prop){
+	double getScaled(Measure m, Dimension dimension,DimensionalProp prop){
 		double scale;
-		if(horizontal){
-			scale = scaleX;
-		} else {
-			scale = scaleY;
+		switch(dimension){
+		case X: scale = scaleX; break;
+		case Y: scale = scaleY; break;
+		default : throw new Error("Unkown dimension!");
 		}
 		if(axisScales != null && axisScales.containsKey(m.axisName) && !m.axisName.equals("")){
 			
@@ -667,9 +676,9 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return m.value * scale;
 	}
 	
-	double getScaled(MeasureProp prop, boolean horizontal){
+	double getScaled(DimensionalProp prop,  Dimension dimension){
 		Measure m = getMeasureProperty(prop);
-		return getScaled(m,horizontal,prop);
+		return getScaled(m,dimension,prop);
 	}
 	
 	// short-hand functions for selected properties(boilerplate)
@@ -679,18 +688,18 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public String getIdProperty(){return getStringProperty(StrProp.ID);}
 	public String getDirectionProperty(){return getStringProperty(StrProp.DIRECTION);}
 	public String getLayerProperty(){return getStringProperty(StrProp.LAYER);}
-	public boolean isWidthPropertySet(){return isMeasurePropertySet(MeasureProp.WIDTH);}
-	public boolean isHeightPropertySet(){return isMeasurePropertySet(MeasureProp.HEIGHT);}
-	public boolean isHGapPropertySet(){return isMeasurePropertySet(MeasureProp.HGAP);}
+	public boolean isWidthPropertySet(){return isMeasurePropertySet(DimensionalProp.WIDTH);}
+	public boolean isHeightPropertySet(){return isMeasurePropertySet(DimensionalProp.HEIGHT);}
+	public boolean isHGapPropertySet(){return isMeasurePropertySet(DimensionalProp.HGAP);}
 	
-	public boolean isVGapPropertySet(){return isMeasurePropertySet(MeasureProp.VGAP);}
+	public boolean isVGapPropertySet(){return isMeasurePropertySet(DimensionalProp.VGAP);}
 	// below are convience functions for measures, which are scaled (text and linewidth are not scaled)
-	public double getWidthProperty(){ return getScaled(MeasureProp.WIDTH,true);}
-	public double getHeightProperty(){return  getScaled(MeasureProp.HEIGHT,false);}
-	public double getHGapProperty(){return getScaled(MeasureProp.HGAP,true);}
-	public double getVGapProperty(){return getScaled(MeasureProp.VGAP,false);}
+	public double getWidthProperty(){ return getScaled(DimensionalProp.WIDTH,Dimension.X);}
+	public double getHeightProperty(){return  getScaled(DimensionalProp.HEIGHT,Dimension.Y);}
+	public double getHGapProperty(){return getScaled(DimensionalProp.HGAP,Dimension.X);}
+	public double getVGapProperty(){return getScaled(DimensionalProp.VGAP,Dimension.Y);}
 	// TODO: how to scale wedges!
-	public double getInnerRadiusProperty(){return getMeasureProperty(MeasureProp.INNERRADIUS).value * max(scaleX,scaleY);}
+	public double getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}
 	
 	public boolean isHGapFactorPropertySet(){return isRealPropertySet(RealProp.HGAP_FACTOR);}
 	public double getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
@@ -707,9 +716,10 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}
 	public boolean getEndGapProperty(){ return getBooleanProperty(BoolProp.END_GAP);}
 
-	public boolean widthExplicitlySet(){return isMeasurePropertySet(MeasureProp.WIDTH);}
-	public boolean heightExplicitlySet(){return isMeasurePropertySet(MeasureProp.HEIGHT);}
+	public boolean widthExplicitlySet(){return isMeasurePropertySet(DimensionalProp.WIDTH);}
+	public boolean heightExplicitlySet(){return isMeasurePropertySet(DimensionalProp.HEIGHT);}
 	
+
 	
 	
 }

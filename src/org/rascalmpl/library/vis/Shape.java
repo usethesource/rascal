@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.compose.Compose;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 
 
 
@@ -138,11 +138,11 @@ public class Shape extends Compose {
 	}
 	
 	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
-			double val = getMeasureProperty(MeasureProp.WIDTH).value;
+		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
+			double val = getMeasureProperty(DimensionalProp.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
-		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
-			double val = getMeasureProperty(MeasureProp.HEIGHT).value;
+		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
+			double val = getMeasureProperty(DimensionalProp.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 		
