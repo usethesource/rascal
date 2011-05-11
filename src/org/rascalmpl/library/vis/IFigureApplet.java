@@ -15,14 +15,17 @@ package org.rascalmpl.library.vis;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 
 public interface IFigureApplet {
-	public Object getComp(); // get Composite. Needed by swt variant
+	public Composite getComp(); // get Composite. Needed by swt variant
+	public Color getRgbColor(int c);
 	public void init();
 	public void setup();
-	public void draw();
+	// public void draw();
 	public int getFigureWidth();
 	public int getFigureHeight();
 	public void incDepth();
@@ -85,8 +88,8 @@ public interface IFigureApplet {
 	public void add(Object comp);
 	public void remove(Object comp);
 	public Object getFont();
-	public void setBackground(Object color);
-	public void setForeground(Object color);	
+	public void setBackground(Color color);
+	public void setForeground(Color color);	
 	public void invalidate();
 	public void validate();
 	public void stroke(double arg0, double arg1, double arg2);
