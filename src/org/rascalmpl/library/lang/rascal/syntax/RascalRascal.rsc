@@ -120,9 +120,6 @@ syntax Sym
 	| Alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| Sequence: "(" Sym first Sym+ sequence ")"
 	| Empty: "(" ")"
-	| Column: "@" IntegerLiteral column
-	| EndOfLine: "$"
-	| StartOfLine: "^" 
 	>  
 	assoc ( 
 	  left  ( Follow:     Sym symbol "\>\>" Sym match

@@ -253,12 +253,6 @@ public str symbol2rascal(Symbol sym) {
      	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
-    case \at-column(int i) : 
-        return "@<i>";
-    case \start-of-line() :
-        return "^";
-    case \end-of-line():
-        return "$";
   }
   throw "symbol2rascal: missing case <sym>";
 }

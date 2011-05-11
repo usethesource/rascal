@@ -89,9 +89,6 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \parameterized-sort(n, params) : return [lit(n),rl,lit("["),rl,tail(tail(tail([rl,lit(","),rl,symbolLiterals(p) | p <- params]))),rl,lit("]")]; 
     case \parameter(n) : return [lit("&"),rl,lit(n)];
     case \char-class(list[CharRange] ranges) : return [lit("["),rl,tail([rl,rangeLiterals(r) | r <- ranges]),rl,lit("]")];
-    case \at-column(c) : return [lit("@"),rl,lit("<c>")];
-    case \start-of-line() : return [lit("^")];
-    case \end-of-line() : return [lit("$")];
     default: throw "unsupported symbol <sym>";
   }
 }
