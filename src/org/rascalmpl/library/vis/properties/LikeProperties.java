@@ -19,7 +19,7 @@ import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
@@ -118,9 +118,9 @@ public class LikeProperties {
 	
 	static class LikeMeasureProperty extends LikeProperty<Measure>{
 
-		MeasureProp property;
+		DimensionalProp property;
 		
-		public LikeMeasureProperty(MeasureProp property, String id, IFigureApplet fpa,
+		public LikeMeasureProperty(DimensionalProp property, String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
 			super( id, fpa, ctx);
 			this.property = property;

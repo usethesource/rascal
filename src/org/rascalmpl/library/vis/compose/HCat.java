@@ -6,7 +6,7 @@ import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.MeasureProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 
 public class HCat extends Compose {
@@ -223,11 +223,11 @@ public class HCat extends Compose {
 	}	
 	
 	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(MeasureProp.WIDTH).axisName.equals(axisId)){
-			double val = getMeasureProperty(MeasureProp.WIDTH).value;
+		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
+			double val = getMeasureProperty(DimensionalProp.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
-		} else if( !horizontal && getMeasureProperty(MeasureProp.HEIGHT).axisName.equals(axisId)){
-			double val = getMeasureProperty(MeasureProp.HEIGHT).value;
+		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
+			double val = getMeasureProperty(DimensionalProp.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 			Extremes[] extremesList = new Extremes[figures.length];
