@@ -40,7 +40,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
 
-
 public class FigureSWTApplet implements IFigureApplet {
 
 	int halign = FigureApplet.LEFT, valign = FigureApplet.TOP;
@@ -71,6 +70,12 @@ public class FigureSWTApplet implements IFigureApplet {
 		synchronized (result) {
 			return result[0];
 		}
+	}
+
+	public Color getRgbColor(final int c) {
+		Display display = this.getComp().getDisplay();
+		return new Color(display, FigureColorUtils.getRed(c),
+				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
 	}
 
 	private final int defaultWidth = 5000; // Default dimensions of canvas
@@ -131,12 +136,13 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this(comp, "Figure", fig, ctx);
 	}
-	
+
 	private static GC createGC(Composite comp) {
-	    GC g = new GC(comp);
-	    g.setAntialias(SWT.ON);
-	    g.setTextAntialias(SWT.ON);
-	    return g;
+		GC g = new GC(comp);
+		g.setAntialias(SWT.ON);
+		g.setTextAntialias(SWT.ON);
+		g.setBackground(getColor(SWT.COLOR_WHITE));
+		return g;
 	}
 
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
@@ -167,14 +173,8 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-	/*
-	 * public void bbox() { if (computedValueChanged) {
-	 * figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE); figureWidth =
-	 * figure.width; figureHeight = figure.height; // computedValueChanged =
-	 * false; } }
-	 */
 
-	public void draw() {
+	private void draw() {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		if (computedValueChanged) {
@@ -183,6 +183,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			figureHeight = figure.height;
 			computedValueChanged = false;
 		}
+		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 		figure.draw(left, top);
 		if (mouseOver != null)
 			mouseOver
@@ -322,7 +323,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void setComputedValueChanged() {
-		// TODO Auto-generated method stub
+		computedValueChanged = true;
 
 	}
 
@@ -605,9 +606,12 @@ public class FigureSWTApplet implements IFigureApplet {
 		Interpolation.solve(r, closed);
 		int n = Interpolation.P0.length;
 		for (int i = 0; i < n; i++)
-			p.cubicTo((float) Interpolation.P1[i].x, (float) Interpolation.P1[i].y,
-					(float) Interpolation.P2[i].x, (float) Interpolation.P2[i].y,
-					(float) Interpolation.P3[i].x, (float) Interpolation.P3[i].y);
+			p.cubicTo((float) Interpolation.P1[i].x,
+					(float) Interpolation.P1[i].y,
+					(float) Interpolation.P2[i].x,
+					(float) Interpolation.P2[i].y,
+					(float) Interpolation.P3[i].x,
+					(float) Interpolation.P3[i].y);
 	}
 
 	public void endShape() {
@@ -638,7 +642,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		TypedPoint q = r.get(0);
 		if (q.curved != TypedPoint.kind.CURVED)
 			r.remove(0);
-		p.moveTo((float)q.x, (float) q.y);
+		p.moveTo((float) q.x, (float) q.y);
 		if (debug)
 			System.err.println("q=(" + q.x + "," + q.y + " " + q.curved + ")");
 		if (arg0 == FigureApplet.CLOSE) {
@@ -681,8 +685,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-	public void add(Object comp) {
-		// TODO Auto-generated method stub
+	public void add(Object c) {
 
 	}
 
@@ -696,15 +699,15 @@ public class FigureSWTApplet implements IFigureApplet {
 		return null;
 	}
 
-	public void setBackground(Object color) {
+	public void setBackground(Color color) {
 		// TODO Auto-generated method stub
-		gc.setBackground((Color) color);
+		gc.setBackground(color);
 
 	}
 
-	public void setForeground(Object color) {
+	public void setForeground(Color color) {
 		// TODO Auto-generated method stub
-		gc.setForeground((Color) color);
+		gc.setForeground(color);
 
 	}
 
@@ -768,31 +771,11 @@ public class FigureSWTApplet implements IFigureApplet {
 
 		public void paintControl(PaintEvent e) {
 			gc = e.gc;
-			gc.setTextAntialias(SWT.ON);
-			gc.setAntialias(SWT.ON);
-			gc.setAdvanced(true);
-			gc.setBackground(getColor(SWT.COLOR_WHITE));
-			gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
+//			gc.setTextAntialias(SWT.ON);
+//			gc.setAntialias(SWT.ON);
+//			gc.setAdvanced(true);
+//			gc.setBackground(getColor(SWT.COLOR_WHITE));
 			FigureSWTApplet.this.draw();
-		}
-	}
-
-	class StartPaintListener implements PaintListener {
-
-		public void paintControl(PaintEvent e) {
-			if (gc == null) {
-				gc = e.gc;
-				gc.setTextAntialias(SWT.ON);
-				gc.setAntialias(SWT.ON);
-				gc.setAdvanced(true);
-				// bbox();
-				System.err.println("StartPaintListener:" + figure.width + " "
-						+ figure.height + " " + gc);
-				figureWidth = (int) figure.width + 1;
-				figureHeight = (int) figure.height + 1;
-				gc.setBackground(getColor(SWT.COLOR_WHITE));
-				gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
-			}
 		}
 	}
 
@@ -857,40 +840,41 @@ public class FigureSWTApplet implements IFigureApplet {
 			return mode;
 		}
 	}
-	
 
-	public void checkIfIsCallBack(IValue fun,IEvaluatorContext ctx){
-		if(! 
-		  (fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult))
-		   )){
-			 throw RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
+	public void checkIfIsCallBack(IValue fun, IEvaluatorContext ctx) {
+		if (!(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult)))) {
+			throw RuntimeExceptionFactory.illegalArgument(fun,
+					ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
-	
-	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals){
+
+	public Result<IValue> executeRascalCallBack(IValue callback,
+			Type[] argTypes, IValue[] argVals) {
 		setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		Result<IValue> result;
-		synchronized(this){
-			if(callback instanceof RascalFunction)
+		synchronized (this) {
+			if (callback instanceof RascalFunction)
 				result = ((RascalFunction) callback).call(argTypes, argVals);
 			else
-				result = ((OverloadedFunctionResult) callback).call(argTypes, argVals);
+				result = ((OverloadedFunctionResult) callback).call(argTypes,
+						argVals);
 		}
 		setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		return result;
-		
+
 	}
-	
-	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback){
+
+	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) {
 		Type[] argTypes = {};
 		IValue[] argVals = {};
 		return executeRascalCallBack(callback, argTypes, argVals);
 	}
-	
-	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg){
-		Type[] argTypes = {type};
-		IValue[] argVals = {arg};
+
+	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,
+			Type type, IValue arg) {
+		Type[] argTypes = { type };
+		IValue[] argVals = { arg };
 		return executeRascalCallBack(callback, argTypes, argVals);
 	}
-	
+
 }
