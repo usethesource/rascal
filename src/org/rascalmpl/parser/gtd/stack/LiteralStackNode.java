@@ -16,7 +16,6 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 
 public final class LiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[] literal;
