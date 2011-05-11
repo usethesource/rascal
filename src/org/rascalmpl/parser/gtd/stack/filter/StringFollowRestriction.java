@@ -11,19 +11,19 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class FollowRestriction implements ICompletionFilter{
-	private final char[] restricted;
+public class StringFollowRestriction implements ICompletionFilter{
+	private final char[] string;
 	
-	public FollowRestriction(char[] restricted){
+	public StringFollowRestriction(char[] string){
 		super();
 		
-		this.restricted = restricted;
+		this.string = string;
 	}
 	
 	public boolean isFiltered(char[] input, int start, int end){
-		if((end + restricted.length) <= input.length){
-			for(int i = restricted.length - 1; i >= 0; --i){
-				if(input[end + i] != restricted[i]) return false;
+		if((end + string.length) <= input.length){
+			for(int i = string.length - 1; i >= 0; --i){
+				if(input[end + i] != string[i]) return false;
 			}
 			return true;
 		}

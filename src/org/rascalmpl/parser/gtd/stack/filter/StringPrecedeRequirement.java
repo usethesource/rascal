@@ -11,20 +11,22 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class MatchRestriction implements ICompletionFilter{
-	private final char[] restricted;
+public class StringPrecedeRequirement implements IEnterFilter{
+	private final char[] string;
 	
-	public MatchRestriction(char[] restricted){
+	public StringPrecedeRequirement(char[] string){
 		super();
 		
-		this.restricted = restricted;
+		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end){
-		if((end - start) != restricted.length) return false;
-		
-		for(int i = restricted.length - 1; i >= 0; --i){
-			if(input[start + i] != restricted[i]) return false;
+	public boolean isFiltered(char[] input, int location){
+		if((location - string.length) >= 0){
+			int startLocation = location - string.length;
+			for(int i = string.length - 1; i >= 0; --i){
+				if(input[startLocation + i] != string[i]) return true;
+			}
+			return false;
 		}
 		
 		return true;
