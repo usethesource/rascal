@@ -81,7 +81,7 @@ public class Choice extends Figure {
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		fpa.setBackground(new Color(getFillColorProperty()));
+		// fpa.setBackground(new Color(getFillColorProperty()));
 		choice.setBackground(new Color(getFillColorProperty()));
 		choice.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}

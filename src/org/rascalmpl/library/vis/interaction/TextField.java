@@ -105,7 +105,7 @@ public class TextField extends Figure {
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		fpa.setBackground(new Color(getFillColorProperty()));
+		// fpa.setBackground(new Color(getFillColorProperty()));
 		//field.setBackground(new Color(getFillColorProperty()));
 		field.setForeground(validated ? new Color(getFontColorProperty()) : falseColor);
 		field.setLocation(FigureApplet.round(left), FigureApplet.round(top));
