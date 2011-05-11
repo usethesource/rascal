@@ -11,20 +11,20 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter;
 
-public class PrecedeRestriction implements IEnterFilter{
-	private final char[] restricted;
+public class StringPrecedeRestriction implements IEnterFilter{
+	private final char[] string;
 	
-	public PrecedeRestriction(char[] restricted){
+	public StringPrecedeRestriction(char[] string){
 		super();
 		
-		this.restricted = restricted;
+		this.string = string;
 	}
 	
 	public boolean isFiltered(char[] input, int location){
-		if((location - restricted.length) >= 0){
-			int startLocation = location - restricted.length;
-			for(int i = restricted.length - 1; i >= 0; --i){
-				if(input[startLocation + i] != restricted[i]) return false;
+		if((location - string.length) >= 0){
+			int startLocation = location - string.length;
+			for(int i = string.length - 1; i >= 0; --i){
+				if(input[startLocation + i] != string[i]) return false;
 			}
 			return true;
 		}
