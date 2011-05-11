@@ -96,9 +96,6 @@ public class Factory {
 	public static final Type Symbol_ParameterizedSort = tf.constructor(uptr, Symbol, "parameterized-sort", tf.stringType(), "sort", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_Parameter = tf.constructor(uptr, Symbol, "parameter", tf.stringType(), "name");
 	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", tf.stringType(), "name");
-	public static final Type Symbol_StartOfLine = tf.constructor(uptr, Symbol, "start-of-line");
-	public static final Type Symbol_EndOfLine = tf.constructor(uptr, Symbol, "end-of-line");
-	public static final Type Symbol_AtColumn = tf.constructor(uptr, Symbol, "at-column", tf.integerType(), "column");
 	
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
 		
