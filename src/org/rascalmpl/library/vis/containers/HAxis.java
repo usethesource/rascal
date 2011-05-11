@@ -1,23 +1,18 @@
 package org.rascalmpl.library.vis.containers;
 
 import java.util.HashMap;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
-import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
-public class HAxis extends Figure {
+public class HAxis extends WithInnerFig {
 	
-	Figure innerFig;
-	double innerFigX, innerFigY;
 	Extremes offsets;
 	Extremes range;
 	double labelY;
@@ -27,8 +22,7 @@ public class HAxis extends Figure {
 	
 	
 	public HAxis(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
-		super(fpa, properties);
-		this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, childProps, ctx);
+		super(fpa,properties,innerCons,childProps,ctx);
 	}
 
 	boolean horizontal(){
@@ -214,43 +208,6 @@ public class HAxis extends Figure {
 	
 	public Extremes getHorizontalExtremes(){
 		return offsets;
-	}
-	
-	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
-		if(innerFig!=null){
-			innerFig.gatherProjections(left + innerFigX, top + innerFigY, projections, first, screenId, horizontal);
-		}
-	}
-	
-	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
-		super.propagateScaling(scaleX, scaleY,axisScales);
-		if(innerFig != null){
-			innerFig.propagateScaling(scaleX, scaleY,axisScales);
-		}
-	}
-	
-	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
-		if(result.gotData()){
-			return result;
-		} else {
-			return innerFig.getExtremesForAxis(axisId, offset, horizontal);
-		}
-	}
-	
-	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
-		double result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Double.MAX_VALUE){
-			return result;
-		} else {
-			double off = 0.0f;
-			if(horizontal){
-				off = innerFigX;
-			} else {
-				off = innerFigY;
-			}
-			return innerFig.getOffsetForAxis(axisId, offset + off, horizontal);
-		}
 	}
 	
 	@Override
