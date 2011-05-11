@@ -29,7 +29,7 @@ public class ComputedProperties {
 
 	private static abstract class ComputedProperty<PropType> implements IPropertyValue<PropType> {
 
-		private IFigureApplet fpa;
+		IFigureApplet fpa;
 		
 		IValue fun;
 		PropType value;
@@ -174,5 +174,12 @@ public class ComputedProperties {
 			return null;
 		}
 		
+		@Override
+		public synchronized Void getValue() {
+			super.getValue();
+			fpa.setComputedValueChanged();
+			return null;
+		}
 	}
 }
+
