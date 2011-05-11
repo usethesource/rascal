@@ -97,7 +97,7 @@ public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor","org.eclipse.imp.pdb.facts.IConstructor","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.matching.IBooleanResult","org.rascalmpl.interpreter.matching.IMatchingResult","org.rascalmpl.interpreter.result.Result"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.asserts.Ambiguous","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
