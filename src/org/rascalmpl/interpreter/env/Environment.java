@@ -43,12 +43,13 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 
 /**
  * A simple environment for variables and functions and types.
  * TODO: this class does not support shadowing of variables and functions yet, which is wrong.
  */
-public class Environment {
+public class Environment implements IEnvironment{
 	
 	// TODO: these NameFlags should also be used to implement Public & Private ??
 	protected static class NameFlags {
