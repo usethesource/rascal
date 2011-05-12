@@ -15,19 +15,19 @@ public DoNotNest doNotNest(Production p) {
   switch (p) {
     case prod([list[Symbol] o,t],s,attrs([_*,\assoc(left()),_*])) :
       if (match(t, s)) return {<p, size(o), p>};
-    case prod([o*,t],s,attrs([_*,\assoc(\assoc()),_*])) :
+    case prod([list[Symbol] o,t],s,attrs([_*,\assoc(\assoc()),_*])) :
       if (match(t, s)) return {<p, size(o), p>};
     case prod([t,_*],s,attrs([_*,\assoc(\right()),_*])) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod([t,o*,u],s,attrs([_*,\assoc(\non-assoc()),_*])) :
+    case prod([t,list[Symbol] o,u],s,attrs([_*,\assoc(\non-assoc()),_*])) :
       if (match(t, s) && match(u, s)) return {<p, 0, p>,<p,size(o) + 1,p>};       
     case prod([t,_*],s,attrs([_*,\assoc(\non-assoc()),_*])) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod([o*,t],s,attrs([_*,\assoc(\non-assoc()),_*])) :
+    case prod([list[Symbol] o,t],s,attrs([_*,\assoc(\non-assoc()),_*])) :
       if (match(t, s)) return {<p, size(o), p>};
     case choice(_, set[Production] alts) : 
       return {doNotNest(a) | a <- alts};
-     case \lookahead(_,_,q) :
+    case \lookahead(_,_,q) :
       return doNotNest(q); 
     case priority(_, list[Production] levels) : 
       return priority(levels);
@@ -41,8 +41,8 @@ public DoNotNest doNotNest(Production p) {
 DoNotNest associativity(Associativity a, set[Production] alts) {
   result = {};
   
-  // note that there are nested groups and that each member of one group needs to be paired
-  // with all the members of the other group. This explains the use of the / deep match operator.
+  // note that there are nested groups and that each member of a nested group needs to be paired
+  // with all the members of the other nested group. This explains the use of the / deep match operator.
   for ({Production pivot, set[Production] rest} := alts, /Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 

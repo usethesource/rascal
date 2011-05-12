@@ -32,8 +32,8 @@ syntax EXP = id: ID name
            | natcon: NAT natcon
            | bracket "(" EXP e ")"
            > right concat: EXP lhs "||" EXP rhs
-           > left ( add: EXP lhs "+" EXP rhs
-                  | min: EXP lhs "-" EXP rhs
+           > left ( left add: EXP lhs "+" EXP rhs
+                  | left min: EXP lhs "-" EXP rhs
                   )
            ;
           
