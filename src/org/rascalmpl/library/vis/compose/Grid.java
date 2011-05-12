@@ -60,39 +60,70 @@ public class Grid extends Compose {
 		
 		width = getWidthProperty();
 		height = 0;
-		Vector<Double> collumnWidths = new Vector<Double>();
-		Vector<Double> rowHeights = new Vector<Double>();
-		int rowNr = 0;
-		int collumnNr = 0;
-		double x = 0;
 		
-		for(int i = 0 ; i < figures.length ; i++){
-			figures[i].bbox(AUTO_SIZE, AUTO_SIZE);
-			if(x + figures[i].width > width){
-				collumnNr = 0;
-				rowNr++;
-				x=0.0f;
-			}
-			updateMax(collumnWidths,collumnNr, figures[i].width);
-			updateMax(rowHeights,rowNr, figures[i].height);
-			x+=figures[i].width;
+		for(Figure fig : figures){
+			fig.bbox();
 		}
-		x = 0;
-		double y = 0;
-		rowNr = 0;
-		collumnNr = 0;
+		
+		int nrCollumns = computeNrCollumns();
+		int nrRows = (int)Math.ceil( (double)figures.length / (double)nrCollumns ); 
+		
+		double[] collumnWidths = new double[nrCollumns];
+		double[] rowHeights = new double[nrRows];
+		
+		int row = 0;
+		int collumn = 0;
+		for(int i = 0 ; i < figures.length ; i++){
+			collumnWidths[collumn] = Math.max(collumnWidths[collumn] , figures[i].width);
+			rowHeights[row] = Math.max(rowHeights[row] , figures[i].height);
+			collumn++;
+			if(collumn >= nrCollumns){
+				collumn = 0;
+				row++;
+			}
+		}
+		height = 0;
+		for(int i = 0 ; i < nrRows ; i++){
+			height+=rowHeights[i];
+		}
+		
+		double x, y;
+		row = 0;
+		collumn = 0;
+		x = y = 0;
 		for(int i = 0 ; i < figures.length ; i++){
 			Figure fig = figures[i];
-			if(x + figures[i].width > width){
-				y+=rowHeights.get(rowNr);
-				collumnNr = 0;
-				rowNr++;
-				x=0.0f;
+			xPos[i] = x + ((collumnWidths[collumn]- fig.width)) * fig.getHAlignProperty();
+			yPos[i] = y + ((rowHeights[row] - fig.height)) * fig.getVAlignProperty();
+			x+= collumnWidths[collumn];
+			collumn++;
+			if(collumn >= nrCollumns){
+				collumn = 0;
+				x = 0;
+				y+=rowHeights[row];
+				row++;
 			}
-			xPos[i] = x + ((collumnWidths.get(collumnNr)- fig.width)) * fig.getHAlignProperty();
-			yPos[i] = y + ((rowHeights.get(rowNr)- fig.height)) * fig.getVAlignProperty();
-			x+=collumnWidths.get(collumnNr);
 		}
 		
+	}
+
+	int computeNrCollumns() {
+		int nrCollumnsGuess = 1;
+		double totalCollumnWidth;
+		do{
+			double []collumnWidths = new double[nrCollumnsGuess];
+			for(int rowOffset = 0 ; rowOffset < figures.length ; rowOffset+=nrCollumnsGuess){
+				for(int collumnOffset = 0 ; collumnOffset < nrCollumnsGuess && rowOffset + collumnOffset < figures.length ; collumnOffset++){
+					collumnWidths[collumnOffset] = Math.max(collumnWidths[collumnOffset] , figures[rowOffset+collumnOffset].width);
+				}
+			}
+			totalCollumnWidth = 0.0;
+			for(int i = 0 ; i < nrCollumnsGuess ; i++){
+				totalCollumnWidth+=collumnWidths[i];
+			}
+			nrCollumnsGuess++;
+		} while(totalCollumnWidth < width);
+
+		return  Math.max(1, nrCollumnsGuess-1);
 	}
 }
