@@ -1,6 +1,6 @@
 package org.rascalmpl.parser.gtd.stack.filter;
 
-import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+import org.rascalmpl.parser.gtd.location.PositionStore;
 
 public class AtColumnRequirement implements IEnterFilter{
 	private final int column;

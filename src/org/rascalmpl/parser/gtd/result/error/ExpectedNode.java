@@ -15,12 +15,12 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.parser.gtd.util.specific.PositionStore;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ExpectedNode extends AbstractNode{

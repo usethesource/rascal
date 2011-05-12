@@ -1,6 +1,6 @@
 package org.rascalmpl.parser.gtd.stack.filter;
 
-import org.rascalmpl.parser.gtd.util.specific.PositionStore;
+import org.rascalmpl.parser.gtd.location.PositionStore;
 
 public class CharFollowRequirement implements ICompletionFilter{
 	private final char[][] ranges;
