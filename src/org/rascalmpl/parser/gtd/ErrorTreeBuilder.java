@@ -269,7 +269,7 @@ public class ErrorTreeBuilder{
 			
 			AbstractNode[] children = new AbstractNode[location - startLocation];
 			for(int i = children.length - 1; i >= 0; --i){
-				children[i] = new CharNode(input[startLocation - i]);
+				children[i] = CharNode.createCharNode(input[startLocation - i]);
 			}
 			
 			IConstructor symbol = findSymbol(unmatchableNode);

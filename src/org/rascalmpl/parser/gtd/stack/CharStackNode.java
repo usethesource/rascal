@@ -52,7 +52,7 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
 			if(next >= range[0] && next <= range[1]){
-				result = new CharNode(next);
+				result = CharNode.createCharNode(next);
 				return true;
 			}
 		}

@@ -24,9 +24,9 @@ import org.rascalmpl.values.uptr.Factory;
 public class CharNode extends AbstractNode{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private final char character;
+	private final static CharNode[] charNodeConstants = new CharNode[128];
 	
-	private IConstructor cachedResult;
+	private final char character;
 	
 	public CharNode(char character){
 		super();
@@ -69,11 +69,7 @@ public class CharNode extends AbstractNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		if(cachedResult != null) return cachedResult;
-		
-		IConstructor result = vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
-		cachedResult = result;
-		return result;
+		return vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
@@ -81,6 +77,18 @@ public class CharNode extends AbstractNode{
 	}
 	
 	public static int getNumericCharValue(char character){
-		return (character < 128) ? character : Character.getNumericValue(character); // Just ignore the Unicode garbage when possible.
+		return (character < 128) ? character : Character.getNumericValue(character); // Character.getNumericValue doesn't return sensible values for 7-bit ascii characters.
+	}
+	
+	// Cache the results for all 7-bit ascii characters.
+	public static CharNode createCharNode(char character){
+		if(character < charNodeConstants.length){
+			CharNode charNode = charNodeConstants[character];
+			if(charNode != null) return charNode;
+			
+			return (charNodeConstants[character] = new CharNode(character));
+		}
+		
+		return new CharNode(character);
 	}
 }
