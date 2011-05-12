@@ -46,8 +46,7 @@ public class ComputedProperties {
 			Result<IValue> res = fpa.executeRascalCallBackWithoutArguments(fun);
 			
 			value = convertValue(res);
-			if(value != old)
-				fpa.setComputedValueChanged();
+			fpa.setComputedValueChanged();
 			return value;
 		}	
 	}
@@ -171,13 +170,6 @@ public class ComputedProperties {
 
 		@Override
 		Void convertValue(Result<IValue> res) {
-			return null;
-		}
-		
-		@Override
-		public synchronized Void getValue() {
-			super.getValue();
-			fpa.setComputedValueChanged();
 			return null;
 		}
 	}
