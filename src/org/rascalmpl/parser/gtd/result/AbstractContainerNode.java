@@ -15,18 +15,10 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public abstract class AbstractContainerNode extends AbstractNode{
-	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static TypeStore typeStore = new TypeStore();
-	protected final static Type CACHED_RESULT_TYPE = TF.abstractDataType(typeStore, "cached");
-	protected final static Type FILTERED_RESULT_TYPE = TF.constructor(typeStore, CACHED_RESULT_TYPE, "filtered", TF.valueType());
-	protected final static IConstructor FILTERED_RESULT = VF.constructor(FILTERED_RESULT_TYPE, VF.node("EMPTY"));
 	protected final static IList EMPTY_LIST = VF.list();
 	
 	protected final URI input;
