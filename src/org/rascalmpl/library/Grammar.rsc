@@ -73,4 +73,4 @@ data Symbol
 @doc{
   An item is an index into the symbol list of a production rule
 }  
-data Item = item(Production prod, int index);
+data Item = item(Production production, int index);

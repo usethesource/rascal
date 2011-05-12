@@ -17,6 +17,7 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Keywords;
 import lang::rascal::grammar::Lookahead;
 import lang::rascal::grammar::Assimilator;
 import ParseTree;
@@ -254,7 +255,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '	
            '  // Parse methods    
            '	  <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
-           '  <generateParseMethod(newItems, callSuper, choice(nont, gr.rules[nont]))><}>
+           '  <generateParseMethod(newItems, callSuper, gr.rules[nont])><}>
            '}";
 }  
 
@@ -422,17 +423,28 @@ public str ciliterals2ints(list[Symbol] chars){
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
     itemId = id();
     
-    enterFilters = "new IEnterFilter[] {";
-    completionFilters = "new ICompletionFilter[] {";
+    list[str] enters = [];
+    list[str] exits = [];
+    filters = "";
     
-    // TODO: generate filters
     if (conditional(_, conds) := sym) {
+      conds = expandKeywords(grammar, conds);
+      exits += ["new CharFollowRequirement(new char[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
+      exits += ["new StringFollowRequirement(new char[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
+      exits += ["new CharFollowRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
+      exits += ["new StringFollowRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
+      exits += ["new CharMatchRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
+      exits += ["new StringMatchRestriction(new char[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds]; 
+      enters += ["new CharPrecedeRequirement(new char[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
+      enters += ["new StringPrecedeRequirement(new char[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
+      enters += ["new CharPrecedeRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
+      enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds]; 
+      
       sym = sym.symbol;
     }
     
-    enterFilters += "}";
-    completionFilters += "}";
-    filters = "<enterFilters>, <completionFilters>";
+    filters  = "new IEnterFilter[] {<(enters != []) ? head(enters) : ""><for (enters != [], f <- tail(enters)) {>, <f><}>}"
+             + ", new ICompletionFilter[] {<(exits != []) ? head(exits) : ""><for (exits != [], f <- tail(exits)) {>, <f><}>}";
     
     switch ((meta(_) := sym) ? sym.wrapped : sym) {
         case \label(_,s) : 

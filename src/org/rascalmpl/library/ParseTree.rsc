@@ -30,11 +30,15 @@ data Tree
   | errorcycle(Symbol symbol, int cycleLength)
   ;
   
-data Production =
-     prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
-     regular(Symbol rhs, Attributes attributes);
+data Production 
+  = prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) 
+  | regular(Symbol rhs, Attributes attributes)
+  ;
 
-data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
+data Attributes 
+  = \no-attrs() 
+  | \attrs(list[Attr] attrs)
+  ;
   
 data Attr 
   = \assoc(Associativity \assoc)  
@@ -43,15 +47,20 @@ data Attr
   | \bracket() 
   | \lex() 
   | \literal() 
-  | \ciliteral();
+  | \ciliteral()
+  ;
 
 data Visibility 
   = \public()
   | \private()
   ;
   
-data Associativity =
-     \left() | \right() | \assoc() | \non-assoc();
+data Associativity 
+  = \left() 
+  | \right() 
+  | \assoc() 
+  | \non-assoc()
+  ;
 
 data CharRange = range(int start, int end);
 
@@ -88,13 +97,13 @@ data Symbol
 
 @doc{Conditions on symbols give rise to disambiguation filters.}    
 data Condition
-  = \follow(Symbol follow)
-  | \not-follow(Symbol follow)
-  | \precede(Symbol precede)
-  | \not-precede(Symbol precede)
-  | \delete(Symbol deleted)
+  = \follow(Symbol symbol)
+  | \not-follow(Symbol symbol)
+  | \precede(Symbol symbol)
+  | \not-precede(Symbol symbol)
+  | \delete(Symbol symbol)
   ;
-       
+         
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
 
