@@ -2516,13 +2516,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	private static Result<IValue> evalBooleanExpression(org.rascalmpl.ast.Expression x, IEvaluatorContext ctx) {
 		IBooleanResult mp = x.getBacktracker(ctx);
 		mp.init();
-		while (mp.hasNext()) {
-			if (ctx.isInterrupted())
-				throw new InterruptException(ctx.getStackTrace());
-			if (mp.next()) {
-				return ResultFactory.bool(true, ctx);
-			}
-		}
-		return ResultFactory.bool(false, ctx);
+//		while (mp.hasNext()) {
+//			if (ctx.isInterrupted())
+//				throw new InterruptException(ctx.getStackTrace());
+//			if (mp.next()) {
+//				return ResultFactory.bool(true, ctx);
+//			}
+//		}
+		return ResultFactory.bool(mp.hasNext() && mp.next(), ctx);
 	}
 }

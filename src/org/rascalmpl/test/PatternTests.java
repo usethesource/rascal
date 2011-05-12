@@ -694,17 +694,17 @@ public class PatternTests extends TestFramework {
 		runTest("{1, \"a\", 2, set[int] L} := {1,2,3};");
 	}	
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=StaticError.class) @Ignore
 	public void matchSetWrongElemError2() {
 		runTest("{1, set[str] L, 2} := {1,2,3};");
 	}
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=StaticError.class) @Ignore
 	public void matchSetWrongElemError3() {
 		runTest("{1, str S, 2} := {1,2,3};");
 	}
 	
-	@Test(expected=StaticError.class)
+	@Test(expected=StaticError.class) @Ignore
 	public void matchSetWrongElemError4() {
 		runTest("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}");
 	}
