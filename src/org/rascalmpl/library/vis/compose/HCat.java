@@ -7,7 +7,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
-import org.rascalmpl.library.vis.properties.descriptions.RealProp;
+import org.rascalmpl.library.vis.util.BoundingBox;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 public class HCat extends Compose {
 
@@ -16,61 +17,43 @@ public class HCat extends Compose {
 	double minTopAnchor = Double.MAX_VALUE;
 	private double maxTopAnchor;
 	private static boolean debug = true;
-	
-	boolean isWidthPropertySet, isHeightPropertySet, isHGapPropertySet, isHGapFactorPropertySet;
-	double getWidthProperty, getHeightProperty, getHGapProperty, getHGapFactorProperty, getValignProperty;
+	boolean flip ;
 
 	
 	public HCat(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
+		flip = false;
 	}
 	
-	void setProperties(){
-		isWidthPropertySet = isWidthPropertySet();
-		isHeightPropertySet = isHeightPropertySet();
-		isHGapPropertySet = isHGapPropertySet();
-		isHGapFactorPropertySet = isHGapFactorPropertySet();
-		
-		getWidthProperty = getWidthProperty();
-		getHeightProperty = getHeightProperty();
-		getHGapProperty = getHGapProperty();
-		getHGapFactorProperty = getHGapFactorProperty();
-	}
-	
-	double getFigureWidth(Figure fig){ return fig.width; }
-	double getFigureHeight(Figure fig){return fig.height;}
-	double getTopAnchor(Figure fig){return fig.topAlign();}
-	double getTopAnchorProperty(Figure fig){return fig.getRealProperty(RealProp.VALIGN);}
-	double getBottomAnchor(Figure fig){return fig.bottomAlign();}
-	void  drawFigure(Figure fig,double left,double top,double leftBase,double topBase){
-		fig.draw(leftBase + left, topBase + top);
-	}
-	void  bboxOfFigure(Figure fig,double desiredWidth,double desiredHeight){ fig.bbox(desiredWidth, desiredHeight);}
-	double getHeight(){return height;}
 	
 	public
 	void bbox(double desiredWidth, double desiredHeight){
-		width = height = 0;
-		gapSize = getHGapProperty;
+		bboxActual(new BoundingBox(desiredWidth, desiredHeight));
+	}
+		
+	public void bboxActual(BoundingBox desiredBBox){
+		gapSize = getHGapProperty(flip);
 		numberOfGaps = (figures.length - 1);
-		setProperties();
 		if(getStartGapProperty()){numberOfGaps+=0.5f;} 
-		if(getEndGapProperty()){numberOfGaps+=0.5f;} 
-		if(isWidthPropertySet) desiredWidth = getWidthProperty ;
-		if(isHeightPropertySet) desiredHeight = getHeightProperty ;
+		if(getEndGapProperty()){numberOfGaps+=0.5f;}
+		double desiredWidth,desiredHeight;
+		desiredWidth = desiredBBox.getWidth(flip);
+		desiredHeight = desiredBBox.getHeight(flip);
+		if(isWidthPropertySet()) desiredWidth = getWidthProperty() ;
+		if(isHeightPropertySet())  desiredHeight = getHeightProperty() ;
 		double desiredWidthPerElement, desiredWidthOfElements, desiredHeightPerElement, gapsSize;
 		gapsSize = 0.0f; // stops compiler from whining
-		if(isHGapPropertySet && !isHGapFactorPropertySet){
-			gapsSize = getHGapProperty ;
+		if(isHGapPropertySet(flip) && !isHGapFactorPropertySet(flip)){
+			gapsSize = getHGapProperty(flip) ;
 		}
 		// determine desired width of elements 
 		if(desiredWidth == Figure.AUTO_SIZE){
 			desiredWidthOfElements = desiredWidthPerElement = Figure.AUTO_SIZE;
 		} else {
-			if(isHGapFactorPropertySet || !isHGapPropertySet){
-				gapsSize = desiredWidth * getHGapFactorProperty;
+			if(isHGapFactorPropertySet(flip) || !isHGapPropertySet(flip)){
+				gapsSize = desiredWidth* getHGapFactorProperty(flip);
 			}
-			desiredWidthOfElements = desiredWidth - gapsSize;
+			desiredWidthOfElements = desiredWidth- gapsSize;
 			desiredWidthPerElement = desiredWidthOfElements / figures.length;
 		}
 		// deterine desired height of elements
@@ -81,13 +64,13 @@ public class HCat extends Compose {
 			minTopAnchorProp = Double.MAX_VALUE;
 			maxTopAnchorProp = 0.0f;
 			for(Figure fig : figures){
-				minTopAnchorProp = min(minTopAnchorProp,getTopAnchorProperty(fig));
-				maxTopAnchorProp = max(maxTopAnchorProp,getTopAnchorProperty(fig));
+				minTopAnchorProp = min(minTopAnchorProp,fig.topAlign(flip));
+				maxTopAnchorProp = max(maxTopAnchorProp,fig.topAlign(flip));
 			}
 			double maxDiffTopAnchorProp = maxTopAnchorProp - minTopAnchorProp;
 			// first assume all elements will get desiredheight
 			// rewrote : desiredHeight = desiredHeightPerElement + maxDiffTopAnchorProp* desiredHeightPerElement
-			desiredHeightPerElement = desiredHeight / (1 + maxDiffTopAnchorProp);
+			desiredHeightPerElement = desiredHeight  / (1 + maxDiffTopAnchorProp);
 		}
 		// determine width and bounding box elements and which are non-resizeable
 		int numberOfNonResizeableWidthElements = 0;
@@ -103,11 +86,13 @@ public class HCat extends Compose {
 		do{
 			fixPointReached = true;
 			for(int i = 0 ; i < figures.length; i++){
+				BoundingBox desiredBoundingBoxPerElement = new BoundingBox(desiredWidthPerElement,desiredHeightPerElement,flip); 
 				if(mayBeResized[i]){
-					bboxOfFigure(figures[i],desiredWidthPerElement,desiredHeightPerElement);
+					
+					figures[i].bbox(desiredBoundingBoxPerElement);
 					if(desiredWidthPerElement != Figure.AUTO_SIZE 
-							&& getFigureWidth(figures[i]) != desiredWidthPerElement ){
-						totalNonResizeableWidth+=getFigureWidth(figures[i]);
+							&& figures[i].getWidthProperty(flip) != desiredWidthPerElement ){
+						totalNonResizeableWidth+=figures[i].getWidthProperty(flip);
 						numberOfNonResizeableWidthElements++;
 						mayBeResized[i]=false;
 						fixPointReached = false;
@@ -115,13 +100,13 @@ public class HCat extends Compose {
 				}
 			}
 			// recompute width of resizeable elements
-			if(numberOfNonResizeableWidthElements > 0 && desiredWidth!=Figure.AUTO_SIZE){
+			if(numberOfNonResizeableWidthElements > 0 && desiredBBox.getWidth(flip)!=Figure.AUTO_SIZE){
 				desiredWidthPerElement = (desiredWidthOfElements - totalNonResizeableWidth) 
 				                              / (figures.length - numberOfNonResizeableWidthElements);
 			}
 		} while(!fixPointReached);
 		// Fixpoint for height depending on alignment?
-		if(desiredHeight != AUTO_SIZE){
+		if(desiredBBox.getHeight() != AUTO_SIZE){
 			double maxTopAnchor, maxBottomAnchor;
 			double maxTopAnchorR, maxBottomAnchorR;
 			maxTopAnchor = maxBottomAnchor = maxTopAnchorR = maxBottomAnchorR =  0.0f;
@@ -129,12 +114,12 @@ public class HCat extends Compose {
 			for(int i = 0 ; i < figures.length ; i++){
 				mayBeResized[i] = figures[i].height == desiredHeightPerElement;
 				if(!mayBeResized[i]){
-					maxTopAnchor = max(maxTopAnchor,getTopAnchor(figures[i]));
-					maxBottomAnchor = max(maxBottomAnchor,getBottomAnchor(figures[i]));
+					maxTopAnchor = max(maxTopAnchor,figures[i].topAlign(flip));
+					maxBottomAnchor = max(maxBottomAnchor,figures[i].bottomAlign(flip));
 					fixPointReached = false;
 				} else {
-					maxTopAnchorR =  max(maxTopAnchorR,getTopAnchor(figures[i]));
-					maxBottomAnchorR = max(maxBottomAnchorR,getBottomAnchor(figures[i]));
+					maxTopAnchorR =  max(maxTopAnchorR,figures[i].topAlign(flip));
+					maxBottomAnchorR = max(maxBottomAnchorR,figures[i].bottomAlign(flip));
 				}
 			}
 			while(!fixPointReached){
@@ -153,26 +138,27 @@ public class HCat extends Compose {
 				double bottomCap = (bottomExtraSpacePart / (topExtraSpacePart + bottomExtraSpacePart)) * spaceForResize + maxBottomAnchor;
 				for(int i = 0 ; i < figures.length ; i++){
 					if(mayBeResized[i]){
-						double topAdjust = min(getTopAnchor(figures[i]), topCap);
-						double bottomAdjust = min(getBottomAnchor(figures[i]), bottomCap);
+						double topAdjust = min(figures[i].topAlign(flip), topCap);
+						double bottomAdjust = min(figures[i].bottomAlign(flip), bottomCap);
 						double desiredHeightNow;
-						if(getTopAnchorProperty(figures[i]) == 0.0f){
-							desiredHeightNow = bottomAdjust /( 1 - getTopAnchorProperty(figures[i]));
-						} else if (getTopAnchorProperty(figures[i]) == 1.0f){
-							desiredHeightNow = topAdjust / getTopAnchorProperty(figures[i]);
+						if(figures[i].getVAlignProperty(flip)  == 0.0f){
+							desiredHeightNow = bottomAdjust /( 1 - figures[i].getVAlignProperty(flip));
+						} else if (figures[i].getVAlignProperty(flip) == 1.0f){
+							desiredHeightNow = topAdjust / figures[i].getVAlignProperty(flip);
 						} else {
-							desiredHeightNow = min(topAdjust / getTopAnchorProperty(figures[i]),
-												  bottomAdjust /( 1 - getTopAnchorProperty(figures[i])));
+							desiredHeightNow = min(topAdjust / figures[i].getVAlignProperty(flip),
+												  bottomAdjust /( 1 - figures[i].getVAlignProperty(flip)));
 						}
-						bboxOfFigure(figures[i],desiredWidthPerElement,desiredHeightNow);
+						BoundingBox desiredBoundingBoxPerElement = new BoundingBox(desiredWidthPerElement,desiredHeightNow,flip);
+						figures[i].bbox(desiredBoundingBoxPerElement);
 						mayBeResized[i] = figures[i].height == desiredHeightNow;
 						if(!mayBeResized[i]){
-							maxTopAnchor = max(maxTopAnchor,getTopAnchor(figures[i]));
-							maxBottomAnchor = max(maxBottomAnchor,getBottomAnchor(figures[i]));
+							maxTopAnchor = max(maxTopAnchor,figures[i].getVAlignProperty(flip));
+							maxBottomAnchor = max(maxBottomAnchor,figures[i].getVAlignProperty(flip));
 							fixPointReached = false;
 						} else {
-							maxTopAnchorR =  max(maxTopAnchorR,getTopAnchor(figures[i]));
-							maxBottomAnchorR = max(maxBottomAnchorR,getBottomAnchor(figures[i]));
+							maxTopAnchorR =  max(maxTopAnchorR,figures[i].getVAlignProperty(flip));
+							maxBottomAnchorR = max(maxBottomAnchorR,figures[i].getVAlignProperty(flip));
 						}
 					}
 				}
@@ -184,10 +170,10 @@ public class HCat extends Compose {
 		maxTopAnchor = 0.0f;
 		minTopAnchor = Double.MAX_VALUE;
 		for(Figure fig : figures){
-			totalElementsWidth += getFigureWidth(fig);
-			maxBottomAnchor = max(maxBottomAnchor,getBottomAnchor(fig));
-			maxTopAnchor = max(maxTopAnchor,getTopAnchor(fig));
-			minTopAnchor = min(minTopAnchor,getTopAnchor(fig));
+			totalElementsWidth += fig.getWidth(flip);
+			maxBottomAnchor = max(maxBottomAnchor,fig.bottomAlign(flip));
+			maxTopAnchor = max(maxTopAnchor,fig.topAlign(flip));
+			minTopAnchor = min(minTopAnchor,fig.topAlign(flip));
 		}
 		if(desiredWidth != Figure.AUTO_SIZE && 
 		   (int)(totalElementsWidth + gapsSize + 0.5f) > (int)(desiredWidth + 0.5f)){ // prevent round-off cannot fit error
@@ -195,9 +181,9 @@ public class HCat extends Compose {
 			gapsSize = max(desiredWidth -totalElementsWidth,0.0f);
 		}
 		// compute gap if auto-size and ratio
-		if(desiredWidth==Figure.AUTO_SIZE && (isHGapFactorPropertySet || !isHGapPropertySet)){
+		if(desiredWidth==Figure.AUTO_SIZE && (isHGapFactorPropertySet(flip) || !isHGapPropertySet(flip))){
 			// the next formula can be obtained by rewriting hGapFactor = gapsSize / (totalElementsWidth + gapsSize) 
-			gapsSize = totalElementsWidth /  (1/getHGapFactorProperty - 1);
+			gapsSize = totalElementsWidth /  (1/getHGapFactorProperty(flip) - 1);
 		}
 		width = totalElementsWidth + gapsSize;
 		gapSize = gapsSize / numberOfGaps;
@@ -205,7 +191,10 @@ public class HCat extends Compose {
 		height =  maxTopAnchor + maxBottomAnchor;
 		System.out.printf("height %f maxTopAnchor %f maxBottomAnchor %f\n", height,maxTopAnchor, maxBottomAnchor);
 		determinePlacement();
-		System.out.printf("Done bbox!\n");
+		BoundingBox bbox = new BoundingBox(width, height,flip);
+		width = bbox.getWidth();
+		height = bbox.getHeight();
+		//System.out.printf("Done bbox!\n");
 	}
 
 	private void determinePlacement() {
@@ -216,9 +205,10 @@ public class HCat extends Compose {
 		}
 			// Draw from left to right
 		for(int i = 0 ; i < figures.length ; i++){
-			xPos[i] = left;
-			yPos[i] = top - getTopAnchor(figures[i]) + maxTopAnchor;
-			left += getFigureWidth(figures[i]) + gapSize;
+			Coordinate location = new Coordinate(left, top - figures[i].topAlign(flip) + maxTopAnchor,flip);
+			xPos[i] = location.getX();
+			yPos[i] = location.getY();
+			left += figures[i].getWidth(flip) + gapSize;
 		}
 	}	
 	

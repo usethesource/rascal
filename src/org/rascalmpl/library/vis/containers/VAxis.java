@@ -54,9 +54,6 @@ public class VAxis extends HAxis {
 		}
 	}
 	
-	double getWidth() {
-		return height;
-	}
 	@Override
 	public void draw(double left, double top) {
 		
