@@ -62,7 +62,7 @@ public class Grid extends Compose {
 		height = 0;
 		
 		for(Figure fig : figures){
-			fig.bbox();
+			fig.bbox(AUTO_SIZE,AUTO_SIZE);
 		}
 		
 		int nrCollumns = computeNrCollumns();
