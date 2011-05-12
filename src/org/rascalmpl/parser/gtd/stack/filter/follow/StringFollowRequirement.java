@@ -9,24 +9,24 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.filter;
+package org.rascalmpl.parser.gtd.stack.filter.follow;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
-public class StringPrecedeRequirement implements IEnterFilter{
+public class StringFollowRequirement implements ICompletionFilter{
 	private final char[] string;
 	
-	public StringPrecedeRequirement(char[] string){
+	public StringFollowRequirement(char[] string){
 		super();
 		
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int location, PositionStore positionStore){
-		if((location - string.length) >= 0){
-			int startLocation = location - string.length;
+	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
+		if((end + string.length) <= input.length){
 			for(int i = string.length - 1; i >= 0; --i){
-				if(input[startLocation + i] != string[i]) return true;
+				if(input[end + i] != string[i]) return true;
 			}
 			return false;
 		}

@@ -1,6 +1,7 @@
-package org.rascalmpl.parser.gtd.stack.filter;
+package org.rascalmpl.parser.gtd.stack.filter.precede;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public class AtStartOfLineRequirement implements IEnterFilter{
 	
