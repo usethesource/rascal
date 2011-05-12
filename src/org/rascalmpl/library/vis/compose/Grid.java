@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
+import java.util.Vector;
+
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
@@ -37,7 +39,7 @@ public class Grid extends Compose {
 	double extLeft = 0;
 	double extRight = 0;
 	
-	private static boolean debug = false;
+	private static boolean debug = true;
 	
 
 	public Grid(IFigureApplet fpa, PropertyManager properties, IList elems, IList childProps, IEvaluatorContext ctx) {
@@ -46,68 +48,51 @@ public class Grid extends Compose {
 		topFig = new double[elems.length()];
 	}
 	
+	private void updateMax(Vector<Double> sizes, int index, double val){
+		if(sizes.size() > index){
+			sizes.set(index, Math.max(sizes.get(index), val));
+		}
+		sizes.add(val);
+	}
+	
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight){
 		
 		width = getWidthProperty();
 		height = 0;
-		double w = 0;
-		int nrow = 0;
+		Vector<Double> collumnWidths = new Vector<Double>();
+		Vector<Double> rowHeights = new Vector<Double>();
+		int rowNr = 0;
+		int collumnNr = 0;
+		double x = 0;
 		
-		double hgap = getHGapProperty();
-		double vgap = getVGapProperty();
-		
-		int lastRow = (hgap == 0) ? 0 : figures.length / (1 + (int) (width / hgap)) - 1;
-		if(debug)System.err.printf("lastRow = %d\n", lastRow);
-		
-		extTop = 0;
-		extBot = 0;
-		extLeft = 0;
-		extRight = 0;
-		
-		for(int i = 0; i < figures.length; i++){
-			if(w > width){
-				nrow++;
-				height += vgap;
-				w = 0;
+		for(int i = 0 ; i < figures.length ; i++){
+			figures[i].bbox(AUTO_SIZE, AUTO_SIZE);
+			if(x + figures[i].width > width){
+				collumnNr = 0;
+				rowNr++;
+				x=0.0f;
 			}
-			
+			updateMax(collumnWidths,collumnNr, figures[i].width);
+			updateMax(rowHeights,rowNr, figures[i].height);
+			x+=figures[i].width;
+		}
+		x = 0;
+		double y = 0;
+		rowNr = 0;
+		collumnNr = 0;
+		for(int i = 0 ; i < figures.length ; i++){
 			Figure fig = figures[i];
-			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			
-			if(w == 0)
-				extLeft = max(extLeft, fig.leftAlign());
-			if(w + hgap >= width)
-				extRight = max(extRight, fig.rightAlign());
-			if(nrow == 0)
-				extTop = max(extTop, fig.topAlign());
-			if(nrow == lastRow){
-				extBot = max(extBot, fig.bottomAlign());
+			if(x + figures[i].width > width){
+				y+=rowHeights.get(rowNr);
+				collumnNr = 0;
+				rowNr++;
+				x=0.0f;
 			}
-			
-			if(debug)System.err.printf("i=%d, row=%d, w=%f, extLeft=%f, extRight=%f, extTop=%f, extBot=%f\n", i, nrow, w, extLeft, extRight, extTop, extBot);
-			
-			leftFig[i] = w;
-			topFig[i] = height;
-			w += hgap;
+			xPos[i] = x + ((collumnWidths.get(collumnNr)- fig.width)) * fig.getHAlignProperty();
+			yPos[i] = y + ((rowHeights.get(rowNr)- fig.height)) * fig.getVAlignProperty();
+			x+=collumnWidths.get(collumnNr);
 		}
-		width += extLeft + extRight;
-		height += extTop + extBot;
-		if(debug)System.err.printf("grid.bbox: %f, %f\n", width, height);
-		
-		determinePlacement();
 		
 	}
-
-	private void determinePlacement() {
-		for(int i = 0; i < figures.length; i++){
-			if(debug)System.err.printf("i=%d: %f, %f, \n", i, leftFig[i], topFig[i]);
-			
-			xPos[i] = extLeft + leftFig[i] - figures[i].leftAlign();
-			yPos[i] = extTop + topFig[i] - figures[i].topAlign();
-		}
-	}
-	
-	
-	
 }
