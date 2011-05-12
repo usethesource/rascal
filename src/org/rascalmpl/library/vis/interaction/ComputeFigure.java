@@ -47,9 +47,9 @@ public class ComputeFigure extends Figure {
 		if(figure != null){
 			figure.destroy();
 		}
-		fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		// fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
 		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-		fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		// fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 		figure = FigureFactory.make(fpa, figureCons, properties, null, ctx);
 		fpa.setComputedValueChanged();
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
