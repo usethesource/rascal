@@ -42,6 +42,15 @@ public interface IActionExecutor{
 	IEnvironment createRootEnvironment();
 	
 	/**
+	 * Called after the completion of the flattener to enable the user to
+	 * perform any required actions (cleanup for example).
+	 * 
+	 * @param environment The environment at the point of completion (the root
+	 * environment).
+	 */
+	void completed(IEnvironment environment);
+	
+	/**
 	 * Called before entering each production. The callee can decide whether or
 	 * not a new environment should be created. Additionally it provides the
 	 * opportunity to handle other kinds of bookkeeping.
