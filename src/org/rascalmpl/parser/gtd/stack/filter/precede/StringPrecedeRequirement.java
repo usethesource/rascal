@@ -9,14 +9,15 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.filter;
+package org.rascalmpl.parser.gtd.stack.filter.precede;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public class StringPrecedeRestriction implements IEnterFilter{
+public class StringPrecedeRequirement implements IEnterFilter{
 	private final char[] string;
 	
-	public StringPrecedeRestriction(char[] string){
+	public StringPrecedeRequirement(char[] string){
 		super();
 		
 		this.string = string;
@@ -26,11 +27,11 @@ public class StringPrecedeRestriction implements IEnterFilter{
 		if((location - string.length) >= 0){
 			int startLocation = location - string.length;
 			for(int i = string.length - 1; i >= 0; --i){
-				if(input[startLocation + i] != string[i]) return false;
+				if(input[startLocation + i] != string[i]) return true;
 			}
-			return true;
+			return false;
 		}
 		
-		return false;
+		return true;
 	}
 }

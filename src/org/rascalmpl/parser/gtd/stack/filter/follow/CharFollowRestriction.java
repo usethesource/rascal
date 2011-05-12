@@ -1,11 +1,12 @@
-package org.rascalmpl.parser.gtd.stack.filter;
+package org.rascalmpl.parser.gtd.stack.filter.follow;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
-public class CharFollowRequirement implements ICompletionFilter{
+public class CharFollowRestriction implements ICompletionFilter{
 	private final char[][] ranges;
 	
-	public CharFollowRequirement(char[][] ranges){
+	public CharFollowRestriction(char[][] ranges){
 		super();
 		
 		this.ranges = ranges;
@@ -17,11 +18,11 @@ public class CharFollowRequirement implements ICompletionFilter{
 			for(int i = ranges.length - 1; i >= 0; --i){
 				char[] range = ranges[i];
 				if(next >= range[0] && next <= range[1]){
-					return false;
+					return true;
 				}
 			}
 		}
 		
-		return true;
+		return false;
 	}
 }
