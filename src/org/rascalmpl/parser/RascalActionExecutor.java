@@ -58,12 +58,27 @@ public class RascalActionExecutor implements IActionExecutor{
 	}
 	
 	public void completed(IEnvironment environment){
-		// TODO Implement.
+		eval.setCurrentEnvt(rootEnvironment); // The given environment is the rootEnvironment.
 	}
 	
 	public IEnvironment enteringProduction(IConstructor production, IEnvironment environment){
-		// TODO Implement.
-		return environment; // Temp.
+		LanguageAction action = info.getAction(production);
+		if(action != null){
+			// TODO: Store the module names with the actions in the grammar representation
+			String modName = eval.getHeap().getModuleForURI(action.getLocation().getURI());
+			ModuleEnvironment scope;
+			if(modName != null){
+				scope = eval.getHeap().getModule(modName);
+			}else{
+				scope = new ModuleEnvironment("***no module environment for action***", eval.getHeap());
+			}
+			Environment env = new Environment(scope, (Environment) environment, null, action.getLocation(), "Production");
+			eval.setCurrentEnvt(env);
+			
+			return env;
+		}
+		
+		return environment; // Reuse the environment if there are no actions associated with the given production.
 	}
 	
 	public IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment){
@@ -102,24 +117,10 @@ public class RascalActionExecutor implements IActionExecutor{
 	 * call takes care of executing an action and knowing whether something changed, and the scope management.
 	 */
 	private IConstructor call(IConstructor tree, LanguageAction action) {
-		Environment old = eval.getCurrentEnvt();
 		AbstractAST oldAST = eval.getCurrentAST();
 		
 		try{
-			// TODO: store the module names with the actions in the grammar representation
-			String modName = eval.getHeap().getModuleForURI(action.getLocation().getURI());
-			ModuleEnvironment scope;
-			if(modName != null){
-				scope = eval.getHeap().getModule(modName);
-			}else{
-				// TODO: see above, this should be fixed if every action knows to which module it belongs
-//				System.err.println("WARNING: could not retrieve a module environment for action for " + TreeAdapter.getProduction(tree));
-				scope = new ModuleEnvironment("***no module environment for action***", eval.getHeap());
-			}
-			
 			eval.setCurrentAST(action);
-			eval.setCurrentEnvt(new Environment(scope, eval.getCurrentEnvt(), eval.getCurrentAST().getLocation(), action.getLocation(), "Production"));
-			eval.pushEnv();
 			assignItAndFields(tree);
 			
 			// TODO: replace when
@@ -145,7 +146,6 @@ public class RascalActionExecutor implements IActionExecutor{
 		}catch(Failure e){
 			return null;
 		}finally{
-			eval.setCurrentEnvt(old);
 			eval.setCurrentAST(oldAST);
 		}
 	}
@@ -167,5 +167,4 @@ public class RascalActionExecutor implements IActionExecutor{
 			}
 		}
 	}
-
 }
