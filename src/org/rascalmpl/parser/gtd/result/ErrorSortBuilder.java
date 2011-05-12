@@ -45,7 +45,7 @@ public class ErrorSortBuilder{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
 		}else{
-			IEnvironment newEnvironment = actionExecutor.enteredProduction(production, environment);
+			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
 			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, isInError, sourceLocation, actionExecutor, newEnvironment);
 		}
 	}
@@ -53,23 +53,14 @@ public class ErrorSortBuilder{
 	private static void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
-			IEnvironment newEnvironment = actionExecutor.enteredProduction(production, environment);
+			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
 			
 			int postFixLength = postFix.length;
 			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
-			
-			// We don't need to split for the first iteration, so do the work for index 0 separately.
-			IConstructor node = postFix[0].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
-			if(node == null){
-				actionExecutor.exitedProduction(production, true, newEnvironment);
-				return;
-			}
-			constructedPostFix[0] = node;
-			
-			for(int i = 1; i < postFixLength; ++i){
-				newEnvironment = actionExecutor.split(production, i, newEnvironment);
+			for(int i = 0; i < postFixLength; ++i){
+				newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
 				
-				node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
+				IConstructor node = postFix[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
 				if(node == null){
 					actionExecutor.exitedProduction(production, true, newEnvironment);
 					return;

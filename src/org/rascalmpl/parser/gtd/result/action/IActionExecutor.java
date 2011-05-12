@@ -43,21 +43,19 @@ public interface IActionExecutor{
 	
 	/**
 	 * Called before entering each production. The callee can decide whether or
-	 * not a new environment should be created. Additionally it has the
+	 * not a new environment should be created. Additionally it provides the
 	 * opportunity to handle other kinds of bookkeeping.
 	 * 
 	 * @param production The production we are entering.
 	 * @param parent The parent environment.
 	 * @return The environment the flattener should use for this production.
 	 */
-	IEnvironment enteredProduction(IConstructor production, IEnvironment parent);
+	IEnvironment enteringProduction(IConstructor production, IEnvironment parent);
 	
 	/**
-	 * Called before entering each node in the given production (with exception
-	 * of the first node, since the above method already gets called on it
-	 * which has a similar, although more specific, purpose). Hereby we supply
-	 * users the opportinity to create a new environment before handling the
-	 * indicated node.
+	 * Called before entering each node in the given production. Hereby we
+	 * supply users the opportinity to create a new environment before handling
+	 * the indicated node.
 	 * 
 	 * @param production The production we are flattening for.
 	 * @param index The position of the node in the production we are going to
@@ -66,11 +64,11 @@ public interface IActionExecutor{
 	 * @return The environment the flattener should use for the indicated node
 	 * in the production.
 	 */
-	IEnvironment split(IConstructor production, int index, IEnvironment environment);
+	IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment);
 	
 	/**
-	 * Called when exiting a production; enabling the user to execute arbitrary
-	 * bookkeeping actions.
+	 * Called after exiting a production; enabling the user to execute
+	 * arbitrary bookkeeping actions.
 	 * 
 	 * @param production The production we are exiting.
 	 * @param filtered True if the alternative for the given production got
