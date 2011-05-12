@@ -462,6 +462,7 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                             }
                             ;
 
+// TODO: Fail if PrototypeDeclatator is not a FunctionDeclarator.
 syntax FunctionPrototype = Specifier* specs PrototypeDeclarator ";" {
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
