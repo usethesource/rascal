@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.util.specific;
+package org.rascalmpl.parser.gtd.location;
 
 public class PositionStore{
 	private final static char LINE_FEED_CHAR = '\n';
