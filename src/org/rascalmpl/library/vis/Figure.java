@@ -30,6 +30,7 @@ import org.rascalmpl.library.vis.properties.descriptions.IntProp;
 import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
+import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -148,25 +149,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	*/
 	
-	// Anchors
-
-	public double leftAlign() {
-		double res= (getRealProperty(RealProp.HALIGN) * width);
-		return res;
-	}
-
-	public double rightAlign() {
-		double res =  (width - getRealProperty(RealProp.HALIGN) * width);
-		return res;
-	}
-
-	public double topAlign() {
-		return (getRealProperty(RealProp.VALIGN) * height);
-	}
-
-	public double bottomAlign() {
-		return (height - getRealProperty(RealProp.VALIGN) * height);
-	}
+	
 
 	// TODO: irregular
 
@@ -246,7 +229,17 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * @param desiredWidth TODO
 	 * @param desiredHeight TODO
 	 */
+	
+	public
+	void bbox(){
+		bbox(AUTO_SIZE,AUTO_SIZE);
+	}
 
+	public
+	void bbox(BoundingBox b){
+		bbox(b.getWidth(),b.getHeight());
+	}
+	
 	public abstract void bbox(double desiredWidth, double desiredHeight);
 
 	/**
@@ -634,6 +627,14 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return properties.getMeasureProperty(prop, d);
 	}
 	
+	public double getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
+		return getScaled(prop.getDimensionalProp(d), d);
+	}
+	
+	public double getScaledMeasureProperty(DimensionalProp prop){
+		return getScaled(prop, prop.getDimension());
+	}
+	
 	public boolean isDraggable(){
 		return properties.isDraggable();
 	}
@@ -681,6 +682,58 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return getScaled(m,dimension,prop);
 	}
 	
+	// Anchors
+
+	public double leftAlign() {
+		double res= (getRealProperty(RealProp.HALIGN) * width);
+		return res;
+	}
+
+	public double rightAlign() {
+		double res =  (width - getRealProperty(RealProp.HALIGN) * width);
+		return res;
+	}
+
+	public double topAlign() {
+		return (getRealProperty(RealProp.VALIGN) * height);
+	}
+
+	public double bottomAlign() {
+		return (height - getRealProperty(RealProp.VALIGN) * height);
+	}
+	
+	public double leftAlign(boolean flip) {
+		if(flip){
+			return bottomAlign();
+		} else {
+			return leftAlign();
+		}
+	}
+
+	public double rightAlign(boolean flip) {
+		if(flip){
+			return topAlign();
+		} else {
+			return rightAlign();
+		}
+	}
+
+	public double topAlign(boolean flip) {
+		if(flip){
+			return rightAlign();
+		} else {
+			return topAlign();
+		}
+	}
+
+	public double bottomAlign(boolean flip) {
+		if(flip){
+			return leftAlign();
+		} else {
+			return bottomAlign();
+		}
+	}
+	
 	// short-hand functions for selected properties(boilerplate)
 	public boolean getClosedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CLOSED);}
 	public boolean getCurvedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CURVED);}
@@ -688,16 +741,15 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public String getIdProperty(){return getStringProperty(StrProp.ID);}
 	public String getDirectionProperty(){return getStringProperty(StrProp.DIRECTION);}
 	public String getLayerProperty(){return getStringProperty(StrProp.LAYER);}
-	public boolean isWidthPropertySet(){return isMeasurePropertySet(DimensionalProp.WIDTH);}
 	public boolean isHeightPropertySet(){return isMeasurePropertySet(DimensionalProp.HEIGHT);}
 	public boolean isHGapPropertySet(){return isMeasurePropertySet(DimensionalProp.HGAP);}
-	
 	public boolean isVGapPropertySet(){return isMeasurePropertySet(DimensionalProp.VGAP);}
 	// below are convience functions for measures, which are scaled (text and linewidth are not scaled)
-	public double getWidthProperty(){ return getScaled(DimensionalProp.WIDTH,Dimension.X);}
-	public double getHeightProperty(){return  getScaled(DimensionalProp.HEIGHT,Dimension.Y);}
-	public double getHGapProperty(){return getScaled(DimensionalProp.HGAP,Dimension.X);}
-	public double getVGapProperty(){return getScaled(DimensionalProp.VGAP,Dimension.Y);}
+	public boolean isWidthPropertySet(){return isMeasurePropertySet(DimensionalProp.WIDTH);}
+	public double getWidthProperty(){ return getScaledMeasureProperty(DimensionalProp.WIDTH);}
+	public double getHeightProperty(){return  getScaledMeasureProperty(DimensionalProp.HEIGHT);}
+	public double getHGapProperty(){return getScaledMeasureProperty(DimensionalProp.HGAP);}
+	public double getVGapProperty(){return getScaledMeasureProperty(DimensionalProp.VGAP);}
 	// TODO: how to scale wedges!
 	public double getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}
 	
@@ -715,11 +767,76 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public int getFontColorProperty(){return getColorProperty(ColorProp.FONT_COLOR);}
 	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}
 	public boolean getEndGapProperty(){ return getBooleanProperty(BoolProp.END_GAP);}
+	
+	
+	public boolean isWidthPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.X)); }
+	public double getWidthProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.X)); }
+	public boolean isHeightPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.Y)); }
+	public double getHeightProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.Y));}
+	public boolean isHGapPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.X)); }
+	public double getHGapProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.X)); }
+	public boolean isVGapPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.Y)); }
+	public double getVGapProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.Y)); }
+	
+	public boolean isHGapFactorPropertySet(boolean flip){
+		if(flip){
+			return isVGapFactorPropertySet();
+		} else {
+			return isHGapFactorPropertySet();
+		}
+	}
+	public double getHGapFactorProperty(boolean flip){
+		if(flip){
+			return getVGapFactorProperty();
+		} else {
+			return getHGapFactorProperty();
+		}
+	}
+	public boolean isVGapFactorPropertySet(boolean flip){
+		if(flip){
+			return isHGapFactorPropertySet();
+		} else {
+			return isVGapFactorPropertySet();
+		}
+	}
+	public double getVGapFactorProperty(boolean flip){
+		if(flip){
+			return getHGapFactorProperty();
+		} else {
+			return getVGapFactorProperty();
+		}
+	}
+	
+	public double getHAlignProperty(boolean flip){
+		if(flip){
+			return getVAlignProperty();
+		} else {
+			return getHAlignProperty();
+		}
+	}
+	
+	public double getVAlignProperty(boolean flip) {
+		if(flip){
+			return getHAlignProperty();
+		} else {
+			return getVAlignProperty();
+		}
+	}
+	public double getWidth(){
+		return width;
+	}
+	
+	public double getHeight(){
+		return height;
+	}
 
-	public boolean widthExplicitlySet(){return isMeasurePropertySet(DimensionalProp.WIDTH);}
-	public boolean heightExplicitlySet(){return isMeasurePropertySet(DimensionalProp.HEIGHT);}
+	public double getWidth(boolean flip){
+		if(flip) return getHeight();
+		else return getWidth();
+	}
 	
-
-	
-	
+	public double getHeight(boolean flip){
+		if(flip) return getWidth();
+		else return getHeight();
+	}
 }

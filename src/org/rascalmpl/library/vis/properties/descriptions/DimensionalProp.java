@@ -8,10 +8,10 @@ import org.rascalmpl.library.vis.util.Dimension;
 
 public enum DimensionalProp {
 	
-	HEIGHT(40.0f),
-	HGAP(0.0f), 
-	VGAP(0.0f), 	
-	WIDTH(40.0f);
+	HEIGHT(40.0f,Dimension.X),
+	HGAP(0.0f, Dimension.X), 
+	VGAP(0.0f, Dimension.Y ), 	
+	WIDTH(40.0f,Dimension.Y);
 	
 
 	public static enum TranslateDimensionToProp {
@@ -36,15 +36,21 @@ public enum DimensionalProp {
 	}
 	
 	float stdDefault;
+	Dimension dimension;
 	
-	DimensionalProp(float stdDefault){
+	DimensionalProp(float stdDefault, Dimension dimension){
 		this.stdDefault = stdDefault;
+		this.dimension = dimension;
 	}
 	
 
 	public Measure getStdDefault() {
 		return new Measure(stdDefault);
 	}	
+	
+	public Dimension getDimension(){
+		return dimension;
+	}
 	
 	
 	@SuppressWarnings("serial")

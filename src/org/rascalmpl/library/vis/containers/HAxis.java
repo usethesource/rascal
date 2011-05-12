@@ -59,9 +59,6 @@ public class HAxis extends WithInnerFig {
 		addAxisToBBox();
 	}
 
-	double getWidth() {
-		return width;
-	}
 
 	void setWidthHeight(double desiredWidth,double desiredHeight) {
 		if(isWidthPropertySet() || desiredWidth == AUTO_SIZE){

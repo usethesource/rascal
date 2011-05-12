@@ -14,7 +14,6 @@ public class Projection extends WithInnerFig {
 
 	String projectOn;
 	Figure projection;
-	Figure innerFig;
 	
 	public Projection(String projectOn, IConstructor projection,IFigureApplet fpa, PropertyManager properties,
 			IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {

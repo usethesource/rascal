@@ -34,37 +34,8 @@ public class VCat extends HCat {
 	public VCat(IFigureApplet fpa, PropertyManager properties, IList elems,
 			 IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties, elems, childProps, ctx);
+		flip = true;
 	}
-	
-	void setProperties(){
-		isWidthPropertySet = isHeightPropertySet();
-		isHeightPropertySet = isWidthPropertySet();
-		isHGapPropertySet = isVGapPropertySet();
-		isHGapFactorPropertySet = isVGapFactorPropertySet();
-		
-		getWidthProperty = getHeightProperty();
-		getHeightProperty = getWidthProperty();
-		getHGapProperty = getVGapProperty();
-		getHGapFactorProperty = getVGapFactorProperty();
-	}
-	
-	public void bbox(double desiredWidth,double desiredHeight){
-		super.bbox(desiredHeight,desiredWidth);
-		double tmp = width;
-		width = height;
-		height = tmp;
-		double[] tmpPos = xPos;
-		xPos = yPos;
-		yPos = tmpPos;
-		
-	}
-	
-	double getFigureWidth(Figure fig){ return fig.height; }
-	double getFigureHeight(Figure fig){return fig.width;}
-	double getTopAnchor(Figure fig){return fig.leftAlign();}
-	double getBottomAnchor(Figure fig){return fig.rightAlign();}
-	void  bboxOfFigure(Figure fig,double desiredWidth,double desiredHeight){ fig.bbox(desiredHeight,desiredWidth);}
-	double getHeight(){return width;}
 	
 	protected boolean correctOrientation(boolean horizontal) {
 		return !horizontal;
