@@ -60,9 +60,11 @@ public interface IActionExecutor{
 	 * indicated node.
 	 * 
 	 * @param production The production we are flattening for.
-	 * @param index The position of the node in the production we are going to handle now.
+	 * @param index The position of the node in the production we are going to
+	 * handle now.
 	 * @param environment The parent environment.
-	 * @return
+	 * @return The environment the flattener should use for the indicated node
+	 * in the production.
 	 */
 	IEnvironment split(IConstructor production, int index, IEnvironment environment);
 	
