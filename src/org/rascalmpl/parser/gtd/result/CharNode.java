@@ -26,6 +26,8 @@ public class CharNode extends AbstractNode{
 	
 	private final char character;
 	
+	private IConstructor cachedResult;
+	
 	public CharNode(char character){
 		super();
 		
@@ -67,11 +69,15 @@ public class CharNode extends AbstractNode{
 	}
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		return vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
+		if(cachedResult != null) return cachedResult;
+		
+		IConstructor result = vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
+		cachedResult = result;
+		return result;
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
-		return vf.constructor(Factory.Tree_Char, vf.integer(getNumericCharValue(character)));
+		return toTree(stack, depth, cycleMark, positionStore, null, actionExecutor, environment);
 	}
 	
 	public static int getNumericCharValue(char character){
