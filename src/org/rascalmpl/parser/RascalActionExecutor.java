@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
-import org.rascalmpl.parser.gtd.result.action.VoidEnvironment;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -45,16 +44,17 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public class RascalActionExecutor implements IActionExecutor{
 	private final Evaluator eval;
+	private final Environment rootEnvironment;
 	private final IParserInfo info;
 	
-	public RascalActionExecutor(Evaluator eval, IParserInfo info) {
+	public RascalActionExecutor(Evaluator eval, Environment rootEnvironment, IParserInfo info) {
 		this.eval = eval;
+		this.rootEnvironment = rootEnvironment;
 		this.info = info;
 	}
 	
 	public IEnvironment createRootEnvironment(){
-		// TODO Implement.
-		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
+		return rootEnvironment;
 	}
 	
 	public IEnvironment enteringProduction(IConstructor production, IEnvironment environment){
