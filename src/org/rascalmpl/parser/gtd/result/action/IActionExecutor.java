@@ -61,8 +61,7 @@ public interface IActionExecutor{
 	 * @param index The position of the node in the production we are going to
 	 * handle now.
 	 * @param environment The parent environment.
-	 * @return The environment the flattener should use for the indicated node
-	 * in the production.
+	 * @return The environment the flattener should use for the indicated node.
 	 */
 	IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment);
 	
