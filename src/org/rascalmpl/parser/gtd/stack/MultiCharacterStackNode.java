@@ -82,8 +82,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 			
 			char[] alternatives = characters[i];
 			for(int j = alternatives.length - 1; j >= 0; --j){
-				char alternative = alternatives[j];
-				if(next == alternative){
+				if(next == alternatives[j]){
 					continue OUTER;
 				}
 			}
