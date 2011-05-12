@@ -33,6 +33,8 @@ import org.rascalmpl.interpreter.env.Environment;
 public class OrResult extends AbstractBooleanResult {
 	private final IBooleanResult left;
 	private final IBooleanResult right;
+	private boolean atRight;
+	private Environment old;
 
 	public OrResult(IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
 		super(ctx);
@@ -44,39 +46,40 @@ public class OrResult extends AbstractBooleanResult {
 	public void init() {
 		super.init();
 		left.init();
-		right.init();
-		hasNext = true;
+		old = ctx.getCurrentEnvt();
+		ctx.pushEnv();
+		atRight = false;
 	}
 
 	@Override
 	public boolean hasNext() {
-		return hasNext && (left.hasNext() || right.hasNext());
+		if (left.hasNext()) {
+			return true;
+		}
+		else {
+			if (!atRight) {
+				right.init();
+				atRight = true;
+			}
+			
+			return right.hasNext();
+		}
 	}
 	
 	@Override
 	public boolean next() {
-		// note how we clean up introduced variables, but only if one of the branches fails
-		if (left.hasNext()) {
-			Environment old = ctx.getCurrentEnvt();
-			ctx.pushEnv();
-			if (left.next()) {
-				hasNext = false;
-				return true;
-			}
-			ctx.unwind(old);
+		if (atRight) {
+			return right.next();
 		}
-		
-		if (right.hasNext()) {
-			Environment old = ctx.getCurrentEnvt();
-			ctx.pushEnv();
-			if (right.next()) {
-				hasNext = false;
-				return true;
-			}
-			ctx.unwind(old);
+		else {
+	      if (left.next()) {
+	    	  return true;
+	      }
+	      else {
+	    	  ctx.unwind(old);
+	    	  atRight = true;
+	    	  return next();
+	      }
 		}
-		
-		hasNext = false;
-		return false;
 	}
 }
