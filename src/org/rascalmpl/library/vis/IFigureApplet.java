@@ -16,16 +16,18 @@ package org.rascalmpl.library.vis;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 
 public interface IFigureApplet {
 	public Composite getComp(); // get Composite. Needed by swt variant
-	public Color getRgbColor(int c);
+	public Color getRgbColor(int rgbColor);
+	public Color getColor(int codeColor);
 	public void init();
 	public void setup();
-	// public void draw();
+	public void redraw();
 	public int getFigureWidth();
 	public int getFigureHeight();
 	public void incDepth();
@@ -79,14 +81,13 @@ public interface IFigureApplet {
 	public void endShape();
 	public void endShape(int arg0 );
 	public void print();
-	// From PApplet 
+	
 	public Object createFont(String fontName, double fontSize);
 	public void smooth();
 	
-	// From awt  
-	public void setCursor(Object cursor);
-	public void add(Object comp);
-	public void remove(Object comp);
+	public void setCursor(Cursor cursor);
+	public Cursor getCursor();
+	
 	public Object getFont();
 	public void setBackground(Color color);
 	public void setForeground(Color color);	

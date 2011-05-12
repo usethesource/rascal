@@ -9,17 +9,20 @@
 
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Text;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
@@ -28,93 +31,97 @@ import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class TextField extends Figure {
-											// Function of type Figure (list[str]) to compute new figure
-	private final IValue callback;  // Function of type void() to inform backend about entered text
-	private final IValue validate;	// Function of type bool(str) to validate input sofar
-	
-	private boolean validated = true;
-	
-	private final Color trueColor = new Color(0);
-	private final Color falseColor = new Color(0XFF0000);
-	
-	final java.awt.TextField field = new java.awt.TextField();
+	// Function of type Figure (list[str]) to compute new figure
+	private final IValue callback; // Function of type void() to inform backend
+									// about entered text
+	private final IValue validate; // Function of type bool(str) to validate
+									// input sofar
 
-	public TextField(IFigureApplet fpa, PropertyManager properties, IString text, IValue cb, IValue validate,  IEvaluatorContext ctx) {
+	private boolean validated = true;
+
+	private final Color trueColor;
+	private final Color falseColor;
+
+	final Text textfield;
+
+	public TextField(IFigureApplet fpa, PropertyManager properties,
+			final IString text, IValue cb, IValue validate,
+			IEvaluatorContext ctx) {
 		super(fpa, properties);
-		
+		trueColor = fpa.getColor(SWT.COLOR_GREEN);
+		falseColor = fpa.getColor(SWT.COLOR_RED);
+		textfield = new Text(fpa.getComp(), SWT.SINGLE | SWT.BORDER);
 		fpa.checkIfIsCallBack(cb, ctx);
 		this.callback = cb;
-		if(validate!=null){
+		if (validate != null) {
 			fpa.checkIfIsCallBack(validate, ctx);
 		}
 		this.validate = validate;
 		System.err.println("callback = " + callback);
-		
-	    field.addKeyListener(
-	    		  new KeyListener(){
-	    			  public void keyTyped(KeyEvent e){
-	    				  boolean b = doValidate();
-	    				  if(e.getKeyCode() == KeyEvent.VK_ENTER){
-	    					  if(b)
-	    						  doCallBack();
-	    					  field.validate();
-	    				  } 
-	    			  }
-					// @Override
-					public void keyPressed(KeyEvent e) {
-						 keyTyped(e);
-					}
-					// @Override
-					public void keyReleased(KeyEvent e) {
-						keyTyped(e);
-					}
-	    		  });
-	    field.setText(text.getValue());
-	    fpa.add(field);
+
+		textfield.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				doValidate();
+			}
+		});
+		textfield.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				try {
+					doCallBack();
+				} catch (Exception ex) {
+					System.err.println("EXCEPTION");
+					ex.printStackTrace();
+				}
+			}
+		});
+		textfield.setText(text.getValue());
 	}
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
-		width = getWidthProperty();
-		height = getHeightProperty();
-		
-		field.setSize(FigureApplet.round(width), FigureApplet.round(height));
-		field.setPreferredSize(new Dimension(FigureApplet.round(width), FigureApplet.round(height)));
-		width = field.getWidth();
-		height = field.getHeight();
+		Point p = textfield.computeSize(FigureApplet.round(getWidthProperty()),
+				SWT.DEFAULT, true);
+		width = p.x;
+		height = p.y;
+		textfield.setTextLimit(2 * (int) width / textfield.getLineHeight());
 	}
-	
-	public boolean doValidate(){
-		
-		if(validate != null){
-			Result<IValue> res = 
-				fpa.executeRascalCallBackSingleArgument(validate, TypeFactory.getInstance().stringType(), vf.string(field.getText()));
+
+	public boolean doValidate() {
+		if (validate != null) {
+			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
+					validate, TypeFactory.getInstance().stringType(),
+					vf.string(textfield.getText()));
 			validated = res.getValue().equals(vf.bool(true));
-			field.setForeground(validated ? trueColor : falseColor);
+			textfield.setForeground(validated ? trueColor : falseColor);
+			textfield.redraw();
 			return validated;
 		}
 		return true;
 	}
-	
-	public void doCallBack(){
-		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().stringType(), vf.string(field.getText()));
+
+	public void doCallBack() {
+		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
+				.getInstance().stringType(), vf.string(textfield.getText()));
 		fpa.setComputedValueChanged();
+		fpa.redraw();
 	}
 
 	@Override
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		// fpa.setBackground(new Color(getFillColorProperty()));
-		//field.setBackground(new Color(getFillColorProperty()));
-		field.setForeground(validated ? new Color(getFontColorProperty()) : falseColor);
-		field.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		textfield.setForeground(validated ? fpa
+				.getRgbColor(getFontColorProperty()) : falseColor);
+		textfield
+				.setSize(FigureApplet.round(width), FigureApplet.round(height));
+		textfield.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		textfield
+				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
-	
+
 	@Override
-	public void destroy(){
-		fpa.remove(field);
-		fpa.invalidate();
-		fpa.setComputedValueChanged();
+	public void destroy() {
+		textfield.dispose();
 	}
 }

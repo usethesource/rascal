@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import java.awt.Cursor;
+import org.eclipse.swt.graphics.Cursor;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -54,8 +54,8 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
 
-	public static Color getColor(final int which) {
-		Display display = Display.getCurrent();
+	public Color getColor(final int which) {
+		Display display = this.getComp().getDisplay();
 		if (display != null)
 			return display.getSystemColor(which);
 		display = Display.getDefault();
@@ -137,7 +137,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		this(comp, "Figure", fig, ctx);
 	}
 
-	private static GC createGC(Composite comp) {
+	private GC createGC(Composite comp) {
 		GC g = new GC(comp);
 		g.setAntialias(SWT.ON);
 		g.setTextAntialias(SWT.ON);
@@ -171,6 +171,10 @@ public class FigureSWTApplet implements IFigureApplet {
 	public void setup() {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void redraw() {
+		comp.redraw();
 	}
 
 
@@ -679,19 +683,13 @@ public class FigureSWTApplet implements IFigureApplet {
 		// TODO Auto-generated method stub
 
 	}
-
-	public void setCursor(Object cursor) {
-		// TODO Auto-generated method stub
-
+	
+	public Cursor getCursor() {
+		return comp.getCursor();
 	}
 
-	public void add(Object c) {
-
-	}
-
-	public void remove(Object comp) {
-		// TODO Auto-generated method stub
-
+	public void setCursor(Cursor cursor) {
+	    comp.setCursor(cursor);
 	}
 
 	public Object getFont(Object font) {
@@ -712,8 +710,6 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void invalidate() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void validate() {
@@ -850,7 +846,9 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public Result<IValue> executeRascalCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
-		setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		Cursor cursor0 = comp.getCursor();
+		Cursor cursor = new Cursor(comp.getDisplay(), SWT.CURSOR_WAIT);
+		comp.setCursor(cursor);
 		Result<IValue> result;
 		synchronized (this) {
 			if (callback instanceof RascalFunction)
@@ -859,7 +857,8 @@ public class FigureSWTApplet implements IFigureApplet {
 				result = ((OverloadedFunctionResult) callback).call(argTypes,
 						argVals);
 		}
-		setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		comp.setCursor(cursor0);
+		cursor.dispose();
 		return result;
 
 	}

@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
@@ -52,21 +53,27 @@ public class Button extends Figure {
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
-		width = button.getSize().x;
-		height = button.getSize().y;
+		Point p = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		// width = list.getSize().x;
+		// height = list.getSize().y;
+		width = p.x;
+		height = p.y;
 	}
 
 	public void doCallBack() {
 		fpa.executeRascalCallBackWithoutArguments(callback);
 		fpa.setComputedValueChanged();
+		fpa.redraw();
 	}
 
 	@Override
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		button.setSize(FigureApplet.round(getWidthProperty()),
-				FigureApplet.round(getHeightProperty()));
+//		button.setSize(FigureApplet.round(getWidthProperty()),
+//				FigureApplet.round(getHeightProperty()));
+		button.setSize(FigureApplet.round(width),
+				FigureApplet.round(height));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left),
 		         FigureApplet.round(top));
