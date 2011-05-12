@@ -57,12 +57,12 @@ public class RascalActionExecutor implements IActionExecutor{
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Temp.
 	}
 	
-	public IEnvironment enteredProduction(IConstructor production, IEnvironment environment){
+	public IEnvironment enteringProduction(IConstructor production, IEnvironment environment){
 		// TODO Implement.
 		return environment; // Temp.
 	}
 	
-	public IEnvironment split(IConstructor production, int index, IEnvironment environment){
+	public IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment){
 		// TODO Implement.
 		
 		return environment; // Temp.
