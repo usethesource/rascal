@@ -23,8 +23,8 @@ public class StringPrecedeRequirement implements IEnterFilter{
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int location, PositionStore positionStore){
-		int startLocation = location - string.length;
+	public boolean isFiltered(char[] input, int start, PositionStore positionStore){
+		int startLocation = start - string.length;
 		if(startLocation < 0) return true;
 		
 		for(int i = string.length - 1; i >= 0; --i){
