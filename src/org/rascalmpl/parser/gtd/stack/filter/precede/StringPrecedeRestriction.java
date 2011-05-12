@@ -23,15 +23,14 @@ public class StringPrecedeRestriction implements IEnterFilter{
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int location, PositionStore positionStore){
-		if((location - string.length) >= 0){
-			int startLocation = location - string.length;
-			for(int i = string.length - 1; i >= 0; --i){
-				if(input[startLocation + i] != string[i]) return false;
-			}
-			return true;
+	public boolean isFiltered(char[] input, int start, PositionStore positionStore){
+		int startLocation = start - string.length;
+		if(startLocation < 0) return false;
+		
+		for(int i = string.length - 1; i >= 0; --i){
+			if(input[startLocation + i] != string[i]) return false;
 		}
 		
-		return false;
+		return true;	
 	}
 }

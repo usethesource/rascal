@@ -24,13 +24,12 @@ public class StringFollowRequirement implements ICompletionFilter{
 	}
 	
 	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
-		if((end + string.length) <= input.length){
-			for(int i = string.length - 1; i >= 0; --i){
-				if(input[end + i] != string[i]) return true;
-			}
-			return false;
+		if((end + string.length) >= input.length) return true;
+		
+		for(int i = string.length - 1; i >= 0; --i){
+			if(input[end + i] != string[i]) return true;
 		}
 		
-		return true;
+		return false;
 	}
 }
