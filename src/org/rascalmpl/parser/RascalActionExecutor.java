@@ -57,6 +57,10 @@ public class RascalActionExecutor implements IActionExecutor{
 		return rootEnvironment;
 	}
 	
+	public void completed(IEnvironment environment){
+		// TODO Implement.
+	}
+	
 	public IEnvironment enteringProduction(IConstructor production, IEnvironment environment){
 		// TODO Implement.
 		return environment; // Temp.

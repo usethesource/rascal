@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -293,10 +294,12 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
+		IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
+		
 		// Construct the rest of the input as separate character nodes.
 		IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
 		for(int i = input.length - 1; i >= location; --i){
-			rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, actionExecutor.createRootEnvironment()));
+			rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment));
 		}
 		
 		// Find the top node.
@@ -307,6 +310,8 @@ public class ErrorTreeBuilder{
 		((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
 		
 		// Flatten error tree.
-		return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, actionExecutor.createRootEnvironment());
+		IConstructor resultTree = result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
+		actionExecutor.completed(rootEnvironment);
+		return resultTree;
 	}
 }
