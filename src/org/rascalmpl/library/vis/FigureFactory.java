@@ -46,6 +46,7 @@ import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
 import org.rascalmpl.library.vis.interaction.Button;
 import org.rascalmpl.library.vis.interaction.Checkbox;
 import org.rascalmpl.library.vis.interaction.Choice;
+import org.rascalmpl.library.vis.interaction.Combo;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.TextField;
 import org.rascalmpl.library.vis.properties.IPropertyValue;
@@ -73,6 +74,7 @@ public class FigureFactory {
 		BUTTON,
 		CHECKBOX,
 		CHOICE,
+		COMBO,
 		COMPUTEFIGURE,
 		CONTROLON,
 		CONTROLOFF,
@@ -112,6 +114,7 @@ public class FigureFactory {
     	put("_button", 		Primitives.BUTTON);
     	put("_checkbox",	Primitives.CHECKBOX);
     	put("_choice", 		Primitives.CHOICE);
+    	put("_combo", 		Primitives.COMBO);
     	put("_computeFigure",Primitives.COMPUTEFIGURE);
     	put("_edge",		Primitives.EDGE);
     	put("_ellipse",		Primitives.ELLIPSE);
@@ -172,6 +175,11 @@ public class FigureFactory {
 			
 		case CHOICE:
 			return new Choice(fpa, properties, (IList) c.get(0), c.get(1), ctx);
+			
+		case COMBO:
+			if(c.arity() > 3)
+				return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), c.get(3), ctx);
+			return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), null, ctx);
 			
 		case COMPUTEFIGURE:
 			return new ComputeFigure(fpa, properties,  c.get(0), ctx);
