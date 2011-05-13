@@ -77,6 +77,7 @@ public class OrResult extends AbstractBooleanResult {
 	      }
 	      else {
 	    	  ctx.unwind(old);
+	    	  right.init();
 	    	  atRight = true;
 	    	  return next();
 	      }
