@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -22,7 +23,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Text;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
@@ -30,7 +30,7 @@ import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
-public class TextField extends Figure {
+public class Combo extends Figure {
 	// Function of type Figure (list[str]) to compute new figure
 	private final IValue callback; // Function of type void() to inform backend
 									// about entered text
@@ -42,15 +42,17 @@ public class TextField extends Figure {
 	private final Color trueColor;
 	private final Color falseColor;
 
-	final Text textfield;
+	final org.eclipse.swt.widgets.Combo combo;
 
-	public TextField(IFigureApplet fpa, PropertyManager properties,
-			final IString text, IValue cb, IValue validate,
+	public Combo(IFigureApplet fpa, PropertyManager properties,
+			final IString text, IList choices, IValue cb, IValue validate,
 			IEvaluatorContext ctx) {
 		super(fpa, properties);
+		// trueColor = fpa.getColor(SWT.COLOR_GREEN);
 		trueColor = fpa.getRgbColor(getFontColorProperty());
 		falseColor = fpa.getColor(SWT.COLOR_RED);
-		textfield = new Text(fpa.getComp(), SWT.SINGLE | SWT.BORDER);
+		combo = new org.eclipse.swt.widgets.Combo(fpa.getComp(), SWT.DROP_DOWN
+				| SWT.BORDER);
 		fpa.checkIfIsCallBack(cb, ctx);
 		this.callback = cb;
 		if (validate != null) {
@@ -59,70 +61,91 @@ public class TextField extends Figure {
 		this.validate = validate;
 		System.err.println("callback = " + callback);
 
-		textfield.addModifyListener(new ModifyListener() {
+		combo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				doValidate();
 			}
 		});
-		textfield.addSelectionListener(new SelectionAdapter() {
+		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				try {
-					doCallBack();
+					doCallBack(true);
+				} catch (Exception ex) {
+					System.err.println("EXCEPTION");
+					ex.printStackTrace();
+				}
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					doCallBack(false);
 				} catch (Exception ex) {
 					System.err.println("EXCEPTION");
 					ex.printStackTrace();
 				}
 			}
 		});
-		textfield.setText(text.getValue());
+		combo.setText(text.getValue());
+		for(IValue val : choices){
+            combo.add(((IString)val).getValue());
+       }
 	}
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
-		Point p = textfield.computeSize(FigureApplet.round(getWidthProperty()),
+		Point p = combo.computeSize(FigureApplet.round(getWidthProperty()),
 				SWT.DEFAULT, true);
 		width = p.x;
 		height = p.y;
-		textfield.setTextLimit(2 * (int) width / textfield.getLineHeight());
+		combo.setTextLimit(3 * (int) width / combo.getTextHeight());
 	}
 
 	public boolean doValidate() {
 		if (validate != null) {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
-					vf.string(textfield.getText()));
+					vf.string(combo.getText()));
 			validated = res.getValue().equals(vf.bool(true));
-			textfield.setForeground(validated ? trueColor : falseColor);
-			textfield.redraw();
 			return validated;
 		}
 		return true;
 	}
 
-	public void doCallBack() {
-		if (validated) {
-			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), vf.string(textfield.getText()));
-			fpa.setComputedValueChanged();
+	public void doCallBack(boolean isTextfield) {
+		if (!validated) {
+		    combo.setForeground(falseColor);
+		    combo.redraw();
+		    return;
 		}
-		textfield.redraw();
+		combo.setForeground(trueColor);
+		if (isTextfield)
+			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
+					.getInstance().stringType(), vf.string(combo.getText()));
+		else {
+			int s = combo.getSelectionIndex();
+			if (s < 0)
+				return;
+			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
+					.getInstance().stringType(), vf.string(combo.getItem(s)));
+		}
+		fpa.setComputedValueChanged();
+		combo.redraw();
 	}
 
 	@Override
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		textfield.setForeground(validated ? trueColor : falseColor);
-		textfield
-				.setSize(FigureApplet.round(width), FigureApplet.round(height));
-		textfield.setBackground(fpa.getRgbColor(getFillColorProperty()));
-		textfield
-				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		combo.setForeground(validated ? trueColor
+				: falseColor);
+		combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
+		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 
 	@Override
 	public void destroy() {
-		textfield.dispose();
+		combo.dispose();
 	}
 }
