@@ -1071,8 +1071,12 @@ public abstract class SGTDBF implements IGTD{
 					FilteringTracker filteringTracker = new FilteringTracker();
 					// Invoke the forest flattener, a.k.a. "the bulldozer".
 					IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
-					IConstructor resultTree = result.toTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
-					actionExecutor.completed(rootEnvironment);
+					IConstructor resultTree = null;
+					try{
+						resultTree = result.toTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
+					}finally{
+						actionExecutor.completed(rootEnvironment, (resultTree == null));
+					}
 					if(resultTree != null){
 						return resultTree; // Success.
 					}
@@ -1109,9 +1113,11 @@ public abstract class SGTDBF implements IGTD{
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			// Invoke "the bulldozer" that constructs errors while it's flattening the forest.
 			IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
-			IConstructor resultTree = result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
-			actionExecutor.completed(rootEnvironment);
-			return resultTree;
+			try{
+				return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
+			}finally{
+				actionExecutor.completed(rootEnvironment, true);
+			}
 		}
 		
 		throw new RuntimeException("No parse error occured.");

@@ -23,7 +23,7 @@ public class VoidActionExecutor implements IActionExecutor{
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public void completed(IEnvironment environment){
+	public void completed(IEnvironment environment, boolean filtered){
 		// Don't do anything.
 	}
 	
