@@ -87,9 +87,7 @@ public class LiteralNode extends AbstractNode{
 			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(CharNode.getNumericCharValue(content[i]))));
 		}
 		
-		IConstructor result = VF.constructor(Factory.Tree_Appl, production, listWriter.done());
-		cachedResult = result;
-		return result;
+		return (cachedResult = VF.constructor(Factory.Tree_Appl, production, listWriter.done()));
 	}
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
