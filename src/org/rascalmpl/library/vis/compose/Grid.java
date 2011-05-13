@@ -110,6 +110,7 @@ public class Grid extends Compose {
 	int computeNrCollumns() {
 		int nrCollumnsGuess = 1;
 		double totalCollumnWidth;
+		boolean fillCompleted = false;
 		do{
 			double []collumnWidths = new double[nrCollumnsGuess];
 			for(int rowOffset = 0 ; rowOffset < figures.length ; rowOffset+=nrCollumnsGuess){
@@ -121,8 +122,10 @@ public class Grid extends Compose {
 			for(int i = 0 ; i < nrCollumnsGuess ; i++){
 				totalCollumnWidth+=collumnWidths[i];
 			}
+
 			nrCollumnsGuess++;
-		} while(totalCollumnWidth < width);
+			fillCompleted = collumnWidths[collumnWidths.length - 1] == 0;
+		} while(totalCollumnWidth < width && !fillCompleted);
 
 		return  Math.max(1, nrCollumnsGuess-1);
 	}
