@@ -44,6 +44,8 @@ public class Combo extends Figure {
 
 	final org.eclipse.swt.widgets.Combo combo;
 
+	private int tLimit;
+
 	public Combo(IFigureApplet fpa, PropertyManager properties,
 			final IString text, IList choices, IValue cb, IValue validate,
 			IEvaluatorContext ctx) {
@@ -87,18 +89,30 @@ public class Combo extends Figure {
 			}
 		});
 		combo.setText(text.getValue());
-		for(IValue val : choices){
-            combo.add(((IString)val).getValue());
-       }
+		double m = getWidthProperty();
+		tLimit = FigureApplet.round(m / fpa.textWidth("m"));
+		for (IValue val : choices) {
+			String s = ((IString) val).getValue();
+			combo.add(s);
+			double d = fpa.textWidth(s);
+			if (d > m)
+				m = d;
+			if (s.length()>tLimit) tLimit = s.length();
+		}
+		width = m + 40;
+
 	}
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
-		Point p = combo.computeSize(FigureApplet.round(getWidthProperty()),
-				SWT.DEFAULT, true);
+		// Point p = combo.computeSize(FigureApplet.round(getWidthProperty()),
+		// SWT.DEFAULT, true);
+		Point p = combo.computeSize(FigureApplet.round(width), SWT.DEFAULT,
+				true);
 		width = p.x;
 		height = p.y;
-		combo.setTextLimit(3 * (int) width / combo.getTextHeight());
+		combo.setTextLimit(tLimit);
+		combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
 	}
 
 	public boolean doValidate() {
@@ -114,9 +128,9 @@ public class Combo extends Figure {
 
 	public void doCallBack(boolean isTextfield) {
 		if (!validated) {
-		    combo.setForeground(falseColor);
-		    combo.redraw();
-		    return;
+			combo.setForeground(falseColor);
+			combo.redraw();
+			return;
 		}
 		combo.setForeground(trueColor);
 		if (isTextfield)
@@ -130,16 +144,15 @@ public class Combo extends Figure {
 					.getInstance().stringType(), vf.string(combo.getItem(s)));
 		}
 		fpa.setComputedValueChanged();
-		combo.redraw();
+		fpa.redraw();
 	}
 
 	@Override
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		combo.setForeground(validated ? trueColor
-				: falseColor);
-		combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
+		combo.setForeground(validated ? trueColor : falseColor);
+		// combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
 		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}

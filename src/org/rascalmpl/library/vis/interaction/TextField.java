@@ -41,6 +41,8 @@ public class TextField extends Figure {
 
 	private final Color trueColor;
 	private final Color falseColor;
+	
+	private int tLimit;
 
 	final Text textfield;
 
@@ -57,7 +59,6 @@ public class TextField extends Figure {
 			fpa.checkIfIsCallBack(validate, ctx);
 		}
 		this.validate = validate;
-		System.err.println("callback = " + callback);
 
 		textfield.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -75,16 +76,22 @@ public class TextField extends Figure {
 				}
 			}
 		});
-		textfield.setText(text.getValue());
+		String s = text.getValue();
+		textfield.setText(s);
+		width =  getWidthProperty();
+		tLimit = FigureApplet.round(width / fpa.textWidth("b"));
+		if (s.length()>tLimit) {
+			  tLimit = s.length();	
+			  width = fpa.textWidth(s);
+		}
 	}
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
-		Point p = textfield.computeSize(FigureApplet.round(getWidthProperty()),
-				SWT.DEFAULT, true);
+		Point p = textfield.computeSize(FigureApplet.round(width), SWT.DEFAULT, true);
 		width = p.x;
 		height = p.y;
-		textfield.setTextLimit(2 * (int) width / textfield.getLineHeight());
+		textfield.setTextLimit(tLimit);
 	}
 
 	public boolean doValidate() {
