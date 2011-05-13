@@ -57,7 +57,7 @@ public class RascalActionExecutor implements IActionExecutor{
 		return rootEnvironment;
 	}
 	
-	public void completed(IEnvironment environment){
+	public void completed(IEnvironment environment, boolean filtered){
 		eval.setCurrentEnvt(rootEnvironment); // The given environment is the rootEnvironment.
 	}
 	

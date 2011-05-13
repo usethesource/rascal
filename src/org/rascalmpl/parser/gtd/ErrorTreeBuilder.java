@@ -295,23 +295,24 @@ public class ErrorTreeBuilder{
 		}
 		
 		IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
-		
-		// Construct the rest of the input as separate character nodes.
-		IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
-		for(int i = input.length - 1; i >= location; --i){
-			rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment));
+		try{
+			// Construct the rest of the input as separate character nodes.
+			IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
+			for(int i = input.length - 1; i >= location; --i){
+				rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment));
+			}
+			
+			// Find the top node.
+			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
+			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
+			
+			// Update the top node with the rest of the string (it will always be a sort node).
+			((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
+			
+			// Flatten error tree.
+			return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
+		}finally{
+			actionExecutor.completed(rootEnvironment, true);
 		}
-		
-		// Find the top node.
-		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
-		AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
-		
-		// Update the top node with the rest of the string (it will always be a sort node).
-		((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
-		
-		// Flatten error tree.
-		IConstructor resultTree = result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
-		actionExecutor.completed(rootEnvironment);
-		return resultTree;
 	}
 }

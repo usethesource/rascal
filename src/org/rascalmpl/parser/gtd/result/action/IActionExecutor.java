@@ -47,8 +47,10 @@ public interface IActionExecutor{
 	 * 
 	 * @param environment The environment at the point of completion (the root
 	 * environment).
+	 * @param filtered True if the flattener failed to produce a valid tree,
+	 * because of filtering; false otherwise.
 	 */
-	void completed(IEnvironment environment);
+	void completed(IEnvironment environment, boolean filtered);
 	
 	/**
 	 * Called before entering each production. The callee can decide whether or
