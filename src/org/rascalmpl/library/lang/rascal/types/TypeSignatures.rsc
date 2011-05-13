@@ -223,11 +223,12 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
                         sig = addSignatureItem(sig, AliasSigItem(convertName(getUserTypeRawName(typ)), makeParameterizedAliasType(aliasType.typeName, aliasedType, aliasType.typeParams), t@\loc));
 //                    }
                 }
-                                
-                // View
-                case (Toplevel) `<Tags tgs> <Visibility vis> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-                    throw "Not yet implemented";
-                }
+  
+// Views have been removed from the grammar.                              
+//                // View
+//                case (Toplevel) `<Tags tgs> <Visibility vis> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
+//                    throw "Not yet implemented";
+//                }
                                 
                 default: throw "RSignature case not implemented for item <t>";
             }

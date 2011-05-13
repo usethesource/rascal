@@ -18,30 +18,23 @@ import lang::rascal::checker::constraints::Constraints;
 import lang::rascal::syntax::RascalRascal;
 
 //
-// Gather constraints over individual cases.
+// Gather constraints over individual cases. The type of the pattern with
+// action should be either a replacement type or a no replacement type. We
+// link this in here as the overall type of the case. This can then be used
+// to check the actual type of a switch or a visit this case is included
+// within.
 //
-// TODO: Add type rules!
-//
-public ConstraintBase gatherCaseConstraints(STBuilder st, ConstraintBase cs, Case c) {
+public ConstraintBase gatherCaseConstraints(STBuilder st, ConstraintBase cb, Case c) {
     switch(c) {
-        case `case <PatternWithAction p>` : {
-            <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
-            Constraint c1 = TreeIsType(p,p@\loc,t1);
-            Constraint c2 = PWAResultType(t1,t2,p@\loc);
-            Constraint c3 = TreeIsType(c,c@\loc,CaseType(t1,t2));
-            cs.constraints = cs.constraints + { c1, c2, c3 };
-        }
+        case `case <PatternWithAction p>` :
+            cb = addConstraintForLoc(cb, c@\loc, CaseType(typeForLoc(cb, p@\loc)));
             
-        case `default : <Statement b>` : {
-            <cs,t1> = makeFreshType(cs);
-            Constraint c1 = TreeIsType(b,b@\loc,makeStatementType(t1));
-            Constraint c2 = TreeIsType(c,c@\loc,DefaultCaseType(t1));
-            cs.constraints = cs.constraints + { c1, c2 };
-        }
+        case `default : <Statement b>` :
+            cb = addConstraintForLoc(cb, c@\loc, DefaultCaseType());
         
         default :
             throw "Unexpected case syntax <c>";
     }
     
-    return cs;
+    return cb;
 }

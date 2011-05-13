@@ -127,7 +127,7 @@ public RType expandListType(RType rt, STBuilder stBuilder, ItemId currentScope) 
 }
 
 public RType expandADTType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeParameterizedADTType(getADTName(rt), [ expandUserType(p,stBuilder,currentScope) | p <- getADTTypeParameters(rt)]);
+    return makeParameterizedADTType(getADTName(rt), [ expandUserTypes(p,stBuilder,currentScope) | p <- getADTTypeParameters(rt)]);
 }
 
 public RType expandLexType(RType rt, STBuilder stBuilder, ItemId currentScope) {
@@ -139,8 +139,8 @@ public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) 
     list[RType] params = [ expandUserTypes(tp,stBuilder,currentScope) | tp <- getUserTypeParameters(rt)];
     
     set[ItemId] userTypes = getItems(stBuilder,currentScope,tn,Types());
-    set[ItemId] aliasItems = { pi | pi <- userTypes, Alias(_,_,_) := stBuilder.scopeItemMap[pi] };
-    set[ItemId] adtItems = { pi | pi <- userTypes, ADT(_,_,_) := stBuilder.scopeItemMap[pi] };
+    set[ItemId] aliasItems = { pi | pi <- userTypes, Alias(_,_,_,_) := stBuilder.scopeItemMap[pi] };
+    set[ItemId] adtItems = { pi | pi <- userTypes, ADT(_,_,_,_) := stBuilder.scopeItemMap[pi] };
     
     if (size(userTypes - aliasItems - adtItems) > 0) 
         throw "Unexpected case, got a user type that is not an alias or an adt, example: <stBuilder.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
@@ -215,9 +215,6 @@ public RType expandUnknownType(RType rt, STBuilder stBuilder, ItemId currentScop
     return (utRes != getUnknownType(rt)) ? utRes : rt; // If the type changed, we at least partially resolved it, return that
 }
 
-//
-// Main lub routine
-//
 private map[str,RType(RType,STBuilder,ItemId)] expandHandlers = (
     "RValueType" : expandValueType,
     "RLocType" : expandLocType,
@@ -287,34 +284,34 @@ public RType getTypeForItem(STBuilder stBuilder, ItemId itemId) {
     
     // NOTE: For those items that introduce a new type, we bring over the location information
     switch(si) {
-        case ADT(ut,_,_) : { 
+        case ADT(ut,_,_,_) : { 
             rt = expandUserTypes(ut,stBuilder,si.parentId)[@at = si.definedAt];
         }
         
-        case Alias(ut,_,_) : { 
+        case Alias(ut,_,_,_) : { 
             rt = expandUserTypes(ut,stBuilder,si.parentId)[@at = si.definedAt]; 
         }
         
-        case Constructor(n,tas,adtParentId,_) : {
+        case Constructor(n,tas,adtParentId,_,_) : {
             rt = expandUserTypes(makeConstructorType(n,getTypeForItem(stBuilder,adtParentId),tas),stBuilder,si.parentId)[@at = si.definedAt];
         }
         
-        case Function(_,t,params,_,_,isVarArgs,_) : {
+        case Function(_,t,params,_,_,isVarArgs,_,_) : {
             // TODO: Make this really work! (Pattern Dispatch)
             // NOTE: This should only be called during name resolution by the functionality that
             // tags function return statements with their return types. It would be nicer if we could
             // just tag the return with the function scope we are inside.
             //rt = expandUserTypes(makeFunctionType(t,[getTypeForItem(stBuilder, paramId) | paramId <- paramIds],isVarArgs),stBuilder,si.parentId);
-            rt = expandUserTypes(makeFunctionType(t,[makeValueType()],isVarArgs),stBuilder,si.parentId)[@at = si.definedAt];
+            rt = expandUserTypes(makeFunctionType(t,[ ptype | < ptype, _ > <- params ],isVarArgs),stBuilder,si.parentId)[@at = si.definedAt];
         }
         
-        case FormalParameter(_,t,_) : 
+        case FormalParameter(_,t,_,_) : 
             rt = expandUserTypes(t,stBuilder,si.parentId);
         
-        case TypeVariable(t,_) : 
+        case TypeVariable(t,_,_) : 
             rt = expandUserTypes(t,stBuilder,si.parentId);
         
-        case Variable(_,t,_) : 
+        case Variable(_,t,_,_) : 
             rt = expandUserTypes(t,stBuilder,si.parentId);
         
         default : 
