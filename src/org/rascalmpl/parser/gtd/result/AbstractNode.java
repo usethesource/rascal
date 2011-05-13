@@ -35,7 +35,9 @@ public abstract class AbstractNode{
 		return (this instanceof SortContainerNode);
 	}
 	
-	public abstract boolean isEpsilon();
+	public final boolean isEpsilon(){
+		return (this instanceof EpsilonNode);
+	}
 	
 	public abstract boolean isEmpty();
 	

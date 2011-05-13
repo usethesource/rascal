@@ -62,10 +62,6 @@ public abstract class AbstractContainerNode extends AbstractNode{
 		}
 	}
 	
-	public boolean isEpsilon(){
-		return false;
-	}
-	
 	public boolean isEmpty(){
 		return isNullable;
 	}
