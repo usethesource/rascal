@@ -346,7 +346,7 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		return null;
 	}
 	
-	private IConstructor buildAlternative(IConstructor production, IValue[] children){
+	private static IConstructor buildAlternative(IConstructor production, IValue[] children){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);

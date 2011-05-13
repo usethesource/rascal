@@ -43,19 +43,19 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		this.unmatchedInput = unmatchedInput;
 	}
 	
-	protected void gatherAlternatives(Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	protected static void gatherAlternatives(Link child, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		AbstractNode resultNode = child.node;
 		
 		if(!(resultNode.isEpsilon() && child.prefixes == null)){
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
-			gatherProduction(child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
+			gatherProduction(child, postFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		}else{
 			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(production, new IConstructor[]{}, unmatchedInput, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
 		}
 	}
 	
-	private void gatherProduction(Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void gatherProduction(Link child, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		ArrayList<Link> prefixes = child.prefixes;
 		if(prefixes == null){
 			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
@@ -73,7 +73,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 				constructedPostFix[i] = node;
 			}
 			
-			buildAlternative(production, constructedPostFix, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(production, constructedPostFix, unmatchedInput, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
 			return;
 		}
 		
@@ -86,12 +86,12 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 				AbstractNode[] newPostFix = new AbstractNode[length + 1];
 				System.arraycopy(postFix, 0, newPostFix, 1, length);
 				newPostFix[0] = resultNode;
-				gatherProduction(prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
+				gatherProduction(prefix, newPostFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 			}
 		}
 	}
 	
-	private void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void buildAlternative(IConstructor production, IValue[] children, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
@@ -143,10 +143,10 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		
 		// Gather
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(firstAlternative, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
+		gatherAlternatives(firstAlternative, unmatchedInput, gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
+				gatherAlternatives(alternatives.get(i), unmatchedInput, gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 			}
 		}
 		
