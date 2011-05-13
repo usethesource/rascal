@@ -431,13 +431,13 @@ public class FigureSWTApplet implements IFigureApplet {
 	public void strokeWeight(double arg0) {
 		int d = (int) arg0;
 		stroke = (d != 0);
-		if (gc.isDisposed())
+		if (gc == null || gc.isDisposed())
 			gc = createGC(comp);
 		gc.setLineWidth(d);
 	}
 
 	public void textSize(double arg0) {
-		if (gc.isDisposed())
+		if (gc == null || gc.isDisposed())
 			gc = createGC(comp);
 		if (gc.getFont().getFontData().length < 1)
 			return;
@@ -455,7 +455,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void textFont(Object arg0) {
-		if (gc.isDisposed())
+		if (gc == null || gc.isDisposed())
 			gc = createGC(comp);
 		gc.setFont((Font) arg0);
 	}
@@ -468,20 +468,20 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public double textWidth(String txt) {
-		if (gc.isDisposed())
+		if (gc == null || gc.isDisposed())
 			gc = createGC(comp);
 		return gc.textExtent(txt).x;
 	}
 
 	public double textAscent() {
-		if (gc.isDisposed())
+		if (gc == null || gc.isDisposed())
 			gc = createGC(comp);
 		return gc.getFontMetrics().getAscent();
 	}
 
 	public double textDescent() {
 		// TODO Auto-generated method stub
-		if (gc.isDisposed())
+		if (gc == null || gc.isDisposed())
 			gc = createGC(comp);
 		return gc.getFontMetrics().getDescent();
 	}

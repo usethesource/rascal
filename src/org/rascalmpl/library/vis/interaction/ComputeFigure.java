@@ -11,10 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
-import java.awt.Cursor;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -41,15 +42,17 @@ public class ComputeFigure extends Figure {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		
+	public void bbox(double desiredWidth, double desiredHeight) {	
 		
 		if(figure != null){
 			figure.destroy();
 		}
-		// fpa.setCursor(new Cursor(java.awt.Cursor.WAIT_CURSOR));
+		Cursor c = new Cursor(fpa.getComp().getDisplay(), SWT.CURSOR_WAIT),
+		c0 = fpa.getCursor();
+		fpa.setCursor(c);
 		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-		// fpa.setCursor(new Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+		fpa.setCursor(c0);
+		c.dispose();
 		figure = FigureFactory.make(fpa, figureCons, properties, null, ctx);
 		fpa.setComputedValueChanged();
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
@@ -60,7 +63,7 @@ public class ComputeFigure extends Figure {
 
 	@Override
 	public void draw(double left, double top) {
-		System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
+		// System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
 		this.setLeft(left);
 		this.setTop(top);
 		figure.draw(left,top);
