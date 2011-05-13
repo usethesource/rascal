@@ -91,7 +91,6 @@ public class SortContainerNode extends AbstractContainerNode{
 		
 		result = actionExecutor.filterProduction(result, environment);
 		if(result == null){
-			filteringTracker.setLastFilered(offset, endOffset);
 			actionExecutor.exitedProduction(production, true, environment);
 			return;
 		}
@@ -159,14 +158,16 @@ public class SortContainerNode extends AbstractContainerNode{
 			
 			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
 			result = actionExecutor.filterAmbiguity(result, environment);
-			if(result == null){
-				return null;
+			if(result != null && sourceLocation != null){
+				result = result.setAnnotation(Factory.Location, sourceLocation);
 			}
-			
-			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
 		stack.dirtyPurge(); // Pop.
+		
+		if(result == null){
+			filteringTracker.setLastFilered(offset, endOffset);
+		}
 		
 		return result;
 	}
