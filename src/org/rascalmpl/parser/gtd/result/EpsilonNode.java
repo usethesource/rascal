@@ -29,10 +29,6 @@ public class EpsilonNode extends AbstractNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean isEpsilon(){
-		return true;
-	}
-	
 	public boolean isEmpty(){
 		return true;
 	}

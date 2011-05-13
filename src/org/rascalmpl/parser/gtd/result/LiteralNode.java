@@ -37,10 +37,6 @@ public class LiteralNode extends AbstractNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean isEpsilon(){
-		return false;
-	}
-	
 	public boolean isEmpty(){
 		return false;
 	}

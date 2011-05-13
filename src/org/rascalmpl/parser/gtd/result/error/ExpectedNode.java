@@ -58,10 +58,6 @@ public class ExpectedNode extends AbstractNode{
 		return false;
 	}
 	
-	public boolean isEpsilon(){
-		return false;
-	}
-	
 	public boolean isRejected(){
 		return false;
 	}

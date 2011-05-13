@@ -52,10 +52,6 @@ public class ListContainerNode extends AbstractContainerNode{
 			throw new UnsupportedOperationException();
 		}
 		
-		public boolean isEpsilon(){
-			throw new UnsupportedOperationException();
-		}
-		
 		public boolean isRejected(){
 			throw new UnsupportedOperationException();
 		}
