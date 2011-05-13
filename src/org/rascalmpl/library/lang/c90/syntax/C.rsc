@@ -437,6 +437,11 @@ syntax StringConstantContent = lex [\\] ![] |
 // TODO: Disallow storage class specifiers as specifiers.
 // TODO: Disallow ArrayDeclarators in the declarator.
 syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}" {
+                               if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl) &&
+                                     !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl)){
+                                  fail;
+                               }
+                               
                                list[Tree] specChildren;
                                if(appl(_,specChildren) := specs){
                                   TypeSpecifier theType = findType(specChildren);
@@ -462,8 +467,12 @@ syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declara
                             }
                             ;
 
-// TODO: Fail if PrototypeDeclatator is not a FunctionDeclarator.
-syntax FunctionPrototype = Specifier* specs PrototypeDeclarator ";" {
+syntax FunctionPrototype = Specifier* specs PrototypeDeclarator decl ";" {
+                              if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl) &&
+                                    !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl)){
+                                 fail;
+                              }
+                              
                               list[Tree] specChildren;
                               if(appl(_,specChildren) := specs){
                                  TypeSpecifier theType = findType(specChildren);
