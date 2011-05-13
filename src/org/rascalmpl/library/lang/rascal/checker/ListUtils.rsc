@@ -17,6 +17,10 @@ public &B joinList(list[&A] itemList, &B (&A) itemFun, &B itemSep, &B joinUnit) 
 	else return joinUnit;	
 }
 
+public str joinStrList(list[str] items, str sep) {
+    return joinList(items, str(str x) { return x; }, sep, ""); 
+}
+
 public list[tuple[&A,&B]] zip(list[&A] alist, list[&B] blist) {
 	if (size(alist) != size(blist)) throw "Zip: both lists must have identical sizes";
 	n = 0;

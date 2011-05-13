@@ -343,13 +343,6 @@ private RType lubOfOverloadedType(RType t1, RType t2) {
 }
 
 //
-// We should never encounter this type in a lub computation
-//
-private RType lubOfStatementType(RType t1, RType t2) {
-    throw UnexpectedRType(t1);
-}
-
-//
 // Main lub routine
 //
 private map[str,RType(RType,RType)] lubHandlers = (
@@ -382,8 +375,7 @@ private map[str,RType(RType,RType)] lubHandlers = (
     "RDataTypeSelector" : lubOfDataTypeSelectorType,
     "RFailType" : lubOfFailType,
     "RInferredType" : lubOfInferredType,
-    "ROverloadedType" : lubOfOverloadedType,
-    "RStatementType" : lubOfStatementType
+    "ROverloadedType" : lubOfOverloadedType
 );
 
 public RType lub(RType t1, RType t2) {

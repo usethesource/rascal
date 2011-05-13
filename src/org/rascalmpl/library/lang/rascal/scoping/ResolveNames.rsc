@@ -17,6 +17,7 @@ import Set;
 import Map;
 import ParseTree;
 import Message;
+import Node;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -310,13 +311,16 @@ public STBuilder addImportedItemsToScope(QualifiedName qn, RSignature signature,
     for (item <- signature.signatureItems) {
         switch(item) {
             case FunctionSigItem(fn,ps,rt,at) : {
-                stBuilder = justSTBuilder(pushNewFunctionScope(fn, rt, ps, [ ], true, isVarArgsParameters(ps), at, stBuilder));
-                stBuilder = handleParametersNamesOnly(ps, stBuilder);
+                rtExp = expandUserTypes(rt, stBuilder, head(stBuilder.scopeStack));
+                < stBuilder, functionId > = pushNewFunctionScope(fn, rtExp, [], [ ], true, isVarArgsParameters(ps), at, stBuilder);
+                < stBuilder, pwt > = handleParametersNamesOnly(ps, stBuilder);
+                stBuilder.scopeItemMap[functionId].params = pwt;
                 stBuilder = popScope(stBuilder);
                 // TODO: Add back in check for overlap
 //                if (!willFunctionOverlap(fn,st,stBuilder,stBuilder.topItemId)) {
-                    stBuilder = justSTBuilder(pushNewFunctionScopeAtTop(fn, rt, ps, [ ], true, isVarArgsParameters(ps), at, stBuilder));
-                    stBuilder = handleParametersNamesOnly(ps, stBuilder);
+                    < stBuilder, functionId > = pushNewFunctionScopeAtTop(fn, rtExp, [], [ ], true, isVarArgsParameters(ps), at, stBuilder);
+                    < stBuilder, pwt > = handleParametersNamesOnly(ps, stBuilder);
+                    stBuilder.scopeItemMap[functionId].params = pwt;
                     stBuilder = popScope(stBuilder);
 //                } 
                 // TODO: Issue a warning if the function would overlap
@@ -444,9 +448,10 @@ public STBuilder handleModuleBodyNamesOnly(Body b, STBuilder stBuilder) {
                 case (Toplevel) `<Test tst> ;` :
                     stBuilder = handleTestNamesOnly(tst,t@\loc,stBuilder);
 
-                // View
-                case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
-                    stBuilder = handleViewNamesOnly(tgs,v,n,sn,alts,t@\loc,stBuilder);
+// Views have been removed from the grammar.
+//                // View
+//                case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
+//                    stBuilder = handleViewNamesOnly(tgs,v,n,sn,alts,t@\loc,stBuilder);
             }
         }
     }
@@ -511,9 +516,10 @@ public STBuilder handleModuleBodyFull(Body b, STBuilder stBuilder) {
                 case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` :
                     stBuilder = handleAlias(tgs, v, typ, btyp, t@\loc, stBuilder);
 
-                // View
-                case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
-                    stBuilder = handleView(tgs, v, n, sn, alts, t@\loc, stBuilder);
+// Views have been removed from the grammar.
+//                // View
+//                case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
+//                    stBuilder = handleView(tgs, v, n, sn, alts, t@\loc, stBuilder);
 
                 default: throw "handleModuleBodyFull: No match for item <t>";
             }
@@ -575,8 +581,9 @@ public STBuilder handleFunctionExpNamesOnly(Tags ts, Visibility v, Signature s, 
 public STBuilder handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, STBuilder stBuilder) {
     // Add the new function into the scope and process any parameters.
     STBuilder addFunction(Name n, RType retType, loc rloc, Parameters ps, list[RType] thrsTypes, bool isPublic, STBuilder stBuilder) {
-        stBuilder = justSTBuilder(pushNewFunctionScope(convertName(n),retType,ps,thrsTypes,isPublic,isVarArgsParameters(ps),l,stBuilder));
-        stBuilder = handleParametersNamesOnly(ps, stBuilder);
+        < stBuilder, functionId > = pushNewFunctionScope(convertName(n),retType,[],thrsTypes,isPublic,isVarArgsParameters(ps),l,stBuilder);
+        < stBuilder, pwt > = handleParametersNamesOnly(ps, stBuilder);
+        stBuilder.scopeItemMap[functionId].params = pwt;
         
         // Check if the return type has any type variables; if so, make sure they are in scope
         for (tvv <- collectTypeVars(retType)) {
@@ -629,16 +636,19 @@ public STBuilder handleAbstractFunction(Tags ts, Visibility v, Signature s, loc 
 // TODO: A current requirement is that, for varargs functions, the last parameter is just
 // a type variable pattern. Enforce that here.
 //
-public STBuilder handleParametersNamesOnly(Parameters p, STBuilder stBuilder) {
+public tuple[STBuilder,list[tuple[RType,Pattern]]] handleParametersNamesOnly(Parameters p, STBuilder stBuilder) {
+    list[tuple[RType,Pattern]] ptypes = [ ];
+    
     if ((Parameters)`( <Formals f> )` := p || (Parameters)`( <Formals f> ... )` := p) {
         if ((Formals)`<{Pattern ","}* fs>` := f) {
             for (fp <- fs) {
-                stBuilder = handlePattern(fp, stBuilder);
+                < stBuilder, rt > = handleParameter(fp, stBuilder);
+                ptypes += < rt, fp >;
             }
         }
     }
     
-    return stBuilder;
+    return < stBuilder, ptypes >;
 }
 
 //
@@ -1213,8 +1223,9 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
         case (Expression)`<Type t> <Parameters p> { <Statement+ ss> }` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
             RType retType = ct.rtype; stBuilder = ct.stBuilder;
-            stBuilder = justSTBuilder(pushNewClosureScope(retType,p,exp@\loc,stBuilder));
-            stBuilder = handleParametersNamesOnly(p, stBuilder);
+            < stBuilder, closureId > = pushNewClosureScope(retType,[],exp@\loc,stBuilder);
+            < stBuilder, pwt > = handleParametersNamesOnly(p, stBuilder);
+            stBuilder.scopeItemMap[closureId].params = pwt;
             
             // Check if the return type has any type variables; if so, make sure they are in scope
             for (tvv <- collectTypeVars(retType)) {
@@ -1236,8 +1247,9 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
 
 		// VoidClosure
         case (Expression)`<Parameters p> { <Statement* ss> }` : {
-            stBuilder = justSTBuilder(pushNewVoidClosureScope(p,exp@\loc,stBuilder));
-            stBuilder = handleParametersNamesOnly(p, stBuilder);
+            < stBuilder, closureId > = pushNewVoidClosureScope([],exp@\loc,stBuilder);
+            < stBuilder, pwt > = handleParametersNamesOnly(p, stBuilder);
+            stBuilder.scopeItemMap[closureId].params = pwt;
             for (s <- ss) stBuilder = handleStatement(s, stBuilder);
             stBuilder = popScope(stBuilder);
         }
@@ -1905,17 +1917,17 @@ public STBuilder handleVisit(Visit v, STBuilder stBuilder) {
 	return stBuilder;
 }
 
-public STBuilder handleMapPattern(Pattern pat, STBuilder stBuilder) {
-    list[tuple[Pattern mapDomain, Pattern mapRange]] mapContents = getMapPatternContents(pat);
-    for (<md,mr> <- mapContents) stBuilder = handlePattern(mr, handlePattern(md, stBuilder));
-    return stBuilder;
-}
-
 //
 // TODO: We don't handle interpolation here. Does it make sense to allow this inside
 // either string or location patterns? (for instance, to create the string to match against?)
 //
 public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
+    STBuilder handleMapPattern(Pattern pat, STBuilder stBuilder) {
+        list[tuple[Pattern mapDomain, Pattern mapRange]] mapContents = getMapPatternContents(pat);
+        for (<md,mr> <- mapContents) stBuilder = handlePattern(mr, handlePattern(md, stBuilder));
+        return stBuilder;
+    }
+
 	STBuilder handlePatternName(RName n, loc l, STBuilder stBuilder) {
 		if (size(getItems(stBuilder, head(stBuilder.scopeStack), n, FCVs())) > 0) {		
 			stBuilder = addItemUses(stBuilder, getItems(stBuilder, head(stBuilder.scopeStack), n, FCVs()), l);
@@ -1954,7 +1966,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
 		
         // Handle any type variables in the type of the parameter IF this is in a function scope
         // (i.e., if this is a parameter declaration)
-        if (Function(_,_,_,_,_,_,_,_) := stBuilder.scopeItemMap[head(stBuilder.scopeStack)]) {
+        if (getName(stBuilder.scopeItemMap[head(stBuilder.scopeStack)]) == "Function") {
             for(tvv <- collectTypeVars(t)) {
                 set[ItemId] tvItems = getItems(stBuilder, head(stBuilder.scopeStack), getTypeVarName(tvv), TypeVars());
                 if (size(tvItems) == 0) {
@@ -2316,3 +2328,277 @@ public STBuilder addFreshAnonymousVariableWithType(loc nloc, RType rt, STBuilder
     stBuilder = justSTBuilder(addVariableToScope(RSimpleName("_"), rt, false, nloc, stBuilder));
     return stBuilder;
 }
+
+
+//
+// This is very similar to the code for handling patterns, since patterns are now used
+// as parameters. However, we impose some additional restrictions on the patterns that
+// can be used, which are accounted for here. We also return not just the builder but
+// the calculated type of the parameter, since this is needed to ultimately derive
+// the type of the function
+//
+public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) {
+   
+    // The type of a map parameter is a map with domain the lub of the given
+    // domains and range the lub of the given ranges. NOTE: We don't have map
+    // patterns yet, so this should not appear "in the wild". TODO: check that
+    // this works once map patterns are available.
+    tuple[STBuilder,RType] handleMapParameter(Pattern pat, STBuilder stBuilder) {
+        list[RType] mapDomains = [ ]; list[RType] mapRanges = [ ];
+        for (<md,mr> <- getMapPatternContents(pat)) {
+            < stBuilder, rt > = handleParameter(md, stBuilder); mapDomains += rt;
+            < stBuilder, rt > = handleParameter(mr, stBuilder); mapRanges += rt;
+        }
+        return < stBuilder, makeMapType(lub(mapDomains), lub(mapRanges)) >;
+    }
+
+    // A parameter has the type of its current definition ONLY if that definition is
+    // in the current function scope. If there is no definition in the current scope
+    // we have an error, all names must be explicitly typed in the parameter before
+    // they can be used without a type.
+    tuple[STBuilder,RType] handleParameterName(RName n, loc l, STBuilder stBuilder) {
+        set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),n];
+        RType resultType = makeVoidType();
+        if (size(matches) == 1) {
+            stBuilder = addItemUses(stBuilder, matches, l);
+            resultType = getTypeForItem(stBuilder, getOneFrom(matches));        
+        } else if (size(matches) > 1) {
+            stBuilder = addItemUses(stBuilder, matches, l);
+            stBuilder = addScopeError(stBuilder, l, "Multiple conflicting definitions found for <prettyPrintName(n)> in the current parameter list.");
+        } else {
+            stBuilder = addScopeError(stBuilder, l, "The first use of <prettyPrintName(n)> in the paramter list must include an explicit type.");        
+        }
+        
+        return < stBuilder, resultType >;
+    }
+    
+    // A typed parameter must be the first use of this parameter name in the function.
+    // If another parameter with this type name is already declared, we have an error.
+    tuple[STBuilder,RType] handleTypedPatternName(RName n, RType t, loc l, loc pl, STBuilder stBuilder) {
+        set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),n];
+        if (size(matches) == 0) {
+            stBuilder = justSTBuilder(addVariableToScope(n, t, false, pl, stBuilder));
+
+            for(tvv <- collectTypeVars(t)) {
+                set[ItemId] tvItems = getItems(stBuilder, head(stBuilder.scopeStack), getTypeVarName(tvv), TypeVars());
+                if (size(tvItems) == 0) {
+                    stBuilder = justSTBuilder(addTypeVariableToScope(tvv, pl, stBuilder));
+                } else {
+                   // TODO: We should just have one, check to see if we have more
+                   RType tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
+                   if (tvType.varTypeBound != tvv.varTypeBound) {
+                        stBuilder = addScopeError(stBuilder, pl, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
+                   }
+                }
+            }
+        } else {
+            stBuilder = addItemUses(stBuilder, matches, l);
+            stBuilder = addScopeError(stBuilder, pl, "Only the first use of <prettyPrintName(n)> in the parameter list should include an explicit type.");
+        }
+        
+        return < stBuilder, t >;
+    }   
+
+    switch(pat) {
+        case (Pattern)`<BooleanLiteral _>` : return < stBuilder, makeBoolType() >;
+        case (Pattern)`<DecimalIntegerLiteral _>` : return < stBuilder, makeIntType() >;
+        case (Pattern)`<OctalIntegerLiteral _>` : return < stBuilder, makeIntType() >;
+        case (Pattern)`<HexIntegerLiteral _>` : return < stBuilder, makeIntType() >;
+        case (Pattern)`<RealLiteral _>` : return < stBuilder, makeRealType() >;
+        case (Pattern)`<StringLiteral _>` : return < stBuilder, makeStrType() >;
+        case (Pattern)`<LocationLiteral _>` : return < stBuilder, makeLocType() >;
+        case (Pattern)`<DateTimeLiteral _>` : return < stBuilder, makeDateTimeType() >;
+    
+        case (Pattern)`<RegExpLiteral rl>` : {
+            list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(_,sort("Name"),_) := prd; });
+            for (n <- names) {
+                RName rn = RSimpleName("<n>");
+                set[ItemId] possibleConflicts = getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), rn, FCVs());
+                set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),rn];
+                set[ItemId] remoteConflicts = possibleConflicts - matches;
+                set[RType] nonStringMatches = { getTypeForItem(i,stBuilder) | i <- matches } - makeStrType();
+                
+                if (size(nonStringMatches) > 0) {
+                    stBuilder = addItemUses(stBuilder, possibleConflicts, n@\loc);
+                    stBuilder = addScopeError(stBuilder, n@\loc, "Cannot bind non-string name to a string value in a regular expression parameter");
+                } else if (size(matches) == 0 && size(remoteConflicts) > 0) {
+                    stBuilder = addItemUses(stBuilder, possibleConflicts, n@\loc);
+                    stBuilder = addScopeError(stBuilder, n@\loc, "Cannot use variable defined outside parameter list as part of regular expression parameter");
+                } else if (size(matches) > 0) {
+                    stBuilder = addItemUses(stBuilder, matches, n@\loc);
+                } else {
+                    stBuilder = justSTBuilder(addVariableToScope(rn, makeStrType(), false, n@\loc, stBuilder));                
+                }
+            }
+            return < stBuilder, makeStrType() >;
+        }
+
+        case (Pattern)`_` : {
+            stBuilder = addScopeError(stBuilder, pat@\loc, "Cannot use anonymous pattern in formal parameters.");
+            return < stBuilder, makeVoidType() >;
+        }           
+
+        case (Pattern)`<Name n>` :
+            return handleParameterName(convertName(n), n@\loc, stBuilder);
+        
+        case (Pattern)`<QualifiedName qn>` :
+            return handleParameterName(convertName(qn), qn@\loc, stBuilder);
+
+        // TODO: Do we want to allow reified type patterns in function signatures?
+        case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` : {
+            for (pi <- pl) < stBuilder, rt > = handleParameter(pi, stBuilder);
+            stBuilder = addScopeError(stBuilder, pat@\loc, "Cannot use reified type pattern in formal parameters.");
+            return < stBuilder, makeVoidType() >;
+        }           
+
+        case (Pattern) `<Pattern pc> ( <{Pattern ","}* pl> )` : {
+            list[RType] pTypes = [ ];
+            for (pli <- pl) { 
+                < stBuilder, rt > = handleParameter(pli, stBuilder);
+                pTypes += rt;
+            }
+
+            RType findOverload(set[RType] overloads) {
+                // First, make sure we only have constructor types in overloads
+                if (size({ ot | ot <- overloads, !isConstructorType(ot) }) > 0) {
+                    stBuilder = addScopeError(stBuilder, pc@\loc, "Non-constructor types found for constructor pattern");
+                    return makeVoidType();
+                }
+                set[RType] matches = { };
+                for (ot <- overloads) {
+                    list[RType] cargs = getConstructorArgumentTypes(ot);
+                    if (size(cargs) == size(pTypes), size([ cargs[idx] | idx <- index(cargs), subtypeOf(pTypes[idx],cargs[idx]) ]) == size(cargs0))
+                        matches += ot;                        
+                }
+                if (size(matches) == 0) {
+                    stBuilder = addScopeError(stBuilder, pat@\loc, "No matching constructors found with the correct name, arity, and type signature");
+                    return makeVoidType();
+                } else if (size(matches) == 1) {
+                    return getOneFrom(matches);
+                } else {
+                    stBuilder = addScopeError(stBuilder, pat@\loc, "<size(matches)> matching constructors found, selecting an arbitrary constructor");
+                    return getOneFrom(matches);
+                }
+            }
+            
+            tuple[STBuilder,RType] handleConstructorName(RName n, loc l) {
+                matches = getItems(stBuilder, head(stBuilder.scopeStack), n, FCVs());
+                stBuilder = addItemUses(stBuilder, matches, l);
+                matchTypes = { getTypeForItem(i, stBuilder) | i <- matches };
+                
+                if (makeStrType() in matchTypes, size(matchTypes) == 1) {
+                    return < stBuilder, makeNodeType() >;
+                } else {
+                    return < stBuilder, findOverload(matchTypes) >;
+                }
+            }
+
+            switch(pc) {
+                case `<StringLiteral _>` : return < stBuilder, makeNodeType() >;
+                case `<Name n>` : return handleConstructorName(convertName(n),n@\loc);
+                case `<QualifiedName qn>` : return handleConstructorName(convertName(qn),qn@\loc);
+            }
+            
+            stBuilder = addScopeError(stBuilder, pc@\loc, "Invalid pattern: the pattern given must represent a node or a constructor");
+            return < stBuilder, makeVoidType() >;            
+        }
+
+        // We handle splicing here -- if we have a list variable, but not an explicit
+        // list pattern, we use the type of the list element.
+        case (Pattern) `[<{Pattern ","}* pl>]` : {
+            list[RType] elementTypes = [ ];
+            for (pli <- pl) { 
+                < stBuilder, rt > = handleParameter(pli, stBuilder);
+                if (`[<{Pattern ","}* pl2>]` !:= pli && isListType(rt))
+                    elementTypes += getListElementType(rt);
+                else
+                    elementTypes += rt; 
+            }
+            return < stBuilder, makeListType(lubOfList(elementTypes)) >;
+        }
+
+        // We handle splicing here -- if we have a set variable, but not an explicit
+        // set pattern, we use the type of the set element.
+        case (Pattern) `{<{Pattern ","}* pl>}` : {
+            list[RType] elementTypes = [ ];
+            for (pli <- pl) { 
+                < stBuilder, rt > = handleParameter(pli, stBuilder);
+                if (`{<{Pattern ","}* pl2>}` !:= pli && isSetType(rt))
+                    elementTypes += getSetElementType(rt);
+                else
+                    elementTypes += rt; 
+            }
+            return < stBuilder, makeSetType(lubOfList(elementTypes)) >;
+        }
+
+        case (Pattern) `<<Pattern pi>>` : {
+            < stBuilder, rt > = handleParameter(pi, stBuilder);
+            return < stBuilder, makeTupleType([rt]) >;
+        }
+
+        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+            list[RType] tupleTypes = [ ];
+            < stBuilder, rt > = handleParameter(pi, stBuilder); tupleTypes += rt;
+            for (pli <- pl) {
+                < stBuilder, rt > = handleParameter(pli, stBuilder); tupleTypes += rt;
+            }
+            return < stBuilder, makeTupleType(tupleTypes) >;
+        }
+
+        case (Pattern) `<Type t> <Name n>` : {
+            ConvertTuple ct = convertRascalType(stBuilder, t);
+            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            return handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder);
+        }
+
+        case (Pattern) `_ *` : {
+            stBuilder = addScopeError(stBuilder, pat@\loc, "Cannot use anonymous multi-variable pattern in formal parameters.");
+            return < stBuilder, makeVoidType() >;
+        }
+        
+        case (Pattern) `<QualifiedName qn> *` : {
+            stBuilder = addScopeError(stBuilder, pat@\loc, "Cannot use multi-variable pattern in formal parameters.");
+            return < stBuilder, makeVoidType() >;
+        }
+        
+        case (Pattern) `/ <Pattern p>` : {
+            < stBuilder, rt > = handleParameter(p, stBuilder);
+            return < stBuilder, makeValueType() >;
+        }
+
+        case (Pattern) `<Name n> : <Pattern p>` : {
+            < stBuilder, rt > = handleParameter(p, stBuilder);
+            stBuilder = addScopeError(stBuilder, pat@\loc, "Cannot use variable becomes pattern in formal parameters.");
+            return < stBuilder, makeVoidType() >;
+        }
+        
+        case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
+            < stBuilder, rt > = handleParameter(p, stBuilder);
+            ConvertTuple ct = convertRascalType(stBuilder, t);
+            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            return handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder);
+        }
+        
+        case (Pattern) `[ <Type t> ] <Pattern p>` : {
+            stBuilder = handleParameter(p, ct.stBuilder);
+            ConvertTuple ct = convertRascalType(stBuilder, t); // Just to check the type, we don't use it here
+            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            return < stBuilder, varType >;
+        }
+        
+        case (Pattern) `! <Pattern p>` : {
+            < stBuilder, rt > = handleParameter(p, stBuilder);
+            return < stBuilder, rt >; // anything else here? an anti-pattern could also match anything            
+        }
+    }
+    
+    // Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
+    // representing the map.
+    // pat[0] is the production used, pat[1] is the actual parse tree contents
+    if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := pat[0]) {
+        return handleMapParameter(pat, stBuilder);
+    }
+
+    throw "Unhandled case in name resolution for pattern-style parameters: <pat> at <pat@\loc>";
+}
+

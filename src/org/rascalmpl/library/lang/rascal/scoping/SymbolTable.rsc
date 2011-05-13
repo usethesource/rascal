@@ -49,7 +49,7 @@ data Item =
 	| PatternMatchScope(ItemId parentId, loc definedAt)
     | TopScope()
 
-    | Function(RName functionName, RType returnType, Parameters params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, ItemId parentId, loc definedAt)
+    | Function(RName functionName, RType returnType, list[tuple[RType,Pattern]] params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, ItemId parentId, loc definedAt)
     | Module(RName moduleName, ItemId parentId, loc definedAt)
 
     | ADT(RType adtType, bool isPublic, ItemId parentId, loc definedAt) 
@@ -245,6 +245,14 @@ public Item getItem(ItemId id, STBuilder stBuilder) {
 // Pretty printers for scope information
 //
 public str prettyPrintSI(STBuilder st, Item si) {
+    str prettyPrintParam(tuple[RType,Pattern] param) {
+        return prettyPrintType(param[0]);
+    }
+    
+    str prettyPrintParams(list[tuple[RType,Pattern]] params) {
+        return joinList(params, prettyPrintParam, ", ", "");
+    }
+
     str prettyPrintSIAux(Item si) {
         switch(si) {
             case TopScope() : return "TopScope";
@@ -253,7 +261,7 @@ public str prettyPrintSI(STBuilder st, Item si) {
             case OrScope(_,_) : return "OrScope";
             case BlockScope(_,_) : return "BlockScope";
             case Module(x,_,_) : return "Module <prettyPrintName(x)>";
-            case Function(x,t,ags,_,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)><ags>";
+            case Function(x,t,ags,_,_,_,_,_) : return "Function <prettyPrintType(t)> <prettyPrintName(x)>(<prettyPrintParams(ags)>)";
             case Variable(x,t,_,_) : return "Variable <prettyPrintType(t)> <prettyPrintName(x)>";
             case TypeVariable(t,_,_) : return "Type Variable <prettyPrintType(t)>";
             case FormalParameter(x,t,_,_) : return "Formal Parameter <prettyPrintType(t)> <prettyPrintName(x)>";
@@ -697,7 +705,7 @@ public AddedItemPair pushNewPatternMatchScope(loc l, STBuilder stBuilder) {
 // Insert a new function scope. Like with the module scope, the function scope adds the function name
 // into the scope for the function itself, since the function name is visible inside the function.
 //
-public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder, ItemId scopeToUse) {
     if (hasAnonymousName) functionName = RSimpleName("@ANONYMOUS_FUNCTION_<stBuilder.nextScopeId>");
     < stBuilder, addedId > = pushNewScope(Function(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, scopeToUse, l), scopeToUse, l, stBuilder);
 	stBuilder.scopeNames = stBuilder.scopeNames + < addedId, functionName, addedId >;
@@ -707,28 +715,28 @@ public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functio
 //
 // Insert the function scope inside the current scope
 //
-public AddedItemPair pushNewFunctionScope(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewFunctionScope(RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
 	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, stBuilder, head(stBuilder.scopeStack));
 }
 
 //
 // Insert the function scope inside the top scope, used for imported functions
 //
-public AddedItemPair pushNewFunctionScopeAtTop(RName functionName, RType retType, Parameters ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewFunctionScopeAtTop(RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
 	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, stBuilder, last(stBuilder.scopeStack));
 } 
 
 //
 // Insert a new closure scope, which is just a function scope for an anonymously-named function
 //
-public AddedItemPair pushNewClosureScope(RType retType, Parameters ps, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewClosureScope(RType retType, list[tuple[RType,Pattern]] ps, loc l, STBuilder stBuilder) {
     return pushNewFunctionScopeAt(true, RSimpleName(""), retType, ps, [], false, false, l, stBuilder, head(stBuilder.scopeStack));
 }
 
 //
 // Insert a new void closure scope, which is just a function scope for an anonymously-named function
 //
-public AddedItemPair pushNewVoidClosureScope(Parameters ps, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewVoidClosureScope(list[tuple[RType,Pattern]] ps, loc l, STBuilder stBuilder) {
     return pushNewFunctionScopeAt(true, RSimpleName(""), makeVoidType(), ps, [], false, false, l, stBuilder, head(stBuilder.scopeStack));
 }
 

@@ -26,43 +26,33 @@ import lang::rascal::syntax::RascalRascal;
 // a candidate subject type or we have enough information to identify the
 // constructor at the top.
 //
-public ConstraintBase gatherStringTemplateConstraints(STBuilder stBuilder, ConstraintBase constraintBase, StringTemplate s) {
+public ConstraintBase gatherStringTemplateConstraints(STBuilder stBuilder, ConstraintBase cb, StringTemplate s) {
     // For all the different types of string templates, we only need to constrain the overall type
     // and the type of any generators, conditions, etc. The body is made up of either string
     // templates or expressions, and these are either constrained elsewhere (string templates)
     // or can be any type, meaning they are unconstrained, so we leave the type to be whatever
     // it is determined as from expression constraint generation.
     switch(s) {
-        case `for (<{Expression ","}+ gens>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+        case `for (<{Expression ","}+ gens>) { <Statement* pre> <StringMiddle body> <Statement* post> }` :
             for (gen <- gens) 
-                constraintBase.constraints = constraintBase.constraints + TreeIsType(gen,gen@\loc,makeBoolType());
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
-        }
+                cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, gen@\loc), makeBoolType(), s@\loc);
 
-        case `if (<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
+        case `if (<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post> }` :
             for (cond <- conds)
-                constraintBase.constraints = constraintBase.constraints + TreeIsType(conds,cond@\loc,makeBoolType());
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
-        }
+                cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, cond@\loc), makeBoolType(), s@\loc);
 
-        case `if (<{Expression ","}+ conds>) { <Statement* preThen> <StringMiddle bodyThen> <Statement* postThen> } else { <Statement* preElse> <StringMiddle bodyElse> <Statement* postElse> }` : {
+        case `if (<{Expression ","}+ conds>) { <Statement* preThen> <StringMiddle bodyThen> <Statement* postThen> } else { <Statement* preElse> <StringMiddle bodyElse> <Statement* postElse> }` :
             for (cond <- conds)
-                constraintBase.constraints = constraintBase.constraints + TreeIsType(conds,cond@\loc,makeBoolType());
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
-        }
+                cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, cond@\loc), makeBoolType(), s@\loc);
 
-        case `while (<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post> }` : {
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(cond,cond@\loc,makeBoolType());
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
-        }
+        case `while (<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post> }` :
+            cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, cond@\loc), makeBoolType(), s@\loc);
 
-        case `do { <Statement* pre> <StringMiddle body> <Statement* post> } while (<Expression cond>)` : {
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(cond,cond@\loc,makeBoolType());
-            constraintBase.constraints = constraintBase.constraints + TreeIsType(s,s@\loc,makeStrType());
-        }
+        case `do { <Statement* pre> <StringMiddle body> <Statement* post> } while (<Expression cond>)` :
+            cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, cond@\loc), makeBoolType(), s@\loc);
         
         default : throw "Unexpected string template syntax at location <s@\loc>, no match"; 
     }
 
-    return constraintBase;
+    return addConstraintForLoc(cb, s@\loc, makeStrType());
 }

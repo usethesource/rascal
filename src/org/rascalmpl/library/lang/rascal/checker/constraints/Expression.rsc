@@ -28,315 +28,297 @@ import lang::rascal::syntax::RascalRascal;
 // TODO: We may need support for string interpolation typing in the string literals, but
 // I think this is being handled just by the visit.
 //
-public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase cs, Expression exp) {
+public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase cb, Expression exp) {
     switch(exp) {
-        case (Expression)`<BooleanLiteral bl>` : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeBoolType());
-            return cs;
-        }
+        case (Expression)`<BooleanLiteral bl>` :
+            return addConstraintForLoc(cb, exp@\loc, makeBoolType());
 
-        case (Expression)`<DecimalIntegerLiteral il>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeIntType());
-            return cs;
-        }
+        case (Expression)`<DecimalIntegerLiteral il>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeIntType());
 
-        case (Expression)`<OctalIntegerLiteral il>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeIntType());
-            return cs;
-        }
+        case (Expression)`<OctalIntegerLiteral il>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeIntType());
 
-        case (Expression)`<HexIntegerLiteral il>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeIntType());
-            return cs;
-        }
+        case (Expression)`<HexIntegerLiteral il>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeIntType());
 
-        case (Expression)`<RealLiteral rl>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeRealType());
-            return cs;
-        }
+        case (Expression)`<RealLiteral rl>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeRealType());
 
-        case (Expression)`<StringLiteral sl>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeStrType());
-            return cs;
-        }
+        case (Expression)`<StringLiteral sl>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeStrType());
 
-        case (Expression)`<LocationLiteral ll>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeLocType());
-            return cs;
-        }
+        case (Expression)`<LocationLiteral ll>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeLocType());
 
-        case (Expression)`<DateTimeLiteral dtl>`  : {
-            cs.constraints = cs.constraints + TreeIsType(exp, exp@\loc, makeDateTimeType());
-            return cs;
-        }
+        case (Expression)`<DateTimeLiteral dtl>`  :
+            return addConstraintForLoc(cb, exp@\loc, makeDateTimeType());
 
         // _ as a name, which, unbelievably, can be used just about anywhere (but we
         // treat it as an anonymous type here, instead of as a regular name like in
         // the current implementation)
         case (Expression)`_`: {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,t1);
+            < cb, te > = makeFreshType(cb);
             if (exp@\loc in st.itemUses<0>)
-                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[exp@\loc],exp@\loc);
-            return cs;
+                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[exp@\loc], exp@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
+            return addConstraintForLoc(cb, exp@\loc, te);
         }
 
         // Name
         case (Expression)`<Name n>`: {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,t1);
+            < cb, te > = makeFreshType(cb);
             if (n@\loc in st.itemUses<0>)
-                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
-            return cs;
+                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[n@\loc], exp@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
+            return addConstraintForLoc(cb, exp@\loc, te);
         }
         
         // QualifiedName
         case (Expression)`<QualifiedName qn>`: {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,t1);
+            < cb, te > = makeFreshType(cb);
             if (qn@\loc in st.itemUses<0>)
-                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[qn@\loc],qn@\loc);
-            return cs;
+                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[qn@\loc], exp@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
+            return addConstraintForLoc(cb, exp@\loc, te);
         }
 
         // ReifiedType
         case (Expression)`<BasicType t> ( <{Expression ","}* el> )` :
-            return gatherReifiedTypeExpressionConstraints(st,cs,exp,t,el);
+            return gatherReifiedTypeExpressionConstraints(st,cb,exp,t,el);
 
         // CallOrTree
         case (Expression)`<Expression e1> ( <{Expression ","}* el> )` :
-            return gatherCallOrTreeExpressionConstraints(st,cs,exp,e1,el);
+            return gatherCallOrTreeExpressionConstraints(st,cb,exp,e1,el);
 
         // List
         case (Expression)`[<{Expression ","}* el>]` :
-            return gatherListExpressionConstraints(st,cs,exp,el);
+            return gatherListExpressionConstraints(st,cb,exp,el);
 
         // Set
         case (Expression)`{<{Expression ","}* el>}` :
-            return gatherSetExpressionConstraints(st,cs,exp,el);
+            return gatherSetExpressionConstraints(st,cb,exp,el);
 
         // Tuple, with just one element
         case (Expression)`<<Expression ei>>` :
-            return gatherTrivialTupleExpressionConstraints(st,cs,exp,ei);
+            return gatherTrivialTupleExpressionConstraints(st,cb,exp,ei);
 
         // Tuple, with multiple elements
         case (Expression)`<<Expression ei>, <{Expression ","}* el>>` :
-            return gatherTupleExpressionConstraints(st,cs,exp,ei,el);
+            return gatherTupleExpressionConstraints(st,cb,exp,ei,el);
 
         // Closure
         case (Expression)`<Type t> <Parameters p> { <Statement+ ss> }` :
-            return gatherClosureExpressionConstraints(st,cs,exp,t,p,ss);
+            return gatherClosureExpressionConstraints(st,cb,exp,t,p,ss);
 
         // VoidClosure
         case (Expression)`<Parameters p> { <Statement* ss> }` :
-            return gatherVoidClosureExpressionConstraints(st,cs,exp,p,ss);
+            return gatherVoidClosureExpressionConstraints(st,cb,exp,p,ss);
 
         // NonEmptyBlock
         case (Expression)`{ <Statement+ ss> }` :
-            return gatherNonEmptyBlockExpressionConstraints(st,cs,exp,ss);
+            return gatherNonEmptyBlockExpressionConstraints(st,cb,exp,ss);
         
         // Visit
         case (Expression) `<Label l> <Visit v>` :
-            return gatherVisitExpressionConstraints(st,cs,exp,l,v);
+            return gatherVisitExpressionConstraints(st,cb,exp,l,v);
         
         // ParenExp
-        case (Expression)`(<Expression e>)` : {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,t1) + TreeIsType(e,e@\loc,t1);
-            return cs;
-        }
+        case (Expression)`(<Expression e>)` :
+            return addConstraintForLoc(cb, exp@\loc, typeForLoc(cb, e@\loc));
 
         // Range
         case (Expression)`[ <Expression e1> .. <Expression e2> ]` :
-            return gatherRangeExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherRangeExpressionConstraints(st,cb,exp,e1,e2);
 
         // StepRange
         case (Expression)`[ <Expression e1>, <Expression e2> .. <Expression e3> ]` :
-            return gatherStepRangeExpressionConstraints(st,cs,exp,e1,e2,e3);
+            return gatherStepRangeExpressionConstraints(st,cb,exp,e1,e2,e3);
 
         // ReifyType
-        case (Expression)`#<Type t>` : {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,makeReifiedType(convertType(t)));
-            return cs;
-        }
+        case (Expression)`#<Type t>` :
+            return addConstraintForLoc(cb, exp@\loc, makeReifiedType(convertType(t)));
 
         // FieldUpdate
         case (Expression)`<Expression e1> [<Name n> = <Expression e2>]` :
-            return gatherFieldUpdateExpressionConstraints(st,cs,exp,e1,n,e2);
+            return gatherFieldUpdateExpressionConstraints(st,cb,exp,e1,n,e2);
 
         // FieldAccess
         case (Expression)`<Expression e1> . <Name n>` :
-            return gatherFieldAccessExpressionConstraints(st,cs,exp,e1,n);
+            return gatherFieldAccessExpressionConstraints(st,cb,exp,e1,n);
 
         // FieldProject
         case (Expression)`<Expression e1> < <{Field ","}+ fl> >` :
-            return gatherFieldProjectExpressionConstraints(st,cs,exp,e1,fl);
+            return gatherFieldProjectExpressionConstraints(st,cb,exp,e1,fl);
 
         // Subscript 
         case (Expression)`<Expression e1> [ <{Expression ","}+ el> ]` :
-            return gatherSubscriptExpressionConstraints(st,cs,exp,e1,el);
+            return gatherSubscriptExpressionConstraints(st,cb,exp,e1,el);
 
         // IsDefined
         case (Expression)`<Expression e> ?` :
-            return gatherIsDefinedExpressionConstraints(st,cs,exp,e);
+            return gatherIsDefinedExpressionConstraints(st,cb,exp,e);
 
         // Negation
         case (Expression)`! <Expression e>` :
-            return gatherNegationExpressionConstraints(st,cs,exp,e);
+            return gatherNegationExpressionConstraints(st,cb,exp,e);
 
         // Negative
         case (Expression)`- <Expression e> ` :
-            return gatherNegativeExpressionConstraints(st,cs,exp,e);
+            return gatherNegativeExpressionConstraints(st,cb,exp,e);
 
         // TransitiveReflexiveClosure
         case (Expression)`<Expression e> * ` :
-            return gatherTransitiveReflexiveClosureExpressionConstraints(st,cs,exp,e);
+            return gatherTransitiveReflexiveClosureExpressionConstraints(st,cb,exp,e);
 
         // TransitiveClosure
         case (Expression)`<Expression e> + ` :
-            return gatherTransitiveClosureExpressionConstraints(st,cs,exp,e);
+            return gatherTransitiveClosureExpressionConstraints(st,cb,exp,e);
 
         // GetAnnotation
         case (Expression)`<Expression e> @ <Name n>` :
-            return gatherGetAnnotationExpressionConstraints(st,cs,exp,e,n);
+            return gatherGetAnnotationExpressionConstraints(st,cb,exp,e,n);
 
         // SetAnnotation
         case (Expression)`<Expression e1> [@ <Name n> = <Expression e2>]` :
-            return gatherSetAnnotationExpressionConstraints(st,cs,exp,e1,n,e2);
+            return gatherSetAnnotationExpressionConstraints(st,cb,exp,e1,n,e2);
 
         // Composition
         case (Expression)`<Expression e1> o <Expression e2>` :
-            return gatherCompositionExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherCompositionExpressionConstraints(st,cb,exp,e1,e2);
 
         // Product
         case (Expression)`<Expression e1> * <Expression e2>` :
-            return gatherProductExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherProductExpressionConstraints(st,cb,exp,e1,e2);
 
         // Join
         case (Expression)`<Expression e1> join <Expression e2>` :
-            return gatherJoinExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherJoinExpressionConstraints(st,cb,exp,e1,e2);
 
         // Div
         case (Expression)`<Expression e1> / <Expression e2>` :
-            return gatherDivExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherDivExpressionConstraints(st,cb,exp,e1,e2);
 
         // Mod
         case (Expression)`<Expression e1> % <Expression e2>` :
-            return gatherModExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherModExpressionConstraints(st,cb,exp,e1,e2);
 
         // Intersection
         case (Expression)`<Expression e1> & <Expression e2>` :
-            return gatherIntersectionExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherIntersectionExpressionConstraints(st,cb,exp,e1,e2);
         
         // Plus
         case (Expression)`<Expression e1> + <Expression e2>` :
-            return gatherPlusExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherPlusExpressionConstraints(st,cb,exp,e1,e2);
 
         // Minus
         case (Expression)`<Expression e1> - <Expression e2>` :
-            return gatherMinusExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherMinusExpressionConstraints(st,cb,exp,e1,e2);
 
         // NotIn
         case (Expression)`<Expression e1> notin <Expression e2>` :
-            return gatherNotInExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherNotInExpressionConstraints(st,cb,exp,e1,e2);
 
         // In
         case (Expression)`<Expression e1> in <Expression e2>` :
-            return gatherInExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherInExpressionConstraints(st,cb,exp,e1,e2);
 
         // LessThan
         case (Expression)`<Expression e1> < <Expression e2>` :
-            return gatherLessThanExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherLessThanExpressionConstraints(st,cb,exp,e1,e2);
 
         // LessThanOrEq
         case (Expression)`<Expression e1> <= <Expression e2>` :
-            return gatherLessThanOrEqualExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherLessThanOrEqualExpressionConstraints(st,cb,exp,e1,e2);
 
         // GreaterThan
         case (Expression)`<Expression e1> > <Expression e2>` :
-            return gatherGreaterThanExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherGreaterThanExpressionConstraints(st,cb,exp,e1,e2);
 
         // GreaterThanOrEq
         case (Expression)`<Expression e1> >= <Expression e2>` :
-            return gatherGreaterThanOrEqualExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherGreaterThanOrEqualExpressionConstraints(st,cb,exp,e1,e2);
 
         // Equals
         case (Expression)`<Expression e1> == <Expression e2>` :
-            return gatherEqualsExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherEqualsExpressionConstraints(st,cb,exp,e1,e2);
 
         // NotEquals
         case (Expression)`<Expression e1> != <Expression e2>` :
-            return gatherNotEqualsExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherNotEqualsExpressionConstraints(st,cb,exp,e1,e2);
 
         // IfThenElse (Ternary)
         case (Expression)`<Expression e1> ? <Expression e2> : <Expression e3>` :
-            return gatherIfThenElseExpressionConstraints(st,cs,exp,e1,e2,e3);
+            return gatherIfThenElseExpressionConstraints(st,cb,exp,e1,e2,e3);
 
         // IfDefinedOtherwise
         case (Expression)`<Expression e1> ? <Expression e2>` :
-            return gatherIfDefinedOtherwiseExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherIfDefinedOtherwiseExpressionConstraints(st,cb,exp,e1,e2);
 
         // Implication
         case (Expression)`<Expression e1> ==> <Expression e2>` :
-            return gatherImplicationExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherImplicationExpressionConstraints(st,cb,exp,e1,e2);
 
         // Equivalence
         case (Expression)`<Expression e1> <==> <Expression e2>` :
-            return gatherEquivalenceExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherEquivalenceExpressionConstraints(st,cb,exp,e1,e2);
 
         // And
         case (Expression)`<Expression e1> && <Expression e2>` :
-            return gatherAndExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherAndExpressionConstraints(st,cb,exp,e1,e2);
 
         // Or
         case (Expression)`<Expression e1> || <Expression e2>` :
-            return gatherOrExpressionConstraints(st,cs,exp,e1,e2);
+            return gatherOrExpressionConstraints(st,cb,exp,e1,e2);
         
         // Match
         case (Expression)`<Pattern p> := <Expression e>` :
-            return gatherMatchExpressionConstraints(st,cs,exp,p,e);
+            return gatherMatchExpressionConstraints(st,cb,exp,p,e);
 
         // NoMatch
         case (Expression)`<Pattern p> !:= <Expression e>` :
-            return gatherNoMatchExpressionConstraints(st,cs,exp,p,e);
+            return gatherNoMatchExpressionConstraints(st,cb,exp,p,e);
 
         // Enumerator
         case (Expression)`<Pattern p> <- <Expression e>` :
-            return gatherEnumeratorExpressionConstraints(st,cs,exp,p,e);
+            return gatherEnumeratorExpressionConstraints(st,cb,exp,p,e);
         
         // Set Comprehension
         case (Expression) `{ <{Expression ","}+ el> | <{Expression ","}+ er> }` :
-            return gatherSetComprehensionExpressionConstraints(st,cs,exp,el,er);
+            return gatherSetComprehensionExpressionConstraints(st,cb,exp,el,er);
 
         // List Comprehension
         case (Expression) `[ <{Expression ","}+ el> | <{Expression ","}+ er> ]` :
-            return gatherListComprehensionExpressionConstraints(st,cs,exp,el,er);
+            return gatherListComprehensionExpressionConstraints(st,cb,exp,el,er);
         
         // Map Comprehension
         case (Expression) `( <Expression ef> : <Expression et> | <{Expression ","}+ er> )` :
-            return gatherMapComprehensionExpressionConstraints(st,cs,exp,ef,et,er);
+            return gatherMapComprehensionExpressionConstraints(st,cb,exp,ef,et,er);
         
         // Reducer 
         case (Expression)`( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )` :
-            return gatherReducerExpressionConstraints(st,cs,exp,ei,er,egs);
+            return gatherReducerExpressionConstraints(st,cb,exp,ei,er,egs);
         
         // It
         case (Expression)`it` : {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(exp,exp@\loc,t1);
+            < cb, te > = makeFreshType(cb);
             if (exp@\loc in st.itemUses<0>)
-                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[exp@\loc],exp@\loc);
-            return cs;
+                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[exp@\loc], exp@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
+            return addConstraintForLoc(cb, exp@\loc, te);
         }
             
         // Any 
         case (Expression)`any(<{Expression ","}+ egs>)` :
-            return gatherAnyExpressionConstraints(st,cs,exp,egs);
+            return gatherAnyExpressionConstraints(st,cb,exp,egs);
 
         // All 
         case (Expression)`all(<{Expression ","}+ egs>)` :
-            return gatherAllExpressionConstraints(st,cs,exp,egs);
+            return gatherAllExpressionConstraints(st,cb,exp,egs);
 
     }
 
@@ -344,7 +326,7 @@ public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase c
     // representing the map.
     // exp[0] is the production used, exp[1] is the actual parse tree contents
     if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := exp[0])
-        return gatherMapExpressionConstraints(st,cs,exp);
+        return gatherMapExpressionConstraints(st,cb,exp);
       
     // TODO: This should be here, but the above is NEVER matching because of breakage inside Rascal.
     // So, fix that, and then uncomment this.  
@@ -363,24 +345,23 @@ public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase c
 //
 // TODO: Add support for reified reified types
 //
-private ConstraintBase gatherReifiedTypeExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Type t, {Expression ","}* el) {
-    // Each element of the list should be a reified type value for some arbitrary type t1, 
+private ConstraintBase gatherReifiedTypeExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Type t, {Expression ","}* el) {
+    // Each element of the list should be a reified type value for some arbitrary type rt, 
     // like #list[int] or list(int()), with the type then also a reified type
     list[RType] typeList = [ ];
     for (e <- el) {
-        <cs,t1> = makeFreshType(cs);
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeReifiedType(t1));
+        < cb, rt > = makeFreshType(cb);
+        cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, e@\loc), makeReifiedType(rt), e@\loc);
     }
     
     // The ultimate type of the expression is then the reified type formed using type t and the type
     // parameters: for instance, if t = list, and there is a single parameter p = int, then the ultimate
     // type is type[list[int]], the reified form of list[int]
-    <cs,ts> = makeFreshType(cs,2); t2 = ts[0]; t3 = ts[1];
-    Constraint c1 = IsReifiedType(t2,typeList,ep@\loc,t3);
-    Constraint c2 = TreeIsType(ep,ep@\loc,t3);
-    cs.constraints = cs.constraints + { c1, c2 };
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + IsReifiedType(convertType(t), typeList, tr, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
     
-    return cs;
+    return cb;
 }
 
 //
@@ -405,24 +386,18 @@ private ConstraintBase gatherReifiedTypeExpressionConstraints(STBuilder st, Cons
 // ----------------------------------------------------------------------------------------------
 //               f (e1, e2, e3, e4) : loc
 //
-public ConstraintBase gatherCallOrTreeExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression ec, {Expression ","}* es) {
-    // First, assign types for the params; each of of arbitrary type
-    list[RType] params = [ ];
-    for (e <- es) {
-        <cs, t1> = makeFreshType(cs);
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1);
-        params += t1;
-    }
+public ConstraintBase gatherCallOrTreeExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ec, {Expression ","}* es) {
+    // First, get back the types already assigned to each parameter
+    list[RType] paramTypes = [ typeForLoc(cb, e@\loc) | e <- es ];
 
-    // ec, the target (f), is of arbitrary type t2; the resulting type, t3, is based on the invocation 
-    // of t2 with param types params, and is the overall result of ep (the entire expression)
-    <cs,ts> = makeFreshTypes(cs,2); t2 = ts[0]; t3 = ts[1];
-    Constraint c1 = TreeIsType(ec,ec@\loc,t2);
-    Constraint c2 = CallOrTree(t2,params,t3,ep@\loc);
-    Constraint c3 = TreeIsType(ep,ep@\loc,t3);
-    cs.constraints = cs.constraints + { c1, c2, c3 };
+    // ec, the target (f), is of arbitrary type tt; the resulting type, tr, is based on the 
+    // invocation of tt with param types paramTypes, and is the overall result of ep (the entire expression)
+    RType tt = typeForLoc(cb, ec@\loc);
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + CallOrTree(tt, paramTypes, tr, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
 
-    return cs;  
+    return cb;  
 }
 
 //
@@ -434,29 +409,26 @@ public ConstraintBase gatherCallOrTreeExpressionConstraints(STBuilder st, Constr
 //
 // NOTE: This rule is simplified a bit, below we also handle splicing
 //
-public ConstraintBase gatherListExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, {Expression ","}* es) {
+public ConstraintBase gatherListExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, {Expression ","}* es) {
     // The elements of the list are each of some arbitrary type
     list[RType] elements = [ makeVoidType() ]; 
     for (e <- es) { 
-        <cs,t1> = makeFreshType(cs);
+        et = typeForLoc(cb, e@\loc);
 
         // If this is an element that can be spliced, i.e. is not surrounded by list
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`[<{Expression ","}* el>]` !:= e) {
-            t1 = SpliceableElement(t1);
-        }
+        if ((Expression)`[<{Expression ","}* _>]` !:= e)
+            et = SpliceableElement(et);
 
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1); 
-        elements += t1;
+        elements += et;
     }
 
     // The list itself is the lub of the various elements
-    <cs,t2> = makeFreshType(cs); 
-    Constraint c1 = LubOfList(elements,t2,ep@\loc);
-    Constraint c2 = TreeIsType(ep, ep@\loc, makeListType(t2));
-    cs.constraints = cs.constraints + { c1, c2 };
+    < cb, rt > = makeFreshType(cb); 
+    cb.constraints = cb.constraints + LubOfList(elements,rt,ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeListType(rt));
 
-    return cs;
+    return cb;
 }
 
 //
@@ -468,29 +440,26 @@ public ConstraintBase gatherListExpressionConstraints(STBuilder st, ConstraintBa
 //
 // NOTE: This rule is simplified a bit, below we also need to handle splicing
 //
-public ConstraintBase gatherSetExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, {Expression ","}* es) {
+public ConstraintBase gatherSetExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, {Expression ","}* es) {
     // The elements of the set are each of some arbitrary type
     list[RType] elements = [ makeVoidType() ]; 
     for (e <- es) { 
-        <cs,t1> = makeFreshType(cs);
+        et = typeForLoc(cb, e@\loc);
 
-        // If this is an element that can be spliced, i.e. is not surrounded by set
+        // If this is an element that can be spliced, i.e. is not surrounded by list
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`{<{Expression ","}* el>}` !:= e) {
-            t1 = SpliceableElement(t1);
-        }
+        if ((Expression)`{<{Expression ","}* _>}` !:= e)
+            et = SpliceableElement(et);
 
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1); 
-        elements += t1;
+        elements += et;
     }
 
     // The set itself is the lub of the various elements
-    <cs,t2> = makeFreshType(cs); 
-    Constraint c1 = LubOfSet(elements,t2,ep@\loc);
-    Constraint c2 = TreeIsType(ep, ep@\loc, makeSetType(t2));
-    cs.constraints = cs.constraints + { c1, c2 };
+    < cb, rt > = makeFreshType(cb); 
+    cb.constraints = cb.constraints + LubOfSet(elements,rt,ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeSetType(rt));
 
-    return cs;
+    return cb;
 }
 
 //
@@ -500,12 +469,8 @@ public ConstraintBase gatherSetExpressionConstraints(STBuilder st, ConstraintBas
 // ----------------------
 //   < e1 > : tuple[t1]
 //
-public ConstraintBase gatherTrivialTupleExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression ei) {
-    <cs,t1> = makeFreshType(cs);
-    Constraint c1 = TreeIsType(ei,ei@\loc,t1); // the element is of an arbitrary type
-    Constraint c2 = TreeIstype(ep,makeTupleType([t1])); // the tuple has on element of this arbitrary type 
-    cs.constraints = cs.constraints + { c1, c2 };
-    return cs;
+public ConstraintBase gatherTrivialTupleExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ei) {
+    return addConstraintForLoc(cb, ep@\loc, makeTupleType( [ typeForLoc(cb, ei@\loc) ] ));
 }
 
 //
@@ -515,19 +480,8 @@ public ConstraintBase gatherTrivialTupleExpressionConstraints(STBuilder st, Cons
 // ------------------------------------------
 //   < e1, ..., en > : tuple[t1, ..., tn]
 //
-public ConstraintBase gatherTupleExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression ei, {Expression ","}* el) {
-    // The elements of the tuple are each of some arbitrary type
-    list[RType] elements = [ ]; 
-    for (e <- el) { 
-        <cs,t1> = makeFreshType(cs);
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1); 
-        elements += t1;
-    }
-
-    // The tuple is then formed from these types
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeTupleType(elements));
-
-    return cs;
+public ConstraintBase gatherTupleExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ei, {Expression ","}* el) {
+    return addConstraintForLoc(cb, ep@\loc, makeTupleType( [ typeForLoc(cb, ei@\loc) ] + [ typeForLoc(cb, eli@\loc) | eli <- el ] ));
 }
 
 //
@@ -535,9 +489,8 @@ public ConstraintBase gatherTupleExpressionConstraints(STBuilder st, ConstraintB
 //
 // TODO: Add type rule
 //
-public RType gatherClosureExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Type t, Parameters p, Statement+ ss) {
-    list[RType] pTypes = getParameterTypes(p);
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeFunctionType(convertType(t), pTypes));
+public RType gatherClosureExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Type t, Parameters p, Statement+ ss) {
+    return addConstraintForLoc(cb, ep@\loc, makeFunctionType(convertType(t), getParameterTypes(cb,p)));
 }
 
 //
@@ -545,9 +498,8 @@ public RType gatherClosureExpressionConstraints(STBuilder st, ConstraintBase cs,
 //
 // TODO: Add type rule
 //
-public RType gatherVoidClosureExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Parameters p, Statement+ ss) {
-    list[RType] pTypes = getParameterTypes(p);
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeFunctionType(makeVoidType(), pTypes));
+public RType gatherVoidClosureExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Parameters p, Statement+ ss) {
+    return addConstraintForLoc(cb, ep@\loc, makeFunctionType(makeVoidType(), getParameterTypes(cb,p)));
 }
  
 //
@@ -557,15 +509,8 @@ public RType gatherVoidClosureExpressionConstraints(STBuilder st, ConstraintBase
 // -----------------------------
 //     { s1 ... sn } : tn
 //
-public ConstraintBase gatherNonEmptyBlockExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Statement+ ss) {
-    list[Statement] sl = [ s | s <- ss ];
-    Statement finalStatement = head(tail(sl,1));
-    
-    // The type of the expression is the same as the internal type of the last statement in the block
-    <cs,t1> = makeFreshType(cs);
-    cs.constraints = cs.constraints + TreeIsType(finalStatement,finalStatement@\loc,makeStatementType(t1))
-                                    + TreeIsType(ep,ep@\loc,t1);
-    return cs;
+public ConstraintBase gatherNonEmptyBlockExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Statement+ ss) {
+    return addConstraintForLoc(cb, ep@\loc, typeForLoc(cb, last([s | s <- ss])@\loc));
 }
 
 //
@@ -575,14 +520,12 @@ public ConstraintBase gatherNonEmptyBlockExpressionConstraints(STBuilder st, Con
 // -----------------
 //   visit(e) : t
 //
-public ConstraintBase gatherVisitExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Label l, Visit v) {
+public ConstraintBase gatherVisitExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Label l, Visit v) {
     // The type of the expression is the same as the type of the visit, which is the type of the
     // item being visited; i.e., visit("hello") { ... } is of type str. Constraints gathered on
     // the visit assign the type to the visit, so we can just constrain it here, treated as an
-    // expression. 
-    <cs,t1> = makeFreshType(cs);
-    cs.constraints = cs.constraints + TreeIsType(v,v@\loc,t1) + TreeIsType(ep,ep@\loc,t1); 
-    return cs;
+    // expression.
+    return addConstraintForLoc(cb, ep@\loc, typeForLoc(cb, v@\loc)); 
 }
 
 //
@@ -592,10 +535,10 @@ public ConstraintBase gatherVisitExpressionConstraints(STBuilder st, ConstraintB
 // -------------------------------
 // [ e1 .. e2 ] : list[int]
 //
-public ConstraintBase gatherRangeExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e1, Expression e2) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeListType(makeIntType())) + 
-                     TreeIsType(e1,e1@\loc,makeIntType()) + TreeIsType(e2,e2@\loc,makeIntType()); 
-    return cs;
+public ConstraintBase gatherRangeExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e1, Expression e2) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e1@\loc),makeIntType(),ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e2@\loc),makeIntType(),ep@\loc);
+    return addConstraintForLoc(cb, ep@\loc, makeListType(makeIntType()));  
 }
 
 //
@@ -605,11 +548,11 @@ public ConstraintBase gatherRangeExpressionConstraints(STBuilder st, ConstraintB
 // ----------------------------------------
 //     [ e1, e2 .. e3 ] : list[int]
 //
-public ConstraintBase gatherStepRangeExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e1, Expression e2, Expression e3) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeListType(makeIntType())) + 
-                     TreeIsType(e1,e1@\loc,makeIntType()) + TreeIsType(e2,e2@\loc,makeIntType()) +
-                     TreeIsType(e3,e3@\loc,makeIntType());
-    return cs;
+public ConstraintBase gatherStepRangeExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e1, Expression e2, Expression e3) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e1@\loc),makeIntType(),ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e2@\loc),makeIntType(),ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e3@\loc),makeIntType(),ep@\loc);
+    return addConstraintForLoc(cb, ep@\loc, makeListType(makeIntType()));  
 }
 
 //
@@ -619,16 +562,24 @@ public ConstraintBase gatherStepRangeExpressionConstraints(STBuilder st, Constra
 // -------------------------------------------------------------
 //                el.n = er : t1
 //
-public ConstraintBase gatherFieldUpdateExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Name n, Expression er) {
-    <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
-    Constraint c1 = TreeIsType(el,el@\loc,t1); // el has an arbitrary type, t1
-    Constraint c2 = TreeIsType(ep,ep@\loc,t1); // the overall expression has the same type as el, i.e., x.f = 3 is of the same type as x
-    Constraint c3 = FieldOf(n,t1,t2,n@\loc); // name n is actually a field of type t1, i.e., in x.f = 3, f is a field of x, and has type t2
-    Constraint c4 = TreeIsType(er,er@\loc,t3); // the expression being assigned has an arbitrary type, t3
-    Constraint c5 = FieldAssignable(ep,ep@\loc,el,n,er,t3,t2); // the type of expression being assigned is assignment compatible with the type of the field
-
-    cs.constraints = cs.constraints + { c1, c2, c3, c4, c5 };
-    return cs;
+public ConstraintBase gatherFieldUpdateExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Name n, Expression er) {
+    // el is an expression of arbitrary type tel
+    tel = typeForLoc(cb, el@\loc);
+    
+    // field n must be a field of type tel, and is of type ft
+    < cb, ft > = makeFreshType(cb);
+    cb.constraints = cb.constraints + FieldOf(n, tel, ft, ep@\loc);
+    
+    // er is an expression of arbitrary type ter
+    ter = typeForLoc(cb, er@\loc);
+    
+    // ter must be assignable into type ft
+    cb.constraints = cb.constraints + FieldAssignable(n,ter,ft,U(),ep@\loc);
+     
+    // the expression has the type of tel
+    cb = addConstraintForLoc(cb, ep@\loc, tel);
+    
+    return cb;
 }
 
 //
@@ -638,75 +589,74 @@ public ConstraintBase gatherFieldUpdateExpressionConstraints(STBuilder st, Const
 // ----------------------------------------
 //        el.n : t2
 //
-public ConstraintBase gatherFieldAccessExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Name n) {
-    <cs,ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
+public ConstraintBase gatherFieldAccessExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Name n) {
+    // el is an expression of arbitrary type tel
+    tel = typeForLoc(cb, el@\loc);
     
-    Constraint c1 = TreeIsType(el,el@\loc,t1); // el has an arbitrary type, t1
-    Constraint c2 = FieldOf(n,t1,t2,n@\loc); // name n is actually a field of type t1, i.e., in x.f, f is a field of x, and has type t2
-    Constraint c3 = TreeIsType(ep,ep@\loc,t2); // the overall expression has the same type as the type of field n, i.e., x.f is the same type as field f
-
-    cs.constraints = cs.constraints + { c1, c2, c3 };
-    return cs;
+    // field n must be a field of type tel, and is of type ft
+    < cb, ft > = makeFreshType(cb);
+    cb.constraints = cb.constraints + FieldOf(n, tel, ft, ep@\loc);
+    
+    // the expression has the type of field n, ft
+    cb = addConstraintForLoc(cb, ep@\loc, ft);
+    
+    return cb;
 }
 
 //
 // Collect constraints for the field projection expression: e<f1.,,,.fn>
 //
-public ConstraintBase gatherFieldProjectExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e, {Field ","}+ fl) {
-    <cs,t1> = makeFreshType(cs);
-    cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1); // e is of an arbitrary type t1
+public ConstraintBase gatherFieldProjectExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e, {Field ","}+ fl) {
+    // e is an expression of arbitrary type te
+    te = typeForLoc(cb, e@\loc);
     
-    // the fields are all fields of type t1, and are of arbitrary type t2; we use NamedFieldOf,
+    // the fields are all fields of type te, and are of arbitrary type tf; we use NamedFieldOf,
     // instead of FieldOf(as used above), since the type should include the names, which are
     // propagated as part of the type in certain cases
     list[RType] fieldTypes = [ ];
     for (f <- fl) {
-        <cs,t2> = makeFreshType(cs);
+        < cb, tf > = makeFreshType(cb);
         if ((Field)`<Name n>` := f) {
-            cs.constraints = cs.constraints + NamedFieldOf(f,t1,t2,f@\loc);
+            cb.constraints = cb.constraints + NamedFieldOf(f,te,tf,f@\loc);
         } else if ((Field)`<IntegerLiteral il>` := f) {
-            cs.constraints = cs.constraints + IndexedFieldOf(f,t1,t2,f@\loc);
+            cb.constraints = cb.constraints + IndexedFieldOf(f,te,tf,f@\loc);
         } else {
             throw "Unexpected field syntax <f>";
         }
-        fieldTypes += t2;
+        fieldTypes += tf;
     }
     
     // the overall type is then constrained using a FieldProjection constraint, which will
     // derive the resulting type based on the input type and the given fields
-    <cs, t3> = makeFreshType(cs);
-    cs.constraints = cs.constraints + FieldProjection(t1,fieldTypes,t3,ep@\loc) + TreeIsType(ep,ep@\loc,t3);
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + FieldProjection(te,fieldTypes,tr,ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
 
-    return cs;
+    return cb;
 }
 
 //
 // Collect constraints for the subscript expression: el[e1...en]
 //
-public ConstraintBase gatherSubscriptExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, {Expression ","}+ es) {
-    // el is of abritrary type t1
-    <cs,t1> = makeFreshType(cs);
-    cs.constraints = cs.constraints + TreeIsType(el,el@\loc,t1);
+public ConstraintBase gatherSubscriptExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, {Expression ","}+ es) {
+    // el is of abritrary type tel
+    tel = typeForLoc(cb, el@\loc);
     
     // all indices are of arbitrary type, since we need to know the subject type first
     // before we can tell if they are of the correct type (for instance, a map will have
     // indices of the domain type, while a list will have int indices)
     list[Expression] indices = [ e | e <- es ];
-    list[RType] indexTypes = [ ];
-    for (e <- indices) {
-        <cs,t3> = makeFreshType(cs); 
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t3);
-        indexTypes += t3;
-    }
+    list[RType] indexTypes = [ typeForLoc(cb,e@\loc) | e <- indices ];
 
     // the result is then based on a Subscript constraint, which will derive the resulting
     // type based on the input type and the concrete fields (which can be helpful IF they
     // are literals)
     // TODO: Static analysis would help here, so we have literal integers more often
-    <cs, t2> = makeFreshType(cs);
-    cs.constraints = cs.constraints + Subscript(t1,indices,indexTypes,t2,ep@\loc) + TreeIsType(ep,ep@\loc,t2);        
-
-    return cs;
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + Subscript(tel,indices,indexTypes,tr,ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
+    
+    return cb;
 }
 
 //
@@ -716,11 +666,8 @@ public ConstraintBase gatherSubscriptExpressionConstraints(STBuilder st, Constra
 // ----------
 //   e? : t
 //
-public ConstraintBase gatherIsDefinedExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e) {
-    // e and e? both have the same arbitrary type
-    <cs,t1> = makeFreshType(cs);
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,t1) + TreeIsType(e,e@\loc,t1); 
-    return cs;
+public ConstraintBase gatherIsDefinedExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
+    return addConstraintForLoc(cb, ep@\loc, typeForLoc(cb, e@\loc));
 }
 
 //
@@ -730,9 +677,9 @@ public ConstraintBase gatherIsDefinedExpressionConstraints(STBuilder st, Constra
 // --------------------
 //   not e : bool
 //
-private ConstraintBase gatherNegationExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType()) + TreeIsType(e,e@\loc,makeBoolType());
-    return cs;
+private ConstraintBase gatherNegationExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc),makeBoolType());
+    return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
 //
@@ -742,14 +689,14 @@ private ConstraintBase gatherNegationExpressionConstraints(STBuilder st, Constra
 // ---------------------------------------------
 //          - e : t2
 //
-private ConstraintBase gatherNegativeExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e) {
-    <cs,ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
-    Constraint c1 = TreeIsType(e,e@\loc,t1); // e has arbitrary type t1
-    Constraint c2 = BuiltInAppliable(Negative(), makeTupleType([ t1 ]), t2, ep@\loc); // applying builtin operator - to t1 yields t2
-    Constraint c3 = TreeIsType(ep,ep@\loc,t2); // so the overall result of the expression is t2
-    cs.constraints = cs.constraints + { c1, c2, c3 };
-
-    return cs;
+private ConstraintBase gatherNegativeExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
+    te = typeForLoc(cb, e@\loc);
+    
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + BuiltInAppliable(Negative(), makeTupleType([ te ]), tr, ep@\loc);
+    
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
+    return cb;
 }
 
 //
@@ -759,13 +706,12 @@ private ConstraintBase gatherNegativeExpressionConstraints(STBuilder st, Constra
 // -----------------------------------------
 //      e * : rel[t1,t2]
 //
-public ConstraintBase gatherTransitiveReflexiveClosureExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e) {
-    <cs,ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
-    Constraint c1 = TreeIsType(e,e@\loc,makeRelType([t1,t2])); // e must be a relation of arity 2 of arbitrary types t1 and t2
-    Constraint c2 = Comparable(t1,t2,e@\loc); // to create the closure, both projections must be comparable
-    Constraint c3 = TreeIsType(ep,ep@\loc,makeRelType([t1,t2])); // e* must be the same type as e
-    cs.constraints = cs.constraints + { c1, c2, c3 };    
-    return cs;
+public ConstraintBase gatherTransitiveReflexiveClosureExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
+    < cb, ts > = makeFreshTypes(cb,2); t1 = ts[0]; t2 = ts[1];
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc), makeRelType([t1,t2]));
+    cb.constraints = cb.constraints + Comparable(t1,t2,U(),e@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeRelType([t1,t2]));
+    return cb;
 }
 
 //
@@ -775,13 +721,12 @@ public ConstraintBase gatherTransitiveReflexiveClosureExpressionConstraints(STBu
 // -----------------------------------------
 //      e + : rel[t1,t2]
 //
-public ConstraintBase gatherTransitiveClosureExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e) {
-    <cs,ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
-    Constraint c1 = TreeIsType(e,e@\loc,makeRelType([t1,t2])); // e must be a relation of arity 2 of arbitary types t1 and t2
-    Constraint c2 = Comparable(t1,t2,e@\loc); // to create the closure, both projections must be comparable
-    Constraint c3 = TreeIsType(ep,ep@\loc,makeRelType([t1,t2])); // e+ must be the same type as e
-    cs.constraints = cs.constraints + { c1, c2, c3 };    
-    return cs;
+public ConstraintBase gatherTransitiveClosureExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
+    < cb, ts > = makeFreshTypes(cb,2); t1 = ts[0]; t2 = ts[1];
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc), makeRelType([t1,t2]));
+    cb.constraints = cb.constraints + Comparable(t1,t2,U(),e@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeRelType([t1,t2]));
+    return cb;
 }
 
 //
@@ -790,13 +735,18 @@ public ConstraintBase gatherTransitiveClosureExpressionConstraints(STBuilder st,
 //
 // TODO: Add type rule!
 //
-public ConstraintBase gatherGetAnnotationExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression e, Name n) {
-    <cs, ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
-    Constraint c1 = TreeIsType(e,e@\loc,t1);
-    Constraint c2 = AnnotationOf(n,t1,t2,n@\loc);
-    Constraint c3 = TreeIsType(ep,ep@\loc,t2);
-    cs.constraints = cs.constraints + { c1, c2, c3 };
-    return cs;
+public ConstraintBase gatherGetAnnotationExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e, Name n) {
+    // e is an expression of arbitrary type te
+    te = typeForLoc(cb, e@\loc);
+    
+    // n must be an annotation on type te, and is of type at
+    < cb, at > = makeFreshType(cb);
+    cb.constraints = cb.constraints + AnnotationOf(n, te, at, n@\loc);
+    
+    // the overall type is the type of the annotation
+    cb = addConstraintForLoc(cb, ep@\loc, at);
+
+    return cb;
 }
 
 //
@@ -805,15 +755,26 @@ public ConstraintBase gatherGetAnnotationExpressionConstraints(STBuilder st, Con
 //
 // TODO: Add type rule!
 //
-public ConstraintBase gatherSetAnnotationExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Name n, Expression er) {
-    <cs, ts> = makeFreshTypes(cs,4); t1 = ts[0]; t2 = ts[1]; t3 = ts[2]; t4 = ts[3];
-    Constraint c1 = TreeIsType(el,el@\loc,t1); // el is of arbitrary type t1
-    Constraint c2 = AnnotationOf(n,t1,t2,n@\loc); // n is an annotation on t1 with type t2
-    Constraint c3 = TreeIsType(er,er@\loc,t3); // er is of arbitrary type t3
-    Constraint c4 = AnnotationAssignable(ep,ep@\loc,el,n,er,t3,t2,t4); // for el[@n] = er, the type of er, t3, is assignable to type type of the annotation, t2, with result t4 
-    Constraint c5 = TreeIsType(ep,ep@\loc,t4); // the overall exp type if the type of the assignment result
-    cs.constraints = cs.constraints + { c1, c2, c3, c4, c5 };
-    return cs;
+public ConstraintBase gatherSetAnnotationExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Name n, Expression er) {
+    // el is an expression of arbitrary type tel
+    tel = typeForLoc(cb, el@\loc);
+    
+    // n must be an annotation on type tel, and is of type at
+    < cb, at > = makeFreshType(cb);
+    cb.constraints = cb.constraints + AnnotationOf(n, tel, at, n@\loc);
+    
+    // er is an expression of arbitrary type ter
+    ter = typeForLoc(cb, er@\loc);
+
+    // assignment to the annotation -- assigning a value of type ter to
+    // an annotation of type at on type tel yields a result of type rt
+    < cb, rt > = makeFreshType(cb);
+    cb.constraints = cb.constraints + AnnotationAssignable(ter,tel,at,rt,ep@\loc);
+        
+    // the overall type is the type of the annotation
+    cb = addConstraintForLoc(cb, ep@\loc, at);
+
+    return cb;
 }
 
 //
@@ -826,14 +787,13 @@ public ConstraintBase gatherSetAnnotationExpressionConstraints(STBuilder st, Con
 //
 // NOTE: map composition does not maintain field names. Is this intentional?
 //
-public ConstraintBase gatherCompositionExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
-    Constraint c1 = TreeIsType(el, el@\loc, t1);
-    Constraint c2 = TreeIsType(er, er@\loc, t2);
-    Constraint c3 = Composable(t1, t2, t3, ep@\loc);
-    Constraint c4 = TreeIsType(ep, ep@\loc, t3);
-    cs.constraints = cs.constraints + { c1, c2, c3, c4 };
-    return cs;
+public ConstraintBase gatherCompositionExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    tel = typeForLoc(cb, el@\loc);
+    ter = typeForLoc(cb, er@\loc);
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + Composable(tel, ter, tr, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
+    return cb;
 }
 
 //
@@ -845,14 +805,13 @@ public ConstraintBase gatherCompositionExpressionConstraints(STBuilder st, Const
 //
 // NOTE: The subtyping check is in the BuiltInAppliable logic
 //
-public ConstraintBase gatherBinaryExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, RBuiltInOp rop, Expression er) {
-    <cs,l1> = makeFreshTypes(cs,4); t1 = l1[0]; t2 = l1[1]; t3 = l1[2]; t4 = l1[3];
-    Constraint c1 = TreeIsType(el,el@\loc,t1); // The left operand is of arbitrary type t1 
-    Constraint c2 = TreeIsType(er,er@\loc,t2); // The right operand is of arbitrary type t2
-    Constraint c3 = BuiltInAppliable(rop, makeTupleType([ t1, t2 ]), t3, ep@\loc); // The result of applying rop to t1 and t2 is t3
-    Constraint c4 = TreeIsType(ep,ep@\loc,t3); // The overall result is t3
-    cs.constraints = cs.constraints + { c1, c2, c3, c4 };
-    return cs;
+public ConstraintBase gatherBinaryExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, RBuiltInOp rop, Expression er) {
+    tel = typeForLoc(cb, el@\loc);
+    ter = typeForLoc(cb, er@\loc);
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + BuiltInAppliable(rop, makeTupleType([ tel, ter ]), tr, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, tr);
+    return cb;
 }
 
 //
@@ -862,120 +821,119 @@ public ConstraintBase gatherBinaryExpressionConstraints(STBuilder st, Constraint
 // --------------------------------------------------------------------------------------------
 //                            e1 rop e2 : t4
 //
-public ConstraintBase gatherBinaryExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, RBuiltInOp rop, Expression er, RType resultType) {
-    <cs,l1> = makeFreshTypes(cs,4); t1 = l1[0]; t2 = l1[1]; t3 = l1[2]; t4 = l1[3];
-    Constraint c1 = TreeIsType(el,el@\loc,t1); // The left operand is of arbitrary type t1 
-    Constraint c2 = TreeIsType(er,er@\loc,t2); // The right operand is of arbitrary type t2
-    Constraint c3 = BuiltInAppliable(rop, makeTupleType([ t1, t2 ]), t3, ep@\loc); // The result of applying rop to t1 and t2 is t3
-    Constraint c4 = TreeIsType(ep,ep@\loc,t3); // The overall result is t3
-    Constraint c5 = TypesAreEqual(t3, resultType,ep@\loc); // resultType is "t4 given" in the rule above
-    cs.constraints = cs.constraints + { c1, c2, c3, c4, c5 };
-    return cs;
+public ConstraintBase gatherBinaryExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, RBuiltInOp rop, Expression er, RType resultType) {
+    tel = typeForLoc(cb, el@\loc);
+    ter = typeForLoc(cb, er@\loc);
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + BuiltInAppliable(rop, makeTupleType([ tel, ter ]), tr, ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(tr, resultType, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, resultType);
+    return cb;
 }
 
 //
 // Collect constraints for the product expression e1 * e2
 //
-public ConstraintBase gatherProductExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Product(), er);
+public ConstraintBase gatherProductExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Product(), er);
 }
 
 //
 // Collect constraints for the join expression e1 join e2
 //
-public ConstraintBase gatherJoinExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Join(), er);
+public ConstraintBase gatherJoinExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Join(), er);
 }
 
 //
 // Collect constraints for the div expression e1 / e2
 //
-public ConstraintBase gatherDivExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Div(), er);
+public ConstraintBase gatherDivExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Div(), er);
 }
 
 //
 // Collect constraints for the mod expression e1 % e2
 //
-public ConstraintBase gatherModExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Mod(), er);
+public ConstraintBase gatherModExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Mod(), er);
 }
 
 //
 // Collect constraints for the intersection expression e1 & e2
 //
-public ConstraintBase gatherIntersectionExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Intersect(), er);
+public ConstraintBase gatherIntersectionExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Intersect(), er);
 }
 
 //
 // Collect constraints for the plus expression e1 + e2
 //
-public ConstraintBase gatherPlusExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Plus(), er);
+public ConstraintBase gatherPlusExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Plus(), er);
 }
 
 //
 // Collect constraints for the minus expression e1 - e2
 //
-public ConstraintBase gatherMinusExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, Minus(), er);
+public ConstraintBase gatherMinusExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Minus(), er);
 }
 
 //
 // Collect constraints for the notin expression e1 notin e2
 //
-public ConstraintBase gatherNotInExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, NotIn(), er, makeBoolType());
+public ConstraintBase gatherNotInExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, NotIn(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the in expression e1 in e2
 //
-public ConstraintBase gatherInExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-        return gatherBinaryExpressionConstraints(st, cs, ep, el, In(), er, makeBoolType());
+public ConstraintBase gatherInExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, In(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the Less Than expression e1 < e2
 //
-public ConstraintBase gatherLessThanExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    return gatherBinaryExpressionConstraints(st, cs, ep, el, Lt(), er, makeBoolType());
+public ConstraintBase gatherLessThanExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Lt(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the Less Than or Equal expression e1 <= e2
 //
-public ConstraintBase gatherLessThanOrEqualExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    return gatherBinaryExpressionConstraints(st, cs, ep, el, LtEq(), er, makeBoolType());
+public ConstraintBase gatherLessThanOrEqualExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, LtEq(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the Greater Than expression e1 > e2
 //
-public ConstraintBase gatherGreaterThanExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    return gatherBinaryExpressionConstraints(st, cs, ep, el, Gt(), er, makeBoolType());
+public ConstraintBase gatherGreaterThanExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Gt(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the Greater Than or Equal expression e1 >= e2
 //
-public ConstraintBase gatherGreaterThanOrEqualExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    return gatherBinaryExpressionConstraints(st, cs, ep, el, GtEq(), er, makeBoolType());
+public ConstraintBase gatherGreaterThanOrEqualExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, GtEq(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the Equals expression e1 == e2
 //
-public ConstraintBase gatherEqualsExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    return gatherBinaryExpressionConstraints(st, cs, ep, el, Eq(), er, makeBoolType());
+public ConstraintBase gatherEqualsExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, Eq(), er, makeBoolType());
 }
 
 //
 // Collect constraints for the Not Equals expression e1 != e2
 //
-public ConstraintBase gatherNotEqualsExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    return gatherBinaryExpressionConstraints(st, cs, ep, el, NEq(), er, makeBoolType());
+public ConstraintBase gatherNotEqualsExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    return gatherBinaryExpressionConstraints(st, cb, ep, el, NEq(), er, makeBoolType());
 }
 
 //
@@ -985,15 +943,14 @@ public ConstraintBase gatherNotEqualsExpressionConstraints(STBuilder st, Constra
 // -----------------------------------------------------
 //          eb ? et : ef  :  t3
 //
-public ConstraintBase gatherIfThenElseExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression eb, Expression et, Expression ef) {
-    <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
-    Constraint c1 = TreeIsType(eb,eb@\loc,makeBoolType()); // The guard is type bool 
-    Constraint c2 = TreeIsType(et,et@\loc,t1); // The true branch is of arbitrary type t1
-    Constraint c3 = TreeIsType(ef,ef@\loc,t2); // The false branch is of arbitrary type t2
-    Constraint c4 = LubOf([t1,t2],t3,ep@\loc); // t3 is the lub of t1 and t2
-    Constraint c5 = TreeIsType(ep,ep@\loc,t3); // The result is t3, the lub of t1 and t2    
-    cs.constraints = cs.constraints + { c1, c2, c3, c4, c5 };
-    return cs;
+public ConstraintBase gatherIfThenElseExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression eb, Expression et, Expression ef) {
+    RType teb = typeForLoc(cb, eb@\loc);
+    RType tet = typeForLoc(cb, et@\loc);
+    RType tef = typeForLoc(cb, ef@\loc);
+    < cb, rt > = makeFreshType(cb);
+    cb.constraints = cb.constraints + LubOf([tet,tef], rt, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, rt);
+    return cb;
 }
 
 //
@@ -1003,14 +960,13 @@ public ConstraintBase gatherIfThenElseExpressionConstraints(STBuilder st, Constr
 // -----------------------------------------
 //          ed ? eo  : t3
 //
-public ConstraintBase gatherIfDefinedOtherwiseExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression ed, Expression eo) {
-    <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
-    Constraint c1 = TreeIsType(ed,ed@\loc,t1); // ed is of arbitrary type t1 
-    Constraint c2 = TreeIsType(eo,eo@\loc,t2); // eo is of arbitrary type t2
-    Constraint c3 = LubOf([t1,t2],t3,ep@\loc); // t3 is the lub of t1 and t2
-    Constraint c4 = TreeIsType(ep,ep@\loc,t3); // The result is t3, the lub of t1 and t2
-    cs.constraints = cs.constraints + { c1, c2, c3, c4 };
-    return cs;
+public ConstraintBase gatherIfDefinedOtherwiseExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ed, Expression eo) {
+    RType ted = typeForLoc(cb, ed@\loc);
+    RType teo = typeForLoc(cb, eo@\loc);
+    < cb, rt > = makeFreshType(cb);
+    cb.constraints = cb.constraints + LubOf([ted,teo], rt, ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, rt);
+    return cb;
 }
 
 //
@@ -1020,10 +976,11 @@ public ConstraintBase gatherIfDefinedOtherwiseExpressionConstraints(STBuilder st
 // -----------------------------------------
 //          el ==> er : bool
 //
-public ConstraintBase gatherImplicationExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType()) + 
-                     TreeIsType(el,el@\loc,makeBoolType()) + TreeIsType(er,er@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherImplicationExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, el@\loc), makeBoolType(), ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, er@\loc), makeBoolType(), ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeBoolType());
+    return cb;
 }
 
 //
@@ -1033,10 +990,11 @@ public ConstraintBase gatherImplicationExpressionConstraints(STBuilder st, Const
 // -----------------------------------------
 //          el <==> er : bool
 //
-public ConstraintBase gatherEquivalenceExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType()) + 
-                     TreeIsType(el,el@\loc,makeBoolType()) + TreeIsType(er,er@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherEquivalenceExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, el@\loc), makeBoolType(), ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, er@\loc), makeBoolType(), ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeBoolType());
+    return cb;
 }
 
 //
@@ -1046,10 +1004,11 @@ public ConstraintBase gatherEquivalenceExpressionConstraints(STBuilder st, Const
 // -----------------------------------------
 //          el && er : bool
 //
-public ConstraintBase gatherAndExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType()) + 
-                     TreeIsType(el,el@\loc,makeBoolType()) + TreeIsType(er,er@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherAndExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, el@\loc), makeBoolType(), ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, er@\loc), makeBoolType(), ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeBoolType());
+    return cb;
 }
 
 //
@@ -1059,10 +1018,11 @@ public ConstraintBase gatherAndExpressionConstraints(STBuilder st, ConstraintBas
 // -----------------------------------------
 //          el || er : bool
 //
-public ConstraintBase gatherOrExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression el, Expression er) {
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType()) + 
-                     TreeIsType(el,el@\loc,makeBoolType()) + TreeIsType(er,er@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherOrExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression el, Expression er) {
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, el@\loc), makeBoolType(), ep@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, er@\loc), makeBoolType(), ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeBoolType());
+    return cb;
 }
 
 //
@@ -1072,12 +1032,10 @@ public ConstraintBase gatherOrExpressionConstraints(STBuilder st, ConstraintBase
 // -----------------------------
 //       p := e : bool
 //
-public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Pattern p, Expression e) {
-    <cs,t1> = makeFreshType(cs);
-    Constraint c1 = TreeIsType(e,e@\loc,t1);
-    Constraint c2 = Bindable(p,t1,p@\loc);
-    Constraint c3 = TreeIsType(ep,ep@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
+    te = typeForLoc(cb, e@\loc);
+    cb.constraints = cb.constraints + Bindable(p,te,U(),p@\loc);
+    return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
 //
@@ -1087,12 +1045,10 @@ public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintB
 // -----------------------------
 //       p !:= e : bool
 //
-public ConstraintBase gatherNoMatchExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Pattern p, Expression e) {
-    <cs,t1> = makeFreshType(cs);
-    Constraint c1 = TreeIsType(e,e@\loc,t1);
-    Constraint c2 = Bindable(p,t1,p@\loc);
-    Constraint c3 = TreeIsType(ep,ep@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherNoMatchExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
+    te = typeForLoc(cb, e@\loc);
+    cb.constraints = cb.constraints + Bindable(p,te,U(),p@\loc);
+    return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
 //
@@ -1101,73 +1057,70 @@ public ConstraintBase gatherNoMatchExpressionConstraints(STBuilder st, Constrain
 // n <- 1 acts just like n := 1, while n <- [1..10] acts like [_*,n,_*] := [1..10].
 //
 //
-public ConstraintBase gatherEnumeratorExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Pattern p, Expression e) {
-    <cs, t1> = makeFreshType(cs);
-    Constraint c1 = TreeIsType(e,e@\loc,t1);
-    Constraint c2 = Enumerable(p,t1,p@\loc);
-    Constraint c3 = TreeIsType(ep,ep@\loc,makeBoolType());
-    cs.constraints = cs.constraints + { c1, c2, c3 };
-    return cs;
+public ConstraintBase gatherEnumeratorExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
+    te = typeForLoc(cb, e@\loc);
+    cb.constraints = cb.constraints + Enumerable(p,te,p@\loc);
+    return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
-public ConstraintBase gatherSetComprehensionExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, {Expression ","}+ els, {Expression ","}+ ers) {
+public ConstraintBase gatherSetComprehensionExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, {Expression ","}+ els, {Expression ","}+ ers) {
+    // The elements of the set are each of some arbitrary type; determine the type of each
+    // result, so we can compute the LUB to figure the actual type of the set
     list[RType] elements = [ makeVoidType() ]; 
     for (e <- els) { 
-        <cs,t1> = makeFreshType(cs);
+        et = typeForLoc(cb, e@\loc);
 
         // If this is an element that can be spliced, i.e. is not surrounded by set
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`{<{Expression ","}* el>}` !:= e) {
-            t1 = SpliceableElement(t1);
-        }
+        if ((Expression)`{<{Expression ","}* _>}` !:= e)
+            et = SpliceableElement(et);
 
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1); 
-        elements += t1;
+        elements += et;
     }
 
-    for (e <- ers) cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeBoolType());
+    // The generators are all patterns that should be of type bool
+    for (e <- ers) cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, e@\loc), makeBoolType(), ep@\loc);
     
-    // The set itself is the lub of the various elements
-    <cs,t2> = makeFreshType(cs); 
-    Constraint c1 = LubOfSet(elements,t2,ep@\loc);
-    Constraint c2 = TreeIsType(ep, ep@\loc, makeSetType(t2));
-    cs.constraints = cs.constraints + { c1, c2 };
+    // The set element type is the lub of the various elements
+    < cb, rt > = makeFreshType(cb); 
+    cb.constraints = cb.constraints + LubOfSet(elements,rt,ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeSetType(rt));
 
-    return cs;
+    return cb;
 }
 
-public ConstraintBase gatherListComprehensionExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, {Expression ","}+ els, {Expression ","}+ ers) {
+public ConstraintBase gatherListComprehensionExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, {Expression ","}+ els, {Expression ","}+ ers) {
+    // The elements of the list are each of some arbitrary type; determine the type of each
+    // result, so we can compute the LUB to figure the actual type of the list
     list[RType] elements = [ makeVoidType() ]; 
     for (e <- els) { 
-        <cs,t1> = makeFreshType(cs);
+        et = typeForLoc(cb, e@\loc);
 
         // If this is an element that can be spliced, i.e. is not surrounded by list
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`[<{Expression ","}* el>]` !:= e) {
-            t1 = SpliceableElement(t1);
-        }
+        if ((Expression)`[<{Expression ","}* _>]` !:= e)
+            et = SpliceableElement(et);
 
-        cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t1); 
-        elements += t1;
+        elements += et;
     }
 
-    for (e <- ers) cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeBoolType());
+    // The generators are all patterns that should be of type bool
+    for (e <- ers) cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, e@\loc), makeBoolType(), ep@\loc);
+    
+    // The list element type is the lub of the various elements
+    < cb, rt > = makeFreshType(cb); 
+    cb.constraints = cb.constraints + LubOfList(elements,rt,ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeListType(rt));
 
-    // The list itself is the lub of the various elements
-    <cs,t2> = makeFreshType(cs); 
-    Constraint c1 = LubOfList(elements,t2,ep@\loc);
-    Constraint c2 = TreeIsType(ep, ep@\loc, makeListType(t2));
-    cs.constraints = cs.constraints + { c1, c2 };
-
-    return cs;
+    return cb;
 }
 
-public ConstraintBase gatherMapComprehensionExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression ef, Expression et, {Expression ","}+ ers) {
-    <cs,ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
-    cs.constraints = cs.constraints + TreeIsType(ef,ef@\loc,t1) + TreeIsType(et,et@\loc,t2) + 
-                                      TreeIsType(ep,ep@\loc,makeMapType(t1,t2));
-    for (e <- ers) cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherMapComprehensionExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ef, Expression et, {Expression ","}+ ers) {
+    RType eft = typeForLoc(cb, ef@\loc);
+    RType ett = typeForLoc(cb, et@\loc);
+    for (e <- ers) cb.constraints = cb.constraints + ConstraintType(typeForLoc(cb, e@\loc), makeBoolType(), ep@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, makeMapType(eft, ett));
+    return cb;
 }
 
 //
@@ -1175,15 +1128,16 @@ public ConstraintBase gatherMapComprehensionExpressionConstraints(STBuilder st, 
 // the result is based only indirectly on the type of er. If we could type this, we could probably solve the halting
 // problem ;)
 //
-public ConstraintBase gatherReducerExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, Expression ei, Expression er, {Expression ","}+ ers) {
-    <cs,ts> = makeFreshTypes(cs,3); t1 = ts[0]; t2 = ts[1]; t3 = ts[2];
-    Constraint c1 = TreeIsType(ei,ei@\loc,t1);
-    Constraint c2 = TreeIsType(er,er@\loc,t2);
-    Constraint c3 = StepItType(er,er@\loc,t1,t3,t2);
-    Constraint c4 = TreeIsType(ep,ep@\loc,t2);
-    cs.constraints = cs.constraints + { c1, c2, c3, c4 };
-    for (e <- ers) cs.constraints = cs.constraints + TreeIsType(e,e@\loc,makeBoolType());
-    return cs;
+public ConstraintBase gatherReducerExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ei, Expression er, {Expression ","}+ ers) {
+    eit = typeForLoc(cb, ei@\loc);
+    ert = typeForLoc(cb, er@\loc);
+    for (e <- ers) cs.constraints = cs.constraints + ConstrainType(typeForLoc(cb, e@\loc),makeBoolType(), ep@\loc);
+
+    < cb, rt > = makeFreshType(cb);
+    cb.constraints = cb.constraints + StepItType(er, eit, rt, ert, er@\loc);
+    cb = addConstraintForLoc(cb, ep@\loc, rt);
+     
+    return cb;
 }
 
 //
@@ -1193,16 +1147,14 @@ public ConstraintBase gatherReducerExpressionConstraints(STBuilder st, Constrain
 // -----------------------------------------
 //          all(e1...en) : bool
 //
-public ConstraintBase gatherAllExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, {Expression ","}+ ers) {
+public ConstraintBase gatherAllExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, {Expression ","}+ ers) {
     // All the expressions inside the all construct must be of type bool    
-    for (er <- ers) {
-        cs.constraints = cs.constraints + TreeIsType(er,er@\loc,makeBoolType());
-    }
+    for (er <- ers)
+        cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, er@\loc),makeBoolType(), ep@\loc);
 
-    // The overall result is also of type bool
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType());
+    cb = addConstraintForLoc(cb, ep@\loc, makeBoolType());
     
-    return cs;
+    return cb;
 }
         
 //
@@ -1212,16 +1164,14 @@ public ConstraintBase gatherAllExpressionConstraints(STBuilder st, ConstraintBas
 // -----------------------------------------
 //          any(e1...en) : bool
 //
-public ConstraintBase gatherAnyExpressionConstraints(STBuilder st, ConstraintBase cs, Expression ep, {Expression ","}+ ers) {
-    // All the expressions inside the any construct must be of type bool    
-    for (er <- ers) {
-        cs.constraints = cs.constraints + TreeIsType(er,er@\loc,makeBoolType());
-    }
+public ConstraintBase gatherAnyExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, {Expression ","}+ ers) {
+    // All the expressions inside the all construct must be of type bool    
+    for (er <- ers)
+        cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, er@\loc),makeBoolType(), ep@\loc);
 
-    // The overall result is also of type bool
-    cs.constraints = cs.constraints + TreeIsType(ep,ep@\loc,makeBoolType());
+    cb = addConstraintForLoc(cb, ep@\loc, makeBoolType());
     
-    return cs;
+    return cb;
 }
 
 //
@@ -1231,22 +1181,51 @@ public ConstraintBase gatherAnyExpressionConstraints(STBuilder st, ConstraintBas
 // ----------------------------------------------------------------------------------------
 //                       ( d1 : r1, ..., dn : rn ) : map[td,tr]
 //
-public ConstraintBase gatherMapExpressionConstraints(STBuilder st, ConstraintBase cs, Expression exp) {
+public ConstraintBase gatherMapExpressionConstraints(STBuilder st, ConstraintBase cb, Expression exp) {
     // Each element of the domain and range of the map can be of arbitrary type.
     list[RType] domains = [ makeVoidType() ]; list[RType] ranges = [ makeVoidType() ];
     for (<md,mr> <- mapContents) { 
-        <cs,ts> = makeFreshTypes(cs,2); t1 = ts[0]; t2 = ts[1];
-        cs.constraints = cs.constraints + TreeIsType(md,md@\loc,t1) + TreeIsType(mr,mr@\loc,t2);
-        domains += t1; ranges += t2;
+        domains += typeForLoc(cb, md@\loc); 
+        ranges += typeForLoc(cb, mr@\loc);
     }
 
     // The ultimate result of the expression is a map with a domain type equal to the lub of the
     // given domain types and a range type equal to the lub of the given range types.
-    <cs,ts> = makeFreshTypes(cs,2); t3 = ts[0]; t4 = ts[1];
-    Constraint c1 = LubOf(domains,t3,exp@\loc);
-    Constraint c2 = LubOf(domains,t4,exp@\loc);
-    Constraint c3 = TreeIsType(exp, exp@\loc, makeMapType(t3,t4));
-    cs.constraints = cs.constraints + { c1, c2, c3 };
+    < cb, tdom > = makeFreshType(cb);
+    cb.constraints = cb.constraints + LubOf(domains, tdom, exp@\loc);
+    
+    < cb, tran > = makeFreshType(cb);
+    cb.constraints = cb.constraints + LubOf(ranges, tran, exp@\loc);
+    
+    cb = addConstraintForLoc(cb, makeMapType(tdom,tran), exp@\loc);
 
-    return cs;
+    return cb;
+}
+
+//
+// Calculate the list of types assigned to a list of parameters. This only works for
+// old-style parameters, which include type annotations.
+//
+// TODO: This needs to be updated to handle the new parameter dispatch style.
+//
+public list[RType] getParameterTypes(ConstraintBase cb, Parameters p) {
+    list[RType] pTypes = [];
+
+    if ((Parameters)`( <Formals f> )` := p && (Formals)`<{Pattern ","}* fs>` := f) {
+        for ((Pattern)`<Type t> <Name n>` <- fs) {
+                pTypes += typeForLoc(cb, n@\loc);
+        }
+    } else if ((Parameters)`( <Formals f> ... )` := p && (Formals)`<{Pattern ","}* fs>` := f) {
+        for ((Pattern)`<Type t> <Name n>` <- fs) {
+                pTypes += typeForLoc(cb, n@\loc);
+        }
+        // For varargs, mark the last parameter as the variable size parameter; if we have no
+        // parameters, then we add one, a varargs which accepts anything
+        if (size(pTypes) > 0)
+            pTypes[size(pTypes)-1] = RListType(last(pTypes));
+        else
+            pTypes = [ RListType(RVoidType()) ];
+    }
+
+    return pTypes;
 }

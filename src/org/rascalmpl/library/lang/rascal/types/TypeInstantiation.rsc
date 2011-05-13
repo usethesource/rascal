@@ -299,13 +299,6 @@ private map[RName varName, RType varType] getTVBindingsOverloadedType(RType form
 }
 
 //
-// We should never encounter this type in a match computation
-//
-private map[RName varName, RType varType] getTVBindingsStatementType(RType formal, RType actual, map[RName varName, RType varType] bindings, loc l) {
-    throw UnexpectedRType(t1);
-}
-
-//
 // Main match routine
 //
 private map[str, map[RName,RType] (RType,RType,map[RName,RType],loc)] matchHandlers = (
@@ -338,8 +331,7 @@ private map[str, map[RName,RType] (RType,RType,map[RName,RType],loc)] matchHandl
     "RDataTypeSelector" : getTVBindingsDataTypeSelectorType,
     "RFailType" : getTVBindingsFailType,
     "RInferredType" : getTVBindingsInferredType,
-    "ROverloadedType" : getTVBindingsOverloadedType,
-    "RStatementType" : getTVBindingsStatementType
+    "ROverloadedType" : getTVBindingsOverloadedType
 );
 
 public map[RName varName, RType varType] getTVBindings(RType formal, RType actual, map[RName varName, RType varType] bindings, loc l) {
@@ -596,13 +588,6 @@ private RType instantiateVarsOverloadedType(RType rt, map[RName varName, RType v
 }
 
 //
-// We should never encounter this type in a match computation
-//
-private RType instantiateVarsStatementType(RType rt, map[RName varName, RType varType] bindings) {
-    throw UnexpectedRType(t1);
-}
-
-//
 // Handle named types
 //
 private RNamedType instantiateVarsNamedType(RNamedType rt, map[RName varName, RType varType] bindings) {
@@ -643,15 +628,14 @@ private map[str, RType (RType,map[RName,RType])] instHandlers = (
     "RDataTypeSelector" : instantiateVarsDataTypeSelectorType,
     "RFailType" : instantiateVarsFailType,
     "RInferredType" : instantiateVarsInferredType,
-    "ROverloadedType" : instantiateVarsOverloadedType,
-    "RStatementType" : instantiateVarsStatementType
+    "ROverloadedType" : instantiateVarsOverloadedType
 );
 
 public RType instantiateVars(RType rt, map[RName varName, RType varType] bindings) {
     if (getName(rt) in instHandlers) 
         return (instHandlers[getName(rt)])(rt,bindings);
     else
-        throw UnexpectedRType(t1);
+        throw UnexpectedRType(rt);
 }
 
 //

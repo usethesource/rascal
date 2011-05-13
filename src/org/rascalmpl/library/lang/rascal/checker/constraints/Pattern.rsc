@@ -69,7 +69,7 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, STBuilder st
         if (pat@\loc in st.itemUses<0>) {
             cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[pat@\loc],pat@\loc);
         }
-        cs.constraints = cs.constraints + SubtypeOf(rt,t1,pat@\loc);   
+        cs.constraints = cs.constraints + SubtypeOf(rt,t1,U(),pat@\loc);   
     }
     
     if ((Pattern)`<Name n>` := pat) {
@@ -78,7 +78,7 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, STBuilder st
         if (n@\loc in st.itemUses<0>) {
             cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
         }
-        cs.constraints = cs.constraints + SubtypeOf(rt,t1,n@\loc);   
+        cs.constraints = cs.constraints + SubtypeOf(rt,t1,U(),n@\loc);   
     }
         
     if ((Pattern)`<QualifiedName qn>` := pat) {
@@ -87,7 +87,7 @@ public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, STBuilder st
         if (qn@\loc in st.itemUses<0>) {
             cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[qn@\loc],qn@\loc);
         }
-        cs.constraints = cs.constraints + SubtypeOf(rt,t1,qn@\loc);   
+        cs.constraints = cs.constraints + SubtypeOf(rt,t1,U(),qn@\loc);   
     }
 
     //    

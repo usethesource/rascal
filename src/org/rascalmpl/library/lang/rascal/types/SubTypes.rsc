@@ -337,13 +337,6 @@ private bool subtypeOfOverloadedType(RType t1, RType t2) {
 }
 
 //
-// We should never encounter this type in a subtype comparision
-//
-private bool subtypeOfStatementType(RType t1, RType t2) {
-    throw UnexpectedRType(t1);
-}
-
-//
 // Main subtypeOf routine
 //
 private map[str,bool(RType,RType)] subtypeHandlers = (
@@ -376,8 +369,7 @@ private map[str,bool(RType,RType)] subtypeHandlers = (
     "RDataTypeSelector" : subtypeOfDataTypeSelectorType,
     "RFailType" : subtypeOfFailType,
     "RInferredType" : subtypeOfInferredType,
-    "ROverloadedType" : subtypeOfOverloadedType,
-    "RStatementType" : subtypeOfStatementType
+    "ROverloadedType" : subtypeOfOverloadedType
 );
 
 public bool subtypeOf(RType t1, RType t2) {

@@ -26,26 +26,26 @@ import lang::rascal::syntax::RascalRascal;
 // name an arbitrary assignable (tuples, fields, etc), and are handled in the statement
 // logic, not here.
 // 
-public ConstraintBase gatherVariableConstraints(STBuilder st, ConstraintBase cs, Variable v) {
-    switch(v) {
-        case (Variable) `<Name n>` : {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(n,n@\loc,t1);
-            if (n@\loc in st.itemUses<0>)
-                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
-            return cs;
+public ConstraintBase gatherVariableConstraints(STBuilder st, ConstraintBase cb, Variable v) {
+    if ((Variable) `<Name n>` := v || (Variable)`<Name n> = <Expression _>` := v) {
+        // We don't know the defined type of n, so give it a fresh type of tv
+        // and indicate that tv is defined by whatever is in the symbol table
+        // for the name at this location.
+        <cb, tv> = makeFreshType(cb);
+        cb = addConstraintForLoc(cb, n@\loc, tv);
+        if (n@\loc in st.itemUses<0>)
+            cb.constraints = cb.constraints + DefinedBy(tv,st.itemUses[n@\loc],n@\loc);
+        else
+            cb.constraints = cb.constraints + ConstrainType(tv, makeFailType("No definition for this variable found",n@\loc), n@\loc);
+
+        if ((Variable) `<Name _> = <Expression e>` := v) {
+            // Ensure that the type of the expression e is assignable to n
+            te = typeForLoc(cb, e@\loc);
+            cb.constraints = cb.constraints + Assignable(te, tv, U(), v@\loc);
         }
-        
-        case (Variable) `<Name n> = <Expression e>` : {
-            <cs, t1> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(n,n@\loc,t1);
-            if (n@\loc in st.itemUses<0>)
-                cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
-            <cs, t2> = makeFreshType(cs);
-            cs.constraints = cs.constraints + TreeIsType(e,e@\loc,t2) + Assignable(v,v@\loc,n,e,t2,t1);
-            return cs;
-        }
-        
-        default : throw "gatherVariableConstraints: unhandled case <v>";
+
+        return cb;        
     }
+    
+    throw "Invalid variable syntax <v>";
 }

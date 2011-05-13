@@ -154,14 +154,11 @@ data RType =
 // - RInferredType represents inferred types, which will eventually be bound to a real type
 // - ROverloadedType represents sets of types, for instance the type of a function name when
 //   that name is overloaded
-// - RStatementType is the type assigned to a statement, in cases where statments can yield
-//   values (and is void in those cases where a statement cannot yield a value)
 //
 data RType =
       RFailType(set[tuple[str failMsg, loc failLoc]])
     | RInferredType(int tnum)
     | ROverloadedType(set[RType] possibleTypes)
-    | RStatementType(RType internalType)
     ;
 
 //
@@ -198,43 +195,43 @@ anno tuple[str msg, loc at] RType@warninfo;
 //
 public RType convertBasicType(BasicType t) {
     switch(t) {
-        case (BasicType)`bool` : return RBoolType();
-        case (BasicType)`int` : return RIntType();
-        case (BasicType)`real` : return RRealType();
-        case (BasicType)`num` : return RNumType();
-        case (BasicType)`str` : return RStrType();
-        case (BasicType)`value` : return RValueType();
-        case (BasicType)`node` : return RNodeType();
-        case (BasicType)`void` : return RVoidType();
-        case (BasicType)`loc` : return RLocType();
-        case (BasicType)`lex` : return RLexType();
-        case (BasicType)`datetime` : return RDateTimeType();
-        case (BasicType)`non-terminal` : return RNonTerminalType();
+        case (BasicType)`bool` : return makeBoolType();
+        case (BasicType)`int` : return makeIntType();
+        case (BasicType)`real` : return makeRealType();
+        case (BasicType)`num` : return makeNumType();
+        case (BasicType)`str` : return makeStrType();
+        case (BasicType)`value` : return makeValueType();
+        case (BasicType)`node` : return makeNodeType();
+        case (BasicType)`void` : return makeVoidType();
+        case (BasicType)`loc` : return makeLocType();
+        case (BasicType)`lex` : return makeLexType();
+        case (BasicType)`datetime` : return makeDateTimeType();
+        case (BasicType)`non-terminal` : return makeNonTerminalType();
 
         case (BasicType)`list` : 
-            return RListType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+            return makeListType(makeVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
         case (BasicType)`set` : 
-            return RSetType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+            return makeSetType(makeVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
         case (BasicType)`bag` : 
-            return RBagType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+            return makeBagType(makeVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
         case (BasicType)`map` : 
-            return RMapType(RUnnamedType(RVoidType()),RUnnamedType(RVoidType()))[@errinfo = <"Non-well-formed type, type should have two type arguments", t@\loc>];
+            return makeMapType(makeVoidType(),makeVoidType())[@errinfo = <"Non-well-formed type, type should have two type arguments", t@\loc>];
         case (BasicType)`rel` : 
-            return RRelType([])[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
+            return makeRelType()[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
         case (BasicType)`tuple` : 
-            return RTupleType([])[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
+            return makeTupleType()[@errinfo = <"Non-well-formed type, type should have one or more type arguments", t@\loc>];
         case (BasicType)`type` : 
-            return RReifiedType(RVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
+            return makeReifiedType(makeVoidType())[@errinfo = <"Non-well-formed type, type should have one type argument", t@\loc>];
         case (BasicType)`adt` : 
-            return RADTType(RSimpleName("unnamedADT"),[])[@errinfo = <"Non-well-formed type", t@\loc>];
+            return makeADTType(RSimpleName("unnamedADT"))[@errinfo = <"Non-well-formed type", t@\loc>];
         case (BasicType)`parameter` : 
-            return RTypeVar(RSimpleName("unnamedVar"),RValueType())[@errinfo = <"Non-well-formed type", t@\loc>];
+            return makeTypeVar(RSimpleName("unnamedVar"))[@errinfo = <"Non-well-formed type", t@\loc>];
         case (BasicType)`constructor` : 
-            return RConstructorType(RSimpleName("unnamedConstructor"),RADTType(RSimpleName("unnamedADT"),[]),[])[@errinfo = <"Non-well-formed type", t@\loc>];
+            return makeConstructorType(RSimpleName("unnamedConstructor"),makeADTType(RSimpleName("unnamedADT")),[])[@errinfo = <"Non-well-formed type", t@\loc>];
         case (BasicType)`fun` : 
-            return RFunctionType(RVoidType,[],false)[@errinfo = <"Non-well-formed type", t@\loc>];
+            return makeFunctionType(makeVoidType(),[],false)[@errinfo = <"Non-well-formed type", t@\loc>];
         case (BasicType)`reified` : 
-            return RReifiedReifiedType(RVoidType())[@errinfo = <"Non-well-formed type", t@\loc>];
+            return makeReifiedReifiedType(makeVoidType())[@errinfo = <"Non-well-formed type", t@\loc>];
     }
 }
 
@@ -265,85 +262,85 @@ public RType convertStructuredType(StructuredType st) {
         case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1 && RUnnamedType(_) := l[0])
-                return RListType(getElementType(l[0]));
+                return makeListType(getElementType(l[0]));
             else if (size(l) == 1 && RNamedType(_,_) := l[0])
-                return RListType(getElementType(l[0]));
+                return makeListType(getElementType(l[0]));
             else 
-                return RListType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a list",st@\loc>];
+                return makeListType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a list",st@\loc>];
         }
 
         case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1 && RUnnamedType(_) := l[0])
-                return RSetType(getElementType(l[0]));
+                return makeSetType(getElementType(l[0]));
             else if (size(l) == 1 && RNamedType(_,_) := l[0])
-                return RSetType(getElementType(l[0]));
+                return makeSetType(getElementType(l[0]));
             else 
-                return RSetType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a set",st@\loc>];
+                return makeSetType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a set",st@\loc>];
         }
 
         case (StructuredType) `bag [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1 && RUnnamedType(_) := l[0])
-                return RBagType(getElementType(l[0]));
+                return makeBagType(getElementType(l[0]));
             else if (size(l) == 1 && RNamedType(_,_) := l[0])
-                return RBagType(getElementType(l[0]));
+                return makeBagType(getElementType(l[0]));
             else 
-                return RBagType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a bag",st@\loc>];
+                return makeBagType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a bag",st@\loc>];
         }
 
         case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 2 && RUnnamedType(_) := l[0] && RUnnamedType(_) := l[1])
-                return RMapType(l[0],l[1]);
+                return makeMapTypeWithNames(l[0],l[1]);
             else if (size(l) == 2 && RNamedType(_,n1) := l[0] && RNamedType(_,n2) := l[1] && n1 != n2)
-                return RMapType(l[0],l[1]);
+                return makeMapTypeWithNames(l[0],l[1]);
             else if (size(l) == 2 && RNamedType(_,n1) := l[0] && RNamedType(_,n2) := l[1] && n1 == n2)
-                return RMapType(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"The names given to the type arguments must be distinct",st@\loc>];
+                return makeMapTypeWithNames(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"The names given to the type arguments must be distinct",st@\loc>];
             else if (size(l) == 2)
-                return RMapType(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"Names must either be given to both the domain and range or to neither",st@\loc>];
+                return makeMapTypeWithNames(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"Names must either be given to both the domain and range or to neither",st@\loc>];
             else if (size(l) > 2)
-                return RMapType(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"Only two type arguments should be given",st@\loc>];
+                return makeMapTypeWithNames(RUnnamedType(getElementType(l[0])),RUnnamedType(getElementType(l[0])))[@errinfo=<"Only two type arguments should be given",st@\loc>];
             else 
-                return RMapType(RUnnamedType(RVoidType()), RUnnamedType(RVoidType()))[@errinfo=<"Two type arguments must be given for a map",st@\loc>];
+                return makeMapTypeWithNames(RUnnamedType(RVoidType()), RUnnamedType(RVoidType()))[@errinfo=<"Two type arguments must be given for a map",st@\loc>];
         }
 
         case (StructuredType) `rel [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]) == size(l))
-                return RRelType(l);
+                return makeRelTypeFromTuple(makeTupleTypeWithNames(l));
             else if (size({tn | n <- [0..size(l)-1], RNamedType(_,tn) := l[n]}) == size(l))
-                return RRelType(l);
+                return makeRelTypeFromTuple(makeTupleTypeWithNames(l));
             else if (size([n | n <- [0..size(l)-1], RNamedType(_,_) := l[n]]) == size(l))
-                return RRelType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"If names are given to type arguments they must all be distinct.",st@\loc>];
+                return makeRelTypeFromTuple(makeTupleTypeWithNames([RUnnamedType(getElementType(li)) | li <- l]))[@errinfo=<"If names are given to type arguments they must all be distinct.",st@\loc>];
             else
-                return RRelType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"Names must be given either to all type arguments or to none.",st@\loc>];
+                return makeRelTypeFromTuple(makeTupleTypeWithNames([RUnnamedType(getElementType(li)) | li <- l]))[@errinfo=<"Names must be given either to all type arguments or to none.",st@\loc>];
         }
 
         case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]) == size(l))
-                return RTupleType(l);
+                return makeTupleTypeWithNames(l);
             else if (size({tn | n <- [0..size(l)-1], RNamedType(_,tn) := l[n]}) == size(l))
-                return RTupleType(l);
+                return makeTupleTypeWithNames(l);
             else if (size([n | n <- [0..size(l)-1], RNamedType(_,_) := l[n]]) == size(l))
-                return RTupleType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"If names are given to type arguments they must all be distinct.",st@\loc>];
+                return makeTupleTypeWithNames([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"If names are given to type arguments they must all be distinct.",st@\loc>];
             else
-                return RTupleType([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"Names must be given either to all type arguments or to none.",st@\loc>];
+                return makeTupleTypeWithNames([RUnnamedType(getElementType(li)) | li <- l])[@errinfo=<"Names must be given either to all type arguments or to none.",st@\loc>];
         }
 
         case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
             if (size(l) == 1 && RUnnamedType(_) := l[0])
-                return RReifiedType(getElementType(l[0]));
+                return makeReifiedType(getElementType(l[0]));
             else if (size(l) == 1 && RNamedType(_,_) := l[0])
-                return RReifiedType(getElementType(l[0]));
+                return makeReifiedType(getElementType(l[0]));
             else 
-                return RReifiedType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a type",st@\loc>];
+                return makeReifiedType(getElementType(l[0]))[@errinfo=<"Exactly one element type must be given for a type",st@\loc>];
         }
 
 		case (StructuredType) `<BasicType bt> [ < {TypeArg ","}+ tas > ]` : {
-		        return RVoidType()[@errinfo=<"Type <bt> does not accept type parameters",st@\loc>];
+		        return makeVoidType()[@errinfo=<"Type <bt> does not accept type parameters",st@\loc>];
 		}
 		
 		// TODO: Add support for reified reified
@@ -355,11 +352,11 @@ public RType convertFunctionType(FunctionType ft) {
         case (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )` : {
             l = convertTypeArgList(tas);
             if (size(l) == 0)
-                return RFunctionType(convertType(t), [ ], false);
+                return makeFunctionType(convertType(t), [ ], false);
             else if (size(l) != size([n | n <- [0..size(l)-1], RUnnamedType(_) := l[n]]))
-                return RFunctionType(convertType(t),[RUnnamedType(getElementType(li)) | li <- l],false)[@warninfo=<"Names are ignored on the arguments to a function type",ft@\loc>];
+                return makeFunctionTypeWithNames(convertType(t),[RUnnamedType(getElementType(li)) | li <- l],false)[@warninfo=<"Names are ignored on the arguments to a function type",ft@\loc>];
             else
-                return RFunctionType(convertType(t),convertTypeArgList(tas),false);
+                return makeFunctionTypeWithNames(convertType(t),l,false);
         }
     }
 }
@@ -448,7 +445,6 @@ public str prettyPrintType(RType t) {
         case RFailType(sls) :  return "failure " + joinList(toList(sls),printLocMsgPair,", ","");
         case RInferredType(n) : return "Inferred Type: <n>";
         case ROverloadedType(pts) : return "Overloaded type, could be: " + prettyPrintTypeList([p | p <- pts]);
-        case RStatementType(rt) : return "Statement: <prettyPrintType(rt)>";
         default : return "Unhandled type <t>";
     }
 }
@@ -555,11 +551,10 @@ public bool isRelType(RType t) {
     if (RAliasType(_,_,at) := t) return isRelType(at);
     if (RTypeVar(_,tvb) := t) return isRelType(tvb);
     if (RRelType(_) := t) return true;
-    if (RSetType(RTupleType(_)) := t) return true;
     return false;
 }
 
-public RType makeRelType(list[RType] its) { return RRelType([ RUnnamedType( t ) | t <- its ]); }
+public RType makeRelType(RType its...) { return RRelType([ RUnnamedType( t ) | t <- its ]); }
 
 public RType makeRelTypeFromTuple(RType t) { return RRelType(getTupleFieldsWithNames(t)); }
 
@@ -567,14 +562,13 @@ public RType getRelElementType(RType t) {
     if (RAliasType(_,_,at) := t) return getRelElementType(at);
     if (RTypeVar(_,tvb) := t) return getRelElementType(tvb);
     if (RRelType(ets) := t) return RTupleType(ets);
-    if (RSetType(RTupleType(ets)) := t) return RTupleType(ets);
     throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
 }
 
 public bool relHasFieldNames(RType t) {
     if (RAliasType(_,_,at) := t) return relHasFieldNames(at);
     if (RTypeVar(_,tvb) := t) return relHasFieldNames(tvb);
-    if (RRelType(tls) := t || RSetType(RTupleType(tls)) := t)
+    if (RRelType(tls) := t)
         return size(tls) == size([n | n <- [0..size(tls)-1], namedTypeHasName(tls[n])]);
     throw "relHasFieldNames given non-Relation type <prettyPrintType(t)>";
 }
@@ -582,7 +576,7 @@ public bool relHasFieldNames(RType t) {
 public list[RName] getRelFieldNames(RType t) {
     if (RAliasType(_,_,at) := t) return getRelFieldNames(at);
     if (RTypeVar(_,tvb) := t) return getRelFieldNames(tvb);
-    if (RRelType(tls) := t || RSetType(RTupleType(tls)) := t) {
+    if (RRelType(tls) := t) {
         if (relHasFieldNames(t)) {
             return [ getTypeName(tli) | tli <- tls ];
         }
@@ -720,9 +714,9 @@ public bool isTupleType(RType t) {
     return RTupleType(_) := t;
 }
 
-public RType makeTupleType(list[RType] its) {   return RTupleType([ RUnnamedType( t ) | t <- its ]); }
+public RType makeTupleType(RType its...) {   return RTupleType([ RUnnamedType( t ) | t <- its ]); }
 
-public RType makeTupleTypeWithNames(list[RNamedType] its) { return RTupleType(its); }
+public RType makeTupleTypeWithNames(RNamedType its...) { return RTupleType(its); }
 
 public bool tupleHasField(RType t, RName fn) {
     if (RAliasType(_,_,at) := t) return tupleHasField(at,fn);
@@ -898,7 +892,9 @@ public bool isSetType(RType t) {
     return RSetType(_) := t || RRelType(_) := t;
 }
 
-public RType makeSetType(RType itemType) { return RSetType(itemType); }
+public RType makeSetType(RType itemType) { 
+    return isTupleType(itemType) ? makeRelTypeFromTuple(itemType) : RSetType(itemType); 
+}
 
 public RType getSetElementType(RType t) {
     if (RAliasType(_,_,at) := t) return getSetElementType(at);
@@ -1124,7 +1120,7 @@ public RType makeADTType(RName n) {
     return RADTType(n,[]);
 }
 
-public RType makeParameterizedADTType(RName n, list[RType] p) {
+public RType makeParameterizedADTType(RName n, RType p...) {
     return RADTType(n,p);
 }
 
@@ -1278,20 +1274,6 @@ public set[RType] getOverloadOptions(RType t) {
 
 public RType makeOverloadedType(set[RType] options) {
     return ROverloadedType(options);
-}
-
-//
-// Routines for dealing with statement types
-//
-public bool isStatementType(RType t) {
-	return RStatementType(_) := t;
-}
-
-public RType makeStatementType(RType rt) { return RStatementType(rt); }
-
-public RType getInternalStatementType(RType st) {
-	if (RStatementType(rt) := st) return rt;
-	throw "Cannot get internal statement type from type <prettyPrintType(st)>";
 }
 
 //
