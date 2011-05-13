@@ -32,6 +32,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorListContainerNode extends AbstractContainerNode{
+	private IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
 	
 	public ErrorListContainerNode(URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, false, isSeparator, isLayout);
@@ -361,11 +362,22 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
 		if(depth <= cycleMark.depth){
+			if(cachedResult != null){
+				if(cachedResult.getConstructorType() != FILTERED_RESULT_TYPE){
+					return cachedResult;
+				}
+				IValue filteredTree = cachedResult.get(0);
+				if(filteredTree instanceof IConstructor){
+					return (IConstructor) filteredTree;
+				}
+			}
+			
 			cycleMark.reset();
 		}
 		
 		if(rejected){
 			// TODO Handle filtering.
+			cachedResult = FILTERED_RESULT;
 			return null;
 		}
 		
@@ -427,6 +439,12 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		}
 		
 		stack.dirtyPurge(); // Pop.
+		
+		if(result == null){
+			cachedResult = FILTERED_RESULT;
+		}else if(depth < cycleMark.depth){
+			cachedResult = result;
+		}
 		
 		return result;
 	}

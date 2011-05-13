@@ -30,6 +30,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ListContainerNode extends AbstractContainerNode{
+	protected IConstructor cachedResult;
 	
 	public ListContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
@@ -355,11 +356,17 @@ public class ListContainerNode extends AbstractContainerNode{
 	
 	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		if(depth <= cycleMark.depth){
+			if(cachedResult != null){
+				if(cachedResult.getConstructorType() == FILTERED_RESULT_TYPE) return null;
+				return cachedResult;
+			}
+			
 			cycleMark.reset();
 		}
 		
 		if(rejected){
 			filteringTracker.setLastFilered(offset, endOffset);
+			cachedResult = FILTERED_RESULT;
 			return null;
 		}
 		
@@ -422,15 +429,42 @@ public class ListContainerNode extends AbstractContainerNode{
 		
 		stack.dirtyPurge(); // Pop.
 		
+		if(result == null){
+			cachedResult = FILTERED_RESULT;
+		}else if(depth < cycleMark.depth){
+			cachedResult = result;
+		}
+		
 		return result;
 	}
 	
 	/*public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor){
 		if(depth <= cycleMark.depth){
+			if(cachedResult != null){
+				if(cachedResult.getConstructorType() != FILTERED_RESULT_TYPE){
+					return cachedResult;
+				}
+				IValue filteredTree = cachedResult.get(0);
+				if(filteredTree instanceof IConstructor){
+					return (IConstructor) filteredTree;
+				}
+			}
+			
 			cycleMark.reset();
 		}
 		
-		return ErrorListBuilder.toErrorListTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
+		IConstructor result = ErrorListBuilder.toErrorListTree(this, stack, depth, cycleMark, positionStore, actionExecutor);
+
+		if(depth < cycleMark.depth){
+			Type type = result.getConstructorType();
+			if(!(type == Factory.Tree_Error || type == Factory.Tree_Error_Amb || type == Factory.Tree_Error_Cycle)){
+				cachedResult = result;
+			}else{
+				cachedResult = VF.constructor(FILTERED_RESULT_TYPE, result);
+			}
+		}
+		
+		return result;
 	}*/
 	
 	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
