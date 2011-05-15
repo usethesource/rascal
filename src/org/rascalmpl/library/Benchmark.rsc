@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 module Benchmark
 
 import IO;
@@ -35,7 +36,11 @@ public int java cpuTime();
 public int java realTime();
 
 @doc{Measure and report the execution time of name:void-closure pairs}
-public void benchmark(map[str, void()] Cases)
+public void benchmark(map[str, void()] Cases) {
+	benchmark(Cases, realTime);
+}
+@doc{Measure and report the execution time of name:void-closure pairs, measuring the time using the duration}
+public void benchmark(map[str, void()] Cases, int duration(void ()))
 {
 	measurements = ();
 	for (str Name <- Cases) {
