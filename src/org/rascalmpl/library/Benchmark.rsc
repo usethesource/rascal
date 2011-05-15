@@ -40,7 +40,7 @@ public void benchmark(map[str, void()] Cases) {
 	benchmark(Cases, realTime);
 }
 @doc{Measure and report the execution time of name:void-closure pairs, measuring the time using the duration}
-public void benchmark(map[str, void()] Cases, int duration(void ()))
+public void benchmark(map[str, void()] Cases, int (void ()) duration)
 {
 	measurements = ();
 	for (str Name <- Cases) {
