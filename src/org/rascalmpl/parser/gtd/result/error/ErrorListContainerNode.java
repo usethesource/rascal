@@ -32,7 +32,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorListContainerNode extends AbstractContainerNode{
-	private IConstructor cachedResult; // TODO Fix one time action execution for filtered nodes.
+	private IConstructor cachedResult;
 	
 	public ErrorListContainerNode(URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, false, isSeparator, isLayout);
