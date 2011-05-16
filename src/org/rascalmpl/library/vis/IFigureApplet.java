@@ -30,9 +30,6 @@ public interface IFigureApplet {
 	public void redraw();
 	public int getFigureWidth();
 	public int getFigureHeight();
-	public void incDepth();
-	public void decDepth();
-	public boolean isVisible(int d);
 	public void registerId(String id, Figure fig);
 	public Figure getRegisteredId(String id);
 	public void registerFocus(Figure f);

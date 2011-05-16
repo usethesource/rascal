@@ -232,15 +232,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		return FigureApplet.round(figureHeight);
 	}
 
-	public void incDepth() {
-		depth++;
-
-	}
-
-	public void decDepth() {
-		depth--;
-	}
-
 	public boolean isVisible(int d) {
 		// TODO Auto-generated method stub
 		return false;
@@ -904,6 +895,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 		public void paintControl(PaintEvent e) {
 			gc = e.gc;
+			
 //			gc.setTextAntialias(SWT.ON);
 //			gc.setAntialias(SWT.ON);
 //			gc.setAdvanced(true);
@@ -987,6 +979,12 @@ public class FigureSWTApplet implements IFigureApplet {
 		Cursor cursor = new Cursor(comp.getDisplay(), SWT.CURSOR_WAIT);
 		comp.setCursor(cursor);
 		Result<IValue> result;
+		System.out.printf("Executing callback...\n");
+		try{
+			throw new Exception();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		synchronized (this) {
 			if (callback instanceof RascalFunction)
 				result = ((RascalFunction) callback).call(argTypes, argVals);

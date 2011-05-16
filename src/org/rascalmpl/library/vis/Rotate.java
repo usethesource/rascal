@@ -110,14 +110,12 @@ public class Rotate extends Figure {
 	
 	@Override
 	public void drawFocus(){
-		if(isVisible()){
-			fpa.pushMatrix();
-			fpa.translate(getLeft() + width/2, getTop() + height/2);
-			fpa.rotate(angle);
-			fpa.stroke(255, 0,0);
-			fpa.noFill();
-			fpa.rect(-figure.width/2, -figure.height/2, figure.width, figure.height);
-		}
+		fpa.pushMatrix();
+		fpa.translate(getLeft() + width/2, getTop() + height/2);
+		fpa.rotate(angle);
+		fpa.stroke(255, 0,0);
+		fpa.noFill();
+		fpa.rect(-figure.width/2, -figure.height/2, figure.width, figure.height);
 	}
 	
 

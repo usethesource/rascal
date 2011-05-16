@@ -117,8 +117,6 @@ public class Tree extends Figure {
 	@Override
 	public
 	void draw(double left, double top) {
-		if(!isNextVisible())
-			return;
 		this.setLeft(left);
 		this.setTop(top);
 		

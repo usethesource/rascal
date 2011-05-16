@@ -101,8 +101,6 @@ public class Pack extends Compose {
 	public
 	void draw(double left, double top) {
 		if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
-		if(!isNextVisible())
-			return;
 		setLeft(left);
 		setTop(top);
 		

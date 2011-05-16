@@ -161,9 +161,6 @@ public class TreeNode extends Figure {
 		
 		this.setLeft(left);
 		this.setTop(top);
-	
-		if(!isVisible())
-			return;
 		
 		String id = rootFigure.getIdProperty();
 		int nChildren = children.size();
@@ -178,10 +175,8 @@ public class TreeNode extends Figure {
 		// Draw the root figure
 		rootFigure.draw(leftRootFig, top);
 		
-		if(nChildren == 0 || !isNextVisible())
+		if(nChildren == 0)
 			return;
-		
-		fpa.incDepth();
 		
 		double bottomRootFig = top + rootFigure.height;
 		double vgap          = getVGapProperty();
@@ -207,7 +202,6 @@ public class TreeNode extends Figure {
 			child.draw(positionChild - child.leftExtent(), childTop);
 		}
 		
-		fpa.decDepth();
 	}
 	
 	

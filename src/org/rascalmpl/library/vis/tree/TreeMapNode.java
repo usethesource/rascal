@@ -116,23 +116,17 @@ public class TreeMapNode extends Figure {
 	void draw(double left, double top){
 		this.setLeft(left);
 		this.setTop(top);
-		if(debug)System.err.printf("draw: %s at %f, %f (%s)\n", 
-				          rootFigure.getIdProperty(), left,  top,
-				          isVisible() ? "visible" : "invisible");
-		if(!isVisible())
-			return;
+		if(debug)System.err.printf("draw: %s at %f, %f \n", 
+				          rootFigure.getIdProperty(), left,  top
+				          );
 		
 		rootFigure.applyProperties();
 		fpa.rect(left, top, width, height);
 		
-		if(isNextVisible()){
-			fpa.incDepth();
-			int n = children.size();
-			for(int i = 0; i < n; i++){
-				TreeMapNode child = children.get(i);
-				child.draw(left + childLeft[i], top + childTop[i]);
-			}
-			fpa.decDepth();
+		int n = children.size();
+		for(int i = 0; i < n; i++){
+			TreeMapNode child = children.get(i);
+			child.draw(left + childLeft[i], top + childTop[i]);
 		}
 	}
 	

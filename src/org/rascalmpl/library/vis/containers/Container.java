@@ -134,8 +134,6 @@ public abstract class Container extends WithInnerFig {
 	@Override
 	public
 	void draw(double left, double top) {
-		if(!isVisible())
-			return;
 		this.setLeft(left);
 		this.setTop(top);
 	
@@ -144,12 +142,10 @@ public abstract class Container extends WithInnerFig {
 
 		if(height > 0 && width > 0){
 			drawContainer();
-			if(innerFig != null && isNextVisible()){
+			if(innerFig != null){
 				if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
 				if(innerFits()) {
-					fpa.incDepth();
 					innerDraw();
-					fpa.decDepth();
 				}
 			}
 		}
