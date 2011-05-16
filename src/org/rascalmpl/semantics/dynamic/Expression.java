@@ -93,7 +93,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.RascalActionExecutor;
+import org.rascalmpl.parser.gtd.result.uptr.action.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
 

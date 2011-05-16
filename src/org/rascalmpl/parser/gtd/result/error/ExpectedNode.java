@@ -14,16 +14,12 @@ package org.rascalmpl.parser.gtd.result.error;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.values.uptr.Factory;
 
 public class ExpectedNode extends AbstractNode{
+	public final static int ID = 8;
+	
 	private final AbstractNode[] mismatchedChildren;
 	private final IConstructor symbol;
 	
@@ -33,8 +29,6 @@ public class ExpectedNode extends AbstractNode{
 	
 	private final boolean isSeparator;
 	private final boolean isLayout;
-	
-	private IConstructor cachedResult;
 	
 	public ExpectedNode(AbstractNode[] mismatchedChildren, IConstructor symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super();
@@ -50,8 +44,32 @@ public class ExpectedNode extends AbstractNode{
 		this.isLayout = isLayout;
 	}
 	
-	public void addAlternative(IConstructor production, Link children){
-		throw new UnsupportedOperationException();
+	public int getID(){
+		return ID;
+	}
+	
+	public AbstractNode[] getMismatchedChildren(){
+		return mismatchedChildren;
+	}
+	
+	public IConstructor getSymbol(){
+		return symbol;
+	}
+	
+	public URI getInput(){
+		return input;
+	}
+	
+	public int getOffset(){
+		return offset;
+	}
+	
+	public int getEndOffset(){
+		return endOffset;
+	}
+	
+	public boolean isLayout(){
+		return isLayout;
 	}
 	
 	public boolean isEmpty(){
@@ -70,39 +88,7 @@ public class ExpectedNode extends AbstractNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		if(cachedResult != null) return cachedResult;
-		
-		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
-			childrenListWriter.insert(mismatchedChildren[i].toTree(stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment));
-		}
-		
-		IConstructor result = VF.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
-		if(!(isLayout || input == null)){
-			int beginLine = positionStore.findLine(offset);
-			int endLine = positionStore.findLine(endOffset);
-			result = result.setAnnotation(Factory.Location, VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine)));
-		}
-		
-		return (cachedResult = result);
-	}
-	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
-		if(cachedResult != null) return cachedResult;
-		
-		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		for(int i = mismatchedChildren.length - 1; i >= 0; --i){
-			childrenListWriter.insert(mismatchedChildren[i].toErrorTree(stack, depth, cycleMark, positionStore, actionExecutor, environment));
-		}
-		
-		IConstructor result = VF.constructor(Factory.Tree_Expected, symbol, childrenListWriter.done());
-		if(!(isLayout || input == null)){
-			int beginLine = positionStore.findLine(offset);
-			int endLine = positionStore.findLine(endOffset);
-			result = result.setAnnotation(Factory.Location, VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine)));
-		}
-		
-		return (cachedResult = result);
+	public void addAlternative(IConstructor production, Link children){
+		throw new UnsupportedOperationException();
 	}
 }

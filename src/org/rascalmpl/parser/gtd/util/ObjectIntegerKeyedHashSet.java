@@ -158,6 +158,20 @@ public class ObjectIntegerKeyedHashSet<E>{
 		return false;
 	}
 	
+	public E getEquivalent(E element, int element2){
+		int hash = element.hashCode() ^ (element2 << 5);
+		int position = hash & hashMask;
+		
+		Entry<E> entry = entries[position];
+		while(entry != null){
+			if(hash == entry.hash && element2 == entry.element2 && element.equals(entry.element)) return entry.element;
+			
+			entry = entry.next;
+		}
+		
+		return null;
+	}
+	
 	public void clear(){
 		entries = new Entry[entries.length];
 		

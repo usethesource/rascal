@@ -15,30 +15,26 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
+import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -297,9 +293,9 @@ public class ErrorTreeBuilder{
 		IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
 		try{
 			// Construct the rest of the input as separate character nodes.
-			IListWriter rest = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
+			CharNode[] rest = new CharNode[input.length - location];
 			for(int i = input.length - 1; i >= location; --i){
-				rest.insert(new CharNode(input[i]).toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment));
+				rest[i - location] = new CharNode(input[i]);
 			}
 			
 			// Find the top node.
@@ -307,10 +303,11 @@ public class ErrorTreeBuilder{
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
 			
 			// Update the top node with the rest of the string (it will always be a sort node).
-			((ErrorSortContainerNode) result).setUnmatchedInput(rest.done());
+			((ErrorSortContainerNode) result).setUnmatchedInput(rest);
 			
 			// Flatten error tree.
-			return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
+			NodeToUPTR converter = new NodeToUPTR(result, positionStore);
+			return converter.convertToUPTRWithErrors(actionExecutor, rootEnvironment);
 		}finally{
 			actionExecutor.completed(rootEnvironment, true);
 		}
