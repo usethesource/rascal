@@ -24,12 +24,12 @@ import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ListContainerNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
+import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.IExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
@@ -38,7 +38,6 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.HashMap;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
@@ -1073,7 +1072,8 @@ public abstract class SGTDBF implements IGTD{
 					IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
 					IConstructor resultTree = null;
 					try{
-						resultTree = result.toTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
+						NodeToUPTR converter = new NodeToUPTR(result, positionStore);
+						resultTree = converter.convertToUPTR(filteringTracker, actionExecutor, rootEnvironment);
 					}finally{
 						actionExecutor.completed(rootEnvironment, (resultTree == null));
 					}
@@ -1114,7 +1114,8 @@ public abstract class SGTDBF implements IGTD{
 			// Invoke "the bulldozer" that constructs errors while it's flattening the forest.
 			IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
 			try{
-				return result.toErrorTree(new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
+				NodeToUPTR converter = new NodeToUPTR(result, positionStore);
+				return converter.convertToUPTRWithErrors(actionExecutor, rootEnvironment);
 			}finally{
 				actionExecutor.completed(rootEnvironment, true);
 			}

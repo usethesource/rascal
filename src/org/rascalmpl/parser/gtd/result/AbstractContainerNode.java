@@ -70,12 +70,44 @@ public abstract class AbstractContainerNode extends AbstractNode{
 		}
 	}
 	
+	public URI getInput(){
+		return input;
+	}
+	
+	public int getOffset(){
+		return offset;
+	}
+	
+	public int getEndOffset(){
+		return endOffset;
+	}
+	
 	public boolean isEmpty(){
 		return isNullable;
 	}
 	
 	public boolean isSeparator(){
 		return isSeparator;
+	}
+	
+	public boolean isLayout(){
+		return isLayout;
+	}
+	
+	public IConstructor getFirstProduction(){
+		return firstProduction;
+	}
+	
+	public Link getFirstAlternative(){
+		return firstAlternative;
+	}
+	
+	public ArrayList<IConstructor> getAdditionalProductions(){
+		return productions;
+	}
+	
+	public ArrayList<Link> getAdditionalAlternatives(){
+		return alternatives;
 	}
 	
 	public void setRejected(){

@@ -10,9 +10,9 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser;
+package org.rascalmpl.parser.gtd.util;
 
-public class PointerEqualMappingsCache<K, V>{
+public class PointerKeyedHashMap<K, V>{
 	private final static int DEFAULT_INITIAL_LOG_SIZE = 5;
 	
 	private int hashMask;
@@ -23,52 +23,48 @@ public class PointerEqualMappingsCache<K, V>{
 	
 	private int load;
 	
-	@SuppressWarnings("unchecked")
-	public PointerEqualMappingsCache(){
+	public PointerKeyedHashMap(){
 		super();
 		
 		int tableSize = 1 << DEFAULT_INITIAL_LOG_SIZE;
 		hashMask = tableSize - 1;
-		data = new Entry[tableSize];
+		data = (Entry<K, V>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		
 		load = 0;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public PointerEqualMappingsCache(int initialLogSize){
+	public PointerKeyedHashMap(int initialLogSize){
 		super();
 		
 		int tableSize = 1 << initialLogSize;
 		hashMask = tableSize - 1;
-		data = new Entry[tableSize];
+		data = (Entry<K, V>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		
 		load = 0;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public PointerEqualMappingsCache(int initialLogSize, float loadFactor){
+	public PointerKeyedHashMap(int initialLogSize, float loadFactor){
 		super();
 		
 		int tableSize = 1 << initialLogSize;
 		hashMask = tableSize - 1;
-		data = new Entry[tableSize];
+		data = (Entry<K, V>[]) new Entry[tableSize];
 
 		threshold = (int) (tableSize * loadFactor);
 		
 		load = 0;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void rehash(){
 		Entry<K, V>[] oldData = data;
 		
 		int tableSize = data.length << 1;
 		int newHashMask = tableSize - 1;
-		Entry<K, V>[] newData = new Entry[tableSize];
+		Entry<K, V>[] newData = (Entry<K, V>[]) new Entry[tableSize];
 		
 		// Construct temporary entries that function as roots for the entries that remain in the current bucket
 		// and those that are being shifted.
@@ -189,11 +185,9 @@ public class PointerEqualMappingsCache<K, V>{
 			this.next = next;
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	public void clear() {
-		// the current length is a reasonable prediction for what is needed the next time
-		data = new Entry[data.length];
+	
+	public void clear(){
+		data = (Entry<K, V>[]) new Entry[data.length];
 		load = 0;
 	}
 }

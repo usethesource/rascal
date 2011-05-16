@@ -12,7 +12,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser;
+package org.rascalmpl.parser.gtd.result.uptr.action;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.values.uptr.ProductionAdapter;

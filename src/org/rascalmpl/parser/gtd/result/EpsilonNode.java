@@ -12,17 +12,17 @@
 package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
 
 public class EpsilonNode extends AbstractNode{
-	private final static String EPSILON_STRING = "empty()";
+	public final static int ID = 1;
 	
 	public EpsilonNode(){
 		super();
+	}
+	
+	public int getID(){
+		return ID;
 	}
 	
 	public void addAlternative(IConstructor production, Link children){
@@ -43,17 +43,5 @@ public class EpsilonNode extends AbstractNode{
 	
 	public boolean isRejected(){
 		return false;
-	}
-	
-	public String toString(){
-		return EPSILON_STRING;
-	}
-	
-	public IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		throw new UnsupportedOperationException(); // This should never be called.
-	}
-	
-	public IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
-		throw new UnsupportedOperationException(); // This should never be called.
 	}
 }

@@ -13,21 +13,17 @@ package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractNode{
 	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-	protected final static String POSITION_ANNNOTATION_LABEL = "loc";
-	
 	public AbstractNode(){
 		super();
 	}
+	
+	public abstract int getID();
 	
 	public abstract void addAlternative(IConstructor production, Link children);
 	
@@ -46,10 +42,6 @@ public abstract class AbstractNode{
 	public abstract void setRejected();
 	
 	public abstract boolean isRejected();
-	
-	public abstract IConstructor toTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment);
-	
-	public abstract IConstructor toErrorTree(IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment);
 	
 	public static class CycleMark{
 		public int depth = Integer.MAX_VALUE;
