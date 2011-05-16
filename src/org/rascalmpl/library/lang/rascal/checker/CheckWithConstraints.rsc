@@ -147,11 +147,6 @@ public str getTopLevelItemDesc(Toplevel t) {
         case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` : {
             return "Alias (location <t@\loc>)";
         }
-                            
-        // View
-        case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-            return "View (location <t@\loc>)";
-        }
     }
     throw "checkToplevel: Unhandled toplevel item <t>";
 }
