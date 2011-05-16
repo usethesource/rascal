@@ -126,19 +126,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		fpa.textColor(getColorProperty(ColorProp.FONT_COLOR));
 	}
 	
-
-	// TODO: irregular
-
-	public boolean isVisible() {
-		return true;
-		// return fpa.isVisible(properties.getDOI());
-	}
-
-	public boolean isNextVisible() {
-		return true;
-		// return fpa.isVisible(properties.getDOI() + 1);
-	}
-	
 	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		
 	}
@@ -376,12 +363,10 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	 * Draw focus around this figure
 	 */
 	public void drawFocus() {
-		if (isVisible()) {
-			fpa.stroke(255, 0, 0);
-			fpa.strokeWeight(1);
-			fpa.noFill();
-			fpa.rect(getLeft(), getTop(), width, height);
-		}
+		fpa.stroke(255, 0, 0);
+		fpa.strokeWeight(1);
+		fpa.noFill();
+		fpa.rect(getLeft(), getTop(), width, height);
 	}
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){

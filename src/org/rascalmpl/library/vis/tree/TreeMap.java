@@ -109,8 +109,6 @@ public class TreeMap extends Figure {
 	@Override
 	public
 	void draw(double left, double top) {
-		if(!isVisible())
-			return;
 		this.setLeft(left);
 		this.setTop(top);
 		

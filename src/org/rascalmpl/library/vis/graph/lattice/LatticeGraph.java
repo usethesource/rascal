@@ -333,12 +333,10 @@ public class LatticeGraph extends Figure implements
 	 */
 	public void drawFocus() {
 		// System.err.println("drawFocus: " + this.left);
-		if (isVisible()) {
-			fpa.stroke(255, 0, 0);
-			fpa.strokeWeight(1);
-			fpa.noFill();
-			fpa.rect(getLeft(), getTop(), width, height);
-		}
+		fpa.stroke(255, 0, 0);
+		fpa.strokeWeight(1);
+		fpa.noFill();
+		fpa.rect(getLeft(), getTop(), width, height);
 	}
 
 	private void evolution() {

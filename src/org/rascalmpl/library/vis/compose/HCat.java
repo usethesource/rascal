@@ -32,6 +32,7 @@ public class HCat extends Compose {
 	}
 		
 	public void bboxActual(BoundingBox desiredBBox){
+		
 		gapSize = getHGapProperty(flip);
 		numberOfGaps = (figures.length - 1);
 		if(getStartGapProperty()){numberOfGaps+=0.5f;} 
@@ -42,13 +43,20 @@ public class HCat extends Compose {
 		if(isWidthPropertySet()) desiredWidth = getWidthProperty() ;
 		if(isHeightPropertySet())  desiredHeight = getHeightProperty() ;
 		double desiredWidthPerElement, desiredWidthOfElements, desiredHeightPerElement, gapsSize;
-		gapsSize = 0.0f; // stops compiler from whining
+		desiredWidthPerElement = 0.0;
+		desiredHeightPerElement = 0.0;
+		desiredWidthOfElements = 0.0;
+		gapsSize = 0.0; // stops compiler from whining
 		if(isHGapPropertySet(flip) && !isHGapFactorPropertySet(flip)){
 			gapsSize = getHGapProperty(flip) ;
 		}
 		// determine desired width of elements 
 		if(desiredWidth == Figure.AUTO_SIZE){
-			desiredWidthOfElements = desiredWidthPerElement = Figure.AUTO_SIZE;
+			// FIXME: do this more efficiently
+			for(Figure fig : figures){
+				fig.bbox();
+				desiredWidthPerElement = Math.max(desiredWidthPerElement, fig.getWidth(flip));
+			}
 		} else {
 			if(isHGapFactorPropertySet(flip) || !isHGapPropertySet(flip)){
 				gapsSize = desiredWidth* getHGapFactorProperty(flip);
@@ -58,7 +66,10 @@ public class HCat extends Compose {
 		}
 		// deterine desired height of elements
 		if(desiredHeight == Figure.AUTO_SIZE){
-			desiredHeightPerElement = Figure.AUTO_SIZE;
+			for(Figure fig : figures){
+				fig.bbox();
+				desiredHeightPerElement = Math.max(desiredHeightPerElement,  fig.getHeight(flip));
+			}
 		} else {
 			double minTopAnchorProp, maxTopAnchorProp;
 			minTopAnchorProp = Double.MAX_VALUE;
@@ -88,7 +99,6 @@ public class HCat extends Compose {
 			for(int i = 0 ; i < figures.length; i++){
 				BoundingBox desiredBoundingBoxPerElement = new BoundingBox(desiredWidthPerElement,desiredHeightPerElement,flip); 
 				if(mayBeResized[i]){
-					
 					figures[i].bbox(desiredBoundingBoxPerElement);
 					if(desiredWidthPerElement != Figure.AUTO_SIZE 
 							&& figures[i].getWidthProperty(flip) != desiredWidthPerElement ){

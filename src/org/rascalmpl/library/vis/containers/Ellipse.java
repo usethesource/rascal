@@ -94,12 +94,10 @@ public class Ellipse extends Container {
 	 */
 	@Override
 	public void drawFocus(){
-		if(isVisible()){
-			fpa.stroke(255, 0,0);
-			fpa.noFill();
-			fpa.ellipseMode(FigureApplet.CORNERS);
-			fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
-		}
+		fpa.stroke(255, 0,0);
+		fpa.noFill();
+		fpa.ellipseMode(FigureApplet.CORNERS);
+		fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
 	}
 	
 	@Override
