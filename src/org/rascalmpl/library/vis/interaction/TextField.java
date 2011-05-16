@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -98,8 +99,8 @@ public class TextField extends Figure {
 		if (validate != null) {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
-					vf.string(textfield.getText()));
-			validated = res.getValue().equals(vf.bool(true));
+					ValueFactory.getInstance().string(textfield.getText()));
+			validated = res.getValue().equals(ValueFactory.getInstance().bool(true));
 			textfield.setForeground(validated ? trueColor : falseColor);
 			textfield.redraw();
 			return validated;
@@ -110,7 +111,7 @@ public class TextField extends Figure {
 	public void doCallBack() {
 		if (validated) {
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), vf.string(textfield.getText()));
+					.getInstance().stringType(), ValueFactory.getInstance().string(textfield.getText()));
 			fpa.setComputedValueChanged();
 		}
 		textfield.redraw();

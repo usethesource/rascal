@@ -13,6 +13,7 @@ package org.rascalmpl.library.vis.tree;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -25,6 +26,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -117,29 +120,21 @@ public class TreeMap extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey){
+	public boolean mouseInside(double mousex, double mousey){
 		return root.mouseInside(mousex, mousey) || 
 		        super.mouseInside(mousex, mousey);
 	}
 	
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
-		return root.mouseOver(mousex, mousey, centerX, centerY, false) ||
-		        super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
-	}
-	
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e){
-		if(root.mousePressed(mousex, mousey, e)){
-			bbox(AUTO_SIZE, AUTO_SIZE);
-			return true;
+
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		boolean ret = false;
+		if(root!=null){
+			ret = root.getFiguresUnderMouse(c, result);
 		}
-		return false;
+		if(mouseInside(c.getX(), c.getY())){
+			result.add(this);
+			ret=true;
+		}
+		return ret;
 	}
-	
-//	@Override
-//	public boolean mouseDragged(int mousex, int mousey){
-//		return root.mouseDragged(mousex, mousey) ||
-//		        super.mouseDragged(mousex, mousey);
-//	}
 }

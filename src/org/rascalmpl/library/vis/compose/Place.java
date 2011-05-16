@@ -23,6 +23,8 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.containers.HScreen.ProjectionPlacement;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 /*
  * Given are a first figure (bottomFigure) that contains a second figure (refFigure) with identity id.
@@ -66,37 +68,6 @@ public class Place extends Figure {
 		topFigure.draw(refFigure.getLeft() + halign * refFigure.width - topFigure.width/2,
 				       refFigure.getTop()  + valign * refFigure.height - topFigure.height/2);
 	}
-
-	@Override
-	public boolean mouseInside(int mouseX, int mouseY){
-		return bottomFigure.mouseInside(mouseX, mouseY) || 
-			   topFigure.mouseInside(mouseX, mouseY);
-	}
-	
-	@Override
-	public boolean mouseInside(int mouseX, int mouseY, double centerX,
-			double centerY) {
-		return bottomFigure.mouseInside(mouseX, mouseY, centerX, centerY) || 
-		       topFigure.mouseInside(mouseX, mouseY, centerX, centerY);
-	}
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
-		return bottomFigure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent) || 
-		       topFigure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);
-	}
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
-		return bottomFigure.mouseOver(mouseX, mouseY, mouseInParent) || 
-	           topFigure.mouseOver(mouseX, mouseY, mouseInParent);
-	}
-	
-	@Override
-	public boolean mousePressed(int mouseX, int mouseY, Object e){
-		return bottomFigure.mousePressed(mouseX, mouseY, null) || 
-        	   topFigure.mousePressed(mouseX, mouseY, null);
-	}
 	
 	@Override
 	public void destroy(){
@@ -110,5 +81,15 @@ public class Place extends Figure {
 			String screenId, boolean horizontal) {
 		// TODO: Implement this...
 		
+	}
+	
+
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		// TODO: Implement this...
+		return false;
+	}
+	
+	public void executeMouseOverOffHandlers(HandlerProp prop) {
+		// TODO: Implement this...
 	}
 }

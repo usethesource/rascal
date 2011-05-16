@@ -189,7 +189,7 @@ public class HCat extends Compose {
 		gapSize = gapsSize / numberOfGaps;
 		
 		height =  maxTopAnchor + maxBottomAnchor;
-		System.out.printf("height %f maxTopAnchor %f maxBottomAnchor %f\n", height,maxTopAnchor, maxBottomAnchor);
+		//System.out.printf("height %f maxTopAnchor %f maxBottomAnchor %f\n", height,maxTopAnchor, maxBottomAnchor);
 		determinePlacement();
 		BoundingBox bbox = new BoundingBox(width, height,flip);
 		width = bbox.getWidth();

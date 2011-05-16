@@ -370,6 +370,14 @@ data FProperty =
    | valign(computedNum cVert)
    | valign(Like other)
    
+   | mouseOverHalign(num hor)
+   | mouseOverHalign(computedNum cHor)
+   | mouseOverHalign(Like other)
+   
+   | mouseOverValign(num vert)
+   | mouseOverValign(computedNum cVert)
+   | mouseOverValign(Like other)
+   
 /* line and border properties */
    | lineWidth(num lineWidth)			// line width
    | lineWidth(computedNum cLineWidth)		// line width
@@ -439,6 +447,8 @@ data FProperty =
    | mouseOver(Like other)
                
    | onClick(void() handler)            // handler for mouse clicks
+   | onMouseOver(void() handler)         // callback when mouse is over figure
+   | onMouseOff(void() handler)             // callback when mouse leaves figure (including it's mouseovers)
    
    | doi(int d)                         // limit visibility to nesting level d
    | doi(computedInt ciD) 
@@ -580,6 +590,14 @@ data FProperty =
    | stdValign(num vert)
    | stdValign(computedNum cVert)
    | stdValign(Like other)
+   
+   | stdMouseOverHalign(num hor)
+   | stdMouseOverHalign(computedNum cHor)
+   | stdMouseOverHalign(Like other)
+   
+   | stdMouseOverValign(num vert)
+   | stdMouseOverValign(computedNum cVert)
+   | stdMouseOverValign(Like other)
    
 /* line and border properties */
    | stdLineWidth(num lineWidth)			// line width
@@ -1019,7 +1037,6 @@ public Figure combo(str text, list[str] choices, void (str) callback, FProperty 
 public Figure combo(str text, list[str] choices, void (str) callback, bool (str) validate, FProperty props...){
  	return _combo(text, choices, callback, validate, props);
 }
-  
 public Figure choice(list[str] choices, void(str s) ccallback, FProperty props...){
    return _choice(choices, ccallback, props);
 }

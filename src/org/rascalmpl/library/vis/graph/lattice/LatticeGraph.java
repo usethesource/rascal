@@ -19,10 +19,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -32,6 +34,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.FigureApplet;
 
 
@@ -253,6 +257,7 @@ public class LatticeGraph extends Figure implements
 		initialPlacement();
 		elitePopulation = computeFirstElitePopulation();
 		evolution();
+		ValueFactory vf = ValueFactory.getInstance();
 		for (LatticeGraphNode n : this.nodes)
 			for (LatticeGraphEdge e : this.edges)
 				if (!e.getFrom().equals(n) && !e.getTo().equals(n))
@@ -336,16 +341,6 @@ public class LatticeGraph extends Figure implements
 		}
 	}
 
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX,
-			double centerY, boolean mouseInParent) {
-		for (LatticeGraphNode n : nodes) {
-			if (n.mouseOver(mousex, mousey, mouseInParent))
-				return true;
-		}
-		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
-	}
-
 	private void evolution() {
 		for (int i = 0; i < G; i++) {
 			Arrays.sort(elitePopulation, this);
@@ -355,46 +350,6 @@ public class LatticeGraph extends Figure implements
 		System.err.println("After evolution Fitness:"
 				+ +elitePopulation[0].fitness);
 		elitePopulation[0].set();
-	}
-
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e) {
-		// System.err.println("mousePressed:" + this.getClass() + " "
-		// + nodes.size());
-		for (LatticeGraphNode n : nodes) {
-			if (n.mousePressed(mousex, mousey, e))
-				return true;
-		}
-		evolution();
-
-		return false;
-		// return super.mousePressed(mousex, mousey, e);
-	}
-
-	@Override
-	public boolean mouseDragged(int mousex, int mousey) {
-		// System.err.println("mouseDragged:"+this.getClass()+" "+nodes.size());
-		for (LatticeGraphNode n : nodes) {
-			if (n.mousePressed) {
-				n.x = mousex;
-				n.y = mousey;
-				return true;
-			}
-		}
-		return false;
-		// return super.mousePressed(mousex, mousey, e);
-	}
-
-	@Override
-	public boolean mouseReleased() {
-		if (debug)
-			System.err.println("mouseReleased");
-		for (LatticeGraphNode n : nodes) {
-			if (n.mouseReleased()) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public boolean isLattice() {
@@ -586,6 +541,17 @@ public class LatticeGraph extends Figure implements
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {
+	}
+	
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		if(!mouseInside(c.getX(), c.getY())) return false;
+		for(int i = nodes.size()-1 ; i >= 0 ; i--){
+			if(nodes.get(i).figure.getFiguresUnderMouse(c, result)){
+				break;
+			}
+		}
+		result.add(this);
+		return true;
 	}
 
 }

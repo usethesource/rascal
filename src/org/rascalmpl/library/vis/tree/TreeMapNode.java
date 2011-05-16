@@ -13,12 +13,15 @@
 package org.rascalmpl.library.vis.tree;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
  * A TreeMapNode is created for each "node" constructor that occurs in the TreeMap.
@@ -141,51 +144,16 @@ public class TreeMapNode extends Figure {
 		fpa.rect(getLeft(), getTop(), width, height);
 	}
 	
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
-		if(debug)System.err.printf("TreeMapNode.mouseover: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
-		if(debug)System.err.printf("TreeMapNode.mouseover: left=%f, top=%f\n", getLeft(), getTop());
-		if(!isVisible())
-			return false;
-		if(rootFigure.mouseOver(mousex, mousey, centerX, centerY, false))
-			return true;
-		if(isNextVisible()){
-			for(TreeMapNode child : children)
-				if(child.mouseOver(mousex, mousey, centerX, centerY, mouseInParent))
-					return true;
+
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		boolean ret = false;
+		if(rootFigure!=null){
+			ret = rootFigure.getFiguresUnderMouse(c, result);
 		}
-		return false;
+		if(mouseInside(c.getX(), c.getY())){
+			result.add(this);
+			ret=true;
+		}
+		return ret;
 	}
-	
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e){
-		if(debug)System.err.printf("TreeMapNode.mousePressed: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
-		if(!isVisible())
-			return false;
-		if(isNextVisible()){
-			for(TreeMapNode child : children)
-				if(child.mousePressed(mousex, mousey, e))
-					return true;
-		}
-		if(mouseInside(mousex, mousey)){
-			fpa.registerFocus(this);
-			return true;
-		}
-		return false;
-	}
-	
-//	@Override
-//	public boolean mouseDragged(int mousex, int mousey){
-//		if(debug)System.err.printf("TreeMapNode.mouseDragged: %d, %d\n", mousex, mousey);
-//		for(TreeMapNode child : children)
-//			if(child.mouseDragged(mousex, mousey))
-//				return true;
-//		if(debug)System.err.println("TreeMapNode.mouseDragged: children do not match\n");
-//		if(mouseInside(mousex, mousey)){
-//			fpa.registerFocus(this);
-//			drag(mousex, mousey);
-//			return true;
-//		}
-//		return false;
-//	}
 }

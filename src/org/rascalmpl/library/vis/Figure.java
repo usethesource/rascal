@@ -16,23 +16,21 @@ package org.rascalmpl.library.vis;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.Measure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
+import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.properties.descriptions.RealProp;
 import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.library.vis.util.BoundingBox;
+import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.Dimension;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 
 /**
@@ -49,11 +47,11 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 
 	public static final double AUTO_SIZE = -1.0;
-	
+	public static int sequencer = 0; // to impose arbitrary ordering on figures
+	public int sequenceNr;
 	@SuppressWarnings("unused")
 	private final boolean debug = false;
 	public IFigureApplet fpa;
-	protected static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	protected HashMap<String, Double> axisScales;
 
 	public PropertyManager properties;
@@ -66,10 +64,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	                            // When this figure is used as mouseOver or inner figure, point back
 	                            // to generating Figure
 	protected double scaleX, scaleY;
-	
-	private boolean visibleInMouseOver = false;
-	private double leftDragged;
-	private double topDragged;
 		
 	protected Figure(IFigureApplet fpa, PropertyManager properties){
 		this.fpa = fpa;
@@ -78,6 +72,8 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		if(id != null)
 			fpa.registerId(id, this);
 		scaleX = scaleY = 1.0f;
+		sequenceNr = sequencer;
+		sequencer++;
 	}
 	
 	protected void setLeft(double left) {
@@ -86,11 +82,11 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	
 
 	public double getLeft() {
-		return left + getLeftDragged();
+		return left;
 	}
 
 	protected void setTop(double top) {
-		this.top = top + getTopDragged();
+		this.top = top;
 	}
 
 	public double getTop() {
@@ -100,7 +96,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public double getCenterX(){
 		return getLeft() + width/2;
 	}
-	
+
 	public double getCenterY(){
 		return getTop() + height/2;
 	}
@@ -129,26 +125,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 				getIntegerProperty(IntProp.FONT_SIZE)));
 		fpa.textColor(getColorProperty(ColorProp.FONT_COLOR));
 	}
-	/*
-	public double leftAlign() {
-		double res= (getRealProperty(RealProp.HALIGN) * width);
-		return res;
-	}
-
-	public double rightAlign() {
-		double res =  (width - getRealProperty(RealProp.HALIGN) * width);
-		return res;
-	}
-
-	public double topAlign() {
-		return (getRealProperty(RealProp.VALIGN) * height);
-	}
-
-	public double bottomAlign() {
-		return (height - getRealProperty(RealProp.VALIGN)  * height);
-	}
-	*/
-	
 	
 
 	// TODO: irregular
@@ -198,12 +174,22 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return new Extremes(0,height);
 	}
 
+	/*
+	 * Compare two Figures using an arbitrary ordering
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(Figure o){
+		return sequenceNr - o.sequenceNr;
+	}
+	
 
 	/*
 	 * Compare two Figures according to their surface and aspect ratio
 	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
+	/*
 	public int compareTo(Figure o) {
 		double r = (height > width) ? height / width : width / height;
 		double or = (o.height > o.width) ? o.height / o.width : o.width
@@ -216,6 +202,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		}
 		return r < or ? 1 : (r == or ? 0 : -1);
 	}
+	*/
 
 	/**
 	 * Drawing proceeds in two stages: - determine the bounding box of the
@@ -396,134 +383,31 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 			fpa.rect(getLeft(), getTop(), width, height);
 		}
 	}
-
-	public boolean isVisibleInMouseOver() {
-		return visibleInMouseOver;
-	}
-
-	public void setVisibleInMouseOver(boolean b) {
-		visibleInMouseOver = b;
-		// System.err.println("setVisibleInMouseOver(" + b + ")" + " : " +
-		// this);
-	}
-
-	public void clearVisibleInMouseOver() {
-		visibleInMouseOver = false;
-	}
-
-	/**
-	 * Draw the mouseOver figure associated with this figure (if any)
-	 * 
-	 * @param left
-	 *            left corner op enclosing figure
-	 * @param top
-	 *            top corner of enclosing figure
-	 */
-	public void drawWithMouseOver(double left, double top) {
-		draw(left, top);
-		if (hasMouseOverFigure()) {
-			Figure mo = getMouseOver();
-			mo.bbox(AUTO_SIZE, AUTO_SIZE);
-			mo.drawWithMouseOver(max(0, left + (width - mo.width) / 2f),
-					max(0, top + (height - mo.height) / 2));
-		}
-	}
-
-
-	public boolean mouseInside(int mouseX, int mouseY){
-		boolean b =  (mouseX > getLeft()  && mouseX < getLeft() + width) &&
-		             (mouseY > getTop()  && mouseY < getTop() + height);
-		//System.err.println("mouseInside1: [" + mouseX + ", " + mouseY + "]: "+ b + "; " + this);
-		//System.err.printf("left %f right %f top %f bottom %f\n", getLeft(),getTop(),getLeft() + width, getTop() + height);
-		return b;
-	}
-
-	public boolean mouseInside(int mouseX, int mouseY, double centerX,
-			double centerY) {
-		double left = max(0, centerX - width / 2);
-		double top = max(0, centerY - height / 2);
-		boolean b = (mouseX > left && mouseX < left + width)
-				&& (mouseY > top && mouseY < top + height);
-
-		  //System.err.println("mouseInside2: [" + mouseX + ", " + mouseY +
-		 // "]: "+ b + "; " + this);
-		return b;
-	}
-
-	/**
-	 * Compute effect of a mouseOver on this element (with not yet known
-	 * position)
-	 * 
-	 * @param mouseX
-	 *            x-coordinate of mouse
-	 * @param mouseY
-	 *            y-coordinate of mouse
-	 * @param centerX
-	 *            center of parent
-	 * @param centerY
-	 *            center of parent
-	 * @param mouseInParent
-	 *            true if mouse inside parent
-	 * @return true if element was affected.
-	 */
 	
-	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
-		// System.err.println("Figure.MouseOver: " + this);
-		if(mouseInside(mouseX, mouseY, centerX, centerY)){
-		   fpa.registerMouseOver(this);
-		   return true;
-		}
-		return false;
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		if(!mouseInside(c.getX(), c.getY())) return false;
+		result.add(this); return true;
 	}
-
-	/**
-	 * Compute effect of a mouseOver on this element (with known position)
-	 * 
-	 * @param mouseX
-	 *            x-coordinate of mouse
-	 * @param mouseY
-	 *            y-coordinate of mouse
-	 * @param mouseInParent
-	 *            true if mouse inside parent
-	 * @return true if element was affected.
-	 */
-
-	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
-		return mouseOver(mouseX, mouseY, getCenterX(), getCenterY(), mouseInParent);
-	}
-
-	final Type[] argTypes = new Type[0];			// Argument types of callback: list[str]
-	final IValue[] argVals = new IValue[0];		// Argument values of callback: argList
 	
-	/**
-	 * Compute the effect
-	 * 
-	 * @param mouseX
-	 *            x-coordinate of mouse
-	 * @param mouseY
-	 *            y-coordinate of mouse
-	 * @param e
-	 *            TODO
-	 * @return
-	 */
-
-	public boolean mousePressed(int mouseX, int mouseY, Object e){
-		System.err.println("Figure.mousePressed in " + this + ", handler = " + properties.getOnClick());
-		if(mouseInside(mouseX, mouseY)){
-			
-			if(properties.handlerCanBeExecuted(HandlerProp.MOUSE_CLICK)){
-				properties.executeHandlerProperty(HandlerProp.MOUSE_CLICK);
-			} else {
-				fpa.registerFocus(this);
-			}
-			return true;
+	public void executeMouseOverOffHandlers(HandlerProp prop) {
+		if(isHandlerPropertySet(prop)){
+			executeHandlerProperty(prop);
 		}
-		return false;
+	}
+	
+	public void executeMouseOverHandlers(){
+		executeMouseOverOffHandlers(HandlerProp.ON_MOUSEOVER);
+	}
+	
+	public void executeMouseOffHandlers(){
+		executeMouseOverOffHandlers(HandlerProp.ON_MOUSEOFF);
 	}
 
-	public boolean mouseReleased() {
-		return false;
+	public boolean mouseInside(double mouseX, double mouseY){
+		return  (mouseX >= getLeft()  && mouseX <= getLeft() + width) &&
+		             (mouseY >= getTop()  && mouseY <= getTop() + height);
 	}
+
 
 	/**
 	 * @param key  
@@ -533,45 +417,10 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return false;
 	}
 	
-	public void drag(double mousex, double mousey){
-		System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
-		if(!isDraggable())
-			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
-		setLeftDragged(getLeftDragged() + (mousex - getLeft()));
-		setTopDragged(getTopDragged() + (mousey - getTop()));
-	}
-
-	public boolean mouseDragged(int mousex, int mousey){
-		if(isDraggable() && mouseInside(mousex, mousey)){
-			fpa.registerFocus(this);
-			drag(mousex, mousey);
-			System.err.printf("Figure.mouseDragged: %f,%f\n", getLeftDragged(), getTopDragged());
-			return true;
-		}
-		return false;
-	}
-	
 	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.axisScales = axisScales;
-	}
-	
-
-	public void setLeftDragged(double leftDragged) {
-		this.leftDragged = leftDragged;
-	}
-
-	public double getLeftDragged() {
-		return leftDragged;
-	}
-
-	public void setTopDragged(double topDragged) {
-		this.topDragged = topDragged;
-	}
-
-	public double getTopDragged() {
-		return topDragged;
 	}
 	
 	/**
@@ -635,15 +484,33 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return getScaled(prop, prop.getDimension());
 	}
 	
+	public boolean isHandlerPropertySet(HandlerProp property){
+		return properties.isHandlerPropertySet(property);
+	}
+	public boolean isStandardHandlerPropertySet(HandlerProp property){
+		return isStandardHandlerPropertySet(property);
+	}
+	
+	public boolean isStandardDefaultHandlerPropertySet(HandlerProp property){
+		return isStandardDefaultHandlerPropertySet(property);
+	}
+	
+	public void executeHandlerProperty(HandlerProp property) {
+		properties.executeHandlerProperty(property);
+	}
+	
+	public boolean isFigurePropertySet(FigureProp property){
+		return properties.isFigurePropertySet(property);
+	}
+	public Figure getFigureProperty(FigureProp property) {
+		return properties.getFigureProperty(property);
+	}
+	
 	public boolean isDraggable(){
 		return properties.isDraggable();
 	}
 	public Figure getMouseOver(){
 		return properties.getMouseOver();
-	}
-	
-	private boolean hasMouseOverFigure() {
-		return getMouseOver() != null;
 	}
 	
 	public Figure getToArrow(){
@@ -777,6 +644,11 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	public double getHGapProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.X)); }
 	public boolean isVGapPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.Y)); }
 	public double getVGapProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.Y)); }
+	
+	public boolean isMouseOverSet() { return isFigurePropertySet(FigureProp.MOUSE_OVER);}
+	public Figure getMouseOverProperty() { return getFigureProperty(FigureProp.MOUSE_OVER); }
+	public boolean isOnClickPropertySet() { return isHandlerPropertySet(HandlerProp.MOUSE_CLICK);}
+	public void executeOnClick() { executeHandlerProperty(HandlerProp.MOUSE_CLICK); }
 	
 	public boolean isHGapFactorPropertySet(boolean flip){
 		if(flip){

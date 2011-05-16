@@ -103,24 +103,13 @@ public class Ellipse extends Container {
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey){
+	public boolean mouseInside(double mousex, double mousey){
 		double w2 = width/2;
 		double h2 = height/2;
 		double X = getLeft() + w2;
 		double Y = getTop() + h2;
 		double ex =  (mousex - X) / w2;
 		double ey = 	(mousey - Y) / h2;
-		boolean b =  ex * ex + ey * ey <= 1;
-		//System.err.println("ellipse.mouseInside: " + b);
-		return b;
-	}
-	
-	@Override
-	public boolean mouseInside(int mousex, int mousey, double centerX, double centerY){
-		double w2 = width/2;
-		double h2 = height/2;
-		double ex =  (mousex - centerX) / w2;
-		double ey = 	(mousey - centerY) / h2;
 		boolean b =  ex * ex + ey * ey <= 1;
 		//System.err.println("ellipse.mouseInside: " + b);
 		return b;

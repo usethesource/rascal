@@ -13,9 +13,8 @@ package org.rascalmpl.library.vis.interaction;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -30,13 +29,13 @@ public class ComputeFigure extends Figure {
 	
 	
 	final private IEvaluatorContext ctx;
+	private IList childProps;
 
-
-	public ComputeFigure(IFigureApplet fpa, PropertyManager properties,  IValue fun, IEvaluatorContext ctx) {
+	public ComputeFigure(IFigureApplet fpa, PropertyManager properties,  IValue fun, IList childProps,IEvaluatorContext ctx) {
 		super(fpa, properties);
 	
 		this.ctx = ctx;
-
+		this.childProps = childProps;
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
 	}
@@ -47,13 +46,8 @@ public class ComputeFigure extends Figure {
 		if(figure != null){
 			figure.destroy();
 		}
-		Cursor c = new Cursor(fpa.getComp().getDisplay(), SWT.CURSOR_WAIT),
-		c0 = fpa.getCursor();
-		fpa.setCursor(c);
 		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-		fpa.setCursor(c0);
-		c.dispose();
-		figure = FigureFactory.make(fpa, figureCons, properties, null, ctx);
+		figure = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
 		fpa.setComputedValueChanged();
 		figure.bbox(AUTO_SIZE, AUTO_SIZE);
 		width = figure.width;
@@ -90,51 +84,12 @@ public class ComputeFigure extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mouseX, int mouseY){
-		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
-				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
+	public boolean mouseInside(double mouseX, double mouseY){
+		//System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
+		//		getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
 		if(figure != null)
 			return figure.mouseInside(mouseX, mouseY);
 		return false;
-	}
-	
-	@Override
-	public boolean mouseInside(int mouseX, int mouseY, double centerX, double centerY){
-		System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
-				getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
-		if(figure != null){
-			boolean b = figure.mouseInside(mouseX, mouseY, centerX, centerY);
-			System.err.println("ComputeFigure.mouseInside => " + b);
-			return b;
-		}
-		System.err.println("ComputeFigure.mouseInside => " + false);
-		return false;
-	}
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
-		System.err.println("ComputeFigure.mouseOver1: " + figure);
-		if(figure != null){
-			return figure.mouseOver(mouseX, mouseY, mouseInParent);
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
-		// System.err.println("ComputeFigure.mouseOver2: " + figure);
-		if(figure != null){
-			return figure.mouseOver(mouseX, mouseY, centerX, centerY, mouseInParent);
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean mousePressed(int mouseX, int mouseY, Object e){
-		System.err.println("ComputeFigure.mousePressed: " + mouseX + ", " + mouseY);
-		if(figure != null)
-			return figure.mousePressed(mouseX, mouseY, null);
-		return super.mousePressed(mouseX, mouseY, e);
 	}
 	
 	@Override

@@ -15,6 +15,7 @@ package org.rascalmpl.library.vis.properties;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -217,7 +218,7 @@ public class PropertyParsers {
 		
 		@Override
 		boolean isLiteralType(Type type) {
-			return type.isIntegerType() || type.isRealType();
+			return type.isIntegerType() || type.isRealType() || type.isNumberType();
 		}
 		
 		@Override
@@ -225,8 +226,10 @@ public class PropertyParsers {
 			double value;
 			if(arg.getType().isIntegerType()){
 				value = ((IInteger) arg).intValue();
-			} else {
-				value = ((IReal) arg).floatValue();
+			} else if(arg.getType().isRealType()){
+				value = ((IReal) arg).doubleValue();
+			} else { //  if(arg.getType().isNumberType()){
+				value = ((INumber)arg).toReal().doubleValue();
 			}
 			return new ConstantProperties.ConstantRealProperty(value);
 		}
@@ -337,7 +340,7 @@ public class PropertyParsers {
 		@Override
 		IPropertyValue<Figure> makeLikeProperty(FigureProp prop, String id,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
-			return new LikeProperties.LikeFigureProperty(id, fpa, ctx);
+			return new LikeProperties.LikeFigureProperty(prop,id, fpa, ctx);
 		}
 
 		@Override

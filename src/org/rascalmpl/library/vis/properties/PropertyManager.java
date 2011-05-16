@@ -64,7 +64,7 @@ public class PropertyManager implements IPropertyManager {
 	
 	Values explicitValues, stdValues;
 	
-	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){		
+	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){
 		IList props = (IList) c.get(c.arity()-1);
 		if(pm != null && !pm.anyExplicitPropertiesSet() 
 				&& (props == null || props.length()==0)

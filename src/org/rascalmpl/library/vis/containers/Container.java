@@ -155,19 +155,6 @@ public abstract class Container extends WithInnerFig {
 		}
 	}
 	
-	@Override
-	public void drawWithMouseOver(double left, double top){
-		draw(left, top);
-		if(innerFig != null && innerFig.isVisibleInMouseOver())
-			innerDrawWithMouseOver(left, top);
-		Figure mo = getMouseOver();
-		if(mo != null && mo.isVisibleInMouseOver()){
-			//System.err.printf("Mouse over width %f height %f", mo.width,mo.height);
-			mo.drawWithMouseOver(max(0, left + mo.getHAlignProperty()*(width  - mo.width)),
-			    				 max(0, top  + mo.getVAlignProperty()*(height - mo.height)));
-		}
-	}
-	
 	/**
 	 * @return true if the inner element fits in the current container.
 	 */
@@ -182,16 +169,6 @@ public abstract class Container extends WithInnerFig {
 		innerFig.draw(max(0, getLeft() + innerFigX),
 			    	  max(0, getTop()  + innerFigY));
 	}
-	
-	void innerDrawWithMouseOver(double left, double top){
-		if(innerFig != null){
-			double hgap = getHGapProperty();
-			double vgap = getVGapProperty();
-			innerFig.drawWithMouseOver(max(0, left + hgap + innerFig.getHAlignProperty()*(width  - innerFig.width  - 2 * hgap)),
-			    	                   max(0, top  + vgap + innerFig.getVAlignProperty()*(height - innerFig.height - 2 * vgap)));
-		}
-	}
-	
 	/**
 	 * drawContainer: draws the graphics associated with the container (if any). 
 	 * It is overridden by subclasses.
@@ -204,148 +181,6 @@ public abstract class Container extends WithInnerFig {
 	 */
 	
 	abstract String containerName();
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
-		if(debug){System.err.println("mouseOver: " + this);
-				System.err.printf("mouse: %d, %d; center: %f, %f\n", mouseX, mouseY, centerX, centerY);
-		}
-		boolean mouseInMe =  mouseInside(mouseX, mouseY);
-		boolean mouseOverActive = false;
-		if(debug)System.err.println("mi = " + mouseInMe);
-		
-		if(innerFig != null){
-			if(innerFits()){
-				mouseOverActive = innerFig.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
-			} else if(innerFig.isVisibleInMouseOver()){
-				if(innerFig.mouseOver(mouseX, mouseY, mouseInMe)){
-					mouseOverActive = true;
-				}
-			} else if (mouseInMe){
-				innerFig.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
-				innerFig.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
-				mouseOverActive = true;
-			}
-		}
-		
-		Figure mo = getMouseOver();
-		if(mo != null){
-			if(mo.isVisibleInMouseOver()){
-				if(mo.mouseOver(mouseX, mouseY, mouseInMe)){
-					mouseOverActive = true;
-				}
-			} else if(mouseInMe){
-				mo.bbox(Figure.AUTO_SIZE,Figure.AUTO_SIZE);
-				mo.mouseOver(mouseX, mouseY, centerX, centerY, mouseInMe);
-				mouseOverActive = true;
-			}
-		}
-		
-		boolean status =  mouseInMe  || mouseOverActive || mouseInParent;
-			
-		if(!status)
-			clearVisibleInMouseOver();
-		else {
-			setVisibleInMouseOver(true);
-			fpa.registerMouseOver(this);
-		}
-		
-		if(debug)System.err.println("mouseOver returns " + status + ", mi = " + mouseInMe + ", " + ", moa = " + mouseOverActive + ", " + this);
-		return status;
-	}
-	
-	@Override
-	public void clearVisibleInMouseOver(){
-		if(innerFig != null)
-			innerFig.clearVisibleInMouseOver();
-		Figure mo = getMouseOver();
-		if(mo != null)
-			mo.clearVisibleInMouseOver();
-		setVisibleInMouseOver(false);
-	}
-	
-	@Override
-	public boolean mousePressed(int mouseX, int mouseY, Object e){
-		if(!isVisible())
-			return false;
-		System.err.println(containerName() + ".mousePressed: " + mouseX + ", " + mouseY);
-	
-		if(innerFig != null && isNextVisible() && innerFig.mousePressed(mouseX, mouseY, null))
-				return true;
-		
-		Figure mo = getMouseOver();
-		
-		if(mo != null && mo.isVisibleInMouseOver() && mo.mousePressed(mouseX, mouseY, null))
-			return true;
-		
-		if(mouseInside(mouseX, mouseY)){
-			fpa.registerFocus(this);
-			return super.mousePressed(mouseX, mouseY, e);
-		}
-		return false;
-	}
-	
-	@Override
-	public void drag(double mousex, double mousey){
-		if (debug) System.err.println("Drag to " + mousex + ", " + mousey + ": " + this);
-		if(!isDraggable())
-			System.err.println("==== ERROR: DRAG NOT ALLOWED ON " + this + " ===");
-		setLeftDragged(getLeftDragged() + (mousex - getLeft()));
-		setTopDragged(getTopDragged() + (mousey - getTop()));
-	}
-	
-	@Override
-	public boolean mouseDragged(int mousex, int mousey){
-		if(innerFits() && innerFig.isDraggable() && innerFig.mouseDragged(mousex, mousey))
-			return true;
-		
-		if(isDraggable() && mouseInside(mousex, mousey)){
-			fpa.registerFocus(this);
-			drag(mousex, mousey);
-			if (debug) System.err.printf("Figure.mouseDragged: %f,%f\n", getLeftDragged(), getTopDragged());
-			return true;
-		}
-		return false;
-	}
-	
-	
-
-//	
-//	@Override
-//	public void drawMouseOverFigure(int mouseX, int mouseY){
-//		LinkedList<Figure>  below = getParents();
-//		
-//	//	for(Figure f : below)
-//	//		System.err.println("\t" + f);
-//		
-//		Figure root = below.pop();
-//		double cX = root.getCenterX();
-//		double cY = root.getCenterY();
-//		
-//	//	System.err.println("cX = " + cX + ", cY = " + cY);
-//		
-//		for(Figure f : below){
-//	//		System.err.println("draw: " + f);
-//			f.draw(max(0, cX - f.width/2), max(0, cY - f.height/2));
-//		}
-//		//draw(max(0, cX - width/2), max(0, cY - height/2));
-//			
-//		
-////		if(isVisible()){
-////			if(hasMouseOverFigure()){
-////				Figure mo = getMouseOverFigure();
-////				if(mo.mouseInside(mouseX, mouseY))
-////					mo.draw(max(0, left + (width - mo.width)/2f), max(0, top + (height - mo.height)/2));
-////				mo.drawMouseOverFigure(mouseX, mouseY);
-////			} else if(innerFig != null){
-////				if(!fpa.isRegistered(innerFig))
-////					return;
-////				innerDraw();
-////			}
-////		}
-////	}
-	
-
 	
 	@Override 
 	public boolean keyPressed(int key, int keyCode){

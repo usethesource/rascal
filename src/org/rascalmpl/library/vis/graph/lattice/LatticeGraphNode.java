@@ -87,54 +87,11 @@ public class LatticeGraphNode {
 		}
 	}
 
-	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent) {
-
-		if (figure.mouseInside(mousex, mousey, figure.getCenterX(),
-				figure.getCenterY())
-				&& !mousePressed) {
-			if (debug)
-				System.err.println(""
-						+ this
-						+ " "
-						+ mousePressed
-						+ " "
-						+ figure.getCenterX()
-						+ " "
-						+ figure.getCenterY()
-						+ " "
-						+ figure.mouseInside(mousex, mousey,
-								figure.getCenterX(), figure.getCenterY()) + " "
-						+ figure.getClass());
-			return figure.mouseOver(mousex, mousey, mouseInParent);
-		}
-		figure.fpa.unRegisterMouseOver(this.figure);
-		return false;
-	}
-
-	public boolean mousePressed(int mouseX, int mouseY, Object e) {
-		if (figure.mouseInside(mouseX, mouseY, figure.getCenterX(),
-				figure.getCenterY())) {
-			mousePressed = true;
-			figure.fpa.unRegisterMouseOver(this.figure);
-			// fromX = mouseX;
-			// fromY = mouseY;
-			if (debug)
-				System.err.println("mousePressed");
-			return true;
-		} else
-			return false;
-		// return figure.mousePressed(mousex, mousey, e);
-	}
-
-	public boolean mouseReleased() {
-		if (mousePressed) {
-			mousePressed = false;
-			if (debug)
-				System.err.println("mouseReleased");
-			return true;
+	public boolean mouseInside(double mousex, double mousey) {
+		if (figure.mouseInside(mousex, mousey)) {
+			return  true;
 		}
 		return false;
-		// return figure.mousePressed(mousex, mousey, e);
 	}
 
 	public void addIn(LatticeGraphNode n) {
@@ -150,4 +107,6 @@ public class LatticeGraphNode {
 	public boolean isConnected(LatticeGraphNode n) {
 		return this.in.contains(n) || this.out.contains(n);
 	}
+	
+	
 }

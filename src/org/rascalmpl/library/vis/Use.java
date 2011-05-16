@@ -15,39 +15,38 @@ package org.rascalmpl.library.vis;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
  * Use another element. Mostly used to override properties.
  * 
+ * TODO: This does not currently work as expected!
+ * 
  * @author paulk
  *
  */
-public class Use extends Figure {
+public class Use extends WithInnerFig {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Figure inside;
 	private static boolean debug = false;
 
-	public Use(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IEvaluatorContext ctx) {
-		super(fpa, properties);
-		if(inside != null){
-			this.inside = FigureFactory.make(fpa, inside, this.properties, null, ctx);
-		}
+	public Use(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IList childProps, IEvaluatorContext ctx) {
+		super(fpa, properties,inside,childProps, ctx);
 		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
 	}
 
 	@Override
 	public 
 	void bbox(double desiredWidth, double desiredHeight){
-		
-		inside.bbox(AUTO_SIZE, AUTO_SIZE);
-		width = inside.width;
-		height = inside.height;
+		innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+		width = innerFig.width;
+		height = innerFig.height;
 		if(debug)System.err.println("use.bbox: width=" + width + ", height=" + height);
 	}
 
@@ -58,47 +57,7 @@ public class Use extends Figure {
 		this.setTop(top);
 		applyProperties();
 		
-		inside.draw(left + getHAlignProperty()*(width - inside.width),
-					top  + getVAlignProperty()*(height - inside.height));
-	}
-/*	
-	@Override
-	protected double leftAnchor(){
-		return inside.leftAnchor();
-	}
-	
-	@Override
-	protected double rightAnchor(){
-		return inside.rightAnchor();
-	}
-	
-	@Override
-	protected double topAnchor(){
-		return inside.topAnchor();
-	}
-	
-	@Override
-	protected double bottomAnchor(){
-		return inside.bottomAnchor();
-	}
-*/	
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
-		return inside.mouseOver(mousex, mousey, centerX, centerY, false);
-	}
-	
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e) {
-		return inside.mousePressed(mousex, mousey, null);
-	}
-	
-	@Override
-	public boolean mouseReleased() {	
-		return inside.mouseReleased();
-	}
-	
-	@Override
-	public boolean mouseDragged(int mousex, int mousey){
-		return inside.mouseDragged(mousex, mousey);
+		innerFig.draw(left + getHAlignProperty()*(width - innerFig.width),
+					top  + getVAlignProperty()*(height - innerFig.height));
 	}
 }

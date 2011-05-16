@@ -15,6 +15,7 @@ package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -64,7 +65,7 @@ public class Checkbox extends Figure {
 	
 	public void doCallBack(boolean selected){
         // System.err.println("Calling callback: " + callback + " with selected = " + selected);
-        fpa.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().boolType(), vf.bool(selected));
+        fpa.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(selected));
         fpa.setComputedValueChanged();
         fpa.redraw();
     }
