@@ -13,6 +13,7 @@ package org.rascalmpl.library.vis.graph.spring;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -23,6 +24,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -204,25 +207,17 @@ public class SpringGraph extends Figure {
 		
 		for (SpringGraphNode n : nodes)
 			n.draw(left, top);
-		
 	}
-
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent) {
-		for (SpringGraphNode n : nodes) {
-			if (n.mouseOver(mousex, mousey, mouseInParent))
-				return true;
+	
+	
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		if(!mouseInside(c.getX(), c.getY())) return false;
+		for(int i = nodes.size()-1 ; i >= 0 ; i--){
+			if(nodes.get(i).figure.getFiguresUnderMouse(c, result)){
+				break;
+			}
 		}
-		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
+		result.add(this);
+		return true;
 	}
-
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e) {
-		for (SpringGraphNode n : nodes) {
-			if (n.mousePressed(mousex, mousey, e))
-				return true;
-		}
-		return super.mouseOver(mousex, mousey, false);
-	}
-
 }

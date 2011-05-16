@@ -38,9 +38,6 @@ public interface IFigureApplet {
 	public void registerFocus(Figure f);
 	public boolean isRegisteredAsFocus(Figure f);
 	public void unRegisterFocus(Figure f);
-	public void registerMouseOver(Figure f);
-	public boolean isRegisteredAsMouseOver(Figure f);
-	public void unRegisterMouseOver(Figure f);
 	public void keyPressed();
 	public void mouseReleased();
 	public void mouseMoved();
@@ -81,13 +78,12 @@ public interface IFigureApplet {
 	public void endShape();
 	public void endShape(int arg0 );
 	public void print();
-	
+
 	public Object createFont(String fontName, double fontSize);
 	public void smooth();
 	
 	public void setCursor(Cursor cursor);
 	public Cursor getCursor();
-	
 	public Object getFont();
 	public void setBackground(Color color);
 	public void setForeground(Color color);	

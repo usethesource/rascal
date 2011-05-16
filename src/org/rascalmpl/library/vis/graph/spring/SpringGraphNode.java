@@ -172,14 +172,6 @@ public class SpringGraphNode {
 			figure.draw(getX() + left - figure.width/2, getY() + top - figure.height/2);
 		}
 	}
-	
-	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent){
-		return figure.mouseOver(mousex, mousey, mouseInParent);
-	}
-	
-	public boolean mousePressed(int mousex, int mousey, Object e){
-		return figure.mousePressed(mousex, mousey, null);
-	}
 
 	protected void setX(double x) {
 		if(x < figure.width/2 || x > G.width - figure.width/2)

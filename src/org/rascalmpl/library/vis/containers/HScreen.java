@@ -10,6 +10,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 public class HScreen extends WithInnerFig {
 	
@@ -118,6 +119,19 @@ public class HScreen extends WithInnerFig {
 	
 	public Extremes getVerticalBorders(){
 		return new Extremes(borderMin,borderMax);
+	}
+	
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		if(!mouseInside(c.getX(), c.getY())) return false;
+
+		if(innerFig.getFiguresUnderMouse(c, result)) return true;
+		for(ProjectionPlacement pfig : projections){
+			if(pfig.fig.getFiguresUnderMouse(c, result)){
+				break;
+			}
+		}
+		result.add(this);
+		return true;
 	}
 	
 	

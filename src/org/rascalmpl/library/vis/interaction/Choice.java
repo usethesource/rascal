@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis.interaction;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -64,7 +65,7 @@ public class Choice extends Figure {
 	public void doCallBack(String s) {
 		// System.err.println("Selected:"+s);
 		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().stringType(), vf.string(s));
+				.getInstance().stringType(), ValueFactory.getInstance().string(s));
 		fpa.setComputedValueChanged();
 		fpa.redraw();
 	}

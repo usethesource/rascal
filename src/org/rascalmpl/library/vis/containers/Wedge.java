@@ -335,7 +335,7 @@ public class Wedge extends Container {
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey){
+	public boolean mouseInside(double mousex, double mousey){
 		double dx = mousex - centerX;
 		double dy = mousey - centerY;
 		double dist = FigureApplet.sqrt(dx*dx + dy*dy);

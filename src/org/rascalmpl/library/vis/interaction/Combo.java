@@ -15,6 +15,7 @@ package org.rascalmpl.library.vis.interaction;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -119,8 +120,8 @@ public class Combo extends Figure {
 		if (validate != null) {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
-					vf.string(combo.getText()));
-			validated = res.getValue().equals(vf.bool(true));
+					ValueFactory.getInstance().string(combo.getText()));
+			validated = res.getValue().equals(ValueFactory.getInstance().bool(true));
 			return validated;
 		}
 		return true;
@@ -135,13 +136,13 @@ public class Combo extends Figure {
 		combo.setForeground(trueColor);
 		if (isTextfield)
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), vf.string(combo.getText()));
+					.getInstance().stringType(), ValueFactory.getInstance().string(combo.getText()));
 		else {
 			int s = combo.getSelectionIndex();
 			if (s < 0)
 				return;
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), vf.string(combo.getItem(s)));
+					.getInstance().stringType(), ValueFactory.getInstance().string(combo.getItem(s)));
 		}
 		fpa.setComputedValueChanged();
 		fpa.redraw();

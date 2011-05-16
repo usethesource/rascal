@@ -521,16 +521,4 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 			figure.draw(x + left - figure.width/2, y + top - figure.height/2);
 		}
 	}
-	
-	public boolean mouseOver(int mousex, int mousey, boolean mouseInParent){
-		if(figure != null)
-			return figure.mouseOver(mousex, mousey, mouseInParent);
-		return false;
-	}
-	
-	public boolean mousePressed(int mousex, int mousey, Object e){
-		if(figure != null && figure.mousePressed(mousex, mousey, null))
-			return true;
-		return false;
-	}
 }

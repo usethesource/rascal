@@ -25,6 +25,8 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
  * Abstract class for the composition of a list of visual elements.
@@ -54,63 +56,6 @@ public abstract class Compose extends Figure {
 			figures[i] = FigureFactory.make(fpa, c, properties, childProps, ctx);
 		}
 	}
-
-	@Override
-	public boolean mouseInside(int mousex, int mousey) {
-		if(super.mouseInside(mousex, mousey)){
-			for (int i = figures.length - 1; i >= 0; i--)
-				if (figures[i].mouseInside(mousex, mousey))
-					return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean mouseInside(int mousex, int mousey, double centerX,
-			double centerY) {
-		if(super.mouseInside(mousex, mousey, centerX, centerY)){
-			for (int i = figures.length - 1; i >= 0; i--)
-				if (figures[i].mouseInside(mousex, mousey, figures[i].getCenterX(),
-						figures[i].getCenterY()))
-					return true;
-		}
-		return false;
-	}
-	
-	// Visit figures front to back
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY,  double centerX, double centerY, boolean mouseInParent) {
-		// System.err.println("Compose.MouseOver2: " + this.getClass());
-		if(super.mouseInside(mouseX, mouseY)){
-			for (int i = figures.length - 1; i >= 0; i--){
-				// System.err.println("Compose.MouseOver, child : " + i);
-				if (figures[i].mouseOver(mouseX, mouseY, figures[i].getCenterX(),
-						figures[i].getCenterY(), false)){
-					return true;
-				}
-			}
-		}
-		return false; //super.mouseOver(mouseX, mouseY, mouseInParent);
-	}
-
-	// Visit figures front to back
-	@Override
-	public synchronized boolean mousePressed(int mouseX, int mouseY, Object e) {
-		if(super.mouseInside(mouseX, mouseY)){
-			for (int i = figures.length - 1; i >= 0; i--)
-				if (figures[i].mousePressed(mouseX, mouseY, null))
-					return true;
-		}
-		return false; //super.mousePressed(mouseX, mouseY, e);
-	}
-
-//	 @Override
-//	 public boolean mouseDragged(int mousex, int mousey){
-//	 for(Figure fig : figures)
-//	 if(fig.mouseDragged(mousex, mousey))
-//	 return true;
-//	 return super.mouseDragged(mousex, mousey);
-//	 }
 
 	@Override
 	public boolean keyPressed(int key, int keyCode) {
@@ -184,4 +129,14 @@ public abstract class Compose extends Figure {
 		}
 	}
 	
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		if(!mouseInside(c.getX(), c.getY())) return false;
+		for(int i = figures.length-1 ; i >= 0 ; i--){
+			if(figures[i].getFiguresUnderMouse(c, result)){
+				break;
+			}
+		}
+		result.add(this);
+		return true;
+	}
 }

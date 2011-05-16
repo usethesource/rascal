@@ -91,24 +91,4 @@ public class Outline extends Figure {
 			}
 		}
 	}
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, double centerX, double centerY, boolean mouseInParent){
-		if(debug)System.err.println("Outline.MouseOver: " + this);
-		if(mouseInside(mouseX, mouseY, centerX, centerY)){
-		   fpa.registerMouseOver(this);
-		   return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean mouseOver(int mouseX, int mouseY, boolean mouseInParent){
-		if(debug)System.err.println("Outline.MouseOver: " + this);
-		if(mouseInside(mouseX, mouseY)){
-		   fpa.registerMouseOver(this);
-		   return true;
-		}
-		return false;
-	}
 }

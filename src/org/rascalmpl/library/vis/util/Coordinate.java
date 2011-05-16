@@ -2,7 +2,7 @@ package org.rascalmpl.library.vis.util;
 
 public class Coordinate {
 	
-	public double x,y;
+	private  double x,y;
 	
 	public Coordinate(double x, double y,boolean flip){
 		if(flip){
@@ -12,6 +12,10 @@ public class Coordinate {
 			this.x = x;
 			this.y = y;
 		}
+	}
+	
+	public Coordinate(double x, double y){
+		this(x,y,false);
 	}
 	
 	public double getX(){ return x; }
@@ -33,11 +37,5 @@ public class Coordinate {
 		}
 	}
 	
-	public void setDimension(Dimension d,double value){
-		switch(d){
-		case X: x = value; break;
-		case Y: y = value; break;
-		}
-	}
 
 }

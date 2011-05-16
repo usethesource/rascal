@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.layered;
 
+import java.util.Vector;
+
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -19,6 +21,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -430,5 +434,10 @@ public class LayeredGraphEdge extends Figure {
 			toArrow.bbox(desiredWidth, desiredHeight);
 		if(label != null)
 			label.bbox(desiredWidth, desiredHeight);
+	}
+	
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		// TODO: Implement me!
+		return false;
 	}
 }

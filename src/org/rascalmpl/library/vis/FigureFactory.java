@@ -175,15 +175,16 @@ public class FigureFactory {
 			
 		case CHOICE:
 			return new Choice(fpa, properties, (IList) c.get(0), c.get(1), ctx);
-			
+		
 		case COMBO:
 			if(c.arity() > 3)
 				return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), c.get(3), ctx);
-			return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), null, ctx);
+			return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), null, ctx);					
 			
 		case COMPUTEFIGURE:
-			return new ComputeFigure(fpa, properties,  c.get(0), ctx);
-							
+			return new ComputeFigure(fpa, properties,  c.get(0), childPropsNext, ctx);
+			
+	
 		case ELLIPSE:
 			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext,ctx);
 					
@@ -261,7 +262,7 @@ public class FigureFactory {
 			return new TreeMap(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case USE:			
-			return new Use(fpa, properties, (IConstructor) c.get(0), ctx);
+			return new Use(fpa, properties, (IConstructor) c.get(0), childPropsNext, ctx);
 			
 		case VAXIS:
 			return new VAxis(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	

@@ -13,12 +13,15 @@
 package org.rascalmpl.library.vis.tree;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
  * A TreeNode is created for each "node" constructor that occurs in a Tree.
@@ -207,58 +210,21 @@ public class TreeNode extends Figure {
 		fpa.decDepth();
 	}
 	
-//	@Override
-//	public boolean mouseInside(int mousex, int mousey){
-//		return mousex > left && mousex < left + width &&
-//				mousey > top && mousey < top + height;
-//	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey){
+	public boolean mouseInside(double mousex, double mousey){
 		return rootFigure.mouseInside(mousex, mousey);
 	}
-	
-	@Override
-	public boolean mouseInside(int mousex, int mousey, double centerX, double centerY){
-		return rootFigure.mouseInside(mousex, mousey, rootFigure.getCenterX(), rootFigure.getCenterY());
+
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		for(int i = children.size()-1 ; i >= 0 ; i--){
+			if(children.get(i).getFiguresUnderMouse(c, result)){
+				break;
+			}
+		}
+		if(rootFigure.getFiguresUnderMouse(c, result)) {
+			result.add(rootFigure);
+		}
+		return true;
 	}
-	
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
-		if(debug)System.err.printf("TreeNode.mouseover: %d, %d\n", mousex, mousey);
-		if(debug)System.err.printf("TreeNode.mouseover: left=%f, top=%f\n", getLeft(), getTop());
-		if(rootFigure.mouseOver(mousex, mousey, false))
-			return true;
-		for(TreeNode child : children)
-			if(child.mouseOver(mousex, mousey, false))
-				return true;
-		return super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
-	}
-	
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e){
-		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d\n", rootFigure.getIdProperty(), mousex, mousey);
-		if(rootFigure.mousePressed(mousex, mousey, e))
-			return true;
-		for(TreeNode child : children)
-			if(child.mousePressed(mousex, mousey, e))
-				return true;
-		if(debug)System.err.printf("TreeNode.mousePressed: %s, %d, %d, trying outer bounds with left corner: %f, %f\n", rootFigure.getIdProperty(), mousex, mousey, getLeft(), getTop());
-		return super.mousePressed(mousex, mousey, e);
-	}
-	
-//	@Override
-//	public boolean mouseDragged(int mousex, int mousey){
-//		if(debug)System.err.printf("TreeNode.mouseDragged: %d, %d\n", mousex, mousey);
-//		for(TreeNode child : children)
-//			if(child.mouseDragged(mousex, mousey))
-//				return true;
-//		if(debug)System.err.println("TreeNode.mouseDragged: children do not match\n");
-//		if(mouseInside(mousex, mousey)){
-//			fpa.registerFocus(this);
-//			drag(mousex, mousey);
-//			return true;
-//		}
-//		return false;
-//	}
 }

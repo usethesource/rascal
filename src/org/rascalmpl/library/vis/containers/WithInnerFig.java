@@ -11,16 +11,17 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 
 public abstract class WithInnerFig extends Figure {
 	
-	final protected Figure innerFig;
+	protected Figure innerFig;
 	final static boolean debug = false;
-	double innerFigX;
-	double innerFigY;
+	double innerFigX, innerFigY;
 	
-	WithInnerFig(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
+	public WithInnerFig(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if(innerCons != null){
 			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, childProps, ctx);
@@ -29,6 +30,7 @@ public abstract class WithInnerFig extends Figure {
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
 	
+
 	@Override public void destroy(){
 		if(innerFig != null)
 			innerFig.destroy();
@@ -73,5 +75,14 @@ public abstract class WithInnerFig extends Figure {
 		} else {
 			return Double.MAX_VALUE;
 		}
+	}
+	
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		if(!mouseInside(c.getX(), c.getY())) return false;
+		if(innerFig != null){
+			innerFig.getFiguresUnderMouse(c, result);
+		}
+		result.add(this);
+		return true;
 	}
 }

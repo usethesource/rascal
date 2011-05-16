@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis.tree;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -26,6 +27,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
+import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -125,33 +128,21 @@ public class Tree extends Figure {
 	}
 	
 	@Override
-	public boolean mouseInside(int mousex, int mousey){
+	public boolean mouseInside(double mousex, double mousey){
 		return root.mouseInside(mousex, mousey) || 
 		       super.mouseInside(mousex, mousey);
 	}
 	
-	@Override
-	public boolean mouseInside(int mousex, int mousey, double centerX, double centerY){
-		return root.mouseInside(mousex, mousey, centerX, centerY) || 
-		       super.mouseInside(mousex, mousey, centerX, centerY);
+
+	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
+		boolean ret = false;
+		if(root!=null){
+			ret = root.getFiguresUnderMouse(c, result);
+		}
+		if(mouseInside(c.getX(), c.getY())){
+			result.add(this);
+			ret=true;
+		}
+		return ret;
 	}
-	
-	@Override
-	public boolean mouseOver(int mousex, int mousey, double centerX, double centerY, boolean mouseInParent){
-		return root.mouseOver(mousex, mousey, centerX, centerY, false) ||
-		       super.mouseOver(mousex, mousey, centerX, centerY, mouseInParent);
-	}
-	
-	@Override
-	public boolean mousePressed(int mousex, int mousey, Object e){
-		//System.err.printf("Tree.mousePressed: %s, %d, %d\n", root.rootFigure.getIdProperty(), mousex, mousey);
-		return root.mousePressed(mousex, mousey, e) ||
-			   super.mousePressed(mousex, mousey, e);
-	}
-	
-//	@Override
-//	public boolean mouseDragged(int mousex, int mousey){
-//		return root.mouseDragged(mousex, mousey) ||
-//		       super.mouseDragged(mousex, mousey);
-//	}
 }
