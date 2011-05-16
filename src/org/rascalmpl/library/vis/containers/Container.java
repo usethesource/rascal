@@ -12,9 +12,12 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.compose.HCat;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 
 
 /**
@@ -34,9 +37,11 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 public abstract class Container extends WithInnerFig {
 
 	final private static boolean debug = false;
+	Figure originalMouseOver;
 
 	public Container(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
+		originalMouseOver = properties.getMouseOver();
 	}
 
 	@Override
@@ -90,7 +95,7 @@ public abstract class Container extends WithInnerFig {
 				innerDesiredHeight = Figure.AUTO_SIZE;
 			}
 			innerFig.bbox(innerDesiredWidth,innerDesiredHeight);
-			if(desiredWidth == AUTO_SIZE || innerFig.width > innerDesiredWidth){
+			if(desiredWidth == AUTO_SIZE){
 				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
 					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
 					spacingX = (innerFig.width / (1/getHGapFactorProperty() - 1));
@@ -99,7 +104,7 @@ public abstract class Container extends WithInnerFig {
 				}
 				width = innerFig.width + spacingX + 2*lw;
 			}
-			if(desiredHeight == AUTO_SIZE || innerFig.height > innerDesiredHeight){
+			if(desiredHeight == AUTO_SIZE){
 				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
 					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
 					spacingY = (innerFig.height / (1/getVGapFactorProperty() - 1));
@@ -124,7 +129,14 @@ public abstract class Container extends WithInnerFig {
 				height = getHeightProperty();
 			}
 		}
-		
+		if(innerFig != null && !innerFits()){
+			if(originalMouseOver!=null){
+				Figure[] figs = {innerFig,originalMouseOver};
+				properties.setFigureProperty(FigureProp.MOUSE_OVER, new HCat(fpa,figs , new PropertyManager() ));
+			} else {
+				properties.setFigureProperty(FigureProp.MOUSE_OVER, innerFig);
+			}
+		}
 		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
 

@@ -30,43 +30,43 @@ public class ConstantProperties {
 
 	}
 	
-	static class ConstantRealProperty extends ConstantProperty<Double>{
+	public static class ConstantRealProperty extends ConstantProperty<Double>{
 		public ConstantRealProperty(Double value) {
 			super(value);
 		}
 	}
 	
-	static class ConstantStringProperty extends ConstantProperty<String>{
+	public static class ConstantStringProperty extends ConstantProperty<String>{
 		public ConstantStringProperty(String value) {
 			super(value);
 		}
 	}
 	
-	static class ConstantBooleanProperty extends ConstantProperty<Boolean>{
+	public static class ConstantBooleanProperty extends ConstantProperty<Boolean>{
 		public ConstantBooleanProperty(Boolean value) {
 			super(value);
 		}
 	}
 	
-	static class ConstantIntegerProperty extends ConstantProperty<Integer>{
+	public static class ConstantIntegerProperty extends ConstantProperty<Integer>{
 		public ConstantIntegerProperty(Integer value) {
 			super(value);
 		}	
 	}
 	
-	static class ConstantColorProperty extends ConstantIntegerProperty{
+	public static class ConstantColorProperty extends ConstantIntegerProperty{
 		public ConstantColorProperty(Integer value) {
 			super(value);
 		}
 	}
 	
-	static class ConstantFigureProperty extends ConstantProperty<Figure>{
+	public static class ConstantFigureProperty extends ConstantProperty<Figure>{
 		public ConstantFigureProperty(Figure value) {
 			super(value);
 		}
 	}
 	
-	static class ConstantMeasureProperty extends ConstantProperty<Measure>{
+	public static class ConstantMeasureProperty extends ConstantProperty<Measure>{
 		public ConstantMeasureProperty(Measure value) {
 			super(value);
 		}

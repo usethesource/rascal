@@ -104,6 +104,9 @@ public class PropertyManager implements IPropertyManager {
 		inheritStdProperties(inherited);
 		setProperties(fpa, props, ctx);
 	}
+	
+	public PropertyManager() {
+	}
 
 	private void setProperties(IFigureApplet fpa, IList props,
 			IEvaluatorContext ctx) {
@@ -387,6 +390,10 @@ public class PropertyManager implements IPropertyManager {
 		} else {
 			return property.getStdDefault(); 
 		}
+	}
+	
+	public void setFigureProperty(FigureProp property,Figure fig){
+		explicitValues.figureValues.put(property, new ConstantProperties.ConstantFigureProperty(fig));
 	}
 	
 	public boolean handlerCanBeExecuted(HandlerProp property){
