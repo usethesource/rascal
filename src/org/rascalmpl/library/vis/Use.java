@@ -36,8 +36,8 @@ public class Use extends WithInnerFig {
 	private static final long serialVersionUID = 1L;
 	private static boolean debug = false;
 
-	public Use(IFigureApplet fpa, PropertyManager properties, IConstructor inside, IList childProps, IEvaluatorContext ctx) {
-		super(fpa, properties,inside,childProps, ctx);
+	public Use(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+		super(fpa, inner, properties);
 		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
 	}
 

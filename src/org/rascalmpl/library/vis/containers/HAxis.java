@@ -2,10 +2,8 @@ package org.rascalmpl.library.vis.containers;
 
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -21,8 +19,8 @@ public class HAxis extends WithInnerFig {
 	static final boolean debug = true;
 	
 	
-	public HAxis(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
-		super(fpa,properties,innerCons,childProps,ctx);
+	public HAxis(IFigureApplet fpa, Figure inner,PropertyManager properties) {
+		super(fpa,inner , properties);
 	}
 
 	boolean horizontal(){

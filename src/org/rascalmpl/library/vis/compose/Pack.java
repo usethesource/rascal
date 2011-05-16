@@ -13,8 +13,6 @@ package org.rascalmpl.library.vis.compose;
 
 import java.util.Arrays;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -35,9 +33,8 @@ public class Pack extends Compose {
 	static protected boolean debug = false;
 	boolean initialized = false;
 
-	public Pack(IFigureApplet fpa, PropertyManager properties, IList elems,
-			 IList childProps,  IEvaluatorContext ctx) {
-		super(fpa, properties, elems, childProps, ctx);
+	public Pack(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
+		super(fpa, figures, properties);
 	}
 
 	@Override

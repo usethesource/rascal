@@ -1,9 +1,7 @@
 package org.rascalmpl.library.vis.containers;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -15,8 +13,8 @@ public class VAxis extends HAxis {
 	private static final int MAJOR_TICK_WIDTH = 7;
 	private double textWidth;
 
-	public VAxis(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
-		super(innerCons, fpa, properties,  childProps, ctx);
+	public VAxis(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+		super(fpa, inner, properties);
 	}
 	
 	boolean horizontal(){

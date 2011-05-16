@@ -2,9 +2,6 @@ package org.rascalmpl.library.vis.containers;
 
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -17,8 +14,8 @@ public class HScreen extends WithInnerFig {
 	Vector<ProjectionPlacement> projections; 
 	double borderMin, borderMax;
 	
-	public HScreen(IConstructor innerCons, IFigureApplet fpa, PropertyManager properties,  IList childProps, IEvaluatorContext ctx) {
-		super(fpa,properties,innerCons,childProps,ctx);
+	public HScreen(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+		super(fpa,inner,properties);
 		projections = new Vector<HScreen.ProjectionPlacement>();
 	}
 	

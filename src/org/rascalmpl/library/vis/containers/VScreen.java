@@ -1,18 +1,16 @@
 package org.rascalmpl.library.vis.containers;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 
 public class VScreen extends HScreen {
 	
-	public VScreen(IConstructor innerCons, IFigureApplet fpa,
-			PropertyManager properties, IList childProps, IEvaluatorContext ctx) {
-		super(innerCons, fpa, properties, childProps, ctx);
+	public VScreen(IFigureApplet fpa, Figure inner,
+			PropertyManager properties) {
+		super(fpa, inner, properties);
 	}
 
 	void startGatheringProjections() {

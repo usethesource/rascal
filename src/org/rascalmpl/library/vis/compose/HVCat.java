@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -37,13 +35,13 @@ public class HVCat extends Compose {
 	
 	static boolean debug = false;
 
-	public HVCat(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
-		super(fpa, properties, elems, childProps, ctx);
-		leftElem = new double[elems.length()];
-		topRowElem = new double[elems.length()];
-		rowHeight = new double[elems.length()];
-		rowWidth = new double[elems.length()];
-		inRow = new int[elems.length()];
+	public HVCat(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
+		super(fpa,figures, properties);
+		leftElem = new double[figures.length];
+		topRowElem = new double[figures.length];
+		rowHeight = new double[figures.length];
+		rowWidth = new double[figures.length];
+		inRow = new int[figures.length];
 	}
 	
 	@Override
