@@ -14,9 +14,6 @@
 package org.rascalmpl.library.vis;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
