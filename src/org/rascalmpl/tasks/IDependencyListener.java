@@ -41,8 +41,8 @@ public interface IDependencyListener {
 		 *  Subsequent calls to getValue() may still block, if the fact changes in between. 
 		 */
 		AVAILABLE,
-		MOVED_TO
+		MOVED_TO, EXPIRED
 	}
-	public abstract void changed(IFact<?> f, Change c, Object moreInfo);
+	void changed(IFact<?> f, Change c, Object moreInfo);
 	
 }

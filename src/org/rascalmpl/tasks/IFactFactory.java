@@ -14,22 +14,7 @@ package org.rascalmpl.tasks;
 import org.rascalmpl.tasks.DepFactPolicy;
 import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.RefFactPolicy;
-import org.rascalmpl.tasks.facts.FineGrainedStrongFact;
 
-public class FactFactory implements IFactFactory {
-	private static IFactFactory factory;
-	
-	private FactFactory() {
-	}
-	
-	public static IFactFactory getInstance() {
-		if(factory == null)
-			factory = new FactFactory();
-		return factory;
-	}
-	
-	public <V,K> IFact<V> fact(Class<V> cls, Object key, String keyName, IExpirationListener<V> lis, DepFactPolicy depPolicy, RefFactPolicy refPolicy) {
-		return new FineGrainedStrongFact<V>(key, keyName, lis);
-	}
-
+public interface IFactFactory {
+	public <V,K> IFact<V> fact(Class<V> cls, Object key, String keyName, IExpirationListener<V> lis, DepFactPolicy depPolicy, RefFactPolicy refPolicy);
 }

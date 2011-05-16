@@ -28,10 +28,10 @@ public interface ITask<KeyType,NameType,ValueType> {
 	 *   it failed to produce the fact and was not authorative (i.e., we should try again with
 	 *   a different task).
 	 */
-	public abstract boolean produce(IRascalMonitor monitor, ITransaction<KeyType,NameType,ValueType> tr, KeyType key, NameType name);
+	boolean produce(IRascalMonitor monitor, ITransaction<KeyType,NameType,ValueType> tr, KeyType key, NameType name);
 
 	/**
 	 * The facts this producer should be considered a primary supplier of.
 	 */
-	public abstract Collection<KeyType> getKeys();
+	Collection<KeyType> getKeys();
 }

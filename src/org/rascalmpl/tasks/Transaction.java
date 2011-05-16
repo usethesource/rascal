@@ -34,8 +34,10 @@ import org.rascalmpl.tasks.IFact;
 import org.rascalmpl.tasks.INameFormatter;
 import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.Transaction;
+import org.rascalmpl.tasks.facts.AbstractFact;
 
-public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue {
+public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
+	IExpirationListener<IValue> {
 	public static final Type TransactionType = new ExternalType() {};
 	private final Transaction parent;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();
@@ -58,7 +60,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	}
 	
 	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr) {
-		this.parent = parent;
+		this.parent = (Transaction) parent;
 		if(parent != null)
 			this.registry = parent.registry;
 		else
@@ -157,16 +159,22 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 
 	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value) {
-		return setFact(key, name, value, null);
+		return setFact(key, name, value, null, FactFactory.getInstance());
 	}
-	
+
 	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
 			Collection<IFact<IValue>> dependencies) {
+		return setFact(key, name, value, dependencies, FactFactory.getInstance());
+	}
+
+	@Override
+	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
+			Collection<IFact<IValue>> dependencies, IFactFactory factory) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
 		if(fact == null) {
-			fact = FactFactory.fact(IValue.class, k, formatKey(k), registry.getDepPolicy(key), registry.getRefPolicy(key));
+			fact = factory.fact(IValue.class, k, formatKey(k), this, registry.getDepPolicy(key), registry.getRefPolicy(key));
 		}
 		boolean change = fact.setValue(value);
 		if(dependencies != null)
@@ -207,8 +215,9 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	@Override
 	public void commit() {
 		if(parent != null) {
-			if(parent.parent == null)
-				System.out.println("foo");
+			if(parent.parent == null) {
+				AbstractFact.pruneExpired();
+			}
 			for(Key k : removed) {
 				parent.removeFact(k.type, k.name);
 			}
@@ -369,5 +378,12 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			}
 		}
 		return g.getGraph();
+	}
+
+	@Override
+	public synchronized void expire(Object key) {
+		Key k = (Key) key;
+		map.remove(k);
+		removed.add(k);
 	}
 }
