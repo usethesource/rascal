@@ -11,13 +11,13 @@
 *******************************************************************************/
 package org.rascalmpl.tasks.facts;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.tasks.IDependencyListener;
+import org.rascalmpl.tasks.IExpirationListener;
 import org.rascalmpl.tasks.IFact;
-import org.rascalmpl.tasks.facts.AbstractDepFact;
-
 import static org.rascalmpl.tasks.IDependencyListener.Change.*;
 /**
  * This class implements fact storage for strongly referenced facts (i.e., a fact will never be removed
@@ -27,10 +27,10 @@ import static org.rascalmpl.tasks.IDependencyListener.Change.*;
  * @author anya
  *
  */
-public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
+public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 
-	public FineGrainedStrongFact(Object key, String keyName) {
-		super(key, keyName);
+	public FineGrainedStrongFact(Object key, String keyName, IExpirationListener<V> exp) {
+		super(key, keyName, exp);
 	}
 
 	/* (non-Javadoc)
@@ -39,6 +39,10 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 	@Override
 	public synchronized boolean setValue(V val) {
 		V oldValue = value;
+		if(oldValue == null)
+			oldValue = getRef();
+		clearRef();
+		
 		value = val;
 		status = IFact.FACT_OK;
 		if(oldValue != null &&
@@ -56,6 +60,8 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 		case CHANGED:
 			if(status < IFact.FACT_DEPS_CHANGED) {
 				System.out.println("CHANGED: " + fact + " recv by " + this);
+				setRefWeak(value);
+				value = null;
 				status = IFact.FACT_DEPS_CHANGED;
 				notifyInvalidated();
 			}
@@ -70,6 +76,8 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 		case REMOVED:
 			if(status < IFact.FACT_DEPS_CHANGED) {
 				dependencies.remove(fact);
+				setRefWeak(value);
+				value = null;
 				status = IFact.FACT_DEPS_CHANGED;
 				notifyInvalidated();
 			}
@@ -77,6 +85,14 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 		case MOVED_TO:
 			if(dependencies.remove(fact)) {
 				dependencies.add((IFact<?>) moreInfo);
+			}
+			break;
+		case EXPIRED:
+			if(dependencies.remove(fact)) {
+				Collection<IFact<?>> deps = fact.getDepends();
+				dependencies.addAll(deps);
+				for(IFact<?> dep : deps)
+					dep.registerListener(this);
 			}
 			break;
 		}
@@ -101,6 +117,7 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 		dependencies.clear();
 		listeners.clear();
 		value = null;
+		clearRef();
 	}
 
 
@@ -119,20 +136,30 @@ public class FineGrainedStrongFact<V> extends AbstractDepFact<V,V> {
 	public synchronized boolean updateFrom(IFact<V> fact) {
 		boolean result = false;
 		synchronized(fact) {
-				if(fact instanceof AbstractFact<?,?>) {
-				AbstractFact<?,?> f = (AbstractFact<?,?>)fact;
+				if(fact instanceof AbstractFact<?>) {
+				AbstractFact<?> f = (AbstractFact<?>)fact;
+				int oldStatus = status;
 				status = f.status;
-				if(f.value == null)
-					value = null;
-				else {
-					V oldValue = value;
-					value = (V)f.value;
-					if(oldValue != null &&
-							!(value instanceof IValue ? ((IValue)oldValue).isEqual((IValue)value) : oldValue.equals(value))) {
+				V oldValue = value;
+				if(oldValue == null)
+					oldValue = getRef();
+
+				if (status == FACT_OK) {
+					value = (V) f.value;
+					if (oldValue != null
+							&& !(oldValue instanceof IValue ? ((IValue) oldValue)
+									.isEqual((IValue) value) : oldValue
+									.equals(value))) {
 						notifyChanged();
-						result= true;
+						result = true;
 					}
 				}
+				else if (oldStatus == FACT_OK) {
+					notifyInvalidated();
+					value = null;
+					clearRef();
+				}
+
 				//else
 				//	throw new ImplementationError("Trying to update from fact with incompatible value types");
 				Iterator<IFact<?>> iterator = dependencies.iterator();

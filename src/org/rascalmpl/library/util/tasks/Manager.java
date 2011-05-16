@@ -43,8 +43,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class Manager {
 	private Transaction base = null;
 	private final ITaskRegistry<Type, IValue, IValue> registry;
-	private IValueFactory vf;
+	private final IValueFactory vf;
 	private final Map<IValueWrapper,ProducerWrapper> producers = new HashMap<IValueWrapper,ProducerWrapper>();
+	
 	public Manager() {
 		this(ValueFactoryFactory.getValueFactory());
 	}
