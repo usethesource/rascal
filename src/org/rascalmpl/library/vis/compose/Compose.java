@@ -15,13 +15,8 @@ package org.rascalmpl.library.vis.compose;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -40,20 +35,11 @@ public abstract class Compose extends Figure {
 	protected double[] yPos;
 	final private static boolean debug = false;
 
-	protected Compose(IFigureApplet fpa, PropertyManager properties,
-			IList elems, IList childProps, IEvaluatorContext ctx) {
+	protected Compose(IFigureApplet fpa, Figure[] figures,PropertyManager properties) {
 		super(fpa, properties);
-		int n = elems.length();
-		figures = new Figure[n];
+		this.figures = figures;
 		xPos = new double[figures.length];
 		yPos = new double[figures.length];
-		for (int i = 0; i < n; i++) {
-			IValue v = elems.get(i);
-			IConstructor c = (IConstructor) v;
-			if (debug)
-				System.err.println("Compose, elem = " + c.getName());
-			figures[i] = FigureFactory.make(fpa, c, properties, childProps, ctx);
-		}
 	}
 
 	@Override

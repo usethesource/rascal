@@ -11,13 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-
-import org.rascalmpl.library.vis.FigureApplet;
 
 /**
  * A wedge is a vee-shaped figure mostly used in pie charts. 
@@ -68,8 +65,8 @@ public class Wedge extends Container {
 	
 	private static boolean debug = false;
 
-	public Wedge(IFigureApplet fpa, PropertyManager properties, IConstructor inside,  IList childProps, IEvaluatorContext ctx) {
-		super(fpa, properties, inside, childProps, ctx);
+	public Wedge(IFigureApplet fpa, Figure inside, PropertyManager properties) {
+		super(fpa, inside, properties);
 	}
 	
 	// Determine quadrant of angle according to numbering scheme:

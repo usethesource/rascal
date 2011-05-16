@@ -13,8 +13,6 @@ package org.rascalmpl.library.vis.compose;
 
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -42,10 +40,10 @@ public class Grid extends Compose {
 	private static boolean debug = true;
 	
 
-	public Grid(IFigureApplet fpa, PropertyManager properties, IList elems, IList childProps, IEvaluatorContext ctx) {
-		super(fpa, properties, elems, childProps, ctx);
-		leftFig = new double[elems.length()];
-		topFig = new double[elems.length()];
+	public Grid(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
+		super(fpa,figures, properties );
+		leftFig = new double[figures.length];
+		topFig = new double[figures.length];
 	}
 	
 	private void updateMax(Vector<Double> sizes, int index, double val){

@@ -2,11 +2,7 @@ package org.rascalmpl.library.vis.containers;
 
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -15,11 +11,10 @@ public class Projection extends WithInnerFig {
 	String projectOn;
 	Figure projection;
 	
-	public Projection(String projectOn, IConstructor projection,IFigureApplet fpa, PropertyManager properties,
-			IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
-		super(fpa,properties,innerCons,childProps,ctx);
+	public Projection(IFigureApplet fpa, String projectOn, Figure projection,Figure innerFigure,PropertyManager properties) {
+		super(fpa,innerFigure,properties);
 		this.projectOn = projectOn;
-		this.projection = FigureFactory.make(fpa, projection, this.properties, childProps, ctx);
+		this.projection = projection;
 	}
 	
 	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){

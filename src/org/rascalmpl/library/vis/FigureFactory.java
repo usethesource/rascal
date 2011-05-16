@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -146,6 +147,28 @@ public class FigureFactory {
     	put("_xaxis",		Primitives.XAXIS);
     }};
 	
+    
+    public static Figure[] makeList(IFigureApplet fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+    	IList elems = (IList)list;
+    	Figure[] result = new Figure[elems.length()];
+    	for (int i = 0; i < elems.length(); i++) {
+    		IConstructor c = (IConstructor)elems.get(i);
+			result[i] = FigureFactory.make(fpa, c, properties, childProps, ctx);
+		}
+    	return result;
+    }
+    
+    public static Figure makeChild(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
+    	if(c.arity() == 2 ){
+    		return makeChild(0,fpa,c,properties,childProps,ctx);
+    	} else {
+    		return null;
+    	}
+    }
+    
+    public static Figure makeChild(int index,IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
+    		return FigureFactory.make(fpa, (IConstructor)c.get(0), properties, childProps, ctx);
+    }
 	
 	@SuppressWarnings("incomplete-switch")
 	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
@@ -162,10 +185,11 @@ public class FigureFactory {
 				}
 			}
 		}
+		Figure[] children;
 		switch(pmap.get(ename)){
 			
 		case BOX:
-			return new Box(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
+			return new Box(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case BUTTON:
 			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
@@ -186,7 +210,7 @@ public class FigureFactory {
 			
 	
 		case ELLIPSE:
-			return new Ellipse(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext,ctx);
+			return new Ellipse(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 					
 		case GRAPH:
 			if(properties.getStringProperty(StrProp.HINT).contains("lattice"))
@@ -196,37 +220,51 @@ public class FigureFactory {
 			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case GRID: 
-			return new Grid(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new Grid(fpa, children , properties);
 
 		case HAXIS:
-			return new HAxis(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
+			return new HAxis(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case HCAT:
-			return new HCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new HCat(fpa, children, properties);
 			
 		case HSCREEN:
-			return new HScreen(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
+			return new HScreen(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case HVCAT:
-			return new HVCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new HVCat(fpa, children, properties);
 						
 		case OUTLINE: 
 			return new Outline(fpa, properties, (IList)c.get(0), (IInteger) c.get(1));
 			
 		case OVERLAY: 
-			return new Overlay(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new Overlay(fpa, children, properties);
 			
 		case PACK:  
-			return new Pack(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new Pack(fpa, children, properties);
 			
 		case PLACE:
 			return new Place(fpa, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
 
 		case PROJECTION:
-			if(c.arity() == 4)
-				return new Projection(((IString) c.get(1)).getValue(),(IConstructor) c.get(2), fpa, properties, (IConstructor) c.get(0), childPropsNext, ctx);
-			else 
-				return new Projection("",(IConstructor) c.get(1), fpa, properties, (IConstructor) c.get(0), childPropsNext, ctx);
+			String name;
+			int projectionIndex;
+			if(c.arity() == 4) {
+				name = ((IString) c.get(1)).getValue();
+				projectionIndex = 2;
+			}
+			else  {
+				name = "";
+				projectionIndex = 1;
+			}
+			Figure projecton = makeChild(projectionIndex,fpa,c,properties,childPropsNext,ctx);
+			Figure projection = makeChild(0,fpa,c,properties,childPropsNext,ctx);
+			return new Projection(fpa,name,projecton,projection,properties);
 		case ROTATE:
 			//TODO
 			return new Rotate(fpa, properties, c.get(0), (IConstructor) c.get(1), ctx);
@@ -239,10 +277,11 @@ public class FigureFactory {
 			return new Scale(fpa, properties, c.get(0), c.get(1), (IConstructor) c.get(2), ctx);
 			
 		case SHAPE: 
-			return new Shape(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new Shape(fpa, children, properties);
 			
 		case SPACE:
-			return new Space(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
+			return new Space(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case TEXT:
 			IPropertyValue<String> txt = new PropertyParsers.StringArgParser().parseProperty(StrProp.TEXT, c, null, 0, fpa, ctx);
@@ -262,22 +301,23 @@ public class FigureFactory {
 			return new TreeMap(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 		case USE:			
-			return new Use(fpa, properties, (IConstructor) c.get(0), childPropsNext, ctx);
+			return new Use(fpa,makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case VAXIS:
-			return new VAxis(c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
+			return new VAxis(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case VCAT:
-			return new VCat(fpa, properties, (IList) c.get(0), childPropsNext, ctx);
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new VCat(fpa, children, properties);
 		
 		case VSCREEN:
-			return new VScreen( c.arity() == 2 ? (IConstructor) c.get(0) : null,fpa, properties, childPropsNext, ctx);	
+			return new VScreen(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case VERTEX:			
 			return new Vertex(fpa, properties, c.get(0), c.get(1), c.arity() == 4 ? (IConstructor) c.get(2) : null, ctx);
 			
 		case WEDGE:			
-			return new Wedge(fpa, properties, c.arity() == 2 ? (IConstructor) c.get(0) : null, childPropsNext, ctx);
+			return new Wedge(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}

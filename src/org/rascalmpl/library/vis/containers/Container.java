@@ -12,9 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -38,8 +35,8 @@ public abstract class Container extends WithInnerFig {
 
 	final private static boolean debug = false;
 
-	public Container(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
-		super(fpa,properties,innerCons,childProps,ctx);
+	public Container(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+		super(fpa,inner,properties);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package org.rascalmpl.library.vis.compose;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -20,8 +18,8 @@ public class HCat extends Compose {
 	boolean flip ;
 
 	
-	public HCat(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps,  IEvaluatorContext ctx) {
-		super(fpa, properties, elems, childProps, ctx);
+	public HCat(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
+		super(fpa,figures, properties);
 		flip = false;
 	}
 	

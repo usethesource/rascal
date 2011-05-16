@@ -3,15 +3,10 @@ package org.rascalmpl.library.vis.containers;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 
@@ -21,12 +16,9 @@ public abstract class WithInnerFig extends Figure {
 	final static boolean debug = false;
 	double innerFigX, innerFigY;
 	
-	public WithInnerFig(IFigureApplet fpa, PropertyManager properties, IConstructor innerCons, IList childProps, IEvaluatorContext ctx) {
+	public WithInnerFig(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa, properties);
-		if(innerCons != null){
-			this.innerFig = FigureFactory.make(fpa, innerCons, this.properties, childProps, ctx);
-		} else
-			this.innerFig = null;
+		this.innerFig = inner;
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
 	

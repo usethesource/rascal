@@ -15,8 +15,6 @@ package org.rascalmpl.library.vis;
 
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.compose.Compose;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
@@ -38,8 +36,8 @@ public class Shape extends Compose {
 	static boolean debug = false;
 	double zeroX,zeroY;
 	double[] anchorPointsX, anchorPointsY;
-	Shape(IFigureApplet fpa, PropertyManager properties, IList elems,  IList childProps, IEvaluatorContext ctx) {
-		super(fpa, properties, elems, childProps, ctx);
+	Shape(IFigureApplet fpa, Figure[] elems, PropertyManager properties) {
+		super(fpa, elems, properties);
 		anchorPointsX = new double[figures.length];
 		anchorPointsY = new double[figures.length];
 	}
