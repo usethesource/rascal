@@ -15,12 +15,8 @@ public class CharNodeConverter{
 		super();
 	}
 	
-	public static int getNumericCharValue(char character){
-		return (character < 128) ? character : Character.getNumericValue(character); // Character.getNumericValue doesn't return sensible values for 7-bit ASCII characters.
-	}
-	
 	public static IConstructor convertToUPTR(CharNode node){
-		int charNumber = node.getNumericCharValue();
+		int charNumber = node.getCharValue();
 		
 		if(charNumber < 128){
 			IConstructor result = cache[charNumber];

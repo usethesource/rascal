@@ -31,8 +31,8 @@ public class CharNode extends AbstractNode{
 		return ID;
 	}
 	
-	public int getNumericCharValue(){
-		return getNumericCharValue(character);
+	public int getCharValue(){
+		return character;
 	}
 	
 	public void addAlternative(IConstructor production, Link children){
@@ -53,10 +53,6 @@ public class CharNode extends AbstractNode{
 	
 	public boolean isRejected(){
 		return false;
-	}
-	
-	public static int getNumericCharValue(char theChar){
-		return (theChar < 128) ? theChar : Character.getNumericValue(theChar); // Character.getNumericValue doesn't return sensible values for 7-bit ascii characters.
 	}
 	
 	// Cache the results for all 7-bit ascii characters.
