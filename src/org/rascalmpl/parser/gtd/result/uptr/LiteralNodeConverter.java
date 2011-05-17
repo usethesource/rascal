@@ -3,7 +3,6 @@ package org.rascalmpl.parser.gtd.result.uptr;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -31,7 +30,7 @@ public class LiteralNodeConverter{
 		
 		IListWriter listWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < numberOfCharacters; ++i){
-			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(CharNode.getNumericCharValue(content[i]))));
+			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(content[i])));
 		}
 		
 		result = VF.constructor(Factory.Tree_Appl, production, listWriter.done());
