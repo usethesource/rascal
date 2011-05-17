@@ -27,14 +27,15 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
@@ -54,30 +55,17 @@ public class FigureSWTApplet implements IFigureApplet {
 	};
 
 	Mode ellipseM = Mode.CORNER, rectM = Mode.CORNER;
+	
+	private final Device device;
 
 	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
 
 	public Color getColor(final int which) {
-		Display display = this.getComp().getDisplay();
-		if (display != null)
-			return display.getSystemColor(which);
-		display = Display.getDefault();
-		final Color result[] = new Color[1];
-		display.syncExec(new Runnable() {
-			public void run() {
-				synchronized (result) {
-					result[0] = Display.getCurrent().getSystemColor(which);
-				}
-			}
-		});
-		synchronized (result) {
-			return result[0];
-		}
+	    return device.getSystemColor(which);
 	}
 
 	public Color getRgbColor(final int c) {
-		Display display = this.getComp().getDisplay();
-		return new Color(display, FigureColorUtils.getRed(c),
+		return new Color(device, FigureColorUtils.getRed(c),
 				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
 	}
 
@@ -94,8 +82,6 @@ public class FigureSWTApplet implements IFigureApplet {
 	private boolean computedValueChanged = true;
 
 	private static boolean debug = false;
-	@SuppressWarnings("unused")
-	private boolean saveFigure = true;
 	@SuppressWarnings("unused")
 	private String file;
 	@SuppressWarnings("unused")
@@ -146,24 +132,24 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this(comp, "Figure", fig, ctx);
 	}
-
-	private GC createGC(Composite comp) {
-		GC g = new GC(comp);
-		g.setAntialias(SWT.ON);
-		g.setTextAntialias(SWT.ON);
-		g.setBackground(getColor(SWT.COLOR_WHITE));
-		return g;
+	
+	public FigureSWTApplet(Printer printer, IConstructor fig,
+			IEvaluatorContext ctx) {
+		this.comp = null;
+		this.device = printer;
+		this.figure = FigureFactory.make(this, fig, null, null, ctx);
+		this.gc = new GC(printer);
 	}
 
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
 			IEvaluatorContext ctx) {
 		this.comp = comp;
-		saveFigure = false;
+		this.device = comp.getDisplay();
 		comp.getShell().setText(name);
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		gc = createGC(comp);
 		int colnum = ColorProp.FILL_COLOR.getStdDefault();
-		Color color = new Color(comp.getDisplay(),
+		Color color = new Color(device,
 				FigureColorUtils.getRed(colnum),
 				FigureColorUtils.getGreen(colnum),
 				FigureColorUtils.getBlue(colnum));
@@ -181,6 +167,14 @@ public class FigureSWTApplet implements IFigureApplet {
 		mouseOverTop = true;
 	}
 
+	private GC createGC(Composite comp) {
+		GC g = new GC(comp);
+		g.setAntialias(SWT.ON);
+		g.setTextAntialias(SWT.ON);
+		g.setBackground(getColor(SWT.COLOR_WHITE));
+		return g;
+	}
+
 	public void init() {
 		// TODO Auto-generated method stub
 
@@ -190,12 +184,11 @@ public class FigureSWTApplet implements IFigureApplet {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 
 	public void redraw() {
 		comp.redraw();
 	}
-
 
 	private void draw() {
 		// System.err.println("draw:" + this.getClass() + " "
@@ -538,7 +531,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public void fill(int arg0) {
 		alphaFill = FigureColorUtils.getAlpha(arg0);
-		Color color = new Color(comp.getDisplay(),
+		Color color = new Color(device,
 				FigureColorUtils.getRed(arg0), FigureColorUtils.getGreen(arg0),
 				FigureColorUtils.getBlue(arg0));
 		gc.setBackground(color);
@@ -547,7 +540,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public void stroke(int arg0) {
 		alphaStroke = FigureColorUtils.getAlpha(arg0);
-		gc.setForeground(new Color(comp.getDisplay(), FigureColorUtils
+		gc.setForeground(new Color(device, FigureColorUtils
 				.getRed(arg0), FigureColorUtils.getGreen(arg0),
 				FigureColorUtils.getBlue(arg0)));
 		stroke = true;
@@ -587,7 +580,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public void textColor(int arg0) {
 		alphaFont = FigureColorUtils.getAlpha(arg0);
-		gc.setForeground(new Color(comp.getDisplay(), FigureColorUtils
+		gc.setForeground(new Color(device, FigureColorUtils
 				.getRed(arg0), FigureColorUtils.getGreen(arg0),
 				FigureColorUtils.getBlue(arg0)));
 	}
@@ -795,14 +788,16 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void print() {
-		// TODO Auto-generated method stub
-
+		figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
+		figureWidth = figure.width;
+		figureHeight = figure.height;
+		figure.draw(left, top);
 	}
 
 	public Object createFont(String fontName, double fontSize) {
 		// TODO Auto-generated method stub
 		FontData fd = new FontData(fontName, (int) fontSize, SWT.NORMAL);
-		return new Font(comp.getDisplay(), fd);
+		return new Font(device, fd);
 	}
 
 	public void smooth() {
@@ -810,13 +805,12 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-	
 	public Cursor getCursor() {
 		return comp.getCursor();
 	}
 
 	public void setCursor(Cursor cursor) {
-	    comp.setCursor(cursor);
+		comp.setCursor(cursor);
 	}
 
 	public Object getFont(Object font) {
@@ -895,11 +889,6 @@ public class FigureSWTApplet implements IFigureApplet {
 
 		public void paintControl(PaintEvent e) {
 			gc = e.gc;
-			
-//			gc.setTextAntialias(SWT.ON);
-//			gc.setAntialias(SWT.ON);
-//			gc.setAdvanced(true);
-//			gc.setBackground(getColor(SWT.COLOR_WHITE));
 			FigureSWTApplet.this.draw();
 		}
 	}
@@ -976,7 +965,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	public Result<IValue> executeRascalCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
 		Cursor cursor0 = comp.getCursor();
-		Cursor cursor = new Cursor(comp.getDisplay(), SWT.CURSOR_WAIT);
+		Cursor cursor = new Cursor(device, SWT.CURSOR_WAIT);
 		comp.setCursor(cursor);
 		Result<IValue> result;
 		synchronized (this) {
@@ -1003,6 +992,10 @@ public class FigureSWTApplet implements IFigureApplet {
 		Type[] argTypes = { type };
 		IValue[] argVals = { arg };
 		return executeRascalCallBack(callback, argTypes, argVals);
+	}
+	
+	public void dispose() {
+		gc.dispose();
 	}
 
 }

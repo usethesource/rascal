@@ -8,7 +8,7 @@
  * Contributors:
 
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.library.vis;
 
 import org.rascalmpl.library.vis.properties.IPropertyValue;
@@ -19,7 +19,7 @@ import org.rascalmpl.library.vis.FigureApplet;
  * Text element.
  * 
  * @author paulk
- *
+ * 
  */
 public class Text extends Figure {
 	private static boolean debug = false;
@@ -29,130 +29,147 @@ public class Text extends Figure {
 	private double rightAnchor;
 	private double hfill = 0;
 	private double vfill = 0;
-	private IPropertyValue<String> txt;
-	private int textAlignH = FigureApplet.CENTER;	
+	final private String txt;
+	private int textAlignH = FigureApplet.CENTER;
+	final private boolean border;
 
-	public Text(IFigureApplet fpa, PropertyManager properties,IPropertyValue<String> txt) {
+	public Text(IFigureApplet fpa, PropertyManager properties,
+			IPropertyValue<String> txtProp) {
+		this(fpa, properties, txtProp.getValue(), false);
+	}
+
+	public Text(IFigureApplet fpa, PropertyManager properties,
+			String txt, boolean border) {
 		super(fpa, properties);
 		this.txt = txt;
-		if(debug)System.err.printf("Text: %s\n", txt.getValue());
+		this.border = border;
+		if (debug)
+			System.err.printf("Text: %s\n", txt);
 	}
-	
+
 	@Override
-	public
-	void bbox(double desiredWidth, double desiredHeight){
+	public void bbox(double desiredWidth, double desiredHeight) {
 		double halign = getHAlignProperty();
-		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
+		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT
+				: (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 		applyFontProperties();
-		topAnchor = fpa.textAscent() ;
+		topAnchor = fpa.textAscent();
 		bottomAnchor = fpa.textDescent();
-		
-		String [] lines = txt.getValue().split("\n");
+
+		String[] lines = txt.split("\n");
 		int nlines = lines.length;
 		width = 0;
-		for(int i = 0; i < nlines; i++)
+		for (int i = 0; i < nlines; i++)
 			width = Math.max(width, fpa.textWidth(lines[i]));
-		
-		if(nlines > 1){
+
+		if (nlines > 1) {
 			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
 			topAnchor = bottomAnchor = getVAlignProperty() * height;
 		} else {
 			height = topAnchor + bottomAnchor;
 		}
-		hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? width : width/2;
+		hfill = textAlignH == FigureApplet.LEFT ? 0
+				: textAlignH == FigureApplet.RIGHT ? width : width / 2;
 		/*
-		if(debug){
-			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
-			System.err.printf("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt, width, height, getTextAngleProperty());
-		}
-		*/
-		if(getTextAngleProperty() != 0){
+		 * if(debug){
+		 * System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n",
+		 * fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
+		 * System.err.printf
+		 * ("text.bbox: txt=\"%s\", width=%f, height=%f angle =%f\n", txt,
+		 * width, height, getTextAngleProperty()); }
+		 */
+		if (getTextAngleProperty() != 0) {
 			double angle = FigureApplet.radians(getTextAngleProperty());
 			double sina = FigureApplet.sin(angle);
 			double cosa = FigureApplet.cos(angle);
 			double h1 = Math.abs(width * sina);
 			double w1 = Math.abs(width * cosa);
-			double h2 = Math.abs(height *  cosa);
-			double w2 = Math.abs(height *  sina);
-			
+			double h2 = Math.abs(height * cosa);
+			double w2 = Math.abs(height * sina);
+
 			width = w1 + w2;
 			height = h1 + h2;
-			
-			leftAnchor = w1/width;
-			rightAnchor = w2/width;
-			topAnchor = h1/height;
-			bottomAnchor = h2/height;
-			
-			hfill = width/2;
-			if(nlines > 1){
-				vfill = textAlignH == FigureApplet.LEFT ? height : textAlignH == FigureApplet.RIGHT ? 0 : height/2;
+
+			leftAnchor = w1 / width;
+			rightAnchor = w2 / width;
+			topAnchor = h1 / height;
+			bottomAnchor = h2 / height;
+
+			hfill = width / 2;
+			if (nlines > 1) {
+				vfill = textAlignH == FigureApplet.LEFT ? height
+						: textAlignH == FigureApplet.RIGHT ? 0 : height / 2;
 			} else {
-				vfill = height/2;
+				vfill = height / 2;
 			}
-			
-			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
+
+			if (debug)
+				System.err
+						.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n",
+								height, width, h1, h2, w1, w2);
 		}
 	}
-	
+
 	@Override
-	public
-	void draw(double left, double top) {
+	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		
+
 		applyProperties();
 		applyFontProperties();
-	
-		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
-		if(height > 0 && width > 0){
+
+		if (debug)
+			System.err
+					.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n",
+							txt, fpa.getFont(), left, top, width, height);
+		if (height > 0 && width > 0) {
 			double angle = getTextAngleProperty();
 
-			fpa.textAlign(textAlignH,FigureApplet.CENTER);
-			if(angle != 0){
+			fpa.textAlign(textAlignH, FigureApplet.CENTER);
+			if (angle != 0) {
 				fpa.pushMatrix();
 				fpa.translate(left + hfill, top + vfill);
 				fpa.rotate((FigureApplet.radians(angle)));
-				fpa.text(txt.getValue(), 0, 0);
+				fpa.text(txt, 0, 0);
 				fpa.popMatrix();
 			} else {
-				fpa.text(txt.getValue(), left + hfill, top + height/2);
-//				vlp.rectMode(FigureApplet.CORNERS);
-//				vlp.text(txt, left, top, left+width, top+height);
+				if (border) fpa.rect(left, top, width, height);
+				fpa.text(txt, left + hfill, top + height / 2);
+				// vlp.rectMode(FigureApplet.CORNERS);
+				// vlp.text(txt, left, top, left+width, top+height);
 			}
 		}
 	}
-	
-//	@Override
-//	public double leftAnchor(){
-//		double res= leftAnchor;
-//		System.err.println(this + ".leftAnchor = " + res);
-//		return res;
-//	}
-//	
-//	@Override
-//	public double rightAnchor(){
-//		double res = rightAnchor;
-//		System.err.println(this + ".rightAnchor = " + res);
-//		return res;
-//	}
-	
+
+	// @Override
+	// public double leftAnchor(){
+	// double res= leftAnchor;
+	// System.err.println(this + ".leftAnchor = " + res);
+	// return res;
+	// }
+	//
+	// @Override
+	// public double rightAnchor(){
+	// double res = rightAnchor;
+	// System.err.println(this + ".rightAnchor = " + res);
+	// return res;
+	// }
+
 	@Override
-	public double topAlign(){
+	public double topAlign() {
 		return topAnchor;
 	}
-	
+
 	@Override
-	public double bottomAlign(){
+	public double bottomAlign() {
 		return bottomAnchor;
 	}
-	
+
 	@Override
-	public
-	String toString(){
-		return new StringBuffer("text").append("(").append("\"").append(txt.getValue()).append("\",").
-		append(getLeft()).append(",").
-		append(getTop()).append(",").
-		append(width).append(",").
-		append(height).append(")").toString();
+	public String toString() {
+		return new StringBuffer("text").append("(").append("\"")
+				.append(txt).append("\",").append(getLeft())
+				.append(",").append(getTop()).append(",").append(width)
+				.append(",").append(height).append(")").toString();
 	}
 }
