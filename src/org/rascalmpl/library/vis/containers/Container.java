@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.containers;
 
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.compose.HCat;
@@ -171,8 +170,8 @@ public abstract class Container extends WithInnerFig {
 	 * If the inside  element fits, draw it.
 	 */
 	void innerDraw(){
-		innerFig.draw(max(0, getLeft() + innerFigX),
-			    	  max(0, getTop()  + innerFigY));
+		innerFig.draw(Math.max(0, getLeft() + innerFigX),
+				Math.max(0, getTop()  + innerFigY));
 	}
 	/**
 	 * drawContainer: draws the graphics associated with the container (if any). 

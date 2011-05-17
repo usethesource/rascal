@@ -54,8 +54,8 @@ public class Place extends Figure {
 		
 		double halign = getHAlignProperty();
 		double valign = getVAlignProperty();
-		width = max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
-		height = max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
+		width = Math.max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
+		height = Math.max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
 	}
 
 	@Override

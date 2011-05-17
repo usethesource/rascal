@@ -778,7 +778,7 @@ public class LayeredGraph extends Figure {
 		int halfWay = from.layer + (downwards ? (to.layer - from.layer)/2 : (from.layer - to.layer)/2);
 		Figure orgEdgeLabel =  null;
 		
-		while(abs(to.layer - from.layer) > 1 && !to.hasVirtualOutTo(from)){
+		while(Math.abs(to.layer - from.layer) > 1 && !to.hasVirtualOutTo(from)){
 			if(debug)System.err.println("insertVirtualNode: " + from.name + "-> " + to.name);
 			// Create virtual node
 			
@@ -1264,7 +1264,7 @@ public class LayeredGraph extends Figure {
 								System.err.println("Encountered marked edge: " + um.name + " -> " + vk.name);
 							if(!isMarked(um, vk) && (leftAlign ? r < um.pos :  um.pos < r)){
 								um.align = vk;
-								um.blockWidth = max(um.blockWidth, vk.width());
+								um.blockWidth = Math.max(um.blockWidth, vk.width());
 								vk.root = um.root;
 								vk.align = vk.root;
 								r = um.pos;
@@ -1303,10 +1303,10 @@ public class LayeredGraph extends Figure {
 					if(v.sink != u.sink){
 						double s = leftDir ? v.getX(dir) - u.getX(dir) - xDelta : u.getX(dir) - v.getX(dir) - xDelta;
 						
-						u.sink.shift = leftDir ? min(u.sink.shift, s) : max(u.sink.shift, s);
+						u.sink.shift = leftDir ? Math.min(u.sink.shift, s) : Math.max(u.sink.shift, s);
 						if(debug)System.err.println("placeBlock: " + u.sink.name + ".sink.shift => " + u.sink.shift );
 					} else {
-						v.setX(dir, leftDir ? max(v.getX(dir), u.getX(dir) + xDelta) : min(v.getX(dir), u.getX(dir) - xDelta));
+						v.setX(dir, leftDir ? Math.max(v.getX(dir), u.getX(dir) + xDelta) : Math.min(v.getX(dir), u.getX(dir) - xDelta));
 						if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 				}
@@ -1358,7 +1358,7 @@ public class LayeredGraph extends Figure {
 			for(LayeredGraphNode g : layer){
 				if(!g.isVirtual()){
 					
-					hlayer = max(hlayer, g.height());
+					hlayer = Math.max(hlayer, g.height());
 				}
 			}
 			for(LayeredGraphNode g : layer){

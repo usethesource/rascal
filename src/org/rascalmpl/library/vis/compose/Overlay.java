@@ -44,10 +44,10 @@ public class Overlay extends Compose {
 		
 		for(Figure ve : figures){
 			ve.bbox(desiredWidth, desiredHeight);
-			topAnchor = max(topAnchor, ve.topAlign());
-			bottomAnchor = max(bottomAnchor, ve.bottomAlign());
-			leftAnchor = max(leftAnchor, ve.leftAlign());
-			rightAnchor = max(rightAnchor, ve.rightAlign());
+			topAnchor = Math.max(topAnchor, ve.topAlign());
+			bottomAnchor = Math.max(bottomAnchor, ve.bottomAlign());
+			leftAnchor = Math.max(leftAnchor, ve.leftAlign());
+			rightAnchor = Math.max(rightAnchor, ve.rightAlign());
 		}
 		width = leftAnchor + rightAnchor;
 		height = topAnchor + bottomAnchor;

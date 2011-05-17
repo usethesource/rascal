@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -31,8 +30,7 @@ public class Checkbox extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.Button button;
 
-	public Checkbox(IFigureApplet fpa, PropertyManager properties, IString tname,
-			IValue fun, IEvaluatorContext ctx) {
+	public Checkbox(IFigureApplet fpa, String caption,  IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
@@ -49,7 +47,7 @@ public class Checkbox extends Figure {
 				}
 			}
 		});
-		button.setText(tname.getValue());
+		button.setText(caption);
 	}
 
 	@Override

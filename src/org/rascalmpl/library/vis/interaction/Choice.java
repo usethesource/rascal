@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -30,14 +28,13 @@ public class Choice extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.List list;
 
-	public Choice(IFigureApplet fpa, PropertyManager properties, IList choices,
-			IValue fun, IEvaluatorContext ctx) {
+	public Choice(IFigureApplet fpa, String[] choices, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
 		this.list = new org.eclipse.swt.widgets.List(fpa.getComp(), SWT.SINGLE|SWT.BORDER);
-		for(IValue val : choices){
-             list.add(((IString)val).getValue());
+		for(String val : choices){
+             list.add(val);
         }
 		list.addSelectionListener(new SelectionAdapter() {
 			@Override

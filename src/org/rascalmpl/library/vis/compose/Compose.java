@@ -108,7 +108,7 @@ public abstract class Compose extends Figure {
 					off = yPos[i];
 				}
 				//System.out.printf("offset %f off %f %s\n",offset, off,this);
-				result = min(result,figures[i].getOffsetForAxis(axisId, off+offset, horizontal));
+				result = Math.min(result,figures[i].getOffsetForAxis(axisId, off+offset, horizontal));
 			}
 			return result;
 		}

@@ -386,8 +386,8 @@ public class LayeredGraphEdge extends Figure {
 	public void shiftLabelCoordinates(double dx, double dy){
 		if(label != null){
 			System.err.printf("shiftLabelCoordinates %s-> %s: %f, %f\n", from.name, to.name, dx, dy);
-			labelX = min(max(labelMinX, labelX + dx), labelMaxX);
-			labelY = min(max(labelMinY, labelY + dy), labelMaxY);
+			labelX = Math.min(Math.max(labelMinX, labelX + dx), labelMaxX);
+			labelY = Math.min(Math.max(labelMinY, labelY + dy), labelMaxY);
 		}
 	}
 	

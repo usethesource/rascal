@@ -126,13 +126,13 @@ public class TreeNode extends Figure {
 				TreeNode childi = children.get(i);
 				branchPosition += hgap + (children.get(i-1).rootFigure.width + childi.rootFigure.width)/2;
 				rightPosition = childi.shapeTree(branchPosition, childTop, raster);
-				rightExtentChildren = max(rightExtentChildren, rightPosition + childi.rightExtent());
-				heightChildren = max(heightChildren, childi.height);
+				rightExtentChildren = Math.max(rightExtentChildren, rightPosition + childi.rightExtent());
+				heightChildren = Math.max(heightChildren, childi.height);
 				childRoot[i] = rightPosition;
 			}
 			position = (leftPosition + rightPosition)/2;
 			height += vgap + heightChildren;
-			width = max(rootFigure.width, rightExtentChildren - (leftPosition - children.get(0).rootPosition));
+			width = Math.max(rootFigure.width, rightExtentChildren - (leftPosition - children.get(0).rootPosition));
 
 			// Make child positions and rootPosition relative to this parent
 			setLeft(leftPosition - children.get(0).rootPosition);

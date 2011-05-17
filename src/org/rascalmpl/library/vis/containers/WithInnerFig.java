@@ -63,7 +63,7 @@ public abstract class WithInnerFig extends Figure {
 			} else {
 				off = innerFigY;
 			}
-			return min(offset,offset + off);
+			return Math.min(offset,offset + off);
 		} else {
 			return Double.MAX_VALUE;
 		}

@@ -77,11 +77,11 @@ public class HAxis extends WithInnerFig {
 		if(getVAlignProperty() > 0.5f){
 			labelY = axisY + getVGapProperty() + fpa.textAscent() ;
 			double bottomLabelY = labelY + fpa.textDescent();
-			height = max(height,bottomLabelY);
+			height = Math.max(height,bottomLabelY);
 		} else {
 			labelY = axisY -  getVGapProperty() - fpa.textAscent() - fpa.textDescent() ;
 			double topLabelY = labelY - fpa.textDescent() ;
-			innerFigY = max(0,-topLabelY);
+			innerFigY = Math.max(0,-topLabelY);
 			axisY+=innerFigY ;
 			labelY+=innerFigY ;
 			height+=innerFigY;

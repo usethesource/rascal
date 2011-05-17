@@ -35,11 +35,11 @@ public class Extremes {
 	}
 	
 	private void processLow(double value){
-		minimum = Figure.min(minimum, value);
+		minimum = Math.min(minimum, value);
 	}
 	
 	private void processHigh(double value){
-		maximum = Figure.max(maximum, value);
+		maximum = Math.max(maximum, value);
 	}
 	
 	private void processValue(double value){

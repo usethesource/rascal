@@ -101,18 +101,6 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return getTop() + height/2;
 	}
 
-	public static double max(double a, double b) {
-		return a > b ? a : b;
-	}
-
-	public static double min(double a, double b) {
-		return a < b ? a : b;
-	}
-
-	public double abs(double a) {
-		return a >= 0 ? a : -a;
-	}
-
 	public void applyProperties() {
 		fpa.fill(getColorProperty(ColorProp.FILL_COLOR));
 		fpa.stroke(getColorProperty(ColorProp.LINE_COLOR));

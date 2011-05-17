@@ -73,7 +73,7 @@ public class HVCat extends Compose {
 			topRowElem[i] = toprow;
 			inRow[i] = nrow;
 			w += fig.width + hgap;
-			hrow = max(hrow, fig.height);
+			hrow = Math.max(hrow, fig.height);
 	
 		}
 		rowHeight[nrow] = hrow;

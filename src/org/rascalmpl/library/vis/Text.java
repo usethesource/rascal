@@ -51,7 +51,7 @@ public class Text extends Figure {
 		int nlines = lines.length;
 		width = 0;
 		for(int i = 0; i < nlines; i++)
-			width = max(width, fpa.textWidth(lines[i]));
+			width = Math.max(width, fpa.textWidth(lines[i]));
 		
 		if(nlines > 1){
 			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
@@ -70,10 +70,10 @@ public class Text extends Figure {
 			double angle = FigureApplet.radians(getTextAngleProperty());
 			double sina = FigureApplet.sin(angle);
 			double cosa = FigureApplet.cos(angle);
-			double h1 = abs(width * sina);
-			double w1 = abs(width * cosa);
-			double h2 = abs(height *  cosa);
-			double w2 = abs(height *  sina);
+			double h1 = Math.abs(width * sina);
+			double w1 = Math.abs(width * cosa);
+			double h2 = Math.abs(height *  cosa);
+			double w2 = Math.abs(height *  sina);
 			
 			width = w1 + w2;
 			height = h1 + h2;

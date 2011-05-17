@@ -45,10 +45,10 @@ public class HScreen extends WithInnerFig {
 		for(ProjectionPlacement p : projections){
 			p.fig.bbox(AUTO_SIZE,AUTO_SIZE);
 			placeProjection(p);
-			shiftX = max(shiftX,-p.xPos);
-			shiftY = max(shiftY,-p.yPos);
-			width = max(width,p.xPos + p.fig.width);
-			height = max(height,p.yPos + p.fig.height);
+			shiftX = Math.max(shiftX,-p.xPos);
+			shiftY = Math.max(shiftY,-p.yPos);
+			width = Math.max(width,p.xPos + p.fig.width);
+			height = Math.max(height,p.yPos + p.fig.height);
 		}
 		shiftX = addHorizontalSpacing(shiftX, oldWidth);
 		shiftY = addVerticalSpacing(shiftY,oldHeight);
