@@ -439,8 +439,8 @@ public class ListContainerNodeConverter{
 			}
 			
 			levelCache = new ObjectIntegerKeyedHashSet<IConstructor>();
-			levelCache.put(result, endOffset);
-			cache.put(offset, levelCache);
+			levelCache.putUnsafe(result, endOffset);
+			cache.putUnsafe(offset, levelCache);
 		}
 		
 		return result;
