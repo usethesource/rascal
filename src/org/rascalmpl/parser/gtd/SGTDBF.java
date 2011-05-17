@@ -1111,7 +1111,7 @@ public abstract class SGTDBF implements IGTD{
 		if(filterErrorOccured){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
-			// Invoke "the bulldozer" that constructs errors while it's flattening the forest.
+			// Invoke "the bulldozer" that constructs error trees while it's flattening the forest.
 			IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
 			try{
 				NodeToUPTR converter = new NodeToUPTR(result, positionStore);
@@ -1121,7 +1121,7 @@ public abstract class SGTDBF implements IGTD{
 			}
 		}
 		
-		throw new RuntimeException("No parse error occured.");
+		throw new RuntimeException("Cannot build an error tree as no parse error occurred.");
 	}
 	
 	// With post parse filtering.
