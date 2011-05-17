@@ -28,6 +28,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Combo extends Figure {
 	// Function of type Figure (list[str]) to compute new figure
@@ -58,7 +59,7 @@ public class Combo extends Figure {
 			fpa.checkIfIsCallBack(validate, ctx);
 		}
 		this.validate = validate;
-		System.err.println("callback = " + callback);
+		// System.err.println("callback = " + callback);
 
 		combo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -116,7 +117,9 @@ public class Combo extends Figure {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
 					ValueFactory.getInstance().string(combo.getText()));
-			validated = res.getValue().equals(ValueFactory.getInstance().bool(true));
+			System.err.println("doValidate:"+combo.getText()+" "+res);
+			validated = res.getValue().isEqual(ValueFactoryFactory.getValueFactory().bool(true));
+			System.err.println("validate:"+combo.getText()+" "+validated);
 			return validated;
 		}
 		return true;

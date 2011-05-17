@@ -29,6 +29,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TextField extends Figure {
 	// Function of type Figure (list[str]) to compute new figure
@@ -96,7 +97,7 @@ public class TextField extends Figure {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
 					ValueFactory.getInstance().string(textfield.getText()));
-			validated = res.getValue().equals(ValueFactory.getInstance().bool(true));
+			validated = res.getValue().isEqual(ValueFactoryFactory.getValueFactory().bool(true));
 			textfield.setForeground(validated ? trueColor : falseColor);
 			textfield.redraw();
 			return validated;

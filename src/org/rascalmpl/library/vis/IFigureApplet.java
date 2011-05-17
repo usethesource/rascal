@@ -75,7 +75,7 @@ public interface IFigureApplet {
 	public void endShape();
 	public void endShape(int arg0 );
 	public void print();
-
+	public void dispose();
 	public Object createFont(String fontName, double fontSize);
 	public void smooth();
 	
