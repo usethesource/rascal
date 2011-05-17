@@ -11,9 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-
 public class CharNode extends AbstractNode{
 	public final static int ID = 2;
 	
@@ -33,10 +30,6 @@ public class CharNode extends AbstractNode{
 	
 	public int getCharValue(){
 		return character;
-	}
-	
-	public void addAlternative(IConstructor production, Link children){
-		throw new UnsupportedOperationException();
 	}
 	
 	public boolean isEmpty(){

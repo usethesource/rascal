@@ -36,9 +36,9 @@ public class SortContainerNodeConverter{
 	}
 	
 	private void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		AbstractNode resultNode = child.node;
+		AbstractNode resultNode = child.getNode();
 		
-		if(!(resultNode.isEpsilon() && child.prefixes == null)){
+		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(converter, child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}else{
@@ -48,7 +48,7 @@ public class SortContainerNodeConverter{
 	}
 	
 	private void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		ArrayList<Link> prefixes = child.prefixes;
+		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
 			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
 			
@@ -72,7 +72,7 @@ public class SortContainerNodeConverter{
 		for(int i = prefixes.size() - 1; i >= 0; --i){
 			Link prefix = prefixes.get(i);
 			
-			AbstractNode resultNode = prefix.node;
+			AbstractNode resultNode = prefix.getNode();
 			if(!resultNode.isRejected()){
 				int length = postFix.length;
 				AbstractNode[] newPostFix = new AbstractNode[length + 1];

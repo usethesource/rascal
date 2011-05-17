@@ -15,13 +15,21 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public class Link{
-	public final ArrayList<Link> prefixes;
-	public final AbstractNode node;
+	private final ArrayList<Link> prefixes;
+	private final AbstractNode node;
 	
 	public Link(ArrayList<Link> prefixes, AbstractNode node){
 		super();
 		
 		this.prefixes = prefixes;
 		this.node = node;
+	}
+	
+	public ArrayList<Link> getPrefixes(){
+		return prefixes;
+	}
+	
+	public AbstractNode getNode(){
+		return node;
 	}
 }

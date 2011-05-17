@@ -11,9 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-
 public class EpsilonNode extends AbstractNode{
 	public final static int ID = 1;
 	
@@ -23,10 +20,6 @@ public class EpsilonNode extends AbstractNode{
 	
 	public int getID(){
 		return ID;
-	}
-	
-	public void addAlternative(IConstructor production, Link children){
-		throw new UnsupportedOperationException();
 	}
 	
 	public boolean isEmpty(){
