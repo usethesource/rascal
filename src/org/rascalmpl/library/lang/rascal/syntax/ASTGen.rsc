@@ -297,8 +297,14 @@ public set[Production] astProductions(Grammar g) {
     case Production p: result += astProductions(p);
   }
 
+  // TODO: inlining the following fun in the expression below results in a
+  // NoSuchField("attrs") exception. Why?
+  bool notLiteral(Production p) {
+  	return p.attributes != \no-attrs() ==> \literal() notin p.attributes.attrs;
+  }
+  
   result = { p | p <- result,  (sort(_) := p.rhs || \parameterized-sort(_, _) := p.rhs),  
-            p.attributes != \no-attrs() ==> \literal() notin p.attributes.attrs }; 
+             notLiteral(p)}; 
 
   
   for (p <- result) {
