@@ -12,7 +12,6 @@
 package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.gtd.result.struct.Link;
 
 public class LiteralNode extends AbstractNode{
 	public final static int ID = 3;
@@ -37,10 +36,6 @@ public class LiteralNode extends AbstractNode{
 	
 	public char[] getContent(){
 		return content;
-	}
-	
-	public void addAlternative(IConstructor production, Link children){
-		throw new UnsupportedOperationException();
 	}
 	
 	public boolean isEmpty(){

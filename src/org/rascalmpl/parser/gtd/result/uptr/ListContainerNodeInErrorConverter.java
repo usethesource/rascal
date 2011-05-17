@@ -96,9 +96,9 @@ public class ListContainerNodeInErrorConverter{
 	}
 	
 	protected static void gatherAlternatives(NodeToUPTR converter, Link child, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
-		AbstractNode childNode = child.node;
+		AbstractNode childNode = child.getNode();
 		
-		if(!(childNode.isEpsilon() && child.prefixes == null)){
+		if(!(childNode.isEpsilon() && child.getPrefixes() == null)){
 			ArrayList<AbstractNode> blackList = new ArrayList<AbstractNode>();
 			if(childNode.isEmpty()){
 				CycleNode cycle = gatherCycle(child, new AbstractNode[]{childNode}, blackList);
@@ -119,7 +119,7 @@ public class ListContainerNodeInErrorConverter{
 	
 	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, DoubleArrayList<IConstructor[], IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor, IEnvironment environment){
 		do{
-			ArrayList<Link> prefixes = child.prefixes;
+			ArrayList<Link> prefixes = child.getPrefixes();
 			if(prefixes == null){
 				IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment);
 				gatheredAlternatives.add(constructedPostFix, production);
@@ -135,7 +135,7 @@ public class ListContainerNodeInErrorConverter{
 					return;
 				}
 				
-				AbstractNode prefixNode = prefix.node;
+				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)){
 					return;
 				}
@@ -193,7 +193,7 @@ public class ListContainerNodeInErrorConverter{
 				IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment);
 				gatheredAlternatives.add(constructedPostFix, production);
 			}else{
-				AbstractNode prefixNode = prefix.node;
+				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)){
 					continue;
 				}
@@ -249,12 +249,12 @@ public class ListContainerNodeInErrorConverter{
 	}
 	
 	private static CycleNode gatherCycle(Link child, AbstractNode[] postFix, ArrayList<AbstractNode> blackList){
-		AbstractNode originNode = child.node;
+		AbstractNode originNode = child.getNode();
 		
 		blackList.add(originNode);
 		
 		OUTER : do{
-			ArrayList<Link> prefixes = child.prefixes;
+			ArrayList<Link> prefixes = child.getPrefixes();
 			if(prefixes == null){
 				return null;
 			}
@@ -264,7 +264,7 @@ public class ListContainerNodeInErrorConverter{
 			for(int i = nrOfPrefixes - 1; i >= 0; --i){
 				Link prefix = prefixes.get(i);
 				if(prefix == null) continue;
-				AbstractNode prefixNode = prefix.node;
+				AbstractNode prefixNode = prefix.getNode();
 				
 				if(prefixNode == originNode){
 					return new CycleNode(postFix);

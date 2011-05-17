@@ -11,9 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractNode{
@@ -24,12 +22,6 @@ public abstract class AbstractNode{
 	}
 	
 	public abstract int getID();
-	
-	public abstract void addAlternative(IConstructor production, Link children);
-	
-	public boolean isContainer(){
-		return (this instanceof SortContainerNode);
-	}
 	
 	public final boolean isEpsilon(){
 		return (this instanceof EpsilonNode);
