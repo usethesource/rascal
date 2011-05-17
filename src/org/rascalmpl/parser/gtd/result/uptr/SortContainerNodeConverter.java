@@ -181,7 +181,7 @@ public class SortContainerNodeConverter{
 					return cachedResult;
 				}
 				
-				levelCache.put(result, endOffset);
+				levelCache.putUnsafe(result, endOffset);
 				return result;
 			}
 			
