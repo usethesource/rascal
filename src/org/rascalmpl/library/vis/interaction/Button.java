@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,8 +26,7 @@ public class Button extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.Button button;
 
-	public Button(IFigureApplet fpa, PropertyManager properties, IString tname,
-			IValue fun, IEvaluatorContext ctx) {
+	public Button(IFigureApplet fpa, String caption, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
@@ -45,7 +43,7 @@ public class Button extends Figure {
 				}
 			}
 		});
-		button.setText(tname.getValue());
+		button.setText(caption);
 		// button.setBackground(new Color(255));
 		// fpa.setBackground(new Color(0XFFFFFFFF));
 		// fpa.add(button);

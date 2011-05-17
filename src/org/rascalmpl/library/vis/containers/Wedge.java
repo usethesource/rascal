@@ -110,8 +110,8 @@ public class Wedge extends Container {
 		double sinTo = FigureApplet.sin(toAngle);
 		double cosTo = FigureApplet.cos(toAngle);
 		
-		double rsinFrom = radius * abs(sinFrom);
-		double rcosFrom = radius * abs(cosFrom);
+		double rsinFrom = radius * Math.abs(sinFrom);
+		double rcosFrom = radius * Math.abs(cosFrom);
 		
 		double rsinTo = radius * Math.abs(sinTo);
 		double rcosTo = radius * Math.abs(cosTo);
@@ -227,9 +227,9 @@ public class Wedge extends Container {
 	 */
 	void arcVertex(double r, double fromAngle, double toAngle){
 		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
-	    if(abs(toAngle - fromAngle) < FigureApplet.PI/2){
+	    if(Math.abs(toAngle - fromAngle) < FigureApplet.PI/2){
 			double middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
-			double middleR = abs(r / FigureApplet.cos(middleAngle));	// radius of control point M
+			double middleR = Math.abs(r / FigureApplet.cos(middleAngle));	// radius of control point M
 			
 			double Mx = centerX + middleR * FigureApplet.cos(fromAngle + middleAngle);	// coordinates of M
 			double My = centerY + middleR * FigureApplet.sin(fromAngle + middleAngle);

@@ -57,10 +57,10 @@ public class Shape extends Compose {
 			xPos[i] = anchorPointsX[i] - ver.leftAlign();
 			anchorPointsY[i] = - ver.getDeltaY();
 			yPos[i] = anchorPointsY[i]-  ver.topAlign();
-			minY = min(minY, -ver.getDeltaY() - ver.topAlign());
-			maxY = max(maxY,-ver.getDeltaY() + ver.bottomAlign());
-			minX = min(minX, ver.getDeltaX() - ver.leftAlign());
-			maxX = max(maxX,ver.getDeltaX() + ver.rightAlign());
+			minY = Math.min(minY, -ver.getDeltaY() - ver.topAlign());
+			maxY = Math.max(maxY,-ver.getDeltaY() + ver.bottomAlign());
+			minX = Math.min(minX, ver.getDeltaX() - ver.leftAlign());
+			maxX = Math.max(maxX,ver.getDeltaX() + ver.rightAlign());
 		}
 		zeroX = -minX;
 		zeroY = -minY;
@@ -198,7 +198,7 @@ public class Shape extends Compose {
 						offsetHere = figures[i].getOffsetForAxis(axisId, offset + yPos[i], horizontal);
 					}
 				}
-				result = min(result,offsetHere );
+				result = Math.min(result,offsetHere );
 			}
 			return result;
 		}

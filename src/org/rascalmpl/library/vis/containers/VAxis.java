@@ -37,10 +37,10 @@ public class VAxis extends HAxis {
 	@Override
 	void addAxisToBBox() {
 		axisY = getHAlignProperty() * innerFig.width;
-		textWidth = max(fpa.textWidth(range.getMinimum() + ""),fpa.textWidth(range.getMaximum() + ""));
+		textWidth = Math.max(fpa.textWidth(range.getMinimum() + ""),fpa.textWidth(range.getMaximum() + ""));
 		if(getHAlignProperty() > 0.5f){
 			labelY = axisY+ getHGapProperty() +MAJOR_TICK_WIDTH;
-			width= max(labelY + textWidth, innerFig.width);
+			width= Math.max(labelY + textWidth, innerFig.width);
 		} else {
 			labelY = axisY-getHGapProperty() - textWidth - MAJOR_TICK_WIDTH ;
 			if(labelY < 0.0f){

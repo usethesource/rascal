@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -47,9 +46,7 @@ public class TextField extends Figure {
 
 	final Text textfield;
 
-	public TextField(IFigureApplet fpa, PropertyManager properties,
-			final IString text, IValue cb, IValue validate,
-			IEvaluatorContext ctx) {
+	public TextField(IFigureApplet fpa, String text, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		trueColor = fpa.getRgbColor(getFontColorProperty());
 		falseColor = fpa.getColor(SWT.COLOR_RED);
@@ -77,13 +74,12 @@ public class TextField extends Figure {
 				}
 			}
 		});
-		String s = text.getValue();
-		textfield.setText(s);
+		textfield.setText(text);
 		width =  getWidthProperty();
 		tLimit = FigureApplet.round(width / fpa.textWidth("b"));
-		if (s.length()>tLimit) {
-			  tLimit = s.length();	
-			  width = fpa.textWidth(s);
+		if (text.length()>tLimit) {
+			  tLimit = text.length();	
+			  width = fpa.textWidth(text);
 		}
 	}
 

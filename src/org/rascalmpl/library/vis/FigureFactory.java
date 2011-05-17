@@ -169,6 +169,14 @@ public class FigureFactory {
     public static Figure makeChild(int index,IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
     		return FigureFactory.make(fpa, (IConstructor)c.get(0), properties, childProps, ctx);
     }
+    
+    public static String[] makeStringList(IList list){
+    	String[] result = new String[list.length()];
+    	for(int i = 0 ; i < list.length() ; i++){
+    		result[i] = ((IString)list.get(i)).getValue();
+    	}
+    	return result;
+    }
 	
 	@SuppressWarnings("incomplete-switch")
 	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
@@ -186,24 +194,26 @@ public class FigureFactory {
 			}
 		}
 		Figure[] children;
+		IValue validate;
 		switch(pmap.get(ename)){
 			
 		case BOX:
 			return new Box(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case BUTTON:
-			return new Button(fpa, properties, (IString) c.get(0), c.get(1), ctx);
+			return new Button(fpa, ((IString) c.get(0)).getValue(),c.get(1),ctx, properties);
 		
 		case CHECKBOX:
-			return new Checkbox(fpa, properties, (IString) c.get(0), c.get(1), ctx);
+			return new Checkbox(fpa,  ((IString) c.get(0)).getValue(),c.get(1),ctx, properties);
 			
 		case CHOICE:
-			return new Choice(fpa, properties, (IList) c.get(0), c.get(1), ctx);
+			return new Choice(fpa, makeStringList((IList) c.get(0)), c.get(1), ctx, properties);
 		
 		case COMBO:
-			if(c.arity() > 3)
-				return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), c.get(3), ctx);
-			return new Combo(fpa, properties, (IString) c.get(0), (IList) c.get(1), c.get(2), null, ctx);					
+			validate = null;
+			if(c.arity() > 3) validate = c.get(3);
+			
+			return new Combo(fpa,((IString) c.get(0)).getValue(), makeStringList((IList)c.get(1)), c.get(2), validate, ctx, properties);					
 			
 		case COMPUTEFIGURE:
 			return new ComputeFigure(fpa, properties,  c.get(0), childPropsNext, ctx);
@@ -290,9 +300,9 @@ public class FigureFactory {
 			return new Text(fpa, properties,txt);
 						
 		case TEXTFIELD:
-			if(c.arity() > 3)
-				return new TextField(fpa, properties, (IString) c.get(0), c.get(1), c.get(2), ctx);
-			return new TextField(fpa, properties, (IString) c.get(0), c.get(1), null, ctx);
+			validate = null;
+			if(c.arity() > 3) validate = c.get(2);
+			return new TextField(fpa,  ((IString) c.get(0)).getValue(), c.get(1), null, ctx, properties);
 			
 		case TREE: 			
 			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);

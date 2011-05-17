@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -47,9 +45,7 @@ public class Combo extends Figure {
 
 	private int tLimit;
 
-	public Combo(IFigureApplet fpa, PropertyManager properties,
-			final IString text, IList choices, IValue cb, IValue validate,
-			IEvaluatorContext ctx) {
+	public Combo(IFigureApplet fpa, String text, String[] choices, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		// trueColor = fpa.getColor(SWT.COLOR_GREEN);
 		trueColor = fpa.getRgbColor(getFontColorProperty());
@@ -89,11 +85,10 @@ public class Combo extends Figure {
 				}
 			}
 		});
-		combo.setText(text.getValue());
+		combo.setText(text);
 		double m = getWidthProperty();
 		tLimit = FigureApplet.round(m / fpa.textWidth("m"));
-		for (IValue val : choices) {
-			String s = ((IString) val).getValue();
+		for (String s : choices) {
 			combo.add(s);
 			double d = fpa.textWidth(s);
 			if (d > m)

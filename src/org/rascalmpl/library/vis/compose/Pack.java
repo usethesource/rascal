@@ -53,8 +53,8 @@ public class Pack extends Compose {
 		double ratio = 1;
 		for(Figure fig : figures){
 			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			maxw = max(maxw, fig.width);
-			maxh = max(maxh, fig.height);
+			maxw = Math.max(maxw, fig.width);
+			maxh = Math.max(maxh, fig.height);
 			surface += fig.width * fig.height;
 			ratio = (ratio +fig.height/fig.width)/2;
 		}

@@ -979,12 +979,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		Cursor cursor = new Cursor(comp.getDisplay(), SWT.CURSOR_WAIT);
 		comp.setCursor(cursor);
 		Result<IValue> result;
-		System.out.printf("Executing callback...\n");
-		try{
-			throw new Exception();
-		} catch(Exception e){
-			e.printStackTrace();
-		}
 		synchronized (this) {
 			if (callback instanceof RascalFunction)
 				result = ((RascalFunction) callback).call(argTypes, argVals);
