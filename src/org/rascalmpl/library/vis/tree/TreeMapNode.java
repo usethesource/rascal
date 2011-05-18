@@ -149,4 +149,11 @@ public class TreeMapNode extends Figure {
 		}
 		return ret;
 	}
+	
+	public void registerNames(){
+		super.registerNames();
+		for(int i = children.size()-1 ; i >= 0 ; i--){
+			children.get(i).registerNames();
+		}
+	}
 }

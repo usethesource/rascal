@@ -88,7 +88,6 @@ public interface IFigureApplet {
 	public void validate();
 	public void stroke(double arg0, double arg1, double arg2);
 	public String getName();
-	// Needed by SpringGraph
 
 	void checkIfIsCallBack(IValue fun,IEvaluatorContext ctx);
 	

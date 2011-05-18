@@ -19,11 +19,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
-public class ComputeFigure extends Figure {
-	
-	Figure figure = null;					// Last computed figure
+public class ComputeFigure extends WithInnerFig {
 	
 	final private IValue callback;
 	
@@ -32,27 +31,30 @@ public class ComputeFigure extends Figure {
 	private IList childProps;
 
 	public ComputeFigure(IFigureApplet fpa, PropertyManager properties,  IValue fun, IList childProps,IEvaluatorContext ctx) {
-		super(fpa, properties);
+		super(fpa, null,properties);
 	
 		this.ctx = ctx;
 		this.childProps = childProps;
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
 	}
+	
+	public void computeFiguresAndProperties(){
+		super.computeFiguresAndProperties();
+		if(innerFig != null){
+			innerFig.destroy();
+		}
+		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
+		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
+		innerFig.computeFiguresAndProperties();
+		//fpa.setComputedValueChanged();
+	}
 
 	@Override
 	public void bbox(double desiredWidth, double desiredHeight) {	
-		
-		if(figure != null){
-			figure.destroy();
-		}
-		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-		figure = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
-		fpa.setComputedValueChanged();
-		figure.bbox(AUTO_SIZE, AUTO_SIZE);
-		width = figure.width;
-		height = figure.height;
-		fpa.validate();
+		innerFig.bbox(desiredWidth, desiredHeight);
+		width = innerFig.width;
+		height = innerFig.height;
 	}
 
 	@Override
@@ -60,49 +62,29 @@ public class ComputeFigure extends Figure {
 		// System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
 		this.setLeft(left);
 		this.setTop(top);
-		figure.draw(left,top);
+		innerFig.draw(left,top);
 	}
 	
 	@Override 
 	public double topAlign(){
-		return figure != null ? figure.topAlign() : 0;
+		return innerFig != null ? innerFig.topAlign() : 0;
 	}
 	
 	@Override 
 	public double bottomAlign(){
-		return figure != null ? figure.bottomAlign() : 0;
+		return innerFig != null ? innerFig.bottomAlign() : 0;
 	}
 	
 	@Override 
 	public double leftAlign(){
-		return figure != null ? figure.leftAlign() : 0;
+		return innerFig != null ? innerFig.leftAlign() : 0;
 	}
 	
 	@Override 
 	public double rightAlign(){
-		return figure != null ? figure.rightAlign() : 0;
+		return innerFig != null ? innerFig.rightAlign() : 0;
 	}
 	
-	@Override
-	public boolean mouseInside(double mouseX, double mouseY){
-		//System.err.println("ComputeFigure.mouseInside: [" + mouseX + ", " + mouseY + "] " +
-		//		getLeft() + ", " + getTop() + ", " + (getLeft() +width) + ", " + (getTop() + height));
-		if(figure != null)
-			return figure.mouseInside(mouseX, mouseY);
-		return false;
-	}
 	
-	@Override
-	public boolean keyPressed(int key, int keyCode){
-		if(figure != null)
-			return figure.keyPressed(key, keyCode);
-		return false;
-	}
-	
-	@Override
-	public void destroy(){
-		if(figure != null)
-			figure.destroy();
-	}
 
 }

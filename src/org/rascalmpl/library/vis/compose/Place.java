@@ -22,8 +22,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.containers.HScreen.ProjectionPlacement;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 /*
@@ -89,7 +89,7 @@ public class Place extends Figure {
 		return false;
 	}
 	
-	public void executeMouseOverOffHandlers(HandlerProp prop) {
+	public void executeMouseOverOffHandlers(Properties prop) {
 		// TODO: Implement this...
 	}
 }

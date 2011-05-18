@@ -134,4 +134,11 @@ public class TreeMap extends Figure {
 		}
 		return ret;
 	}
+	
+
+	public void registerNames(){
+		super.registerNames();
+		if(root!=null) root.registerNames();
+	}
+
 }

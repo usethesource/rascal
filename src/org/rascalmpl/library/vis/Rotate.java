@@ -12,21 +12,12 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import java.util.HashMap;
-import java.util.Vector;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.containers.HScreen;
+import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
 
-public class Rotate extends Figure {
-	private Figure figure;
+public class Rotate extends WithInnerFig {
 	private double angle;
 	private double leftAnchor;
 	private double rightAnchor;
@@ -36,28 +27,25 @@ public class Rotate extends Figure {
 	private double sina;
 	private double cosa;
 	
-	Rotate(IFigureApplet fpa, PropertyManager inherited, IValue rangle, IConstructor c, IEvaluatorContext ctx) {
-		super(fpa, inherited);
-		double a = rangle.getType().isIntegerType() ? ((IInteger) rangle).intValue()
-				                                    : ((IReal) rangle).floatValue();
-		angle = FigureApplet.radians(a);
-		figure = FigureFactory.make(fpa, c, properties, null, ctx);
+	Rotate(IFigureApplet fpa, double angle, Figure inner, PropertyManager properties) {
+		super(fpa, inner,properties);
+		angle = FigureApplet.radians(angle);
 	}
 
 	@Override
 	public
 	void bbox(double desiredWidth, double desiredHeight) {
 		
-		figure.bbox(AUTO_SIZE, AUTO_SIZE);
+		super.bbox();
 		
 		sina = FigureApplet.abs(FigureApplet.sin(angle));
 		cosa =  FigureApplet.abs(FigureApplet.cos(angle));
 		
-		double hanch = figure.getHAlignProperty();
-		double vanch = figure.getVAlignProperty();
+		double hanch = innerFig.getHAlignProperty();
+		double vanch = innerFig.getVAlignProperty();
 		
-		double w = figure.width;
-		double h = figure.height;
+		double w = innerFig.width;
+		double h = innerFig.height;
 		
 		width  = h * sina + w * cosa;
 		height = h * cosa + w * sina;
@@ -84,7 +72,7 @@ public class Rotate extends Figure {
 		// rotate it
 		fpa.rotate(angle);
 		// move origin to the left top corner of figure.
-		figure.draw(-figure.width/2, -figure.height/2);
+		innerFig.draw(-innerFig.width/2, -innerFig.height/2);
 		fpa.popMatrix();
 	}
 	
@@ -115,23 +103,6 @@ public class Rotate extends Figure {
 		fpa.rotate(angle);
 		fpa.stroke(255, 0,0);
 		fpa.noFill();
-		fpa.rect(-figure.width/2, -figure.height/2, figure.width, figure.height);
-	}
-	
-
-	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
-		super.propagateScaling(scaleX, scaleY, axisScales);
-		figure.propagateScaling(scaleX, scaleY, axisScales);
-	}
-	
-	
-	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
-		if(figure!=null){
-			figure.gatherProjections(left, top, projections, first, screenId, horizontal);
-		}
-	}
-	
-	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		throw new UnsupportedOperationException("No rotate on axises yet");
+		fpa.rect(-innerFig.width/2, -innerFig.height/2, innerFig.width, innerFig.height);
 	}
 }

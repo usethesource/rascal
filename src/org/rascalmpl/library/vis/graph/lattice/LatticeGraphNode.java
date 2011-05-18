@@ -108,5 +108,20 @@ public class LatticeGraphNode {
 		return this.in.contains(n) || this.out.contains(n);
 	}
 	
+
+	public void computeFiguresAndProperties(){
+		if(figure!=null){
+			figure.computeFiguresAndProperties();
+		}
+	}
+	
+
+	public void registerNames(){
+		if(figure!=null){
+			figure.registerNames();
+		}
+	}
+	
+	
 	
 }

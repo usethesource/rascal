@@ -33,18 +33,18 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
-import org.rascalmpl.library.vis.properties.descriptions.RealProp;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 public class FigureSWTApplet implements IFigureApplet {
@@ -56,7 +56,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	};
 
 	Mode ellipseM = Mode.CORNER, rectM = Mode.CORNER;
-	
+
 	private final Device device;
 
 	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
@@ -78,11 +78,12 @@ public class FigureSWTApplet implements IFigureApplet {
 	private double figureHeight = defaultHeight;
 
 	private Figure focus = null;
-	private boolean focusSelected = false;
 
 	private boolean computedValueChanged = true;
 
 	private static boolean debug = false;
+	@SuppressWarnings("unused")
+	private boolean saveFigure = true;
 	@SuppressWarnings("unused")
 	private String file;
 	@SuppressWarnings("unused")
@@ -133,7 +134,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this(comp, "Figure", fig, ctx);
 	}
-	
+
 	public FigureSWTApplet(Printer printer, IConstructor fig,
 			IEvaluatorContext ctx) {
 		this.comp = null;
@@ -149,7 +150,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.getShell().setText(name);
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		gc = createGC(comp);
-		int colnum = ColorProp.FILL_COLOR.getStdDefault();
+		int colnum = (Integer) Properties.FILL_COLOR.stdDefault;
 		Color color = new Color(device,
 				FigureColorUtils.getRed(colnum),
 				FigureColorUtils.getGreen(colnum),
@@ -175,7 +176,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		g.setBackground(getColor(SWT.COLOR_WHITE));
 		return g;
 	}
-
+	
 	public void init() {
 		// TODO Auto-generated method stub
 
@@ -185,11 +186,12 @@ public class FigureSWTApplet implements IFigureApplet {
 		// TODO Auto-generated method stub
 
 	}
-
+	
 
 	public void redraw() {
 		comp.redraw();
 	}
+
 
 	private void draw() {
 		// System.err.println("draw:" + this.getClass() + " "
@@ -197,17 +199,25 @@ public class FigureSWTApplet implements IFigureApplet {
 		if (computedValueChanged) {
 			
 			for(PlacedFigure fig : mouseOverStack){
+				fig.figure.computeFiguresAndProperties();
+				fig.figure.registerNames();
+				
+			}
+			for(PlacedFigure fig : mouseOverStack){
 				fig.figure.bbox();
 			}
 			figureWidth = figure.width;
 			figureHeight = figure.height;
 			computedValueChanged = false;
 		}
+		
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
+		
 		//figure.draw(left, top);
 		for(PlacedFigure fig : mouseOverStack){
 			fig.figure.draw(left + fig.coordinate.getX(), top + fig.coordinate.getY());
 		}
+		//System.out.printf("Done drawing!\n");
 		/*if (mouseOver != null)
 			mouseOver
 					.drawWithMouseOver(mouseOver.getLeft(), mouseOver.getTop());
@@ -256,8 +266,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		if (debug)
 			System.err.println("unRegisterFocus:" + f);
 		focus = null;
-		focusSelected = false;
-
 	}
 	
 	private void executeMouseOverOffHandlers(){
@@ -271,16 +279,20 @@ public class FigureSWTApplet implements IFigureApplet {
 			} else if(i < figuresUnderMouseSorted.size() && (j >= prevFiguresUnderMouseSorted.size() || 
 					figuresUnderMouseSorted.get(i).sequenceNr < prevFiguresUnderMouseSorted.get(j).sequenceNr)) {
 				if(!figuresUnderMouseSorted.get(i).isMouseOverSet()){
-					System.out.printf("Mouse over %s \n",figuresUnderMouseSorted.get(i),figuresUnderMouseSorted.get(i).sequenceNr);
-					computedValueChanged = true;
-					figuresUnderMouseSorted.get(i).executeMouseOverHandlers();
+					if(figuresUnderMouseSorted.get(i).isHandlerPropertySet(Properties.ON_MOUSEOVER)){
+						computedValueChanged = true;
+						//System.out.printf("Mouse over %s \n",figuresUnderMouseSorted.get(i),figuresUnderMouseSorted.get(i).sequenceNr);
+						figuresUnderMouseSorted.get(i).executeMouseOverHandlers();
+					}
+					
 				}
 				i++;
 			} else { // i >=  figuresUnderMouseSorted.size()  || newFig.sequenceNr > oldFig.sequenceNr
 				if(!prevFiguresUnderMouseSorted.get(j).isMouseOverSet()){
-					computedValueChanged = true;
-					System.out.printf("Mouse off %s %d\n",prevFiguresUnderMouseSorted.get(j),prevFiguresUnderMouseSorted.get(j).sequenceNr);
-					prevFiguresUnderMouseSorted.get(j).executeMouseOffHandlers();
+					if(prevFiguresUnderMouseSorted.get(j).isHandlerPropertySet(Properties.ON_MOUSEOFF)){
+						computedValueChanged = true;
+						prevFiguresUnderMouseSorted.get(j).executeMouseOffHandlers();
+					}
 				}
 				j++;
 			}
@@ -310,7 +322,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		figuresUnderMouseSorted.addAll(figuresUnderMouse);
 		Collections.sort(figuresUnderMouseSorted);
 		executeMouseOverOffHandlers();
-		
 	}
 	
 	void setMouseOverFigure(){
@@ -326,7 +337,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			if(!donotPop){
 				if(!mouseOverCausesStack.isEmpty()){
 					mouseOverCausesStack.peek().executeMouseOffHandlers();
-					System.out.printf("Mouse off %s %d\n",mouseOverCausesStack.peek(),mouseOverCausesStack.peek().sequenceNr);
+					//System.out.printf("Mouse off %s %d\n",mouseOverCausesStack.peek(),mouseOverCausesStack.peek().sequenceNr);
 					mouseOverCausesStack.pop();
 				}
 				mouseOverStack.pop();
@@ -337,17 +348,17 @@ public class FigureSWTApplet implements IFigureApplet {
 		for(Figure fig : figuresUnderMouse){
 			if(fig.isMouseOverSet()){
 				fig.executeMouseOverHandlers();
-				System.out.printf("Mouse over %s %d\n",fig,fig.sequenceNr);
+				//System.out.printf("Mouse over %s %d\n",fig,fig.sequenceNr);
 				mouseOverCausesStack.push(fig);
 				Figure mouseOver = fig.getMouseOverProperty();
 				mouseOver.bbox();
-				double left = fig.getLeft() + fig.width * fig.getRealProperty(RealProp.MOUSEOVER_HALIGN);
+				double left = fig.getLeft() + fig.width * fig.getRealProperty(Properties.MOUSEOVER_HALIGN);
 				left-=mouseOver.leftAlign();
 				if(left < 0) left = 0;
 				if(left + fig.width > comp.getBounds().width){
 					left = comp.getBounds().width - fig.width;
 				}
-				double top = fig.getTop() + fig.height * fig.getRealProperty(RealProp.MOUSEOVER_VALIGN);
+				double top = fig.getTop() + fig.height * fig.getRealProperty(Properties.MOUSEOVER_VALIGN);
 				top-=mouseOver.topAlign();
 				if(top < 0) top = 0;
 				if(top + fig.height > comp.getBounds().height){
@@ -361,16 +372,16 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 	
 	void handleMouseClick() {
-		System.out.printf("Handling mouse click2!\n");
+		//System.out.printf("Handling mouse click2!\n");
 		for(Figure fig : figuresUnderMouse){
-			if(fig.isHandlerPropertySet(HandlerProp.MOUSE_CLICK)){
-				System.out.printf("MOUSE click on %s!\n",fig);
+			if(fig.isHandlerPropertySet(Properties.MOUSE_CLICK)){
+				//System.out.printf("MOUSE click on %s!\n",fig);
 				fig.executeOnClick();
 				computedValueChanged = true;
 				comp.redraw();
 				return;
 			} else {
-				System.out.printf("no mouse click on %s!\n",fig);
+				//System.out.printf("no mouse click on %s!\n",fig);
 			}
 		}
 		
@@ -793,10 +804,10 @@ public class FigureSWTApplet implements IFigureApplet {
 		figureWidth = figure.width;
 		figureHeight = figure.height;
 		figure.draw(left, top);
+
 	}
 
 	public Object createFont(String fontName, double fontSize) {
-		// TODO Auto-generated method stub
 		FontData fd = new FontData(fontName, (int) fontSize, SWT.NORMAL);
 		return new Font(device, fd);
 	}
@@ -806,12 +817,13 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
+	
 	public Cursor getCursor() {
 		return comp.getCursor();
 	}
 
 	public void setCursor(Cursor cursor) {
-		comp.setCursor(cursor);
+	    comp.setCursor(cursor);
 	}
 
 	public Object getFont(Object font) {
@@ -870,7 +882,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		public void mouseDown(MouseEvent e) {
 			mouseX = e.x;
 			mouseY = e.y;
-			System.err.println("mouseDown:(" + mouseX + "," + mouseY + ")");
+			//System.err.println("mouseDown:(" + mouseX + "," + mouseY + ")");
 			mousePressed();
 		}
 
@@ -890,6 +902,19 @@ public class FigureSWTApplet implements IFigureApplet {
 
 		public void paintControl(PaintEvent e) {
 			gc = e.gc;
+			Rectangle r = comp.getBounds();
+			//System.out.printf("max size %d %d %d %d\n",r.x,r.y,r.width,r.height);
+			
+			/*try{
+				new Exception().printStackTrace();
+			} catch(Exception d){
+				
+			}*/
+			//System.out.printf("Paint event! %s %d %d %d %d\n",e.widget,e.width,e.height,e.x,e.y);
+//			gc.setTextAntialias(SWT.ON);
+//			gc.setAntialias(SWT.ON);
+//			gc.setAdvanced(true);
+//			gc.setBackground(getColor(SWT.COLOR_WHITE));
 			FigureSWTApplet.this.draw();
 		}
 	}
@@ -963,7 +988,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-	
 	public Result<IValue> executeRascalCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
 		assert (callback instanceof ICallableValue);
@@ -977,6 +1001,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.setCursor(cursor0);
 		cursor.dispose();
 		return result;
+
 	}
 
 	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) {

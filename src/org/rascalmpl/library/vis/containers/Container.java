@@ -15,8 +15,8 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.compose.HCat;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 
 
 /**
@@ -36,16 +36,29 @@ import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
 public abstract class Container extends WithInnerFig {
 
 	final private static boolean debug = false;
-	Figure originalMouseOver;
 
 	public Container(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
-		originalMouseOver = properties.getMouseOver();
+		
 	}
 
+	public Figure getMouseOverProperty(){
+		Figure originalMouseOver = super.getMouseOverProperty();
+		if(innerFig != null && !innerFits()){
+			if(originalMouseOver!=null){
+				Figure[] figs = {innerFig,originalMouseOver};
+				return new HCat(fpa,figs , new PropertyManager());
+			} else {
+				return innerFig;
+			}
+		}
+		return originalMouseOver;
+	}
+	
 	@Override
 	public 
 	void bbox(double desiredWidth, double desiredHeight){
+		
 		double lw = getLineWidthProperty();
 		if(desiredWidth != Figure.AUTO_SIZE){ 
 			if(desiredWidth < 1.0f){
@@ -128,14 +141,7 @@ public abstract class Container extends WithInnerFig {
 				height = getHeightProperty();
 			}
 		}
-		if(innerFig != null && !innerFits()){
-			if(originalMouseOver!=null){
-				Figure[] figs = {innerFig,originalMouseOver};
-				properties.setFigureProperty(FigureProp.MOUSE_OVER, new HCat(fpa,figs , new PropertyManager() ));
-			} else {
-				properties.setFigureProperty(FigureProp.MOUSE_OVER, innerFig);
-			}
-		}
+		
 		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
 

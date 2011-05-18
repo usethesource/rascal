@@ -5,8 +5,8 @@ import java.util.Vector;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 public class HScreen extends WithInnerFig {
@@ -106,7 +106,7 @@ public class HScreen extends WithInnerFig {
 
 	void drawScreen(double left, double top) {
 		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
-		if(properties.getBooleanProperty(BoolProp.DRAW_SCREEN_X)){
+		if(properties.getBooleanProperty(Properties.DRAW_SCREEN_X)){
 			fpa.line(left + innerFigX + innerFig.getHorizontalBorders().getMinimum(),
 					top + innerFigY + getVAlignProperty() * innerFig.height,
 					left + innerFigX +  innerFig.getHorizontalBorders().getMaximum(),

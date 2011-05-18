@@ -20,7 +20,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
@@ -220,5 +219,12 @@ public class TreeNode extends Figure {
 			result.add(rootFigure);
 		}
 		return true;
+	}
+	
+	public void registerNames(){
+		super.registerNames();
+		for(int i = children.size()-1 ; i >= 0 ; i--){
+			children.get(i).registerNames();
+		}
 	}
 }

@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.Measure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Dimension;
@@ -30,8 +31,7 @@ import org.rascalmpl.library.vis.util.Dimension;
  * @author paulk
  *
  */
-public class Vertex extends Figure {
-	Figure marker;
+public class Vertex extends WithInnerFig {
 	Measure deltax;
 	Measure deltay;
 	double leftAnchor;
@@ -40,32 +40,13 @@ public class Vertex extends Figure {
 	double bottomAnchor;
 	private static boolean debug = false;
 
-	private double getIntOrReal(IValue v){
-		if(v.getType().isIntegerType())
-			return ((IInteger) v).intValue();
-		if(v.getType().isRealType())
-			return ((IReal) v).floatValue();
-		return 0;
-	}
 	
-	private Measure getMeasure(IValue val){
-		IConstructor c = (IConstructor) val;
-		return new Measure(getIntOrReal(c.get(0)),((IString)c.get(1)).getValue());
-	}
 	
-	public Vertex(IFigureApplet fpa, PropertyManager properties, IValue dx, IValue dy) {
-		super(fpa, properties);
-		deltax = getMeasure(dx);
-		deltay = getMeasure(dy);
-	}
 	
-	public Vertex(IFigureApplet fpa, PropertyManager properties, IValue dx, IValue dy, IConstructor marker, IEvaluatorContext ctx) {
-		super(fpa, properties);
-		deltax = getMeasure(dx);
-		deltay = getMeasure(dy);
-		if(marker != null)
-			this.marker = FigureFactory.make(fpa, marker, properties, null, ctx);
-		if(debug)System.err.printf("Vertex at %f, %f\n", deltax, deltay);
+	public Vertex(IFigureApplet fpa, Measure dx, Measure dy, Figure inner,PropertyManager properties) {
+		super(fpa, inner, properties);
+		deltax = dx;
+		deltay = dy;
 	}
 	
 	public Measure getDeltaXMeasure(){
@@ -123,12 +104,12 @@ public class Vertex extends Figure {
 		if(debug)System.err.printf("bbox.vertex: deltax=%f, deltay=%f, width = %f (%f, %f), height= %f (%f, %f))\n", 
 							deltax, deltay, width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
 		*/
-		if(marker != null){
-			marker.bbox(AUTO_SIZE, AUTO_SIZE);
-			leftAnchor = marker.leftAlign();
-			rightAnchor = marker.rightAlign();
-			topAnchor = marker.topAlign();
-			bottomAnchor = marker.bottomAlign();
+		if(innerFig != null){
+			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+			leftAnchor = innerFig.leftAlign();
+			rightAnchor = innerFig.rightAlign();
+			topAnchor = innerFig.topAlign();
+			bottomAnchor = innerFig.bottomAlign();
 		} else {
 			leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 		}
@@ -141,12 +122,12 @@ public class Vertex extends Figure {
 		this.setTop(top);
 		applyProperties();
 		if(debug){
-			System.err.println("Vertex: marker = " + marker);
+			System.err.println("Vertex: marker = " + innerFig);
 			System.err.printf("Vertex: marker at %f, %f\n", left, top);
 		}
-		if(marker != null){
-			marker.bbox(AUTO_SIZE, AUTO_SIZE);
-			marker.draw(left, top);
+		if(innerFig != null){
+			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+			innerFig.draw(left, top);
 		}
 	}
 	
@@ -168,30 +149,6 @@ public class Vertex extends Figure {
 	@Override
 	public double bottomAlign(){
 		return bottomAnchor;
-	}
-	
-	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(marker!=null){
-			return marker.getExtremesForAxis(axisId, offset, horizontal);
-		} else {
-			return new Extremes();
-		}
-	}
-	
-	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
-		if(marker!=null){
-			return marker.getOffsetForAxis(axisId, offset, horizontal);
-		} else {
-			return Double.MAX_VALUE;
-		}
-	}
-	
-
-	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
-		super.propagateScaling(scaleX, scaleY,axisScales);
-		if(marker != null){
-			marker.propagateScaling(scaleX, scaleY,axisScales);
-		}
 	}
 
 }

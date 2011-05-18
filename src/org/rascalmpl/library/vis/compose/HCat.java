@@ -3,8 +3,8 @@ package org.rascalmpl.library.vis.compose;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 
@@ -30,7 +30,7 @@ public class HCat extends Compose {
 	}
 		
 	public void bboxActual(BoundingBox desiredBBox){
-		
+		//System.out.printf("Starting hcat bbox!\n");
 		gapSize = getHGapProperty(flip);
 		numberOfGaps = (figures.length - 1);
 		if(getStartGapProperty()){numberOfGaps+=0.5f;} 
@@ -94,6 +94,7 @@ public class HCat extends Compose {
 		// fixpoint computation to set width of figures...
 		do{
 			fixPointReached = true;
+			//System.out.printf("Fixpointing for width..\n");
 			for(int i = 0 ; i < figures.length; i++){
 				BoundingBox desiredBoundingBoxPerElement = new BoundingBox(desiredWidthPerElement,desiredHeightPerElement,flip); 
 				if(mayBeResized[i]){
@@ -132,6 +133,7 @@ public class HCat extends Compose {
 			}
 			while(!fixPointReached){
 				fixPointReached = true;
+				//System.out.printf("Fixpointing for height..\n");
 				double spaceForResize = desiredHeight - (maxTopAnchor + maxBottomAnchor);
 				double totalHeightNow = Math.max(maxTopAnchor,maxTopAnchorR) + Math.max(maxBottomAnchor,maxBottomAnchorR);
 				double topExtraSpacePart, bottomExtraSpacePart;
@@ -221,11 +223,11 @@ public class HCat extends Compose {
 	}	
 	
 	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
-			double val = getMeasureProperty(DimensionalProp.WIDTH).value;
+		if(horizontal && getMeasureProperty(Properties.WIDTH).axisName.equals(axisId)){
+			double val = getMeasureProperty(Properties.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
-		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
-			double val = getMeasureProperty(DimensionalProp.HEIGHT).value;
+		} else if( !horizontal && getMeasureProperty(Properties.HEIGHT).axisName.equals(axisId)){
+			double val = getMeasureProperty(Properties.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 			Extremes[] extremesList = new Extremes[figures.length];
