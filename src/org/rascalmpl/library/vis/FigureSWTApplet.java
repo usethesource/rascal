@@ -37,6 +37,7 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -962,23 +963,20 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
+	
 	public Result<IValue> executeRascalCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
+		assert (callback instanceof ICallableValue);
 		Cursor cursor0 = comp.getCursor();
 		Cursor cursor = new Cursor(device, SWT.CURSOR_WAIT);
 		comp.setCursor(cursor);
 		Result<IValue> result;
 		synchronized (this) {
-			if (callback instanceof RascalFunction)
-				result = ((RascalFunction) callback).call(argTypes, argVals);
-			else
-				result = ((OverloadedFunctionResult) callback).call(argTypes,
-						argVals);
+			result = ((ICallableValue)callback).call(argTypes, argVals);
 		}
 		comp.setCursor(cursor0);
 		cursor.dispose();
 		return result;
-
 	}
 
 	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) {
