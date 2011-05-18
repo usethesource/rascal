@@ -1,9 +1,5 @@
 package org.rascalmpl.library.lang.rascal.syntax;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -11,8 +7,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.stack.*;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
@@ -225,7 +219,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
   private static final IConstructor prod___lit___40_layouts_$QUOTES_lit_Replacement_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Replacement_layouts_$QUOTES_lit___96_$Expression_attrs___term__cons___67_111_110_99_114_101_116_101_84_121_112_101_100_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"(\"),layouts(\"$QUOTES\"),lit(\"Replacement\"),layouts(\"$QUOTES\"),lit(\")\"),layouts(\"$QUOTES\"),lit(\"`\"),layouts(\"$QUOTES\"),sort(\"Replacement\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Expression\"),attrs([term(cons(\"ConcreteTypedQuoted\"))]))", Factory.Production);
   private static final IConstructor prod___char_class___range__67_67_char_class___range__104_104_char_class___range__97_97_char_class___range__114_114_lit_Char_attrs___literal = (IConstructor) _read("prod([\\char-class([range(67,67)]),\\char-class([range(104,104)]),\\char-class([range(97,97)]),\\char-class([range(114,114)])],lit(\"Char\"),attrs([literal()]))", Factory.Production);
   private static final IConstructor prod___lit___40_layouts_$QUOTES_lit_Assignable_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assignable_layouts_$QUOTES_lit___96_$Pattern_attrs___term__cons___67_111_110_99_114_101_116_101_84_121_112_101_100_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"(\"),layouts(\"$QUOTES\"),lit(\"Assignable\"),layouts(\"$QUOTES\"),lit(\")\"),layouts(\"$QUOTES\"),lit(\"`\"),layouts(\"$QUOTES\"),sort(\"Assignable\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Pattern\"),attrs([term(cons(\"ConcreteTypedQuoted\"))]))", Factory.Production);
-  private static final IConstructor prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Comment_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = (IConstructor) _read("prod([lit(\"\\<\"),layouts(\"$QUOTES\"),sort(\"Pattern\"),layouts(\"$QUOTES\"),lit(\"\\>\")],sort(\"Comment\"),attrs([term(cons(\"MetaVariable\"))]))", Factory.Production);
   private static final IConstructor prod___lit___96_layouts_$QUOTES_PostProtocolChars_layouts_$QUOTES_lit___96_$Expression_attrs___term__cons___67_111_110_99_114_101_116_101_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"`\"),layouts(\"$QUOTES\"),sort(\"PostProtocolChars\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Expression\"),attrs([term(cons(\"ConcreteQuoted\"))]))", Factory.Production);
   private static final IConstructor prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Strategy_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = (IConstructor) _read("prod([lit(\"\\<\"),layouts(\"$QUOTES\"),sort(\"Pattern\"),layouts(\"$QUOTES\"),lit(\"\\>\")],sort(\"Strategy\"),attrs([term(cons(\"MetaVariable\"))]))", Factory.Production);
   private static final IConstructor prod___lit___96_layouts_$QUOTES_UnicodeEscape_layouts_$QUOTES_lit___96_$Pattern_attrs___term__cons___67_111_110_99_114_101_116_101_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"`\"),layouts(\"$QUOTES\"),sort(\"UnicodeEscape\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Pattern\"),attrs([term(cons(\"ConcreteQuoted\"))]))", Factory.Production);
@@ -891,7 +884,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
   private static final IConstructor prod___lit___40_layouts_$QUOTES_lit_DatePart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DatePart_layouts_$QUOTES_lit___96_$Expression_attrs___term__cons___67_111_110_99_114_101_116_101_84_121_112_101_100_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"(\"),layouts(\"$QUOTES\"),lit(\"DatePart\"),layouts(\"$QUOTES\"),lit(\")\"),layouts(\"$QUOTES\"),lit(\"`\"),layouts(\"$QUOTES\"),sort(\"DatePart\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Expression\"),attrs([term(cons(\"ConcreteTypedQuoted\"))]))", Factory.Production);
   private static final IConstructor prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Case_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = (IConstructor) _read("prod([lit(\"\\<\"),layouts(\"$QUOTES\"),sort(\"Pattern\"),layouts(\"$QUOTES\"),lit(\"\\>\")],sort(\"Case\"),attrs([term(cons(\"MetaVariable\"))]))", Factory.Production);
   private static final IConstructor prod___lit___96_layouts_$QUOTES_Statement_layouts_$QUOTES_lit___96_$Pattern_attrs___term__cons___67_111_110_99_114_101_116_101_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"`\"),layouts(\"$QUOTES\"),sort(\"Statement\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Pattern\"),attrs([term(cons(\"ConcreteQuoted\"))]))", Factory.Production);
-  private static final IConstructor prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_LAYOUT_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = (IConstructor) _read("prod([lit(\"\\<\"),layouts(\"$QUOTES\"),sort(\"Pattern\"),layouts(\"$QUOTES\"),lit(\"\\>\")],sort(\"LAYOUT\"),attrs([term(cons(\"MetaVariable\"))]))", Factory.Production);
   private static final IConstructor prod___char_class___range__67_67_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_lit_Case_attrs___literal = (IConstructor) _read("prod([\\char-class([range(67,67)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(101,101)])],lit(\"Case\"),attrs([literal()]))", Factory.Production);
   private static final IConstructor prod___char_class___range__79_79_char_class___range__99_99_char_class___range__116_116_char_class___range__97_97_char_class___range__108_108_char_class___range__76_76_char_class___range__111_111_char_class___range__110_110_char_class___range__103_103_char_class___range__76_76_char_class___range__105_105_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__97_97_char_class___range__108_108_lit_OctalLongLiteral_attrs___literal = (IConstructor) _read("prod([\\char-class([range(79,79)]),\\char-class([range(99,99)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(108,108)]),\\char-class([range(76,76)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(103,103)]),\\char-class([range(76,76)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(97,97)]),\\char-class([range(108,108)])],lit(\"OctalLongLiteral\"),attrs([literal()]))", Factory.Production);
   private static final IConstructor prod___lit___96_layouts_$QUOTES_Strategy_layouts_$QUOTES_lit___96_$Expression_attrs___term__cons___67_111_110_99_114_101_116_101_81_117_111_116_101_100 = (IConstructor) _read("prod([lit(\"`\"),layouts(\"$QUOTES\"),sort(\"Strategy\"),layouts(\"$QUOTES\"),lit(\"`\")],sort(\"Expression\"),attrs([term(cons(\"ConcreteQuoted\"))]))", Factory.Production);
@@ -5416,21 +5408,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
 	    }
 	  }
 	
-  private static class Comment {
-    
-	    public final static AbstractStackNode[] prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Comment_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = _init_prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Comment_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101();
-	    private static final AbstractStackNode[] _init_prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Comment_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101() {
-      AbstractStackNode[] tmp = new AbstractStackNode[5];
-      
-	      tmp[4] = new LiteralStackNode(5693, 4, prod___char_class___range__62_62_lit___62_attrs___literal , new char[] {62});
-	      tmp[3] = new NonTerminalStackNode(5691, 3 , "layouts_$QUOTES");
-	      tmp[2] = new NonTerminalStackNode(5689, 2 , "$Pattern");
-	      tmp[1] = new NonTerminalStackNode(5687, 1 , "layouts_$QUOTES");
-	      tmp[0] = new LiteralStackNode(5685, 0, prod___char_class___range__60_60_lit___60_attrs___literal , new char[] {60});
-                  return tmp;
-	    }
-	  }
-	
   private static class Tags {
     
 	    public final static AbstractStackNode[] prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Tags_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = _init_prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Tags_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101();
@@ -6357,21 +6334,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
 	      tmp[2] = new NonTerminalStackNode(8051, 2 , "$Pattern");
 	      tmp[1] = new NonTerminalStackNode(8049, 1 , "layouts_$QUOTES");
 	      tmp[0] = new LiteralStackNode(8047, 0, prod___char_class___range__60_60_lit___60_attrs___literal , new char[] {60});
-                  return tmp;
-	    }
-	  }
-	
-  private static class LAYOUT {
-    
-	    public final static AbstractStackNode[] prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_LAYOUT_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101 = _init_prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_LAYOUT_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101();
-	    private static final AbstractStackNode[] _init_prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_LAYOUT_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101() {
-      AbstractStackNode[] tmp = new AbstractStackNode[5];
-      
-	      tmp[4] = new LiteralStackNode(8045, 4, prod___char_class___range__62_62_lit___62_attrs___literal , new char[] {62});
-	      tmp[3] = new NonTerminalStackNode(8043, 3 , "layouts_$QUOTES");
-	      tmp[2] = new NonTerminalStackNode(8041, 2 , "$Pattern");
-	      tmp[1] = new NonTerminalStackNode(8039, 1 , "layouts_$QUOTES");
-	      tmp[0] = new LiteralStackNode(8037, 0, prod___char_class___range__60_60_lit___60_attrs___literal , new char[] {60});
                   return tmp;
 	    }
 	  }
@@ -11514,12 +11476,7 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
     // prod([lit("\<"),layouts("$QUOTES"),meta(sort("Pattern")),layouts("$QUOTES"),lit("\>")],sort("PathTail"),attrs([term(cons("MetaVariable"))]))
     	expect(prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_PathTail_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101, PathTail.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_PathTail_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101);
   }
-  public void Comment() {
-    super.Comment();
-    
-    // prod([lit("\<"),layouts("$QUOTES"),meta(sort("Pattern")),layouts("$QUOTES"),lit("\>")],sort("Comment"),attrs([term(cons("MetaVariable"))]))
-    	expect(prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Comment_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101, Comment.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Comment_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101);
-  }
+  
   public void Tags() {
     super.Tags();
     
@@ -11885,12 +11842,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
     
     // prod([lit("\<"),layouts("$QUOTES"),meta(sort("Pattern")),layouts("$QUOTES"),lit("\>")],sort("DecimalIntegerLiteral"),attrs([term(cons("MetaVariable"))]))
     	expect(prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_DecimalIntegerLiteral_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101, DecimalIntegerLiteral.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_DecimalIntegerLiteral_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101);
-  }
-  public void LAYOUT() {
-    super.LAYOUT();
-    
-    // prod([lit("\<"),layouts("$QUOTES"),meta(sort("Pattern")),layouts("$QUOTES"),lit("\>")],sort("LAYOUT"),attrs([term(cons("MetaVariable"))]))
-    	expect(prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_LAYOUT_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101, LAYOUT.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_LAYOUT_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101);
   }
   public void Word() {
     super.Word();
