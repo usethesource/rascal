@@ -521,4 +521,12 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 			figure.draw(x + left - figure.width/2, y + top - figure.height/2);
 		}
 	}
+	
+	public void computeFiguresAndProperties(){
+		if(figure!=null)figure.computeFiguresAndProperties();
+	}
+
+	public void registerNames() {
+		if(figure!=null)figure.registerNames();
+	}
 }

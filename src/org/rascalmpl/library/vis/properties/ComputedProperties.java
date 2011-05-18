@@ -27,33 +27,37 @@ import org.rascalmpl.library.vis.IFigureApplet;
 
 public class ComputedProperties {
 
-	private static abstract class ComputedProperty<PropType> implements IPropertyValue<PropType> {
+	public static abstract class ComputedProperty<PropType> extends PropertyValue<PropType> {
 
 		IFigureApplet fpa;
 		
 		IValue fun;
 		PropType value;
 
-		public ComputedProperty(IValue fun, IFigureApplet fpa){
+		public ComputedProperty(Properties property,IValue fun, IFigureApplet fpa){
+			super(property);
 			this.fun = fun;
 			this.fpa = fpa;
 		}
 		
 		abstract PropType convertValue(Result<IValue> res);
 		
-		public synchronized PropType getValue() {
+		public synchronized void compute() {
 			Result<IValue> res = fpa.executeRascalCallBackWithoutArguments(fun);
 			value = convertValue(res);
 			fpa.setComputedValueChanged();
+		}
+		
+		public PropType getValue() {
 			return value;
 		}	
 	}
 	
 
-	static class ComputedRealProperty extends ComputedProperty<Double>{
+	public static class ComputedRealProperty extends ComputedProperty<Double>{
 
-		public ComputedRealProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+		public ComputedRealProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 
 		Double convertValue(Result<IValue> res){
@@ -66,10 +70,10 @@ public class ComputedProperties {
 		}
 	}
 	
-	static class ComputedStringProperty extends ComputedProperty<String>{
+	public static class ComputedStringProperty extends ComputedProperty<String>{
 
-		public ComputedStringProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+		public ComputedStringProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 
 		@Override
@@ -79,10 +83,10 @@ public class ComputedProperties {
 
 	}
 	
-	static class ComputedBooleanProperty extends ComputedProperty<Boolean>{
+	public static class ComputedBooleanProperty extends ComputedProperty<Boolean>{
 
-		public ComputedBooleanProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+		public ComputedBooleanProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 
 		@Override
@@ -92,10 +96,10 @@ public class ComputedProperties {
 
 	}
 	
-	static class ComputedIntegerProperty extends ComputedProperty<Integer>{
+	public static class ComputedIntegerProperty extends ComputedProperty<Integer>{
 
-		public ComputedIntegerProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+		public ComputedIntegerProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 
 		@Override
@@ -105,16 +109,16 @@ public class ComputedProperties {
 
 	}
 	
-	static class ComputedColorProperty extends ComputedIntegerProperty{
-		public ComputedColorProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+	public static class ComputedColorProperty extends ComputedIntegerProperty{
+		public ComputedColorProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 	}
 	
-	static class ComputedMeasureProperty extends ComputedProperty<Measure>{
+	public static class ComputedMeasureProperty extends ComputedProperty<Measure>{
 
-		public ComputedMeasureProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+		public ComputedMeasureProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 
 		@Override
@@ -128,7 +132,6 @@ public class ComputedProperties {
 			else if(res.getType().isNumberType()){
 				return new Measure((((INumber)res.getValue()).toReal().doubleValue()));
 			} else { // if(res.getType().isAbstractDataType() && res.getType().getName().equals("Measure")){
-				Measure result;
 				IConstructor c = (IConstructor)res.getValue();
 				double val = ((INumber)c.get(0)).toReal().doubleValue();
 				String name = ((IString)c.get(1)).getValue();
@@ -138,13 +141,13 @@ public class ComputedProperties {
 
 	}
 	
-	static class ComputedFigureProperty extends ComputedProperty<Figure>{
+	public static class ComputedFigureProperty extends ComputedProperty<Figure>{
 		PropertyManager parentPm;
 		IFigureApplet fpa;
 		IEvaluatorContext ctx;
 		
-		public ComputedFigureProperty(IValue fun, IFigureApplet fpa,PropertyManager parentPm, IEvaluatorContext ctx) {
-			super(fun, fpa);
+		public ComputedFigureProperty(Properties property,IValue fun, IFigureApplet fpa,PropertyManager parentPm, IEvaluatorContext ctx) {
+			super(property,fun, fpa);
 			this.fpa = fpa;
 			this.parentPm = parentPm;
 			this.ctx = ctx;
@@ -157,12 +160,20 @@ public class ComputedProperties {
 			return fig;
 		}
 		
+		public synchronized void compute() {
+			if(value!=null){
+				value.destroy();
+			}
+			super.compute();
+		}
+		
+		
 	}
 	
-	static class HandlerProperty extends ComputedProperty<Void>{
+	public static class HandlerProperty extends ComputedProperty<Void>{
 
-		public HandlerProperty(IValue fun, IFigureApplet fpa) {
-			super(fun, fpa);
+		public HandlerProperty(Properties property,IValue fun, IFigureApplet fpa) {
+			super(property,fun, fpa);
 		}
 
 		@Override

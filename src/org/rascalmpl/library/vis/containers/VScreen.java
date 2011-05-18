@@ -3,8 +3,8 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
 
 public class VScreen extends HScreen {
 	
@@ -25,7 +25,7 @@ public class VScreen extends HScreen {
 	
 	void drawScreen(float left, float top) {
 		System.out.printf("drawing vscreen %f %f %s",  innerFig.getVerticalBorders().getMinimum(),  innerFig.getVerticalBorders().getMaximum(),innerFig);
-		if(properties.getBooleanProperty(BoolProp.DRAW_SCREEN_Y)){
+		if(properties.getBooleanProperty(Properties.DRAW_SCREEN_Y)){
 			fpa.line(left + innerFigX + getHAlignProperty() * innerFig.width,
 					top + innerFigY + innerFig.getVerticalBorders().getMinimum() ,
 					left + innerFigX + getHAlignProperty() * innerFig.width,

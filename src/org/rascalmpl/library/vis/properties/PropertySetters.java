@@ -12,54 +12,51 @@
 
 package org.rascalmpl.library.vis.properties;
 
-import java.util.EnumMap;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
-import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
-import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
-import org.rascalmpl.library.vis.properties.descriptions.RealProp;
-import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
 public class PropertySetters {
 
-	public static interface PropertySetter<Prop extends Enum<Prop>,PropValue>{
-		void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx, PropertyManager pm);
+	public interface PropertySetter<PropValue>{
+		int execute(PropertyValue[] array,int startIndex,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx, PropertyManager pm);
+		int nrOfPropertiesProduced();
 	}
 	
-	public static class SinglePropertySetter<Prop extends Enum<Prop>,PropValue> implements PropertySetter<Prop,PropValue>{
-		Prop property;
-		PropertyParsers.PropertyParser<Prop,PropValue> parser;
+	public static class SinglePropertySetter<PropValue> implements PropertySetter<PropValue>{
 		
-		SinglePropertySetter(Prop property,PropertyParsers.PropertyParser<Prop,PropValue> parser){
-			this.property = property;
+		PropertyParsers.PropertyParser<PropValue> parser;
+		
+		SinglePropertySetter(PropertyParsers.PropertyParser<PropValue> parser){
 			this.parser = parser;
 		}
 		
-		public void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,
+		@SuppressWarnings("rawtypes")
+		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureApplet fpa,
 				IEvaluatorContext ctx, PropertyManager pm){
-			values.put(property,parser.parseProperty(property, c, pm, 0, fpa, ctx));
+			array[startIndex] = parser.parseProperty(c, pm, 0, fpa, ctx);
+			return startIndex+1;
+		}
+
+		@Override
+		public int nrOfPropertiesProduced() {
+			return 1;
 		}
 	}
-	
 
-	public static class DualOrRepeatSinglePropertySetter <Prop extends Enum<Prop>,PropValue> implements PropertySetter<Prop,PropValue>{
-		Prop property1,property2;
-		PropertyParsers.PropertyParser<Prop,PropValue> parser;
+	public static class DualOrRepeatSinglePropertySetter <PropValue> implements PropertySetter<PropValue>{
 		
-		DualOrRepeatSinglePropertySetter(Prop property1,Prop property2,PropertyParsers.PropertyParser<Prop,PropValue> parser){
-			this.property1 = property1;
-			this.property2 = property2;
-			this.parser = parser;
+		PropertyParsers.PropertyParser<PropValue> parser1,parser2;
+		
+		DualOrRepeatSinglePropertySetter(PropertyParsers.PropertyParser<PropValue> parser1,
+				PropertyParsers.PropertyParser<PropValue> parser2){
+			this.parser1 = parser1;
+			this.parser2 = parser2;
 		}
 		
-		public void execute(EnumMap<Prop, IPropertyValue<PropValue>> values,IConstructor c, IFigureApplet fpa,
+		@SuppressWarnings("rawtypes")
+		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureApplet fpa,
 				IEvaluatorContext ctx, PropertyManager pm){
 			int secondIndex;
 			if(c.arity() == 1){
@@ -67,87 +64,95 @@ public class PropertySetters {
 			} else {
 				secondIndex = 1;
 			}
-			values.put(property1,parser.parseProperty(property1, c, pm, 0, fpa, ctx));
-			values.put(property2,parser.parseProperty(property2, c, pm, secondIndex, fpa, ctx));
+			array[startIndex] = parser1.parseProperty(c, pm, 0, fpa, ctx);
+			array[startIndex+1] = parser2.parseProperty( c, pm, secondIndex, fpa, ctx);
+			return startIndex+2;
+		}
+
+		@Override
+		public int nrOfPropertiesProduced() {
+			return 2;
 		}
 	}
 	
-	public static class SingleBooleanPropertySetter extends SinglePropertySetter<BoolProp,Boolean>{
-		public SingleBooleanPropertySetter(BoolProp property) {
-			super(property, new PropertyParsers.BooleanArgParser());
+	public static class SingleBooleanPropertySetter extends SinglePropertySetter<Boolean>{
+		public SingleBooleanPropertySetter(Properties property) {
+			super( new PropertyParsers.BooleanArgParser(property));
 		}
 	}
 	
-	public static class DualOrRepeatSingleBooleanPropertySetter extends DualOrRepeatSinglePropertySetter<BoolProp,Boolean> {
-		public DualOrRepeatSingleBooleanPropertySetter(BoolProp property1,BoolProp property2) {
-			super(property1, property2, new PropertyParsers.BooleanArgParser());
+	public static class DualOrRepeatSingleBooleanPropertySetter extends DualOrRepeatSinglePropertySetter<Boolean> {
+
+		DualOrRepeatSingleBooleanPropertySetter(Properties property1,Properties property2) {
+			super(new PropertyParsers.BooleanArgParser(property1),new PropertyParsers.BooleanArgParser(property2));
+		}
+
+	}
+	
+	public static class SingleIntPropertySetter extends SinglePropertySetter<Integer>{
+		public SingleIntPropertySetter(Properties property) {
+			super( new PropertyParsers.IntegerArgParser(property));
 		}
 	}
 	
-	public static class SingleIntPropertySetter extends SinglePropertySetter<IntProp,Integer>{
-		public SingleIntPropertySetter(IntProp property) {
-			super(property, new PropertyParsers.IntegerArgParser());
+	public static class SingleRealPropertySetter extends SinglePropertySetter<Double>{
+		public SingleRealPropertySetter(Properties property) {
+			super( new PropertyParsers.RealArgParser(property));
 		}
 	}
 	
-	public static class SingleRealPropertySetter extends SinglePropertySetter<RealProp,Double>{
-		public SingleRealPropertySetter(RealProp property) {
-			super(property, new PropertyParsers.RealArgParser());
+	public static class SingleIntOrRealPropertySetter extends SinglePropertySetter<Double>{
+		public SingleIntOrRealPropertySetter(Properties property) {
+			super(new PropertyParsers.IntOrRealArgParser(property));
 		}
 	}
 	
-	public static class SingleIntOrRealPropertySetter extends SinglePropertySetter<RealProp,Double>{
-		public SingleIntOrRealPropertySetter(RealProp property) {
-			super(property, new PropertyParsers.IntOrRealArgParser());
-		}
-	}
-	
-	public static class SingleMeasurePropertySetter extends SinglePropertySetter<DimensionalProp,Measure>{
-		public SingleMeasurePropertySetter(DimensionalProp property) {
-			super(property, new PropertyParsers.MeasureArgParser());
+	public static class SingleMeasurePropertySetter extends SinglePropertySetter<Measure>{
+		public SingleMeasurePropertySetter(Properties property) {
+			super(new PropertyParsers.MeasureArgParser(property));
 		}
 	}
 	
 
-	public static class DualOrRepeatMeasurePropertySetter extends DualOrRepeatSinglePropertySetter<DimensionalProp,Measure>{
-		public DualOrRepeatMeasurePropertySetter(DimensionalProp property1,DimensionalProp property2) {
-			super(property1,property2, new PropertyParsers.MeasureArgParser());
+	public static class DualOrRepeatMeasurePropertySetter extends DualOrRepeatSinglePropertySetter<Measure>{
+		public DualOrRepeatMeasurePropertySetter(Properties property1,Properties property2) {
+			super(new PropertyParsers.MeasureArgParser(property1),new PropertyParsers.MeasureArgParser(property2));
 		}
 	}
 	
-	public static class DualOrRepeatSingleRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Double>{
-		public DualOrRepeatSingleRealPropertySetter(RealProp property1,RealProp property2) {
-			super(property1,property2, new PropertyParsers.RealArgParser());
+	public static class DualOrRepeatSingleRealPropertySetter extends DualOrRepeatSinglePropertySetter<Double>{
+		public DualOrRepeatSingleRealPropertySetter(Properties property1,Properties property2) {
+			super(new PropertyParsers.RealArgParser(property1),new PropertyParsers.RealArgParser(property2));
 		}
 	}
 	
-	public static class DualOrRepeatSingleIntOrRealPropertySetter extends DualOrRepeatSinglePropertySetter<RealProp,Double>{
-		public DualOrRepeatSingleIntOrRealPropertySetter(RealProp property1,RealProp property2) {
-			super(property1,property2, new PropertyParsers.IntOrRealArgParser());
+	public static class DualOrRepeatSingleIntOrRealPropertySetter extends DualOrRepeatSinglePropertySetter<Double>{
+		public DualOrRepeatSingleIntOrRealPropertySetter(Properties property1,Properties property2) {
+			super(new PropertyParsers.IntOrRealArgParser(property1),new PropertyParsers.IntOrRealArgParser(property2));
 		}
 	}
 	
-	public static class SingleStrPropertySetter extends SinglePropertySetter<StrProp,String>{
-		public SingleStrPropertySetter(StrProp property) {
-			super(property, new PropertyParsers.StringArgParser());
+	public static class SingleStrPropertySetter extends SinglePropertySetter<String>{
+		public SingleStrPropertySetter(Properties property) {
+			super( new PropertyParsers.StringArgParser(property));
 		}
 	}
 	
-	public static class SingleColorPropertySetter extends SinglePropertySetter<ColorProp,Integer>{
-		public SingleColorPropertySetter(ColorProp property) {
-			super(property, new PropertyParsers.ColorArgParser());
+	public static class SingleColorPropertySetter extends SinglePropertySetter<Integer>{
+		public SingleColorPropertySetter(Properties property) {
+			super( new PropertyParsers.ColorArgParser(property));
 		}
 	}
 	
-	public static class SingleFigurePropertySetter extends SinglePropertySetter<FigureProp,Figure>{
-		public SingleFigurePropertySetter(FigureProp property) {
-			super(property, new PropertyParsers.FigureArgParser());
+	public static class SingleFigurePropertySetter extends SinglePropertySetter<Figure>{
+		public SingleFigurePropertySetter(Properties property) {
+			super(new PropertyParsers.FigureArgParser(property));
 		}
 	}
 	
-	public static class SingleHandlerPropertySetter extends SinglePropertySetter<HandlerProp,Void>{
-		public SingleHandlerPropertySetter(HandlerProp property) {
-			super(property, new PropertyParsers.HandlerArgParser());
+	public static class SingleHandlerPropertySetter extends SinglePropertySetter<Void>{
+		public SingleHandlerPropertySetter(Properties property) {
+			super(new PropertyParsers.HandlerArgParser(property));
 		}
 	}
 }

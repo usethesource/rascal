@@ -124,4 +124,18 @@ public abstract class Compose extends Figure {
 		result.add(this);
 		return true;
 	}
+	
+	public void computeFiguresAndProperties(){
+		super.computeFiguresAndProperties();
+		for(Figure fig : figures){
+			fig.computeFiguresAndProperties();
+		}
+	}
+	
+	public void registerNames(){
+		super.registerNames();
+		for(Figure fig : figures){
+			fig.registerNames();
+		}
+	}
 }

@@ -17,17 +17,9 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.rascalmpl.library.vis.containers.HScreen;
-import org.rascalmpl.library.vis.properties.IPropertyManager;
 import org.rascalmpl.library.vis.properties.Measure;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
-import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
-import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
-import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.RealProp;
-import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.Dimension;
@@ -44,7 +36,7 @@ import org.rascalmpl.library.vis.util.Dimension;
  * @author paulk
  */
 
-public abstract class Figure implements Comparable<Figure>,IPropertyManager {
+public abstract class Figure implements Comparable<Figure> {
 
 	public static final double AUTO_SIZE = -1.0;
 	public static int sequencer = 0; // to impose arbitrary ordering on figures
@@ -68,12 +60,23 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	protected Figure(IFigureApplet fpa, PropertyManager properties){
 		this.fpa = fpa;
 		this.properties = properties;
-		String id = properties.getStringProperty(StrProp.ID);
-		if(id != null)
-			fpa.registerId(id, this);
+		properties.computeProperties();
+		
+	
 		scaleX = scaleY = 1.0f;
 		sequenceNr = sequencer;
 		sequencer++;
+	}
+	
+	public void registerNames(){
+		String id = properties.getStringProperty(Properties.ID);
+		if(id!=null && !id.equals(""))
+			fpa.registerId(id, this);
+	}
+	
+
+	public void computeFiguresAndProperties(){
+		properties.computeProperties();
 	}
 	
 	protected void setLeft(double left) {
@@ -102,16 +105,16 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 
 	public void applyProperties() {
-		fpa.fill(getColorProperty(ColorProp.FILL_COLOR));
-		fpa.stroke(getColorProperty(ColorProp.LINE_COLOR));
-		fpa.strokeWeight(getRealProperty(RealProp.LINE_WIDTH));
-		fpa.textSize(getIntegerProperty(IntProp.FONT_SIZE));
+		fpa.fill(getColorProperty(Properties.FILL_COLOR));
+		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
+		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
+		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
 	}
 
 	public void applyFontProperties() {
-		fpa.textFont(fpa.createFont(getStringProperty(StrProp.FONT),
-				getIntegerProperty(IntProp.FONT_SIZE)));
-		fpa.textColor(getColorProperty(ColorProp.FONT_COLOR));
+		fpa.textFont(fpa.createFont(getStringProperty(Properties.FONT),
+				getIntegerProperty(Properties.FONT_SIZE)));
+		fpa.textColor(getColorProperty(Properties.FONT_COLOR));
 	}
 	
 	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
@@ -120,11 +123,11 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 
 	
 	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
-			double val = getMeasureProperty(DimensionalProp.WIDTH).value;
+		if(horizontal && getMeasureProperty(Properties.WIDTH).axisName.equals(axisId)){
+			double val = getMeasureProperty(Properties.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
-		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
-			double val = getMeasureProperty(DimensionalProp.HEIGHT).value;
+		} else if( !horizontal && getMeasureProperty(Properties.HEIGHT).axisName.equals(axisId)){
+			double val = getMeasureProperty(Properties.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 			return new Extremes();
@@ -132,9 +135,9 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	
 	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
+		if(horizontal && getMeasureProperty(Properties.WIDTH).axisName.equals(axisId)){
 			return offset;
-		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
+		} else if( !horizontal && getMeasureProperty(Properties.HEIGHT).axisName.equals(axisId)){
 			return offset;
 		} else {
 			return Double.MAX_VALUE;
@@ -179,6 +182,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	*/
 
+	
 	/**
 	 * Drawing proceeds in two stages: - determine the bounding box of the
 	 * element (using bbox) - draw it (using draw) with left and top argument
@@ -362,18 +366,18 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		result.add(this); return true;
 	}
 	
-	public void executeMouseOverOffHandlers(HandlerProp prop) {
+	public void executeMouseOverOffHandlers(Properties prop) {
 		if(isHandlerPropertySet(prop)){
 			executeHandlerProperty(prop);
 		}
 	}
 	
 	public void executeMouseOverHandlers(){
-		executeMouseOverOffHandlers(HandlerProp.ON_MOUSEOVER);
+		executeMouseOverOffHandlers(Properties.ON_MOUSEOVER);
 	}
 	
 	public void executeMouseOffHandlers(){
-		executeMouseOverOffHandlers(HandlerProp.ON_MOUSEOFF);
+		executeMouseOverOffHandlers(Properties.ON_MOUSEOFF);
 	}
 
 	public boolean mouseInside(double mouseX, double mouseY){
@@ -403,106 +407,87 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	
 	// IPropertyManager implementation (boilerplate)
-	public boolean isBooleanPropertySet(BoolProp property){
+	public boolean isBooleanPropertySet(Properties property){
 		return properties.isBooleanPropertySet(property);
 	}
-	public boolean getBooleanProperty(BoolProp property){
+	public boolean getBooleanProperty(Properties property){
 		return properties.getBooleanProperty(property);
 	}
-	public boolean isIntegerPropertySet(IntProp property){
+	public boolean isIntegerPropertySet(Properties property){
 		return properties.isIntegerPropertySet(property);
 	}
-	public int getIntegerProperty(IntProp property) {
+	public int getIntegerProperty(Properties property) {
 		return properties.getIntegerProperty(property);
 	}
-	public boolean isRealPropertySet(RealProp property){
+	public boolean isRealPropertySet(Properties property){
 		return properties.isRealPropertySet(property);
 	}
-	public double getRealProperty(RealProp property){
+	public double getRealProperty(Properties property){
 		return properties.getRealProperty(property);
 	}
-	public boolean isStringPropertySet(StrProp property){
+	public boolean isStringPropertySet(Properties property){
 		return properties.isStringPropertySet(property);
 	}
-	public String getStringProperty(StrProp property){
+	public String getStringProperty(Properties property){
 		return properties.getStringProperty(property);
 	}
-	public boolean isColorPropertySet(ColorProp property){
+	public boolean isColorPropertySet(Properties property){
 		return properties.isColorPropertySet(property);
 	}
-	public int getColorProperty(ColorProp property) {
+	public int getColorProperty(Properties property) {
 		return properties.getColorProperty(property);
 	}
 	
-	public boolean isMeasurePropertySet(DimensionalProp property){
+	public boolean isMeasurePropertySet(Properties property){
 		return properties.isMeasurePropertySet(property);
 	}
-	public Measure getMeasureProperty(DimensionalProp property) {
+	public Measure getMeasureProperty(Properties property) {
 		return properties.getMeasureProperty(property);
 	}
 	
-	public boolean isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
-		return properties.isMeasurePropertySet(prop, d);
+	public double getScaledMeasureProperty(Properties prop){
+		return getScaled(prop, prop.dimension);
 	}
 	
-	public Measure getMeasureProperty(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
-		return properties.getMeasureProperty(prop, d);
-	}
-	
-	public double getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp prop, Dimension d){
-		return getScaled(prop.getDimensionalProp(d), d);
-	}
-	
-	public double getScaledMeasureProperty(DimensionalProp prop){
-		return getScaled(prop, prop.getDimension());
-	}
-	
-	public boolean isHandlerPropertySet(HandlerProp property){
+	public boolean isHandlerPropertySet(Properties property){
 		return properties.isHandlerPropertySet(property);
 	}
-	public boolean isStandardHandlerPropertySet(HandlerProp property){
+	public boolean isStandardHandlerPropertySet(Properties property){
 		return isStandardHandlerPropertySet(property);
 	}
 	
-	public boolean isStandardDefaultHandlerPropertySet(HandlerProp property){
+	public boolean isStandardDefaultHandlerPropertySet(Properties property){
 		return isStandardDefaultHandlerPropertySet(property);
 	}
 	
-	public void executeHandlerProperty(HandlerProp property) {
+	public void executeHandlerProperty(Properties property) {
 		properties.executeHandlerProperty(property);
 	}
 	
-	public boolean isFigurePropertySet(FigureProp property){
+	public boolean isFigurePropertySet(Properties property){
 		return properties.isFigurePropertySet(property);
 	}
-	public Figure getFigureProperty(FigureProp property) {
+	public Figure getFigureProperty(Properties property) {
 		return properties.getFigureProperty(property);
 	}
 	
-	public boolean isDraggable(){
-		return properties.isDraggable();
-	}
-	public Figure getMouseOver(){
-		return properties.getMouseOver();
-	}
-	
 	public Figure getToArrow(){
-		return properties.getToArrow();
+		return getFigureProperty(Properties.TO_ARROW);
 	}
 	
 	public Figure getFromArrow(){
-		return properties.getFromArrow();
+		return getFigureProperty(Properties.FROM_ARROW);
 	}
 		
 	public Figure getLabel(){
-		return properties.getLabel();
+		return getFigureProperty(Properties.LABEL);
 	}
 	
-	double getScaled(Measure m, Dimension dimension){
+	protected double getScaled(Measure m, Dimension dimension){
 		return getScaled(m,dimension,null);
 	}
 	
-	double getScaled(Measure m, Dimension dimension,DimensionalProp prop){
+	double getScaled(Measure m, Dimension dimension,Properties prop){
 		double scale;
 		switch(dimension){
 		case X: scale = scaleX; break;
@@ -517,7 +502,7 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 		return m.value * scale;
 	}
 	
-	double getScaled(DimensionalProp prop,  Dimension dimension){
+	double getScaled(Properties prop,  Dimension dimension){
 		Measure m = getMeasureProperty(prop);
 		return getScaled(m,dimension,prop);
 	}
@@ -525,21 +510,21 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	// Anchors
 
 	public double leftAlign() {
-		double res= (getRealProperty(RealProp.HALIGN) * width);
+		double res= (getRealProperty(Properties.HALIGN) * width);
 		return res;
 	}
 
 	public double rightAlign() {
-		double res =  (width - getRealProperty(RealProp.HALIGN) * width);
+		double res =  (width - getRealProperty(Properties.HALIGN) * width);
 		return res;
 	}
 
 	public double topAlign() {
-		return (getRealProperty(RealProp.VALIGN) * height);
+		return (getRealProperty(Properties.VALIGN) * height);
 	}
 
 	public double bottomAlign() {
-		return (height - getRealProperty(RealProp.VALIGN) * height);
+		return (height - getRealProperty(Properties.VALIGN) * height);
 	}
 	
 	public double leftAlign(boolean flip) {
@@ -575,53 +560,77 @@ public abstract class Figure implements Comparable<Figure>,IPropertyManager {
 	}
 	
 	// short-hand functions for selected properties(boilerplate)
-	public boolean getClosedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CLOSED);}
-	public boolean getCurvedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CURVED);}
-	public boolean getConnectedProperty(){ return getBooleanProperty(BoolProp.SHAPE_CONNECTED);}
-	public String getIdProperty(){return getStringProperty(StrProp.ID);}
-	public String getDirectionProperty(){return getStringProperty(StrProp.DIRECTION);}
-	public String getLayerProperty(){return getStringProperty(StrProp.LAYER);}
-	public boolean isHeightPropertySet(){return isMeasurePropertySet(DimensionalProp.HEIGHT);}
-	public boolean isHGapPropertySet(){return isMeasurePropertySet(DimensionalProp.HGAP);}
-	public boolean isVGapPropertySet(){return isMeasurePropertySet(DimensionalProp.VGAP);}
+	public boolean getClosedProperty(){ return getBooleanProperty(Properties.SHAPE_CLOSED);}
+	public boolean getCurvedProperty(){ return getBooleanProperty(Properties.SHAPE_CURVED);}
+	public boolean getConnectedProperty(){ return getBooleanProperty(Properties.SHAPE_CONNECTED);}
+	public String getIdProperty(){return getStringProperty(Properties.ID);}
+	public String getDirectionProperty(){return getStringProperty(Properties.DIRECTION);}
+	public String getLayerProperty(){return getStringProperty(Properties.LAYER);}
+	public boolean isHeightPropertySet(){return isMeasurePropertySet(Properties.HEIGHT);}
+	public boolean isHGapPropertySet(){return isMeasurePropertySet(Properties.HGAP);}
+	public boolean isVGapPropertySet(){return isMeasurePropertySet(Properties.VGAP);}
 	// below are convience functions for measures, which are scaled (text and linewidth are not scaled)
-	public boolean isWidthPropertySet(){return isMeasurePropertySet(DimensionalProp.WIDTH);}
-	public double getWidthProperty(){ return getScaledMeasureProperty(DimensionalProp.WIDTH);}
-	public double getHeightProperty(){return  getScaledMeasureProperty(DimensionalProp.HEIGHT);}
-	public double getHGapProperty(){return getScaledMeasureProperty(DimensionalProp.HGAP);}
-	public double getVGapProperty(){return getScaledMeasureProperty(DimensionalProp.VGAP);}
+	public boolean isWidthPropertySet(){return isMeasurePropertySet(Properties.WIDTH);}
+	public double getWidthProperty(){ return getScaledMeasureProperty(Properties.WIDTH);}
+	public double getHeightProperty(){return  getScaledMeasureProperty(Properties.HEIGHT);}
+	public double getHGapProperty(){return getScaledMeasureProperty(Properties.HGAP);}
+	public double getVGapProperty(){return getScaledMeasureProperty(Properties.VGAP);}
 	// TODO: how to scale wedges!
-	public double getInnerRadiusProperty(){return getRealProperty(RealProp.INNERRADIUS);}
+	public double getInnerRadiusProperty(){return getRealProperty(Properties.INNERRADIUS);}
 	
-	public boolean isHGapFactorPropertySet(){return isRealPropertySet(RealProp.HGAP_FACTOR);}
-	public double getHGapFactorProperty() { return getRealProperty(RealProp.HGAP_FACTOR);}
-	public boolean isVGapFactorPropertySet(){return isRealPropertySet(RealProp.VGAP_FACTOR);}
-	public double getVGapFactorProperty() { return getRealProperty(RealProp.VGAP_FACTOR);}
-	public double getHAlignProperty(){return getRealProperty(RealProp.HALIGN);}
-	public double getVAlignProperty(){return getRealProperty(RealProp.VALIGN);}
-	public double getLineWidthProperty(){return getRealProperty(RealProp.LINE_WIDTH);}
-	public double getTextAngleProperty(){return getRealProperty(RealProp.TEXT_ANGLE);}
-	public double getFromAngleProperty(){return getRealProperty(RealProp.FROM_ANGLE);}
-	public double getToAngleProperty(){return getRealProperty(RealProp.TO_ANGLE);}
-	public int getFillColorProperty(){return getColorProperty(ColorProp.FILL_COLOR);}
-	public int getFontColorProperty(){return getColorProperty(ColorProp.FONT_COLOR);}
-	public boolean getStartGapProperty(){ return getBooleanProperty(BoolProp.START_GAP);}
-	public boolean getEndGapProperty(){ return getBooleanProperty(BoolProp.END_GAP);}
+	public boolean isHGapFactorPropertySet(){return isRealPropertySet(Properties.HGAP_FACTOR);}
+	public double getHGapFactorProperty() { return getRealProperty(Properties.HGAP_FACTOR);}
+	public boolean isVGapFactorPropertySet(){return isRealPropertySet(Properties.VGAP_FACTOR);}
+	public double getVGapFactorProperty() { return getRealProperty(Properties.VGAP_FACTOR);}
+	public double getHAlignProperty(){return getRealProperty(Properties.HALIGN);}
+	public double getVAlignProperty(){return getRealProperty(Properties.VALIGN);}
+	public double getLineWidthProperty(){return getRealProperty(Properties.LINE_WIDTH);}
+	public double getTextAngleProperty(){return getRealProperty(Properties.TEXT_ANGLE);}
+	public double getFromAngleProperty(){return getRealProperty(Properties.FROM_ANGLE);}
+	public double getToAngleProperty(){return getRealProperty(Properties.TO_ANGLE);}
+	public int getFillColorProperty(){return getColorProperty(Properties.FILL_COLOR);}
+	public int getFontColorProperty(){return getColorProperty(Properties.FONT_COLOR);}
+	public boolean getStartGapProperty(){ return getBooleanProperty(Properties.START_GAP);}
+	public boolean getEndGapProperty(){ return getBooleanProperty(Properties.END_GAP);}
 	
 	
-	public boolean isWidthPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.X)); }
-	public double getWidthProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.X)); }
-	public boolean isHeightPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.Y)); }
-	public double getHeightProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.DIMENSION, Dimension.flip(flip,Dimension.Y));}
-	public boolean isHGapPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.X)); }
-	public double getHGapProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.X)); }
-	public boolean isVGapPropertySet(boolean flip) { return isMeasurePropertySet(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.Y)); }
-	public double getVGapProperty(boolean flip) { return getScaledMeasureProperty(DimensionalProp.TranslateDimensionToProp.GAP, Dimension.flip(flip,Dimension.Y)); }
+	public boolean isWidthPropertySet(boolean flip) {
+		if(flip) return isMeasurePropertySet(Properties.HEIGHT);
+		else return isMeasurePropertySet(Properties.WIDTH);
+	}
+	public double getWidthProperty(boolean flip) {
+		if(flip) return getScaledMeasureProperty(Properties.HEIGHT);
+		else return getScaledMeasureProperty(Properties.WIDTH);
+	}
+	public boolean isHeightPropertySet(boolean flip) {
+		if(flip) return isMeasurePropertySet(Properties.WIDTH);
+		else return isMeasurePropertySet(Properties.HEIGHT);
+	}
+	public double getHeightProperty(boolean flip) {
+		if(flip) return getScaledMeasureProperty(Properties.WIDTH);
+		else return getScaledMeasureProperty(Properties.HEIGHT);
+	}
+	public boolean isHGapPropertySet(boolean flip) {
+		if(flip) return isMeasurePropertySet(Properties.VGAP);
+		else return isMeasurePropertySet(Properties.HGAP);
+	}
+	public double getHGapProperty(boolean flip) { 
+		if(flip) return getScaledMeasureProperty(Properties.VGAP);
+		else return getScaledMeasureProperty(Properties.HGAP);
+	}
+	public boolean isVGapPropertySet(boolean flip) { 
+		if(flip) return isMeasurePropertySet(Properties.HGAP);
+		else return isMeasurePropertySet(Properties.VGAP);
+	}
+	public double getVGapProperty(boolean flip) { 
+		if(flip) return getScaledMeasureProperty(Properties.HGAP);
+		else return getScaledMeasureProperty(Properties.VGAP);
+	}
 	
-	public boolean isMouseOverSet() { return isFigurePropertySet(FigureProp.MOUSE_OVER);}
-	public Figure getMouseOverProperty() { return getFigureProperty(FigureProp.MOUSE_OVER); }
-	public boolean isOnClickPropertySet() { return isHandlerPropertySet(HandlerProp.MOUSE_CLICK);}
-	public void executeOnClick() { executeHandlerProperty(HandlerProp.MOUSE_CLICK); }
+	public boolean isMouseOverSet() { return isFigurePropertySet(Properties.MOUSE_OVER);}
+	public Figure getMouseOverProperty() { return getFigureProperty(Properties.MOUSE_OVER); }
+	public boolean isOnClickPropertySet() { return isHandlerPropertySet(Properties.MOUSE_CLICK);}
+	public void executeOnClick() { executeHandlerProperty(Properties.MOUSE_CLICK); }
 	
 	public boolean isHGapFactorPropertySet(boolean flip){
 		if(flip){

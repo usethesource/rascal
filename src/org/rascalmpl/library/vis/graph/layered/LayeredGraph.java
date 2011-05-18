@@ -25,14 +25,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graph.lattice.LatticeGraphNode;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.values.ValueFactoryFactory;
-import  org.rascalmpl.library.vis.graph.layered.Direction;
-import org.rascalmpl.library.vis.FigureApplet;
 
 
 /**
@@ -413,7 +412,7 @@ public class LayeredGraph extends Figure {
 		this.setTop(top);
 
 		applyProperties();		
-		
+		fpa.rect(left, top, width, height);
 		for (LayeredGraphEdge e : edges)
 			e.draw(left, top);
 		
@@ -1468,17 +1467,44 @@ public class LayeredGraph extends Figure {
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		if(!mouseInside(c.getX(), c.getY())) return false;
+		boolean found = false;
 		for(int i = nodes.size()-1 ; i >= 0 ; i--){
-			if(nodes.get(i).figure.getFiguresUnderMouse(c, result)){
+			if(nodes.get(i).figure != null){
+				nodes.get(i).figure.getFiguresUnderMouse(c, result);
+				found=true;
 				break;
 			}
 		}
-		for(int i = nodes.size()-1 ; i >= 0 ; i--){
-			if(edges.get(i).getFiguresUnderMouse(c, result)){
-				break;
+		if(!found){
+			for(int i = nodes.size()-1 ; i >= 0 ; i--){
+				if(edges.get(i).getFiguresUnderMouse(c, result)){
+					break;
+				}
 			}
 		}
 		result.add(this);
 		return true;
+	}
+	
+
+	public void computeFiguresAndProperties(){
+		super.computeFiguresAndProperties();
+		for(LayeredGraphNode node : nodes){
+			node.computeFiguresAndProperties();
+		}
+		for(LayeredGraphEdge edge : edges){
+			edge.computeFiguresAndProperties();
+		}
+	}
+	
+
+	public void registerNames(){
+		super.registerNames();
+		for(LayeredGraphNode node : nodes){
+			node.registerNames();
+		}
+		for(LayeredGraphEdge edge : edges){
+			edge.registerNames();
+		}
 	}
 }

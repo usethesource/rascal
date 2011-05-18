@@ -129,5 +129,19 @@ public class SpringGraphEdge extends Figure {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public void computeFiguresAndProperties(){
+		super.computeFiguresAndProperties();
+		if(fromArrow!=null)fromArrow.computeFiguresAndProperties();
+		if(toArrow!=null)toArrow.computeFiguresAndProperties();
+	}
+	
+
+	public void registerNames(){
+		super.registerNames();
+		if(fromArrow!=null)fromArrow.registerNames();
+		if(toArrow!=null)toArrow.registerNames();
+	}
+
 
 }

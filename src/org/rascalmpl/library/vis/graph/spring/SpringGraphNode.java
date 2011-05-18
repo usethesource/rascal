@@ -192,4 +192,12 @@ public class SpringGraphNode {
 	protected double getY() {
 		return y;
 	}
+	
+	public void computeFiguresAndProperties(){
+		if(figure!=null)figure.computeFiguresAndProperties();
+	}
+	
+	public void registerNames(){
+		if(figure!=null)figure.registerNames();
+	}
 }

@@ -17,58 +17,62 @@ import org.rascalmpl.library.vis.Figure;
 public class ConstantProperties {
 
 
-	private static class ConstantProperty<PropType> implements IPropertyValue<PropType>{
+	private static class ConstantProperty<PropType> extends PropertyValue<PropType>{
 		PropType value;
 		
-		public ConstantProperty(PropType value){
+		public ConstantProperty(Properties property,PropType value){
+			super(property);
 			this.value = value;
 		}
 		
 		public PropType getValue(){
 			return value;
 		}
+		
+		public void compute() {
+		}
 
 	}
 	
 	public static class ConstantRealProperty extends ConstantProperty<Double>{
-		public ConstantRealProperty(Double value) {
-			super(value);
+		public ConstantRealProperty(Properties property,Double value) {
+			super(property,value);
 		}
 	}
 	
 	public static class ConstantStringProperty extends ConstantProperty<String>{
-		public ConstantStringProperty(String value) {
-			super(value);
+		public ConstantStringProperty(Properties property,String value) {
+			super(property,value);
 		}
 	}
 	
 	public static class ConstantBooleanProperty extends ConstantProperty<Boolean>{
-		public ConstantBooleanProperty(Boolean value) {
-			super(value);
+		public ConstantBooleanProperty(Properties property,Boolean value) {
+			super(property,value);
 		}
 	}
 	
 	public static class ConstantIntegerProperty extends ConstantProperty<Integer>{
-		public ConstantIntegerProperty(Integer value) {
-			super(value);
+		public ConstantIntegerProperty(Properties property,Integer value) {
+			super(property,value);
 		}	
 	}
 	
 	public static class ConstantColorProperty extends ConstantIntegerProperty{
-		public ConstantColorProperty(Integer value) {
-			super(value);
+		public ConstantColorProperty(Properties property,Integer value) {
+			super(property,value);
 		}
 	}
 	
 	public static class ConstantFigureProperty extends ConstantProperty<Figure>{
-		public ConstantFigureProperty(Figure value) {
-			super(value);
+		public ConstantFigureProperty(Properties property,Figure value) {
+			super(property,value);
 		}
 	}
 	
 	public static class ConstantMeasureProperty extends ConstantProperty<Measure>{
-		public ConstantMeasureProperty(Measure value) {
-			super(value);
+		public ConstantMeasureProperty(Properties property,Measure value) {
+			super(property,value);
 		}
 		
 		

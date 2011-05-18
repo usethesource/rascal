@@ -105,10 +105,10 @@ public void K3a(){
 
 public void graph4(){
      nodes =
-     	[ box(text("A"), id("A"), size(20), fillColor("green")),
-     	  box(text("B"), id("B"),  size(30), fillColor("red")),
-     	  ellipse(text("C"), id("C"),  size(20), fillColor("blue")),
-     	  ellipse(text("D"), id("D"), size(20, 40), fillColor("purple"))
+     	[ box(text("A"), id("A"), size(20), fillColor("green"), popup("A")),
+     	  box(text("B"), id("B"),  size(30), fillColor("red"),  popup("B")),
+     	  ellipse(text("C"), id("C"),  size(20), fillColor("blue"), popup("C")),
+     	  ellipse(text("D"), id("D"), size(20, 40), fillColor("purple"), popup("D"))
      	];
     edges = 
     	[ edge("A", "B"),

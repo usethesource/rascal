@@ -18,10 +18,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.HandlerProp;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
@@ -439,5 +437,19 @@ public class LayeredGraphEdge extends Figure {
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		// TODO: Implement me!
 		return false;
+	}
+	
+	public void computeFiguresAndProperties(){
+		super.computeFiguresAndProperties();
+		if(fromArrow!=null)fromArrow.computeFiguresAndProperties();
+		if(fromArrow!=null)toArrow.computeFiguresAndProperties();
+		if(fromArrow!=null)label.computeFiguresAndProperties();
+	}
+	
+	public void registerNames(){
+		super.registerNames();
+		if(fromArrow!=null)fromArrow.registerNames();
+		if(fromArrow!=null)toArrow.registerNames();
+		if(fromArrow!=null)label.registerNames();
 	}
 }

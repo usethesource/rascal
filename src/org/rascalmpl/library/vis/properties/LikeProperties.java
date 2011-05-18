@@ -16,39 +16,39 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.descriptions.BoolProp;
-import org.rascalmpl.library.vis.properties.descriptions.ColorProp;
-import org.rascalmpl.library.vis.properties.descriptions.FigureProp;
-import org.rascalmpl.library.vis.properties.descriptions.IntProp;
-import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
-import org.rascalmpl.library.vis.properties.descriptions.RealProp;
-import org.rascalmpl.library.vis.properties.descriptions.StrProp;
 
 public class LikeProperties {
 
-	private static abstract class LikeProperty<PropType> implements IPropertyValue<PropType> {
+	private static abstract class LikeProperty<PropType> extends PropertyValue<PropType> {
 		final Figure fig;
-
-		public LikeProperty(String id, IFigureApplet fpa, IEvaluatorContext ctx){
+		Properties property;
+		
+		public LikeProperty(Properties property,String id, IFigureApplet fpa, IEvaluatorContext ctx){
+			super(property);
 			this.fig = fpa.getRegisteredId(id);
 			if(this.fig == null)
 				throw RuntimeExceptionFactory.figureException("Cannot be the same as not (yet) existing figure", ctx.getValueFactory().string(id), ctx.getCurrentAST(),
 					ctx.getStackTrace());
+			this.property = property;
 		}
 		
+		public void compute() {
+		}
 		
 		public abstract PropType getValue() ;
 	}
 	
 	
 	static class LikeBooleanProperty extends LikeProperty<Boolean>{
-		BoolProp property;
 		
-		public LikeBooleanProperty(BoolProp property,String id, IFigureApplet fpa,
-				IEvaluatorContext ctx) {
-			super(id, fpa, ctx);
-			this.property = property;
+		public LikeBooleanProperty(Properties property, String id,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			super(property, id, fpa, ctx);
 		}
+
+
+		Properties property;
+		
 
 		@Override
 		public Boolean getValue() {
@@ -57,12 +57,10 @@ public class LikeProperties {
 	}
 	
 	static class LikeIntegerProperty extends LikeProperty<Integer>{
-		IntProp property;
 		
-		public LikeIntegerProperty(IntProp property, String id, IFigureApplet fpa,
+		public LikeIntegerProperty(Properties property, String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
-			super(id, fpa, ctx);
-			this.property = property;
+			super(property, id, fpa, ctx);
 		}
 
 		@Override
@@ -72,12 +70,10 @@ public class LikeProperties {
 	}
 	
 	static class LikeColorProperty extends LikeProperty<Integer>{
-		ColorProp property;
-		
-		public LikeColorProperty(ColorProp property, String id, IFigureApplet fpa,
+
+		public LikeColorProperty(Properties property, String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
-			super( id, fpa, ctx);
-			this.property = property;
+			super(property, id, fpa, ctx);
 		}
 		
 		@Override
@@ -87,12 +83,10 @@ public class LikeProperties {
 	}
 	
 	static class LikeRealProperty extends LikeProperty<Double>{
-		RealProp property;
 		
-		public LikeRealProperty(RealProp property, String id, IFigureApplet fpa,
+		public LikeRealProperty(Properties property, String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
-			super(id, fpa, ctx);
-			this.property = property;
+			super(property, id, fpa, ctx);
 		}
 
 		@Override
@@ -102,13 +96,10 @@ public class LikeProperties {
 	}
 	
 	static class LikeStringProperty extends LikeProperty<String>{
-
-		StrProp property;
 		
-		public LikeStringProperty(StrProp property, String id, IFigureApplet fpa,
+		public LikeStringProperty(Properties property, String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
-			super( id, fpa, ctx);
-			this.property = property;
+			super(property, id, fpa, ctx);
 		}
 
 		@Override
@@ -118,13 +109,10 @@ public class LikeProperties {
 	}
 	
 	static class LikeMeasureProperty extends LikeProperty<Measure>{
-
-		DimensionalProp property;
 		
-		public LikeMeasureProperty(DimensionalProp property, String id, IFigureApplet fpa,
+		public LikeMeasureProperty(Properties property, String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
-			super( id, fpa, ctx);
-			this.property = property;
+			super(property, id, fpa, ctx);
 		}
 
 		@Override
@@ -135,12 +123,9 @@ public class LikeProperties {
 	
 	static class LikeFigureProperty extends LikeProperty<Figure>{
 		
-		FigureProp property;
-		
-		public LikeFigureProperty(FigureProp property,String id, IFigureApplet fpa,
+		public LikeFigureProperty(Properties property,String id, IFigureApplet fpa,
 				IEvaluatorContext ctx) {
-			super( id, fpa, ctx);
-			this.property = property;
+			super(property, id, fpa, ctx);
 		}
 
 		@Override

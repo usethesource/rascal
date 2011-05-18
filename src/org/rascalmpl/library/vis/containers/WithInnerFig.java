@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 
@@ -77,4 +78,17 @@ public abstract class WithInnerFig extends Figure {
 		result.add(this);
 		return true;
 	}
+	
+	public void computeFiguresAndProperties(){
+		super.computeFiguresAndProperties();
+		if(innerFig!=null){
+			innerFig.computeFiguresAndProperties();
+		}
+	}
+	
+	public void registerNames(){
+		super.registerNames();
+		if(innerFig != null) innerFig.registerNames();
+	}
+	
 }

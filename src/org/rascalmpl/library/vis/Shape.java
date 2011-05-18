@@ -16,8 +16,8 @@ package org.rascalmpl.library.vis;
 import java.util.HashMap;
 
 import org.rascalmpl.library.vis.compose.Compose;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.descriptions.DimensionalProp;
 
 
 
@@ -136,11 +136,11 @@ public class Shape extends Compose {
 	}
 	
 	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		if(horizontal && getMeasureProperty(DimensionalProp.WIDTH).axisName.equals(axisId)){
-			double val = getMeasureProperty(DimensionalProp.WIDTH).value;
+		if(horizontal && getMeasureProperty(Properties.WIDTH).axisName.equals(axisId)){
+			double val = getMeasureProperty(Properties.WIDTH).value;
 			return new Extremes(offset - getHAlignProperty() * val, offset + (1-getHAlignProperty()) * val);
-		} else if( !horizontal && getMeasureProperty(DimensionalProp.HEIGHT).axisName.equals(axisId)){
-			double val = getMeasureProperty(DimensionalProp.HEIGHT).value;
+		} else if( !horizontal && getMeasureProperty(Properties.HEIGHT).axisName.equals(axisId)){
+			double val = getMeasureProperty(Properties.HEIGHT).value;
 			return new Extremes(offset - getVAlignProperty() * val, offset + (1-getVAlignProperty()) * val);
 		} else {
 		
