@@ -51,7 +51,7 @@ public class VoidActionExecutor implements IActionExecutor{
 		return cycle;
 	}
 	
-	public boolean hasSideEffects(IConstructor rhs){
+	public boolean mayHaveSideEffects(IConstructor rhs){
 		return false;
 	}
 }
