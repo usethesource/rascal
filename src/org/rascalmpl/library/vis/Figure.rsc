@@ -796,7 +796,7 @@ data Figure =
    
    | _space(FProperties props)			      	// invisible box (used for spacing)
    | _space(Figure inner, FProperties props)     // invisible box with visible inner element
-| _hscreen(FProperties props)                  // a screen on which things can be projected      
+   | _hscreen(FProperties props)                  // a screen on which things can be projected      
    | _hscreen(Figure inner, FProperties props)
    
    | _haxis(Figure inner, FProperties props)
@@ -806,7 +806,9 @@ data Figure =
    | _vscreen(Figure inner, FProperties props)
    
    | _projection(Figure fig, str id, Figure project,FProperties props)   // project from the location of fig to the screen id 
-   | _projection(Figure fig, Figure project,FProperties props)   // project from the location of fig to the nearest screen    
+   | _projection(Figure fig, Figure project,FProperties props)   // project from the location of fig to the nearest screen
+   
+   | _scrollable(Figure fig, FProperties props)     
 
 /* composition */
    
@@ -923,6 +925,10 @@ public Figure projection(Figure fig, str id, Figure project,FProperty props ...)
 
 public Figure projection(Figure fig, Figure project,FProperty props ...){
   return _projection(fig,project,props);
+}
+
+public Figure scrollable(Figure fig, FProperty props...){
+	return _scrollable(fig,props);
 }
 
 public Figure place(Figure fig, str at, Figure base, FProperty props ...){
