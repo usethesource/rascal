@@ -114,7 +114,7 @@ public class RascalActionExecutor implements IActionExecutor{
 		return cycle;
 	}
 	
-	public boolean hasSideEffects(IConstructor rhs){
+	public boolean mayHaveSideEffects(IConstructor rhs){
 		// TODO Implement.
 		return true; // Return true for now, so at least we don't break anything.
 	}

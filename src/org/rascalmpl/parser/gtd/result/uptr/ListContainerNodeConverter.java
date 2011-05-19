@@ -359,7 +359,7 @@ public class ListContainerNodeConverter{
 		int endOffset = node.getEndOffset();
 		
 		IConstructor rhs = ProductionAdapter.getRhs(node.getFirstProduction());
-		boolean hasSideEffects = actionExecutor.hasSideEffects(rhs);
+		boolean hasSideEffects = actionExecutor.mayHaveSideEffects(rhs);
 		
 		if(depth <= cycleMark.depth){
 			if(!hasSideEffects){
