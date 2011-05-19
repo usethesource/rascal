@@ -168,7 +168,7 @@ public class FigureFactory {
     }
     
     public static Figure makeChild(int index,IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
-    		return FigureFactory.make(fpa, (IConstructor)c.get(0), properties, childProps, ctx);
+    		return FigureFactory.make(fpa, (IConstructor)c.get(index), properties, childProps, ctx);
     }
     
     public static String[] makeStringList(IList list){
