@@ -858,8 +858,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Rascal Figure";
 	}
 
 	public Object getFont() {
