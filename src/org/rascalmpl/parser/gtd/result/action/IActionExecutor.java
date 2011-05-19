@@ -118,7 +118,7 @@ public interface IActionExecutor{
 	 * @param cycle The cycle tree.
 	 * @param environment The environment associated with the given cycle tree
 	 * at the point of its completion.
-	 * @return The tree to replate the given cycle tree with. May be null to
+	 * @return The tree to replace the given cycle tree with. May be null to
 	 * indicate the cycle should be removed from the forest.
 	 */
 	IConstructor filterCycle(IConstructor cycle, IEnvironment environment);
@@ -127,8 +127,7 @@ public interface IActionExecutor{
 	 * Checks whether or not any of the productions associated with the given
 	 * right-hand-side, or any of their potential children has actions
 	 * associated with them that can have side effects on the environment.
-	 * <br />
-	 * <br />
+	 * <br /><br />
 	 * Note that it is always allowed to return true to ensure correct
 	 * behaviour, as it will prevent any optimizations related to actions being
 	 * context-free from being triggered.
