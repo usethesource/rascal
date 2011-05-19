@@ -19,6 +19,7 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -27,11 +28,13 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 public class SortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
+	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<IConstructor, IConstructor>> preCache;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<IConstructor>> cache;
 	
 	public SortContainerNodeConverter(){
 		super();
 		
+		preCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<IConstructor,IConstructor>>();
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<IConstructor>>();
 	}
 	
@@ -106,8 +109,21 @@ public class SortContainerNodeConverter{
 	public IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
+
+		IConstructor rhs = ProductionAdapter.getRhs(node.getFirstProduction());
+		boolean hasSideEffects = actionExecutor.hasSideEffects(rhs);
 		
 		if(depth <= cycleMark.depth){
+			if(!hasSideEffects){
+				ObjectIntegerKeyedHashMap<IConstructor, IConstructor> levelCache = preCache.get(offset);
+				if(levelCache != null){
+					IConstructor cachedResult = levelCache.get(rhs, endOffset);
+					if(cachedResult != null){
+						return cachedResult;
+					}
+				}
+			}
+			
 			cycleMark.reset();
 		}
 		
@@ -126,7 +142,7 @@ public class SortContainerNodeConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(node.getFirstProduction()), VF.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhs, VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
@@ -174,20 +190,37 @@ public class SortContainerNodeConverter{
 		stack.dirtyPurge(); // Pop.
 		
 		if(result != null && depth < cycleMark.depth){
-			ObjectIntegerKeyedHashSet<IConstructor> levelCache = cache.get(offset);
-			if(levelCache != null){
-				IConstructor cachedResult = levelCache.getEquivalent(result, endOffset);
-				if(cachedResult != null){
-					return cachedResult;
+			if(!hasSideEffects){
+				ObjectIntegerKeyedHashMap<IConstructor, IConstructor> levelCache = preCache.get(offset);
+				if(levelCache != null){
+					IConstructor cachedResult = levelCache.get(rhs, endOffset);
+					if(cachedResult != null){
+						return cachedResult;
+					}
+					
+					levelCache.putUnsafe(rhs, endOffset, result);
+					return result;
 				}
 				
+				levelCache = new ObjectIntegerKeyedHashMap<IConstructor, IConstructor>();
+				levelCache.putUnsafe(rhs, endOffset, result);
+				preCache.put(offset, levelCache);
+			}else{
+				ObjectIntegerKeyedHashSet<IConstructor> levelCache = cache.get(offset);
+				if(levelCache != null){
+					IConstructor cachedResult = levelCache.getEquivalent(result, endOffset);
+					if(cachedResult != null){
+						return cachedResult;
+					}
+					
+					levelCache.putUnsafe(result, endOffset);
+					return result;
+				}
+				
+				levelCache = new ObjectIntegerKeyedHashSet<IConstructor>();
 				levelCache.putUnsafe(result, endOffset);
-				return result;
+				cache.putUnsafe(offset, levelCache);
 			}
-			
-			levelCache = new ObjectIntegerKeyedHashSet<IConstructor>();
-			levelCache.putUnsafe(result, endOffset);
-			cache.putUnsafe(offset, levelCache);
 		}
 		
 		return result;

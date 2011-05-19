@@ -50,4 +50,8 @@ public class VoidActionExecutor implements IActionExecutor{
 	public IConstructor filterCycle(IConstructor cycle, IEnvironment environment){
 		return cycle;
 	}
+	
+	public boolean hasSideEffects(IConstructor rhs){
+		return false;
+	}
 }

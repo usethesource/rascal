@@ -113,11 +113,16 @@ public class RascalActionExecutor implements IActionExecutor{
 		// TODO Implement.
 		return cycle;
 	}
+	
+	public boolean hasSideEffects(IConstructor rhs){
+		// TODO Implement.
+		return true; // Return true for now, so at least we don't break anything.
+	}
 
 	/**
 	 * call takes care of executing an action and knowing whether something changed, and the scope management.
 	 */
-	private IConstructor call(IConstructor tree, LanguageAction action) {
+	private IConstructor call(IConstructor tree, LanguageAction action){
 		AbstractAST oldAST = eval.getCurrentAST();
 		
 		try{
@@ -151,7 +156,7 @@ public class RascalActionExecutor implements IActionExecutor{
 		}
 	}
 
-	private void assignItAndFields(IConstructor tree) {
+	private void assignItAndFields(IConstructor tree){
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		Type nonTerminalType = RascalTypeFactory.getInstance().nonTerminalType(ProductionAdapter.getRhs(prod));
 		
