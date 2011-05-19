@@ -142,13 +142,26 @@ public class FigureSWTApplet implements IFigureApplet {
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		this.gc = new GC(printer);
 	}
+	
+	public FigureSWTApplet(Composite comp, String name, Figure fig,
+			IEvaluatorContext ctx) {
+		this.comp = comp;
+		this.device = comp.getDisplay();
+		this.figure = fig;
+		initialize(comp, name);
+	}
 
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
 			IEvaluatorContext ctx) {
 		this.comp = comp;
 		this.device = comp.getDisplay();
-		comp.getShell().setText(name);
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
+		initialize(comp, name);
+	}
+
+	void initialize(Composite comp, String name) {
+		
+		comp.getShell().setText(name);
 		gc = createGC(comp);
 		int colnum = (Integer) Properties.FILL_COLOR.stdDefault;
 		Color color = new Color(device,
@@ -167,6 +180,8 @@ public class FigureSWTApplet implements IFigureApplet {
 		figuresUnderMouseSorted = new Vector<Figure>();
 		prevFiguresUnderMouseSorted = new Vector<Figure>();
 		mouseOverTop = true;
+		computedValueChanged = true;
+		layoutFigures();
 	}
 
 	private GC createGC(Composite comp) {
@@ -196,20 +211,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	private void draw() {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
-		if (computedValueChanged) {
-			
-			for(PlacedFigure fig : mouseOverStack){
-				fig.figure.computeFiguresAndProperties();
-				fig.figure.registerNames();
-				
-			}
-			for(PlacedFigure fig : mouseOverStack){
-				fig.figure.bbox();
-			}
-			figureWidth = figure.width;
-			figureHeight = figure.height;
-			computedValueChanged = false;
-		}
+		layoutFigures();
 		
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 		
@@ -226,13 +228,38 @@ public class FigureSWTApplet implements IFigureApplet {
 		*/
 	}
 
+	void layoutFigures() {
+		if (computedValueChanged) {
+			
+			for(PlacedFigure fig : mouseOverStack){
+				fig.figure.computeFiguresAndProperties();
+				fig.figure.registerNames();
+				
+			}
+			double maxWidth, maxHeight;
+			maxWidth = maxHeight = 0;
+			for(PlacedFigure fig : mouseOverStack){
+				fig.figure.bbox();
+				maxWidth = Math.max(fig.coordinate.getX() + fig.figure.width, maxWidth);
+				maxHeight = Math.max(fig.coordinate.getY() + fig.figure.height,maxHeight);
+			}
+			figureWidth = maxWidth;
+			figureHeight = maxHeight;
+			computedValueChanged = false;
+			//comp.setSize((int)Math.ceil(maxWidth), (int)Math.ceil(maxHeight));
+			//comp.setSize(2000,800);
+			System.out.printf("Setting %s %f %f\n",this,maxWidth,maxHeight);
+			
+		}
+	}
+
 	public int getFigureWidth() {
-		// System.err.println("getFigureWidth: " + figureWidth);
+		 System.err.println("getFigureWidth: " + figureWidth);
 		return FigureApplet.round(figureWidth);
 	}
 
 	public int getFigureHeight() {
-		// System.err.println("getFigureHeight: " + figureHeight);
+		 System.err.println("getFigureHeight: " + figureHeight);
 		return FigureApplet.round(figureHeight);
 	}
 
@@ -909,12 +936,17 @@ public class FigureSWTApplet implements IFigureApplet {
 			} catch(Exception d){
 				
 			}*/
-			//System.out.printf("Paint event! %s %d %d %d %d\n",e.widget,e.width,e.height,e.x,e.y);
+			//System.out.printf("Paint event! %s %s %d %d %d %d\n",this,e.widget,e.width,e.height,e.x,e.y);
 //			gc.setTextAntialias(SWT.ON);
 //			gc.setAntialias(SWT.ON);
 //			gc.setAdvanced(true);
 //			gc.setBackground(getColor(SWT.COLOR_WHITE));
-			FigureSWTApplet.this.draw();
+			if(gc.isDisposed()){
+				gc = new GC(comp);
+				FigureSWTApplet.this.draw();
+			} else {
+				FigureSWTApplet.this.draw();
+			}
 		}
 	}
 

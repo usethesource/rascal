@@ -34,6 +34,7 @@ import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.HAxis;
 import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.containers.Projection;
+import org.rascalmpl.library.vis.containers.Scrollable;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.VAxis;
 import org.rascalmpl.library.vis.containers.VScreen;
@@ -95,6 +96,7 @@ public class FigureFactory {
 		PROJECTION,
 		ROTATE,
 		SCALE,
+		SCROLLABLE,
 		SHAPE,
 		SPACE,
 		TEXT, 
@@ -133,6 +135,7 @@ public class FigureFactory {
     	put("_projection",	Primitives.PROJECTION);
     	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
+    	put("_scrollable", Primitives.SCROLLABLE);
     	put("_shape",		Primitives.SHAPE);
     	put("_space",		Primitives.SPACE);
     	put("_text",		Primitives.TEXT);		
@@ -300,7 +303,8 @@ public class FigureFactory {
 			double scaleY = PropertyParsers.parseNum(c.get(scaleYIndex));
 			child = makeChild(childIndex,fpa,c,properties,childPropsNext,ctx);
 			return new Scale(fpa,scaleX,scaleY,child,properties);
-			
+		case SCROLLABLE:
+			return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
 		case SHAPE: 
 			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
 			return new Shape(fpa, children, properties);

@@ -43,17 +43,7 @@ public class PropertyManager {
 	
 	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){
 		IList props = (IList) c.get(c.arity()-1);
-		
-			
-		/*if(childProps != null){
-			PropertyManager result = new PropertyManager(fpa, pm, childProps, ctx);
-			// explicitly set props override childprops..
-			result.setProperties(fpa, props, ctx);
-			return result;
-		} else { */
-			 return new PropertyManager(fpa, pm, props, ctx);
-		//}
-				                         
+			 return new PropertyManager(fpa, pm, props, ctx);                         
 	}
 	
 	public static IList getChildProperties(IList props){
