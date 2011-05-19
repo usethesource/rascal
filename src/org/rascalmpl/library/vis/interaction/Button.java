@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
@@ -49,9 +50,6 @@ public class Button extends Figure {
 		
 		button.setText(caption);
 		//System.out.printf("created button\n");
-		// button.setBackground(new Color(255));
-		// fpa.setBackground(new Color(0XFFFFFFFF));
-		// fpa.add(button);
 		 
 		
 	}
@@ -77,10 +75,10 @@ public class Button extends Figure {
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		button.setSize(FigureApplet.round(getWidthProperty()),
-				FigureApplet.round(getHeightProperty()));
-		//button.setSize(FigureApplet.round(width),
-		//		FigureApplet.round(height));
+		//button.setSize(FigureApplet.round(getWidthProperty()),
+		//		FigureApplet.round(getHeightProperty()));
+		button.setSize(FigureApplet.round(width),
+				FigureApplet.round(height));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left),
 		         FigureApplet.round(top));
