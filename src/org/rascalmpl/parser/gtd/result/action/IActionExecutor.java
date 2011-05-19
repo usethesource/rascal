@@ -122,4 +122,16 @@ public interface IActionExecutor{
 	 * indicate the cycle should be removed from the forest.
 	 */
 	IConstructor filterCycle(IConstructor cycle, IEnvironment environment);
+	
+	/**
+	 * Checks whether or not any of the productions associated with the given
+	 * right-hand-side, or any of their potential children has actions
+	 * associated with them that can have side effects on the environment.
+	 * 
+	 * @param rhs The right-hand-side.
+	 * @return True if any of the productions, or any of the children of these
+	 * productions, associated with the given right-hand-side has actions that
+	 * can potentially have a side effect on the environment; false otherwise.
+	 */
+	boolean hasSideEffects(IConstructor rhs);
 }
