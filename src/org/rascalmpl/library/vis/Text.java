@@ -11,9 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.properties.PropertyValue;
 
 /**
  * Text element.
