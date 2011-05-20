@@ -16,6 +16,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
@@ -58,9 +59,6 @@ public class Button extends Figure {
 	public void bbox(double desiredWidth, double desiredHeight) {
 		//System.out.printf("starting button button\n");
 		Point p = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		//System.out.printf("stopping button button\n");
-		// width = list.getSize().x;
-		// height = list.getSize().y;
 		width = p.x;
 		height = p.y;
 	}
@@ -82,6 +80,7 @@ public class Button extends Figure {
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left),
 		         FigureApplet.round(top));
+		print(button, left, top);
 	}
 
 	@Override

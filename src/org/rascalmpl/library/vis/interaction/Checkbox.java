@@ -10,27 +10,29 @@
 
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Checkbox extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.Button button;
 
-	public Checkbox(IFigureApplet fpa, String caption,  IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
+	public Checkbox(IFigureApplet fpa, String caption, IValue fun,
+			IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
@@ -58,27 +60,27 @@ public class Checkbox extends Figure {
 		width = p.x;
 		height = p.y;
 	}
-	
-	
-	
-	public void doCallBack(boolean selected){
-        // System.err.println("Calling callback: " + callback + " with selected = " + selected);
-        fpa.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(selected));
-        fpa.setComputedValueChanged();
-        fpa.redraw();
-    }
+
+	public void doCallBack(boolean selected) {
+		// System.err.println("Calling callback: " + callback +
+		// " with selected = " + selected);
+		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
+				.getInstance().boolType(), ValueFactoryFactory
+				.getValueFactory().bool(selected));
+		fpa.setComputedValueChanged();
+		fpa.redraw();
+	}
 
 	@Override
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-//		button.setSize(FigureApplet.round(getWidthProperty()),
-//				FigureApplet.round(getHeightProperty()));
-		button.setSize(FigureApplet.round(width),
-				FigureApplet.round(height));
+		// button.setSize(FigureApplet.round(getWidthProperty()),
+		// FigureApplet.round(getHeightProperty()));
+		button.setSize(FigureApplet.round(width), FigureApplet.round(height));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
-		button.setLocation(FigureApplet.round(left),
-		         FigureApplet.round(top));
+		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		this.print(button, left, top);
 	}
 
 	@Override
@@ -88,4 +90,3 @@ public class Checkbox extends Figure {
 	}
 
 }
-

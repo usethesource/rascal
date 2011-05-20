@@ -12,17 +12,18 @@
 package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Choice extends Figure {
 	final private IValue callback;
@@ -62,7 +63,7 @@ public class Choice extends Figure {
 	public void doCallBack(String s) {
 		// System.err.println("Selected:"+s);
 		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().stringType(), ValueFactory.getInstance().string(s));
+				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(s));
 		fpa.setComputedValueChanged();
 		fpa.redraw();
 	}
@@ -78,6 +79,7 @@ public class Choice extends Figure {
 				FigureApplet.round(height));
 		list.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		list.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		print(list, left, top);
 	}
 
 	@Override
