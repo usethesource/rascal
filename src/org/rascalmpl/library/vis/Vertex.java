@@ -11,14 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import java.util.HashMap;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.Measure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
