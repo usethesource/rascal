@@ -225,14 +225,14 @@ public class ErrorListContainerNodeConverter{
 		if(nrOfGatheredPrefixes == 1){
 			IConstructor[] prefixAlternative = gatheredPrefixes.getFirst(0);
 			
-			IConstructor[] constructedPrefix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			if(constructedPrefix == null) return;
+			IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment);
+			if(constructedPostFix == null) return;
 			
-			int length = constructedPrefix.length;
+			int length = constructedPostFix.length;
 			int prefixLength = prefixAlternative.length;
 			IConstructor[] newPostFix = new IConstructor[length + prefixLength];
-			System.arraycopy(constructedPrefix, 0, newPostFix, prefixLength, length);
 			System.arraycopy(prefixAlternative, 0, newPostFix, 0, prefixLength);
+			System.arraycopy(constructedPostFix, 0, newPostFix, prefixLength, length);
 			
 			gatheredAlternatives.add(newPostFix, production);
 		}else{
@@ -245,13 +245,13 @@ public class ErrorListContainerNodeConverter{
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
 			
-			IConstructor[] constructedPrefix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			if(constructedPrefix == null) return;
+			IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment);
+			if(constructedPostFix == null) return;
 			
-			int length = constructedPrefix.length;
+			int length = constructedPostFix.length;
 			IConstructor[] newPostFix = new IConstructor[length + 1];
-			System.arraycopy(constructedPrefix, 0, newPostFix, 1, length);
 			newPostFix[0] = prefixResult;
+			System.arraycopy(constructedPostFix, 0, newPostFix, 1, length);
 			
 			gatheredAlternatives.add(newPostFix, production);
 			
