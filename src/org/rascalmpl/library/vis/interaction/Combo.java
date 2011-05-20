@@ -13,7 +13,6 @@
 package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -21,6 +20,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
@@ -116,7 +116,7 @@ public class Combo extends Figure {
 		if (validate != null) {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
-					ValueFactory.getInstance().string(combo.getText()));
+					ValueFactoryFactory.getValueFactory().string(combo.getText()));
 			System.err.println("doValidate:"+combo.getText()+" "+res);
 			validated = res.getValue().isEqual(ValueFactoryFactory.getValueFactory().bool(true));
 			System.err.println("validate:"+combo.getText()+" "+validated);
@@ -134,13 +134,13 @@ public class Combo extends Figure {
 		combo.setForeground(trueColor);
 		if (isTextfield)
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), ValueFactory.getInstance().string(combo.getText()));
+					.getInstance().stringType(),  ValueFactoryFactory.getValueFactory().string(combo.getText()));
 		else {
 			int s = combo.getSelectionIndex();
 			if (s < 0)
 				return;
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), ValueFactory.getInstance().string(combo.getItem(s)));
+					.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(combo.getItem(s)));
 		}
 		fpa.setComputedValueChanged();
 		fpa.redraw();
@@ -154,6 +154,7 @@ public class Combo extends Figure {
 		// combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
 		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		print(combo, left, top);
 	}
 
 	@Override

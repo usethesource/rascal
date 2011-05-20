@@ -17,6 +17,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
@@ -25,8 +27,6 @@ public interface IFigureApplet {
 	public Composite getComp(); // get Composite. Needed by swt variant
 	public Color getRgbColor(int rgbColor);
 	public Color getColor(int codeColor);
-	public void init();
-	public void setup();
 	public void redraw();
 	public int getFigureWidth();
 	public int getFigureHeight();
@@ -74,7 +74,7 @@ public interface IFigureApplet {
 	public void beginShape(int arg0);
 	public void endShape();
 	public void endShape(int arg0 );
-	public void print();
+	public void print(Printer printer);
 	public void dispose();
 	public Object createFont(String fontName, double fontSize);
 	public void smooth();
@@ -84,8 +84,7 @@ public interface IFigureApplet {
 	public Object getFont();
 	public void setBackground(Color color);
 	public void setForeground(Color color);	
-	public void invalidate();
-	public void validate();
+	public GC getPrinterGC();
 	public void stroke(double arg0, double arg1, double arg2);
 	public String getName();
 

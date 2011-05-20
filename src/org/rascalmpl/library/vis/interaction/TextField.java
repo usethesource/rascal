@@ -13,7 +13,7 @@
 package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -21,6 +21,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Text;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -44,6 +45,8 @@ public class TextField extends Figure {
 	private final Color falseColor;
 	
 	private int tLimit;
+	
+	final private IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	final Text textfield;
 
@@ -96,8 +99,8 @@ public class TextField extends Figure {
 		if (validate != null) {
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
-					ValueFactory.getInstance().string(textfield.getText()));
-			validated = res.getValue().isEqual(ValueFactoryFactory.getValueFactory().bool(true));
+					vf.string(textfield.getText()));
+			validated = res.getValue().isEqual(vf.bool(true));
 			textfield.setForeground(validated ? trueColor : falseColor);
 			textfield.redraw();
 			return validated;
@@ -108,7 +111,7 @@ public class TextField extends Figure {
 	public void doCallBack() {
 		if (validated) {
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), ValueFactory.getInstance().string(textfield.getText()));
+					.getInstance().stringType(), vf.string(textfield.getText()));
 			fpa.setComputedValueChanged();
 		}
 		textfield.redraw();
@@ -124,6 +127,7 @@ public class TextField extends Figure {
 		textfield.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		textfield
 				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		print(textfield, left, top);
 	}
 
 	@Override

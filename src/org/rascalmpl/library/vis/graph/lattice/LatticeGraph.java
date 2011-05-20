@@ -24,7 +24,7 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -36,6 +36,8 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 
 
 /**
@@ -256,7 +258,7 @@ public class LatticeGraph extends Figure implements
 		initialPlacement();
 		elitePopulation = computeFirstElitePopulation();
 		evolution();
-		ValueFactory vf = ValueFactory.getInstance();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		for (LatticeGraphNode n : this.nodes)
 			for (LatticeGraphEdge e : this.edges)
 				if (!e.getFrom().equals(n) && !e.getTo().equals(n))
