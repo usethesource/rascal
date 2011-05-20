@@ -223,16 +223,10 @@ public class ListContainerNodeConverter{
 			int prefixResultLength = cachedPrefixResult.length;
 			IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			int length = constructedPostFix.length;
-			IConstructor[] newPostFix;
-			if(prefixResultLength == 1){
-				newPostFix = new IConstructor[length + 1];
-				System.arraycopy(constructedPostFix, 0, newPostFix, 1, length);
-				newPostFix[0] = cachedPrefixResult[0];
-			}else{
-				newPostFix = new IConstructor[prefixResultLength + length];
-				System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
-				System.arraycopy(constructedPostFix, 0, newPostFix, prefixResultLength, length);
-			}
+			
+			IConstructor[] newPostFix = new IConstructor[prefixResultLength + length];
+			System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
+			System.arraycopy(constructedPostFix, 0, newPostFix, prefixResultLength, length);
 			
 			gatheredAlternatives.add(newPostFix, production);
 			return;
