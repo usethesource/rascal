@@ -421,7 +421,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		__setInterrupt(false);
-		IActionExecutor exec = new RascalActionExecutor(this, getCurrentEnvt(), (IParserInfo) parser);
+		IActionExecutor exec = new RascalActionExecutor(this, getCurrentEnvt(), false, (IParserInfo) parser);
 		
 		IConstructor result = null;
 		try{
@@ -710,11 +710,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		__setInterrupt(false);
 		IConstructor tree;
 		
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), Parser.getInfo());
-
 		if (!command.contains("`")) {
+			IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 			tree = new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		} else {
+			IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), false, Parser.getInfo());
 			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			tree = rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		}
@@ -739,12 +739,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private IConstructor parseCommand(String command, URI location) {
 		__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), Parser.getInfo());
-
+		
 		if (!command.contains("`")) {
+			IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 			return new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 		}
-
+		
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), false, Parser.getInfo());
 		IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
 		return rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 	}
@@ -753,12 +754,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			__setInterrupt(false);
-			IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), Parser.getInfo());
-
+			
 			if (!commands.contains("`")) {
+				IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 				return new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor);
 			}
 
+			IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), false, Parser.getInfo());
 			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			return rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor);
 		}
@@ -1016,7 +1018,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		
 		__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), Parser.getInfo());
+		IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 
 		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor);
 		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
@@ -1071,10 +1073,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean withErrorTree){
 		__setInterrupt(false);
-		IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), Parser.getInfo());
+		IActionExecutor preModuleActionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 
 		event("Parsing imports and syntax definitions at " + location);
-		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor);
+		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, preModuleActionExecutor);
 
 		Module preModule = getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 		String name = getModuleName(preModule);
@@ -1099,12 +1101,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		event("Parsing complete module " + name);
 		try{
 			if(needBootstrapParser(preModule)){
+				IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 				parser = new MetaRascalRascal();
 				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
 			}else if(prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+				IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), true, Parser.getInfo());
 				parser = new RascalRascal();
 				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
 			}else{
+				IActionExecutor actionExecutor = new RascalActionExecutor(this, getCurrentEnvt(), false, Parser.getInfo());
 				parser = getRascalParser(env, location);
 				result = parser.parse(Parser.START_MODULE, location, data, actionExecutor);
 			}

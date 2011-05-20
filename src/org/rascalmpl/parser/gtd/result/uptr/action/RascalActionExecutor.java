@@ -46,11 +46,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class RascalActionExecutor implements IActionExecutor{
 	private final Evaluator eval;
 	private final Environment rootEnvironment;
+	private final boolean sideEffectFree;
 	private final IParserInfo info;
 	
-	public RascalActionExecutor(Evaluator eval, Environment rootEnvironment, IParserInfo info) {
+	public RascalActionExecutor(Evaluator eval, Environment rootEnvironment, boolean sideEffectFree, IParserInfo info) {
 		this.eval = eval;
 		this.rootEnvironment = rootEnvironment;
+		this.sideEffectFree = sideEffectFree;
 		this.info = info;
 	}
 	
@@ -116,7 +118,7 @@ public class RascalActionExecutor implements IActionExecutor{
 	
 	public boolean mayHaveSideEffects(IConstructor rhs){
 		// TODO Implement.
-		return true; // Return true for now, so at least we don't break anything.
+		return !sideEffectFree;
 	}
 
 	/**
