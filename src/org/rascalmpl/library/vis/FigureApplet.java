@@ -3,7 +3,6 @@ package org.rascalmpl.library.vis;
 import java.util.Random;
 
 import org.rascalmpl.library.vis.swt.Constants;
-import java.lang.Math;
 
 public class FigureApplet {
 	
