@@ -34,7 +34,7 @@ public class ShellExec {
 		this.vf = vf;
 	}
 
-	public synchronized IInteger createProcess(IString processCommand) {
+	public IInteger createProcess(IString processCommand) {
 		return createProcessWithArgs(processCommand,vf.list(TypeFactory.getInstance().listType(TypeFactory.getInstance().stringType())));
 	}
 
@@ -67,7 +67,7 @@ public class ShellExec {
 		return;
 	}
 	
-	public IString readFrom(IInteger processId) {
+	public synchronized IString readFrom(IInteger processId) {
 		if (!runningProcesses.containsKey(processId))
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
 		try {

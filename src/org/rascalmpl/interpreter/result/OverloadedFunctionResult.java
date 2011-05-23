@@ -84,7 +84,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return lub;
 	}
 
-	public synchronized Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {

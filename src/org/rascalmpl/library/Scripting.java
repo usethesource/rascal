@@ -207,17 +207,16 @@ public class Scripting {
 				} catch (InterruptedException e) {
 					// ignore
 				}
-				synchronized (this) {
-					elapsed += sample;
-					if (elapsed > timeout && running) {
-						running = false;
-						timeout();
-					}
+				
+				elapsed += sample;
+				if (elapsed > timeout && running) {
+					running = false;
+					timeout();
 				}
 			}
 		}
 
-		public synchronized void cancel() {
+		public void cancel() {
 			running = false;
 		}
 
