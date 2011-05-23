@@ -418,8 +418,6 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	}
 
-
-	
 	public void mouseReleased() {
 		if (debug)
 			System.err.println("========= mouseReleased");
@@ -1013,13 +1011,11 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public void checkIfIsCallBack(IValue fun, IEvaluatorContext ctx) {
 		if (!(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult)))) {
-			throw RuntimeExceptionFactory.illegalArgument(fun,
-					ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalArgument(fun, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 
-	public Result<IValue> executeRascalCallBack(IValue callback,
-			Type[] argTypes, IValue[] argVals) {
+	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals) {
 		assert (callback instanceof ICallableValue);
 		Cursor cursor0 = comp.getCursor();
 		Cursor cursor = new Cursor(device, SWT.CURSOR_WAIT);
@@ -1037,8 +1033,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		return executeRascalCallBack(callback, argTypes, argVals);
 	}
 
-	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,
-			Type type, IValue arg) {
+	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback, Type type, IValue arg) {
 		Type[] argTypes = { type };
 		IValue[] argVals = { arg };
 		return executeRascalCallBack(callback, argTypes, argVals);

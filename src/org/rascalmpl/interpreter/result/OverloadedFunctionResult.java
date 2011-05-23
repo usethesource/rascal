@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -363,4 +364,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, newDefaults, ctx);
 	}
 	
+	public Evaluator getEval(){
+		return (Evaluator) ctx;
+	}
 }

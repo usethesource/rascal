@@ -222,7 +222,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		resolverRegistry.registerInputOutput(home);
 	}
 
-	public synchronized IRascalMonitor setMonitor(IRascalMonitor monitor) {
+	public IRascalMonitor setMonitor(IRascalMonitor monitor) {
 		if (monitor == this) {
 			return monitor;
 		}
@@ -381,7 +381,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @return either null if its a void function, or the return value of the
 	 *         function.
 	 */
-	public synchronized IValue call(IRascalMonitor monitor, String name, IValue... args) {
+	public IValue call(IRascalMonitor monitor, String name, IValue... args) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return call(name, args);
@@ -442,7 +442,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return result;
 	}
 	
-	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, URI location){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, URI location){
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try{
@@ -455,7 +455,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, URI location){
+	public IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, URI location){
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try{
@@ -468,7 +468,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
 			return parseObject(startSort, URI.create("file://-"), input.toCharArray(), false);
@@ -477,7 +477,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input){
+	public IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
 			return parseObject(startSort, URI.create("file://-"), input.toCharArray(), true);
@@ -486,7 +486,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
 			return parseObject(startSort, loc.getURI(), input.toCharArray(), false);
@@ -495,7 +495,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
+	public IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
 			return parseObject(startSort, loc.getURI(), input.toCharArray(), true);
@@ -581,7 +581,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public synchronized IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
+	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			ParserGenerator pgen = getParserGenerator();
@@ -661,7 +661,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param stat
 	 * @return
 	 */
-	public synchronized Result<IValue> eval(Statement stat) {
+	public Result<IValue> eval(Statement stat) {
 		__setInterrupt(false);
 		try {
 			if (Evaluator.doProfiling) {
@@ -695,7 +695,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param command
 	 * @return
 	 */
-	public synchronized Result<IValue> eval(IRascalMonitor monitor, String command, URI location) {
+	public Result<IValue> eval(IRascalMonitor monitor, String command, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return eval(command, location);
@@ -727,7 +727,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return eval(stat);
 	}
 
-	public synchronized IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
+	public IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return parseCommand(command, location);
@@ -750,7 +750,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor);
 	}
 
-	public synchronized IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
+	public IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			__setInterrupt(false);
@@ -769,7 +769,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseInteraction(IRascalMonitor monitor, String interaction, URI location) {
+	public IConstructor parseInteraction(IRascalMonitor monitor, String interaction, URI location) {
 //		IRascalMonitor old = setMonitor(monitor);
 //		try {
 //			__setInterrupt(false);
@@ -788,7 +788,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return null;
 	}
 
-	public synchronized Result<IValue> eval(IRascalMonitor monitor, Command command) {
+	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			return eval(command);
@@ -823,7 +823,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param declaration
 	 * @return
 	 */
-	public synchronized Result<IValue> eval(IRascalMonitor monitor, Declaration declaration) {
+	public Result<IValue> eval(IRascalMonitor monitor, Declaration declaration) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			__setInterrupt(false);
@@ -840,7 +840,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public synchronized void doImport(IRascalMonitor monitor, String string) {
+	public void doImport(IRascalMonitor monitor, String string) {
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
 		try {
@@ -851,7 +851,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
-	public synchronized void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation) {
+	public void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			Set<String> onHeap = new HashSet<String>();
@@ -1044,7 +1044,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * use Rascal to implement Rascal. Parsing a module currently has the side
 	 * effect of declaring non-terminal types in the given environment.
 	 */
-	public synchronized IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException{
+	public IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException{
 		URI resolved = rascalPathResolver.resolve(location);
 		if(resolved != null){
 			location = resolved;
@@ -1053,7 +1053,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return parseModule(monitor, getResourceContent(location), location, env);
 	}
 	
-	public synchronized IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
+	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
 			return parseModule(data, location, env, false);
@@ -1062,7 +1062,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public synchronized IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
+	public IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
 			return parseModule(data, location, env, true);
