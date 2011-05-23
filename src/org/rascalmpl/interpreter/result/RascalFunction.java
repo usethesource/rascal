@@ -111,67 +111,65 @@ public class RascalFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
-		synchronized (ctx.getEvaluator()) {
-			Environment old = ctx.getCurrentEnvt();
-			AbstractAST oldAST = ctx.getCurrentAST();
-			Stack<Accumulator> oldAccus = ctx.getAccumulators();
+		Environment old = ctx.getCurrentEnvt();
+		AbstractAST oldAST = ctx.getCurrentAST();
+		Stack<Accumulator> oldAccus = ctx.getAccumulators();
 
-			try {
-				String label = isAnonymous() ? "Anonymous Function" : name;
-				Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
-				ctx.setCurrentEnvt(environment);
-				ctx.setAccumulators(accumulators);
-				ctx.pushEnv();
+		try {
+			String label = isAnonymous() ? "Anonymous Function" : name;
+			Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
+			ctx.setCurrentEnvt(environment);
+			ctx.setAccumulators(accumulators);
+			ctx.pushEnv();
 
-				if (hasVarArgs) {
-					actuals = computeVarArgsActuals(actuals, getFormals());
-				}
-
-				assignFormals(actuals);
-
-				if (callTracing) {
-					printStartTrace();
-				}
-
-				for (Statement stat: body) {
-					eval.setCurrentAST(stat);
-					stat.interpret(eval);
-				}
-
-				if (callTracing) {
-					printEndTrace();
-				}
-
-				if(!isVoidFunction){
-					throw new MissingReturnError(ast);
-				}
-
-				return makeResult(TF.voidType(), null, eval);
+			if (hasVarArgs) {
+				actuals = computeVarArgsActuals(actuals, getFormals());
 			}
-			catch (Return e) {
-				Result<IValue> result = e.getValue();
 
-				Type returnType = getReturnType();
-				Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
+			assignFormals(actuals);
 
-				if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-					throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
-				}
-
-				if (!returnType.isVoidType() && result.getType().isVoidType()) {
-					throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
-				}
-
-				return makeResult(instantiatedReturnType, result.getValue(), eval);
-			} 
-			finally {
-				if (callTracing) {
-					printFinally();
-				}
-				ctx.setCurrentEnvt(old);
-				ctx.setAccumulators(oldAccus);
-				ctx.setCurrentAST(oldAST);
+			if (callTracing) {
+				printStartTrace();
 			}
+
+			for (Statement stat: body) {
+				eval.setCurrentAST(stat);
+				stat.interpret(eval);
+			}
+
+			if (callTracing) {
+				printEndTrace();
+			}
+
+			if(!isVoidFunction){
+				throw new MissingReturnError(ast);
+			}
+
+			return makeResult(TF.voidType(), null, eval);
+		}
+		catch (Return e) {
+			Result<IValue> result = e.getValue();
+
+			Type returnType = getReturnType();
+			Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
+
+			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
+				throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
+			}
+
+			if (!returnType.isVoidType() && result.getType().isVoidType()) {
+				throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
+			}
+
+			return makeResult(instantiatedReturnType, result.getValue(), eval);
+		} 
+		finally {
+			if (callTracing) {
+				printFinally();
+			}
+			ctx.setCurrentEnvt(old);
+			ctx.setAccumulators(oldAccus);
+			ctx.setCurrentAST(oldAST);
 		}
 	}
 	
