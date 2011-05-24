@@ -112,12 +112,12 @@ public class ListContainerNodeConverter{
 			convertedCycle[0] = element;
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
+			convertedCycle[0] = converter.convert(cycleElements[nrOfCycleElements], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
 				IConstructor element = converter.convert(cycleElements[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 				if(element == null) return null;
 				convertedCycle[i + 1] = element;
 			}
-			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}
 		
 		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
