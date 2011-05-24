@@ -160,13 +160,7 @@ public class ErrorSortContainerNodeConverter{
 				ambSetWriter.insert(gatheredAlternatives.get(i));
 			}
 			
-			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-			result = actionExecutor.filterAmbiguity(result, environment);
-			if(result == null){
-				// Build error amb.
-				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
-			}
-			
+			result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		

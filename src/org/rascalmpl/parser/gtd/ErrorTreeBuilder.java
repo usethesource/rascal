@@ -146,7 +146,7 @@ public class ErrorTreeBuilder{
 		
 		boolean wasListChild = ProductionAdapter.isRegular(production);
 		
-		IntegerList filteredParents = parser.getFilteredParents(node.getId());
+		//IntegerList filteredParents = parser.getFilteredParents(node.getId());
 		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();

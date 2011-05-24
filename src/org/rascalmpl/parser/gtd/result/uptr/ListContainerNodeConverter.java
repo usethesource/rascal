@@ -70,16 +70,14 @@ public class ListContainerNodeConverter{
 		}
 	}
 	
-	private IConstructor[] constructPostFix(NodeToUPTR converter, AbstractNode[] postFix, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+	private IConstructor[] constructPostFix(NodeToUPTR converter, AbstractNode[] postFix, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment, IConstructor[] toFill, int fromIndex){
 		int postFixLength = postFix.length;
-		int offset = 0;
-		IConstructor[] constructedPostFix = new IConstructor[postFixLength];
 		for(int i = 0; i < postFixLength; ++i){
 			AbstractNode node = postFix[i];
 			if(!(node instanceof CycleNode)){
 				IConstructor constructedNode = converter.convert(postFix[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 				if(constructedNode == null) return null;
-				constructedPostFix[offset + i] = constructedNode;
+				toFill[fromIndex + i] = constructedNode;
 			}else{
 				CycleNode cycleNode = (CycleNode) node;
 				IConstructor[] convertedCycle = convertCycle(converter, cycleNode, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
@@ -90,18 +88,20 @@ public class ListContainerNodeConverter{
 				
 				int constructedCycleLength = constructedCycle.length;
 				if(constructedCycleLength == 1){
-					constructedPostFix[offset + i] = constructedCycle[0];
+					toFill[fromIndex + i] = constructedCycle[0];
 				}else{
-					offset += constructedCycleLength;
-					int currentLength = constructedPostFix.length;
-					IConstructor[] newConstructedPostFix = new IConstructor[currentLength + constructedCycleLength];
-					System.arraycopy(constructedPostFix, 0, newConstructedPostFix, 0, i);
-					System.arraycopy(constructedCycle, 0, newConstructedPostFix, i, constructedCycleLength);
+					int currentLength = toFill.length;
+					IConstructor[] newToFill = new IConstructor[currentLength + constructedCycleLength];
+					System.arraycopy(toFill, 0, newToFill, 0, i);
+					System.arraycopy(constructedCycle, 0, newToFill, i, constructedCycleLength);
+					
+					fromIndex += constructedCycleLength;
+					toFill = newToFill;
 				}
 			}
 		}
 		
-		return constructedPostFix;
+		return toFill;
 	}
 	
 	private IConstructor[] convertCycle(NodeToUPTR converter, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
@@ -167,7 +167,8 @@ public class ListContainerNodeConverter{
 		do{
 			ArrayList<Link> prefixes = child.getPrefixes();
 			if(prefixes == null){
-				IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				IConstructor[] constructedPostFix = new IConstructor[postFix.length];
+				constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, constructedPostFix, 0);
 				if(constructedPostFix == null) return;
 				
 				gatheredAlternatives.add(constructedPostFix, production);
@@ -178,7 +179,8 @@ public class ListContainerNodeConverter{
 				Link prefix = prefixes.get(0);
 				
 				if(prefix == null){
-					IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+					IConstructor[] constructedPostFix = new IConstructor[postFix.length];
+					constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, constructedPostFix, 0);
 					if(constructedPostFix == null) return;
 					
 					gatheredAlternatives.add(constructedPostFix, production);
@@ -217,14 +219,12 @@ public class ListContainerNodeConverter{
 		IConstructor[] cachedPrefixResult = sharedPrefixCache.get(prefixes);
 		if(cachedPrefixResult != null){
 			int prefixResultLength = cachedPrefixResult.length;
-			IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
-			int length = constructedPostFix.length;
+			IConstructor[] constructedPostFix = new IConstructor[prefixResultLength + postFix.length];
+			System.arraycopy(cachedPrefixResult, 0, constructedPostFix, 0, prefixResultLength);
 			
-			IConstructor[] newPostFix = new IConstructor[prefixResultLength + length];
-			System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
-			System.arraycopy(constructedPostFix, 0, newPostFix, prefixResultLength, length);
+			constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, constructedPostFix, prefixResultLength);
 			
-			gatheredAlternatives.add(newPostFix, production);
+			gatheredAlternatives.add(constructedPostFix, production);
 			return;
 		}
 		
@@ -234,7 +234,8 @@ public class ListContainerNodeConverter{
 			Link prefix = prefixes.get(i);
 			
 			if(prefix == null){
-				IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				IConstructor[] constructedPostFix = new IConstructor[postFix.length];
+				constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, constructedPostFix, 0);
 				if(constructedPostFix == null) return;
 				
 				gatheredAlternatives.add(constructedPostFix, production);
@@ -260,15 +261,12 @@ public class ListContainerNodeConverter{
 		
 		if(nrOfGatheredPrefixes == 1){
 			IConstructor[] prefixAlternative = gatheredPrefixes.getFirst(0);
-			
-			IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
-			if(constructedPostFix == null) return;
-			
-			int length = constructedPostFix.length;
 			int prefixLength = prefixAlternative.length;
-			IConstructor[] newPostFix = new IConstructor[length + prefixLength];
+			IConstructor[] newPostFix = new IConstructor[prefixLength + postFix.length];
 			System.arraycopy(prefixAlternative, 0, newPostFix, 0, prefixLength);
-			System.arraycopy(constructedPostFix, 0, newPostFix, prefixLength, length);
+			
+			newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, newPostFix, prefixLength);
+			if(newPostFix == null) return;
 			
 			gatheredAlternatives.add(newPostFix, production);
 		}else if(nrOfGatheredPrefixes > 0){
@@ -281,13 +279,11 @@ public class ListContainerNodeConverter{
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
 			
-			IConstructor[] constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
-			if(constructedPostFix == null) return;
-			
-			int length = constructedPostFix.length;
-			IConstructor[] newPostFix = new IConstructor[length + 1];
+			IConstructor[] newPostFix = new IConstructor[1 + postFix.length];
 			newPostFix[0] = prefixResult;
-			System.arraycopy(constructedPostFix, 0, newPostFix, 1, length);
+			
+			newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, newPostFix, 1);
+			if(newPostFix == null) return;
 			
 			gatheredAlternatives.add(newPostFix, production);
 			
