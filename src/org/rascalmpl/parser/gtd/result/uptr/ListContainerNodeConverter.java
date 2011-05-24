@@ -211,12 +211,13 @@ public class ListContainerNodeConverter{
 		IConstructor[] cachedPrefixResult = sharedPrefixCache.get(prefixes);
 		if(cachedPrefixResult != null){
 			int prefixResultLength = cachedPrefixResult.length;
-			IConstructor[] constructedPostFix = new IConstructor[prefixResultLength + postFix.length];
-			System.arraycopy(cachedPrefixResult, 0, constructedPostFix, 0, prefixResultLength);
+			IConstructor[] newPostFix = new IConstructor[prefixResultLength + postFix.length];
+			System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
 			
-			constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, constructedPostFix, prefixResultLength);
+			newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, newPostFix, prefixResultLength);
+			if(newPostFix == null) return;
 			
-			gatheredAlternatives.add(constructedPostFix, production);
+			gatheredAlternatives.add(newPostFix, production);
 			return;
 		}
 		
@@ -226,11 +227,11 @@ public class ListContainerNodeConverter{
 			Link prefix = prefixes.get(i);
 			
 			if(prefix == null){
-				IConstructor[] constructedPostFix = new IConstructor[postFix.length];
-				constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, constructedPostFix, 0);
-				if(constructedPostFix == null) return;
+				IConstructor[] newPostFix = new IConstructor[postFix.length];
+				newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment, newPostFix, 0);
+				if(newPostFix == null) return;
 				
-				gatheredAlternatives.add(constructedPostFix, production);
+				gatheredAlternatives.add(newPostFix, production);
 			}else{
 				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)){

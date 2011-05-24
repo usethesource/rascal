@@ -178,6 +178,7 @@ public class ErrorListContainerNodeConverter{
 			System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
 			
 			newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, newPostFix, prefixResultLength);
+			if(newPostFix == null) return;
 			
 			gatheredAlternatives.add(newPostFix, production);
 			return;

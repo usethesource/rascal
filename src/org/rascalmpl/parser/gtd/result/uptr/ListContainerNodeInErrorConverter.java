@@ -178,9 +178,9 @@ public class ListContainerNodeInErrorConverter{
 			Link prefix = prefixes.get(i);
 			
 			if(prefix == null){
-				IConstructor[] constructedPostFix = new IConstructor[postFix.length];
-				constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, constructedPostFix, 0);
-				gatheredAlternatives.add(constructedPostFix, production);
+				IConstructor[] newPostFix = new IConstructor[postFix.length];
+				newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, newPostFix, 0);
+				gatheredAlternatives.add(newPostFix, production);
 			}else{
 				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)){
