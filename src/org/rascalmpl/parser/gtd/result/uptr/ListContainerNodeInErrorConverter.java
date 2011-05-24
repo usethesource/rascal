@@ -276,7 +276,7 @@ public class ListContainerNodeInErrorConverter{
 			childrenListWriter.insert(children[i]);
 		}
 		
-		if(error){
+		if(!error){
 			return VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 		}
 		return VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), EMPTY_LIST);
