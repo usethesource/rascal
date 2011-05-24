@@ -41,8 +41,7 @@ public class ListContainerNodeInErrorConverter{
 				toFill[fromIndex + i] = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			}else{
 				CycleNode cycleNode = (CycleNode) node;
-				IConstructor[] convertedCycle = convertCycle(converter, cycleNode, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-				IConstructor[] constructedCycle = constructCycle(convertedCycle, production, actionExecutor, environment);
+				IConstructor[] constructedCycle = constructCycle(converter, production, cycleNode, stack, depth, cycleMark, positionStore, actionExecutor, environment);
 				
 				int constructedCycleLength = constructedCycle.length;
 				if(constructedCycleLength == 1){
@@ -62,7 +61,7 @@ public class ListContainerNodeInErrorConverter{
 		return toFill;
 	}
 	
-	private static IConstructor[] convertCycle(NodeToUPTR converter, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	private static IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
 		AbstractNode[] cycleElements = cycleNode.cycle;
 		
 		int nrOfCycleElements = cycleElements.length;
@@ -78,10 +77,6 @@ public class ListContainerNodeInErrorConverter{
 			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}
 		
-		return convertedCycle;
-	}
-	
-	private static IConstructor[] constructCycle(IConstructor[] convertedCycle, IConstructor production, IActionExecutor actionExecutor, IEnvironment environment){
 		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
 		cycle = actionExecutor.filterCycle(cycle, environment);
 		if(cycle == null){
