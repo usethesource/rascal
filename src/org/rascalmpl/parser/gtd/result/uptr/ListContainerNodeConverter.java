@@ -53,10 +53,6 @@ public class ListContainerNodeConverter{
 			throw new UnsupportedOperationException("CycleNode does not have an ID, it's for internal use only.");
 		}
 		
-		public void addAlternative(IConstructor production, Link children){
-			throw new UnsupportedOperationException();
-		}
-		
 		public boolean isEmpty(){
 			throw new UnsupportedOperationException();
 		}
