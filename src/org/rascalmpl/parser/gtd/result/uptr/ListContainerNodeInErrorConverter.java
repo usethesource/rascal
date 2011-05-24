@@ -70,10 +70,10 @@ public class ListContainerNodeInErrorConverter{
 			convertedCycle[0] = converter.convertWithErrors(cycleElements[0], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
+			convertedCycle[0] = converter.convertWithErrors(cycleElements[nrOfCycleElements], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
 				convertedCycle[i + 1] = converter.convertWithErrors(cycleElements[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			}
-			convertedCycle[0] = convertedCycle[nrOfCycleElements];
 		}
 		
 		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
