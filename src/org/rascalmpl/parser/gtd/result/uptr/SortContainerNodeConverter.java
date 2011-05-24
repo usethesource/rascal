@@ -6,7 +6,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -86,7 +85,7 @@ public class SortContainerNodeConverter{
 		}
 	}
 	
-	private void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private void buildAlternative(IConstructor production, IConstructor[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
