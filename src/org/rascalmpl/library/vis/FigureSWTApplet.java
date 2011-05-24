@@ -925,25 +925,10 @@ public class FigureSWTApplet implements IFigureApplet {
 
 		public void paintControl(PaintEvent e) {
 			gc = e.gc;
-			Rectangle r = comp.getBounds();
-			//System.out.printf("max size %d %d %d %d\n",r.x,r.y,r.width,r.height);
-			
-			/*try{
-				new Exception().printStackTrace();
-			} catch(Exception d){
-				
-			}*/
-			//System.out.printf("Paint event! %s %s %d %d %d %d\n",this,e.widget,e.width,e.height,e.x,e.y);
-//			gc.setTextAntialias(SWT.ON);
-//			gc.setAntialias(SWT.ON);
-//			gc.setAdvanced(true);
-//			gc.setBackground(getColor(SWT.COLOR_WHITE));
-			if(gc.isDisposed()){
-				gc = new GC(comp);
-				FigureSWTApplet.this.draw();
-			} else {
-				FigureSWTApplet.this.draw();
-			}
+			gc.setAntialias(SWT.ON);
+			gc.setTextAntialias(SWT.ON);
+			gc.setAdvanced(true);
+			FigureSWTApplet.this.draw();
 		}
 	}
 
