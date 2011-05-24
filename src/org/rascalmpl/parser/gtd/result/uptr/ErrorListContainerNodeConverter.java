@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -286,7 +285,7 @@ public class ErrorListContainerNodeConverter{
 		return null;
 	}
 	
-	private static IConstructor buildAlternative(IConstructor production, IValue[] children){
+	private static IConstructor buildAlternative(IConstructor production, IConstructor[] children){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = children.length - 1; i >= 0; --i){
 			childrenListWriter.insert(children[i]);
@@ -348,7 +347,7 @@ public class ErrorListContainerNodeConverter{
 		int nrOfAlternatives = gatheredAlternatives.size();
 		if(nrOfAlternatives == 1){ // Not ambiguous.
 			IConstructor production = gatheredAlternatives.getSecond(0);
-			IValue[] alternative = gatheredAlternatives.getFirst(0);
+			IConstructor[] alternative = gatheredAlternatives.getFirst(0);
 			result = buildAlternative(production, alternative);
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}else if(nrOfAlternatives > 0){ // Ambiguous.
@@ -356,7 +355,7 @@ public class ErrorListContainerNodeConverter{
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; --i){
 				IConstructor production = gatheredAlternatives.getSecond(i);
-				IValue[] alternative = gatheredAlternatives.getFirst(i);
+				IConstructor[] alternative = gatheredAlternatives.getFirst(i);
 				
 				IConstructor alt = buildAlternative(production, alternative);
 				if(sourceLocation != null) alt = alt.setAnnotation(Factory.Location, sourceLocation);
