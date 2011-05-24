@@ -220,7 +220,6 @@ public class ErrorListContainerNodeConverter{
 		}
 		
 		int nrOfGatheredPrefixes = gatheredPrefixes.size();
-		if(nrOfGatheredPrefixes ==  0) return;
 		
 		if(nrOfGatheredPrefixes == 1){
 			IConstructor[] prefixAlternative = gatheredPrefixes.getFirst(0);
@@ -235,7 +234,7 @@ public class ErrorListContainerNodeConverter{
 			System.arraycopy(constructedPostFix, 0, newPostFix, prefixLength, length);
 			
 			gatheredAlternatives.add(newPostFix, production);
-		}else{
+		}else if(nrOfGatheredPrefixes > 0){
 			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 			
 			for(int i = nrOfGatheredPrefixes - 1; i >= 0; --i){
