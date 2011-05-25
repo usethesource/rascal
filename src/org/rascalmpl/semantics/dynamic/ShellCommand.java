@@ -98,7 +98,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			String name = "rascal.config." + this.getName().toString();
+			String name = "rascal." + this.getName().toString();
 			String value = this.getExpression().interpret(__eval).getValue()
 					.toString();
 
