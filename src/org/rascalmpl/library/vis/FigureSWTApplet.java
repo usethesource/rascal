@@ -56,7 +56,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	Mode ellipseM = Mode.CORNER, rectM = Mode.CORNER;
 
-	private final Device device;
+	private Device device;
 
 	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
 
@@ -134,13 +134,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		this(comp, "Figure", fig, ctx);
 	}
 
-	public FigureSWTApplet(Printer printer, IConstructor fig,
-			IEvaluatorContext ctx) {
-		this.comp = null;
-		this.device = printer;
-		this.figure = FigureFactory.make(this, fig, null, null, ctx);
-		this.gc = new GC(printer);
-	}
 	
 	public FigureSWTApplet(Composite comp, String name, Figure fig,
 			IEvaluatorContext ctx) {
@@ -182,6 +175,27 @@ public class FigureSWTApplet implements IFigureApplet {
 		computedValueChanged = true;
 		layoutFigures();
 	}
+	
+	 private GC setPrinter(Printer printer) {
+         synchronized (gc) {
+                 GC gc0 = this.gc;
+                 this.gc = new GC(printer);
+                 this.gc.setAntialias(SWT.ON);
+                 this.gc.setTextAntialias(SWT.ON);
+                 this.gc.setBackground(getColor(SWT.COLOR_WHITE));
+                 this.device = printer;
+                 return gc0;
+         }
+ }
+
+ private void unsetPrinter(GC gc) {
+         synchronized (gc) {
+        	     if (gc.isDisposed()) gc = createGC(comp);
+                 this.gc = gc;
+                 this.device = gc.getDevice();
+         }
+ }
+
 
 	private GC createGC(Composite comp) {
 		GC g = new GC(comp);
@@ -823,7 +837,8 @@ public class FigureSWTApplet implements IFigureApplet {
 		p.dispose();
 	}
 
-	public void print() {
+	
+	private void print() {
 		figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
 		figureWidth = figure.width;
 		figureHeight = figure.height;
@@ -1028,13 +1043,18 @@ public class FigureSWTApplet implements IFigureApplet {
 		gc.dispose();
 	}
 	
-	public GC getPrinterGC(){
-		// TODO Implement
-		return null;
-	}
+	public GC getPrinterGC() {
+         if (this.device instanceof Printer)
+                 return gc;
+         return null;
+     }
 	
 	public void print(Printer printer){
-		// TODO Implement
+		synchronized(gc) {
+			GC gc0 = setPrinter(printer);
+			print();
+			unsetPrinter(gc0);
+		}
 	}
 
 }
