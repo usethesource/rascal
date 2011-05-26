@@ -44,30 +44,14 @@ public class SortContainerNodeConverter{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(converter, child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}else{
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(converter, new AbstractNode[]{}, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
 	private void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			
-			int postFixLength = postFix.length;
-			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
-			for(int i = 0; i < postFixLength; ++i){
-				newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
-				
-				IConstructor node = converter.convert(postFix[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
-				if(node == null){
-					actionExecutor.exitedProduction(production, true, newEnvironment);
-					return;
-				}
-				constructedPostFix[i] = node;
-			}
-			
-			buildAlternative(production, constructedPostFix, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(converter, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 			return;
 		}
 		
@@ -85,10 +69,20 @@ public class SortContainerNodeConverter{
 		}
 	}
 	
-	private void buildAlternative(IConstructor production, IConstructor[] children, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		
+		int postFixLength = postFix.length;
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		for(int i = children.length - 1; i >= 0; --i){
-			childrenListWriter.insert(children[i]);
+		for(int i = 0; i < postFixLength; ++i){
+			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
+			
+			IConstructor node = converter.convert(postFix[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+			if(node == null){
+				actionExecutor.exitedProduction(production, true, newEnvironment);
+				return;
+			}
+			childrenListWriter.append(node);
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());

@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -16,6 +15,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
+import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR.IsInError;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -24,14 +24,11 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNodeInErrorConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static AbstractNode[] NO_NODES = new AbstractNode[]{};
 	private final static IList EMPTY_LIST = VF.list();
 	
 	private SortContainerNodeInErrorConverter(){
 		super();
-	}
-	
-	private static class IsInError{
-		public boolean inError;
 	}
 	
 	protected static void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
@@ -41,30 +38,14 @@ public class SortContainerNodeInErrorConverter{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(converter, child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
 		}else{
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			buildAlternative(production, new IConstructor[]{}, gatheredAlternatives, isInError, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(converter, NO_NODES, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError);
 		}
 	}
 	
 	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			
-			int postFixLength = postFix.length;
-			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
-			for(int i = 0; i < postFixLength; ++i){
-				newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
-				
-				IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
-				if(node == null){
-					actionExecutor.exitedProduction(production, true, newEnvironment);
-					return;
-				}
-				constructedPostFix[i] = node;
-			}
-			
-			buildAlternative(production, constructedPostFix, gatheredAlternatives, isInError, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(converter, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError);
 			return;
 		}
 		
@@ -84,14 +65,24 @@ public class SortContainerNodeInErrorConverter{
 		}
 	}
 	
-	private static void buildAlternative(IConstructor production, IValue[] children, ArrayList<IConstructor> gatheredAlternatives, boolean error, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError){
+		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		
+		int postFixLength = postFix.length;
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		for(int i = children.length - 1; i >= 0; --i){
-			childrenListWriter.insert(children[i]);
+		for(int i = 0; i < postFixLength; ++i){
+			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
+			
+			IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
+			if(node == null){
+				actionExecutor.exitedProduction(production, true, newEnvironment);
+				return;
+			}
+			childrenListWriter.insert(node);
 		}
 		
 		IConstructor result = null;
-		if(!error){
+		if(!isInError){
 			result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 			result = actionExecutor.filterProduction(result, environment);
 		}
