@@ -35,6 +35,10 @@ public class NodeToUPTR{
 		listContainerNodeConverter = new ListContainerNodeConverter();
 	}
 	
+	protected static class IsInError{
+		public boolean inError;
+	}
+	
 	protected IConstructor convert(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		switch(node.getID()){
 			case CharNode.ID:
