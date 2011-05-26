@@ -181,6 +181,18 @@ public class ErrorListContainerNodeConverter{
 			if(newPostFix == null) return;
 			
 			gatheredAlternatives.add(newPostFix, production);
+			
+			// Check if there is a null prefix in this node's prefix list; if so handle the 'starts the production' case.
+			for(int i = prefixes.size() - 1; i >= 0; --i){
+				if(prefixes.get(i) == null){
+					newPostFix = new IConstructor[postFix.length];
+					newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, newPostFix, 0);
+					if(newPostFix == null) return;
+					
+					gatheredAlternatives.add(newPostFix, production);
+				}
+			}
+			
 			return;
 		}
 		
@@ -192,7 +204,7 @@ public class ErrorListContainerNodeConverter{
 			if(prefix == null){
 				IConstructor[] constructedPostFix = new IConstructor[postFix.length];
 				constructedPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, constructedPostFix, 0);
-				if(constructedPostFix == null) return;
+				if(constructedPostFix == null) continue;
 				
 				gatheredAlternatives.add(constructedPostFix, production);
 			}else{
@@ -226,6 +238,8 @@ public class ErrorListContainerNodeConverter{
 			if(newPostFix == null) return;
 			
 			gatheredAlternatives.add(newPostFix, production);
+			
+			sharedPrefixCache.put(prefixes, prefixAlternative);
 		}else if(nrOfGatheredPrefixes > 0){
 			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 			
