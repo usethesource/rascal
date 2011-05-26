@@ -24,6 +24,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorSortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static AbstractNode[] NO_NODES = new AbstractNode[]{};
 	
 	private ErrorSortContainerNodeConverter(){
 		super();
@@ -36,30 +37,14 @@ public class ErrorSortContainerNodeConverter{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(converter, child, postFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		}else{
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			buildAlternative(production, new IConstructor[]{}, unmatchedInput, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(converter, NO_NODES, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		}
 	}
 	
 	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-			
-			int postFixLength = postFix.length;
-			IConstructor[] constructedPostFix = new IConstructor[postFixLength];
-			for(int i = 0; i < postFixLength; ++i){
-				newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
-				
-				IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
-				if(node == null){
-					actionExecutor.exitedProduction(production, true, newEnvironment);
-					return;
-				}
-				constructedPostFix[i] = node;
-			}
-			
-			buildAlternative(production, constructedPostFix, unmatchedInput, gatheredAlternatives, sourceLocation, actionExecutor, newEnvironment);
+			buildAlternative(converter, postFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 			return;
 		}
 		
@@ -77,10 +62,21 @@ public class ErrorSortContainerNodeConverter{
 		}
 	}
 	
-	private static void buildAlternative(IConstructor production, IConstructor[] children, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		for(int i = children.length - 1; i >= 0; --i){
-			childrenListWriter.insert(children[i]);
+		
+		int postFixLength = postFix.length;
+		for(int i = 0; i < postFixLength; ++i){
+			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
+			
+			IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
+			if(node == null){
+				actionExecutor.exitedProduction(production, true, newEnvironment);
+				return;
+			}
+			childrenListWriter.insert(node);
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), unmatchedInput);
