@@ -26,6 +26,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static AbstractNode[] NO_NODES = new AbstractNode[]{};
 	
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<IConstructor, IConstructor>> preCache;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<IConstructor>> cache;
@@ -44,7 +45,7 @@ public class SortContainerNodeConverter{
 			AbstractNode[] postFix = new AbstractNode[]{resultNode};
 			gatherProduction(converter, child, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}else{
-			buildAlternative(converter, new AbstractNode[]{}, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
+			buildAlternative(converter, NO_NODES, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
