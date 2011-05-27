@@ -46,12 +46,20 @@ public class TreeAdapter {
 		return tree.getConstructorType() == Factory.Tree_Amb;
 	}
 
+	public static boolean isErrorAmb(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Tree_Error_Amb;
+	}
+
 	public static boolean isChar(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Char;
 	}
 
 	public static boolean isCycle(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Cycle;
+	}
+
+	public static boolean isErrorCycle(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Tree_Error_Cycle;
 	}
 
 	public static boolean isComment(IConstructor tree) {
@@ -182,10 +190,10 @@ public class TreeAdapter {
 	}
 
 	public static ISet getAlternatives(IConstructor tree) {
-		if (isAmb(tree)) {
+		if (isAmb(tree) || isErrorAmb(tree)) {
 			return (ISet) tree.get("alternatives");
 		}
-
+		
 		throw new ImplementationError("Node has no alternatives");
 	}
 
