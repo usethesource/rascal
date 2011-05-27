@@ -239,14 +239,13 @@ public class ListContainerNodeInErrorConverter{
 				prefixAlternativeChildren[i] = (IConstructor) prefixAlternativeChildrenList.get(i);
 			}
 			
+			sharedPrefixCache.put(prefixes, prefixAlternativeChildren);
+			
 			IConstructor[] newPostFix = new IConstructor[prefixLength + postFix.length];
 			System.arraycopy(prefixAlternative, 0, newPostFix, 0, prefixLength);
-			
 			newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, newPostFix, prefixLength);
 			
 			buildAlternative(production, newPostFix, gatheredAlternatives, error);
-			
-			sharedPrefixCache.put(prefixes, prefixAlternativeChildren);
 		}else if(nrOfGatheredPrefixes > 0){
 			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 			
@@ -258,14 +257,14 @@ public class ListContainerNodeInErrorConverter{
 			}
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
+			
+			sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
+			
 			IConstructor[] newPostFix = new IConstructor[1 + postFix.length];
 			newPostFix[0] = prefixResult;
-			
 			newPostFix = constructPostFix(converter, postFix, production, stack, depth, cycleMark, positionStore, actionExecutor, environment, newPostFix, 1);
 			
 			buildAlternative(production, newPostFix, gatheredAlternatives, error);
-			
-			sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
 		}
 	}
 	
