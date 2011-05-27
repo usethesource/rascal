@@ -84,13 +84,27 @@ public class RascalActionExecutor implements IActionExecutor{
 		return environment; // Reuse the environment if there are no actions associated with the given production.
 	}
 	
+	public IEnvironment enteringListProduction(IConstructor production, IEnvironment environment){
+		return environment; // Reuse the environment, lists never have actions associated with them
+	}
+	
 	public IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment){
 		// TODO Implement.
 		
 		return environment; // Temp.
 	}
 	
+	public IEnvironment enteringListNode(IConstructor production, int index, IEnvironment environment){
+		// TODO Implement.
+		
+		return environment; // Temp.
+	}
+	
 	public void exitedProduction(IConstructor production, boolean filtered, IEnvironment environment){
+		// TODO Implement.
+	}
+	
+	public void exitedListProduction(IConstructor production, boolean filtered, IEnvironment environment){
 		// TODO Implement.
 	}
 	
@@ -104,6 +118,10 @@ public class RascalActionExecutor implements IActionExecutor{
 		}
 		
 		return forest;
+	}
+	
+	public IConstructor filterListProduction(IConstructor forest, IEnvironment environment){
+		return forest; // Return the original forest. Lists never have actions associated with them.
 	}
 	
 	public IConstructor filterAmbiguity(IConstructor ambCluster, IEnvironment environment){

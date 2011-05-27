@@ -85,7 +85,7 @@ public class ListContainerNodeConverter{
 	}
 	
 	private IEnvironment buildAlternative(NodeToUPTR converter, IConstructor[] prefix, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		IEnvironment newEnvironment = actionExecutor.enteringListProduction(production, environment);
 		
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < prefix.length; ++i){
@@ -98,12 +98,12 @@ public class ListContainerNodeConverter{
 		for(int i = 0; i < postFixLength; ++i){
 			AbstractNode node = postFix[i];
 			
-			newEnvironment = actionExecutor.enteringNode(production, index++, newEnvironment);
+			newEnvironment = actionExecutor.enteringListNode(production, index++, newEnvironment);
 			
 			if(!(node instanceof CycleNode)){
 				IConstructor constructedNode = converter.convert(postFix[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(constructedNode == null){
-					actionExecutor.exitedProduction(production, true, newEnvironment);
+					actionExecutor.exitedListProduction(production, true, newEnvironment);
 					return null;
 				}
 				
@@ -112,7 +112,7 @@ public class ListContainerNodeConverter{
 				CycleNode cycleNode = (CycleNode) node;
 				IConstructor[] constructedCycle = constructCycle(converter, production, cycleNode, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(constructedCycle == null){
-					actionExecutor.exitedProduction(production, true, newEnvironment);
+					actionExecutor.exitedListProduction(production, true, newEnvironment);
 					return null;
 				}
 				
@@ -128,13 +128,13 @@ public class ListContainerNodeConverter{
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-		result = actionExecutor.filterProduction(result, newEnvironment);
+		result = actionExecutor.filterListProduction(result, newEnvironment);
 		if(result == null){
-			actionExecutor.exitedProduction(production, true, newEnvironment);
+			actionExecutor.exitedListProduction(production, true, newEnvironment);
 			return null;
 		}
 
-		actionExecutor.exitedProduction(production, false, newEnvironment);
+		actionExecutor.exitedListProduction(production, false, newEnvironment);
 		
 		gatheredAlternatives.add(result);
 		
@@ -142,7 +142,7 @@ public class ListContainerNodeConverter{
 	}
 	
 	private IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		IEnvironment newEnvironment = actionExecutor.enteringListProduction(production, environment);
 		
 		AbstractNode[] cycleElements = cycleNode.cycle;
 		
@@ -151,23 +151,23 @@ public class ListContainerNodeConverter{
 		if(nrOfCycleElements == 1){
 			convertedCycle = new IConstructor[1];
 			
-			newEnvironment = actionExecutor.enteringNode(production, 0, newEnvironment);
+			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment);
 			IConstructor element = converter.convert(cycleElements[0], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 			if(element == null){
-				actionExecutor.exitedProduction(production, true, newEnvironment);
+				actionExecutor.exitedListProduction(production, true, newEnvironment);
 				return null;
 			}
 			convertedCycle[0] = element;
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			
-			newEnvironment = actionExecutor.enteringNode(production, 0, newEnvironment);
+			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment);
 			convertedCycle[0] = converter.convert(cycleElements[nrOfCycleElements], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
-				newEnvironment = actionExecutor.enteringNode(production, i + 1, newEnvironment);
+				newEnvironment = actionExecutor.enteringListNode(production, i + 1, newEnvironment);
 				IConstructor element = converter.convert(cycleElements[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(element == null){
-					actionExecutor.exitedProduction(production, true, newEnvironment);
+					actionExecutor.exitedListProduction(production, true, newEnvironment);
 					return null;
 				}
 				convertedCycle[i + 1] = element;
@@ -181,13 +181,13 @@ public class ListContainerNodeConverter{
 		}
 		
 		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
-		elements = actionExecutor.filterProduction(elements, newEnvironment);
+		elements = actionExecutor.filterListProduction(elements, newEnvironment);
 		if(elements == null){
-			actionExecutor.exitedProduction(production, true, newEnvironment);
+			actionExecutor.exitedListProduction(production, true, newEnvironment);
 			return null;
 		}
 		
-		actionExecutor.exitedProduction(production, false, newEnvironment);
+		actionExecutor.exitedListProduction(production, false, newEnvironment);
 		
 		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
 		constructedCycle = actionExecutor.filterAmbiguity(constructedCycle, newEnvironment);
