@@ -72,7 +72,7 @@ public class ListContainerNodeConverter{
 		}
 	}
 	
-	private static class SharedPrefix{
+	protected static class SharedPrefix{
 		public IConstructor[] prefix;
 		public IEnvironment environment;
 		
@@ -175,7 +175,7 @@ public class ListContainerNodeConverter{
 		}
 		
 		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
-		cycle = actionExecutor.filterCycle(cycle, environment);
+		cycle = actionExecutor.filterListCycle(cycle, environment);
 		if(cycle == null){
 			return convertedCycle;
 		}
@@ -190,7 +190,7 @@ public class ListContainerNodeConverter{
 		actionExecutor.exitedListProduction(production, false, newEnvironment);
 		
 		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
-		constructedCycle = actionExecutor.filterAmbiguity(constructedCycle, newEnvironment);
+		constructedCycle = actionExecutor.filterListAmbiguity(constructedCycle, newEnvironment);
 		if(constructedCycle == null) return null;
 		
 		return new IConstructor[]{constructedCycle};
@@ -263,9 +263,9 @@ public class ListContainerNodeConverter{
 	private void gatherAmbiguousProduction(NodeToUPTR converter, ArrayList<Link> prefixes, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
 		SharedPrefix sharedPrefix = sharedPrefixCache.get(prefixes);
 		if(sharedPrefix != null){
-			IEnvironment cachedEnvironment = sharedPrefix.environment;
-			if(cachedEnvironment != null){
-				buildAlternative(converter, sharedPrefix.prefix, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, cachedEnvironment);
+			IConstructor[] cachedPrefix = sharedPrefix.prefix;
+			if(cachedPrefix != null){
+				buildAlternative(converter, cachedPrefix, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, sharedPrefix.environment);
 			}
 			
 			// Check if there is a null prefix in this node's prefix list; if so handle the 'starts the production' case.
@@ -327,6 +327,11 @@ public class ListContainerNodeConverter{
 			}
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
+			prefixResult = actionExecutor.filterListAmbiguity(prefixResult, environment);
+			if(prefixResult == null){
+				sharedPrefixCache.put(prefixes, new SharedPrefix(null, null));
+				return;
+			}
 			
 			IConstructor[] prefixNodes = new IConstructor[]{prefixResult};
 			
@@ -412,7 +417,7 @@ public class ListContainerNodeConverter{
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhs, VF.integer(depth - index));
-			cycle = actionExecutor.filterCycle(cycle, environment);
+			cycle = actionExecutor.filterListCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
 			cycleMark.setMark(index);
@@ -454,7 +459,7 @@ public class ListContainerNodeConverter{
 			}
 			
 			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
-			result = actionExecutor.filterAmbiguity(result, environment);
+			result = actionExecutor.filterListAmbiguity(result, environment);
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
