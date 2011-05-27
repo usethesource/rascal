@@ -77,7 +77,7 @@ public class SortContainerNodeInErrorConverter{
 					actionExecutor.exitedProduction(production, true, newEnvironment);
 					return;
 				}
-				childrenListWriter.insert(node);
+				childrenListWriter.append(node);
 			}
 			
 			isInTotalError.inError = false;
@@ -89,7 +89,7 @@ public class SortContainerNodeInErrorConverter{
 			for(int i = 0; i < postFixLength; ++i){
 				IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 				if(node == null) return;
-				childrenListWriter.insert(node);
+				childrenListWriter.append(node);
 			}
 			
 			if(result == null){
