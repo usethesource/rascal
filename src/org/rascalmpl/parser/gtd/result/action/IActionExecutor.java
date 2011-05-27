@@ -160,6 +160,18 @@ public interface IActionExecutor{
 	
 	/**
 	 * Supplies the user with the opportunity to filter and / or execute
+	 * semantic actions for list ambiguity clusters.
+	 * 
+	 * @param ambCluster The list ambiguity cluser.
+	 * @param environment The environment associated with the given list
+	 * ambiguity cluster at the point of its completion.
+	 * @return The tree to replace the given list ambiguity cluster with. May
+	 * be null to indicate the cluster should be removed from the tree.
+	 */
+	IConstructor filterListAmbiguity(IConstructor ambCluster, IEnvironment environment);
+	
+	/**
+	 * Supplies the user with the opportunity to filter and / or execute
 	 * semantic actions for cycle trees.
 	 * 
 	 * @param cycle The cycle tree.
@@ -169,6 +181,18 @@ public interface IActionExecutor{
 	 * indicate the cycle should be removed from the forest.
 	 */
 	IConstructor filterCycle(IConstructor cycle, IEnvironment environment);
+	
+	/**
+	 * Supplies the user with the opportunity to filter and / or execute
+	 * semantic actions for list cycle trees.
+	 * 
+	 * @param cycle The list cycle tree.
+	 * @param environment The environment associated with the given list cycle
+	 * tree at the point of its completion.
+	 * @return The tree to replace the given list cycle tree with. May be null
+	 * to indicate the list cycle should be removed from the forest.
+	 */
+	IConstructor filterListCycle(IConstructor cycle, IEnvironment environment);
 	
 	/**
 	 * Checks whether or not any of the productions associated with the given
