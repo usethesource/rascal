@@ -26,6 +26,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ListContainerNodeInErrorConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static AbstractNode[] NO_NODES = new AbstractNode[]{};
 	private final static IConstructor[] NO_CHILDREN = new IConstructor[]{};
 	private final static IList EMPTY_LIST = VF.list();
 	
@@ -33,10 +34,30 @@ public class ListContainerNodeInErrorConverter{
 		super();
 	}
 	
-	private static void buildAlternative(IConstructor production, IConstructor[] children, ArrayList<IConstructor> gatheredAlternatives, boolean error){
+	private static void buildAlternative(NodeToUPTR converter, IConstructor[] prefix, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment, boolean error){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		for(int i = children.length - 1; i >= 0; --i){
-			childrenListWriter.insert(children[i]);
+		for(int i = 0; i < prefix.length; ++i){
+			childrenListWriter.append(prefix[i]);
+		}
+		
+		int postFixLength = postFix.length;
+		for(int i = 0; i < postFixLength; ++i){
+			AbstractNode node = postFix[i];
+			if(!(node instanceof CycleNode)){
+				childrenListWriter.append(converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment));
+			}else{
+				CycleNode cycleNode = (CycleNode) node;
+				IConstructor[] constructedCycle = constructCycle(converter, production, cycleNode, stack, depth, cycleMark, positionStore, actionExecutor, environment);
+				
+				int constructedCycleLength = constructedCycle.length;
+				if(constructedCycleLength == 1){
+					childrenListWriter.append(constructedCycle[0]);
+				}else{
+					for(int j = 0; j < constructedCycle.length; ++j){
+						childrenListWriter.append(constructedCycle[j]);
+					}
+				}
+			}
 		}
 		
 		IConstructor result;
@@ -47,34 +68,6 @@ public class ListContainerNodeInErrorConverter{
 		}
 		
 		gatheredAlternatives.add(result);
-	}
-	
-	private static void constructPostFix(NodeToUPTR converter, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment, boolean error, IConstructor[] toFill, int fromIndex){
-		int postFixLength = postFix.length;
-		for(int i = 0; i < postFixLength; ++i){
-			AbstractNode node = postFix[i];
-			if(!(node instanceof CycleNode)){
-				toFill[fromIndex + i] = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			}else{
-				CycleNode cycleNode = (CycleNode) node;
-				IConstructor[] constructedCycle = constructCycle(converter, production, cycleNode, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-				
-				int constructedCycleLength = constructedCycle.length;
-				if(constructedCycleLength == 1){
-					toFill[fromIndex + i] = constructedCycle[0];
-				}else{
-					int currentLength = toFill.length;
-					IConstructor[] newToFill = new IConstructor[currentLength + constructedCycleLength];
-					System.arraycopy(toFill, 0, newToFill, 0, i);
-					System.arraycopy(constructedCycle, 0, newToFill, i, constructedCycleLength);
-					
-					fromIndex += constructedCycleLength;
-					toFill = newToFill;
-				}
-			}
-		}
-		
-		buildAlternative(production, toFill, gatheredAlternatives, error);
 	}
 	
 	private static IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
@@ -124,7 +117,7 @@ public class ListContainerNodeInErrorConverter{
 			}
 			gatherProduction(converter, child, new AbstractNode[]{childNode}, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor, environment, error);
 		}else{
-			buildAlternative(production, NO_CHILDREN, gatheredAlternatives, error);
+			buildAlternative(converter, NO_CHILDREN, NO_NODES, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 		}
 	}
 	
@@ -132,8 +125,7 @@ public class ListContainerNodeInErrorConverter{
 		do{
 			ArrayList<Link> prefixes = child.getPrefixes();
 			if(prefixes == null){
-				IConstructor[] constructedPostFix = new IConstructor[postFix.length];
-				constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, constructedPostFix, 0);
+				buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 				return;
 			}
 			
@@ -141,8 +133,7 @@ public class ListContainerNodeInErrorConverter{
 				Link prefix = prefixes.get(0);
 				
 				if(prefix == null){
-					IConstructor[] constructedPostFix = new IConstructor[postFix.length];
-					constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, constructedPostFix, 0);
+					buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 					return;
 				}
 				
@@ -177,17 +168,12 @@ public class ListContainerNodeInErrorConverter{
 	private static void gatherAmbiguousProduction(NodeToUPTR converter, ArrayList<Link> prefixes, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor, IEnvironment environment, boolean error){
 		IConstructor[] cachedPrefixResult = sharedPrefixCache.get(prefixes);
 		if(cachedPrefixResult != null){
-			int prefixResultLength = cachedPrefixResult.length;
-			IConstructor[] newPostFix = new IConstructor[prefixResultLength + postFix.length];
-			System.arraycopy(cachedPrefixResult, 0, newPostFix, 0, prefixResultLength);
-			
-			constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, newPostFix, prefixResultLength);
+			buildAlternative(converter, cachedPrefixResult, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 			
 			// Check if there is a null prefix in this node's prefix list; if so handle the 'starts the production' case.
 			for(int i = prefixes.size() - 1; i >= 0; --i){
 				if(prefixes.get(i) == null){
-					newPostFix = new IConstructor[postFix.length];
-					constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, newPostFix, 0);
+					buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 				}
 			}
 			
@@ -200,8 +186,7 @@ public class ListContainerNodeInErrorConverter{
 			Link prefix = prefixes.get(i);
 			
 			if(prefix == null){
-				IConstructor[] newPostFix = new IConstructor[postFix.length];
-				constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, newPostFix, 0);
+				buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 			}else{
 				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)){
@@ -234,9 +219,7 @@ public class ListContainerNodeInErrorConverter{
 			
 			sharedPrefixCache.put(prefixes, prefixAlternativeChildren);
 			
-			IConstructor[] newPostFix = new IConstructor[prefixLength + postFix.length];
-			System.arraycopy(prefixAlternative, 0, newPostFix, 0, prefixLength);
-			constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, newPostFix, prefixLength);
+			buildAlternative(converter, prefixAlternativeChildren, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 		}else if(nrOfGatheredPrefixes > 0){
 			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 			
@@ -249,11 +232,10 @@ public class ListContainerNodeInErrorConverter{
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
 			
-			sharedPrefixCache.put(prefixes, new IConstructor[]{prefixResult});
+			IConstructor[] prefixNodes = new IConstructor[]{prefixResult};
+			sharedPrefixCache.put(prefixes, prefixNodes);
 			
-			IConstructor[] newPostFix = new IConstructor[1 + postFix.length];
-			newPostFix[0] = prefixResult;
-			constructPostFix(converter, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error, newPostFix, 1);
+			buildAlternative(converter, prefixNodes, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment, error);
 		}
 	}
 	
