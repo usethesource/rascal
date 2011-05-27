@@ -30,7 +30,6 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
@@ -39,6 +38,8 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ErrorTreeBuilder{
+	private final static AbstractNode[] NO_CHILDREN = new AbstractNode[]{};
+	
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
 	private final PositionStore positionStore;
@@ -77,7 +78,7 @@ public class ErrorTreeBuilder{
 		next.updateNode(node, result);
 		
 		IConstructor nextSymbol = findSymbol(next);
-		AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
+		AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
 		
@@ -90,7 +91,7 @@ public class ErrorTreeBuilder{
 		next.setStartLocation(location);
 		
 		IConstructor nextSymbol = findSymbol(next);
-		AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
+		AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
 	}
@@ -254,7 +255,7 @@ public class ErrorTreeBuilder{
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
 			IConstructor symbol = getParentSymbol(unexpandableNode);
-			AbstractNode resultStore = new ExpectedNode(new AbstractNode[]{}, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
+			AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
 			
 			errorNodes.push(unexpandableNode, resultStore);
 		}
