@@ -63,19 +63,11 @@ public class ErrorSortContainerNodeConverter{
 	}
 	
 	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
-		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
-		
-		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
-		
 		int postFixLength = postFix.length;
+		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < postFixLength; ++i){
-			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
-			
-			IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, newEnvironment);
-			if(node == null){
-				actionExecutor.exitedProduction(production, true, newEnvironment);
-				return;
-			}
+			IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
+			if(node == null) return;
 			childrenListWriter.insert(node);
 		}
 		
@@ -84,7 +76,6 @@ public class ErrorSortContainerNodeConverter{
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		
 		gatheredAlternatives.add(result);
-		actionExecutor.exitedProduction(production, false, environment);
 	}
 	
 	private static IList buildUnmatchedInput(NodeToUPTR converter, CharNode[] unmatchedInput, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
