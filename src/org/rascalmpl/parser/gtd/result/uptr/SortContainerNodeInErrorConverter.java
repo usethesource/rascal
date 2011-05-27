@@ -103,6 +103,15 @@ public class SortContainerNodeInErrorConverter{
 	}
 	
 	public static IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+		if(depth <= cycleMark.depth){
+			cycleMark.reset();
+		}
+		
+		if(node.isRejected()){
+			// TODO Handle filtering.
+			return null;
+		}
+		
 		ISourceLocation sourceLocation = null;
 		URI input = node.getInput();
 		if(!(node.isLayout() || input == null)){
@@ -135,15 +144,13 @@ public class SortContainerNodeInErrorConverter{
 		
 		// Gather
 		IsInError isInTotalError = new IsInError();
-		boolean isInError = node.isRejected();
-		isInTotalError.inError = isInError;
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
+		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, false, isInTotalError);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
 		ArrayList<IConstructor> productions = node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(converter, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
+				gatherAlternatives(converter, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, false, isInTotalError);
 			}
 		}
 		

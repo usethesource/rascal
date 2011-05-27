@@ -25,6 +25,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 public class ErrorSortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static AbstractNode[] NO_NODES = new AbstractNode[]{};
+	private final static IList EMPTY_LIST = VF.list();
 	
 	private ErrorSortContainerNodeConverter(){
 		super();
@@ -79,6 +80,8 @@ public class ErrorSortContainerNodeConverter{
 	}
 	
 	private static IList buildUnmatchedInput(NodeToUPTR converter, CharNode[] unmatchedInput, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+		if(unmatchedInput == null) return EMPTY_LIST;
+		
 		IListWriter unmatchedInputListWriter = VF.listWriter(Factory.Tree);
 		for(int i = unmatchedInput.length - 1; i >= 0; --i){
 			unmatchedInputListWriter.insert(converter.convertWithErrors(unmatchedInput[i], stack, depth, cycleMark, positionStore, actionExecutor, environment));
