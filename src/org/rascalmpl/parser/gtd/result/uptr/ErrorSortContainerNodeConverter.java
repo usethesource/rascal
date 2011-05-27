@@ -69,7 +69,7 @@ public class ErrorSortContainerNodeConverter{
 		for(int i = 0; i < postFixLength; ++i){
 			IConstructor node = converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			if(node == null) return;
-			childrenListWriter.insert(node);
+			childrenListWriter.append(node);
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), unmatchedInput);
