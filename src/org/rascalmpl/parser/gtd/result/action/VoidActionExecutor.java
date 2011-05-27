@@ -63,7 +63,15 @@ public class VoidActionExecutor implements IActionExecutor{
 		return ambCluster;
 	}
 	
+	public IConstructor filterListAmbiguity(IConstructor ambCluster, IEnvironment environment){
+		return ambCluster;
+	}
+	
 	public IConstructor filterCycle(IConstructor cycle, IEnvironment environment){
+		return cycle;
+	}
+	
+	public IConstructor filterListCycle(IConstructor cycle, IEnvironment environment){
 		return cycle;
 	}
 	
