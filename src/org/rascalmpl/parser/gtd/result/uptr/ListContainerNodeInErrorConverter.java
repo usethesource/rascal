@@ -34,14 +34,20 @@ public class ListContainerNodeInErrorConverter{
 		super();
 	}
 	
-	private static void buildAlternative(NodeToUPTR converter, IConstructor[] prefix, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment, boolean error){
+	private static IEnvironment buildAlternative(NodeToUPTR converter, IConstructor[] prefix, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment, boolean error){
+		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < prefix.length; ++i){
 			childrenListWriter.append(prefix[i]);
 		}
 		
+		int index = prefix.length - 1;
+		
 		int postFixLength = postFix.length;
 		for(int i = 0; i < postFixLength; ++i){
+			newEnvironment = actionExecutor.enteringNode(production, index++, newEnvironment);
+			
 			AbstractNode node = postFix[i];
 			if(!(node instanceof CycleNode)){
 				childrenListWriter.append(converter.convertWithErrors(postFix[i], stack, depth, cycleMark, positionStore, actionExecutor, environment));
@@ -63,25 +69,39 @@ public class ListContainerNodeInErrorConverter{
 		IConstructor result;
 		if(!error){
 			result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
+			result = actionExecutor.filterProduction(result, newEnvironment);
+			if(result == null){
+				actionExecutor.exitedProduction(production, true, newEnvironment);
+			}
 		}else{
 			result = VF.constructor(Factory.Tree_Error, production, childrenListWriter.done(), EMPTY_LIST);
+			actionExecutor.exitedProduction(production, true, newEnvironment);
 		}
 		
 		gatheredAlternatives.add(result);
+		
+		return newEnvironment;
 	}
 	
 	private static IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+		
 		AbstractNode[] cycleElements = cycleNode.cycle;
 		
 		int nrOfCycleElements = cycleElements.length;
 		IConstructor[] convertedCycle;
 		if(nrOfCycleElements == 1){
 			convertedCycle = new IConstructor[1];
+			
+			newEnvironment = actionExecutor.enteringNode(production, 0, newEnvironment);
 			convertedCycle[0] = converter.convertWithErrors(cycleElements[0], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
+			
+			newEnvironment = actionExecutor.enteringNode(production, 0, newEnvironment);
 			convertedCycle[0] = converter.convertWithErrors(cycleElements[nrOfCycleElements], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
+				newEnvironment = actionExecutor.enteringNode(production, i + 1, newEnvironment);
 				convertedCycle[i + 1] = converter.convertWithErrors(cycleElements[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			}
 		}
@@ -93,8 +113,19 @@ public class ListContainerNodeInErrorConverter{
 		}
 		
 		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
+		elements = actionExecutor.filterProduction(elements, newEnvironment);
+		if(elements == null){
+			actionExecutor.exitedProduction(production, true, newEnvironment);
+			elements = VF.constructor(Factory.Tree_Error, production, VF.list(convertedCycle));
+		}else{
+			actionExecutor.exitedProduction(production, false, newEnvironment);
+		}
 		
 		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
+		constructedCycle = actionExecutor.filterAmbiguity(constructedCycle, newEnvironment);
+		if(constructedCycle == null){
+			constructedCycle = VF.constructor(Factory.Tree_Error_Amb, VF.set(elements, cycle));
+		}
 		
 		return new IConstructor[]{constructedCycle};
 	}
@@ -340,7 +371,11 @@ public class ListContainerNodeInErrorConverter{
 				ambSetWriter.insert(alt);
 			}
 			
-			result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+			result = VF.constructor(Factory.Tree_Amb, ambSetWriter.done());
+			result = actionExecutor.filterAmbiguity(result, environment);
+			if(result == null){
+				result = VF.constructor(Factory.Tree_Error_Amb, ambSetWriter.done());
+			}
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
