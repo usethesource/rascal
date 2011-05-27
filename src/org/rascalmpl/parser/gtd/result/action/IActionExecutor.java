@@ -64,6 +64,17 @@ public interface IActionExecutor{
 	IEnvironment enteringProduction(IConstructor production, IEnvironment parent);
 	
 	/**
+	 * Called before entering a list production. The callee can decide whether
+	 * or not a new environment should be created. Additionally it provides the
+	 * opportunity to handle other kinds of bookkeeping.
+	 * 
+	 * @param production The list production we are entering.
+	 * @param parent The parent environment.
+	 * @return The environment the flattener should use for this production.
+	 */
+	IEnvironment enteringListProduction(IConstructor production, IEnvironment parent);
+	
+	/**
 	 * Called before entering each node in the given production. Hereby we
 	 * supply users the opportinity to create a new environment before handling
 	 * the indicated node.
@@ -77,6 +88,19 @@ public interface IActionExecutor{
 	IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment);
 	
 	/**
+	 * Called before entering a list node in the given production. Hereby we
+	 * supply users the opportinity to create a new environment before handling
+	 * the indicated node.
+	 * 
+	 * @param production The list production we are flattening for.
+	 * @param index The position of the node in the list we are going to handle
+	 * now.
+	 * @param environment The parent environment.
+	 * @return The environment the flattener should use for the indicated node.
+	 */
+	IEnvironment enteringListNode(IConstructor production, int index, IEnvironment environment);
+	
+	/**
 	 * Called after exiting a production; enabling the user to execute
 	 * arbitrary bookkeeping actions.
 	 * 
@@ -86,6 +110,17 @@ public interface IActionExecutor{
 	 * @param environment The environment at the point of exiting.
 	 */
 	void exitedProduction(IConstructor production, boolean filtered, IEnvironment environment);
+	
+	/**
+	 * Called after exiting a list production; enabling the user to execute
+	 * arbitrary bookkeeping actions.
+	 * 
+	 * @param production The production we are exiting.
+	 * @param filtered True if the alternative for the given list production
+	 * got filtered; false otherwise.
+	 * @param environment The environment at the point of exiting.
+	 */
+	void exitedListProduction(IConstructor production, boolean filtered, IEnvironment environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter alternatives and / or
@@ -98,6 +133,18 @@ public interface IActionExecutor{
 	 * the tree should be removed from the forest.
 	 */
 	IConstructor filterProduction(IConstructor tree, IEnvironment environment);
+
+	/**
+	 * Supplies the user with the opportunity to filter alternatives and / or
+	 * execute sematic actions.
+	 * 
+	 * @param tree The tree to handle.
+	 * @param environment The environment associated with the given tree at the
+	 * point at which the production was completed.
+	 * @return The tree to replace the given tree with. May be null to indicate
+	 * the tree should be removed from the forest.
+	 */
+	IConstructor filterListProduction(IConstructor tree, IEnvironment environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter and / or execute

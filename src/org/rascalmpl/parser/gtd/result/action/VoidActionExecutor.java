@@ -31,7 +31,15 @@ public class VoidActionExecutor implements IActionExecutor{
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
+	public IEnvironment enteringListProduction(IConstructor production, IEnvironment environment){
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
+	}
+	
 	public IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment){
+		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
+	}
+	
+	public IEnvironment enteringListNode(IConstructor production, int index, IEnvironment environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
@@ -39,7 +47,15 @@ public class VoidActionExecutor implements IActionExecutor{
 		// Don't do anything.
 	}
 	
+	public void exitedListProduction(IConstructor production, boolean filtered, IEnvironment environment){
+		// Don't do anything.
+	}
+	
 	public IConstructor filterProduction(IConstructor tree, IEnvironment environment){
+		return tree;
+	}
+	
+	public IConstructor filterListProduction(IConstructor tree, IEnvironment environment){
 		return tree;
 	}
 	
