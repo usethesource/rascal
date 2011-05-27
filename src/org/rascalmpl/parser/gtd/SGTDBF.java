@@ -1011,11 +1011,7 @@ public abstract class SGTDBF implements IGTD{
 		return false;
 	}
 	
-	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input){
-		return parse(startNode, inputURI, input, new VoidActionExecutor());
-	}
-	
-	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
+	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
 		}
@@ -1067,28 +1063,7 @@ public abstract class SGTDBF implements IGTD{
 			if(levelResultStoreMap != null){
 				AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 				if(!(result == null || result.isRejected())){
-					FilteringTracker filteringTracker = new FilteringTracker();
-					// Invoke the forest flattener, a.k.a. "the bulldozer".
-					IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
-					IConstructor resultTree = null;
-					try{
-						NodeToUPTR converter = new NodeToUPTR(result, positionStore);
-						resultTree = converter.convertToUPTR(filteringTracker, actionExecutor, rootEnvironment);
-					}finally{
-						actionExecutor.completed(rootEnvironment, (resultTree == null));
-					}
-					if(resultTree != null){
-						return resultTree; // Success.
-					}
-					
-					// Filtering error.
-					filterErrorOccured = true;
-					
-					int line = positionStore.findLine(filteringTracker.offset);
-					int column = positionStore.getColumn(filteringTracker.offset, line);
-					int endLine = positionStore.findLine(filteringTracker.endOffset);
-					int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-					throw new SyntaxError("All trees were filtered.", VF.sourceLocation(inputURI, Math.min(filteringTracker.offset, input.length - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
+					return result;
 				}
 			}
 		}
@@ -1100,6 +1075,48 @@ public abstract class SGTDBF implements IGTD{
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
 		throw new SyntaxError("Parse error.", VF.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
+	}
+	
+	// With post parse filtering.
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
+		return buildTree(result);
+	}
+	
+	// Without post parse filtering.
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, new VoidActionExecutor());
+		return buildTree(result);
+	}
+	
+	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input){
+		AbstractNode result = parse(startNode, inputURI, input, new VoidActionExecutor());
+		return buildTree(result);
+	}
+	
+	protected IConstructor buildTree(AbstractNode result){
+		FilteringTracker filteringTracker = new FilteringTracker();
+		// Invoke the forest flattener, a.k.a. "the bulldozer".
+		IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
+		IConstructor resultTree = null;
+		try{
+			NodeToUPTR converter = new NodeToUPTR(result, positionStore);
+			resultTree = converter.convertToUPTR(filteringTracker, actionExecutor, rootEnvironment);
+		}finally{
+			actionExecutor.completed(rootEnvironment, (resultTree == null));
+		}
+		if(resultTree != null){
+			return resultTree; // Success.
+		}
+		
+		// Filtering error.
+		filterErrorOccured = true;
+		
+		int line = positionStore.findLine(filteringTracker.offset);
+		int column = positionStore.getColumn(filteringTracker.offset, line);
+		int endLine = positionStore.findLine(filteringTracker.endOffset);
+		int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
+		throw new SyntaxError("All trees were filtered.", VF.sourceLocation(inputURI, Math.min(filteringTracker.offset, input.length - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
 	}
 	
 	public IConstructor buildErrorTree(){
@@ -1122,15 +1139,5 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		throw new RuntimeException("Cannot build an error tree as no parse error occurred.");
-	}
-	
-	// With post parse filtering.
-	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor){
-		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
-	}
-	
-	// Without post parse filtering.
-	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
-		return parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 	}
 }
