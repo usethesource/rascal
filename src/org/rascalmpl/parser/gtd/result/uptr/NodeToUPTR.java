@@ -16,7 +16,6 @@ import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 
-// TODO Add 'isInError' parameter passing.
 public class NodeToUPTR{
 	private final AbstractNode parseTree;
 	private final PositionStore positionStore;
