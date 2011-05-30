@@ -42,6 +42,11 @@ public class SymbolAdapter {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Factory.Symbol_Sort;
 	}
+
+	public static boolean isMeta(IConstructor tree) {
+		tree = delabel(tree);
+		return tree.getConstructorType() == Factory.Symbol_Meta;
+	}
 	
 	public static boolean isStartSort(IConstructor tree) {
 		tree = delabel(tree);
@@ -68,7 +73,7 @@ public class SymbolAdapter {
 		
 	public static IConstructor getSymbol(IConstructor tree) {
 		tree = delabel(tree);
-		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree)) {
+		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree)) {
 			return ((IConstructor) tree.get("symbol"));
 		}
 		
@@ -89,6 +94,9 @@ public class SymbolAdapter {
 		
 		if (isSort(tree)) {
 			return ((IString) tree.get("string")).getValue();
+		}
+		else if (isMeta(tree)) {
+			return ((IString) getSymbol(tree).get("string")).getValue();
 		}
 		else if (isParameterizedSort(tree)) {
 			return ((IString) tree.get("sort")).getValue();
