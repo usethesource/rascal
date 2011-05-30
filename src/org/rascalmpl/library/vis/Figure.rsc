@@ -856,7 +856,7 @@ data Figure =
    | _combo(str text, list[str] choices, void (str) scallback, FProperties props)
    | _combo(str text, list[str] choices, void (str) scallback, bool (str) validate, FProperties props)
    | _choice(list[str] choices, void(str s) ccallback, FProperties props)
-   | _checkbox(str text, void(bool) vbcallback, FProperties props)
+   | _checkbox(str text, bool checked, void(bool) vbcallback, FProperties props)
    ;
 
 public Figure text(str s, FProperty props ...){
@@ -1047,9 +1047,13 @@ public Figure choice(list[str] choices, void(str s) ccallback, FProperty props..
    return _choice(choices, ccallback, props);
 }
 
-public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
-   return _checkbox(text, vcallback, props);
+public Figure checkbox(str text, bool checked, void(bool) vcallback, FProperty props...){
+   return _checkbox(text, checked, vcallback, props);
 }  
   
+public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
+   return _checkbox(text, false, vcallback, props);
+}  
+
 
 
