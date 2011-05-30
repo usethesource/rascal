@@ -31,13 +31,14 @@ public class Checkbox extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.Button button;
 
-	public Checkbox(IFigureApplet fpa, String caption, IValue fun,
+	public Checkbox(IFigureApplet fpa, String caption, boolean checked, IValue fun,
 			IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		fpa.checkIfIsCallBack(fun, ctx);
 		this.callback = fun;
 		this.button = new org.eclipse.swt.widgets.Button(fpa.getComp(),
 				SWT.CHECK);
+		button.setSelection(checked);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

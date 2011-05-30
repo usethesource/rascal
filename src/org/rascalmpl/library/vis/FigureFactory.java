@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis;
 
 import java.util.HashMap;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -212,7 +213,7 @@ public class FigureFactory {
 			return new Button(fpa, ((IString) c.get(0)).getValue(),c.get(1),ctx, properties);
 		
 		case CHECKBOX:
-			return new Checkbox(fpa,  ((IString) c.get(0)).getValue(),c.get(1),ctx, properties);
+			return new Checkbox(fpa,  ((IString) c.get(0)).getValue(),((IBool)c.get(1)).getValue(), c.get(2),ctx, properties);
 			
 		case CHOICE:
 			return new Choice(fpa, makeStringList((IList) c.get(0)), c.get(1), ctx, properties);
