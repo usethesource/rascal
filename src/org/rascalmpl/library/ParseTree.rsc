@@ -57,7 +57,6 @@ data Symbol
   | \empty()  
   | \opt(Symbol symbol)  
   | \sort(str string)   
-  | \meta(Symbol symbol)
   | \layouts(str name) 
   | \iter(Symbol symbol)   
   | \iter-star(Symbol symbol)   
