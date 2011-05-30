@@ -110,6 +110,10 @@ public class ToLatex extends org.rascalmpl.parser.gtd.SGTDBF implements IParserI
       return result;
     }
     
+	protected boolean hasNestingRestrictions(String name){
+		return true;
+	}
+    
     protected IntegerList getFilteredParents(int childId) {
 		return _dontNest.get(childId);
 	}

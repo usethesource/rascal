@@ -95,6 +95,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF implements IPa
       
     return result;
   }
+  
+  protected boolean hasNestingRestrictions(String name){
+	  return (_dontNest.size() != 0); // TODO Make more specific.
+  }
     
   protected IntegerList getFilteredParents(int childId) {
 		return _dontNest.get(childId);
