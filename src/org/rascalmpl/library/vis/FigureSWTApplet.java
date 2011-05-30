@@ -267,13 +267,13 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public int getFigureWidth() {
-		 System.err.println("getFigureWidth: " + figureWidth);
-		return FigureApplet.round(figureWidth);
+		// System.err.println("getFigureWidth: " + figureWidth);
+		return defaultWidth; // FigureApplet.round(figureWidth);
 	}
 
 	public int getFigureHeight() {
-		 System.err.println("getFigureHeight: " + figureHeight);
-		return FigureApplet.round(figureHeight);
+		 //System.err.println("getFigureHeight: " + figureHeight);
+		return defaultHeight; // FigureApplet.round(figureHeight);
 	}
 
 	public boolean isVisible(int d) {
