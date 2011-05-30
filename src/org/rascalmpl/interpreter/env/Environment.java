@@ -304,10 +304,9 @@ public class Environment implements IEnvironment{
 	}
 
 	/**
-	 * Search for the environment that declared a variable, down to the module
-	 * scope.
+	 * Search for the environment that declared a variable.
 	 */
-	private Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
+	protected Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
 		if (variableEnvironment != null) {
 			Result<IValue> r = variableEnvironment.get(name);
 
@@ -316,7 +315,7 @@ public class Environment implements IEnvironment{
 			}
 		}
 
-		return isRootScope() ? null : parent.getVariableDefiningEnvironment(name);
+		return (parent == null) ? null : parent.getVariableDefiningEnvironment(name);
 	}
 
 	/**

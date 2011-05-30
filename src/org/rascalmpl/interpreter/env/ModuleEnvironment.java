@@ -248,6 +248,32 @@ public class ModuleEnvironment extends Environment {
 
 		return null;
 	}
+
+	/**
+	 * Search for the environment that declared a variable.
+	 */
+	protected Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
+		if (variableEnvironment != null) {
+			Result<IValue> r = variableEnvironment.get(name);
+
+			if (r != null) {
+				return variableEnvironment;
+			}
+		}
+
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			Result<IValue> r = null;
+			if (mod.variableEnvironment != null) 
+				r = mod.variableEnvironment.get(name);
+			
+			if (r != null) {
+				return mod.variableEnvironment;
+			}
+		}
+
+		return null;
+	}
 	
 	@Override
 	protected OverloadedFunctionResult getAllFunctions(String name) {
