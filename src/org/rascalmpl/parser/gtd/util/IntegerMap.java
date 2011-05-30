@@ -155,6 +155,10 @@ public class IntegerMap{
 		
 		return -1;
 	}
+
+	public int size() {
+		return load;
+	}
 	
 	public void clear(){
 		int nrOfEntries = 1 << (bitSize = DEFAULT_BIT_SIZE);
@@ -179,9 +183,5 @@ public class IntegerMap{
 			this.value = value;
 			this.next = next;
 		}
-	}
-
-	public int size() {
-		return load;
 	}
 }

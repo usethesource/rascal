@@ -249,12 +249,17 @@ public abstract class SGTDBF implements IGTD{
 			propagatedReductions.add(next.getId(), touched);
 		}
 		
-		IConstructor production = next.getParentProduction();
-
-		IntegerList filteredParents = getFilteredParents(next.getId());
-		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixes = node.getPrefixesMap();
+		
+		IConstructor production = next.getParentProduction();
+		
+		String name = edgesMap.getValue(0).get(0).getName();
+		boolean hasNestingRestrictions = hasNestingRestrictions(name);
+		IntegerList filteredParents = null;
+		if(hasNestingRestrictions){
+			filteredParents = getFilteredParents(next.getId());
+		}
 		
 		int fromIndex = edgesMap.size() - potentialNewEdges;
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
@@ -269,7 +274,11 @@ public abstract class SGTDBF implements IGTD{
 			
 			Link resultLink = new Link(edgePrefixes, nextResultStore);
 			
-			handleEdgeListWithPriorities(edgesMap.getValue(i), production, resultLink, filteredParents, startLocation);
+			if(!hasNestingRestrictions){
+				handleEdgeList(edgesMap.getValue(i), production, resultLink, startLocation);
+			}else{
+				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, filteredParents, startLocation);
+			}
 		}
 	}
 	
@@ -423,16 +432,26 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	private void updateEdges(AbstractStackNode node, AbstractNode result){
-		IConstructor production = node.getParentProduction();
-		
-		IntegerList filteredParents = getFilteredParents(node.getId());
-		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
+		IConstructor production = node.getParentProduction();
+		String name = edgesMap.getValue(0).get(0).getName();
+		
+		boolean hasNestingRestrictions = hasNestingRestrictions(name);
+		IntegerList filteredParents = null;
+		if(hasNestingRestrictions){
+			filteredParents = getFilteredParents(node.getId());
+		}
+		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
-			handleEdgeListWithPriorities(edgesMap.getValue(i), production, resultLink, filteredParents, edgesMap.getKey(i));
+			
+			if(!hasNestingRestrictions){
+				handleEdgeList(edgesMap.getValue(i), production, resultLink, edgesMap.getKey(i));
+			}else{
+				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, filteredParents, edgesMap.getKey(i));
+			}
 		}
 	}
 	
@@ -443,12 +462,17 @@ public abstract class SGTDBF implements IGTD{
 			propagatedReductions.add(node.getId(), touched);
 		}
 		
-		IConstructor production = node.getParentProduction();
-		
-		IntegerList filteredParents = getFilteredParents(node.getId());
-		
 		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
+		
+		IConstructor production = node.getParentProduction();
+		String name = edgesMap.getValue(0).get(0).getName();
+		
+		boolean hasNestingRestrictions = hasNestingRestrictions(name);
+		IntegerList filteredParents = null;
+		if(hasNestingRestrictions){
+			filteredParents = getFilteredParents(node.getId());
+		}
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
@@ -458,7 +482,11 @@ public abstract class SGTDBF implements IGTD{
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
-			handleEdgeListWithPriorities(edgesMap.getValue(i), production, resultLink, filteredParents, startLocation);
+			if(!hasNestingRestrictions){
+				handleEdgeList(edgesMap.getValue(i), production, resultLink, startLocation);
+			}else{
+				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, filteredParents, startLocation);
+			}
 		}
 	}
 	
@@ -490,7 +518,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
-	private void handleEdgeListWithPriorities(ArrayList<AbstractStackNode> edgeList, IConstructor production, Link resultLink, IntegerList filteredParents, int startLocation){
+	private void handleEdgeListWithPriorities(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, IntegerList filteredParents, int startLocation){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 		
 		if(levelResultStoreMap == null){
@@ -502,7 +530,6 @@ public abstract class SGTDBF implements IGTD{
 		IntegerList firstTimeRegistration = new IntegerList();
 		for(int j = edgeList.size() - 1; j >= 0; --j){
 			AbstractStackNode edge = edgeList.get(j);
-			String nodeName = edge.getName();
 			int resultStoreId = getResultStoreId(edge.getId());
 			
 			AbstractContainerNode resultStore = firstTimeReductions.get(resultStoreId);
@@ -511,12 +538,12 @@ public abstract class SGTDBF implements IGTD{
 				firstTimeRegistration.add(resultStoreId);
 				
 				if(filteredParents == null || !filteredParents.contains(edge.getId())){
-					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+					resultStore = levelResultStoreMap.get(name, resultStoreId);
 					if(resultStore != null){
 						if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 					}else{
 						resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-						levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
+						levelResultStoreMap.putUnsafe(name, resultStoreId, resultStore);
 						resultStore.addAlternative(production, resultLink);
 						
 						stacksWithNonTerminalsToReduce.push(edge, resultStore);
@@ -803,12 +830,16 @@ public abstract class SGTDBF implements IGTD{
 		cachedEdgesForExpect.put(stackBeingWorkedOn.getName(), cachedEdges);
 	}
 	
+	protected boolean hasNestingRestrictions(String name){
+		return false; // Priority and associativity filtering is off by default.
+	}
+	
 	protected IntegerList getFilteredParents(int childId){
 		return null; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
 	protected int getResultStoreId(int parentId){
-		return -1; // Default implementation; intended to be overwritten in sub-classes.
+		return DEFAULT_RESULT_STORE_ID; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
 	private void expandStack(AbstractStackNode stack){

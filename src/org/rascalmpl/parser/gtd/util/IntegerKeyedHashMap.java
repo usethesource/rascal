@@ -163,6 +163,10 @@ public class IntegerKeyedHashMap<V>{
 		
 		return null;
 	}
+
+	public int size() {
+		return load;
+	}
 	
 	public void clear(){
 		int nrOfEntries = 1 << (bitSize = DEFAULT_BIT_SIZE);

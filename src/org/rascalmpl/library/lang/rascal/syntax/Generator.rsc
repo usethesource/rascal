@@ -211,6 +211,10 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '      
            '    return result;
            '  }
+           '
+           '  protected boolean hasNestingRestrictions(String name){
+           '		return (_dontNest.size() != 0); // TODO Make more specific.
+           '  }
            '    
            '  protected IntegerList getFilteredParents(int childId) {
            '		return _dontNest.get(childId);
