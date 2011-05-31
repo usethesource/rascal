@@ -549,8 +549,9 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
-	// Reuse this structure.
+	// Reuse these structures.
 	private final IntegerList firstTimeRegistration = new IntegerList();
+	private final IntegerList firstTimeReductions = new IntegerList();
 	
 	private void handleEdgeListWithPriorities(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, IntegerList filteredParents, int startLocation){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
@@ -560,19 +561,18 @@ public abstract class SGTDBF implements IGTD{
 			resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
 		}
 		
-		IntegerKeyedHashMap<AbstractContainerNode> firstTimeReductions = new IntegerKeyedHashMap<AbstractContainerNode>();
 		firstTimeRegistration.clear();
+		firstTimeReductions.clear();
 		for(int j = edgeList.size() - 1; j >= 0; --j){
 			AbstractStackNode edge = edgeList.get(j);
 			int resultStoreId = getResultStoreId(edge.getId());
 			
-			AbstractContainerNode resultStore = firstTimeReductions.get(resultStoreId);
-			if(resultStore == null){
+			if(!firstTimeReductions.contains(resultStoreId)){
 				if(firstTimeRegistration.contains(resultStoreId)) continue;
 				firstTimeRegistration.add(resultStoreId);
 				
 				if(filteredParents == null || !filteredParents.contains(edge.getId())){
-					resultStore = levelResultStoreMap.get(name, resultStoreId);
+					AbstractContainerNode resultStore = levelResultStoreMap.get(name, resultStoreId);
 					if(resultStore != null){
 						if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 					}else{
@@ -581,10 +581,11 @@ public abstract class SGTDBF implements IGTD{
 						resultStore.addAlternative(production, resultLink);
 						
 						stacksWithNonTerminalsToReduce.push(edge, resultStore);
-						firstTimeReductions.putUnsafe(resultStoreId, resultStore);
+						firstTimeReductions.add(resultStoreId);
 					}
 				}
 			}else{
+				AbstractContainerNode resultStore = levelResultStoreMap.get(name, resultStoreId);
 				stacksWithNonTerminalsToReduce.push(edge, resultStore);
 			}
 		}
@@ -598,20 +599,19 @@ public abstract class SGTDBF implements IGTD{
 			resultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
 		}
 		
-		IntegerKeyedHashMap<AbstractContainerNode> firstTimeReductions = new IntegerKeyedHashMap<AbstractContainerNode>();
 		firstTimeRegistration.clear();
+		firstTimeReductions.clear();
 		for(int j = edgeList.size() - 1; j >= 0; --j){
 			AbstractStackNode edge = edgeList.get(j);
 			String nodeName = edge.getName();
 			int resultStoreId = getResultStoreId(edge.getId());
 			
-			AbstractContainerNode resultStore = firstTimeReductions.get(resultStoreId);
-			if(resultStore == null){
+			if(!firstTimeReductions.contains(resultStoreId)){
 				if(firstTimeRegistration.contains(resultStoreId)) continue;
 				firstTimeRegistration.add(resultStoreId);
 				
 				if(filteredParents == null || !filteredParents.contains(edge.getId())){
-					resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+					AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 					if(resultStore != null){
 						resultStore.setRejected();
 					}else{
@@ -619,7 +619,7 @@ public abstract class SGTDBF implements IGTD{
 						levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
 						resultStore.setRejected();
 						
-						firstTimeReductions.putUnsafe(resultStoreId, resultStore);
+						firstTimeReductions.add(resultStoreId);
 					}
 					filteredNodes.push(edge, resultStore);
 				}
