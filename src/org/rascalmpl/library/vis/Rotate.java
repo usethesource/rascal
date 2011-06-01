@@ -34,9 +34,8 @@ public class Rotate extends WithInnerFig {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
+	void bbox() {
 		
-		super.bbox();
 		
 		sina = FigureApplet.abs(FigureApplet.sin(angle));
 		cosa =  FigureApplet.abs(FigureApplet.cos(angle));
@@ -44,20 +43,22 @@ public class Rotate extends WithInnerFig {
 		double hanch = innerFig.getHAlignProperty();
 		double vanch = innerFig.getVAlignProperty();
 		
-		double w = innerFig.width;
-		double h = innerFig.height;
+		double w = innerFig.minSize.getWidth();
+		double h = innerFig.minSize.getHeight();
 		
-		width  = h * sina + w * cosa;
-		height = h * cosa + w * sina;
+		minSize.setWidth(h * sina + w * cosa);
+		minSize.setHeight(h * cosa + w * sina);
 		
-		leftAnchor = hanch * width;
-		rightAnchor = (1-hanch) * width;
+		leftAnchor = hanch * minSize.getWidth();
+		rightAnchor = (1-hanch) * minSize.getWidth();
 		
-		topAnchor = vanch * height;
-		bottomAnchor = (1-vanch) * height;
+		topAnchor = vanch * minSize.getHeight();
+		bottomAnchor = (1-vanch) * minSize.getHeight();
 		
 		if(debug)System.err.printf("rotate.bbox: width=%f (%f, %f), height=%f (%f, %f)\n", 
-				   width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
+				   minSize.getWidth(), leftAnchor, rightAnchor, minSize.getHeight(), topAnchor, bottomAnchor);
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override
@@ -68,11 +69,11 @@ public class Rotate extends WithInnerFig {
 		
 		fpa.pushMatrix();
 		// move origin to the anchor of the figure to be rotated
-		fpa.translate(left + width/2, top + height/2);
+		fpa.translate(left + minSize.getWidth()/2, top + minSize.getHeight()/2);
 		// rotate it
 		fpa.rotate(angle);
 		// move origin to the left top corner of figure.
-		innerFig.draw(-innerFig.width/2, -innerFig.height/2);
+		innerFig.draw(-innerFig.minSize.getWidth()/2, -innerFig.minSize.getHeight()/2);
 		fpa.popMatrix();
 	}
 	
@@ -99,10 +100,11 @@ public class Rotate extends WithInnerFig {
 	@Override
 	public void drawFocus(){
 		fpa.pushMatrix();
-		fpa.translate(getLeft() + width/2, getTop() + height/2);
+		fpa.translate(getLeft() + minSize.getWidth()/2, getTop() + minSize.getHeight()/2);
 		fpa.rotate(angle);
 		fpa.stroke(255, 0,0);
 		fpa.noFill();
-		fpa.rect(-innerFig.width/2, -innerFig.height/2, innerFig.width, innerFig.height);
+		fpa.rect(-innerFig.minSize.getWidth()/2, -innerFig.minSize.getHeight()/2, innerFig.minSize.getWidth(), innerFig.minSize.getHeight());
 	}
+
 }

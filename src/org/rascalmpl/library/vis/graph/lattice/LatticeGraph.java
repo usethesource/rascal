@@ -206,7 +206,7 @@ public class LatticeGraph extends Figure implements
 		Layer(ArrayList<LatticeGraphNode> data, int rank) {
 			this.data = data;
 			this.rank = rank;
-			this.step = (height - 2 * border) / layers.length;
+			this.step = (minSize.getHeight() - 2 * border) / layers.length;
 		}
 	}
 
@@ -221,10 +221,10 @@ public class LatticeGraph extends Figure implements
 		this.ctx = ctx;
 		propt = tf.abstractDataType(ts, "propt");
 		shapeCurved = tf.constructor(ts, propt, "shapeCurved", tf.boolType());
-		width = getWidthProperty();
-		height = getHeightProperty();
+		minSize.setWidth(getWidthProperty());
+		minSize.setHeight(getHeightProperty());
 		// if (debug)
-			System.err.println("LatticeGraph:"+width+" "+height);
+			System.err.println("LatticeGraph:"+minSize.getWidth()+" "+minSize.getHeight());
 		registered = new HashMap<String, LatticeGraphNode>();
 		for (IValue v : nodes) {
 			IConstructor c = (IConstructor) v;
@@ -286,7 +286,7 @@ public class LatticeGraph extends Figure implements
 			int s = layer.data.size();
 			// System.err.println("layer.size:"+s);
 			if (s > 0) {
-				double step = width / (s + 1);
+				double step = minSize.getWidth() / (s + 1);
 				// System.err.println("width:"+width);
 				// System.err.println("step:"+step);
 				// double x = i % 2 == 0 ? step / 2 : (width - step / 2);
@@ -337,7 +337,7 @@ public class LatticeGraph extends Figure implements
 		fpa.stroke(255, 0, 0);
 		fpa.strokeWeight(1);
 		fpa.noFill();
-		fpa.rect(getLeft(), getTop(), width, height);
+		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 
 	private void evolution() {
@@ -539,7 +539,9 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
+	public void bbox() {
+		setNonResizable();
+		super.bbox();
 	}
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
@@ -575,6 +577,16 @@ public class LatticeGraph extends Figure implements
 		for(LatticeGraphNode node : nodes){
 			node.figure.registerNames();
 		}
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		for(LatticeGraphNode node : nodes){
+			
+			node.figure.layout();
+		}
+		
 	}
 
 }

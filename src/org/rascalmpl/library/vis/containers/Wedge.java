@@ -90,7 +90,7 @@ public class Wedge extends Container {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight){
+	void bbox(){
 		radius = getHeightProperty();
 		double lw = getLineWidthProperty();
 		innerRadius = getInnerRadiusProperty();
@@ -103,7 +103,7 @@ public class Wedge extends Container {
 		
 		
 		if(innerFig != null)	// Compute bounding box of inside object.
-			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+			innerFig.bbox();
 		
 		double sinFrom = FigureApplet.sin(fromAngle);
 		double cosFrom = FigureApplet.cos(fromAngle);
@@ -213,10 +213,12 @@ public class Wedge extends Container {
 		topAnchor += lw/2;
 		bottomAnchor += lw/2;
 		
-		width = leftAnchor + rightAnchor;
-		height = topAnchor + bottomAnchor;
+		minSize.setWidth(leftAnchor + rightAnchor);
+		minSize.setHeight(topAnchor + bottomAnchor);
 		if(debug)System.err.printf("bbox.wedge: fromAngle=%f, toAngle=%f, leftAnChor=%f, rightAnchor=%f, topAnchor=%f, bottomAnchor =%f, %f, %f)\n", 
-				fromAngle, toAngle, leftAnchor, rightAnchor, topAnchor, bottomAnchor, width, height);
+				fromAngle, toAngle, leftAnchor, rightAnchor, topAnchor, bottomAnchor, minSize.getWidth(), minSize.getHeight());
+		setNonResizable();
+		super.bbox();
 	}
 	
 	/**
@@ -297,18 +299,36 @@ public class Wedge extends Container {
 		return "wedge";
 	}
 	
-	@Override 
+	@Override
+	public
+	void draw(double left, double top) {
+		this.setLeft(left);
+		this.setTop(top);
+	
+		applyProperties();
+		//if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHAlignProperty(), getVAlignProperty());
+
+		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
+			drawContainer();
+			if(innerFig != null){
+				//if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
+				if(innerFits()) {
+					innerDraw();
+				}
+			}
+		}
+	}
+	
 	boolean innerFits(){
 		if(debug)System.err.printf("Wedge.insideFits\n");
-		return innerFig.height < radius - innerRadius && innerFig.width < width; //TODO was h1()
+		return innerFig.minSize.getHeight() < radius - innerRadius && innerFig.minSize.getWidth() < minSize.getWidth(); //TODO was h1()
 	}
 	
 	/**
 	 * If the inside  element fits or during a mouseOver, draw it.
 	 */
-	@Override
 	void innerDraw(){
-		innerFig.draw(centerX + IX - innerFig.width/2, centerY + IY - innerFig.height/2);
+		innerFig.draw(centerX + IX - innerFig.minSize.getWidth()/2, centerY + IY - innerFig.minSize.getHeight()/2);
 	}
 	
 	@Override

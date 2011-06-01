@@ -23,31 +23,31 @@ public class VAxis extends HAxis {
 	
 	void setWidthHeight(double desiredWidth,double desiredHeight) {
 		if(isWidthPropertySet()){
-			width = getWidthProperty();
+			minSize.setWidth(getWidthProperty());
 		} else {
-			width = desiredWidth;
+			minSize.setWidth(desiredWidth);
 		}
 		if(isHeightPropertySet() || desiredHeight == AUTO_SIZE){
-			height = getHeightProperty();
+			minSize.setHeight(getHeightProperty());
 		} else {
-			height = desiredHeight;
+			minSize.setHeight(desiredHeight);
 		}
 	}
 	
 	@Override
 	void addAxisToBBox() {
-		axisY = getHAlignProperty() * innerFig.width;
+		axisY = getHAlignProperty() * innerFig.minSize.getWidth();
 		textWidth = Math.max(fpa.textWidth(range.getMinimum() + ""),fpa.textWidth(range.getMaximum() + ""));
 		if(getHAlignProperty() > 0.5f){
 			labelY = axisY+ getHGapProperty() +MAJOR_TICK_WIDTH;
-			width= Math.max(labelY + textWidth, innerFig.width);
+			minSize.setWidth(Math.max(labelY + textWidth, innerFig.minSize.getWidth()));
 		} else {
 			labelY = axisY-getHGapProperty() - textWidth - MAJOR_TICK_WIDTH ;
 			if(labelY < 0.0f){
-				innerFigX = -(labelY);
-				axisY+= innerFigX;
+				innerFigLocation.setX(-(labelY));
+				axisY+= innerFigLocation.getX();
 				labelY= 0.0f;
-				width+=innerFigX;
+				minSize.setWidth(minSize.getWidth() + innerFigLocation.getX());
 			}
 		}
 	}
@@ -57,16 +57,16 @@ public class VAxis extends HAxis {
 		
 		setLeft(left);
 		setTop(top);
-		Tick[] ticks = getTicks(50.0f,top + innerFigY + innerFig.getVerticalBorders().getMinimum()
+		Tick[] ticks = getTicks(50.0f,top + innerFigLocation.getY() + innerFig.getVerticalBorders().getMinimum()
 								,top + offsets.getMinimum()
 								,top + offsets.getMaximum()
-								,top + innerFigY + innerFig.getVerticalBorders().getMaximum()
+								,top + innerFigLocation.getY() + innerFig.getVerticalBorders().getMaximum()
 								,range.getMinimum(),range.getMaximum()
 								);
 		
 		applyProperties();
 		applyFontProperties();
-		double bottom = top + innerFigY + innerFig.height;
+		double bottom = top + innerFigLocation.getY() + innerFig.minSize.getHeight();
 		fpa.line(left + axisY,
 				top +  innerFig.getVerticalBorders().getMinimum(),
 				left + axisY,
@@ -81,10 +81,10 @@ public class VAxis extends HAxis {
 			if(tick.major){
 				
 				fpa.stroke(230);
-				fpa.line( left + innerFigX ,
-						top + innerFigY + bottom - pixelPos,
-						 left + innerFigX + innerFig.width,
-						 top + innerFigY +  bottom - pixelPos);
+				fpa.line( left + innerFigLocation.getX() ,
+						top + innerFigLocation.getY() + bottom - pixelPos,
+						 left + innerFigLocation.getX() + innerFig.minSize.getWidth(),
+						 top + innerFigLocation.getY() +  bottom - pixelPos);
 				fpa.stroke(0);
 				double labelYPos ;
 				if(getHAlignProperty() > 0.5f){
@@ -92,25 +92,25 @@ public class VAxis extends HAxis {
 				} else {
 					labelYPos = labelY + textWidth - fpa.textWidth(label);
 				}
-				fpa.text(label, left + labelYPos , top + innerFigY + bottom -  pixelPos);
+				fpa.text(label, left + labelYPos , top + innerFigLocation.getY() + bottom -  pixelPos);
 			}
 			fpa.line(left + axisY + tickWidth,
-					top + innerFigY +  bottom - pixelPos ,
+					top + innerFigLocation.getY() +  bottom - pixelPos ,
 					left + axisY,
-					top + innerFigY + bottom -pixelPos);
+					top + innerFigLocation.getY() + bottom -pixelPos);
 		}
-		innerFig.draw(left + innerFigX, top + innerFigY);
+		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
 	
 	}
 	
 	@Override
 	public Extremes getHorizontalBorders(){
-		return new Extremes(innerFigX,innerFigX + innerFig.width);
+		return new Extremes(innerFigLocation.getX(),innerFigLocation.getX() + innerFig.minSize.getWidth());
 	}
 	
 	@Override
 	public Extremes getVerticalBorders(){
-		return new Extremes(0,height);
+		return new Extremes(0,minSize.getHeight());
 	}
 	
 }

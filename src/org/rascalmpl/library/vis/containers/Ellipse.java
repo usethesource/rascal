@@ -35,7 +35,7 @@ public class Ellipse extends Container {
 	@Override
 	void drawContainer(){
 		fpa.ellipseMode(FigureApplet.CORNERS);
-		fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
+		fpa.ellipse(getLeft(), getTop(), getLeft() + size.getWidth(), getTop() + size.getHeight());
 	}
 	
 	@Override
@@ -70,18 +70,18 @@ public class Ellipse extends Container {
         }
         double sint = FigureApplet.sin(theta);
         double cost = FigureApplet.cos(theta);
-        double r = height * width / (4 * FigureApplet.sqrt((height*height*cost*cost + width*width*sint*sint)/4));
+        double r = minSize.getHeight() * minSize.getWidth() / (4 * FigureApplet.sqrt((minSize.getHeight()*minSize.getHeight()*cost*cost + minSize.getWidth()*minSize.getWidth()*sint*sint)/4));
         double IX = X + r * cost;
         double IY = Y + r * sint;
         
    //     fpa.line(left + fromX, top + fromY, left + IX, top + IY);
         
         if(toArrow != null){
-        	toArrow.bbox(AUTO_SIZE, AUTO_SIZE);
+        	toArrow.bbox();
         	fpa.pushMatrix();
         	fpa.translate(left + IX, top + IY);
         	fpa.rotate(FigureApplet.radians(-90) + theta);
-        	toArrow.draw(-toArrow.width/2, 0);
+        	toArrow.draw(-toArrow.minSize.getWidth()/2, 0);
         	fpa.popMatrix();
         }
 	}
@@ -94,13 +94,13 @@ public class Ellipse extends Container {
 		fpa.stroke(255, 0,0);
 		fpa.noFill();
 		fpa.ellipseMode(FigureApplet.CORNERS);
-		fpa.ellipse(getLeft(), getTop(), getLeft() + width, getTop() + height);
+		fpa.ellipse(getLeft(), getTop(), getLeft() + minSize.getWidth(), getTop() + minSize.getHeight());
 	}
 	
 	@Override
 	public boolean mouseInside(double mousex, double mousey){
-		double w2 = width/2;
-		double h2 = height/2;
+		double w2 = size.getWidth()/2;
+		double h2 = size.getHeight()/2;
 		double X = getLeft() + w2;
 		double Y = getTop() + h2;
 		double ex =  (mousex - X) / w2;

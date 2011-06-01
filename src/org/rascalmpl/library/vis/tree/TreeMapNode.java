@@ -51,8 +51,8 @@ public class TreeMapNode extends Figure {
 	}
 	
 	public void place(double width, double height, boolean hor) {
-		this.width = width;
-		this.height = height;
+		this.minSize.setWidth(width);
+		this.minSize.setHeight(height);
 		
 		double hgap = getHGapProperty();
 		double vgap = getHGapProperty();
@@ -70,12 +70,12 @@ public class TreeMapNode extends Figure {
 		double aheight = height - (n+1) * vgap;
 		for(int i = 0; i < n; i++){
 			TreeMapNode child = children.get(i);
-			child.bbox(AUTO_SIZE, AUTO_SIZE);
-			chsurf += child.width * child.height;
+			child.bbox();
+			chsurf += child.minSize.getWidth() * child.minSize.getHeight();
 		}
 		for(int i = 0; i < n; i++){
 			TreeMapNode child = children.get(i);
-			ratio[i] = (child.width * child.height) / chsurf;
+			ratio[i] = (child.minSize.getWidth() * child.minSize.getHeight()) / chsurf;
 			if(debug)System.err.printf("%s: ratio = %f\n", child.rootFigure.getIdProperty(), ratio[i]);
 		}
 		if(hor){
@@ -104,10 +104,11 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
-		rootFigure.bbox(AUTO_SIZE, AUTO_SIZE);
-		width = rootFigure.width;
-		height = rootFigure.height;
+	void bbox() {
+		rootFigure.bbox();
+		minSize.setWidth(rootFigure.minSize.getWidth());
+		minSize.setHeight(rootFigure.minSize.getHeight());
+		setNonResizable();
 	}
 	
 	@Override
@@ -120,7 +121,7 @@ public class TreeMapNode extends Figure {
 				          );
 		
 		rootFigure.applyProperties();
-		fpa.rect(left, top, width, height);
+		fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		
 		int n = children.size();
 		for(int i = 0; i < n; i++){
@@ -134,7 +135,7 @@ public class TreeMapNode extends Figure {
 		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), getLeft(), getTop());
 		fpa.stroke(255, 0,0);
 		fpa.noFill();
-		fpa.rect(getLeft(), getTop(), width, height);
+		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 	
 
@@ -154,6 +155,15 @@ public class TreeMapNode extends Figure {
 		super.registerNames();
 		for(int i = children.size()-1 ; i >= 0 ; i--){
 			children.get(i).registerNames();
+		}
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		for(int i = children.size()-1 ; i >= 0 ; i--){
+			children.get(i).setToMinSize();
+			children.get(i).layout();
 		}
 	}
 }

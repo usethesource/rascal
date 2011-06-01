@@ -28,63 +28,65 @@ public class HAxis extends WithInnerFig {
 	}
 	
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
+	public void bbox() {
 		range = innerFig.getExtremesForAxis(getIdProperty(), 0, horizontal());
 		if(debug) System.out.printf("range for %s : %f %f %s\n",getIdProperty(),range.getMinimum(),range.getMaximum(),this);
 		if(axisScales == null){
 			axisScales = new HashMap<String, Double>();
 		}
-		setWidthHeight(desiredWidth,desiredHeight);
+		// TODO: setWidthHeight();
 		double rangeInterval = range.getMaximum() - range.getMinimum(); 
 		if(range.gotData()){
 			scale = getWidth() / (rangeInterval);
 		} else {
 			scale = 1.0f;
 		}
-		if(debug) System.out.printf("width %f heihgt %f %s\n",width,height,this);
+		if(debug) System.out.printf("width %f heihgt %f %s\n",minSize.getWidth(),minSize.getHeight(),this);
 		if(debug) System.out.printf("scale for %s becomes %f\n",getIdProperty(),scale);
 		axisScales.put(getIdProperty(), scale);
 		innerFig.propagateScaling(1.0f, 1.0f,axisScales);
-		innerFig.bbox(width, height);
+		innerFig.bbox();
 		
 		double startOffset = innerFig.getOffsetForAxis(getIdProperty(), 0.0f, horizontal());
 		offsets = new Extremes(
 				startOffset, 
 				startOffset + getWidth());
-		width = innerFig.width;
-		height = innerFig.height;
+		minSize.setWidth(innerFig.minSize.getWidth());
+		minSize.setHeight(innerFig.minSize.getHeight());
 		//System.out.printf("Minimum offset %f maximum offset %f\n",offsets.getMinimum(),offsets.getMaximum());
 		addAxisToBBox();
+		setNonResizable();
+		super.bbox();
 	}
 
 
 	void setWidthHeight(double desiredWidth,double desiredHeight) {
 		if(isWidthPropertySet() || desiredWidth == AUTO_SIZE){
-			width = getWidthProperty();
+			minSize.setWidth(getWidthProperty());
 		} else {
-			width = desiredWidth;
+			minSize.setWidth(desiredWidth);
 		}
 		if(isHeightPropertySet()){
-			height = getHeightProperty();
+			minSize.setHeight(getHeightProperty());
 		} else {
-			height = desiredHeight;
+			minSize.setHeight(desiredHeight);
 		}
 	}
 
 	void addAxisToBBox() {
-		axisY = getVAlignProperty() * innerFig.height;
+		axisY = getVAlignProperty() * innerFig.minSize.getHeight();
 		applyFontProperties();
 		if(getVAlignProperty() > 0.5f){
 			labelY = axisY + getVGapProperty() + fpa.textAscent() ;
 			double bottomLabelY = labelY + fpa.textDescent();
-			height = Math.max(height,bottomLabelY);
+			minSize.setHeight(Math.max(minSize.getHeight(),bottomLabelY));
 		} else {
 			labelY = axisY -  getVGapProperty() - fpa.textAscent() - fpa.textDescent() ;
 			double topLabelY = labelY - fpa.textDescent() ;
-			innerFigY = Math.max(0,-topLabelY);
-			axisY+=innerFigY ;
-			labelY+=innerFigY ;
-			height+=innerFigY;
+			innerFigLocation.setY(Math.max(0,-topLabelY));
+			axisY+=innerFigLocation.getY() ;
+			labelY+=innerFigLocation.getY() ;
+			minSize.setHeight(minSize.getHeight() + innerFigLocation.getY());
 		}
 	}
 
@@ -160,10 +162,10 @@ public class HAxis extends WithInnerFig {
 	public void draw(double left, double top) {
 		setLeft(left);
 		setTop(top);
-		Tick[] ticks = getTicks(65.0f, left + innerFigX + innerFig.getHorizontalBorders().getMinimum()
+		Tick[] ticks = getTicks(65.0f, left + innerFigLocation.getX() + innerFig.getHorizontalBorders().getMinimum()
 								,left + offsets.getMinimum()
 								,left + offsets.getMaximum()
-								,left + innerFigX + innerFig.getHorizontalBorders().getMaximum()
+								,left + innerFigLocation.getX() + innerFig.getHorizontalBorders().getMaximum()
 								,range.getMinimum(),range.getMaximum()
 								);
 		
@@ -172,7 +174,7 @@ public class HAxis extends WithInnerFig {
 		
 		double direction = getVAlignProperty() > 0.5f ? 1.0f : -1.0f;
 		fpa.fill(255);
-		fpa.rect(left,top, width,height);
+		fpa.rect(left,top, minSize.getWidth(),minSize.getHeight());
 		fpa.textAlign(FigureApplet.CENTER, FigureApplet.CENTER);
 		for(Tick tick : ticks){
 			double tickHeight = direction * (tick.major ? 7 : 3);
@@ -180,9 +182,9 @@ public class HAxis extends WithInnerFig {
 			if(tick.major){
 				fpa.stroke(230);
 				fpa.line( (double)tick.pixelPos ,
-						top + innerFigY,
+						top + innerFigLocation.getY(),
 						 (double)tick.pixelPos,
-						top + innerFigY + innerFig.height);
+						top + innerFigLocation.getY() + innerFig.minSize.getHeight());
 				fpa.stroke(0);
 				fpa.text(label,  (double)tick.pixelPos , top + labelY );
 			}
@@ -191,7 +193,7 @@ public class HAxis extends WithInnerFig {
 					(double)tick.pixelPos,
 					top + axisY );
 		}
-		innerFig.draw(left + innerFigX, top + innerFigY);
+		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
 		fpa.line(left + innerFig.getHorizontalBorders().getMinimum(),
 				top + axisY,
 				left + innerFig.getHorizontalBorders().getMaximum(),
@@ -208,7 +210,7 @@ public class HAxis extends WithInnerFig {
 	@Override
 	public Extremes getVerticalBorders(){
 		//System.out.printf("vertical haxis borders %f %f \n", innerFigY,innerFigY + innerFig.height);
-		return new Extremes(innerFigY,innerFigY + innerFig.height);
+		return new Extremes(innerFigLocation.getY(),innerFigLocation.getY() + innerFig.minSize.getHeight());
 	}
 	
 }

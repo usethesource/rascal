@@ -225,10 +225,11 @@ public class LayeredGraph extends Figure {
 	}
 	
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		MAXWIDTH = width = getWidthProperty();
+	public void bbox() {
+		minSize.setWidth(getWidthProperty());
+		MAXWIDTH = minSize.getWidth();
 		//MAXWIDTH = width = 1000;
-		height = getHeightProperty();
+		minSize.setHeight(getHeightProperty());
 		hgap = getHGapProperty();
 		vgap = getVGapProperty();
 		
@@ -243,7 +244,7 @@ public class LayeredGraph extends Figure {
 		}
 		
 		for(LayeredGraphEdge e : edges){
-			e.bbox(desiredWidth, desiredHeight);
+			e.bbox();
 		}
 
 		//switchWidthAndHeight();
@@ -252,7 +253,8 @@ public class LayeredGraph extends Figure {
 		translateToOrigin();
 		//switchWidthAndHeight();
 		rotateToDirection();
-		
+		setNonResizable();
+		super.bbox();
 	}
 	
 	/**
@@ -285,8 +287,8 @@ public class LayeredGraph extends Figure {
 		
 		for (LayeredGraphEdge e : edges) {
 			if(e.label != null){
-			double w2 = e.label.width / 2;
-			double h2 = e.label.height / 2;
+			double w2 = e.label.minSize.getWidth() / 2;
+			double h2 = e.label.minSize.getHeight() / 2;
 			
 			if (e.labelX - w2 < minx)
 				minx = e.labelX - w2;
@@ -315,8 +317,8 @@ public class LayeredGraph extends Figure {
 				e.labelY -= miny;
 			}
 		}
-		width = maxx - minx;
-		height = maxy - miny;
+		minSize.setWidth(maxx - minx);
+		minSize.setHeight(maxy - miny);
 	}
 	
 	private void switchWidthAndHeight(){
@@ -382,26 +384,26 @@ public class LayeredGraph extends Figure {
 		
 		if(dir.equals("BT")){
 			for (LayeredGraphNode n : nodes){
-				System.err.println("rotate: " + n.name + ": " + n.y + " -> " + (height- n.y));
-				n.y = height - n.y;
+				System.err.println("rotate: " + n.name + ": " + n.y + " -> " + (minSize.getHeight()- n.y));
+				n.y = minSize.getHeight() - n.y;
 			}
 			return;
 		}
 		double tmp;
 		if(dir.equals("LR")){
 			for (LayeredGraphNode n : nodes){
-				tmp = n.x; n.x = n.y; n.y = width - tmp;
+				tmp = n.x; n.x = n.y; n.y = minSize.getWidth() - tmp;
 			}
 			
 		} else if(dir.equals("RL")){
 			for (LayeredGraphNode n : nodes){
-				tmp = n.x; n.x = width - n.y; n.y = tmp;
+				tmp = n.x; n.x = minSize.getWidth() - n.y; n.y = tmp;
 			}
 		}
 		
-		tmp = width;
-		width = height;
-		height = tmp;
+		tmp = minSize.getWidth();
+		minSize.setWidth(minSize.getHeight());
+		minSize.setHeight(tmp);
 	}
 
 	@Override
@@ -411,7 +413,7 @@ public class LayeredGraph extends Figure {
 		this.setTop(top);
 
 		applyProperties();		
-		fpa.rect(left, top, width, height);
+		fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		for (LayeredGraphEdge e : edges)
 			e.draw(left, top);
 		
@@ -1505,5 +1507,17 @@ public class LayeredGraph extends Figure {
 		for(LayeredGraphEdge edge : edges){
 			edge.registerNames();
 		}
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		for(LayeredGraphNode node : nodes){
+			node.layout();
+		}
+		for(LayeredGraphEdge edge : edges){
+			edge.layout();
+		}
+		
 	}
 }

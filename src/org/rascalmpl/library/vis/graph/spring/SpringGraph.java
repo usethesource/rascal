@@ -60,8 +60,8 @@ public class SpringGraph extends Figure {
 		super(fpa, properties);
 		this.nodes = new ArrayList<SpringGraphNode>();
 		this.ctx = ctx;
-		width = getWidthProperty();
-		height = getHeightProperty();
+		minSize.setWidth(getWidthProperty());
+		minSize.setHeight(getHeightProperty());
 		registered = new HashMap<String,SpringGraphNode>();
 		for(IValue v : nodes){
 
@@ -89,7 +89,7 @@ public class SpringGraph extends Figure {
 
 		// double connectivity = edges.length()/nodes.length();
 		springConstant = // (connectivity > 1 ? 0.5f : 0.3f) *
-		                 FigureApplet.sqrt((width * height) / nodes.length());
+		                 FigureApplet.sqrt((minSize.getWidth() * minSize.getHeight()) / nodes.length());
 		if (debug)
 			System.err.printf("springConstant = %f\n", springConstant);
 		springConstant2 = springConstant * springConstant;
@@ -120,13 +120,13 @@ public class SpringGraph extends Figure {
 //		 root.setY(height/2);
 //		 }
 		for (SpringGraphNode n : nodes) {
-			n.figure.bbox(AUTO_SIZE, AUTO_SIZE);
+			n.figure.bbox();
 			if (n != root) {
-				n.setX(FigureApplet.random(n.figure.width/2,  width  - n.figure.width/2));
-				n.setY(FigureApplet.random(n.figure.height/2, height - n.figure.height/2));
+				n.setX(FigureApplet.random(n.figure.minSize.getWidth()/2,  minSize.getWidth()  - n.figure.minSize.getWidth()/2));
+				n.setY(FigureApplet.random(n.figure.minSize.getHeight()/2, minSize.getHeight() - n.figure.minSize.getHeight()/2));
 			}
 			
-			System.err.printf("Initial: node %s, width=%f, height=%f, x=%f, y=%f\n", n.name, n.figure.width, n.figure.height, n.getX(), n.getY());
+			System.err.printf("Initial: node %s, width=%f, height=%f, x=%f, y=%f\n", n.name, n.figure.minSize.getWidth(), n.figure.minSize.getHeight(), n.getX(), n.getY());
 		}
 	}
 
@@ -140,7 +140,7 @@ public class SpringGraph extends Figure {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
+	void bbox() {
 
 		initialPlacement();
 			
@@ -190,6 +190,8 @@ public class SpringGraph extends Figure {
 //			n.y = n.y - miny;
 //			n.y *= scaley;
 //		}
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override
@@ -247,6 +249,17 @@ public class SpringGraph extends Figure {
 		}
 		for(SpringGraphEdge edge : edges){
 			edge.registerNames();
+		}
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		for(SpringGraphNode node : nodes){
+			node.layout();
+		}
+		for(SpringGraphEdge edge : edges){
+			edge.layout();
 		}
 	}
 }

@@ -106,12 +106,13 @@ public class Tree extends Figure {
 	
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
+	void bbox() {
 		//System.err.printf("Tree.bbox()\n");
 		raster.clear();
 		root.shapeTree(0, 0, raster);
-		width = root.width;
-		height = root.height;
+		minSize.setWidth(root.minSize.getWidth());
+		minSize.setHeight(root.minSize.getHeight());
+		setNonResizable();
 	}
 	
 	@Override
@@ -148,6 +149,16 @@ public class Tree extends Figure {
 	public void registerNames(){
 		super.registerNames();
 		if(root!=null) root.registerNames();
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		if(root!=null){
+			root.setToMinSize();
+			root.layout();
+		}
+		
 	}
 
 }

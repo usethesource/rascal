@@ -48,14 +48,16 @@ public class Place extends Figure {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		bottomFigure.bbox(AUTO_SIZE, AUTO_SIZE);
-		topFigure.bbox(AUTO_SIZE, AUTO_SIZE);
+	public void bbox() {
+		bottomFigure.bbox();
+		topFigure.bbox();
 		
 		double halign = getHAlignProperty();
 		double valign = getVAlignProperty();
-		width = Math.max(bottomFigure.width, halign * refFigure.width + topFigure.width/2);
-		height = Math.max(bottomFigure.height, valign * refFigure.height + topFigure.height/2);
+		minSize.setWidth(Math.max(bottomFigure.minSize.getWidth(), halign * refFigure.minSize.getWidth() + topFigure.minSize.getWidth()/2));
+		minSize.setHeight(Math.max(bottomFigure.minSize.getHeight(), valign * refFigure.minSize.getHeight() + topFigure.minSize.getHeight()/2));
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override
@@ -65,8 +67,8 @@ public class Place extends Figure {
 		double halign = getHAlignProperty();
 		double valign = getVAlignProperty();
 		bottomFigure.draw(left, top);
-		topFigure.draw(refFigure.getLeft() + halign * refFigure.width - topFigure.width/2,
-				       refFigure.getTop()  + valign * refFigure.height - topFigure.height/2);
+		topFigure.draw(refFigure.getLeft() + halign * refFigure.minSize.getWidth() - topFigure.minSize.getWidth()/2,
+				       refFigure.getTop()  + valign * refFigure.minSize.getHeight() - topFigure.minSize.getHeight()/2);
 	}
 	
 	@Override
@@ -91,5 +93,11 @@ public class Place extends Figure {
 	
 	public void executeMouseOverOffHandlers(Properties prop) {
 		// TODO: Implement this...
+	}
+
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
 	}
 }

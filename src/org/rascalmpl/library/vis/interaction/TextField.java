@@ -79,20 +79,22 @@ public class TextField extends Figure {
 			}
 		});
 		textfield.setText(text);
-		width =  getWidthProperty();
-		tLimit = FigureApplet.round(width / fpa.textWidth("b"));
+		minSize.setWidth(getWidthProperty());
+		tLimit = FigureApplet.round(minSize.getWidth() / fpa.textWidth("b"));
 		if (text.length()>tLimit) {
 			  tLimit = text.length();	
-			  width = fpa.textWidth(text);
+			  minSize.setWidth(fpa.textWidth(text));
 		}
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		Point p = textfield.computeSize(FigureApplet.round(width), SWT.DEFAULT, true);
-		width = p.x;
-		height = p.y;
+	public void bbox() {
+		Point p = textfield.computeSize(FigureApplet.round(minSize.getWidth()), SWT.DEFAULT, true);
+		minSize.setWidth(p.x);
+		minSize.setHeight(p.y);
 		textfield.setTextLimit(tLimit);
+		setNonResizable();
+		super.bbox();
 	}
 
 	public boolean doValidate() {
@@ -123,7 +125,7 @@ public class TextField extends Figure {
 		this.setTop(top);
 		textfield.setForeground(validated ? trueColor : falseColor);
 		textfield
-				.setSize(FigureApplet.round(width), FigureApplet.round(height));
+				.setSize(FigureApplet.round(minSize.getWidth()), FigureApplet.round(minSize.getHeight()));
 		textfield.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		textfield
 				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
@@ -133,5 +135,10 @@ public class TextField extends Figure {
 	@Override
 	public void destroy() {
 		textfield.dispose();
+	}
+	
+	@Override
+	public void layout() {
+		size.set(minSize);	
 	}
 }

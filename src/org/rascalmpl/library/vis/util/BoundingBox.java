@@ -16,6 +16,10 @@ public class BoundingBox {
 	
 	private double width, height;
 	
+	public BoundingBox(){
+		width = height =0;
+	}
+	
 	public BoundingBox(double width,double height,boolean flip){
 		if(flip){
 			this.width = height;
@@ -30,6 +34,10 @@ public class BoundingBox {
 		this(width,height,false);
 	}
 	
+	public void clear(){
+		width = height = 0.0;
+	}
+	
 	
 	public double getWidth(){
 		return width;
@@ -37,6 +45,19 @@ public class BoundingBox {
 	
 	public double getHeight(){
 		return height;
+	}
+	
+	public void setWidth(double val){
+		width = val;
+	}
+	
+	public void setHeight(double val){
+		height = val;
+	}
+	
+	public void setWidth(boolean flip, double val){
+		if(flip) height = val;
+		else width = val;
 	}
 	
 	public double getWidth(boolean flip){
@@ -55,6 +76,24 @@ public class BoundingBox {
 		case Y: return height;
 		default: return 0;
 		}
+	}
+	
+	public void set(double width, double height){
+		this.width = width;
+		this.height = height;
+	}
+	
+	public void set(BoundingBox b){
+		set(b.width,b.height);
+	}
+	
+	public void addWidth(boolean flip, double val){
+		if(flip) height+= val;
+		else width += val;
+	}
+	
+	public String toString(){
+		return "w:"+width+"h:"+height;
 	}
 
 }

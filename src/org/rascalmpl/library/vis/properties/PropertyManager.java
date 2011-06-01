@@ -140,7 +140,7 @@ public class PropertyManager {
 	
 	int safeBinarySearch(PropertyValue[] values, Properties property){
 		if(values.length == 0) return -1;
-		else return Arrays.binarySearch(explicitValues, property);
+		else return Arrays.binarySearch(values, property);
 	}
 	
 	public PropertyValue getPropertyValue(Properties property){
@@ -148,12 +148,17 @@ public class PropertyManager {
 		if(i>=0){
 			return explicitValues[i];
 		}
+		return getStdPropertyValue(property);
+	}
+
+	PropertyValue getStdPropertyValue(Properties property) {
+		int i;
 		i = safeBinarySearch(stdValues, property);
 		if(i>=0){
 			return stdValues[i];
-		}
+		} 
 		if(parent != null){
-			return parent.getPropertyValue(property);
+			return parent.getStdPropertyValue(property);
 		} 
 		return null;
 	}

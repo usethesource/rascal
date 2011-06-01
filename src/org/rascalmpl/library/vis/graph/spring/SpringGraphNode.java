@@ -60,18 +60,18 @@ public class SpringGraphNode {
 		double vx = getX() - other.getX();
 //		return vx;
 		if(vx > 0){
-			return FigureApplet.max(vx - (figure.width/2 + other.figure.width/2), 0.01f);
+			return FigureApplet.max(vx - (figure.minSize.getWidth()/2 + other.figure.minSize.getWidth()/2), 0.01f);
 		}
-		return FigureApplet.min(vx + (figure.width/2 + other.figure.width/2), -0.01f);	
+		return FigureApplet.min(vx + (figure.minSize.getWidth()/2 + other.figure.minSize.getWidth()/2), -0.01f);	
 	}
 	
 	public double ydistance(SpringGraphNode other){
 		double vy = getY() - other.getY() ;
 //		return vy;
 		if(vy > 0){
-			return FigureApplet.max(vy - (figure.height/2 + other.figure.height/2), 0.01f);
+			return FigureApplet.max(vy - (figure.minSize.getHeight()/2 + other.figure.minSize.getHeight()/2), 0.01f);
 		}
-		return FigureApplet.min(vy + (figure.height/2 + other.figure.height/2), -0.01f);
+		return FigureApplet.min(vy + (figure.minSize.getHeight()/2 + other.figure.minSize.getHeight()/2), -0.01f);
 	}
 	
 //	public double getMass(){
@@ -107,8 +107,8 @@ public class SpringGraphNode {
 		}
 		
 		// Consider the repulsion of the 4 walls of the surrounding frame
-		repulsion(getX(), G.height/2); repulsion(G.width - getX(), G.height/2);
-		repulsion(G.width/2, getY()); repulsion(G.width/2, G.height - getY());
+		repulsion(getX(), G.minSize.getHeight()/2); repulsion(G.minSize.getWidth() - getX(), G.minSize.getHeight()/2);
+		repulsion(G.minSize.getWidth()/2, getY()); repulsion(G.minSize.getWidth()/2, G.minSize.getHeight() - getY());
 		
 		
 		for(SpringGraphEdge e : G.edges){
@@ -139,8 +139,8 @@ public class SpringGraphNode {
 			double cdispx = FigureApplet.constrain(dispx, -G.temperature, G.temperature);
 			double cdispy = FigureApplet.constrain(dispy, -G.temperature, G.temperature);
 			System.err.printf("cdispx=%f, cdispy=%f\n", cdispx, cdispy);
-			setX(FigureApplet.constrain (getX() + cdispx, figure.width/2, G.width-figure.width/2));
-			setY(FigureApplet.constrain (getY() + cdispy, figure.height/2, G.height-figure.height/2));
+			setX(FigureApplet.constrain (getX() + cdispx, figure.minSize.getWidth()/2, G.minSize.getWidth()-figure.minSize.getWidth()/2));
+			setY(FigureApplet.constrain (getY() + cdispy, figure.minSize.getHeight()/2, G.minSize.getHeight()-figure.minSize.getHeight()/2));
 			System.err.printf("Updated node %s: %f, %f\n", name, getX(), getY());
 		}
 	}
@@ -155,26 +155,26 @@ public class SpringGraphNode {
 	
 	void bbox(){
 		if(figure != null){
-			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
+			figure.bbox();
 		}
 	}
 	
 	double width(){
-		return figure != null ? figure.width : 0;
+		return figure != null ? figure.minSize.getWidth() : 0;
 	}
 	
 	double height(){
-		return figure != null ? figure.height : 0;
+		return figure != null ? figure.minSize.getHeight() : 0;
 	}
 
 	void draw(double left, double top) {
 		if(figure != null){
-			figure.draw(getX() + left - figure.width/2, getY() + top - figure.height/2);
+			figure.draw(getX() + left - figure.minSize.getWidth()/2, getY() + top - figure.minSize.getHeight()/2);
 		}
 	}
 
 	protected void setX(double x) {
-		if(x < figure.width/2 || x > G.width - figure.width/2)
+		if(x < figure.minSize.getWidth()/2 || x > G.minSize.getWidth() - figure.minSize.getWidth()/2)
 			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name, x);
 		this.x = x;
 	}
@@ -184,7 +184,7 @@ public class SpringGraphNode {
 	}
 
 	protected void setY(double y) {
-		if(y < figure.height/2 || y > G.height - figure.height/2)
+		if(y < figure.minSize.getHeight()/2 || y > G.minSize.getHeight() - figure.minSize.getHeight()/2)
 			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name, y);
 		this.y = y;
 	}
@@ -199,5 +199,13 @@ public class SpringGraphNode {
 	
 	public void registerNames(){
 		if(figure!=null)figure.registerNames();
+	}
+
+	public void layout() {
+		if(figure!=null) {
+			figure.setToMinSize();
+			figure.layout();
+		}
+		
 	}
 }

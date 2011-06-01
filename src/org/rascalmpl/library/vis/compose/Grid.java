@@ -54,13 +54,12 @@ public class Grid extends Compose {
 	}
 	
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight){
-		
-		width = getWidthProperty();
-		height = 0;
+	public void bbox(){
+		minSize.setWidth(getWidthProperty());
+		minSize.setHeight(0);
 		
 		for(Figure fig : figures){
-			fig.bbox(AUTO_SIZE,AUTO_SIZE);
+			fig.bbox();
 		}
 		
 		int nrCollumns = computeNrCollumns();
@@ -72,17 +71,17 @@ public class Grid extends Compose {
 		int row = 0;
 		int collumn = 0;
 		for(int i = 0 ; i < figures.length ; i++){
-			collumnWidths[collumn] = Math.max(collumnWidths[collumn] , figures[i].width);
-			rowHeights[row] = Math.max(rowHeights[row] , figures[i].height);
+			collumnWidths[collumn] = Math.max(collumnWidths[collumn] , figures[i].minSize.getWidth());
+			rowHeights[row] = Math.max(rowHeights[row] , figures[i].minSize.getHeight());
 			collumn++;
 			if(collumn >= nrCollumns){
 				collumn = 0;
 				row++;
 			}
 		}
-		height = 0;
+		minSize.setHeight(0);
 		for(int i = 0 ; i < nrRows ; i++){
-			height+=rowHeights[i];
+			minSize.setHeight(minSize.getHeight() + rowHeights[i]);
 		}
 		
 		double x, y;
@@ -91,8 +90,8 @@ public class Grid extends Compose {
 		x = y = 0;
 		for(int i = 0 ; i < figures.length ; i++){
 			Figure fig = figures[i];
-			xPos[i] = x + ((collumnWidths[collumn]- fig.width)) * fig.getHAlignProperty();
-			yPos[i] = y + ((rowHeights[row] - fig.height)) * fig.getVAlignProperty();
+			xPos[i] = x + ((collumnWidths[collumn]- fig.minSize.getWidth())) * fig.getHAlignProperty();
+			yPos[i] = y + ((rowHeights[row] - fig.minSize.getHeight())) * fig.getVAlignProperty();
 			x+= collumnWidths[collumn];
 			collumn++;
 			if(collumn >= nrCollumns){
@@ -102,6 +101,8 @@ public class Grid extends Compose {
 				row++;
 			}
 		}
+		setNonResizable();
+		super.bbox();
 		
 	}
 
@@ -113,7 +114,7 @@ public class Grid extends Compose {
 			double []collumnWidths = new double[nrCollumnsGuess];
 			for(int rowOffset = 0 ; rowOffset < figures.length ; rowOffset+=nrCollumnsGuess){
 				for(int collumnOffset = 0 ; collumnOffset < nrCollumnsGuess && rowOffset + collumnOffset < figures.length ; collumnOffset++){
-					collumnWidths[collumnOffset] = Math.max(collumnWidths[collumnOffset] , figures[rowOffset+collumnOffset].width);
+					collumnWidths[collumnOffset] = Math.max(collumnWidths[collumnOffset] , figures[rowOffset+collumnOffset].minSize.getWidth());
 				}
 			}
 			totalCollumnWidth = 0.0;
@@ -123,7 +124,7 @@ public class Grid extends Compose {
 
 			nrCollumnsGuess++;
 			fillCompleted = collumnWidths[collumnWidths.length - 1] == 0;
-		} while(totalCollumnWidth < width && !fillCompleted);
+		} while(totalCollumnWidth < minSize.getWidth() && !fillCompleted);
 
 		return  Math.max(1, nrCollumnsGuess-1);
 	}

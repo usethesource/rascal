@@ -38,21 +38,22 @@ public class Overlay extends Compose {
 	}
 	
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight){
+	public void bbox(){
 		
 		topAnchor = bottomAnchor = leftAnchor = rightAnchor = 0;
 		
 		for(Figure ve : figures){
-			ve.bbox(desiredWidth, desiredHeight);
+			ve.bbox();
 			topAnchor = Math.max(topAnchor, ve.topAlign());
 			bottomAnchor = Math.max(bottomAnchor, ve.bottomAlign());
 			leftAnchor = Math.max(leftAnchor, ve.leftAlign());
 			rightAnchor = Math.max(rightAnchor, ve.rightAlign());
 		}
-		width = leftAnchor + rightAnchor;
-		height = topAnchor + bottomAnchor;
-		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", width, height);
+		minSize.setWidth(leftAnchor + rightAnchor);
+		minSize.setHeight(topAnchor + bottomAnchor);
+		if(debug)System.err.printf("overlay.bbox: width=%f, height=%f\n", minSize.getWidth(), minSize.getHeight());
 		determinePlacement();
+		super.bbox();
 	}
 
 	private void determinePlacement() {

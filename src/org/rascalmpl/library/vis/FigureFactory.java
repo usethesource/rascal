@@ -24,12 +24,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.compose.Grid;
-import org.rascalmpl.library.vis.compose.HCat;
 import org.rascalmpl.library.vis.compose.HVCat;
+import org.rascalmpl.library.vis.compose.NewGrid;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
 import org.rascalmpl.library.vis.compose.Place;
-import org.rascalmpl.library.vis.compose.VCat;
 import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.HAxis;
@@ -87,9 +86,9 @@ public class FigureFactory {
 		GRAPH, 
 		GRID,
 		HAXIS,
-		HCAT, 
 		HSCREEN,
 		HVCAT,
+		NEWGRID,
 		OUTLINE,
 		OVERLAY, 
 		PACK, 
@@ -106,7 +105,6 @@ public class FigureFactory {
 		TREEMAP,
 		USE,
 		VAXIS,
-		VCAT,
 		VERTEX,
 		VSCREEN,
 		WEDGE,
@@ -126,9 +124,9 @@ public class FigureFactory {
     	put("_graph",		Primitives.GRAPH);
     	put("_grid",		Primitives.GRID);
     	put("_haxis",       Primitives.HAXIS);      
-    	put("_hcat",		Primitives.HCAT);
-    	put("_hscreen",      Primitives.HSCREEN);
+    	put("_hscreen",     Primitives.HSCREEN);
     	put("_hvcat",		Primitives.HVCAT);
+    	put("_newgrid",     Primitives.NEWGRID);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
     	put("_pack",		Primitives.PACK);	
@@ -136,7 +134,7 @@ public class FigureFactory {
     	put("_projection",	Primitives.PROJECTION);
     	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
-    	put("_scrollable", Primitives.SCROLLABLE);
+    	put("_scrollable",  Primitives.SCROLLABLE);
     	put("_shape",		Primitives.SHAPE);
     	put("_space",		Primitives.SPACE);
     	put("_text",		Primitives.TEXT);		
@@ -145,8 +143,7 @@ public class FigureFactory {
        	put("_treemap",		Primitives.TREEMAP);
     	put("_use",			Primitives.USE);
     	put("_vaxis",       Primitives.VAXIS);  
-    	put("_vcat",		Primitives.VCAT);
-    	put("_vscreen",      Primitives.VSCREEN);
+    	put("_vscreen",     Primitives.VSCREEN);
     	put("_vertex",		Primitives.VERTEX);
     	put("_wedge",		Primitives.WEDGE);
     	put("_xaxis",		Primitives.XAXIS);
@@ -159,6 +156,16 @@ public class FigureFactory {
     	for (int i = 0; i < elems.length(); i++) {
     		IConstructor c = (IConstructor)elems.get(i);
 			result[i] = FigureFactory.make(fpa, c, properties, childProps, ctx);
+		}
+    	return result;
+    }
+    
+    public static Figure[][] make2DList(IFigureApplet fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+    	IList elems = (IList)list;
+    	Figure[][] result = new Figure[elems.length()][];
+    	for (int i = 0; i < elems.length(); i++) {
+    		IList c = (IList)elems.get(i);
+			result[i] = makeList(fpa, c, properties, childProps, ctx);
 		}
     	return result;
     }
@@ -245,9 +252,6 @@ public class FigureFactory {
 		case HAXIS:
 			return new HAxis(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 			
-		case HCAT:
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new HCat(fpa, children, properties);
 			
 		case HSCREEN:
 			return new HScreen(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
@@ -255,6 +259,11 @@ public class FigureFactory {
 		case HVCAT:
 			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
 			return new HVCat(fpa, children, properties);
+			
+		case NEWGRID:
+			Figure[][] elems = make2DList(fpa, c.get(0), properties, childPropsNext, ctx);
+			return new NewGrid(fpa, elems, properties);
+			
 						
 		case OUTLINE: 
 			return new Outline(fpa, properties, (IList)c.get(0), (IInteger) c.get(1));
@@ -335,10 +344,6 @@ public class FigureFactory {
 			
 		case VAXIS:
 			return new VAxis(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
-			
-		case VCAT:
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new VCat(fpa, children, properties);
 		
 		case VSCREEN:
 			return new VScreen(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );

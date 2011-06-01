@@ -58,22 +58,22 @@ public class LatticeGraphNode {
 
 	void bbox() {
 		if (figure != null) {
-			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
+			figure.bbox();
 		}
 	}
 
 	double width() {
-		return figure != null ? figure.width : 0;
+		return figure != null ? figure.minSize.getWidth() : 0;
 	}
 
 	double height() {
-		return figure != null ? figure.height : 0;
+		return figure != null ? figure.minSize.getHeight() : 0;
 	}
 
 	void draw(double left, double top) {
 		if (figure != null) {
-			figure.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
-			figure.draw(x + left - figure.width / 2, y + top - figure.height
+			figure.bbox();
+			figure.draw(x + left - figure.minSize.getWidth() / 2, y + top - figure.minSize.getHeight()
 					/ 2);
 			// if (mousePressed) {
 			// // System.err.println("Pressed");
@@ -119,6 +119,13 @@ public class LatticeGraphNode {
 	public void registerNames(){
 		if(figure!=null){
 			figure.registerNames();
+		}
+	}
+	
+	public void layout(){
+		if(figure!=null){
+			figure.setToMinSize();
+			figure.layout();
 		}
 	}
 	

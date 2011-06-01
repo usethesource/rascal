@@ -44,7 +44,7 @@ public class Shape extends Compose {
 	
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight){
+	void bbox(){
 		double minX = 0.0;		
 		double maxX = 0.0;
 		double minY = 0.0;
@@ -52,7 +52,7 @@ public class Shape extends Compose {
 
 		for(int i = 0 ; i < figures.length ; i++){
 			Vertex ver = (Vertex)figures[i];
-			ver.bbox(AUTO_SIZE, AUTO_SIZE);
+			ver.bbox();
 			anchorPointsX[i] = ver.getDeltaX();
 			xPos[i] = anchorPointsX[i] - ver.leftAlign();
 			anchorPointsY[i] = - ver.getDeltaY();
@@ -64,8 +64,8 @@ public class Shape extends Compose {
 		}
 		zeroX = -minX;
 		zeroY = -minY;
-		height = maxY - minY;
-		width = maxX - minX;
+		minSize.setHeight(maxY - minY);
+		minSize.setWidth(maxX - minX);
 		for(int i = 0 ; i < figures.length ; i++){
 			anchorPointsX[i]+=zeroX;
 			xPos[i]+=zeroX;
@@ -73,7 +73,9 @@ public class Shape extends Compose {
 			yPos[i]+=zeroY;
 		}
 		if(debug)System.err.printf("bbox.shape: width = %f , height = %f \n", 
-				width, height);
+				minSize.getWidth(), minSize.getHeight());
+		setNonResizable();
+		super.bbox();
 	}
 	
 	@Override
@@ -203,4 +205,5 @@ public class Shape extends Compose {
 			return result;
 		}
 	}
+
 }

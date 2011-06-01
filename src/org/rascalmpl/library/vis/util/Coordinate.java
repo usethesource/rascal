@@ -30,6 +30,10 @@ public class Coordinate {
 		this(x,y,false);
 	}
 	
+	public Coordinate(){
+		this(0,0);
+	}
+	
 	public double getX(){ return x; }
 	public double getY() { return y; }
 	public double getX(boolean flip) {
@@ -47,6 +51,36 @@ public class Coordinate {
 		case Y: return y;
 		default: return 0;
 		}
+	}
+	
+	public void setX(double val){
+		x = val;
+	}
+	
+	public void setY(double val){
+		y = val;
+	}
+
+	public void setX(boolean flip, double val) {
+		if(flip) y = val;
+		else x = val;
+	}
+	
+	public void clear(){
+		x = y = 0;
+	}
+	
+	public void addX(boolean flip, double val){
+		if(flip) y += val;
+		else x += val;
+	}
+	
+	public void addX( double val){
+		x += val;
+	}
+	
+	public void addY( double val){
+		y += val;
 	}
 	
 

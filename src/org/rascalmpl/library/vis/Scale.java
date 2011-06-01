@@ -29,23 +29,24 @@ public class Scale extends WithInnerFig {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
-		if(properties.getBooleanProperty(Properties.SCALE_ALL) && !propagated) propagateScaling(1.0f, 1.0f,null);
-		innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+	void bbox() {
+		//if(properties.getBooleanProperty(Properties.SCALE_ALL) && !propagated) propagateScaling(1.0f, 1.0f,null);
+		innerFig.bbox();
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override
 	public
 	void draw(double left, double top) {
-		if(properties.getBooleanProperty(Properties.SCALE_ALL)){
-			fpa.pushMatrix();
-			fpa.translate(left, top);
-			fpa.scale(xscale, yscale);
-			innerFig.draw(0,0);
-			fpa.popMatrix();
-		} else {
-			innerFig.draw(left, top);
-		}
+		fpa.pushMatrix();
+		fpa.translate(left, top);
+		fpa.scale(xscale, yscale);
+		innerFig.draw(0,0);
+		fpa.popMatrix();
+		
 	}
+
+
 
 }

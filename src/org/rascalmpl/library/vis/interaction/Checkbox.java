@@ -54,12 +54,14 @@ public class Checkbox extends Figure {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
+	public void bbox() {
 		Point p = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		// width = list.getSize().x;
 		// height = list.getSize().y;
-		width = p.x;
-		height = p.y;
+		minSize.setWidth(p.x);
+		minSize.setHeight(p.y);
+		setNonResizable();
+		super.bbox();
 	}
 
 	public void doCallBack(boolean selected) {
@@ -78,7 +80,7 @@ public class Checkbox extends Figure {
 		this.setTop(top);
 		// button.setSize(FigureApplet.round(getWidthProperty()),
 		// FigureApplet.round(getHeightProperty()));
-		button.setSize(FigureApplet.round(width), FigureApplet.round(height));
+		button.setSize(FigureApplet.round(minSize.getWidth()), FigureApplet.round(minSize.getHeight()));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		this.print(button, left, top);
@@ -90,4 +92,8 @@ public class Checkbox extends Figure {
 		button.dispose();
 	}
 
+	@Override
+	public void layout() {
+		size.set(minSize);	
+	}
 }

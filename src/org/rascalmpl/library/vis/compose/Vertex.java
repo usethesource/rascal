@@ -63,42 +63,44 @@ public class Vertex extends Figure {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight){
+	void bbox(){
 
 		if(marker != null){
 			//TODO is this ok?
-			marker.bbox(AUTO_SIZE, AUTO_SIZE);
+			marker.bbox();
 			if(debug) System.err.printf("Vertex: marker anchors hor (%f, %f), vert (%f, %f)\n",
 					   marker.leftAlign(), marker.rightAlign(), marker.topAlign(), marker.bottomAlign());
 			if(marker.leftAlign() >= deltax){
 				leftAnchor = marker.leftAlign() - deltax;
-				width = marker.width;
-				rightAnchor = width - leftAnchor;
+				minSize.setWidth(marker.minSize.getWidth());
+				rightAnchor = minSize.getWidth() - leftAnchor;
 			} else {
 				leftAnchor = 0;
-				width = deltax + marker.rightAlign();
-				rightAnchor = width;
+				minSize.setWidth(deltax + marker.rightAlign());
+				rightAnchor = minSize.getWidth();
 			}
 			
 			if(marker.bottomAlign() >= deltay){
 				bottomAnchor = marker.bottomAlign();
 				topAnchor = marker.topAlign() + deltay;
-				height = bottomAnchor + topAnchor;
+				minSize.setHeight(bottomAnchor + topAnchor);
 			} else {
 				bottomAnchor = 0;
-				height = deltay + marker.topAlign();
-				topAnchor = height;
+				minSize.setHeight(deltay + marker.topAlign());
+				topAnchor = minSize.getHeight();
 			}
 			
 		} else {
-			width = deltax;
-			height = deltay;
+			minSize.setWidth(deltax);
+			minSize.setHeight(deltay);
 			leftAnchor = bottomAnchor = 0;
-			rightAnchor = width;
-			topAnchor = height;
+			rightAnchor = minSize.getWidth();
+			topAnchor = minSize.getHeight();
 		}
 		if(debug)System.err.printf("bbox.vertex: deltax=%f, deltay=%f, width = %f (%f, %f), height= %f (%f, %f))\n", 
-							deltax, deltay, width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
+							deltax, deltay, minSize.getWidth(), leftAnchor, rightAnchor, minSize.getHeight(), topAnchor, bottomAnchor);
+		setNonResizable();
+		super.bbox();
 	}
 	
 	@Override
@@ -112,8 +114,8 @@ public class Vertex extends Figure {
 			System.err.printf("Vertex: marker at %f, %f\n", left, top);
 		}
 		if(marker != null){
-			marker.bbox(AUTO_SIZE, AUTO_SIZE);
-			marker.draw(left-marker.width/2, top-marker.height/2);
+			marker.bbox();
+			marker.draw(left-marker.minSize.getWidth()/2, top-marker.minSize.getHeight()/2);
 		}
 	}
 	
@@ -135,6 +137,12 @@ public class Vertex extends Figure {
 	@Override
 	public double bottomAlign(){
 		return bottomAnchor;
+	}
+	@Override
+	public void layout() {
+		size.set(minSize);
+		if(marker!=null)marker.layout();
+		
 	}
 
 }

@@ -125,8 +125,9 @@ public class SpringGraphEdge extends Figure {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
-		// TODO Auto-generated method stub
+	void bbox() {
+		setNonResizable();
+		super.bbox();
 		
 	}
 	
@@ -141,6 +142,21 @@ public class SpringGraphEdge extends Figure {
 		super.registerNames();
 		if(fromArrow!=null)fromArrow.registerNames();
 		if(toArrow!=null)toArrow.registerNames();
+	}
+
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		if(fromArrow!=null) {
+			fromArrow.setToMinSize();
+			fromArrow.layout();
+		}
+		if(toArrow!=null) {
+			toArrow.setToMinSize();
+			toArrow.layout();
+		}
+		
 	}
 
 

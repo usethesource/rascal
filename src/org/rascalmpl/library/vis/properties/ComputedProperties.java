@@ -156,7 +156,7 @@ public class ComputedProperties {
 		@Override
 		Figure convertValue(Result<IValue> res) {
 			Figure fig = FigureFactory.make(fpa, ((IConstructor) res.getValue()), parentPm, null, ctx);
-			fig.bbox(Figure.AUTO_SIZE, Figure.AUTO_SIZE);
+			fig.bbox();
 			return fig;
 		}
 		
