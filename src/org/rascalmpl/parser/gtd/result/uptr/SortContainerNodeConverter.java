@@ -13,7 +13,6 @@ import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
@@ -38,7 +37,7 @@ public class SortContainerNodeConverter{
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<IConstructor>>();
 	}
 	
-	private void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+	private void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		AbstractNode resultNode = child.getNode();
 		
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){
@@ -49,7 +48,7 @@ public class SortContainerNodeConverter{
 		}
 	}
 	
-	private void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+	private void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
 			buildAlternative(converter, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
@@ -70,8 +69,8 @@ public class SortContainerNodeConverter{
 		}
 	}
 	
-	private void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
-		IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+	private void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
+		Object newEnvironment = actionExecutor.enteringProduction(production, environment);
 		
 		int postFixLength = postFix.length;
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
@@ -100,7 +99,7 @@ public class SortContainerNodeConverter{
 		actionExecutor.exitedProduction(production, false, environment);
 	}
 	
-	public IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+	public IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 

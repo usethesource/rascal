@@ -20,7 +20,6 @@ import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -291,7 +290,7 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
-		IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
+		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		try{
 			// Construct the rest of the input as separate character nodes.
 			CharNode[] rest = new CharNode[input.length - location];

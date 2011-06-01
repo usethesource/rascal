@@ -26,7 +26,6 @@ import org.rascalmpl.parser.gtd.result.ListContainerNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR;
@@ -1048,7 +1047,7 @@ public abstract class SGTDBF implements IGTD{
 	protected IConstructor buildTree(AbstractNode result){
 		FilteringTracker filteringTracker = new FilteringTracker();
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
-		IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
+		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		IConstructor resultTree = null;
 		try{
 			NodeToUPTR converter = new NodeToUPTR(result, positionStore);
@@ -1080,7 +1079,7 @@ public abstract class SGTDBF implements IGTD{
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 			// Invoke "the bulldozer" that constructs error trees while it's flattening the forest.
-			IEnvironment rootEnvironment = actionExecutor.createRootEnvironment();
+			Object rootEnvironment = actionExecutor.createRootEnvironment();
 			try{
 				NodeToUPTR converter = new NodeToUPTR(result, positionStore);
 				return converter.convertToUPTRWithErrors(actionExecutor, rootEnvironment);

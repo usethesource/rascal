@@ -19,59 +19,59 @@ public class VoidActionExecutor implements IActionExecutor{
 		super();
 	}
 	
-	public IEnvironment createRootEnvironment(){
+	public Object createRootEnvironment(){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public void completed(IEnvironment environment, boolean filtered){
+	public void completed(Object environment, boolean filtered){
 		// Don't do anything.
 	}
 	
-	public IEnvironment enteringProduction(IConstructor production, IEnvironment environment){
+	public Object enteringProduction(IConstructor production, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public IEnvironment enteringListProduction(IConstructor production, IEnvironment environment){
+	public Object enteringListProduction(IConstructor production, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment){
+	public Object enteringNode(IConstructor production, int index, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public IEnvironment enteringListNode(IConstructor production, int index, IEnvironment environment){
+	public Object enteringListNode(IConstructor production, int index, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public void exitedProduction(IConstructor production, boolean filtered, IEnvironment environment){
+	public void exitedProduction(IConstructor production, boolean filtered, Object environment){
 		// Don't do anything.
 	}
 	
-	public void exitedListProduction(IConstructor production, boolean filtered, IEnvironment environment){
+	public void exitedListProduction(IConstructor production, boolean filtered, Object environment){
 		// Don't do anything.
 	}
 	
-	public IConstructor filterProduction(IConstructor tree, IEnvironment environment){
+	public IConstructor filterProduction(IConstructor tree, Object environment){
 		return tree;
 	}
 	
-	public IConstructor filterListProduction(IConstructor tree, IEnvironment environment){
+	public IConstructor filterListProduction(IConstructor tree, Object environment){
 		return tree;
 	}
 	
-	public IConstructor filterAmbiguity(IConstructor ambCluster, IEnvironment environment){
+	public IConstructor filterAmbiguity(IConstructor ambCluster, Object environment){
 		return ambCluster;
 	}
 	
-	public IConstructor filterListAmbiguity(IConstructor ambCluster, IEnvironment environment){
+	public IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment){
 		return ambCluster;
 	}
 	
-	public IConstructor filterCycle(IConstructor cycle, IEnvironment environment){
+	public IConstructor filterCycle(IConstructor cycle, Object environment){
 		return cycle;
 	}
 	
-	public IConstructor filterListCycle(IConstructor cycle, IEnvironment environment){
+	public IConstructor filterListCycle(IConstructor cycle, Object environment){
 		return cycle;
 	}
 	

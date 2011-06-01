@@ -13,7 +13,6 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR.IsInError;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -31,7 +30,7 @@ public class SortContainerNodeInErrorConverter{
 		super();
 	}
 	
-	protected static void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
+	protected static void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment, boolean isInError, IsInError isInTotalError){
 		AbstractNode resultNode = child.getNode();
 		
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){
@@ -42,7 +41,7 @@ public class SortContainerNodeInErrorConverter{
 		}
 	}
 	
-	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
+	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment, boolean isInError, IsInError isInTotalError){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
 			buildAlternative(converter, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment, isInError, isInTotalError);
@@ -62,10 +61,10 @@ public class SortContainerNodeInErrorConverter{
 		}
 	}
 	
-	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment, boolean isInError, IsInError isInTotalError){
+	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment, boolean isInError, IsInError isInTotalError){
 		IConstructor result = null;
 		if(!isInError){
-			IEnvironment newEnvironment = actionExecutor.enteringProduction(production, environment);
+			Object newEnvironment = actionExecutor.enteringProduction(production, environment);
 			
 			int postFixLength = postFix.length;
 			IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
@@ -102,7 +101,7 @@ public class SortContainerNodeInErrorConverter{
 		gatheredAlternatives.add(result);
 	}
 	
-	public static IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	public static IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		if(depth <= cycleMark.depth){
 			cycleMark.reset();
 		}
