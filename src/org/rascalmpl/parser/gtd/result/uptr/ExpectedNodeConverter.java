@@ -9,7 +9,6 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -22,7 +21,7 @@ public class ExpectedNodeConverter{
 		super();
 	}
 	
-	public static IConstructor convertToUPTR(NodeToUPTR converter, ExpectedNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	public static IConstructor convertToUPTR(NodeToUPTR converter, ExpectedNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		AbstractNode[] mismatchedChildren = node.getMismatchedChildren();
 		for(int i = mismatchedChildren.length - 1; i >= 0; --i){

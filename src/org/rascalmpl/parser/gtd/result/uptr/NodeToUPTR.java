@@ -10,7 +10,6 @@ import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -39,7 +38,7 @@ public class NodeToUPTR{
 		public boolean inError;
 	}
 	
-	protected IConstructor convert(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment environment){
+	protected IConstructor convert(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		switch(node.getID()){
 			case CharNode.ID:
 				return CharNodeConverter.convertToUPTR((CharNode) node);
@@ -54,7 +53,7 @@ public class NodeToUPTR{
 		}
 	}
 	
-	protected IConstructor convertWithErrors(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	protected IConstructor convertWithErrors(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		switch(node.getID()){
 			case CharNode.ID:
 				return CharNodeConverter.convertToUPTR((CharNode) node);
@@ -75,11 +74,11 @@ public class NodeToUPTR{
 		}
 	}
 	
-	public IConstructor convertToUPTR(FilteringTracker filteringTracker, IActionExecutor actionExecutor, IEnvironment rootEnvironment){
+	public IConstructor convertToUPTR(FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object rootEnvironment){
 		return convert(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
 	}
 	
-	public IConstructor convertToUPTRWithErrors(IActionExecutor actionExecutor, IEnvironment rootEnvironment){
+	public IConstructor convertToUPTRWithErrors(IActionExecutor actionExecutor, Object rootEnvironment){
 		return convertWithErrors(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
 	}
 }

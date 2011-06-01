@@ -13,7 +13,6 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -31,7 +30,7 @@ public class ErrorSortContainerNodeConverter{
 		super();
 	}
 	
-	private static void gatherAlternatives(NodeToUPTR converter, Link child, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void gatherAlternatives(NodeToUPTR converter, Link child, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment){
 		AbstractNode resultNode = child.getNode();
 		
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){
@@ -42,7 +41,7 @@ public class ErrorSortContainerNodeConverter{
 		}
 	}
 	
-	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){
 			buildAlternative(converter, postFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
@@ -63,7 +62,7 @@ public class ErrorSortContainerNodeConverter{
 		}
 	}
 	
-	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void buildAlternative(NodeToUPTR converter, AbstractNode[] postFix, IList unmatchedInput, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment){
 		int postFixLength = postFix.length;
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < postFixLength; ++i){
@@ -79,7 +78,7 @@ public class ErrorSortContainerNodeConverter{
 		gatheredAlternatives.add(result);
 	}
 	
-	private static IList buildUnmatchedInput(NodeToUPTR converter, CharNode[] unmatchedInput, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	private static IList buildUnmatchedInput(NodeToUPTR converter, CharNode[] unmatchedInput, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		if(unmatchedInput == null) return EMPTY_LIST;
 		
 		IListWriter unmatchedInputListWriter = VF.listWriter(Factory.Tree);
@@ -89,7 +88,7 @@ public class ErrorSortContainerNodeConverter{
 		return unmatchedInputListWriter.done();
 	}
 	
-	public static IConstructor convertToUPTR(NodeToUPTR converter, ErrorSortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	public static IConstructor convertToUPTR(NodeToUPTR converter, ErrorSortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		if(depth <= cycleMark.depth){
 			cycleMark.reset();
 		}

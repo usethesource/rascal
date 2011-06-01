@@ -12,7 +12,6 @@ package org.rascalmpl.parser.gtd.result.uptr.action;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -39,7 +38,7 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 
 	@Override
 	public IConstructor filterProduction(IConstructor tree,
-			IEnvironment environment) {
+			Object environment) {
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		IConstructor sym = ProductionAdapter.getRhs(prod);
 		
@@ -58,6 +57,8 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 		if (sym.isEqual(COM)) {
 			return filterCommand(tree, prod);
 		}
+		
+		// TODO: include basic filtering of embedded concrete syntax fragments here.
 		
 		return tree;
 	}
@@ -97,5 +98,10 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 
 	private IConstructor filterType(IConstructor tree, IConstructor prod) {
 		return filterArg(tree, prod, "Symbol", 0, "Nonterminal", "Labeled", "Parametrized", "Parameter");
+	}
+	
+	@Override
+	public boolean mayHaveSideEffects(IConstructor rhs) {
+		return false;
 	}
 }

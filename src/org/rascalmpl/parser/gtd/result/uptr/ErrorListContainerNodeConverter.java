@@ -12,7 +12,6 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.result.uptr.ListContainerNodeConverter.CycleNode;
@@ -34,7 +33,7 @@ public class ErrorListContainerNodeConverter{
 		super();
 	}
 	
-	private static void buildAlternative(NodeToUPTR converter, IConstructor[] prefix, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void buildAlternative(NodeToUPTR converter, IConstructor[] prefix, AbstractNode[] postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < prefix.length; ++i){
 			childrenListWriter.append(prefix[i]);
@@ -67,7 +66,7 @@ public class ErrorListContainerNodeConverter{
 		gatheredAlternatives.add(result);
 	}
 	
-	private static IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	private static IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		AbstractNode[] cycleElements = cycleNode.cycle;
 		
 		int nrOfCycleElements = cycleElements.length;
@@ -100,7 +99,7 @@ public class ErrorListContainerNodeConverter{
 		return new IConstructor[]{constructedCycle};
 	}
 	
-	protected static void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	protected static void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		AbstractNode childNode = child.getNode();
 		
 		if(!(childNode.isEpsilon() && child.getPrefixes() == null)){
@@ -122,7 +121,7 @@ public class ErrorListContainerNodeConverter{
 		}
 	}
 	
-	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void gatherProduction(NodeToUPTR converter, Link child, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor, Object environment){
 		do{
 			ArrayList<Link> prefixes = child.getPrefixes();
 			if(prefixes == null){
@@ -166,7 +165,7 @@ public class ErrorListContainerNodeConverter{
 		}while(true);
 	}
 	
-	private static void gatherAmbiguousProduction(NodeToUPTR converter, ArrayList<Link> prefixes, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor, IEnvironment environment){
+	private static void gatherAmbiguousProduction(NodeToUPTR converter, ArrayList<Link> prefixes, AbstractNode[] postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, IActionExecutor actionExecutor, Object environment){
 		IConstructor[] cachedPrefixResult = sharedPrefixCache.get(prefixes);
 		if(cachedPrefixResult != null){
 			buildAlternative(converter, cachedPrefixResult, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, actionExecutor, environment);
@@ -279,7 +278,7 @@ public class ErrorListContainerNodeConverter{
 		return null;
 	}
 	
-	public static IConstructor convertToUPTR(NodeToUPTR converter, ErrorListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, IEnvironment environment){
+	public static IConstructor convertToUPTR(NodeToUPTR converter, ErrorListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		if(depth <= cycleMark.depth){
 			cycleMark.reset();
 		}

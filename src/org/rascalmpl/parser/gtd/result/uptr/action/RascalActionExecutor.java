@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.IEnvironment;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -56,15 +55,15 @@ public class RascalActionExecutor implements IActionExecutor{
 		this.info = info;
 	}
 	
-	public IEnvironment createRootEnvironment(){
+	public Object createRootEnvironment(){
 		return rootEnvironment;
 	}
 	
-	public void completed(IEnvironment environment, boolean filtered){
+	public void completed(Object environment, boolean filtered){
 		eval.setCurrentEnvt(rootEnvironment); // The given environment is the rootEnvironment.
 	}
 	
-	public IEnvironment enteringProduction(IConstructor production, IEnvironment environment){
+	public Object enteringProduction(IConstructor production, Object environment){
 		LanguageAction action = info.getAction(production);
 		if(action != null){
 			// TODO: Store the module names with the actions in the grammar representation
@@ -84,31 +83,31 @@ public class RascalActionExecutor implements IActionExecutor{
 		return environment; // Reuse the environment if there are no actions associated with the given production.
 	}
 	
-	public IEnvironment enteringListProduction(IConstructor production, IEnvironment environment){
+	public Object enteringListProduction(IConstructor production, Object environment){
 		return environment; // Reuse the environment, lists never have actions associated with them
 	}
 	
-	public IEnvironment enteringNode(IConstructor production, int index, IEnvironment environment){
+	public Object enteringNode(IConstructor production, int index, Object environment){
 		// TODO Implement.
 		
 		return environment; // Temp.
 	}
 	
-	public IEnvironment enteringListNode(IConstructor production, int index, IEnvironment environment){
+	public Object enteringListNode(IConstructor production, int index, Object environment){
 		// TODO Implement.
 		
 		return environment; // Temp.
 	}
 	
-	public void exitedProduction(IConstructor production, boolean filtered, IEnvironment environment){
+	public void exitedProduction(IConstructor production, boolean filtered, Object environment){
 		// TODO Implement.
 	}
 	
-	public void exitedListProduction(IConstructor production, boolean filtered, IEnvironment environment){
+	public void exitedListProduction(IConstructor production, boolean filtered, Object environment){
 		// TODO Implement.
 	}
 	
-	public IConstructor filterProduction(IConstructor forest, IEnvironment environment){
+	public IConstructor filterProduction(IConstructor forest, Object environment){
 		if (TreeAdapter.isAppl(forest)){ 
 			IConstructor production = TreeAdapter.getProduction(forest);
 			LanguageAction action = info.getAction(production);
@@ -120,26 +119,26 @@ public class RascalActionExecutor implements IActionExecutor{
 		return forest;
 	}
 	
-	public IConstructor filterListProduction(IConstructor forest, IEnvironment environment){
+	public IConstructor filterListProduction(IConstructor forest, Object environment){
 		return forest; // Return the original forest. Lists never have actions associated with them.
 	}
 	
-	public IConstructor filterAmbiguity(IConstructor ambCluster, IEnvironment environment){
+	public IConstructor filterAmbiguity(IConstructor ambCluster, Object environment){
 		// TODO Implement.
 		return ambCluster;
 	}
 	
-	public IConstructor filterListAmbiguity(IConstructor ambCluster, IEnvironment environment){
+	public IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment){
 		// TODO Implement.
 		return ambCluster;
 	}
 	
-	public IConstructor filterCycle(IConstructor cycle, IEnvironment environment){
+	public IConstructor filterCycle(IConstructor cycle, Object environment){
 		// TODO Implement.
 		return cycle;
 	}
 	
-	public IConstructor filterListCycle(IConstructor cycle, IEnvironment environment){
+	public IConstructor filterListCycle(IConstructor cycle, Object environment){
 		// TODO Implement.
 		return cycle;
 	}
