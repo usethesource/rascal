@@ -59,7 +59,7 @@ public class Vertex extends WithInnerFig {
 	
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight){
+	void bbox(){
 		/*
 		if(marker != null){
 			//TODO is this ok?
@@ -97,7 +97,7 @@ public class Vertex extends WithInnerFig {
 							deltax, deltay, width, leftAnchor, rightAnchor, height, topAnchor, bottomAnchor);
 		*/
 		if(innerFig != null){
-			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+			innerFig.bbox();
 			leftAnchor = innerFig.leftAlign();
 			rightAnchor = innerFig.rightAlign();
 			topAnchor = innerFig.topAlign();
@@ -105,6 +105,8 @@ public class Vertex extends WithInnerFig {
 		} else {
 			leftAnchor = rightAnchor = topAnchor = bottomAnchor = 0;
 		}
+		setNonResizable();
+		super.bbox();
 	}
 	
 	@Override
@@ -118,7 +120,7 @@ public class Vertex extends WithInnerFig {
 			System.err.printf("Vertex: marker at %f, %f\n", left, top);
 		}
 		if(innerFig != null){
-			innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
+			innerFig.bbox();
 			innerFig.draw(left, top);
 		}
 	}

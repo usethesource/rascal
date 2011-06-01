@@ -39,11 +39,11 @@ public class Pack extends Compose {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
+	void bbox() {
 		if(initialized)
 			return;
-		width = getWidthProperty();
-		height = getHeightProperty();
+		minSize.setWidth(getWidthProperty());
+		minSize.setHeight(getHeightProperty());
 
 		Node.hgap = getHGapProperty();
 		Node.vgap = getVGapProperty();
@@ -52,34 +52,35 @@ public class Pack extends Compose {
 		double maxh = 0;
 		double ratio = 1;
 		for(Figure fig : figures){
-			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			maxw = Math.max(maxw, fig.width);
-			maxh = Math.max(maxh, fig.height);
-			surface += fig.width * fig.height;
-			ratio = (ratio +fig.height/fig.width)/2;
+			fig.bbox();
+			maxw = Math.max(maxw, fig.minSize.getWidth());
+			maxh = Math.max(maxh, fig.minSize.getHeight());
+			surface += fig.minSize.getWidth() * fig.minSize.getHeight();
+			ratio = (ratio +fig.minSize.getHeight()/fig.minSize.getWidth())/2;
 		}
 		double opt = FigureApplet.sqrt(surface);
-		width = opt;
-		height = ratio * opt;
+		minSize.setWidth(opt);
+		minSize.setHeight(ratio * opt);
+
 		//width = opt/maxw < 1.2 ? 1.2f * maxw : 1.2f*opt;
 	//	height = opt/maxh < 1.2 ? 1.2f * maxh : 1.2f*opt;
 		
-		if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, width, height);
+		if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, minSize.getWidth(), minSize.getHeight());
 			
 		Arrays.sort(figures);
 		if(debug){
 			System.err.println("SORTED ELEMENTS:");
 			for(Figure v : figures){
-				System.err.printf("\t%s, width=%f, height=%f\n", v.getIdProperty(), v.width, v.height);
+				System.err.printf("\t%s, width=%f, height=%f\n", v.getIdProperty(), v.minSize.getWidth(), v.minSize.getHeight());
 			}
 		}
 		
 		fits = false;
 		while(!fits){
 			fits = true;
-			width *= 1.2f;
-			height *= 1.2f;
-			root = new Node(0, 0, width, height);
+			minSize.setWidth(minSize.getWidth() * 1.2f);
+			minSize.setHeight(minSize.getHeight() * 1.2f);
+			root = new Node(0, 0, minSize.getWidth(), minSize.getHeight());
 			
 			for(Figure fig : figures){
 				Node nd = root.insert(fig);
@@ -92,6 +93,8 @@ public class Pack extends Compose {
 			}
 		}
 		initialized = true;
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override
@@ -108,7 +111,7 @@ public class Pack extends Compose {
 			root.draw(left, top);
 		} else {
 			fpa.fill(0);
-			fpa.rect(left, top, width, height);
+			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		}
 	}
 }
@@ -140,7 +143,7 @@ class Node {
 	
 	public Node insert(Figure fig){
 		String id = fig.getIdProperty();
-		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.width, fig.height);
+		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getWidth(), fig.minSize.getHeight());
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
 			if(Pack.debug)System.err.printf("insert:%s in left child\n", id);
@@ -168,8 +171,8 @@ class Node {
 		if(width <= 0.01f || height <= 0.01f)
 			return null;
 		
-		double dw = width - fig.width;
-        double dh = height - fig.height;
+		double dw = width - fig.minSize.getWidth();
+        double dh = height - fig.minSize.getHeight();
         
        if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
 		
@@ -186,12 +189,12 @@ class Node {
 
         if(dw > dh) {
         	if(Pack.debug)System.err.printf("%s: case dw > dh\n", id);
-        	lnode = new Node(left,                 top, left + fig.width + hgap, bottom);
-        	rnode = new Node(left + fig.width + hgap, top, right,                bottom);
+        	lnode = new Node(left,                 top, left + fig.minSize.getWidth() + hgap, bottom);
+        	rnode = new Node(left + fig.minSize.getWidth() + hgap, top, right,                bottom);
         } else {
         	if(Pack.debug)System.err.printf("%s: case dw <= dh\n", id);
-           	lnode = new Node(left, top,                  right, top + fig.height + vgap);
-        	rnode = new Node(left, top + fig.height + vgap, right, bottom);
+           	lnode = new Node(left, top,                  right, top + fig.minSize.getHeight() + vgap);
+        	rnode = new Node(left, top + fig.minSize.getHeight() + vgap, right, bottom);
         }
         
         // insert the figure in left most child

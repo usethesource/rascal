@@ -37,15 +37,16 @@ public class Outline extends Figure {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight){
+	void bbox(){
 		double lw = getLineWidthProperty();
-		width = getWidthProperty();
-		height = getHeightProperty();
-		width += 2*lw;
-		height += 2*lw;
-		if(debug) System.err.println("Outline.bbox => " + width + ", " + height);
+		minSize.setWidth(getWidthProperty());
+		minSize.setHeight(getHeightProperty());
+		minSize.setWidth(minSize.getWidth() + 2*lw);
+		minSize.setHeight(minSize.getHeight() + 2*lw);
+		if(debug) System.err.println("Outline.bbox => " + minSize.getWidth() + ", " + minSize.getHeight());
 		if(debug)System.err.printf("Outline.bbox: topAnchor=%f, bottomAnchor=%f\n", topAlign(), bottomAlign());
-		
+		setNonResizable();
+		super.bbox();
 	}
 	
 	@Override
@@ -56,9 +57,9 @@ public class Outline extends Figure {
 		
 	    double lw = getLineWidthProperty();
 		applyProperties();
-		if(debug) System.err.println("Outline.draw => " + width + ", " + height);
-		if(height > 0 && width > 0){
-			fpa.rect(left, top, width, height);
+		if(debug) System.err.println("Outline.draw => " + minSize.getWidth() + ", " + minSize.getHeight());
+		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
+			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 			for(IValue v : lineInfo){
 				IConstructor lineDecor = (IConstructor) v;
 				int lino = ((IInteger) lineDecor.get(0)).intValue();
@@ -86,9 +87,14 @@ public class Outline extends Figure {
 				}
 
 				fpa.stroke(color);
-				double vpos = top + (lino * height) /maxLine ;
-				fpa.line(left + lw, vpos, left + width - lw, vpos);
+				double vpos = top + (lino * minSize.getHeight()) /maxLine ;
+				fpa.line(left + lw, vpos, left + minSize.getWidth() - lw, vpos);
 			}
 		}
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
 	}
 }

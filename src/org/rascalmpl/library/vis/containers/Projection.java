@@ -20,9 +20,9 @@ public class Projection extends WithInnerFig {
 	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
 		if(projectOn.equals(screenId) || (projectOn.equals("") && first)){
 			if(horizontal){
-				projections.add(new HScreen.ProjectionPlacement(left + getHAlignProperty() * innerFig.width, top, getVGapProperty(), projection));
+				projections.add(new HScreen.ProjectionPlacement(left + getHAlignProperty() * innerFig.minSize.getWidth(), top, getVGapProperty(), projection));
 			} else {
-				projections.add(new HScreen.ProjectionPlacement(left, top + getVAlignProperty() * innerFig.height, getHGapProperty(), projection));
+				projections.add(new HScreen.ProjectionPlacement(left, top + getVAlignProperty() * innerFig.minSize.getHeight(), getHGapProperty(), projection));
 			}
 		} 
 		//System.out.printf("Got %s looking for %s", screenId, projectOn);
@@ -30,10 +30,12 @@ public class Projection extends WithInnerFig {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		innerFig.bbox(desiredWidth, desiredHeight);
-		this.width = innerFig.width;
-		this.height = innerFig.height;
+	public void bbox() {
+		innerFig.bbox();
+		this.minSize.setWidth(innerFig.minSize.getWidth());
+		this.minSize.setHeight(innerFig.minSize.getHeight());
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override

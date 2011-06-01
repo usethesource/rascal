@@ -52,12 +52,14 @@ public class Choice extends Figure {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
+	public void bbox() {
 		Point p = list.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		// width = list.getSize().x;
 		// height = list.getSize().y;
-		width = p.x;
-		height = p.y;
+		minSize.setWidth(p.x);
+		minSize.setHeight(p.y);
+		setNonResizable();
+		super.bbox();
 	}
 
 	public void doCallBack(String s) {
@@ -75,8 +77,8 @@ public class Choice extends Figure {
 		this.setTop(top);
 //		list.setSize(FigureApplet.round(getWidthProperty()),
 //				FigureApplet.round(getHeightProperty()));
-		list.setSize(FigureApplet.round(width),
-				FigureApplet.round(height));
+		list.setSize(FigureApplet.round(minSize.getWidth()),
+				FigureApplet.round(minSize.getHeight()));
 		list.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		list.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		print(list, left, top);
@@ -86,6 +88,11 @@ public class Choice extends Figure {
 	public void destroy() {
 		// fpa.setComputedValueChanged();
 		list.dispose();
+	}
+	
+	@Override
+	public void layout() {
+		size.set(minSize);	
 	}
 
 }

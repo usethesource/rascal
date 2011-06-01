@@ -138,4 +138,12 @@ public abstract class Compose extends Figure {
 			fig.registerNames();
 		}
 	}
+	
+	public void layout(){
+		size.set(minSize);
+		for(Figure fig : figures){
+			fig.size.set(fig.minSize);
+			fig.layout();
+		}
+	}
 }

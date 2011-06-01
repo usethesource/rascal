@@ -96,20 +96,22 @@ public class Combo extends Figure {
 				m = d;
 			if (s.length()>tLimit) tLimit = s.length();
 		}
-		width = m + 40;
+		minSize.setWidth(m + 40);
 
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
+	public void bbox() {
 		// Point p = combo.computeSize(FigureApplet.round(getWidthProperty()),
 		// SWT.DEFAULT, true);
-		Point p = combo.computeSize(FigureApplet.round(width), SWT.DEFAULT,
+		Point p = combo.computeSize(FigureApplet.round(minSize.getWidth()), SWT.DEFAULT,
 				true);
-		width = p.x;
-		height = p.y;
+		minSize.setWidth(p.x);
+		minSize.setHeight(p.y);
 		combo.setTextLimit(tLimit);
-		combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
+		combo.setSize(FigureApplet.round(minSize.getWidth()), FigureApplet.round(minSize.getHeight()));
+		setNonResizable();
+		super.bbox();
 	}
 
 	public boolean doValidate() {
@@ -160,5 +162,10 @@ public class Combo extends Figure {
 	@Override
 	public void destroy() {
 		combo.dispose();
+	}
+	
+	@Override
+	public void layout() {
+		size.set(minSize);	
 	}
 }

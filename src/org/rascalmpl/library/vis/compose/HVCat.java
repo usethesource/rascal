@@ -45,9 +45,10 @@ public class HVCat extends Compose {
 	}
 	
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight){
-		width = getWidthProperty();
-		height = 0;
+	public void bbox(){
+		
+		minSize.setWidth(getWidthProperty());
+		minSize.setHeight(0);
 		double w = 0;
 		double hrow = 0;
 		double toprow = 0;
@@ -56,43 +57,45 @@ public class HVCat extends Compose {
 		double vgap = getVGapProperty();
 		for(int i = 0; i < figures.length; i++){
 			Figure fig = figures[i];
-			fig.bbox(AUTO_SIZE, AUTO_SIZE);
-			if(w + hgap + fig.width > width){
+			fig.bbox();
+			if(w + hgap + fig.minSize.getWidth() > minSize.getWidth()){
 				if(w == 0){
-					width = fig.width;
+					minSize.setWidth(fig.minSize.getWidth());
 				} else {
 					rowHeight[nrow] = hrow;
 					rowWidth[nrow] = w;
 					nrow++;
-					height += hrow + vgap;
-					toprow = height;
+					minSize.setHeight(minSize.getHeight() + hrow + vgap);
+					toprow = minSize.getHeight();
 					w = hrow = 0;
 				}
 			}
 			leftElem[i] = w;
 			topRowElem[i] = toprow;
 			inRow[i] = nrow;
-			w += fig.width + hgap;
-			hrow = Math.max(hrow, fig.height);
+			w += fig.minSize.getWidth() + hgap;
+			hrow = Math.max(hrow, fig.minSize.getHeight());
 	
 		}
 		rowHeight[nrow] = hrow;
 		rowWidth[nrow] = w;
-		height += hrow;
+		minSize.setHeight(minSize.getHeight() + hrow);
 		if(nrow == 0)
-			width = w - hgap;
-		if(debug)System.err.printf("HVCat.bbox: width=%f, height=%f\n", width, height);
+			minSize.setWidth(w - hgap);
+		if(debug)System.err.printf("HVCat.bbox: width=%f, height=%f\n", minSize.getWidth(), minSize.getHeight());
 		
 		determinePlacement();
+		setNonResizable();
+		super.bbox();
 	}
 
 	private void determinePlacement() {
 		for(int i = 0; i < figures.length; i++){
 			Figure fig = figures[i];
 			double hrow = rowHeight[inRow[i]];
-			double rfiller = width - rowWidth[inRow[i]];
+			double rfiller = minSize.getWidth() - rowWidth[inRow[i]];
 			xPos[i] = leftElem[i] + fig.getHAlignProperty()  * rfiller;
-			yPos[i] = topRowElem[i] +  fig.getVAlignProperty() * (hrow - fig.height);              
+			yPos[i] = topRowElem[i] +  fig.getVAlignProperty() * (hrow - fig.minSize.getHeight());              
 		}
 	}
 	

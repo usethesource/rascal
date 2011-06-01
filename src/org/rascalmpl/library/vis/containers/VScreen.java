@@ -18,18 +18,18 @@ public class VScreen extends HScreen {
 	}
 	
 	void placeProjection(ProjectionPlacement p) {
-			boolean gapLeft = p.originalXposition >= getHAlignProperty() * innerFig.width;
-			p.xPos = getHAlignProperty() * innerFig.width +  (gapLeft ? -p.gap : p.gap) - p.fig.leftAlign();
+			boolean gapLeft = p.originalXposition >= getHAlignProperty() * innerFig.minSize.getWidth();
+			p.xPos = getHAlignProperty() * innerFig.minSize.getWidth() +  (gapLeft ? -p.gap : p.gap) - p.fig.leftAlign();
 			p.yPos = p.originalYPosition - p.fig.topAlign();
 	}
 	
 	void drawScreen(float left, float top) {
 		System.out.printf("drawing vscreen %f %f %s",  innerFig.getVerticalBorders().getMinimum(),  innerFig.getVerticalBorders().getMaximum(),innerFig);
 		if(properties.getBooleanProperty(Properties.DRAW_SCREEN_Y)){
-			fpa.line(left + innerFigX + getHAlignProperty() * innerFig.width,
-					top + innerFigY + innerFig.getVerticalBorders().getMinimum() ,
-					left + innerFigX + getHAlignProperty() * innerFig.width,
-					top + innerFigY + innerFig.getVerticalBorders().getMaximum() );
+			fpa.line(left + innerFigLocation.getX() + getHAlignProperty() * innerFig.minSize.getWidth(),
+					top + innerFigLocation.getY() + innerFig.getVerticalBorders().getMinimum() ,
+					left + innerFigLocation.getX() + getHAlignProperty() * innerFig.minSize.getWidth(),
+					top + innerFigLocation.getY() + innerFig.getVerticalBorders().getMaximum() );
 		}
 	}
 	
@@ -42,8 +42,8 @@ public class VScreen extends HScreen {
 		if(shiftX > 0.0f){
 			shiftX += getHGapProperty();
 		} 
-		if(width > oldWidth){
-			width += getHGapProperty();
+		if(minSize.getWidth() > oldWidth){
+			minSize.setWidth(minSize.getWidth() + getHGapProperty());
 		}
 		return shiftX;
 	}
@@ -57,7 +57,7 @@ public class VScreen extends HScreen {
 	}
 	
 	public Extremes getVerticalBorders(){
-		return new Extremes(0,height);
+		return new Extremes(0,minSize.getHeight());
 	}
 	
 	

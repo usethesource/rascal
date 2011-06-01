@@ -32,36 +32,38 @@ public class HScreen extends WithInnerFig {
 	}
 	
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		innerFig.bbox(desiredWidth, desiredHeight);
-		width = innerFig.width;
-		height = innerFig.height;
-		innerFigX = innerFigY = 0.0f;
+	public void bbox() {
+		innerFig.bbox();
+		minSize.setWidth(innerFig.minSize.getWidth());
+		minSize.setHeight(innerFig.minSize.getHeight());
+		innerFigLocation.clear();
 		startGatheringProjections();
 		double shiftX, shiftY;
 		shiftX = shiftY = 0.0f;
-		double oldWidth = width;
-		double oldHeight = height;
+		double oldWidth = minSize.getWidth();
+		double oldHeight = minSize.getHeight();
 		for(ProjectionPlacement p : projections){
-			p.fig.bbox(AUTO_SIZE,AUTO_SIZE);
+			p.fig.bbox();
 			placeProjection(p);
 			shiftX = Math.max(shiftX,-p.xPos);
 			shiftY = Math.max(shiftY,-p.yPos);
-			width = Math.max(width,p.xPos + p.fig.width);
-			height = Math.max(height,p.yPos + p.fig.height);
+			minSize.setWidth(Math.max(minSize.getWidth(),p.xPos + p.fig.minSize.getWidth()));
+			minSize.setHeight(Math.max(minSize.getHeight(),p.yPos + p.fig.minSize.getHeight()));
 		}
 		shiftX = addHorizontalSpacing(shiftX, oldWidth);
 		shiftY = addVerticalSpacing(shiftY,oldHeight);
 		setBorders(shiftX,shiftY, oldWidth, oldHeight);
-		width+= shiftX;
-		height+=shiftY;
+		minSize.setWidth(minSize.getWidth() + shiftX);
+		minSize.setHeight(minSize.getHeight() + shiftY);
 		for(ProjectionPlacement p : projections){
 			p.xPos+=shiftX;
 			p.yPos+=shiftY;
 		}
-		innerFigX = shiftX;
-		innerFigY = shiftY;
+		innerFigLocation.setX(shiftX);
+		innerFigLocation.setY(shiftY);
 		//System.out.printf("hscreen w %f h %f shiftX %f shiftY %f\n",innerFigX,innerFigY,shiftX,shiftY);
+		setNonResizable();
+		super.bbox();
 	}
 
 	void setBorders(double shiftX,double shiftY, double oldWidth, double oldHeight) {
@@ -77,8 +79,8 @@ public class HScreen extends WithInnerFig {
 		if(shiftY > 0.0f){
 			shiftY += getHGapProperty();
 		} 
-		if(height > oldHeight){
-			height += getHGapProperty();
+		if(minSize.getHeight() > oldHeight){
+			minSize.setHeight(minSize.getHeight() + getHGapProperty());
 		}
 		return shiftY;
 	}
@@ -89,15 +91,15 @@ public class HScreen extends WithInnerFig {
 
 	void placeProjection(ProjectionPlacement p) {
 			p.xPos = p.originalXposition - p.fig.leftAlign();
-			boolean gapAbove = p.originalYPosition >=  getVAlignProperty() * innerFig.height;
-			p.yPos = getVAlignProperty() * innerFig.height +  (gapAbove ? -p.gap : p.gap) - p.fig.topAlign();
+			boolean gapAbove = p.originalYPosition >=  getVAlignProperty() * innerFig.minSize.getHeight();
+			p.yPos = getVAlignProperty() * innerFig.minSize.getHeight() +  (gapAbove ? -p.gap : p.gap) - p.fig.topAlign();
 	}
 
 	@Override
 	public void draw(double left, double top) {
 		setLeft(left);
 		setTop(top);
-		innerFig.draw(left + innerFigX, top + innerFigY);
+		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
 		for(ProjectionPlacement p : projections){
 			p.fig.draw(left + p.xPos, top + p.yPos );
 		}
@@ -107,10 +109,10 @@ public class HScreen extends WithInnerFig {
 	void drawScreen(double left, double top) {
 		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
 		if(properties.getBooleanProperty(Properties.DRAW_SCREEN_X)){
-			fpa.line(left + innerFigX + innerFig.getHorizontalBorders().getMinimum(),
-					top + innerFigY + getVAlignProperty() * innerFig.height,
-					left + innerFigX +  innerFig.getHorizontalBorders().getMaximum(),
-					top + innerFigY + getVAlignProperty() * innerFig.height);
+			fpa.line(left + innerFigLocation.getX() + innerFig.getHorizontalBorders().getMinimum(),
+					top + innerFigLocation.getY() + getVAlignProperty() * innerFig.minSize.getHeight(),
+					left + innerFigLocation.getX() +  innerFig.getHorizontalBorders().getMaximum(),
+					top + innerFigLocation.getY() + getVAlignProperty() * innerFig.minSize.getHeight());
 		}
 	}
 	

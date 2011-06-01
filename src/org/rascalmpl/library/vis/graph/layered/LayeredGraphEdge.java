@@ -259,8 +259,8 @@ public class LayeredGraphEdge extends Figure {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
 			if(getTo() == getFrom()){  // Drawing a self edge
 				LayeredGraphNode node = getTo();
-				double h = node.figure.height;
-				double w = node.figure.width;
+				double h = node.figure.minSize.getHeight();
+				double w = node.figure.minSize.getWidth();
 				double hgap = getHGapProperty();
 				double vgap = getVGapProperty();
 				
@@ -335,7 +335,7 @@ public class LayeredGraphEdge extends Figure {
 				}
 			}
 			if(label != null){
-				label.draw(left + labelX - label.width/2, top + labelY - label.height/2);
+				label.draw(left + labelX - label.minSize.getWidth()/2, top + labelY - label.minSize.getHeight()/2);
 			}
 		}
 	}
@@ -371,11 +371,11 @@ public class LayeredGraphEdge extends Figure {
 			labelX = getFrom().x + (getTo().x - getFrom().x)/2;
 			labelY = getFrom().y + (getTo().y - getFrom().y)/2;
 			
-			labelMinX = labelX - 1.5f * label.width;
-			labelMaxX = labelX + 1.5f * label.width;
+			labelMinX = labelX - 1.5f * label.minSize.getWidth();
+			labelMaxX = labelX + 1.5f * label.minSize.getWidth();
 			
-			labelMinY = labelY - 1.5f * label.height;
-			labelMaxY = labelY + 1.5f * label.height;
+			labelMinY = labelY - 1.5f * label.minSize.getHeight();
+			labelMaxY = labelY + 1.5f * label.minSize.getHeight();
 			
 			System.err.printf("edge %s->%s: labelX=%f, labelY=%f\n", from.name, to.name, labelX, labelY);
 		}
@@ -390,10 +390,10 @@ public class LayeredGraphEdge extends Figure {
 	}
 	
 	public void reduceOverlap(LayeredGraphEdge other){
-		double ax1 = labelX - label.width/2;
-		double ax2 = labelX + label.width/2;
-		double bx1 = other.labelX - other.label.width/2;
-		double bx2 = other.labelX + other.label.width/2;
+		double ax1 = labelX - label.minSize.getWidth()/2;
+		double ax2 = labelX + label.minSize.getWidth()/2;
+		double bx1 = other.labelX - other.label.minSize.getWidth()/2;
+		double bx2 = other.labelX + other.label.minSize.getWidth()/2;
 		double distX;
 		
 		if(ax1 < bx1){
@@ -401,10 +401,10 @@ public class LayeredGraphEdge extends Figure {
 		} else
 			distX = ax1 - bx2;
 		
-		double ay1 = labelY - label.height/2;
-		double ay2 = labelY + label.height/2;
-		double by1 = other.labelY - other.label.height/2;
-		double by2 = other.labelY + other.label.height/2;
+		double ay1 = labelY - label.minSize.getHeight()/2;
+		double ay2 = labelY + label.minSize.getHeight()/2;
+		double by1 = other.labelY - other.label.minSize.getHeight()/2;
+		double by2 = other.labelY + other.label.minSize.getHeight()/2;
 		
 		double distY;
 		
@@ -425,13 +425,15 @@ public class LayeredGraphEdge extends Figure {
 
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
+	void bbox() {
 		if(fromArrow != null)
-			fromArrow.bbox(desiredWidth, desiredHeight);
+			fromArrow.bbox();
 		if(toArrow != null)
-			toArrow.bbox(desiredWidth, desiredHeight);
+			toArrow.bbox();
 		if(label != null)
-			label.bbox(desiredWidth, desiredHeight);
+			label.bbox();
+		setNonResizable();
+		super.bbox();
 	}
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
@@ -451,5 +453,23 @@ public class LayeredGraphEdge extends Figure {
 		if(fromArrow!=null)fromArrow.registerNames();
 		if(fromArrow!=null)toArrow.registerNames();
 		if(fromArrow!=null)label.registerNames();
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		if(fromArrow != null) {
+			fromArrow.setToMinSize();
+			fromArrow.layout();
+		}
+		if(toArrow != null) {
+			toArrow.setToMinSize();
+			toArrow.layout();
+		}
+		if(label != null){
+			label.setToMinSize();
+			label.layout();
+		}
+		
 	}
 }

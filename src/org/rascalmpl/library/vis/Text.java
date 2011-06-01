@@ -40,7 +40,7 @@ public class Text extends Figure {
 	
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight){
+	void bbox(){
 		double halign = getHAlignProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
 		applyFontProperties();
@@ -49,17 +49,17 @@ public class Text extends Figure {
 		
 		String [] lines = txt.getValue().split("\n");
 		int nlines = lines.length;
-		width = 0;
+		minSize.setWidth(0);
 		for(int i = 0; i < nlines; i++)
-			width = Math.max(width, fpa.textWidth(lines[i]));
+			minSize.setWidth(Math.max(minSize.getWidth(), fpa.textWidth(lines[i])));
 		
 		if(nlines > 1){
-			height = nlines * (topAnchor + bottomAnchor) + bottomAnchor;
-			topAnchor = bottomAnchor = getVAlignProperty() * height;
+			minSize.setHeight(nlines * (topAnchor + bottomAnchor) + bottomAnchor);
+			topAnchor = bottomAnchor = getVAlignProperty() * minSize.getHeight();
 		} else {
-			height = topAnchor + bottomAnchor;
+			minSize.setHeight(topAnchor + bottomAnchor);
 		}
-		hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? width : width/2;
+		hfill = textAlignH == FigureApplet.LEFT ? 0 : textAlignH == FigureApplet.RIGHT ? minSize.getWidth() : minSize.getWidth()/2;
 		/*
 		if(debug){
 			System.err.printf("text.bbox: font=%s, ascent=%f, descent=%f\n", fpa.getFont(), fpa.textAscent(), fpa.textDescent() );
@@ -70,28 +70,30 @@ public class Text extends Figure {
 			double angle = FigureApplet.radians(getTextAngleProperty());
 			double sina = FigureApplet.sin(angle);
 			double cosa = FigureApplet.cos(angle);
-			double h1 = Math.abs(width * sina);
-			double w1 = Math.abs(width * cosa);
-			double h2 = Math.abs(height *  cosa);
-			double w2 = Math.abs(height *  sina);
+			double h1 = Math.abs(minSize.getWidth() * sina);
+			double w1 = Math.abs(minSize.getWidth() * cosa);
+			double h2 = Math.abs(minSize.getHeight() *  cosa);
+			double w2 = Math.abs(minSize.getHeight() *  sina);
 			
-			width = w1 + w2;
-			height = h1 + h2;
+			minSize.setWidth(w1 + w2);
+			minSize.setHeight(h1 + h2);
 			
-			leftAnchor = w1/width;
-			rightAnchor = w2/width;
-			topAnchor = h1/height;
-			bottomAnchor = h2/height;
+			leftAnchor = w1/minSize.getWidth();
+			rightAnchor = w2/minSize.getWidth();
+			topAnchor = h1/minSize.getHeight();
+			bottomAnchor = h2/minSize.getHeight();
 			
-			hfill = width/2;
+			hfill = minSize.getWidth()/2;
 			if(nlines > 1){
-				vfill = textAlignH == FigureApplet.LEFT ? height : textAlignH == FigureApplet.RIGHT ? 0 : height/2;
+				vfill = textAlignH == FigureApplet.LEFT ? minSize.getHeight() : textAlignH == FigureApplet.RIGHT ? 0 : minSize.getHeight()/2;
 			} else {
-				vfill = height/2;
+				vfill = minSize.getHeight()/2;
 			}
 			
-			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", height, width, h1, h2, w1, w2);
+			if(debug)System.err.printf("bbox text: height=%f, width=%f, h1=%f h2=%f w1=%f w2=%f\n", minSize.getHeight(), minSize.getWidth(), h1, h2, w1, w2);
 		}
+		setNonResizable();
+		//super.bbox();
 	}
 	
 	@Override
@@ -103,8 +105,8 @@ public class Text extends Figure {
 		applyProperties();
 		applyFontProperties();
 	
-		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, width, height);
-		if(height > 0 && width > 0){
+		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());
+		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
 			double angle = getTextAngleProperty();
 
 			fpa.textAlign(textAlignH,FigureApplet.CENTER);
@@ -115,7 +117,7 @@ public class Text extends Figure {
 				fpa.text(txt.getValue(), 0, 0);
 				fpa.popMatrix();
 			} else {
-				fpa.text(txt.getValue(), left + hfill, top + height/2);
+				fpa.text(txt.getValue(), left + hfill, top + minSize.getHeight()/2);
 //				vlp.rectMode(FigureApplet.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}
@@ -152,7 +154,13 @@ public class Text extends Figure {
 		return new StringBuffer("text").append("(").append("\"").append(txt.getValue()).append("\",").
 		append(getLeft()).append(",").
 		append(getTop()).append(",").
-		append(width).append(",").
-		append(height).append(")").toString();
+		append(minSize.getWidth()).append(",").
+		append(minSize.getHeight()).append(")").toString();
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		
 	}
 }

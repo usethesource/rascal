@@ -94,15 +94,16 @@ public class TreeMap extends Figure {
 	
 	@Override
 	public
-	void bbox(double desiredWidth, double desiredHeight) {
+	void bbox() {
 		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", getLeft(), getTop());
-		width = getWidthProperty();
-		if(width == 0) 
-			width = 400;
-		height = getHeightProperty();
-		if(height == 0)
-			height = 400;
-		root.place(width, height, true);
+		minSize.setWidth(getWidthProperty());
+		if(minSize.getWidth() == 0) 
+			minSize.setWidth(400);
+		minSize.setHeight(getHeightProperty());
+		if(minSize.getHeight() == 0)
+			minSize.setHeight(400);
+		root.place(minSize.getWidth(), minSize.getHeight(), true);
+		setNonResizable();
 	}
 	
 	@Override
@@ -139,6 +140,16 @@ public class TreeMap extends Figure {
 	public void registerNames(){
 		super.registerNames();
 		if(root!=null) root.registerNames();
+	}
+
+	@Override
+	public void layout() {
+		size.set(minSize);
+		if(root!=null) {
+			root.setToMinSize();
+			root.layout();
+		}
+		
 	}
 
 }

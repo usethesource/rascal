@@ -333,31 +333,70 @@ data FProperty =
    | gap(Measure m3width, Measure m3height) 			// sets hor and vert gap between elements in composition to separate values
    | gap(computedMeasure cm3width, computedMeasure cm3height) 			// sets hor and vert gap between elements in composition to separate values
    
-   | gapFactor(num amount)
-   | gapFactor(computedNum cAmount)
-   | gapFactor(Like other)
-   | gapFactor(num hfactor,num vfactor)
+   | hstartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
+   | hstartGap(computedBool cAlg)
+   | hstartGap(Like other)
+   | hendGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
+   | hendGap(computedBool cAlg)
+   | hendGap(Like other)   
+   | hcapGaps(bool b)                      // shorthand for setting both startGap and endGap
+   | hcapGaps(computedBool cAlg)
+   | hcapGaps(Like other)   
+   | hcapGaps(bool b,bool b2)       
    
+   | vstartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
+   | vstartGap(computedBool cAlg)
+   | vstartGap(Like other)
+   | vendGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
+   | vendGap(computedBool cAlg)
+   | vendGap(Like other)   
+   | vcapGaps(bool b)                      // shorthand for setting both startGap and endGap
+   | vcapGaps(computedBool cAlg)
+   | vcapGaps(Like other)   
+   | vcapGaps(bool b,bool b2)     
+   
+   | hgrow(num grow)
+   | hgrow(computedNum cgrow)
+   | hgrow(Like other)
+   | hshrink(num shrink)
+   | hshrink(computedNum cshrink)
+   | hshrink(Like other)
+   
+   | vgrow(num grow)
+   | vgrow(computedNum cgrow)
+   | vgrow(Like other)
+   | vshrink(num svrink)
+   | vshrink(computedNum csvrink)
+   | vshrink(Like other)
+   
+   | grow(num g)
+   | grow(computedNum cg)
+   | grow(Like other)
+   | grow(num h, num v)
+   | grow(computedNum ch, num cv)
+   | grow(num cch, computedNum ccv)
+   | grow(computedNum ccch, computedNum cccv)
+   
+   
+   | shrink(num g)
+   | shrink(computedNum cg)
+   | shrink(Like other)
+   | shrink(num h, num v)
+   | shrink(computedNum ch, num cv)
+   | shrink(num cch, computedNum ccv)
+   | shrink(computedNum ccch, computedNum cccv)
+   
+   | hresizable(bool b)                    
+   | hresizable(computedBool cAlg)
+   | hresizable(Like other)       
+   | vresizable(bool b)                    
+   | vresizable(computedBool cAlg)
+   | vresizable(Like other)         
 
-   
-   | hgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
-   | hgapFactor(computedNum cFactor)   
-   | hgapFactor(Like other)   
-   
-   | vgapFactor(num factor)                 //  the factor of the total height which is whitespace (i.e. 0.2 means 20% whitespace)
-   | vgapRatio(computedNum cFactor)   
-   | vgapRatio(Like other)   
-   
-   | startGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
-   | startGap(computedBool cAlg)
-   | startGap(Like other)
-   | endGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
-   | endGap(computedBool cAlg)
-   | endGap(Like other)   
-   | capGaps(bool b)                      // shorthand for setting both startGap and endGap
-   | capGaps(computedBool cAlg)
-   | capGaps(Like other)   
-   | capGaps(bool b,bool b2)                     
+   | resizable(bool b)                      // shorthand for setting both startGap and endGap
+   | resizable(computedBool cAlg)
+   | resizable(Like other)   
+   | resizable(bool b,bool b2)     
    
 /* alignment -- used by composition operators hcat, vcat, etc. */
    | align(num hor, num vert)
@@ -482,10 +521,6 @@ data FProperty =
    | label(computedFigure cFig)
    | label(Like other)
    
-   | scaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
-   | scaleAll(computedBool cAlg)
-   | scaleAll(Like other)   
-   
    | drawScreen(bool b)
    | drawScreen(computedBool cAlg)
    | drawScreen(Like other)   
@@ -554,32 +589,73 @@ data FProperty =
    | stdGap(Measure m3width, Measure m3height) 			// sets hor and vert gap between elements in composition to separate values
    | stdGap(computedMeasure cm3width, computedMeasure cm3height) 			// sets hor and vert gap between elements in composition to separate values
    
-   
-   | stdGapFactor(num amount)
-   | stdGapFactor(computedNum cAmount)
-   | stdGapFactor(Like other)
-   | stdGapFactor(num hfactor,num vfactor)
-   
-   
-   | stdHgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
-   | stdHgapFactor(computedNum cFactor)   
-   | stdHgapFactor(Like other)      
 
-   | stdVgapFactor(num factor)                 // the factor of the total width which is whitespace (i.e. 0.2 means 20% whitespace)
-   | stdVgapFactor(computedNum cFactor)   
-   | stdVgapFactor(Like other)   
-
-   | stdStartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
-   | stdStartGap(computedBool cAlg)
-   | stdStartGap(Like other)
-   | stdEndGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
-   | stdEndGap(computedBool cAlg)
-   | stdEndGap(Like other)   
-   | stdCapGaps(bool b)                      // shorthand for setting both startGap and endGap
-   | stdCapGaps(computedBool cAlg)
-   | stdCapGaps(Like other)   
-   | stdCapGaps(bool b,bool b2)      
+   | stdHStartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
+   | stdHStartGap(computedBool cAlg)
+   | stdHStartGap(Like other)
+   | stdHEndGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
+   | stdHEndGap(computedBool cAlg)
+   | stdHEndGap(Like other)   
+   | stdHCapGaps(bool b)                      // shorthand for setting both startGap and endGap
+   | stdHCapGaps(computedBool cAlg)
+   | stdHCapGaps(Like other)   
+   | stdHCapGaps(bool b,bool b2)      
    
+   | stdVStartGap(bool b)                    // a (half) gap at the beginning of the (for example) hcat?
+   | stdVStartGap(computedBool cAlg)
+   | stdVStartGap(Like other)
+   | stdVEndGap(bool b)                      // a (half) gap at the end of the (for example) hcat?
+   | stdVEndGap(computedBool cAlg)
+   | stdVEndGap(Like other)   
+   | stdVCapGaps(bool b)                      // shorthand for setting both startGap and endGap
+   | stdVCapGaps(computedBool cAlg)
+   | stdVCapGaps(Like other)   
+   | stdVCapGaps(bool b,bool b2)   
+   
+ 
+   | stdHgrow(num grow)
+   | stdHgrow(computedNum cgrow)
+   | stdHgrow(Like other)
+   | stdHshrink(num shrink)
+   | stdHshrink(computedNum cshrink)
+   | stdHshrink(Like other)
+   
+   | stdVgrow(num grow)
+   | stdVgrow(computedNum cgrow)
+   | stdVgrow(Like other)
+   | stdVshrink(num svrink)
+   | stdVshrink(computedNum csvrink)
+   | stdVshrink(Like other)
+   
+   | stdGrow(num g)
+   | stdGrow(computedNum cg)
+   | stdGrow(Like other)
+   | stdGrow(num h, num v)
+   | stdGrow(computedNum ch, num cv)
+   | stdGrow(num cch, computedNum ccv)
+   | stdGrow(computedNum ccch, computedNum cccv)
+   
+   
+   | stdShrink(num g)
+   | stdShrink(computedNum cg)
+   | stdShrink(Like other)
+   | stdShrink(num h, num v)
+   | stdShrink(computedNum ch, num cv)
+   | stdShrink(num cch, computedNum ccv)
+   | stdShrink(computedNum ccch, computedNum cccv)
+   
+   | stdHresizable(bool b)                    
+   | stdHresizable(computedBool cAlg)
+   | stdHresizable(Like other)       
+   | stdVresizable(bool b)                    
+   | stdVresizable(computedBool cAlg)
+   | stdVresizable(Like other)         
+
+   | stdResizable(bool b)                      // shorthand for setting both startGap and endGap
+   | stdResizable(computedBool cAlg)
+   | stdResizable(Like other)   
+   | stdResizable(bool b,bool b2)     
+
 /* alignment -- used by composition operators hcat, vcat, etc. */
    | stdAlign(num hor, num vert)
    
@@ -688,10 +764,6 @@ data FProperty =
    | stdDirection(str name)
    | stdDirection(computedStr cname)
    | stdDirection(Like other)
-   
-   | stdScaleAll(bool b)                      // scale evertything? when not set, text and linewidth are not scaled
-   | stdScaleAll(computedBool cAlg)
-   | stdScaleAll(Like other)   
    
    | stdDrawScreen(bool b)
    | stdDrawScreen(computedBool cAlg)
@@ -817,9 +889,6 @@ data Figure =
    
    | _place(Figure onTop, str at, Figure onBottom, FProperties props)
                        
-   | _hcat(Figures figs, FProperties props)     // horizontal concatenation
-                     
-   | _vcat(Figures figs, FProperties props)     // vertical concatenation
                    
    | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
                    
@@ -829,6 +898,8 @@ data Figure =
    | _shape(list[Vertex] points, FProperties props)
                          
    | _grid(Figures figs, FProperties props)// placement on fixed grid
+   
+   | _newgrid(list[list[Figure]] figMatrix, FProperties props)
    
   								                // composition by 2D packing
    | _pack(Figures figs, FProperties props)
@@ -941,11 +1012,14 @@ public Figure use(Figure fig, FProperty props ...){
 }
 
 public Figure hcat(Figures figs, FProperty props ...){
-  return _hcat(figs, props);
+  return _newgrid([[figs]],props);
 }
 
 public Figure vcat(Figures figs, FProperty props ...){
-  return _vcat(figs, props);
+  newList = for(f <- figs){
+  	append [f];
+  };
+  return _newgrid(newList, props);
 }
 
 public Figure hvcat(Figures figs, FProperty props ...){
@@ -962,6 +1036,10 @@ public Figure shape(list[Vertex] points, FProperty props ...){
 
 public Figure grid(Figures figs, FProperty props ...){
   return _grid(figs, props);
+}
+
+public Figure newgrid(list[list[Figure]] figs, FProperty props ...){
+  return _newgrid(figs, props);
 }
 
 public Figure pack(Figures figs, FProperty props ...){

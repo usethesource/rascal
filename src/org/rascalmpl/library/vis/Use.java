@@ -35,16 +35,18 @@ public class Use extends WithInnerFig {
 
 	public Use(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa, inner, properties);
-		if(debug)System.err.println("use.init: width=" + width + ", height=" + height);
+		if(debug)System.err.println("use.init: width=" + minSize.getWidth() + ", height=" + minSize.getHeight());
 	}
 
 	@Override
 	public 
-	void bbox(double desiredWidth, double desiredHeight){
-		innerFig.bbox(AUTO_SIZE, AUTO_SIZE);
-		width = innerFig.width;
-		height = innerFig.height;
-		if(debug)System.err.println("use.bbox: width=" + width + ", height=" + height);
+	void bbox(){
+		innerFig.bbox();
+		minSize.setWidth(innerFig.minSize.getWidth());
+		minSize.setHeight(innerFig.minSize.getHeight());
+		if(debug)System.err.println("use.bbox: width=" + minSize.getWidth() + ", height=" + minSize.getHeight());
+		setNonResizable();
+		super.bbox();
 	}
 
 	@Override
@@ -54,7 +56,7 @@ public class Use extends WithInnerFig {
 		this.setTop(top);
 		applyProperties();
 		
-		innerFig.draw(left + getHAlignProperty()*(width - innerFig.width),
-					top  + getVAlignProperty()*(height - innerFig.height));
+		innerFig.draw(left + getHAlignProperty()*(minSize.getWidth() - innerFig.minSize.getWidth()),
+					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()));
 	}
 }

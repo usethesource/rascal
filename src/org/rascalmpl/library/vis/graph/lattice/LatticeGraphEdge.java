@@ -91,9 +91,14 @@ public class LatticeGraphEdge extends Figure {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
-		// TODO Auto-generated method stub
+	public void bbox() {
+		setNonResizable();
+		super.bbox();
+	}
 
+	@Override
+	public void layout() {
+		size.set(minSize);
 	}
 
 }

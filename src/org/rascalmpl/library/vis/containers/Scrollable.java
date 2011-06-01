@@ -14,6 +14,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class Scrollable extends Figure {
 
+	// TODO: fixme!
+	
 	ScrolledComposite window;
 	//Composite parent;
 	Canvas canvas;
@@ -36,7 +38,8 @@ public class Scrollable extends Figure {
 	}
 
 	@Override
-	public void bbox(double desiredWidth, double desiredHeight) {
+	public void bbox() {
+		/* TODO:
 		if(!isWidthPropertySet() && desiredWidth != AUTO_SIZE){
 			width = desiredWidth;
 		} else {
@@ -55,6 +58,9 @@ public class Scrollable extends Figure {
 				fpaNest.getFigureWidth()+1 , 
 				fpaNest.getFigureHeight()+1);
 		window.setSize(w,h);
+		*/
+		setNonResizable();
+		super.bbox();
 
 	}
 
@@ -63,6 +69,12 @@ public class Scrollable extends Figure {
 		// drawing is handled by swt, a new paintevent should 
 		// be handled by the nested figureswtapplet...
 		window.setLocation((int)Math.round(left), (int)Math.round(top));
+	}
+
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

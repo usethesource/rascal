@@ -14,8 +14,10 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.compose.HCat;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.BoundingBox;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 
 /**
@@ -34,150 +36,82 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public abstract class Container extends WithInnerFig {
 
-	final private static boolean debug = false;
+	final private static boolean debug = true;
 
 	public Container(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
 		
 	}
-
-	public Figure getMouseOverProperty(){
-		Figure originalMouseOver = super.getMouseOverProperty();
-		if(innerFig != null && !innerFits()){
-			if(originalMouseOver!=null){
-				Figure[] figs = {innerFig,originalMouseOver};
-				return new HCat(fpa,figs , new PropertyManager());
-			} else {
-				return innerFig;
-			}
+	
+	public void bbox(){
+		if(innerFig!=null)innerFig.bbox();
+		minSize.clear();
+		for(boolean flip : BOTH_DIMENSIONS){
+			computeMinWidth(flip);
 		}
-		return originalMouseOver;
+		setResizable();
+		super.bbox();
+		
 	}
 	
-	@Override
-	public 
-	void bbox(double desiredWidth, double desiredHeight){
-		
+	public void computeMinWidth(boolean flip){
 		double lw = getLineWidthProperty();
-		if(desiredWidth != Figure.AUTO_SIZE){ 
-			if(desiredWidth < 1.0f){
-				desiredWidth = width = 1.0f;
-			} else {
-				width = desiredWidth;
-			}
-		}
-		if(desiredHeight != Figure.AUTO_SIZE){ 
-			if(desiredHeight < 1.0f){
-				desiredHeight = height = 1.0f;
-			} else {
-				height = desiredHeight;
-			}
-		}
-		if(isWidthPropertySet()){
-			desiredWidth = width = getWidthProperty();
-		} 
-		if(isHeightPropertySet()){
-			desiredHeight = height = getHeightProperty();
-		} 
 		
-		if(innerFig != null){
-			double innerDesiredWidth,
-			      innerDesiredHeight;
-			double spacingX, spacingY;
-			spacingX = spacingY = 0;
-			if(desiredWidth != AUTO_SIZE){
-				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
-					spacingX = (getHGapFactorProperty()) * desiredWidth;
-				} else { // HGapProperty set
-					spacingX = 2 * getHGapProperty();
-				}
-				innerDesiredWidth = desiredWidth - spacingX - 2*lw;
-			} else {
-				innerDesiredWidth = Figure.AUTO_SIZE;
-			}
-			if(desiredHeight != AUTO_SIZE){
-				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
-					spacingY = (getVGapFactorProperty()) * desiredHeight;
-				} else { // HGapProperty set
-					spacingY =  2 * getVGapProperty();
-				}
-				innerDesiredHeight = desiredHeight - spacingY - 2*lw;
-			} else {
-				innerDesiredHeight = Figure.AUTO_SIZE;
-			}
-			innerFig.bbox(innerDesiredWidth,innerDesiredHeight);
-			if(desiredWidth == AUTO_SIZE){
-				if(isHGapFactorPropertySet() || !isHGapPropertySet()){
-					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
-					spacingX = (innerFig.width / (1/getHGapFactorProperty() - 1));
-				} else { // HGapProperty set
-					spacingX = 2 * getHGapProperty();
-				}
-				width = innerFig.width + spacingX + 2*lw;
-			}
-			if(desiredHeight == AUTO_SIZE){
-				if(isVGapFactorPropertySet() || !isVGapPropertySet()){
-					// the next formula can be obtained by rewriting hGapFactor = gapsSize / (innerFigureSize + gapsSize)
-					spacingY = (innerFig.height / (1/getVGapFactorProperty() - 1));
-				} else { // HGapProperty set
-					spacingY = 2 * getVGapProperty();
-				}
-				height = innerFig.height + spacingY + 2*lw;
-			}
-			if(desiredWidth != AUTO_SIZE && innerFig.width != innerDesiredWidth){
-				spacingX = desiredWidth - 2 * lw - innerFig.width;
-			}
-			if(desiredHeight != AUTO_SIZE && innerFig.height != innerDesiredHeight){
-				spacingY = desiredHeight - 2 * lw - innerFig.height;
-			}
-			innerFigX = lw + innerFig.getHAlignProperty()*spacingX;
-			innerFigY = lw + innerFig.getVAlignProperty()*spacingY;
-		} else {
-			if(desiredWidth == AUTO_SIZE){
-				width = getWidthProperty();
-			} 
-			if(desiredHeight == AUTO_SIZE){
-				height = getHeightProperty();
-			}
+		minSize.setWidth(flip,lw);
+		if(innerFig!=null){ 
+			minSize.addWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip));
 		}
-		
-		if(debug)System.err.printf("container.bbox: width=%f, height=%f, hanchor=%f, vanchor=%f\n", width, height, getHAlignProperty(), getVAlignProperty());
 	}
+	
+	double getGrowFactor(boolean flip){
+		return Math.max(getHGrowProperty(flip), 1.0 / innerFig.getHShrinkProperty(flip));
+	}
+	
+	public void layout(){
+		double lw = getLineWidthProperty();
+		innerFigLocation.clear();
+		for(boolean flip : BOTH_DIMENSIONS){
+			if(innerFig != null) {
+				double sizeWithouthBorders = size.getWidth(flip) - 2*lw ;
+				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(flip);
+				innerFig.takeDesiredWidth(flip, innerDesiredWidth);
+				innerFigLocation.addX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
+			}
+		}
+		if(innerFig!=null)innerFig.layout();
+		
+	}
+	/*
+	public void newDraw(){
+		applyProperties();
+		drawContainer();
+		if(innerFig != null){
+			fpa.pushMatrix();
+			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
+			fpa.translate(innerFigLocation.getX(), innerFigLocation.getY());
+			innerFig.newDraw();
+			fpa.popMatrix();
+		}
+	}
+	*/
+	
 
 	@Override
 	public
 	void draw(double left, double top) {
-		this.setLeft(left);
-		this.setTop(top);
-	
+		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
+		setLeft(left);
+		setTop(top);
 		applyProperties();
-		if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHAlignProperty(), getVAlignProperty());
-
-		if(height > 0 && width > 0){
-			drawContainer();
-			if(innerFig != null){
-				if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
-				if(innerFits()) {
-					innerDraw();
-				}
-			}
+		drawContainer();
+		if(innerFig!=null) {
+			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
+			innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
 		}
 	}
+
 	
-	/**
-	 * @return true if the inner element fits in the current container.
-	 */
-	boolean innerFits(){
-		return innerFig.width + 2*getHGapProperty() <= width && innerFig.height + 2*getVGapProperty() <= height;
-	}
-	
-	/**
-	 * If the inside  element fits, draw it.
-	 */
-	void innerDraw(){
-		innerFig.draw(Math.max(0, getLeft() + innerFigX),
-				Math.max(0, getTop()  + innerFigY));
-	}
+
 	/**
 	 * drawContainer: draws the graphics associated with the container (if any). 
 	 * It is overridden by subclasses.
@@ -203,8 +137,8 @@ public abstract class Container extends WithInnerFig {
 		return new StringBuffer(containerName()).append("(").
 		append(getLeft()).append(",").
 		append(getTop()).append(",").
-		append(width).append(",").
-		append(height).append(")").toString();
+		append(minSize.getWidth()).append(",").
+		append(minSize.getHeight()).append(")").toString();
 	}
 
 }
