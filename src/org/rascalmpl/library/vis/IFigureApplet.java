@@ -13,6 +13,8 @@
 
 package org.rascalmpl.library.vis;
 
+import java.io.OutputStream;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.graphics.Color;
@@ -24,7 +26,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 
 public interface IFigureApplet {
-	public Composite getComp(); // get Composite. Needed by swt variant
+	public Composite getComp(); 
 	public Color getRgbColor(int rgbColor);
 	public Color getColor(int codeColor);
 	public void redraw();
@@ -95,4 +97,6 @@ public interface IFigureApplet {
 	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback);
 	
 	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg);
+	
+	public void write(OutputStream out, int fileFormat /*SWT IMAGE_BMP, IMAGE_JPEG, IMAGE_ICO*/);
 }
