@@ -111,7 +111,7 @@ public class ProductionAdapter {
 	}
 
 	public static boolean isLexical(IConstructor tree) {
-		return hasLexAttribute(tree);
+		return hasLexAttribute(tree) || SymbolAdapter.isLex(getRhs(tree));
 	}
  
 	public static String getCategory(IConstructor tree) {
