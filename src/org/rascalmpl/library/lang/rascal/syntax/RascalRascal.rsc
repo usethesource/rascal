@@ -477,8 +477,7 @@ syntax StringMiddle
 	| Interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 
 syntax QualifiedName
-	= Default: {Name "::"}+ names 
-	# "::" ;
+	= Default: {Name "::"}+ names !>> "::" ;
 
 lexical DecimalIntegerLiteral
 	= "0" !>> [0-9 A-Z _ a-z] 
@@ -510,19 +509,10 @@ start syntax Commands
 	;
 
 start syntax Command
-	= Expression: Expression expression {
-	  if (expression is NonEmptyBlock) { 
-	    fail;
-	  }
-	}
+	= Expression: Expression expression 
 	| Declaration: Declaration declaration 
 	| Shell: ":" ShellCommand command 
-	| Statement: Statement statement {
-	  // local variable declarations would be ambiguous with the "global" declarations defined above
-	  if (statement is VariableDeclaration || statement is FunctionDeclaration || statement is Visit) { 
-	    fail;
-	  }
-	}
+	| Statement: Statement statement 
 	| Import: Import imported ;
 
 lexical TagString
@@ -578,11 +568,7 @@ syntax Start
 syntax Statement
 	= Assert: "assert" Expression expression ";" 
 	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| Expression: Expression expression ";" {
-	   if (expression is NonEmptyBlock || expression is Visit) { 
-	    fail;
-	  }
-	}
+	| Expression: Expression expression ";" 
 	| Visit: Label label Visit visit 
 	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
@@ -707,14 +693,7 @@ syntax Type
 	| Basic: BasicType basic 
 	| Selector: DataTypeSelector selector 
 	| Variable: TypeVar typeVar 
-	| Symbol: Sym symbol {
-	   if (symbol is Nonterminal
-	     ||symbol is Labeled
-	     ||symbol is Parametrized
-	     ||symbol is Parameter) {
-	    fail;
-	   }
-	} 
+	| Symbol: Sym symbol
 	;
 
 syntax Declaration
@@ -847,11 +826,7 @@ lexical PrePathChars
 	= URLChars "\<" ;
 
 syntax Mapping[&T]
-	= Default: &T from ":" &T to {
-	  if (from is IfDefinedOtherwise) {
-	    fail;
-	  }
-	} 
+	= Default: &T from ":" &T to 
 	;
 
 syntax LongLiteral
