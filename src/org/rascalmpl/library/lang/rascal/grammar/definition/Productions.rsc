@@ -14,7 +14,6 @@ import lang::rascal::syntax::RascalRascal;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
-import lang::rascal::grammar::definition::Lexical;
 
 import Grammar;
 import List; 
@@ -44,7 +43,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
         prods += prod2prod(sort("<n>"), p);
       }
       case (SyntaxDefinition) `lexical <Nonterminal n> = <Prod p>;` : {
-        prods += lexical(prod2prod(sort("<n>"), p));
+        prods += prod2prod(\lex("<n>"), p);
       }
       case (SyntaxDefinition) `keyword <Nonterminal n> = <Prod p>;` : {
         prods += prod2prod(keywords("<n>"), p);

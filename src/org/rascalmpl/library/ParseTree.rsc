@@ -69,7 +69,8 @@ alias CharClass = list[CharRange];
 data Symbol 
   = \start(Symbol symbol)
 // named non-terminals 
-  | \sort(str string)   
+  | \sort(str string)  
+  | \lex(str string) 
   | \layouts(str name) 
   | \keywords(str name)
   | \parameterized-sort(str sort, list[Symbol] parameters)  

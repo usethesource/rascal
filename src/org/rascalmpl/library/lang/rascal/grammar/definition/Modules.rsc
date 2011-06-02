@@ -13,11 +13,12 @@ import lang::rascal::syntax::RascalRascal;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Layout;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Names;
 import Grammar;
 
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
-  return fuse(layouts(modules2definition(main, modules)));
+  return resolve(fuse(layouts(modules2definition(main, modules))));
 }
 
 @doc{Converts concrete syntax definitions to abstract grammar definitions}
@@ -29,7 +30,7 @@ public GrammarDefinition modules2definition(str main, set[Module] modules) {
 public Grammar fuse(GrammarDefinition def) {
   return (grammar({},()) | compose(it, def.modules[name].grammar) | name <- def.modules);
 }
-
+ 
 @doc{
   Compose two grammars, by adding the rules of g2 to the rules of g1.
   The start symbols of g1 will be the start symbols of the resulting grammar.
@@ -60,11 +61,11 @@ public GrammarModule module2grammar(Module mod) {
 public tuple[str, set[str], set[str]] getModuleMetaInf(mod) {
   // TODO: implement module type parameters
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
-  if ((Module) `<Tags _> module <QualifiedName name> <ModuleParameters _> <Import* is> <Body _>` := mod) {
+  switch (mod) {
+    case (Module) `<Tags _> module <QualifiedName name> <ModuleParameters _> <Import* is> <Body _>` :
     return <"<name>", { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
                     , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
-  }
-  if ((Module) `<Tags _> module <QualifiedName name> <Import* is> <Body _>` := mod) {
+    case (Module) `<Tags _> module <QualifiedName name> <Import* is> <Body _>`:
     return <"<name>", { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
                     , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
   }
