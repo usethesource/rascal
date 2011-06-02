@@ -203,17 +203,15 @@ public str generate(str package, str name, str super, int () newItem, bool callS
 		       }
 	         }>
            '	
-           '  private static class <value2id(s)> {
-           '    <for(Production alt <- alts) { 
-                list[Item] lhses = alts[alt]; id = value2id(alt);>
-           '	    public final static AbstractStackNode[] <id> = _init_<id>();
-           '	    private static final AbstractStackNode[] _init_<id>() {
+           '  private static class <value2id(s)> {<for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    public final static AbstractStackNode[] <id> = _init_<id>();
+           '    private static final AbstractStackNode[] _init_<id>() {
            '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
-           '	      tmp[<ii>] = <items[i].new>;<}>
-                  return tmp;
-           '	    }<}>
-           '	  }<}>
+           '      tmp[<ii>] = <items[i].new>;<}>
+           '      return tmp;
+           '	}<}>
+           '  }<}>
            '	
            '  public <name>() {
            '    super();
@@ -291,6 +289,8 @@ private str split(str x) {
 private bool isNonterminal(Symbol s) {
   switch (s) {
     case \sort(_) : return true;
+    case \lex(_) : return true;
+    case \keywords(_) : return true;
     case \meta(x) : return isNonterminal(x);
     case \parameterized-sort(_,_) : return true;
     case \start(_) : return true;
@@ -312,7 +312,8 @@ public str generateExpect(Items items, Production p, bool reject){
     
     switch (p) {
       case prod(_,_,_) : 
-	       return "// <p>\n\texpect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.rhs)>.<value2id(p)>);";
+	       return "// <p>
+	              'expect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.rhs)>.<value2id(p)>);";
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
                '  <generateExpect(items, q, reject)>
@@ -417,6 +418,10 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
             return sym2newitem(grammar, s, id, dot); // ignore labels
         case \sort(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+        case \lex(n) : 
+            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+        case \keywords(n) : 
+            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \layouts(_) :
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameterized-sort(n,args): 
@@ -507,6 +512,8 @@ str v2i(value v) {
         case layouts(str x) : return "layouts_<escId(x)>";
         case "cons"(str x) : return "cons_<escId(x)>";
         case sort(str s)   : return "<s>";
+        case \lex(str s)   : return "<s>";
+        case keywords(str s)   : return "<s>";
         case meta(Symbol s) : return "$<v2i(s)>";
         case \parameterized-sort(str s, list[Symbol] args) : return ("<s>_" | it + "_<v2i(arg)>" | arg <- args);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
