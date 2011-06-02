@@ -78,26 +78,17 @@ public str prod2rascal(Production p) {
 		else {  
 		  return "...";
 		}
-    case first(s, alts) :
+    case priority(s, alts) :
         return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
                '\> <prod2rascal(pr)><}>"; 
-    case \assoc(s, a, alts) : {  
+    case associativity(s, a, alts) : {  
     		<fst, rest> = takeOneFrom(alts);
     		return "<attr2mod(\assoc(a))> 
     		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
     		       '  | <prod2rascal(pr)><}>
     		       '  )";
  		}
-    case diff(s,q,alts) : {         
-      <fst, rest> = takeOneFrom(alts);
-      return "<prod2rascal(q)><for (pr <- alts) {>
-             '- <prod2rascal(pr)><}>";  
-    }
- 
-    case restrict(rhs, language, restrictions):
-    	return "<prod2rascal(language)><for(r <- restrictions){>
-    	       '# <prod2rascal(r)><}>";
- 
+
     case others(sym):
         return "...";
  

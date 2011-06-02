@@ -133,59 +133,29 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '
            'public class <name> extends <super> implements IParserInfo {
            '<if (isRoot) {>
-           '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
-           '		try {
-           '			return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
-           '		} catch(FactTypeUseException e) {
-           '			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-           '		} catch(IOException e) {
-           '			throw new RuntimeException(\"unexpected exception in generated parser\", e);  
-           '		}
-           '	  }
-           '	
-           '	  protected static final TypeFactory _tf = TypeFactory.getInstance();
-           '	
-           '  protected static java.lang.String _concat(String ...args) {
-           '		int length = 0;
-           '		for (java.lang.String s :args) {
-           '			length += s.length();
-           '		}
-           '		java.lang.StringBuilder b = new java.lang.StringBuilder(length);
-           '		for (java.lang.String s : args) {
-           '			b.append(s);
-           '		}
-           '		return b.toString();
-           '	  }
-           '<}>
+           '  protected static final TypeFactory _tf = TypeFactory.getInstance();
            '
            '  private static final IntegerMap _resultStoreIdMappings;
            '  private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
-           '  private static final java.util.HashMap\<IConstructor, org.rascalmpl.ast.LanguageAction\> _languageActions;
            '	
            '  private static void _putDontNest(IntegerKeyedHashMap\<IntegerList\> result, int parentId, int childId) {
-           '    	IntegerList donts = result.get(childId);
-           '    if (donts == null){
+           '    IntegerList donts = result.get(childId);
+           '    if (donts == null) {
            '      donts = new IntegerList();
            '      result.put(childId, donts);
            '    }
            '    donts.add(parentId);
            '  }
            '    
-           '  protected static void _putResultStoreIdMapping(IntegerMap result, int parentId, int resultStoreId){
-           '    result.putUnsafe(parentId, resultStoreId);
-           '  }
-           '    
            '  protected int getResultStoreId(int parentId){
            '    return _resultStoreIdMappings.get(parentId);
-           '  }
+           '  }<}>
            '    
            '  protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
            '    IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
            '    
-           '    for (IValue e : (IRelation) _read(_concat(<split("<dontNest>")>), _tf.relType(_tf.integerType(),_tf.integerType()))) {
-           '      ITuple t = (ITuple) e;
-           '      _putDontNest(result, ((IInteger) t.get(0)).intValue(), ((IInteger) t.get(1)).intValue());
-           '    }
+           '    <for (<f,c> <- dontNest) {>
+           '    _putDontNest(result, <f>, <c>);<}>
            '      
            '    return result;
            '  }
@@ -194,14 +164,10 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
            '    int resultStoreId = result.size();
            '    
-           '    for (IValue t : (IRelation) _read(_concat(<split("<dontNestGroups>")>), _tf.relType(_tf.setType(_tf.integerType()),_tf.setType(_tf.integerType())))) {
-           '      ++resultStoreId;
-           '
-           '      ISet parentIds = (ISet) ((ITuple) t).get(1);
-           '      for (IValue pid : parentIds) {
-           '        _putResultStoreIdMapping(result, ((IInteger) pid).intValue(), resultStoreId);
-           '      }
-           '    }
+           '    <for (<parentIds, childrenIds> <- dontNestGroups) {>
+           '    ++resultStoreId;
+           '    <for (pid <- parentIds) {>
+                result.putUnsafe(<pid>, resultStoreId);<}><}>
            '      
            '    return result;
            '  }
@@ -251,10 +217,10 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '	
            '  public <name>() {
            '    super();
-           '	  }
-           '	
+           '  }
+           '
            '  // Parse methods    
-           '	  <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
+           '  <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, callSuper, gr.rules[nont])><}>
            '}";
 }  
