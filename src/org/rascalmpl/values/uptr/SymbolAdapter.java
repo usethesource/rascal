@@ -270,4 +270,12 @@ public class SymbolAdapter {
 		rhs = delabel(rhs);
 		return (IList) rhs.get("separators");
 	}
+
+	public static boolean isLex(IConstructor rhs) {
+		return rhs.getConstructorType() == Factory.Symbol_Lex;
+	}
+	
+	public static boolean isKeyword(IConstructor rhs) {
+		return rhs.getConstructorType() == Factory.Symbol_Keyword;
+	}
 }
