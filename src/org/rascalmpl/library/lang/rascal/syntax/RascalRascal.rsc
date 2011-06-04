@@ -234,7 +234,7 @@ syntax Expression
 	| Has : Expression expression "has" Name name
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
-	| Negative: "\<" !<< "|""-" Expression argument 
+	| Negative: "\<" !<< "-" Expression argument 
 	> TransitiveClosure: Expression argument "+" 
 	| TransitiveReflexiveClosure: Expression argument "*" 
 	> SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 

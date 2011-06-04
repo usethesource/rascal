@@ -45,10 +45,7 @@ public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
 public Grammar \layouts(Grammar g, Symbol l) {
   return top-down-break visit (g) {
     case prod([Symbol x],start(x),as) => prod([l, x, l], start(x), as)
-    case prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)) => prod(intermix(lhs, l),rhs,attrs(as)) 
-      when start(_) !:= rhs, \lex() notin as  
-    case prod(list[Symbol] lhs,Symbol rhs,\no-attrs()) => prod(intermix(lhs, l),rhs,\no-attrs()) 
-      when start(_) !:= rhs
+    case prod(list[Symbol] lhs,sort(s),as) => prod(intermix(lhs, l),sort(s),as) 
   }
 } 
 

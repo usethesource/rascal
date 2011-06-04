@@ -116,29 +116,48 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            'import org.eclipse.imp.pdb.facts.type.TypeFactory;
            'import org.eclipse.imp.pdb.facts.IConstructor;
            'import org.eclipse.imp.pdb.facts.IValue;
-           'import org.eclipse.imp.pdb.facts.IMap;
-           'import org.eclipse.imp.pdb.facts.ISet;
-           'import org.eclipse.imp.pdb.facts.IRelation;
-           'import org.eclipse.imp.pdb.facts.ITuple;
-           'import org.eclipse.imp.pdb.facts.IInteger;
            'import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
            'import org.eclipse.imp.pdb.facts.io.StandardTextReader;
            'import org.rascalmpl.parser.gtd.stack.*;
+           'import org.rascalmpl.parser.gtd.stack.filter.*;
+           'import org.rascalmpl.parser.gtd.stack.filter.follow.*;
+           'import org.rascalmpl.parser.gtd.stack.filter.match.*;
+           'import org.rascalmpl.parser.gtd.stack.filter.precede.*;
            'import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.values.uptr.Factory;
-           'import org.rascalmpl.parser.ASTBuilder;
-           'import org.rascalmpl.parser.IParserInfo;
            '
-           'public class <name> extends <super> implements IParserInfo {
-           '<if (isRoot) {>
+           'public class <name> extends <super> {
+           '  <if (isRoot) {>
+           '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
+           '    try {
+           '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+           '    }
+           '    catch (FactTypeUseException e) {
+           '      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+           '    } catch (IOException e) {
+           '      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
+           '    }
+           '  }
+           '	
+           '  protected static java.lang.String _concat(String ...args) {
+           '    int length = 0;
+           '    for (java.lang.String s :args) {
+           '      length += s.length();
+           '    }
+           '    java.lang.StringBuilder b = new java.lang.StringBuilder(length);
+           '    for (java.lang.String s : args) {
+           '      b.append(s);
+           '    }
+           '    return b.toString();
+           '  }
            '  protected static final TypeFactory _tf = TypeFactory.getInstance();
-           '
+           '  <}>
            '  private static final IntegerMap _resultStoreIdMappings;
            '  private static final IntegerKeyedHashMap\<IntegerList\> _dontNest;
            '	
-           '  private static void _putDontNest(IntegerKeyedHashMap\<IntegerList\> result, int parentId, int childId) {
+           '  protected static void _putDontNest(IntegerKeyedHashMap\<IntegerList\> result, int parentId, int childId) {
            '    IntegerList donts = result.get(childId);
            '    if (donts == null) {
            '      donts = new IntegerList();
@@ -147,9 +166,9 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    donts.add(parentId);
            '  }
            '    
-           '  protected int getResultStoreId(int parentId){
+           '  protected int getResultStoreId(int parentId) {
            '    return _resultStoreIdMappings.get(parentId);
-           '  }<}>
+           '  }
            '    
            '  protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
            '    IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
@@ -167,17 +186,13 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    <for (<parentIds, childrenIds> <- dontNestGroups) {>
            '    ++resultStoreId;
            '    <for (pid <- parentIds) {>
-                result.putUnsafe(<pid>, resultStoreId);<}><}>
+           '    result.putUnsafe(<pid>, resultStoreId);<}><}>
            '      
            '    return result;
            '  }
            '    
            '  protected IntegerList getFilteredParents(int childId) {
            '		return _dontNest.get(childId);
-           '  }
-           '    
-           '  public org.rascalmpl.ast.LanguageAction getAction(IConstructor prod) {
-           '    return _languageActions.get(prod);
            '  }
            '    
            '  // initialize priorities     
@@ -371,11 +386,13 @@ public str generateSeparatorExpects(Grammar grammar, int() id, list[Symbol] seps
 }
 
 public str literals2ints(list[Symbol] chars){
-    if(chars == []) return "";
+    if (chars == []) { 
+      return "";
+    }
     
     str result = "<head(head(chars).ranges).start>";
     
-    for(ch <- tail(chars)){
+    for (ch <- tail(chars)) {
         result += ",<head(ch.ranges).start>";
     }
     
@@ -418,6 +435,8 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
             return sym2newitem(grammar, s, id, dot); // ignore labels
         case \sort(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+        case \empty() : 
+            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lex(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \keywords(n) : 
@@ -455,10 +474,11 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
             return <"new OptionalStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, <filters>)", itemId>;
         }
         case \alt(as) : {
-            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<sym2newitem(grammar, head(alts), id, 0)> <for (a <- tail(alts)) {>, <sym2newitem(grammar, a, id, 0)><}>}, <filters>)", itemId>;
+            alts = [a | a <- as];
+            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateSeparatorExpects(grammar, id, alts)>}, <filters>)", itemId>;
         }
         case \seq(ss) : {
-            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<sym2newitem(grammar, head(ss), id, 0)> <for (i <- tail(index(ss))) {>, <sym2newitem(grammar, ss[i], id, i)><}>}, <filters>)", itemId>;
+            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateSeparatorExpects(grammar, id, ss)>}, <filters>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode(<itemId>, <dot>, new char[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
