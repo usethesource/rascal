@@ -122,6 +122,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 		}
 		else {
 			// equality check
+			if(debug)System.err.printf("subject.getTYpe() = %s, varRes.getType() = %s\n", subject.getValue().getType(), varRes.getType());
 			if (subject.getValue().getType().isSubtypeOf(varRes.getType())) {
 				if(debug) {
 					System.err.println("returns " + subject.equals(varRes));
