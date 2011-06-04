@@ -26,13 +26,13 @@ import Integer;
 // conversion functions
 
 public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
-  set[Production] prods = {};
+  set[Production] prods = {prod([],empty(),\no-attrs())};
   set[Symbol] starts = {};
   
   for (sd <- defs) {
     switch (sd) {
       case (SyntaxDefinition) `layout <Nonterminal n> = <Prod p>;` : {
-        prods += attribute(prod2prod(\layouts("<n>"), p), visibility(\public()));
+        prods += prod2prod(\layouts("<n>"), p);
       }
       case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
         Symbol top = sort("<n>");

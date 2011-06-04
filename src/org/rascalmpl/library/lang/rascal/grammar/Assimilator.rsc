@@ -19,11 +19,13 @@ import IO;
 import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::definition::Literals;
 
 public data Symbol = meta(Symbol wrapped);
 
 bool isNonterminal(Symbol x) { 
     return \lit(_) !:= x 
+       && \empty() !:= x
        && \cilit(_) !:= x 
        && \char-class(_) !:= x 
        && \layouts(_) !:= x
@@ -48,14 +50,12 @@ private Symbol rl = layouts("$QUOTES");
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] fromRascal(Grammar object) {
-  rejects = rejectedSymbols(object);
-  
   return  { prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         { prod(str2syms(L),l,attrs([\literal()])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
-      | Symbol nont <- object.rules, isNonterminal(nont), nont notin rejects, symLits := symbolLiterals(nont) };
+      | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
 }
 
 // TODO: this does not generate productions for bound parameterized symbols
@@ -67,6 +67,8 @@ public set[Production] toRascal(Grammar object) {
 private list[Symbol] symbolLiterals(Symbol sym) {
   switch (sym) {
     case \sort(n) : return [lit(n)];
+    case \lex(n) : return [lit(n)];
+    case \empty() : return [lit("("), rl, lit(")")];
     case \opt(s) : return [symbolLiterals,rl,lit("?")];
     case \START() : return [lit("START")];
     case \start(s) : return [lit("start"),rl,lit("["),rl,symbolLiterals(s),rl,lit("]")];

@@ -13,7 +13,7 @@ module lang::rascal::grammar::Bootstrap
 
 import lang::rascal::syntax::RascalRascal; 
 
-import lang::rascal::format::Grammar2Rascal;
+import lang::rascal::format::Grammar;
 
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::ParserGenerator;

@@ -16,8 +16,8 @@ module lang::rascal::format::Grammar
 
 import ParseTree;
 import Grammar;
-import lang::rascal::grammar::Characters;
-import lang::rascal::grammar::Escape;
+import lang::rascal::grammar::definition::Characters;
+import lang::rascal::grammar::definition::Literals;
 import IO;
 import Set;
 import List;
