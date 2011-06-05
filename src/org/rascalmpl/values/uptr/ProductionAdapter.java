@@ -59,7 +59,11 @@ public class ProductionAdapter {
 	public static String getSortName(IConstructor tree) {
 		IConstructor rhs = getRhs(tree);
 		
-		if (SymbolAdapter.isSort(rhs) || SymbolAdapter.isParameterizedSort(rhs)){
+		if (SymbolAdapter.isSort(rhs) 
+				|| SymbolAdapter.isLex(rhs) 
+				|| SymbolAdapter.isLayouts(rhs) 
+				|| SymbolAdapter.isParameterizedSort(rhs)
+				|| SymbolAdapter.isKeyword(rhs)) {
 			return SymbolAdapter.getName(rhs);
 		} 
 		

@@ -92,7 +92,7 @@ public class SymbolAdapter {
 	public static String getName(IConstructor tree) {
 		tree = delabel(tree);
 		
-		if (isSort(tree)) {
+		if (isSort(tree) || isLex(tree) || isKeyword(tree)) {
 			return ((IString) tree.get("string")).getValue();
 		}
 		else if (isMeta(tree)) {
