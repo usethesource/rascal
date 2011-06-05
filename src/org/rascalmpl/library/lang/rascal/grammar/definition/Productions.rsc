@@ -35,12 +35,11 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
         prods += prod2prod(\layouts("<n>"), p);
       }
       case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
-        Symbol top = sort("<n>");
-        prods  += prod([top], start(top), \no-attrs()); 
-        prods  += prod2prod(top, p);
+        prods  += prod([sort("<n>")], start(sort("<n>")), \no-attrs()); 
+        prods  += prod2prod(sort("<n>"), p);
       }
-      case (SyntaxDefinition) `syntax <Nonterminal n> = <Prod p>;` : {
-        prods += prod2prod(sort("<n>"), p);
+      case (SyntaxDefinition) `syntax <Sym s> = <Prod p>;` : {
+        prods += prod2prod(sym2symbol(s), p);
       }
       case (SyntaxDefinition) `lexical <Nonterminal n> = <Prod p>;` : {
         prods += prod2prod(\lex("<n>"), p);
@@ -48,6 +47,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
       case (SyntaxDefinition) `keyword <Nonterminal n> = <Prod p>;` : {
         prods += prod2prod(keywords("<n>"), p);
       }
+      default: { rprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
     }
   }
 
