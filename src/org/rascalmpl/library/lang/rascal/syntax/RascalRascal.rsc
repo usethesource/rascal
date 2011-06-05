@@ -97,7 +97,6 @@ syntax Sym
 	| Parameter: "&" Nonterminal nonterminal 
 	| Parametrized: ParameterizedNonterminal pnonterminal "[" {Sym ","}+ parameters "]"
 	| Start: "start" "[" Nonterminal nonterminal "]"
-	| Layout: "layout" "[" Nonterminal nonterminal "]"
 	| Labeled: Sym symbol NonterminalLabel label
 // literals 
 	| CharacterClass: Class charClass 
@@ -106,8 +105,8 @@ syntax Sym
 // regular expressions
 	| Iter: Sym symbol "+" 
 	| IterStar: Sym symbol "*" 
-	| IterSep: "{" Sym symbol Symbol sep "}" "+" 
-	| IterStarSep: "{" Sym symbol Symbol sep "}" "*" 
+	| IterSep: "{" Sym symbol Sym sep "}" "+" 
+	| IterStarSep: "{" Sym symbol Sym sep "}" "*" 
 	| Optional: Sym symbol "?" 
 	| Alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
 	| Sequence: "(" Sym first Sym+ sequence ")"
@@ -394,7 +393,7 @@ syntax Replacement
 	| Conditional: Expression replacementExpression "when" {Expression ","}+ conditions ;
 
 lexical ParameterizedNonterminal
-	= [A-Z] [0-9 A-Z _ a-z]* >> [\[];
+	= [A-Z] [0-9 A-Z _ a-z]* !>> ![\[];
 	
 
 lexical TagChar
@@ -814,7 +813,7 @@ syntax Prod
 	| Unlabeled: ProdModifier* modifiers Sym* args
 	| @Foldable AssociativityGroup: Assoc associativity "(" Prod group ")" 
 	> left All   : Prod lhs "|" Prod rhs 
-	> left First : Prod lhs "\>" Prod rhs
+	> left First : Prod lhs "\>" !>> "\>" Prod rhs
 	;
 
 syntax DateTimeLiteral
