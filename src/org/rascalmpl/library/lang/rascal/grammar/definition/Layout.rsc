@@ -53,5 +53,15 @@ public Grammar \layouts(Grammar g, Symbol l) {
 private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
   if (syms == []) 
     return syms;
-  return tail([l, s | s <- syms]);
+  return tail([l, regulars(s, l) | s <- syms]);
+}
+
+private Symbol regulars(Symbol s, Symbol l) {
+  return visit(s) {
+    case \iter(Symbol n) => \iter-seps(n, [l])
+    case \iter-star(Symbol n) => \iter-star-seps(n, [l]) 
+    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) 
+    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l])
+    case \seq(list[Symbol] elems) => \seq(tail([l, s | s <- elems]))
+  }
 }
