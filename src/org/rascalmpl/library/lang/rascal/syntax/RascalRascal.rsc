@@ -43,9 +43,6 @@ keyword HeaderKeyword
 
 lexical Word = ![\ \t\n\r]+ !>> ![\ \t\n\r];          
                    
-syntax Alternative
-	= NamedType: Name name Type type ;
-
 syntax ModuleParameters
 	= Default: "[" {TypeVar ","}+ parameters "]" ;
 
@@ -87,9 +84,6 @@ lexical PathChars
 syntax Signature
 	= WithThrows: Type type FunctionModifiers modifiers Name name Parameters parameters "throws" {Type ","}+ exceptions 
 	| NoThrows: Type type FunctionModifiers modifiers Name name Parameters parameters ;
-
-lexical HexLongLiteral
-	= [0] [X x] [0-9 A-F a-f]+ [L l] !>> [0-9 A-Z _ a-z] ;
 
 syntax Sym
 // named non-terminals
@@ -144,10 +138,6 @@ lexical TimePartNoTZ
 	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9]
 	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
 	;
-
-lexical DecimalLongLiteral
-	= "0" [L l] !>> [0-9 A-Z _ a-z]
-	| [1-9] [0-9]* [L l] !>> [0-9 A-Z _ a-z] ;
 
 syntax Header
 	= Parameters: Tags tags "module" QualifiedName name ModuleParameters params Import* imports 
@@ -288,12 +278,6 @@ syntax Body
 lexical URLChars
 	= ![\t-\n \r \  \< |]* ;
 
-syntax LanguageAction
-	= Replace: "=\>" Expression expression ";"
-	| When: "when" {Expression ","}+ conditions ";"
-	| ReplaceWhen: "=\>" Expression expression "when" {Expression ","}+ conditions ";" 
-	| Action: "{" Statement* statements "}" ;
-
 lexical TimeZonePart
 	= [+ \-] [0-1] [0-9] ":" [0-5] [0-9] 
 	| "Z" 
@@ -324,13 +308,6 @@ lexical Backslash
 syntax Label
 	= Default: Name name ":" 
 	| Empty: ;
-
-lexical ShortChar
-	= [0-9 A-Z a-z] character 
-	| [\\] [\032-/ :-@ \[-` n r t {-\uFFFF] escape ;
-
-lexical NumChar
-	= [\\] [0-9]+ number ;
 
 lexical MidProtocolChars
 	= "\>" URLChars "\<" ;
@@ -395,11 +372,6 @@ syntax Replacement
 lexical ParameterizedNonterminal
 	= [A-Z] [0-9 A-Z _ a-z]* !>> ![\[];
 	
-
-lexical TagChar
-	= ![}] 
-	| [\\] [\\ }] ;
-
 syntax DataTarget
 	= Empty: 
 	| Labeled: Name label ":" ;
@@ -768,9 +740,6 @@ lexical OctalEscapeSequence
 	| "\\" [0-7] !>> [0-7]
 	;
 
-lexical OctalLongLiteral
-	= [0] [0-7]+ [L l] !>> [0-9 A-Z _ a-z] ;
-
 syntax BasicType
 	= Value: "value" 
 	| Loc: "loc" 
@@ -827,11 +796,6 @@ lexical PrePathChars
 syntax Mapping[&T]
 	= Default: &T from ":" &T to 
 	;
-
-syntax LongLiteral
-	= /*prefer()*/ OctalLongLiteral: OctalLongLiteral octalLong 
-	| /*prefer()*/ HexLongLiteral: HexLongLiteral hexLong 
-	| /*prefer()*/ DecimalLongLiteral: DecimalLongLiteral decimalLong ;
 
 lexical MidPathChars
 	= "\>" URLChars "\<" ;
