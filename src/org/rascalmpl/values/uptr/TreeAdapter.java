@@ -512,7 +512,7 @@ public class TreeAdapter {
 	}
 
 	public static boolean isRascalLexical(IConstructor tree) {
-		return ProductionAdapter.hasLexAttribute(getProduction(tree)); 
+		return ProductionAdapter.hasLexAttribute(getProduction(tree)) || SymbolAdapter.isLex(ProductionAdapter.getRhs(getProduction(tree))); 
 	}
 
 	public static boolean hasLexAttribute(IConstructor tree) {
