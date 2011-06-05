@@ -89,7 +89,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     gr = literals(gr);
     
     println("establishing production set");
-    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p, restricted(_) !:= p.rhs};
+    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
  
     println("generating item allocations");
     newItems = generateNewItems(gr, newItem);

@@ -119,8 +119,7 @@ syntax Sym
 	        | NotFollow:  Sym symbol "!\>\>" Sym match
 	        )
 	  | 
-	  right (
-	        | Precede:    Sym match "\<\<" Sym symbol 
+	  right ( Precede:    Sym match "\<\<" Sym symbol 
 	        | NotPrecede: Sym match "!\<\<" Sym symbol
 	        )
 	)
