@@ -72,7 +72,6 @@ public abstract class SGTDBF implements IGTD{
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> resultStoreCache;
 	
 	private int location;
-	private boolean shiftedLevel;
 	
 	protected char lookAheadChar;
 	
@@ -111,7 +110,6 @@ public abstract class SGTDBF implements IGTD{
 		resultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>>();
 		
 		location = 0;
-		shiftedLevel = false;
 		
 		methodCache = new HashMap<String, Method>();
 		
@@ -738,7 +736,6 @@ public abstract class SGTDBF implements IGTD{
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
 				location += i;
-				shiftedLevel = (location != 0);
 				
 				queueIndex = i;
 				
@@ -749,11 +746,6 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	private boolean findStacksToReduce(){
-		if(!stacksWithTerminalsToReduce.isEmpty()){
-			shiftedLevel = false;
-			return true;
-		}
-		
 		int queueDepth = todoLists.length;
 		for(int i = 1; i < queueDepth; ++i){
 			queueIndex = (queueIndex + 1) % queueDepth;
@@ -762,7 +754,6 @@ public abstract class SGTDBF implements IGTD{
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
 				stacksWithTerminalsToReduce = terminalsTodo;
 				
-				shiftedLevel = true;
 				location += i;
 				
 				return true;
@@ -970,9 +961,10 @@ public abstract class SGTDBF implements IGTD{
 		expand();
 		
 		if(findFirstStackToReduce()){
+			boolean shiftedLevel = (location != 0);
 			do{
 				lookAheadChar = (location < input.length) ? input[location] : 0;
-				if(shiftedLevel){ // Nullable fix.
+				if(shiftedLevel){ // Nullable fix for the first level.
 					sharedNextNodes.clear();
 					resultStoreCache.clear();
 					cachedEdgesForExpect.clear();
@@ -989,7 +981,8 @@ public abstract class SGTDBF implements IGTD{
 					reduce();
 					
 					expand();
-				}while(!stacksWithNonTerminalsToReduce.isEmpty());
+				}while(!stacksWithNonTerminalsToReduce.isEmpty() || !stacksWithTerminalsToReduce.isEmpty());
+				shiftedLevel = true;
 			}while(findStacksToReduce());
 		}
 		
