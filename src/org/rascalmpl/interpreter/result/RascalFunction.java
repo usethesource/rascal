@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
@@ -126,42 +127,61 @@ public class RascalFunction extends NamedFunction {
 				actuals = computeVarArgsActuals(actuals, getFormals());
 			}
 
-			assignFormals(actuals);
-
-			if (callTracing) {
-				printStartTrace();
+			int size = actuals.length;
+			Environment[] olds = new Environment[size];
+			int i = 0;
+			
+			if (size == 0) {
+				try {
+					return runBody();
+				}
+				catch (Return e) {
+					return computeReturn(e);
+				}
 			}
+			
+			matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
+			olds[0] = ctx.getCurrentEnvt();
+			ctx.pushEnv();
 
-			for (Statement stat: body) {
-				eval.setCurrentAST(stat);
-				stat.interpret(eval);
+			// pattern matching requires backtracking due to list, set and map matching and
+			// non-linear use of variables between formal parameters of a function...
+			
+			while (i >= 0 && i < size) {
+				if (ctx.isInterrupted()) {
+					throw new InterruptException(ctx.getStackTrace());
+				}
+				if (matchers[i].hasNext() && matchers[i].next()) {
+					if (i == size - 1) {
+						// formals are now bound by side effect of the pattern matcher
+						try {
+							return runBody();
+						}
+						catch (Failure e) {
+							// backtrack current pattern assignment
+//							ctx.unwind(olds[i]);
+//							i--;
+//							ctx.pushEnv();
+						}
+					}
+					else {
+						i++;
+						matchers[i].initMatch(makeResult(actuals[i].getType(), actuals[i], ctx));
+						olds[i] = ctx.getCurrentEnvt();
+						ctx.pushEnv();
+					}
+				} else {
+					ctx.unwind(olds[i]);
+					i--;
+					ctx.pushEnv();
+				}
 			}
-
-			if (callTracing) {
-				printEndTrace();
-			}
-
-			if(!isVoidFunction){
-				throw new MissingReturnError(ast);
-			}
-
-			return makeResult(TF.voidType(), null, eval);
+			
+			// backtrack to other function body
+			throw new MatchFailed();
 		}
 		catch (Return e) {
-			Result<IValue> result = e.getValue();
-
-			Type returnType = getReturnType();
-			Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
-
-			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-				throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
-			}
-
-			if (!returnType.isVoidType() && result.getType().isVoidType()) {
-				throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
-			}
-
-			return makeResult(instantiatedReturnType, result.getValue(), eval);
+			return computeReturn(e);
 		} 
 		finally {
 			if (callTracing) {
@@ -172,48 +192,45 @@ public class RascalFunction extends NamedFunction {
 			ctx.setCurrentAST(oldAST);
 		}
 	}
-	
-	private void assignFormals(IValue[] actuals) {
-		// we assume here the list of formals is just as long as the list of actuals
-		int size = actuals.length;
-		Environment[] olds = new Environment[size];
-		int i = 0;
-		
-		if (size == 0) {
-			return;
-		}
-		
-		matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
-		olds[0] = ctx.getCurrentEnvt();
-		ctx.pushEnv();
 
-		// pattern matching requires backtracking due to list, set and map matching and
-		// non-linear use of variables between formal parameters of a function...
-		
-		while (i >= 0 && i < size) {
-			if (ctx.isInterrupted()) {
-				throw new InterruptException(ctx.getStackTrace());
-			}
-			if (matchers[i].hasNext() && matchers[i].next()) {
-				if (i == size - 1) {
-					// formals are now bound by side effect of the pattern matcher
-					return;
-				}
-				
-				i++;
-				matchers[i].initMatch(makeResult(actuals[i].getType(), actuals[i], ctx));
-				olds[i] = ctx.getCurrentEnvt();
-				ctx.pushEnv();
-			} else {
-				ctx.unwind(olds[i]);
-				i--;
-				ctx.pushEnv();
-			}
+	private Result<IValue> runBody() {
+		if (callTracing) {
+			printStartTrace();
 		}
-		
-		throw new MatchFailed();
+
+		for (Statement stat: body) {
+			eval.setCurrentAST(stat);
+			stat.interpret(eval);
+		}
+
+		if (callTracing) {
+			printEndTrace();
+		}
+
+		if(!isVoidFunction){
+			throw new MissingReturnError(ast);
+		}
+
+		return makeResult(TF.voidType(), null, eval);
 	}
 
+	private Result<IValue> computeReturn(Return e) {
+		Result<IValue> result = e.getValue();
+
+		Type returnType = getReturnType();
+		Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
+
+		if(!result.getType().isSubtypeOf(instantiatedReturnType)){
+			throw new UnexpectedTypeError(instantiatedReturnType, result.getType(), e.getLocation());
+		}
+
+		if (!returnType.isVoidType() && result.getType().isVoidType()) {
+			throw new UnexpectedTypeError(returnType, result.getType(), e.getLocation());
+		}
+
+		return makeResult(instantiatedReturnType, result.getValue(), eval);
+	}
+	
 	private IMatchingResult[] prepareFormals(IEvaluatorContext ctx) {
 		List<Expression> formals;
 		Parameters params;
