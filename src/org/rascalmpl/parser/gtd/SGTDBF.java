@@ -946,21 +946,6 @@ public abstract class SGTDBF implements IGTD{
 		return (location == input.length);
 	}
 	
-	protected boolean isInLookAhead(char[][] ranges, char[] characters){
-		if(location == input.length) return false;
-		
-		for(int i = ranges.length - 1; i >= 0; --i){
-			char[] range = ranges[i];
-			if(lookAheadChar >= range[0] && lookAheadChar <= range[1]) return true;
-		}
-		
-		for(int i = characters.length - 1; i >= 0; --i){
-			if(lookAheadChar == characters[i]) return true;
-		}
-		
-		return false;
-	}
-	
 	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
