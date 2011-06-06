@@ -116,7 +116,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public String toString(int length){
-		StandardTextWriter stw = new StandardTextWriter();
+		StandardTextWriter stw = new StandardTextWriter(true);
 		LimitedResultOutputStream lros = new LimitedResultOutputStream(length);
 		try{
 			stw.write(getValue(), lros);
