@@ -267,7 +267,7 @@ public class ModuleEnvironment extends Environment {
 			if (mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
-			if (r != null) {
+			if (r != null && r.isPublic()) {
 				return mod.variableEnvironment;
 			}
 		}
