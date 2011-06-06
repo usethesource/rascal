@@ -70,7 +70,8 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 			IConstructor arg = (IConstructor) TreeAdapter.getArgs(tree).get(pos);
 			
 			for (String child : children) {
-				if (TreeAdapter.getConstructorName(arg).equals(child)) {
+				String constructorName = TreeAdapter.getConstructorName(arg);
+				if (constructorName != null && constructorName.equals(child)) {
 					return null;
 				}
 			}
