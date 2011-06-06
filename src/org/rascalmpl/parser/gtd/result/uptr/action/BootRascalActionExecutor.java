@@ -102,7 +102,16 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 					w.insert(alt);
 				}
 				
-				return arg.set("alternatives", w.done());
+				alts = w.done();
+				if (alts.size() == 1) {
+					return (IConstructor) alts.iterator().next();
+				}
+				else if (alts.size() == 0) {
+					return null;
+				}
+				else {
+					return arg.set("alternatives", alts);
+				}
 			}
 		}
 		
