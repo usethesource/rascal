@@ -42,7 +42,7 @@ public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[Char
     else 
       fail;
 }
-    
+ 
 public Symbol \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) {
   if (p < n) 
     return \char-class(a + [range(o,p)]+b+[range(n,m)]+c);

@@ -238,8 +238,8 @@ syntax Expression
 	> left ( Addition   : Expression lhs "+" Expression rhs  
 		   | Subtraction: Expression lhs "-" Expression rhs 
 	       )
-	> non-assoc (  NotIn: Expression lhs "notin" Expression rhs  
-		        |  In: Expression lhs "in" Expression rhs 
+	> non-assoc ( NotIn: Expression lhs "notin" Expression rhs  
+		        | In: Expression lhs "in" Expression rhs 
 	)
 	> non-assoc ( GreaterThanOrEq: Expression lhs "\>=" Expression rhs  
 		        | LessThanOrEq   : Expression lhs "\<=" Expression rhs 
@@ -253,7 +253,7 @@ syntax Expression
 	> non-assoc IfDefinedOtherwise: Expression lhs "?" Expression rhs
 	> non-assoc ( NoMatch: Pattern pattern "!:=" Expression expression  
 		        | Match: Pattern pattern ":=" Expression expression 
-		        | /*prefer()*/ Enumerator: Pattern pattern "\<-" Expression expression 
+		        | Enumerator: Pattern pattern "\<-" Expression expression 
 	            ) 
 	> non-assoc ( Implication: Expression lhs "==\>" Expression rhs  
 		        | Equivalence: Expression lhs "\<==\>" Expression rhs 
@@ -334,6 +334,7 @@ lexical DatePart
 
 syntax FunctionModifier
 	= Java: "java" 
+	| Test: "test"
 	| Default: "default";
 
 syntax Assignment
