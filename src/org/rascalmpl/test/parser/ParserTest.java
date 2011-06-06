@@ -105,6 +105,7 @@ public class ParserTest extends TestCase{
 	
 	public void testSequence(){
 		executeParser(new Sequence1());
+		executeParser(new Sequence2());
 	}
 	
 	public void testAlternative(){
