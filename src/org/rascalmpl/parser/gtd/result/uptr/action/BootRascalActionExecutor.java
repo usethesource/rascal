@@ -11,6 +11,9 @@
 package org.rascalmpl.parser.gtd.result.uptr.action;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -79,6 +82,27 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 						}
 					}
 				}
+			}
+			else if (TreeAdapter.isAmb(arg)) {
+				// now filter this cluster with the given cons name
+				ISet alts = TreeAdapter.getAlternatives(arg);
+				ISetWriter w = VF.setWriter();
+				
+				next:for (IValue alt : alts) {
+					String constructorName = TreeAdapter.getConstructorName((IConstructor) alt);
+					
+					if (constructorName != null) {
+						for (String child : children) {
+							if (constructorName.equals(child)) {
+								continue next;
+							}
+						}
+					}
+					
+					w.insert(alt);
+				}
+				
+				return arg.set("alternatives", w.done());
 			}
 		}
 		
