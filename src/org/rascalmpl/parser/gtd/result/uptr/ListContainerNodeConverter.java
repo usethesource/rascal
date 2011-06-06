@@ -332,6 +332,25 @@ public class ListContainerNodeConverter{
 				return;
 			}
 			
+			// Splice the elements into the list if the ambiguity cluster got filtered properly.
+			if(TreeAdapter.isAppl(prefixResult)){
+				if(ProductionAdapter.getRhs(TreeAdapter.getProduction(prefixResult)).equals(ProductionAdapter.getRhs(production))){
+					IConstructor filteredAlternative = gatheredPrefixes.get(0);
+					IList filteredAlternativeChildrenList = TreeAdapter.getArgs(filteredAlternative);
+					
+					int prefixLength = filteredAlternativeChildrenList.length();
+					IConstructor[] filteredAlternativeChildren = new IConstructor[prefixLength];
+					for(int i = prefixLength - 1; i >= 0; --i){
+						filteredAlternativeChildren[i] = (IConstructor) filteredAlternativeChildrenList.get(i);
+					}
+					
+					Object newEnvironment = buildAlternative(converter, filteredAlternativeChildren, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+					
+					sharedPrefixCache.put(prefixes, new SharedPrefix(newEnvironment != null ? filteredAlternativeChildren : null, newEnvironment));
+					return;
+				}
+			}
+			
 			IConstructor[] prefixNodes = new IConstructor[]{prefixResult};
 			
 			Object newEnvironment = buildAlternative(converter, prefixNodes, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
