@@ -85,16 +85,17 @@ public abstract class SGTDBF implements IGTD{
 	private final LinearIntegerKeyedMap<IntegerList> propagatedPrefixes;
 	private final LinearIntegerKeyedMap<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
 	
-	// Error reporting.
-	private boolean parseErrorOccured;
-	private boolean filterErrorOccured;
+	// Guard
+	private boolean invoked;
 	
+	// Error reporting
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
 	private final DoubleStack<AbstractStackNode, AbstractContainerNode> filteredNodes;
 	
-	// Guard
-	private boolean invoked;
+	// Error reporting guards
+	private boolean parseErrorOccured;
+	private boolean filterErrorOccured;
 	
 	public SGTDBF(){
 		super();
