@@ -135,7 +135,7 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	}
 
 	private IConstructor filterType(IConstructor tree, IConstructor prod) {
-		return filterArg(tree, prod, "Symbol", 0, "Nonterminal", "Labeled", "Parametrized", "Parameter");
+		return filterArg(tree, prod, "Sym", 0, "Nonterminal", "Labeled", "Parametrized", "Parameter");
 	}
 	
 	@Override
