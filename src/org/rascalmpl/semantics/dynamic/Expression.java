@@ -93,7 +93,8 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.gtd.result.uptr.action.RascalActionExecutor;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
+import org.rascalmpl.parser.uptr.action.RascalActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
 
@@ -944,7 +945,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						Parser.START_COMMAND,
 						this.getLocation().getURI(),
 						command.toCharArray(),
-						new RascalActionExecutor(__eval, __eval.getCurrentEnvt(), true, Parser.getInfo()));
+						new RascalActionExecutor(__eval, __eval.getCurrentEnvt(), true, Parser.getInfo()),
+						new NodeToUPTR());
 
 				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
 						.getArgs(tree).get(1); // top

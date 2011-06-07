@@ -25,6 +25,7 @@ import org.rascalmpl.parser.gtd.stack.IMatchableStackNode;
 import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -87,7 +88,7 @@ public class FollowRestriction extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -97,7 +98,7 @@ public class FollowRestriction extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		FollowRestriction fr = new FollowRestriction();
-		IConstructor result = fr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = fr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S(A(B+(a,a,a)),C()) <- good");

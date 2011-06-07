@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.result.uptr;
+package org.rascalmpl.parser.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.location.PositionStore;
@@ -13,21 +13,16 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
+import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 
-public class NodeToUPTR{
-	private final AbstractNode parseTree;
-	private final PositionStore positionStore;
-	
+public class NodeToUPTR implements INodeConverter{
 	private final LiteralNodeConverter literalNodeConverter;
 	private final SortContainerNodeConverter sortContainerNodeConverter;
 	private final ListContainerNodeConverter listContainerNodeConverter;
 	
-	public NodeToUPTR(AbstractNode parseTree, PositionStore positionStore){
+	public NodeToUPTR(){
 		super();
-		
-		this.parseTree = parseTree;
-		this.positionStore = positionStore;
 		
 		literalNodeConverter = new LiteralNodeConverter();
 		sortContainerNodeConverter = new SortContainerNodeConverter();
@@ -74,11 +69,11 @@ public class NodeToUPTR{
 		}
 	}
 	
-	public IConstructor convertToUPTR(FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object rootEnvironment){
+	public IConstructor convert(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment, FilteringTracker filteringTracker){
 		return convert(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
 	}
 	
-	public IConstructor convertToUPTRWithErrors(IActionExecutor actionExecutor, Object rootEnvironment){
+	public IConstructor convertWithErrors(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment){
 		return convertWithErrors(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
 	}
 }

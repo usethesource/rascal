@@ -15,11 +15,12 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 
 public interface IGTD{
-	IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor);
+	IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter);
 	
-	IConstructor parse(String nonterminal, URI inputURI, char[] input);
+	IConstructor parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
 	
 	IConstructor buildErrorTree();
 }

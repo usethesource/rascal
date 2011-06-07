@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -112,7 +113,7 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -122,7 +123,7 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		Ambiguous6 a6 = new Ambiguous6();
-		IConstructor result = a6.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = a6.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("[S(A(B(C([D(E(F(G(a)))),D(a)])))),S(E(F(G(a))))] <- good");

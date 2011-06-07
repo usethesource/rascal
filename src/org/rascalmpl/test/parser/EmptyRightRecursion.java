@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -71,7 +72,7 @@ public class EmptyRightRecursion extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -81,7 +82,7 @@ public class EmptyRightRecursion extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		EmptyRightRecursion erre = new EmptyRightRecursion();
-		IConstructor result = erre.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = erre.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S(A(a),[B(cycle(B,1)),B()])");

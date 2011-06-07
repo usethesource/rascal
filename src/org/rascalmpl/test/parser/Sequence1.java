@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.SequenceStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -64,7 +65,7 @@ public class Sequence1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "abcd".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "abcd".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -74,7 +75,7 @@ public class Sequence1 extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		Sequence1 s1 = new Sequence1();
-		IConstructor result = s1.parse(NONTERMINAL_START_S, null, "abcd".toCharArray());
+		IConstructor result = s1.parse(NONTERMINAL_START_S, null, "abcd".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 	}
 }

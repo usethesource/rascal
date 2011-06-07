@@ -8,7 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  */
-package org.rascalmpl.parser.gtd.result.uptr.action;
+package org.rascalmpl.parser.uptr.action;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;

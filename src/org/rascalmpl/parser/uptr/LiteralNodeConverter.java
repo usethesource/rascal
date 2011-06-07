@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.result.uptr;
+package org.rascalmpl.parser.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;

@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CharStackNode;
 import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -50,7 +51,7 @@ public class CharStarList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "abc".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -60,7 +61,7 @@ public class CharStarList extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		CharStarList csl = new CharStarList();
-		IConstructor result = csl.parse(NONTERMINAL_START_S, null, "abc".toCharArray());
+		IConstructor result = csl.parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S([a-z]*([a-z](a),[a-z](b),[a-z](c))) <- good");

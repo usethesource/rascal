@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -67,7 +68,7 @@ public class CycleEpsilon extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -77,7 +78,7 @@ public class CycleEpsilon extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		CycleEpsilon ce = new CycleEpsilon();
-		IConstructor result = ce.parse(NONTERMINAL_START_S, null, "a".toCharArray());
+		IConstructor result = ce.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S([A([A(cycle(A,1),cycle(A,1)),A()],cycle(A,1)),A(cycle(A,1),[A(cycle(A,1),cycle(A,1)),A()]),A(a)]) <- good");

@@ -10,6 +10,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.uptr.Factory;
 
 /*
@@ -81,7 +82,7 @@ public class WorstCase extends SGTDBF{
 			
 			long start = tmxb.getCurrentThreadCpuTime();
 			WorstCase wc = new WorstCase();
-			wc.parse(NONTERMINAL_START_S, null, input, actionExecutor);
+			wc.parse(NONTERMINAL_START_S, null, input, actionExecutor, new NodeToUPTR());
 			long end = tmxb.getCurrentThreadCpuTime();
 			
 			long time = (end - start) / 1000000;
@@ -98,7 +99,7 @@ public class WorstCase extends SGTDBF{
 		char[] input = createInput(5);
 		for(int i = 9999; i >= 0; --i){
 			WorstCase wc = new WorstCase();
-			wc.parse(NONTERMINAL_START_S, null, input, actionExecutor);
+			wc.parse(NONTERMINAL_START_S, null, input, actionExecutor, new NodeToUPTR());
 		}
 		
 		// The benchmarks.

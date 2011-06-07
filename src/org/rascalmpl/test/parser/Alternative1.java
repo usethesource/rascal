@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.AlternativeStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -60,7 +61,7 @@ public class Alternative1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "abd".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "abd".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -70,7 +71,7 @@ public class Alternative1 extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		Alternative1 a1 = new Alternative1();
-		IConstructor result = a1.parse(NONTERMINAL_START_S, null, "abd".toCharArray());
+		IConstructor result = a1.parse(NONTERMINAL_START_S, null, "abd".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 	}
 }

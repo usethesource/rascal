@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -66,7 +67,7 @@ public class SeparatedStarList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "ababa".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -76,7 +77,7 @@ public class SeparatedStarList extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		SeparatedStarList nrsl = new SeparatedStarList();
-		IConstructor result = nrsl.parse(NONTERMINAL_START_S, null, "ababa".toCharArray());
+		IConstructor result = nrsl.parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S((Ab)*(A(a),b,A(a),b,A(a))) <- good");
