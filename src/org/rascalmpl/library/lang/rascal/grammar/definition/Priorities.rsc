@@ -5,7 +5,7 @@ import Grammar;
 import Set;
 import List;
 import IO;
-
+ 
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
 

@@ -35,8 +35,17 @@ public anno str Symbol@prefix;
 
 @doc{Used in bootstrapping only, to generate a parser for Rascal modules without concrete syntax.}
 public str generateRootParser(str package, str name, Grammar gr) {
+  // first we expand parameterized symbols, since wrapping sorts with 'meta' will break that code
+  gr = expandParameterizedSymbols(gr);
+  
   // we annotate the grammar to generate identifiers that are different from object grammar identifiers
-  gr = visit (gr) { case s:sort(_) => meta(s) case s:layouts(_) => meta(s) }
+  gr = visit (gr) { 
+    case s:sort(_) => meta(s)
+    case s:\lex(_) => meta(s)
+    case s:keywords(_) => meta(s)
+    case s:\parameterized-sort(_,_) => meta(s) 
+    case s:layouts(_) => meta(s) 
+  }
   int uniqueItem = -3; // -1 and -2 are reserved by the SGTDBF implementation
   int newItem() { uniqueItem -= 1; return uniqueItem; };
   // make sure the ` sign is expected for expressions and every non-terminal which' first set is governed by Pattern or Expression, even though ` not in the language yet
@@ -285,9 +294,22 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
           for (int i <- index(seps)) 
             items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem, i+1));
-        } 
+        }
+        // not sure if these belong here
+        case \seq(list[Symbol] elems) : {
+          for (int i <- index(elems))
+            items[s]?fresh += (item(p,i+1):sym2newitem(g, elems[i], newItem, i+1));
+        }
+        case \opt(Symbol elem) : {
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+        }
+        case \alt(set[Symbol] alts) : {
+          for (Symbol elem <- alts) 
+            items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+        }
      }
   }
+  
   return items;
 }
 
@@ -385,6 +407,22 @@ public str generateSeparatorExpects(Grammar grammar, int() id, list[Symbol] seps
    return (sym2newitem(grammar, head(seps), id, 1).new | it + ", <sym2newitem(grammar, seps[i+1], id, i+2).new>" | int i <- index(tail(seps)));
 }
 
+public str generateSequenceExpects(Grammar grammar, int() id, list[Symbol] seps) {
+   if (seps == []) {
+     return "";
+   }
+   
+   return (sym2newitem(grammar, head(seps), id, 0).new | it + ", <sym2newitem(grammar, seps[i+1], id, i+1).new>" | int i <- index(tail(seps)));
+}
+
+public str generateAltExpects(Grammar grammar, int() id, list[Symbol] seps) {
+   if (seps == []) {
+     return "";
+   }
+   
+   return (sym2newitem(grammar, head(seps), id, 0).new | it + ", <sym2newitem(grammar, seps[i+1], id, 0).new>" | int i <- index(tail(seps)));
+}
+
 public str literals2ints(list[Symbol] chars){
     if (chars == []) { 
       return "";
@@ -405,6 +443,9 @@ public str ciliterals2ints(list[Symbol] chars){
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
+    if (sym is label) // ignore labels 
+      sym = sym.symbol;
+      
     itemId = id();
     
     list[str] enters = [];
@@ -425,14 +466,14 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds]; 
       
       sym = sym.symbol;
+      if (sym is label)
+        sym = sym.symbol;
     }
     
     filters  = "new IEnterFilter[] {<(enters != []) ? head(enters) : ""><for (enters != [], f <- tail(enters)) {>, <f><}>}"
              + ", new ICompletionFilter[] {<(exits != []) ? head(exits) : ""><for (exits != [], f <- tail(exits)) {>, <f><}>}";
     
     switch ((meta(_) := sym) ? sym.wrapped : sym) {
-        case \label(_,s) : 
-            return sym2newitem(grammar, s, id, dot); // ignore labels
         case \sort(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \empty() : 
@@ -446,7 +487,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \parameterized-sort(n,args): 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameter(n) :
-            throw "all parameters should have been instantiated by now";
+            throw "All parameters should have been instantiated by now: <sym>";
         case \start(s) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
@@ -475,10 +516,10 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         }
         case \alt(as) : {
             alts = [a | a <- as];
-            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateSeparatorExpects(grammar, id, alts)>}, <filters>)", itemId>;
+            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateAltExpects(grammar, id, alts)>}, <filters>)", itemId>;
         }
         case \seq(ss) : {
-            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateSeparatorExpects(grammar, id, ss)>}, <filters>)", itemId>;
+            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode(<itemId>, <dot>, new char[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;

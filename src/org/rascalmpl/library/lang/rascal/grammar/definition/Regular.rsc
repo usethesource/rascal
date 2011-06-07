@@ -9,6 +9,7 @@
 module lang::rascal::grammar::definition::Regular
 
 import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Productions;
 import Grammar;
 import ParseTree;
 import Set;

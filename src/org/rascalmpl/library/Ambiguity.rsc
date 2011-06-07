@@ -18,18 +18,19 @@ import Set;
 import Relation;
 import Graph;
 import Grammar;
-import lang::rascal::syntax::Grammar2Rascal;
+import lang::rascal::format::Grammar;
+import lang::rascal::format::Escape;
 
 public list[Message] diagnose(Tree t) {
   return [findCauses(x) | x <- {a | /Tree a:amb(_) := t}];
 }
 
-public void diagnose(str amb) {
-  diagnose(readTextValueString(#Tree, amb));
+public list[Message] diagnose(str amb) {
+  return diagnose(readTextValueString(#Tree, amb));
 }
 
 public list[Message] findCauses(Tree a) {
-  return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc)]
+  return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc?|stdin:///|)]
        + [findCauses(x, y) | [_*,Tree x,_*,Tree y, _*] := toList(a.alternatives), true /* workaround alert*/];
 }
     

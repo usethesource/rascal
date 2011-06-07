@@ -18,6 +18,7 @@ import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::format::Escape;
 import IO;
 import Set;
 import List;
@@ -170,7 +171,7 @@ public str symbol2rascal(Symbol sym) {
     case label(str l, x) :
     	return "<symbol2rascal(x)> <l>";  
     case sort(x) :
-    	return replaceAll(x, "-", "_");
+    	return x;
     case \parameter(x) :
         return "&" + replaceAll(x, "-", "_");
     case lit(x) :
@@ -178,9 +179,9 @@ public str symbol2rascal(Symbol sym) {
     case cilit(x) :
     	return "\"<escape(x)>\"";
     case \lex(x):
-    	return symbol2rascal(x);
-    case \cf(x):
-    	return symbol2rascal(x);
+    	return x;
+    case \keywords(x):
+        return x;
     case \parameterized-sort(str name, list[Symbol] parameters):
         return "<name>[<params2rascal(parameters)>]";
     case \char-class(x) : 

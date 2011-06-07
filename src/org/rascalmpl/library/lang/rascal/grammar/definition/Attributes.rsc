@@ -8,7 +8,6 @@ import IO;
 
 @doc{adds an attribute to all productions it can find}
 public Production attribute(Production p, Attr a) {
-  if (p.rhs == sort("SyntaxDefinition")) println("adding <a> to <p>");
   return visit (p) {
     case prod(lhs,rhs,\no-attrs()) => prod(lhs, rhs, attrs([a]))
     case prod(lhs,rhs,attrs(list[Attr] l)) => prod(lhs, rhs, attrs([l, a]))

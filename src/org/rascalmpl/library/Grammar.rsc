@@ -38,7 +38,7 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   for (p <- prods)
     rules[p.rhs] = p.rhs in rules ? choice(p.rhs, {p, rules[p.rhs]}) : choice(p.rhs, {p}); 
   return grammar(starts, rules);
-}
+} 
            
 @doc{
 Here we extend productions with basic combinators allowing to
@@ -74,3 +74,33 @@ data Symbol
   An item is an index into the symbol list of a production rule
 }  
 data Item = item(Production production, int index);
+
+// The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
+
+@doc{Nested choice is flattened}
+public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
+  = choice(s, a+b);
+  
+@doc{Nested priority is flattened}
+public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
+  = priority(s,a+b+c);
+   
+@doc{Choice under associativity is flattened}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
+  = associativity(s, as, a+b); 
+  
+@doc{Nested (equal) associativity is flattened}             
+public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
+  if (a == b)  
+    return associativity(rhs, a, rest + alts) ;
+  else
+    fail;
+}
+
+@doc{Priority under an associativity group defaults to choice}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
+  = associativity(s, as, a + { e | e <- b}); 
+
+@doc{Empty attrs default to \no-attrs()}
+public Production  attrs([]) 
+  = \no-attrs();

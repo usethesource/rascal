@@ -19,6 +19,7 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::SyntaxTreeGenerator;
 import lang::rascal::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Modules;
 
 import Grammar;
 import ParseTree;
@@ -50,7 +51,7 @@ public Grammar getRascalGrammar() {
   println("parsing the rascal definition of rascal");
   Module \module = parse(#Module, inputFolder + "/<grammarName>.rsc");
   println("imploding the syntax definition and normalizing and desugaring it");
-  return module2grammar(\module);
+  return modules2grammar("lang::rascal::syntax::RascalRascal", {\module});
 }
 
 public void bootAST(Grammar g) {

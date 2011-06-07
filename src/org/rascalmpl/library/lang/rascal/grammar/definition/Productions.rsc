@@ -82,30 +82,7 @@ private Production prod2prod(Symbol nt, Prod p) {
   } 
 }
 
-// normalization rules
-public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
-  = choice(s, a+b);
-  
-public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
-  = priority(s,a+b+c);
-   
-public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
-  = associativity(s, as, a+b); 
-  
-
-     
-@doc{Nested equal associativity is flattened}             
-public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
-  if (a == b)  
-    return associativity(rhs, a, rest + alts) ;
-  else
-    fail;
-}
-
-@doc{Priority under an associativity group defaults to choice}
-public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
-  = associativity(s, as, a + { e | e <- b}); 
-   
+@doc{"..." in a choice is a no-op}   
 public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) {
   if (a == {})
     return others(t);
@@ -113,8 +90,6 @@ public Production choice(Symbol s, {set[Production] a, others(Symbol t)}) {
     return choice(s, a);
 }
 
+@doc{This implements the semantics of "..." under a priority group}
 public Production choice(Symbol s, {set[Production] a, priority(Symbol t, [list[Production] b, others(Symbol u), list[Production] c])}) 
   = priority(s, b + [choice(s, a)] + c);
-  
-public Production  attrs([]) 
-  = \no-attrs();
