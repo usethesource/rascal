@@ -52,18 +52,4 @@ public abstract class AbstractNode{
 			depth = Integer.MAX_VALUE;
 		}
 	}
-	
-	public static class FilteringTracker{
-		public int offset;
-		public int endOffset;
-		
-		public FilteringTracker(){
-			super();
-		}
-		
-		public void setLastFilered(int offset, int endOffset){
-			this.offset = offset;
-			this.endOffset = endOffset;
-		}
-	}
 }

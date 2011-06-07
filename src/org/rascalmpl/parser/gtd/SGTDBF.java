@@ -24,9 +24,9 @@ import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ListContainerNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
@@ -1042,11 +1042,11 @@ public abstract class SGTDBF implements IGTD{
 		// Filtering error.
 		filterErrorOccured = true;
 		
-		int line = positionStore.findLine(filteringTracker.offset);
-		int column = positionStore.getColumn(filteringTracker.offset, line);
-		int endLine = positionStore.findLine(filteringTracker.endOffset);
-		int endColumn = positionStore.getColumn(filteringTracker.endOffset, endLine);
-		throw new SyntaxError("All trees were filtered.", VF.sourceLocation(inputURI, Math.min(filteringTracker.offset, input.length - 1), (filteringTracker.endOffset - filteringTracker.offset + 1), line + 1, endLine + 1, column, endColumn));
+		int line = positionStore.findLine(filteringTracker.getOffset());
+		int column = positionStore.getColumn(filteringTracker.getOffset(), line);
+		int endLine = positionStore.findLine(filteringTracker.getEndOffset());
+		int endColumn = positionStore.getColumn(filteringTracker.getEndOffset(), endLine);
+		throw new SyntaxError("All trees were filtered.", VF.sourceLocation(inputURI, Math.min(filteringTracker.getOffset(), input.length - 1), (filteringTracker.getEndOffset() - filteringTracker.getOffset() + 1), line + 1, endLine + 1, column, endColumn));
 	}
 	
 	public IConstructor buildErrorTree(){
