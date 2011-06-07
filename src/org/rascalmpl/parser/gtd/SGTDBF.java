@@ -27,8 +27,8 @@ import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.IExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
@@ -55,6 +55,8 @@ public abstract class SGTDBF implements IGTD{
 	private URI inputURI;
 	private char[] input;
 	private IActionExecutor actionExecutor;
+	private INodeConverter converter;
+	
 	private final PositionStore positionStore;
 	
 	private Stack<AbstractStackNode>[] todoLists;
@@ -937,7 +939,7 @@ public abstract class SGTDBF implements IGTD{
 		return (location == input.length);
 	}
 	
-	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor){
+	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
 		}
@@ -948,6 +950,7 @@ public abstract class SGTDBF implements IGTD{
 		this.inputURI = inputURI;
 		this.input = input;
 		this.actionExecutor = actionExecutor;
+		this.converter = converter;
 		
 		positionStore.index(input);
 		
@@ -1006,19 +1009,19 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	// With post parse filtering.
-	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor){
-		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor);
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, actionExecutor, converter);
 		return buildTree(result);
 	}
 	
 	// Without post parse filtering.
-	public IConstructor parse(String nonterminal, URI inputURI, char[] input){
-		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, new VoidActionExecutor());
+	public IConstructor parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, new VoidActionExecutor(), converter);
 		return buildTree(result);
 	}
 	
-	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input){
-		AbstractNode result = parse(startNode, inputURI, input, new VoidActionExecutor());
+	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter){
+		AbstractNode result = parse(startNode, inputURI, input, new VoidActionExecutor(), converter);
 		return buildTree(result);
 	}
 	
@@ -1028,8 +1031,7 @@ public abstract class SGTDBF implements IGTD{
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		IConstructor resultTree = null;
 		try{
-			NodeToUPTR converter = new NodeToUPTR(result, positionStore);
-			resultTree = converter.convertToUPTR(filteringTracker, actionExecutor, rootEnvironment);
+			resultTree = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
 		}finally{
 			actionExecutor.completed(rootEnvironment, (resultTree == null));
 		}
@@ -1059,8 +1061,7 @@ public abstract class SGTDBF implements IGTD{
 			// Invoke "the bulldozer" that constructs error trees while it's flattening the forest.
 			Object rootEnvironment = actionExecutor.createRootEnvironment();
 			try{
-				NodeToUPTR converter = new NodeToUPTR(result, positionStore);
-				return converter.convertToUPTRWithErrors(actionExecutor, rootEnvironment);
+				return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
 			}finally{
 				actionExecutor.completed(rootEnvironment, true);
 			}

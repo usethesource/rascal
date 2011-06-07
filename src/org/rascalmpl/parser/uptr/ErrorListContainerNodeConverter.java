@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.result.uptr;
+package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
 
@@ -14,10 +14,10 @@ import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.result.uptr.ListContainerNodeConverter.CycleNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
+import org.rascalmpl.parser.uptr.ListContainerNodeConverter.CycleNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;

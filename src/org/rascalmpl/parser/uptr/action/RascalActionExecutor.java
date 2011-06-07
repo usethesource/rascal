@@ -12,7 +12,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.uptr.action;
+package org.rascalmpl.parser.uptr.action;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 

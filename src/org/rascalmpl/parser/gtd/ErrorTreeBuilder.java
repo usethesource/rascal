@@ -24,7 +24,6 @@ import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.result.uptr.NodeToUPTR;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
@@ -33,6 +32,7 @@ import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -306,8 +306,8 @@ public class ErrorTreeBuilder{
 			((ErrorSortContainerNode) result).setUnmatchedInput(rest);
 			
 			// Flatten error tree.
-			NodeToUPTR converter = new NodeToUPTR(result, positionStore);
-			return converter.convertToUPTRWithErrors(actionExecutor, rootEnvironment);
+			NodeToUPTR converter = new NodeToUPTR();
+			return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
 		}finally{
 			actionExecutor.completed(rootEnvironment, true);
 		}

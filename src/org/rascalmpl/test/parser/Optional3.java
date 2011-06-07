@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.OptionalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -74,7 +75,7 @@ public class Optional3 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aa".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -84,7 +85,7 @@ public class Optional3 extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		Optional3 o3 = new Optional3();
-		IConstructor result = o3.parse(NONTERMINAL_START_S, null, "aa".toCharArray());
+		IConstructor result = o3.parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("[S(a,O?(O(A(a)))),S(a,A(a))] <- good");

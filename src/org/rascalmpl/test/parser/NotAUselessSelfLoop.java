@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -93,7 +94,7 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -103,7 +104,7 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		NotAUselessSelfLoop nausl = new NotAUselessSelfLoop();
-		IConstructor result = nausl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray());
+		IConstructor result = nausl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("[S(A(a),A(C(a),C(a))),S([B(A(C(a),C(a)),A(a)),B(A(a),A(C(a),C(a))),B(C(a),C(A(a),A(a))),B(C(A(a),A(a)),C(a))]),S(A(C(a),C(a)),A(a))] <- good");

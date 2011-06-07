@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.result.uptr;
+package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
 

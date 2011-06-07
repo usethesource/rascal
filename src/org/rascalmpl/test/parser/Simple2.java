@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -68,7 +69,7 @@ public class Simple2 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "ab".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "ab".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -78,7 +79,7 @@ public class Simple2 extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		Simple2 s2 = new Simple2();
-		IConstructor result = s2.parse(NONTERMINAL_START_S, null, "ab".toCharArray());
+		IConstructor result = s2.parse(NONTERMINAL_START_S, null, "ab".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S(A(a),B(b)) <- good");

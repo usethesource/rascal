@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -72,7 +73,7 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaaa".toCharArray());
+		return parse(NONTERMINAL_START_S, null, "aaaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -82,7 +83,7 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		SplitAndMerge1 ms1 = new SplitAndMerge1();
-		IConstructor result = ms1.parse(NONTERMINAL_START_S, null, "aaaa".toCharArray());
+		IConstructor result = ms1.parse(NONTERMINAL_START_S, null, "aaaa".toCharArray(), new NodeToUPTR());
 		System.out.println(result);
 		
 		System.out.println("S(a,[A(a,B(a)),A(B(a),a)],a) <- good");
