@@ -207,7 +207,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 	}
 
 	@Override
-	public boolean mayHaveSideEffects(IConstructor rhs) {
+	public boolean isImpure(IConstructor rhs) {
 		return true;
 	}
 

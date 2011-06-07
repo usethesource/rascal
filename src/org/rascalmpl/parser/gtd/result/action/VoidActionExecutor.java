@@ -75,7 +75,7 @@ public class VoidActionExecutor implements IActionExecutor{
 		return cycle;
 	}
 	
-	public boolean mayHaveSideEffects(IConstructor rhs){
+	public boolean isImpure(IConstructor rhs){
 		return false;
 	}
 }
