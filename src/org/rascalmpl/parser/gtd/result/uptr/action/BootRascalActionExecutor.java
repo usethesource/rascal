@@ -139,7 +139,7 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	}
 	
 	@Override
-	public boolean mayHaveSideEffects(IConstructor rhs) {
+	public boolean isImpure(IConstructor rhs) {
 		return false;
 	}
 }
