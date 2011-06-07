@@ -8,11 +8,11 @@ import org.rascalmpl.parser.gtd.result.ListContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
-import org.rascalmpl.parser.gtd.result.AbstractNode.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
+import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 
