@@ -88,7 +88,7 @@ public class RascalShell {
 	}
 	
 	public void run() throws IOException {
-		StringBuffer input = new StringBuffer();
+		StringBuilder input = new StringBuilder();
 		String line;
 		
 		next:while (running) {
@@ -110,16 +110,14 @@ public class RascalShell {
 					
 					input.append((input.length() > 0 ? "\n" : "") + line);
 					prompt = CONTINUE_PROMPT;
-				} while (!completeStatement(input));
+				} while (!completeStatement(input.toString()));
 
-				String output = handleInput(evaluator, input);
+				String output = handleInput(input.toString());
 				console.printString(output);
 				console.printNewline();
 			}
-			catch (ParseError e) {
-				ISourceLocation loc = e.getLocation();
-				if(loc != null) console.printString("Parse error in command from <"+loc.getBeginLine()+","+loc.getBeginColumn()+"> to <"+loc.getEndLine()+","+loc.getEndColumn()+">\n");
-				else console.printString("Parse error in command\n");
+			catch (ParseError pe) {
+				console.printString("Parse error in command from <"+(pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">\n");
 			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");
@@ -182,8 +180,8 @@ public class RascalShell {
 		}
 	}
 	
-	private String handleInput(final Evaluator command, StringBuffer statement){
-		Result<IValue> value = evaluator.eval(null, statement.toString(), URI.create("prompt:///"));
+	private String handleInput(String statement){
+		Result<IValue> value = evaluator.eval(null, statement, URI.create("prompt:///"));
 
 		if (value.getValue() == null) {
 			return "ok";
@@ -199,20 +197,16 @@ public class RascalShell {
 		return ((v != null) ? value.toString(LINE_LIMIT) : null);
 	}
 
-	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException {
-		String command = statement.toString();
-		
+	private boolean completeStatement(String command) throws FactTypeUseException {
 		try {
 			evaluator.parseCommand(null, command, URI.create("prompt:///"));
 		}
-		catch (ParseError e) {
-			ISourceLocation l = e.getLocation();
-			
+		catch (ParseError pe) {
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();
 			
-			if (l.getEndLine() == lastLine && lastColumn <= l.getEndColumn()) { 
+			if (pe.getEndLine() + 1 == lastLine && lastColumn <= pe.getEndColumn()) { 
 				return false;
 			}
 		}
@@ -270,12 +264,7 @@ public class RascalShell {
 		writer.close();
 		System.err.println("Done.");
 	}
-	
-	
-	
 }
-
-
 
 /**  
  * Adapter for a Writer to behave like a PrintStream. 

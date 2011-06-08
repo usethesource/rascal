@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.Typeifier;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -43,7 +42,7 @@ public class ParseTree {
 		
 		this.values = values;
 	}
-
+	
 	public IValue parse(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
@@ -58,8 +57,9 @@ public class ParseTree {
 			}
 			return pt;
 		}
-		catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
+		catch (ParseError pe) {
+			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 
@@ -89,8 +89,9 @@ public class ParseTree {
 
 			return pt;
 		}
-		catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
+		catch (ParseError pe) {
+			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 	
@@ -121,8 +122,9 @@ public class ParseTree {
 
 			return pt;
 		}
-		catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
+		catch (ParseError pe) {
+			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 	
