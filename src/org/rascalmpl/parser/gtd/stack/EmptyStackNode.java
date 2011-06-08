@@ -1,0 +1,108 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2011 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+*******************************************************************************/
+package org.rascalmpl.parser.gtd.stack;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+
+/**
+ * Empty is different from epsilon; it is the () symbol which is one of the 'regular' expressions.
+ * it produces a tree!
+ */
+public final class EmptyStackNode extends AbstractStackNode implements IExpandableStackNode{
+	private final IConstructor production;
+	private final String name;
+
+	private final AbstractStackNode emptyChild;
+	private static final AbstractStackNode[] children = new AbstractStackNode[0];
+	
+	public EmptyStackNode(int id, int dot, IConstructor production){
+		super(id, dot);
+		
+		this.production = production;
+		this.name = "empty"+id; // Add the id to make it unique.
+		
+		this.emptyChild = generateEmptyChild();
+	}
+	
+	public EmptyStackNode(int id, int dot, IConstructor production, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters) {
+		super(id, dot, enterFilters, completionFilters);
+		
+		this.production = production;
+		this.name = "empty"+id;
+		this.emptyChild = generateEmptyChild(); 
+	}
+	
+	private EmptyStackNode(EmptyStackNode original){
+		super(original);
+		
+		production = original.production;
+		name = original.name;
+
+		emptyChild = original.emptyChild;
+	}
+	
+	private AbstractStackNode generateEmptyChild(){
+		AbstractStackNode empty = EMPTY.getCleanCopy();
+		empty.markAsEndNode();
+		empty.setParentProduction(production);
+		return empty;
+	}
+	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public boolean match(char[] input){
+		throw new UnsupportedOperationException();
+	}
+	
+	public AbstractStackNode getCleanCopy(){
+		return new EmptyStackNode(this);
+	}
+	
+	public int getLength(){
+		throw new UnsupportedOperationException();
+	}
+	
+	public AbstractStackNode[] getChildren(){
+		return children;
+	}
+	
+	public boolean canBeEmpty(){
+		return true;
+	}
+	
+	public AbstractStackNode getEmptyChild(){
+		return emptyChild;
+	}
+	
+	public AbstractNode getResult(){
+		throw new UnsupportedOperationException();
+	}
+
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append(name);
+		sb.append('(');
+		sb.append(startLocation);
+		sb.append(')');
+		
+		return sb.toString();
+	}
+}
