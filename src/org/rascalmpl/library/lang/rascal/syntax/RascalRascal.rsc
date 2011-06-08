@@ -705,7 +705,7 @@ syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
 	| @Foldable Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
 	| @Foldable Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
-	| @Foldable Body: Tags tags Visibility visibility Signature signature FunctionBody body ;
+	| @Foldable Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 lexical PreProtocolChars
 	= "|" URLChars "\<" ;

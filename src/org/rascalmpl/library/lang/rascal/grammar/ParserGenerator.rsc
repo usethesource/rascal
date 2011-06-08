@@ -307,6 +307,10 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
           for (Symbol elem <- alts) 
             items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
         }
+        case \empty() : {
+           counter = newItem();
+           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
+        }
      }
   }
   
@@ -477,7 +481,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \sort(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \empty() : 
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new EmptyStackNode(<itemId>, <dot>, <value2id(regular(sym,\no-attrs()))>, <filters>)", itemId>;
         case \lex(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \keywords(n) : 
