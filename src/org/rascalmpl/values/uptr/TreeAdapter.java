@@ -574,4 +574,8 @@ public class TreeAdapter {
 	
 		return null;
 	}
+
+	public static boolean isEmpty(IConstructor kid) {
+		return isAppl(kid) && SymbolAdapter.isEmpty(ProductionAdapter.getRhs(getProduction(kid)));
+	}
 }

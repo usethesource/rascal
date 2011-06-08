@@ -278,4 +278,8 @@ public class SymbolAdapter {
 	public static boolean isKeyword(IConstructor rhs) {
 		return rhs.getConstructorType() == Factory.Symbol_Keyword;
 	}
+
+	public static boolean isEmpty(IConstructor rhs) {
+		return rhs.getConstructorType() == Factory.Symbol_Empty;
+	}
 }
