@@ -91,7 +91,7 @@ public abstract class SGTDBF implements IGTD{
 	// Error reporting
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
-	private final DoubleStack<AbstractStackNode, AbstractContainerNode> filteredNodes;
+	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
 	private boolean parseErrorOccured;
@@ -124,7 +124,7 @@ public abstract class SGTDBF implements IGTD{
 		
 		unexpandableNodes = new Stack<AbstractStackNode>();
 		unmatchableNodes = new Stack<AbstractStackNode>();
-		filteredNodes = new DoubleStack<AbstractStackNode, AbstractContainerNode>();
+		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 	}
 	
 	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
@@ -678,7 +678,10 @@ public abstract class SGTDBF implements IGTD{
 		if(completionFilters != null){
 			int startLocation = node.getStartLocation();
 			for(int i = completionFilters.length - 1; i >= 0; --i){
-				if(completionFilters[i].isFiltered(input, startLocation, location, positionStore)) return;
+				if(completionFilters[i].isFiltered(input, startLocation, location, positionStore)){
+					filteredNodes.push(node, result);
+					return;
+				}
 			}
 		}
 		
@@ -842,7 +845,10 @@ public abstract class SGTDBF implements IGTD{
 		IEnterFilter[] enterFilters = stack.getEnterFilters();
 		if(enterFilters != null){
 			for(int i = enterFilters.length - 1; i >= 0; --i){
-				if(enterFilters[i].isFiltered(input, location, positionStore)) return;
+				if(enterFilters[i].isFiltered(input, location, positionStore)){
+					unexpandableNodes.push(stack);
+					return;
+				}
 			}
 		}
 		
