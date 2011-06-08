@@ -249,7 +249,7 @@ public class ErrorTreeBuilder{
 		throw new RuntimeException("Unknown type of production: "+prod);
 	}
 	
-	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractContainerNode> filteredNodes){
+	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
@@ -278,7 +278,7 @@ public class ErrorTreeBuilder{
 		
 		while(!filteredNodes.isEmpty()){
 			AbstractStackNode filteredNode = filteredNodes.peekFirst();
-			AbstractContainerNode resultStore = filteredNodes.popSecond();
+			AbstractNode resultStore = filteredNodes.popSecond();
 			
 			errorNodes.push(filteredNode, resultStore);
 		}
