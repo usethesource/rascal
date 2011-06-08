@@ -106,7 +106,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     println("computing priority and associativity filter");
     rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
     // this creates groups of children that forbidden below certain parents
-    rel[set[int] parents, set[int] children] dontNestGroups = 
+    rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
     //println("computing lookahead sets");
@@ -192,12 +192,16 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
            '    int resultStoreId = result.size();
            '    
-           '    <for (<parentIds, childrenIds> <- dontNestGroups) {>
+           '    <for (<childrenIds, parentIds> <- dontNestGroups) {>
            '    ++resultStoreId;
            '    <for (pid <- parentIds) {>
            '    result.putUnsafe(<pid>, resultStoreId);<}><}>
            '      
            '    return result;
+           '  }
+           '  
+           '  protected boolean hasNestingRestrictions(String name){
+           '		return (_dontNest.size() != 0); // TODO Make more specific.
            '  }
            '    
            '  protected IntegerList getFilteredParents(int childId) {
@@ -259,8 +263,8 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
   
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations
   dnn       = {doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
-   
-  // finally we produce a relation between item id for use the internals of the parser
+  
+  // finally we produce a relation between item id for use in the internals of the parser
   return {<items[father.rhs][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
 }
 
