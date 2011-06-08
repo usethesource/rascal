@@ -8,8 +8,8 @@ import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.Stack;
 
 public class ParseError extends RuntimeException{
-	private final static long serialVersionUID = -7745764421591174025L;
-	
+	private static final long serialVersionUID = 3755880608516802997L;
+
 	private final String message;
 	
 	private final URI location;
