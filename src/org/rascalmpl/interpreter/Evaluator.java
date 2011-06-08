@@ -91,6 +91,7 @@ import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
@@ -428,7 +429,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IConstructor result = null;
 		try{
 			result = parser.parse(name, location, input, exec, new NodeToUPTR());
-		}catch(SyntaxError se){
+		}catch(ParseError pe){
 			if(withErrorTree){
 				try{
 					IConstructor errorTree = parser.buildErrorTree();
@@ -438,7 +439,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 			}
 			
-			throw se; // Rethrow the exception if building the error tree fails.
+			throw pe; // Rethrow the exception if building the error tree fails.
 		}
 		
 		return result;
@@ -1115,7 +1116,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			}
 		}
-		catch (SyntaxError se) {
+		catch (ParseError pe) {
 			if (withErrorTree) {
 				try {
 					IConstructor errorTree = parser.buildErrorTree();
@@ -1126,7 +1127,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 			}
 			
-			throw se; // Rethrow the exception if building the error tree fails.
+			throw pe; // Rethrow the exception if building the error tree fails.
 		}
 		return result;
 	}

@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -53,8 +53,8 @@ public class StaticChecker {
 	private IValue eval(IRascalMonitor monitor, String cmd) {
 		try {
 			return eval.eval(monitor, cmd, URI.create("checker:///")).getValue();
-		} catch (SyntaxError se) {
-			throw new ImplementationError("syntax error in static checker modules", se);
+		} catch (ParseError pe) {
+			throw new ImplementationError("syntax error in static checker modules", pe);
 		}
 	}
 
