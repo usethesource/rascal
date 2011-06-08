@@ -16,9 +16,8 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminalError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -154,10 +153,7 @@ public abstract class SGTDBF implements IGTD{
 					// Ignore this if it happens.
 				}
 			}catch(NoSuchMethodException nsmex){
-				int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-				int line = positionStore.findLine(errorLocation);
-				int column = positionStore.getColumn(errorLocation, line);
-				throw new UndeclaredNonTerminalError(name, VF.sourceLocation(inputURI, errorLocation, 0, line + 1, line + 1, column, column), nsmex);
+				throw new UndeclaredNonTerminalException(name, getClass());
 			}
 			methodCache.putUnsafe(name, method);
 		}
@@ -165,9 +161,9 @@ public abstract class SGTDBF implements IGTD{
 		try{
 			method.invoke(this);
 		}catch(IllegalAccessException iaex){
-			throw new ImplementationError(iaex.getMessage(), iaex);
+			throw new RuntimeException(iaex);
 		}catch(InvocationTargetException itex){
-			throw new ImplementationError(itex.getTargetException().getMessage(), itex.getTargetException());
+			throw new RuntimeException(itex.getTargetException());
 		} 
 	}
 	
