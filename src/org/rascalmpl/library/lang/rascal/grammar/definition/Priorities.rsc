@@ -43,11 +43,12 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
   
   // note that there are nested groups and that each member of a nested group needs to be paired
   // with all the members of the other nested group. This explains the use of the / deep match operator.
-  for ({Production pivot, set[Production] rest} := alts, /Production child:prod(_,_,_) := pivot) {
+  for ({Production pivot, set[Production] rest} := alts,  Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
-        for (/Production father:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- rest, match(r,rhs)) 
+        for (/Production father:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- rest, match(r,rhs)) {
           result += {<father, size(lhs) - 1, child>};
+        }
       case \assoc():
         for (/Production father:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, match(r,rhs)) 
           result += {<father, size(lhs) - 1, child>};
@@ -94,18 +95,28 @@ DoNotNest priority(list[Production] levels) {
   result = {};
   for (<Production father, Production child> <- ordering) {
     switch (father) {
-      case prod(lhs:[Symbol l,_*,Symbol r],Symbol rhs,_) :
-        if (match(l,rhs) && match(l,rhs)) 
-          result += {<father, 0, child>, <father, size(lhs) - 1, child>};   
-        else fail;
+      case prod(lhs:[Symbol l,_*,Symbol r],Symbol rhs,_) : {
+        if (match(l,rhs) && match(r,rhs)) {
+          result += {<father, 0, child>, <father, size(lhs) - 1, child>};
+        }   
+        else {
+          fail;
+        }
+      }
       case prod(lhs:[Symbol l,_*],Symbol rhs,_) :
-        if (match(l,rhs))
-          result += {<father, 0, child>};   
-        else fail;
+        if (match(l,rhs)) {
+          result += {<father, 0, child>};
+        }   
+        else { 
+          fail;
+        }
       case prod(lhs:[_*,Symbol r],Symbol rhs,_) :
-        if (match(r,rhs))
-          result += {<father, size(lhs) - 1, child>};   
-        else fail;
+        if (match(r,rhs)) {
+          result += {<father, size(lhs) - 1, child>};
+        }   
+        else { 
+          fail;
+        }
     }
   }
   
