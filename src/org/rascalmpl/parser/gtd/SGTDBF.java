@@ -1012,7 +1012,7 @@ public abstract class SGTDBF implements IGTD{
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
-		throw new ParseError("Parse error", VF.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column), unexpandableNodes, unmatchableNodes, filteredNodes);
+		throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableNodes, filteredNodes);
 	}
 	
 	// With post parse filtering.
@@ -1049,11 +1049,14 @@ public abstract class SGTDBF implements IGTD{
 		// Filtering error.
 		filterErrorOccured = true;
 		
-		int line = positionStore.findLine(filteringTracker.getOffset());
-		int column = positionStore.getColumn(filteringTracker.getOffset(), line);
-		int endLine = positionStore.findLine(filteringTracker.getEndOffset());
-		int endColumn = positionStore.getColumn(filteringTracker.getEndOffset(), endLine);
-		throw new ParseError("All trees were filtered", VF.sourceLocation(inputURI, Math.min(filteringTracker.getOffset(), input.length - 1), (filteringTracker.getEndOffset() - filteringTracker.getOffset() + 1), line + 1, endLine + 1, column, endColumn));
+		int offset = filteringTracker.getOffset();
+		int endOffset = filteringTracker.getEndOffset();
+		int length = endOffset - offset;
+		int beginLine = positionStore.findLine(offset);
+		int beginColumn = positionStore.getColumn(offset, beginLine);
+		int endLine = positionStore.findLine(endOffset);
+		int endColumn = positionStore.getColumn(endOffset, endLine);
+		throw new ParseError("All trees were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
 	}
 	
 	public IConstructor buildErrorTree(){
