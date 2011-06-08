@@ -15,6 +15,7 @@ module Grammar
 
 import ParseTree;
 import Set;
+import IO;
 
 @doc{
   Grammar is the internal representation (AST) of syntax definitions used in Rascal.
@@ -97,10 +98,19 @@ public Production associativity(Symbol rhs, Associativity a, {associativity(Symb
     fail;
 }
 
+public Production associativity(Symbol rhs, Associativity a, {prod(list[Symbol] lhs,Symbol rhs,\no-attrs()), set[Production] rest})  
+  = \associativity(rhs, a, rest + {prod(lhs, rhs, attrs([\assoc(a)]))});
+
+public Production associativity(Symbol rhs, Associativity a, {prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)), set[Production] rest}) {
+ if (\assoc(_) <- as) 
+   fail;
+ return \associativity(rhs, a, rest + {prod(lhs, rhs, attrs(as + [\assoc(a)]))});
+}
+
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
 
 @doc{Empty attrs default to \no-attrs()}
-public Production  attrs([]) 
+public Attributes  attrs([]) 
   = \no-attrs();
