@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -116,7 +116,7 @@ public class RascalShell {
 				console.printString(output);
 				console.printNewline();
 			}
-			catch (SyntaxError e) {
+			catch (ParseError e) {
 				ISourceLocation loc = e.getLocation();
 				if(loc != null) console.printString("Parse error in command from <"+loc.getBeginLine()+","+loc.getBeginColumn()+"> to <"+loc.getEndLine()+","+loc.getEndColumn()+">\n");
 				else console.printString("Parse error in command\n");
@@ -205,7 +205,7 @@ public class RascalShell {
 		try {
 			evaluator.parseCommand(null, command, URI.create("prompt:///"));
 		}
-		catch (SyntaxError e) {
+		catch (ParseError e) {
 			ISourceLocation l = e.getLocation();
 			
 			String[] commandLines = command.split("\n");

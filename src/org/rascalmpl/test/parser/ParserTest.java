@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.Assert;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParserTest extends TestCase{
@@ -39,8 +39,8 @@ public class ParserTest extends TestCase{
 				try{
 					parser.executeParser();
 					Assert.fail("Expected a parse error to occur:\n"+expectedResult);
-				}catch(SyntaxError se){
-					IString message = vf.string(se.getMessage());
+				}catch(ParseError pe){
+					IString message = vf.string(pe.getMessage());
 					if(!message.isEqual(expectedResult)){
 						Assert.fail("Expected a parse error to occur:\n"+expectedResult+"\nError was:\n"+message);
 					}

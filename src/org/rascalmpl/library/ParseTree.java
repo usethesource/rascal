@@ -29,6 +29,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -57,7 +58,7 @@ public class ParseTree {
 			}
 			return pt;
 		}
-		catch (SyntaxError e) {
+		catch (ParseError e) {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
@@ -88,7 +89,7 @@ public class ParseTree {
 
 			return pt;
 		}
-		catch (SyntaxError e) {
+		catch (ParseError e) {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
@@ -120,7 +121,7 @@ public class ParseTree {
 
 			return pt;
 		}
-		catch (SyntaxError e) {
+		catch (ParseError e) {
 			throw RuntimeExceptionFactory.parseError(e.getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}

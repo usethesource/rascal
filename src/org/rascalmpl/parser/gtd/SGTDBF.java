@@ -17,8 +17,8 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminalError;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -1012,7 +1012,7 @@ public abstract class SGTDBF implements IGTD{
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
-		throw new SyntaxError("Parse error.", VF.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column));
+		throw new ParseError("Parse error", VF.sourceLocation(inputURI, Math.min(errorLocation, input.length - 1), 0, line + 1, line + 1, column, column), unexpandableNodes, unmatchableNodes, filteredNodes);
 	}
 	
 	// With post parse filtering.
@@ -1053,7 +1053,7 @@ public abstract class SGTDBF implements IGTD{
 		int column = positionStore.getColumn(filteringTracker.getOffset(), line);
 		int endLine = positionStore.findLine(filteringTracker.getEndOffset());
 		int endColumn = positionStore.getColumn(filteringTracker.getEndOffset(), endLine);
-		throw new SyntaxError("All trees were filtered.", VF.sourceLocation(inputURI, Math.min(filteringTracker.getOffset(), input.length - 1), (filteringTracker.getEndOffset() - filteringTracker.getOffset() + 1), line + 1, endLine + 1, column, endColumn));
+		throw new ParseError("All trees were filtered", VF.sourceLocation(inputURI, Math.min(filteringTracker.getOffset(), input.length - 1), (filteringTracker.getEndOffset() - filteringTracker.getOffset() + 1), line + 1, endLine + 1, column, endColumn));
 	}
 	
 	public IConstructor buildErrorTree(){
