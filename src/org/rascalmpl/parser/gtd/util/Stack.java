@@ -59,11 +59,19 @@ public class Stack<E>{
 		data[--size] = null;
 	}
 	
+	public E get(int index){
+		return data[index];
+	}
+	
 	public boolean contains(E object){
 		for(int i = size - 1; i >= 0; --i){
 			if(data[i].equals(object)) return true;
 		}
 		return false;
+	}
+	
+	public int getSize(){
+		return size;
 	}
 	
 	public boolean isEmpty(){

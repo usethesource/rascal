@@ -87,6 +87,18 @@ public class DoubleStack<E, F>{
 		--size;
 	}
 	
+	public E getFirst(int index){
+		return firstData[index];
+	}
+	
+	public F getSecond(int index){
+		return secondData[index];
+	}
+	
+	public int getSize(){
+		return size;
+	}
+	
 	public boolean isEmpty(){
 		return (size == 0);
 	}

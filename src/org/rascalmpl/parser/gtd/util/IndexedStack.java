@@ -79,6 +79,10 @@ public class IndexedStack<E>{
 		--size;
 	}
 	
+	public E get(int index){
+		return data[index];
+	}
+	
 	public int contains(E object){
 		for(int i = size - 1; i >= 0; --i){
 			if(data[i].equals(object)) return indexes[i];
@@ -91,6 +95,14 @@ public class IndexedStack<E>{
 			if(data[i].equals(object)) return indexes[i];
 		}
 		return -1;
+	}
+	
+	public int getSize(){
+		return size;
+	}
+	
+	public boolean isEmpty(){
+		return (size == 0);
 	}
 	
 	public void clear(){
