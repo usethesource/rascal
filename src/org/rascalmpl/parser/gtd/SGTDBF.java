@@ -938,10 +938,6 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
-	protected boolean isAtEndOfInput(){
-		return (location == input.length);
-	}
-	
 	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
