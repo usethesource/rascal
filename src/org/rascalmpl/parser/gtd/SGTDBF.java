@@ -249,8 +249,8 @@ public abstract class SGTDBF implements IGTD{
 		ArrayList<Link>[] prefixes = node.getPrefixesMap();
 		
 		IConstructor production = next.getParentProduction();
-		
 		String name = edgesMap.getValue(0).get(0).getName();
+		
 		boolean hasNestingRestrictions = hasNestingRestrictions(name);
 		IntegerList filteredParents = null;
 		if(hasNestingRestrictions){
@@ -271,9 +271,9 @@ public abstract class SGTDBF implements IGTD{
 			Link resultLink = new Link(edgePrefixes, nextResultStore);
 			
 			if(!hasNestingRestrictions){
-				handleEdgeList(edgesMap.getValue(i), production, resultLink, startLocation);
+				handleEdgeList(edgesMap.getValue(i), name, production, resultLink, startLocation);
 			}else{
-				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, filteredParents, startLocation);
+				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, startLocation, filteredParents);
 			}
 		}
 	}
@@ -444,9 +444,9 @@ public abstract class SGTDBF implements IGTD{
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
 			if(!hasNestingRestrictions){
-				handleEdgeList(edgesMap.getValue(i), production, resultLink, edgesMap.getKey(i));
+				handleEdgeList(edgesMap.getValue(i), name, production, resultLink, edgesMap.getKey(i));
 			}else{
-				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, filteredParents, edgesMap.getKey(i));
+				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, edgesMap.getKey(i), filteredParents);
 			}
 		}
 	}
@@ -479,9 +479,9 @@ public abstract class SGTDBF implements IGTD{
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
 			if(!hasNestingRestrictions){
-				handleEdgeList(edgesMap.getValue(i), production, resultLink, startLocation);
+				handleEdgeList(edgesMap.getValue(i), name, production, resultLink, startLocation);
 			}else{
-				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, filteredParents, startLocation);
+				handleEdgeListWithPriorities(edgesMap.getValue(i), name, production, resultLink, startLocation, filteredParents);
 			}
 		}
 	}
@@ -517,7 +517,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
-	private void handleEdgeList(ArrayList<AbstractStackNode> edgeList, IConstructor production, Link resultLink, int startLocation){
+	private void handleEdgeList(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, int startLocation){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 		
 		if(levelResultStoreMap == null){
@@ -526,14 +526,13 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		AbstractStackNode edge = edgeList.get(0);
-		String nodeName = edge.getName();
 		
-		AbstractContainerNode resultStore = levelResultStoreMap.get(nodeName, DEFAULT_RESULT_STORE_ID);
+		AbstractContainerNode resultStore = levelResultStoreMap.get(name, DEFAULT_RESULT_STORE_ID);
 		if(resultStore != null){
 			if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
 		}else{
 			resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ListContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-			levelResultStoreMap.putUnsafe(nodeName, DEFAULT_RESULT_STORE_ID, resultStore);
+			levelResultStoreMap.putUnsafe(name, DEFAULT_RESULT_STORE_ID, resultStore);
 			resultStore.addAlternative(production, resultLink);
 			
 			stacksWithNonTerminalsToReduce.push(edge, resultStore);
@@ -549,7 +548,7 @@ public abstract class SGTDBF implements IGTD{
 	private final IntegerList firstTimeRegistration = new IntegerList();
 	private final IntegerList firstTimeReductions = new IntegerList();
 	
-	private void handleEdgeListWithPriorities(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, IntegerList filteredParents, int startLocation){
+	private void handleEdgeListWithPriorities(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, int startLocation, IntegerList filteredParents){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 		
 		if(levelResultStoreMap == null){
