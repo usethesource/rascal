@@ -68,6 +68,7 @@ public abstract class Container extends WithInnerFig {
 	}
 	
 	public void layout(){
+		super.layout();
 		double lw = getLineWidthProperty();
 		innerFigLocation.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
@@ -78,8 +79,7 @@ public abstract class Container extends WithInnerFig {
 				innerFigLocation.addX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
 			}
 		}
-		if(innerFig!=null)innerFig.layout();
-		
+		if(innerFig!=null)innerFig.layout();		
 	}
 	/*
 	public void newDraw(){

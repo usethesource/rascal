@@ -16,6 +16,7 @@ package org.rascalmpl.library.vis;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Control;
@@ -113,6 +114,9 @@ public abstract class Figure implements Comparable<Figure> {
 		fpa.fill(getColorProperty(Properties.FILL_COLOR));
 		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
 		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
+		fpa.strokeStyle(getLineStyleProperty());
+		fpa.lineCap(getLineCapProperty());
+		fpa.lineJoin(getLineJoinProperty());
 		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
 	}
 
@@ -210,6 +214,7 @@ public abstract class Figure implements Comparable<Figure> {
 			setResizableX(flip, getResizableX(flip) && getHResizableProperty(flip));
 			minSize.setWidth(flip, Math.max(minSize.getWidth(flip),getWidthProperty(flip)));
 		}
+		setToMinSize();
 	}
 	
 	// distribute actual available size, using size as the available size
@@ -698,6 +703,29 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public double getLineWidthProperty() {
 		return getRealProperty(Properties.LINE_WIDTH);
+	}
+	
+	public int getLineStyleProperty() {
+		String s =  getStringProperty(Properties.LINE_STYLE);
+		if (s.equals("dash")) return SWT.LINE_DASH;
+		if (s.equals("dot")) return SWT.LINE_DOT;
+		if (s.equals("dashdot")) return SWT.LINE_DASHDOT;
+		if (s.equals("dashdotdot")) return SWT.LINE_DASHDOTDOT;
+		return SWT.LINE_SOLID;
+	}
+	
+	public int getLineCapProperty() {
+		String s =  getStringProperty(Properties.LINE_CAP);
+		if (s.equals("round")) return SWT.CAP_ROUND;
+		if (s.equals("square")) return SWT.CAP_SQUARE;
+		return SWT.CAP_FLAT;
+	}
+	
+	public int getLineJoinProperty() {
+		String s =  getStringProperty(Properties.LINE_JOIN);
+		if (s.equals("round")) return SWT.JOIN_ROUND;
+		if (s.equals("bevel")) return SWT.JOIN_BEVEL;
+		return SWT.JOIN_MITER;
 	}
 
 	public double getTextAngleProperty() {

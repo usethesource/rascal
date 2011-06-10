@@ -422,6 +422,10 @@ data FProperty =
    | lineWidth(computedNum cLineWidth)		// line width
    | lineWidth(Like other)
    
+   | lineStyle(str style)			    // solid, dash, dot, dashdot, dashdotdot
+   | lineJoin(str style)			    // miter, round, bevel
+   | lineCap(str style)			        // flat, round, square
+   
    | lineColor(Color lineColor)		    // line color
    | lineColor(str colorName)           // named line color
    | lineColor(computedColor cColorName)    // named line color

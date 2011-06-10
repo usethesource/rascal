@@ -47,6 +47,9 @@ public enum Properties {
 	MOUSEOVER_HALIGN(Types.REAL,0.5,Dimension.X),
 	INNERRADIUS(Types.REAL,0.0), // TODO: innerradisu is not axis aligned
 	LINE_WIDTH(Types.REAL,1.0),
+	LINE_STYLE(Types.STR,"solid"),
+	LINE_JOIN(Types.STR,"miter"),
+	LINE_CAP(Types.STR,"flat"),
 	TEXT_ANGLE(Types.REAL,0.0), 	
 	FROM_ANGLE(Types.REAL,0.0),
 	TO_ANGLE(Types.REAL,0.0),			
@@ -127,6 +130,9 @@ public enum Properties {
 		put("mouseOverHalign", new PropertySetters.SingleIntOrRealPropertySetter(MOUSEOVER_HALIGN));
 		put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
 		put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
+		put("lineStyle", new PropertySetters.SingleStrPropertySetter(LINE_STYLE));
+		put("lineCap", new PropertySetters.SingleStrPropertySetter(LINE_CAP));
+		put("lineJoin", new PropertySetters.SingleStrPropertySetter(LINE_JOIN));
 		put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
 		put("fromAngle", new PropertySetters.SingleIntOrRealPropertySetter(FROM_ANGLE));
 		put("toAngle", new PropertySetters.SingleIntOrRealPropertySetter(TO_ANGLE));
