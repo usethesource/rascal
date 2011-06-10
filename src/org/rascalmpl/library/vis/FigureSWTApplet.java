@@ -658,6 +658,24 @@ public class FigureSWTApplet implements IFigureApplet {
 			gc = createGC(comp);
 		gc.setLineWidth(d);
 	}
+	
+	public void strokeStyle(int style) {
+		if (gc == null || gc.isDisposed())
+			gc = createGC(comp);
+		gc.setLineStyle(style);
+	}
+	
+	public void lineCap(int style) {
+		if (gc == null || gc.isDisposed())
+			gc = createGC(comp);
+		gc.setLineCap(style);
+	}
+	
+	public void lineJoin(int style) {
+		if (gc == null || gc.isDisposed())
+			gc = createGC(comp);
+		gc.setLineJoin(style);
+	}
 
 	public void textSize(double arg0) {
 		if (gc == null || gc.isDisposed())
