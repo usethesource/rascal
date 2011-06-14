@@ -60,5 +60,11 @@ public class Projection extends WithInnerFig {
 	public double bottomAlign() {
 		return innerFig.bottomAlign();
 	}
+
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -248,7 +248,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		layoutFigures();
-		
+		System.out.printf("draw\n");
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 		
 		//figure.draw(left, top);
@@ -278,7 +278,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			BoundingBox viewPort = new BoundingBox(
 					width,
 					height);
-			//System.out.printf("drawing inside %s \n", viewPort);
+			System.out.printf("drawing inside %s \n", viewPort);
 			for(PlacedFigure fig : mouseOverStack){
 				fig.figure.bbox();
 				for(boolean flip : Figure.BOTH_DIMENSIONS){
@@ -293,6 +293,7 @@ public class FigureSWTApplet implements IFigureApplet {
 					viewPort.setWidth(flip, Math.max(viewPort.getWidth(flip),
 							fig.figure.minSize.getWidth(flip)  ));
 				}
+				System.out.printf("Size figure %s\n", fig.figure.size);
 				fig.figure.layout();
 				for(boolean flip : Figure.BOTH_DIMENSIONS){
 					double margin = viewPort.getWidth(flip) -fig.figure.size.getWidth(flip);

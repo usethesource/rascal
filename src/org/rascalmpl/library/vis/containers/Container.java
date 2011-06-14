@@ -68,7 +68,7 @@ public abstract class Container extends WithInnerFig {
 	}
 	
 	public void layout(){
-		super.layout();
+		//super.layout();
 		double lw = getLineWidthProperty();
 		innerFigLocation.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
@@ -99,7 +99,7 @@ public abstract class Container extends WithInnerFig {
 	@Override
 	public
 	void draw(double left, double top) {
-		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
+		System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
 		setLeft(left);
 		setTop(top);
 		applyProperties();

@@ -93,12 +93,4 @@ public abstract class WithInnerFig extends Figure {
 		if(innerFig != null) innerFig.registerNames();
 	}
 	
-	public void layout(){
-		size.set(minSize);
-		if(innerFig != null) {
-			innerFig.size.set(innerFig.minSize);
-			innerFig.layout();
-		}
-	}
-	
 }

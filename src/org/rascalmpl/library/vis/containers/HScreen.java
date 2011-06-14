@@ -132,6 +132,12 @@ public class HScreen extends WithInnerFig {
 		result.add(this);
 		return true;
 	}
+
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }

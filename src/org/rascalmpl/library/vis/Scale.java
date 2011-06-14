@@ -47,6 +47,12 @@ public class Scale extends WithInnerFig {
 		
 	}
 
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }
