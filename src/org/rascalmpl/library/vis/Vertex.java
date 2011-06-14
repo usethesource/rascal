@@ -145,4 +145,10 @@ public class Vertex extends WithInnerFig {
 		return bottomAnchor;
 	}
 
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

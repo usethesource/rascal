@@ -107,4 +107,10 @@ public class Rotate extends WithInnerFig {
 		fpa.rect(-innerFig.minSize.getWidth()/2, -innerFig.minSize.getHeight()/2, innerFig.minSize.getWidth(), innerFig.minSize.getHeight());
 	}
 
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -212,5 +212,11 @@ public class HAxis extends WithInnerFig {
 		//System.out.printf("vertical haxis borders %f %f \n", innerFigY,innerFigY + innerFig.height);
 		return new Extremes(innerFigLocation.getY(),innerFigLocation.getY() + innerFig.minSize.getHeight());
 	}
+
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -59,4 +59,10 @@ public class Use extends WithInnerFig {
 		innerFig.draw(left + getHAlignProperty()*(minSize.getWidth() - innerFig.minSize.getWidth()),
 					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()));
 	}
+
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		
+	}
 }
