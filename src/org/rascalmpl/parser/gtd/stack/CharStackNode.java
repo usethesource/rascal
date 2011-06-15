@@ -19,8 +19,6 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 public final class CharStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[][] ranges;
 	
-	private AbstractNode result;
-	
 	public CharStackNode(int id, int dot, char[][] ranges){
 		super(id, dot);
 
@@ -47,17 +45,16 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
-		char next = input[startLocation];
+	public AbstractNode match(char[] input, int location){
+		char next = input[location];
 		for(int i = ranges.length - 1; i >= 0; --i){
 			char[] range = ranges[i];
 			if(next >= range[0] && next <= range[1]){
-				result = CharNode.createCharNode(next);
-				return true;
+				return CharNode.createCharNode(next);
 			}
 		}
 		
-		return false;
+		return null;
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
@@ -93,7 +90,7 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 	}
 	
 	public AbstractNode getResult(){
-		return result;
+		throw new UnsupportedOperationException();
 	}
 	
 	public static int getNumericCharValue(char character){

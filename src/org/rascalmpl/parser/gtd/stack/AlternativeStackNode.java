@@ -83,7 +83,7 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		return name;
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		throw new UnsupportedOperationException();
 	}
 	

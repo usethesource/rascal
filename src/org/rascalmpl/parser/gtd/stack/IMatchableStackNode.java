@@ -11,8 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
+import org.rascalmpl.parser.gtd.result.AbstractNode;
+
 public interface IMatchableStackNode{
-	boolean match(char[] input);
+	AbstractNode match(char[] input, int location);
 	
 	boolean matchWithoutResult(char[] input, int location);
 	

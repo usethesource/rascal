@@ -82,7 +82,7 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		return name;
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		throw new UnsupportedOperationException();
 	}
 	

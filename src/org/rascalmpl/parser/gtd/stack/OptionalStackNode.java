@@ -87,7 +87,7 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		return name;
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		throw new UnsupportedOperationException();
 	}
 	

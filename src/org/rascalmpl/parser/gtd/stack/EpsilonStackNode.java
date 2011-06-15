@@ -39,8 +39,8 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
-		return true;
+	public AbstractNode match(char[] input, int location){
+		return result;
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){

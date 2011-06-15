@@ -21,8 +21,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	private final IConstructor production;
 	private final char[][] ciLiteral;
 	
-	private LiteralNode result;
-	
 	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, char[] ciLiteral){
 		super(id, dot);
 		
@@ -72,30 +70,29 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	}
 	
 	public boolean isEmptyLeafNode(){
-		return ciLiteral.length == 0;
+		return false;
 	}
 	
 	public String getName(){
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		int literalLength = ciLiteral.length;
 		char[] resultLiteral = new char[literalLength];
 		OUTER : for(int i = literalLength - 1; i >= 0; --i){
 			char[] ciLiteralPart = ciLiteral[i];
 			for(int j = ciLiteralPart.length - 1; j >= 0; --j){
 				char character = ciLiteralPart[j];
-				if(character == input[startLocation + i]){
+				if(character == input[location + i]){
 					resultLiteral[i] = character;
 					continue OUTER;
 				}
 			}
-			return false; // Did not match.
+			return null; // Did not match.
 		}
 		
-		result = new LiteralNode(production, resultLiteral);
-		return true;
+		return new LiteralNode(production, resultLiteral);
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
@@ -138,7 +135,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	}
 	
 	public AbstractNode getResult(){
-		return result;
+		throw new UnsupportedOperationException();
 	}
 	
 	public String toString(){

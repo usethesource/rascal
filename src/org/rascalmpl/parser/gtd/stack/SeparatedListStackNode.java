@@ -101,7 +101,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return name;
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		throw new UnsupportedOperationException();
 	}
 	
