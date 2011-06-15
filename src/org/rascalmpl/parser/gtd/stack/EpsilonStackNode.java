@@ -51,6 +51,10 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		return new EpsilonStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		return new EpsilonStackNode(this);
+	}
+	
 	public int getLength(){
 		return 0;
 	}

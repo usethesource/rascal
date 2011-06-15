@@ -19,7 +19,10 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final IConstructor production;
+	
 	private final char[][] ciLiteral;
+	
+	private final AbstractNode result;
 	
 	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, char[] ciLiteral){
 		super(id, dot);
@@ -27,6 +30,8 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		this.production = production;
 		
 		this.ciLiteral = fill(ciLiteral);
+		
+		result = null;
 	}
 	
 	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, char[] ciLiteral){
@@ -35,6 +40,8 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		this.production = production;
 		
 		this.ciLiteral = fill(ciLiteral);
+		
+		result = null;
 	}
 	
 	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, char[] ciLiteral, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
@@ -43,13 +50,28 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		this.production = production;
 		
 		this.ciLiteral = fill(ciLiteral);
+		
+		result = null;
 	}
 	
 	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original){
 		super(original);
 		
 		production = original.production;
+		
 		ciLiteral = original.ciLiteral;
+		
+		result = null;
+	}
+	
+	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode original, AbstractNode result){
+		super(original);
+		
+		this.production = original.production;
+		
+		this.ciLiteral = original.ciLiteral;
+		
+		this.result = result;
 	}
 	
 	private char[][] fill(char[] ciLiteral){
@@ -118,6 +140,10 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return new CaseInsensitiveLiteralStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		return new CaseInsensitiveLiteralStackNode(this, result);
+	}
+	
 	public int getLength(){
 		return ciLiteral.length;
 	}
@@ -135,7 +161,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	}
 	
 	public AbstractNode getResult(){
-		throw new UnsupportedOperationException();
+		return result;
 	}
 	
 	public String toString(){

@@ -90,6 +90,10 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		return new SequenceStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}

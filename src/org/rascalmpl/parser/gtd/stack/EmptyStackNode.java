@@ -76,6 +76,10 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		return new EmptyStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}

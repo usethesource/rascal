@@ -95,6 +95,10 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		return new OptionalStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}

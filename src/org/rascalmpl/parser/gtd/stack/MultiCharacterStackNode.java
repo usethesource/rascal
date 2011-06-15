@@ -19,27 +19,49 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public class MultiCharacterStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final IConstructor production;
+	
 	private final char[][] characters;
+	
+	private final AbstractNode result;
 	
 	public MultiCharacterStackNode(int id, int dot, IConstructor production, char[][] characters){
 		super(id, dot);
 		
 		this.production = production;
+		
 		this.characters = characters;
+		
+		result = null;
 	}
 	
 	public MultiCharacterStackNode(int id, int dot, IConstructor production, char[][] characters, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
+		
 		this.characters = characters;
+		
+		result = null;
 	}
 	
 	private MultiCharacterStackNode(MultiCharacterStackNode original){
 		super(original);
 		
 		production = original.production;
+		
 		characters = original.characters;
+		
+		result = null;
+	}
+	
+	private MultiCharacterStackNode(MultiCharacterStackNode original, AbstractNode result){
+		super(original);
+		
+		this.production = original.production;
+		
+		this.characters = original.characters;
+		
+		this.result = result;
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -92,6 +114,10 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		return new MultiCharacterStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		return new MultiCharacterStackNode(this, result);
+	}
+	
 	public int getLength(){
 		return 1;
 	}
@@ -109,7 +135,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 	}
 	
 	public AbstractNode getResult(){
-		throw new UnsupportedOperationException();
+		return result;
 	}
 	
 	public String toString(){

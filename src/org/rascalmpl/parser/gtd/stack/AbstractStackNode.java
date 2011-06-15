@@ -198,6 +198,8 @@ public abstract class AbstractStackNode{
 	
 	// Sharing.
 	public abstract AbstractStackNode getCleanCopy();
+
+	public abstract AbstractStackNode getCleanCopyWithResult(AbstractNode result);
 	
 	public boolean isSimilar(AbstractStackNode node){
 		return (node.id == id);
