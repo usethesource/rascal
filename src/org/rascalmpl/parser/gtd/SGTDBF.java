@@ -238,24 +238,27 @@ public abstract class SGTDBF implements IGTD{
 			}
 			
 			alternative.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
-		}else{
-			if(next.isMatchable()){
-				if((location + next.getLength()) > input.length) return false;
-				
-				AbstractNode nextResult = next.match(input, location);
-				if(nextResult == null) return false;
-				
-				next = next.getCleanCopyWithResult(nextResult);
-			}else{
-				next = next.getCleanCopy();
-			}
 			
-			next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
-			next.setStartLocation(location);
-			
-			sharedNextNodes.putUnsafe(id, next);
-			stacksToExpand.push(next);
+			return true;
 		}
+		
+		if(next.isMatchable()){
+			if((location + next.getLength()) > input.length) return false;
+			
+			AbstractNode nextResult = next.match(input, location);
+			if(nextResult == null) return false;
+			
+			next = next.getCleanCopyWithResult(nextResult);
+		}else{
+			next = next.getCleanCopy();
+		}
+		
+		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
+		next.setStartLocation(location);
+		
+		sharedNextNodes.putUnsafe(id, next);
+		stacksToExpand.push(next);
+		
 		return true;
 	}
 	
