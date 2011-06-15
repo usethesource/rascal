@@ -86,6 +86,10 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		return new LiteralStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		return new LiteralStackNode(this);
+	}
+	
 	public int getLength(){
 		return literal.length;
 	}
@@ -103,7 +107,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 	}
 	
 	public AbstractNode getResult(){
-		throw new UnsupportedOperationException();
+		return result;
 	}
 	
 	public String toString(){

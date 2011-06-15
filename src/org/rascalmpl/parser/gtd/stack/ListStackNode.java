@@ -96,6 +96,10 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		return new ListStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}

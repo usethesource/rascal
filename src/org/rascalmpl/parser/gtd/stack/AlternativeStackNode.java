@@ -91,6 +91,10 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		return new AlternativeStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		throw new UnsupportedOperationException();
+	}
+	
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}

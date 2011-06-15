@@ -19,22 +19,38 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 public final class CharStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[][] ranges;
 	
+	private final AbstractNode result;
+	
 	public CharStackNode(int id, int dot, char[][] ranges){
 		super(id, dot);
 
 		this.ranges = ranges;
+		
+		result = null;
 	}
 	
 	public CharStackNode(int id, int dot, char[][] ranges, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 
 		this.ranges = ranges;
+		
+		result = null;
 	}
 	
 	private CharStackNode(CharStackNode original){
 		super(original);
 		
 		ranges = original.ranges;
+		
+		result = null;
+	}
+	
+	private CharStackNode(CharStackNode original, AbstractNode result){
+		super(original);
+		
+		this.ranges = original.ranges;
+		
+		this.result = result;
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -73,6 +89,10 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return new CharStackNode(this);
 	}
 	
+	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+		return new CharStackNode(this, result);
+	}
+	
 	public int getLength(){
 		return 1;
 	}
@@ -90,7 +110,7 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 	}
 	
 	public AbstractNode getResult(){
-		throw new UnsupportedOperationException();
+		return result;
 	}
 	
 	public static int getNumericCharValue(char character){
