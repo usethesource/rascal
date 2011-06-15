@@ -21,8 +21,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 	private final IConstructor production;
 	private final char[][] characters;
 	
-	private AbstractNode result;
-	
 	public MultiCharacterStackNode(int id, int dot, IConstructor production, char[][] characters){
 		super(id, dot);
 		
@@ -52,12 +50,12 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		throw new UnsupportedOperationException();
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		int nrOfCharacters = characters.length;
 		char[] resultArray = new char[nrOfCharacters];
 		
 		OUTER : for(int i = nrOfCharacters - 1; i >= 0; --i){
-			char next = input[startLocation + i];
+			char next = input[location + i];
 			
 			char[] alternatives = characters[i];
 			for(int j = alternatives.length - 1; j >= 0; --j){
@@ -67,12 +65,10 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 					continue OUTER;
 				}
 			}
-			return false;
+			return null;
 		}
 		
-		result = new LiteralNode(production, resultArray);
-		
-		return true;
+		return new LiteralNode(production, resultArray);
 	}
 	
 	public boolean matchWithoutResult(char[] input, int location){
@@ -113,7 +109,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 	}
 	
 	public AbstractNode getResult(){
-		return result;
+		throw new UnsupportedOperationException();
 	}
 	
 	public String toString(){

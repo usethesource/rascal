@@ -50,7 +50,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return expectIdentifier;
 	}
 	
-	public boolean match(char[] input){
+	public AbstractNode match(char[] input, int location){
 		throw new UnsupportedOperationException();
 	}
 	
