@@ -80,6 +80,7 @@ public abstract class SGTDBF implements IGTD{
 	private final HashMap<String, Method> methodCache;
 	
 	private final LinearIntegerKeyedMap<AbstractStackNode> sharedLastExpects;
+	private boolean hasValidAlternatives;
 	
 	private final LinearIntegerKeyedMap<IntegerList> propagatedPrefixes;
 	private final LinearIntegerKeyedMap<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
@@ -834,11 +835,50 @@ public abstract class SGTDBF implements IGTD{
 				continue;
 			}
 			
-			first = first.getCleanCopy();
+			if(first.isMatchable()){
+				int length = first.getLength();
+				int endLocation = location + length;
+				if(endLocation > input.length) continue;
+				
+				AbstractNode result = first.match(input, location);
+				if(result == null) continue;
+				
+				// Filtering
+				IEnterFilter[] enterFilters = first.getEnterFilters();
+				if(enterFilters != null){
+					for(int j = enterFilters.length - 1; j >= 0; --j){
+						if(enterFilters[i].isFiltered(input, location, positionStore)) continue;
+					}
+				}
+				
+				if(first.isReductionFiltered(input, endLocation)) continue;
+				
+				int queueDepth = todoLists.length;
+				if(length >= queueDepth){
+					DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
+					todoLists = new DoubleStack[length + 1];
+					System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
+					System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
+					queueDepth = length + 1;
+					queueIndex = 0;
+				}
+				
+				int insertLocation = (queueIndex + length) % queueDepth;
+				DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
+				if(terminalsTodo == null){
+					terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
+					todoLists[insertLocation] = terminalsTodo;
+				}
+				first = first.getCleanCopy();
+				terminalsTodo.push(first, result);
+			}else{
+				first = first.getCleanCopy();
+				stacksToExpand.push(first);
+			}
+			
 			first.setStartLocation(location);
 			first.setProduction(expectedNodes);
 			first.initEdges();
-			
 			if(cachedEdges == null){
 				cachedEdges = first.addEdge(stackBeingWorkedOn);
 			}else{
@@ -847,7 +887,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			sharedLastExpects.add(firstId, first);
 			
-			stacksToExpand.push(first);
+			hasValidAlternatives = true;
 		}
 		
 		cachedEdgesForExpect.put(stackBeingWorkedOn.getName(), cachedEdges);
@@ -878,36 +918,28 @@ public abstract class SGTDBF implements IGTD{
 		
 		if(stack.isMatchable()){
 			int length = stack.getLength();
-			int endLocation = location + length;
-			if(endLocation <= input.length){
-				AbstractNode result = stack.match(input, location);
-				if(result == null){
-					return;
-				}
-				
-				// Filtering
-				if(stack.isReductionFiltered(input, endLocation)) return;
-				
-				int queueDepth = todoLists.length;
-				if(length >= queueDepth){
-					DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
-					todoLists = new DoubleStack[length + 1];
-					System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
-					System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
-					queueDepth = length + 1;
-					queueIndex = 0;
-				}
-				
-				int insertLocation = (queueIndex + length) % queueDepth;
-				DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
-				if(terminalsTodo == null){
-					terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
-					todoLists[insertLocation] = terminalsTodo;
-				}
-				terminalsTodo.push(stack, result);
-			}else{
-				unmatchableNodes.push(stack);
+			AbstractNode result = stack.match(input, location); // This one always matches.
+			
+			// Filtering
+			if(stack.isReductionFiltered(input, location + length)) return;
+			
+			int queueDepth = todoLists.length;
+			if(length >= queueDepth){
+				DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
+				todoLists = new DoubleStack[length + 1];
+				System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
+				System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
+				queueDepth = length + 1;
+				queueIndex = 0;
 			}
+			
+			int insertLocation = (queueIndex + length) % queueDepth;
+			DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
+			if(terminalsTodo == null){
+				terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
+				todoLists[insertLocation] = terminalsTodo;
+			}
+			terminalsTodo.push(stack, result);
 		}else if(!stack.isExpandable()){
 			ArrayList<AbstractStackNode> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges != null){
@@ -922,7 +954,11 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}else{
 				invokeExpects(stack);
+				hasValidAlternatives = false;
 				handleExpects(stack);
+				if(!hasValidAlternatives){
+					unexpandableNodes.push(stack);
+				}
 			}
 		}else{ // List
 			AbstractStackNode[] listChildren = stack.getChildren();
@@ -933,13 +969,52 @@ public abstract class SGTDBF implements IGTD{
 				if(!shareListNode(childId, stack)){
 					child = child.getCleanCopy();
 					
+					if(child.isMatchable()){
+						int length = child.getLength();
+						int endLocation = location + length;
+						if(endLocation > input.length) continue;
+						
+						AbstractNode result = child.match(input, location);
+						if(result == null) continue;
+						
+						// Filtering
+						IEnterFilter[] childEnterFilters = child.getEnterFilters();
+						if(childEnterFilters != null){
+							for(int j = childEnterFilters.length - 1; j >= 0; --j){
+								if(childEnterFilters[i].isFiltered(input, location, positionStore)) continue;
+							}
+						}
+						
+						if(child.isReductionFiltered(input, endLocation)) continue;
+						
+						int queueDepth = todoLists.length;
+						if(length >= queueDepth){
+							DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
+							todoLists = new DoubleStack[length + 1];
+							System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
+							System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
+							queueDepth = length + 1;
+							queueIndex = 0;
+						}
+						
+						int insertLocation = (queueIndex + length) % queueDepth;
+						DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
+						if(terminalsTodo == null){
+							terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
+							todoLists[insertLocation] = terminalsTodo;
+						}
+						child = child.getCleanCopy();
+						terminalsTodo.push(child, result);
+					}else{
+						child = child.getCleanCopy();
+						stacksToExpand.push(child);
+					}
+					
 					sharedNextNodes.putUnsafe(childId, child);
 					
 					child.setStartLocation(location);
 					child.initEdges();
 					child.addEdgeWithPrefix(stack, null, location);
-					
-					stacksToExpand.push(child);
 				}
 			}
 			
