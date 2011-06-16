@@ -932,12 +932,11 @@ public abstract class SGTDBF implements IGTD{
 		
 		if(stack.isMatchable()){
 			int length = stack.getLength();
-			AbstractNode result = stack.getResult();
 			
 			// Filtering
 			if(stack.isReductionFiltered(input, location + length)) return;
 			
-			addTodo(stack, length, result);
+			addTodo(stack, length, stack.getResult());
 		}else if(!stack.isExpandable()){
 			ArrayList<AbstractStackNode> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges != null){
