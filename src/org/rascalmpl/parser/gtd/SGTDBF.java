@@ -802,6 +802,26 @@ public abstract class SGTDBF implements IGTD{
 		return false;
 	}
 	
+	private void addTodo(AbstractStackNode node, int length, AbstractNode result){
+		int queueDepth = todoLists.length;
+		if(length >= queueDepth){
+			DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
+			todoLists = new DoubleStack[length + 1];
+			System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
+			System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
+			queueDepth = length + 1;
+			queueIndex = 0;
+		}
+		
+		int insertLocation = (queueIndex + length) % queueDepth;
+		DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
+		if(terminalsTodo == null){
+			terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
+			todoLists[insertLocation] = terminalsTodo;
+		}
+		terminalsTodo.push(node, result);
+	}
+	
 	private boolean shareListNode(int id, AbstractStackNode stack){
 		AbstractStackNode sharedNode = sharedNextNodes.get(id);
 		if(sharedNode != null){
@@ -862,24 +882,9 @@ public abstract class SGTDBF implements IGTD{
 				
 				if(first.isReductionFiltered(input, endLocation)) continue;
 				
-				int queueDepth = todoLists.length;
-				if(length >= queueDepth){
-					DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
-					todoLists = new DoubleStack[length + 1];
-					System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
-					System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
-					queueDepth = length + 1;
-					queueIndex = 0;
-				}
-				
-				int insertLocation = (queueIndex + length) % queueDepth;
-				DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
-				if(terminalsTodo == null){
-					terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
-					todoLists[insertLocation] = terminalsTodo;
-				}
 				first = first.getCleanCopyWithResult(result);
-				terminalsTodo.push(first, result);
+				
+				addTodo(first, length, result);
 			}else{
 				first = first.getCleanCopy();
 				stacksToExpand.push(first);
@@ -932,23 +937,7 @@ public abstract class SGTDBF implements IGTD{
 			// Filtering
 			if(stack.isReductionFiltered(input, location + length)) return;
 			
-			int queueDepth = todoLists.length;
-			if(length >= queueDepth){
-				DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
-				todoLists = new DoubleStack[length + 1];
-				System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
-				System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
-				queueDepth = length + 1;
-				queueIndex = 0;
-			}
-			
-			int insertLocation = (queueIndex + length) % queueDepth;
-			DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
-			if(terminalsTodo == null){
-				terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
-				todoLists[insertLocation] = terminalsTodo;
-			}
-			terminalsTodo.push(stack, result);
+			addTodo(stack, length, result);
 		}else if(!stack.isExpandable()){
 			ArrayList<AbstractStackNode> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges != null){
@@ -994,24 +983,9 @@ public abstract class SGTDBF implements IGTD{
 						
 						if(child.isReductionFiltered(input, endLocation)) continue;
 						
-						int queueDepth = todoLists.length;
-						if(length >= queueDepth){
-							DoubleStack<AbstractStackNode, AbstractNode>[] oldTodoLists = todoLists;
-							todoLists = new DoubleStack[length + 1];
-							System.arraycopy(oldTodoLists, queueIndex, todoLists, 0, queueDepth - queueIndex);
-							System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
-							queueDepth = length + 1;
-							queueIndex = 0;
-						}
-						
-						int insertLocation = (queueIndex + length) % queueDepth;
-						DoubleStack<AbstractStackNode, AbstractNode> terminalsTodo = todoLists[insertLocation];
-						if(terminalsTodo == null){
-							terminalsTodo = new DoubleStack<AbstractStackNode, AbstractNode>();
-							todoLists[insertLocation] = terminalsTodo;
-						}
 						child = child.getCleanCopyWithResult(result);
-						terminalsTodo.push(child, result);
+						
+						addTodo(child, length, result);
 					}else{
 						child = child.getCleanCopy();
 						stacksToExpand.push(child);
