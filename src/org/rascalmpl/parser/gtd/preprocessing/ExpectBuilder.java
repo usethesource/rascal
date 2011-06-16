@@ -6,6 +6,7 @@ import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 
+// TODO Use this thing as soon as we get rid of rejects and old style follow restrictions.
 // TODO Don't match on id's, check true equality.
 public class ExpectBuilder{
 	private final SortedIntegerObjectList<DoubleArrayList<IConstructor, AbstractStackNode[]>> alternatives;
