@@ -1,19 +1,19 @@
 package org.rascalmpl.parser.gtd.util;
 
-public class IndexedLinearIntegerSet{
+public class IndexedIntegerList{
 	private final static int DEFAULT_SIZE = 8;
 	
 	private int[] elements;
 	
 	private int size;
 	
-	public IndexedLinearIntegerSet(){
+	public IndexedIntegerList(){
 		super();
 		
 		elements = new int[DEFAULT_SIZE];
 	}
 	
-	public IndexedLinearIntegerSet(IndexedLinearIntegerSet original){
+	public IndexedIntegerList(IndexedIntegerList original){
 		super();
 		
 		int[] oldElements = original.elements;
@@ -53,15 +53,6 @@ public class IndexedLinearIntegerSet{
 	
 	public int find(int element){
 		for(int i = size - 1; i >= 0; --i){
-			if(elements[i] == element){
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	public int findBefore(int element, int index){
-		for(int i = index - 1; i >= 0; --i){
 			if(elements[i] == element){
 				return i;
 			}

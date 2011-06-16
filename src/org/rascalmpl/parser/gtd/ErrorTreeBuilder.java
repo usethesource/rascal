@@ -28,7 +28,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.LinearIntegerKeyedMap;
+import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
@@ -51,7 +51,7 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
-	private final LinearIntegerKeyedMap<AbstractStackNode> sharedPrefixNext;
+	private final IntegerObjectList<AbstractStackNode> sharedPrefixNext;
 	
 	public ErrorTreeBuilder(SGTDBF parser, AbstractStackNode startNode, PositionStore positionStore, IActionExecutor actionExecutor, char[] input, int location, URI inputURI){
 		super();
@@ -68,7 +68,7 @@ public class ErrorTreeBuilder{
 		errorNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 		errorResultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String,AbstractContainerNode>>();
 
-		sharedPrefixNext = new LinearIntegerKeyedMap<AbstractStackNode>();
+		sharedPrefixNext = new IntegerObjectList<AbstractStackNode>();
 	}
 	
 	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
@@ -84,7 +84,7 @@ public class ErrorTreeBuilder{
 		return next;
 	}
 	
-	private void updateAlternativeNextNode(AbstractStackNode next, LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private void updateAlternativeNextNode(AbstractStackNode next, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		next = next.getCleanCopy();
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		next.setStartLocation(location);
@@ -112,7 +112,7 @@ public class ErrorTreeBuilder{
 			
 			sharedPrefixNext.add(next.getId(), next);
 			
-			LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
+			IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
 			ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
 			
 			for(int i = alternateProds.size() - 1; i >= 0; --i){
@@ -148,7 +148,7 @@ public class ErrorTreeBuilder{
 		
 		//IntegerList filteredParents = parser.getFilteredParents(node.getId());
 		
-		LinearIntegerKeyedMap<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
+		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
