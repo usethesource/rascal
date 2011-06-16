@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
-public class LinearIntegerKeyedMap<V>{
+public class IntegerObjectList<V>{
 	private final static int DEFAULT_SIZE = 8;
 	
 	private int[] keys;
@@ -19,21 +19,21 @@ public class LinearIntegerKeyedMap<V>{
 	
 	private int size;
 	
-	public LinearIntegerKeyedMap(){
+	public IntegerObjectList(){
 		super();
 		
 		keys = new int[DEFAULT_SIZE];
 		values = (V[]) new Object[DEFAULT_SIZE];
 	}
 	
-	public LinearIntegerKeyedMap(int size){
+	public IntegerObjectList(int size){
 		super();
 		
 		keys = new int[size];
 		values = (V[]) new Object[size];
 	}
 	
-	public LinearIntegerKeyedMap(LinearIntegerKeyedMap<V> original){
+	public IntegerObjectList(IntegerObjectList<V> original){
 		super();
 		
 		int[] oldKeys = original.keys;
