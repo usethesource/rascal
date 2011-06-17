@@ -648,12 +648,11 @@ keyword RascalKeywords
 	| "constructor" 
 	| "datetime" 
 	| "value" 
-	| HeaderKeyword
 	;
 
 syntax Type
 	= bracket Bracket: "(" Type type ")" 
-	| User: UserType user 
+	| User: UserType user \ HeaderKeyword
 	| Function: FunctionType function 
 	| Structured: StructuredType structured 
 	| Basic: BasicType basic 
