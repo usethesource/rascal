@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -49,16 +50,14 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class RascalFunctionActionExecutor implements IActionExecutor {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final IEvaluatorContext ctx;
-	private final Evaluator eval;
 
 	public RascalFunctionActionExecutor(IEvaluatorContext ctx) {
 		this.ctx = ctx;
-		this.eval = ctx.getEvaluator();
 	}
 	
 	@Override
 	public void completed(Object environment, boolean filtered) {
-		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -114,7 +113,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		
 		Result<IValue> var = env.getVariable("amb");
 		
-		if (var != null) {
+		if (var != null && var instanceof ICallableValue) {
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(ambCluster);
 			ICallableValue func = (ICallableValue) var;
 			try {
@@ -162,7 +161,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			Environment env = (Environment) environment;
 			Result<IValue> var = env.getVariable(cons);
 			
-			if (var != null) {
+			if (var != null && var instanceof ICallableValue) {
 				ICallableValue function = (ICallableValue) var;
 				IList args = TreeAdapter.getASTArgs(tree);
 				
@@ -171,18 +170,16 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 				IConstructor result = call(function, args);
 				
 				if (result == null) {
-					// now try with a single argument for the entire tree to allow
-					// access to layout and stuff.
-					Type type = RascalTypeFactory.getInstance().nonTerminalType(tree);
-					try {
-						return (IConstructor) function.call(new Type[] {type}, new IValue[] {tree});
-					}
-					catch (ArgumentsMismatchError e) {
-						return tree;
-					}
+					result = call(function, TreeAdapter.getArgs(tree));
 				}
 				
-				return result;
+				if (result != null) {
+					return result;
+				}
+				else {
+					System.err.println("WARNING: action failed: " + function.getType());
+					return tree;
+				}
 			}
 		}
 		
@@ -202,6 +199,9 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			return (IConstructor) function.call(types, actuals);
 		}
 		catch (ArgumentsMismatchError e) {
+			return null;
+		}
+		catch (Failure e) {
 			return null;
 		}
 	}
