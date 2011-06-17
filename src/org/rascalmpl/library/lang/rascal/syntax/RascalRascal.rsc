@@ -128,14 +128,8 @@ syntax Sym
 	;
 
 lexical TimePartNoTZ
-	= [0-2] [0-9] [0-5] [0-9] [0-5] [0-9]
-	| [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] 
-	| [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] [0-9] 
-	| [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
-	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] 
-	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] 
-	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9]
-	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] [, .] [0-9] [0-9] [0-9] 
+	= [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
+	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
 	;
 
 syntax Header
@@ -476,7 +470,7 @@ syntax Visit
 	| DefaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
 
 start syntax Commands
-	= Command+
+	= List: Command+ commands
 	;
 
 start syntax Command
@@ -513,7 +507,7 @@ syntax StringLiteral
 	| NonInterpolated: StringConstant constant ;
 
 lexical Comment
-	= @category="Comment" "/*" (![*] | [*] !>> [/]) "*/" 
+	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
 	| @category="Comment" "//" ![\n]* [\n]
 	;
 
@@ -654,6 +648,7 @@ keyword RascalKeywords
 	| "constructor" 
 	| "datetime" 
 	| "value" 
+	| HeaderKeyword
 	;
 
 syntax Type
