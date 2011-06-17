@@ -72,7 +72,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
@@ -87,7 +86,6 @@ import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -96,7 +94,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.parser.uptr.action.BootRascalActionExecutor;
-import org.rascalmpl.parser.uptr.action.RascalActionExecutor;
+import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.FileURIResolver;
@@ -424,7 +422,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		__setInterrupt(false);
-		IActionExecutor exec = new RascalActionExecutor(this, getCurrentEnvt(), false, (IParserInfo) parser);
+		IActionExecutor exec = new RascalFunctionActionExecutor(this);
 		
 		IConstructor result = null;
 		try{

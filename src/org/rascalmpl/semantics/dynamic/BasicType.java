@@ -129,26 +129,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	}
 
-	static public class Lex extends org.rascalmpl.ast.BasicType.Lex {
-
-		public Lex(IConstructor __param1) {
-			super(__param1);
-		}
-
-		@Override
-		public Type __evaluate(BasicTypeEvaluator __eval) {
-
-			throw new NotYetImplemented(this);
-
-		}
-
-		@Override
-		public Type typeOf(Environment __eval) {
-			throw new NonWellformedTypeError(
-					"lex should have one type argument, like lex[Id].", this);
-		}
-
-	}
+	
 
 	static public class List extends org.rascalmpl.ast.BasicType.List {
 

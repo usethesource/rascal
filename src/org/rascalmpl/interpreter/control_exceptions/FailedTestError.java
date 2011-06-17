@@ -22,7 +22,7 @@ public class FailedTestError extends ControlException {
 	private ISourceLocation loc;
 
 	public FailedTestError(Test.Labeled t) {
-		super("test " + t.getLabeled().toString() + " failed.");
+		super("test " + t.getLabel().toString() + " failed.");
 		this.loc = t.getLocation();
 	}
 	
@@ -32,7 +32,7 @@ public class FailedTestError extends ControlException {
 	}
 
 	public FailedTestError(Test.Labeled t, Throw tr) {
-		super("test " + t.getLabeled() + " failed due to unexpected Rascal exception: " + tr.getMessage());
+		super("test " + t.getLabel() + " failed due to unexpected Rascal exception: " + tr.getMessage());
 		this.loc = tr.getLocation();
 	}
 	
@@ -42,7 +42,7 @@ public class FailedTestError extends ControlException {
 	}
 	
 	public FailedTestError(Test.Labeled t, Throwable e) {
-		super("test " + t.getLabeled() + " failed due to unexpected Java exception: " + e.getMessage(), e);
+		super("test " + t.getLabel() + " failed due to unexpected Java exception: " + e.getMessage(), e);
 		this.loc = t.getLocation();
 	}
 	
