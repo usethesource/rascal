@@ -49,22 +49,22 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   map[str, set[Sig]] m = ();
   set[Sig] sigs = {};
   set[AST] asts = {};
-  for (p <- astProductions(g)) {
-    s = sortName(p);
-    if (isLexical(p)) {
-       asts += {leaf(s)};
-    }
-    else if (hasCons(p)) {
-       args = productionArgs(pkg, p);
-       m[s]?sigs += {sig(consName(p), args)};
-    }
-    else {
-      ;//throw "<p> is not lexical but has no cons";
-    }
+  
+  g = visit(g) {
+    case conditional(s,_) => s
   }
-  for (sn <- m) {
+  
+  for (/p:prod(_,sort(name),attrs([_*,term("cons"(c)),_*])) := g) 
+     m[name]?sigs += {sig(c, productionArgs(pkg, p))};
+
+  for (/p:prod(_,\parameterized-sort(name,[sort(a)]),attrs([_*,term("cons"(c)),_*])) := g) 
+     m[name + "_" + a]?sigs += {sig(c, productionArgs(pkg, p))};
+
+  for (sn <- m) 
     asts += ast(sn, m[sn]);
-  }
+    
+  for (/p:prod(_,\lex(s),_) := g) 
+     asts += leaf(s);
   
   return asts;
 }
@@ -116,7 +116,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
-     class = classForSort(pkg, ["org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.matching.IBooleanResult","org.rascalmpl.interpreter.matching.IMatchingResult","org.rascalmpl.interpreter.result.Result"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.matching.IBooleanResult","org.rascalmpl.interpreter.matching.IMatchingResult","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -243,10 +243,15 @@ list[Arg] productionArgs(str pkg, Production p) {
      a = arg("", name);
      switch (sym) {
        case \sort(str s): a.typ = "<pkg>.<s>"; 
+       case \lex(str s): a.typ = "<pkg>.<s>"; 
        case \iter(\sort(str s)): a.typ = "<l>\<<pkg>.<s>\>";  
        case \iter-star(\sort(str s)): a.typ = "<l>\<<pkg>.<s>\>";
        case \iter-seps(\sort(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
        case \iter-star-seps(\sort(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
+       case \iter(\lex(str s)): a.typ = "<l>\<<pkg>.<s>\>";  
+       case \iter-star(\lex(str s)): a.typ = "<l>\<<pkg>.<s>\>";
+       case \iter-seps(\lex(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
+       case \iter-star-seps(\lex(str s), _): a.typ = "<l>\<<pkg>.<s>\>";
        case \parameterized-sort(str s, [sort(str z)]): a.typ = "<pkg>.<s>_<z>";
        case \iter(\parameterized-sort(str s, [sort(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";  
        case \iter-star(\parameterized-sort(str s, [sort(str z)])): a.typ = "<l>\<<pkg>.<s>_<z>\>";
@@ -281,75 +286,8 @@ public str construct(Sig sig) {
          '}";
 }
 
-
 public str capitalize(str s) {
   return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
-}
-
-public set[Production] astProductions(Grammar g) {
-  set[Production] result = {};
-  g = visit(g) {
-    case action(_, Production p, _) => p
-  }
-  top-down-break visit (g) {
-    case Production p: result += astProductions(p);
-  }
-
-  result = { p | p <- result,  (sort(_) := p.rhs || \parameterized-sort(_, _) := p.rhs),  
-            p.attributes != \no-attrs() ==> \literal() notin p.attributes.attrs }; 
-
-  
-  for (p <- result) {
-    // sanity check
-    if (!hasCons(p) && !isLexical(p)) {
-      ;//println("WARNING: production <p> has no cons attr, but is not lexical either.");
-    }
-  }
-
-  return result;
-}
-
-public set[Production] astProductions(Production p) {
-  set[Production] result = {};
-  top-down-break visit (p) {
-    case diff(_, Production l, _): result += astProductions(l);
-    case restrict(_, Production l, _): result += astProductions(l);
-    case l:prod(_, _, _): result += {l};  
-  }
-  return result;
-}
-
-
-public str consName(Production p) {
-  if (term("cons"(str name)) <- p.attributes.attrs) {
-    return name;
-  }
-  throw "Production <p> has no cons name";
-}
-
-
-public str sortName(Production p) {
-  if (\sort(str name) := p.rhs) {
-     return name;
-  }
-  if (\parameterized-sort(str name, [\sort(str actual)]) := p.rhs) {
-     return name + "_" + actual;
-  }
-  throw "Production <p> has no sort name";
-}
-
-public bool  hasCons(Production p) {
-  if (p.attributes == \no-attrs()) {
-    return false;
-  }
-  return term("cons"(_)) <- p.attributes.attrs;
-}
-
-public bool isLexical(Production p) {
-  if (p.attributes == \no-attrs()) {
-    return false;
-  }
-  return \lex() in p.attributes.attrs;
 }
 
 private void loggedWriteFile(loc file, str src) {
