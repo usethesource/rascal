@@ -68,16 +68,16 @@ public class Symbols {
 		if (symbol.isIterSep()) {
 			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol());
-//			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
-			IValue sepSym = literal2Symbol(symbol.getSep());
+			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
+//			IValue sepSym = literal2Symbol(symbol.getSep());
 			IValue seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
 			return Factory.Symbol_IterSepX.make(factory, elementSym, seps);
 		}
 		if (symbol.isIterStarSep()) {
 			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol());
-//			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
-			IValue sepSym = literal2Symbol(symbol.getSep());
+			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
+//			IValue sepSym = literal2Symbol(symbol.getSep());
 			IValue seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
 			return Factory.Symbol_IterStarSepX.make(factory, elementSym, seps);
 		}

@@ -26,8 +26,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.*;
-import org.rascalmpl.ast.Alternative.Ambiguity;
-import org.rascalmpl.ast.Alternative.NamedType;
 import org.rascalmpl.ast.Assignable.Annotation;
 import org.rascalmpl.ast.Assignable.Constructor;
 import org.rascalmpl.ast.Assignable.FieldAccess;
@@ -45,12 +43,10 @@ import org.rascalmpl.ast.Assoc.Associative;
 import org.rascalmpl.ast.Assoc.Left;
 import org.rascalmpl.ast.Assoc.NonAssociative;
 import org.rascalmpl.ast.Assoc.Right;
-import org.rascalmpl.ast.Asterisk.Lexical;
 import org.rascalmpl.ast.BasicType.Bag;
 import org.rascalmpl.ast.BasicType.Bool;
 import org.rascalmpl.ast.BasicType.DateTime;
 import org.rascalmpl.ast.BasicType.Int;
-import org.rascalmpl.ast.BasicType.Lex;
 import org.rascalmpl.ast.BasicType.List;
 import org.rascalmpl.ast.BasicType.Loc;
 import org.rascalmpl.ast.BasicType.Map;
@@ -154,10 +150,6 @@ import org.rascalmpl.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral;
 import org.rascalmpl.ast.Kind.Anno;
-import org.rascalmpl.ast.LanguageAction.Action;
-import org.rascalmpl.ast.LanguageAction.Replace;
-import org.rascalmpl.ast.LanguageAction.ReplaceWhen;
-import org.rascalmpl.ast.LanguageAction.When;
 import org.rascalmpl.ast.Sym.Alternative;
 import org.rascalmpl.ast.Sym.NotFollow;
 import org.rascalmpl.ast.Sym.NotPrecede;
@@ -172,9 +164,6 @@ import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.Literal.Location;
 import org.rascalmpl.ast.Literal.RegExp;
 import org.rascalmpl.ast.LocalVariableDeclaration.Dynamic;
-import org.rascalmpl.ast.LongLiteral.DecimalLongLiteral;
-import org.rascalmpl.ast.LongLiteral.HexLongLiteral;
-import org.rascalmpl.ast.LongLiteral.OctalLongLiteral;
 import org.rascalmpl.ast.Parameters.VarArgs;
 import org.rascalmpl.ast.PathPart.Interpolated;
 import org.rascalmpl.ast.PathPart.NonInterpolated;
@@ -184,10 +173,8 @@ import org.rascalmpl.ast.PatternWithAction.Arbitrary;
 import org.rascalmpl.ast.PatternWithAction.Replacing;
 import org.rascalmpl.ast.Prod.AssociativityGroup;
 import org.rascalmpl.ast.Prod.First;
-import org.rascalmpl.ast.Prod.Follow;
 import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
-import org.rascalmpl.ast.Prod.Reject;
 import org.rascalmpl.ast.ProdModifier.Associativity;
 import org.rascalmpl.ast.Range.FromTo;
 import org.rascalmpl.ast.Replacement.Conditional;
@@ -242,6 +229,8 @@ import org.rascalmpl.ast.Sym.Parametrized;
 import org.rascalmpl.ast.Sym.StartOfLine;
 import org.rascalmpl.ast.SyntaxDefinition.Language;
 import org.rascalmpl.ast.SyntaxDefinition.Layout;
+import org.rascalmpl.ast.Test.LabeledParameterized;
+import org.rascalmpl.ast.Test.Parameterized;
 import org.rascalmpl.ast.Test.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Type.Basic;
@@ -317,14 +306,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return name;
 	}
 
-	public IValue visitAlternativeAmbiguity(Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitAlternativeNamedType(NamedType x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitAssignableAmbiguity(
 			org.rascalmpl.ast.Assignable.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -395,14 +376,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L("-=");
 	}
 
-	public IValue visitAsteriskAmbiguity(org.rascalmpl.ast.Asterisk.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitAsteriskLexical(Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitBackslashAmbiguity(
 			org.rascalmpl.ast.Backslash.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -431,10 +404,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitBasicTypeInt(Int x) {
 		return KW("int");
-	}
-
-	public IValue visitBasicTypeLex(Lex x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitBasicTypeList(List x) {
@@ -599,16 +568,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitCommentCharAmbiguity(
-			org.rascalmpl.ast.CommentChar.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitCommentCharLexical(
-			org.rascalmpl.ast.CommentChar.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitCommentLexical(org.rascalmpl.ast.Comment.Lexical x) {
 		return L(x.getClass().toString());
 	}
@@ -694,16 +653,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitDecimalIntegerLiteralLexical(
 			org.rascalmpl.ast.DecimalIntegerLiteral.Lexical x) {
-		return NM(x.getString());
-	}
-
-	public IValue visitDecimalLongLiteralAmbiguity(
-			org.rascalmpl.ast.DecimalLongLiteral.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitDecimalLongLiteralLexical(
-			org.rascalmpl.ast.DecimalLongLiteral.Lexical x) {
 		return NM(x.getString());
 	}
 
@@ -795,16 +744,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return cList(eX(x.getType()), getComment(x, 1),
 		// eXs(x.getVariables(), l)); goed
 				eXs(x.getVariables()));
-	}
-
-	public IValue visitEscapedNameAmbiguity(
-			org.rascalmpl.ast.EscapedName.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitEscapedNameLexical(
-			org.rascalmpl.ast.EscapedName.Lexical x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitExpressionAddition(
@@ -1252,16 +1191,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return NM(x.getString());
 	}
 
-	public IValue visitHexLongLiteralAmbiguity(
-			org.rascalmpl.ast.HexLongLiteral.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitHexLongLiteralLexical(
-			org.rascalmpl.ast.HexLongLiteral.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitImportAmbiguity(org.rascalmpl.ast.Import.Ambiguity x) {
 		return L(x.getClass().toString());
 	}
@@ -1451,23 +1380,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	}
 
-	public IValue visitLongLiteralAmbiguity(
-			org.rascalmpl.ast.LongLiteral.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitLongLiteralDecimalLongLiteral(DecimalLongLiteral x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitLongLiteralHexLongLiteral(HexLongLiteral x) {
-		return eX(x.getHexLong());
-	}
-
-	public IValue visitLongLiteralOctalLongLiteral(OctalLongLiteral x) {
-		return eX(x.getOctalLong());
-	}
-
 	public IValue visitMapping_ExpressionDefault(
 			org.rascalmpl.ast.Mapping_Expression.Default x) {
 		return H(0, eX(x.getFrom()), BoxADT.COLON, eX(x.getTo()));
@@ -1559,24 +1471,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitNoElseMayFollowAmbiguity(
-			org.rascalmpl.ast.NoElseMayFollow.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitNoElseMayFollowDefault(
-			org.rascalmpl.ast.NoElseMayFollow.Default x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitNumCharAmbiguity(org.rascalmpl.ast.NumChar.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitNumCharLexical(org.rascalmpl.ast.NumChar.Lexical x) {
-		return L(x.getString());
-	}
-
 	public IValue visitOctalIntegerLiteralAmbiguity(
 			org.rascalmpl.ast.OctalIntegerLiteral.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -1585,16 +1479,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitOctalIntegerLiteralLexical(
 			org.rascalmpl.ast.OctalIntegerLiteral.Lexical x) {
 		return NM(x.getString());
-	}
-
-	public IValue visitOctalLongLiteralAmbiguity(
-			org.rascalmpl.ast.OctalLongLiteral.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitOctalLongLiteralLexical(
-			org.rascalmpl.ast.OctalLongLiteral.Lexical x) {
-		return L(x.getClass().toString());
 	}
 
 	public IValue visitParametersAmbiguity(
@@ -1884,15 +1768,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitShellCommandUnimport(Unimport x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitShortCharAmbiguity(
-			org.rascalmpl.ast.ShortChar.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitShortCharLexical(org.rascalmpl.ast.ShortChar.Lexical x) {
 		return L(x.getClass().toString());
 	}
 
@@ -2292,14 +2167,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitTagCharAmbiguity(org.rascalmpl.ast.TagChar.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitTagCharLexical(org.rascalmpl.ast.TagChar.Lexical x) {
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitTagDefault(org.rascalmpl.ast.Tag.Default x) {
 		/** "@" name:Name contents:TagString */
 		return H(0, BoxADT.AT, eX(x.getName()), eX(x.getContents()));
@@ -2356,7 +2223,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 				H(1,
 						BoxADT.KW("test"),
 						HOV(0, eX(x.getExpression()), BoxADT.COLON,
-								eX(x.getLabeled()))));
+								eX(x.getLabel()))));
 	}
 
 	public IValue visitTestUnlabeled(Unlabeled x) {
@@ -3220,18 +3087,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		// return eX(x.getSyntax());
 	}
 
-	public IValue visitLanguageActionAction(Action x) {
-		// TODO Auto-generated method stub
-		IList l = getTreeList(x, 2);
-		return eXs0(x.getStatements(), l);
-	}
-
-	public IValue visitLanguageActionAmbiguity(
-			org.rascalmpl.ast.LanguageAction.Ambiguity x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
 	// public IValue visitLanguageActionBuild(Build x) {
 	// // TODO Auto-generated method stub
 	// return L(x.getClass().toString());
@@ -3259,11 +3114,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 			org.rascalmpl.ast.Nonterminal.Lexical x) {
 		// TODO Auto-generated method stub
 		return ESC(x.getString());
-	}
-
-	public IValue visitProdAction(org.rascalmpl.ast.Prod.Action x) {
-		// TODO Auto-generated method stub
-		return cStat(eX(x.getProd()), eX(x.getAction()));
 	}
 
 	public IValue visitProdAll(org.rascalmpl.ast.Prod.All x) {
@@ -3352,23 +3202,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return KW("bracket");
 	}
 
-	public IValue visitProdModifierLexical(
-			org.rascalmpl.ast.ProdModifier.Lexical x) {
-		// TODO Auto-generated method stub
-		return KW("lex");
-	}
-
 	public IValue visitProdOthers(Others x) {
 		// TODO Auto-generated method stub
 		return L("...");
 	}
 
 	public IValue visitProdReference(Reference x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitProdSubtract(Reject x) {
 		// TODO Auto-generated method stub
 		return L(x.getClass().toString());
 	}
@@ -3491,14 +3330,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		if (w.getType().isListType()) {
 			IList vs = (IList) w;
 			if (vs.length() > 0) {
-				if (x.getProduction().isFollow())
-					return V(
-							0,
-							H(1, eX(x.getStart()), KW("syntax"),
-									eX(x.getDefined()),
-									V(BoxADT.ASSIGN, vs, BoxADT.SEMICOLON)),
-							BoxADT.SPACE);
-				else {
 					IValue v = H(1, BoxADT.ASSIGN, vs.get(0));
 					vs = vs.delete(0);
 					return V(
@@ -3507,7 +3338,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 									H(1, eX(x.getStart()), KW("syntax"),
 											eX(x.getDefined())),
 									V(v, vs, BoxADT.SEMICOLON)));
-				}
 			}
 		}
 		return V(
@@ -3524,20 +3354,12 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		if (w.getType().isListType()) {
 			IList vs = (IList) w;
 			if (vs.length() > 0) {
-				if (x.getProduction().isFollow())
-					return V(
-							0,
-							H(1, KW("layout"), eX(x.getDefined()),
-									V(BoxADT.ASSIGN, vs, BoxADT.SEMICOLON)),
-							BoxADT.SPACE);
-				else {
 					IValue v = H(1, BoxADT.ASSIGN, vs.get(0));
 					vs = vs.delete(0);
 					return V(
 							0,
 							H(0, H(1, KW("layout"), eX(x.getDefined())),
 									V(v, vs, BoxADT.SEMICOLON)));
-				}
 			}
 		}
 		return V(
@@ -3587,20 +3409,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitBasicTypeReifiedTypeParameter(ReifiedTypeParameter x) {
 		// TODO Auto-generated method stub
 		return L(x.getClass().toString());
-	}
-
-	public IValue visitProdFollow(Follow x) {
-		IList ms = null;
-		if (x.hasModifiers()) {
-			ms = eXs0(x.getModifiers());
-		}
-		// TODO Auto-generated method stub
-		return list(ms, eX(x.getLhs()), H(0, BoxADT.HASH, eX(x.getRhs())));
-	}
-
-	public IValue visitProdReject(Reject x) {
-		// TODO Auto-generated method stub
-		return H(1, eX(x.getLhs()), BoxADT.MINUS, eX(x.getRhs()));
 	}
 
 	public IValue visitOctalEscapeSequenceAmbiguity(
@@ -3725,19 +3533,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	}
 
-	public IValue visitSymLayout(org.rascalmpl.ast.Sym.Layout x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-
-	}
-
 	public IValue visitSymSequence(Sequence x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-
-	}
-
-	public IValue visitSymKeyword(org.rascalmpl.ast.Sym.Keyword x) {
 		// TODO Auto-generated method stub
 		return L(x.getClass().toString());
 
@@ -3785,22 +3581,42 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	}
 
-	public IValue visitLanguageActionWhen(When x) {
+	@Override
+	public IValue visitCommandsAmbiguity(org.rascalmpl.ast.Commands.Ambiguity x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-
+		return null;
 	}
 
-	public IValue visitLanguageActionReplace(Replace x) {
+	@Override
+	public IValue visitCommandsList(org.rascalmpl.ast.Commands.List x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-
+		return null;
 	}
 
-	public IValue visitLanguageActionReplaceWhen(ReplaceWhen x) {
+	@Override
+	public IValue visitFunctionDeclarationConditional(
+			org.rascalmpl.ast.FunctionDeclaration.Conditional x) {
 		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
+		return null;
+	}
 
+	@Override
+	public IValue visitFunctionModifierTest(
+			org.rascalmpl.ast.FunctionModifier.Test x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitTestLabeledParameterized(LabeledParameterized x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitTestParameterized(Parameterized x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

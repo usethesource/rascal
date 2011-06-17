@@ -1,32 +1,35 @@
-
+/*******************************************************************************
+ * Copyright (c) 2009-2011 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *******************************************************************************/
 package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-
-import org.eclipse.imp.pdb.facts.IValue;
-
-import org.rascalmpl.interpreter.Evaluator;
-
 import org.rascalmpl.interpreter.asserts.Ambiguous;
-
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
-
 import org.rascalmpl.interpreter.matching.IBooleanResult;
-
 import org.rascalmpl.interpreter.matching.IMatchingResult;
-
 import org.rascalmpl.interpreter.result.Result;
-
 
 public abstract class Replacement extends AbstractAST {
   public Replacement(IConstructor node) {
     super(node);
   }
-  
 
+  
   public boolean hasReplacementExpression() {
     return false;
   }
@@ -34,7 +37,6 @@ public abstract class Replacement extends AbstractAST {
   public org.rascalmpl.ast.Expression getReplacementExpression() {
     throw new UnsupportedOperationException();
   }
-
   public boolean hasConditions() {
     return false;
   }
@@ -43,139 +45,119 @@ public abstract class Replacement extends AbstractAST {
     throw new UnsupportedOperationException();
   }
 
-
-static public class Ambiguity extends Replacement {
-  private final java.util.List<org.rascalmpl.ast.Replacement> alternatives;
-
-  public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
-    super(node);
-    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-  }
-
-  @Override
-  public Result<IValue> interpret(Evaluator __eval) {
-    throw new Ambiguous((IConstructor) this.getTree());
-  }
+  static public class Ambiguity extends Replacement {
+    private final java.util.List<org.rascalmpl.ast.Replacement> alternatives;
   
-  @Override
-  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-    throw new Ambiguous((IConstructor) this.getTree());
+    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
+      super(node);
+      this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+    }
+    
+    @Override
+    public Result<IValue> interpret(Evaluator __eval) {
+      throw new Ambiguous(this.getTree());
+    }
+      
+    @Override
+    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+      throw new Ambiguous(this.getTree());
+    }
+    
+    public java.util.List<org.rascalmpl.ast.Replacement> getAlternatives() {
+      return alternatives;
+    }
+    
+    public <T> T accept(IASTVisitor<T> v) {
+    	return v.visitReplacementAmbiguity(this);
+    }
   }
+
   
-  public java.util.List<org.rascalmpl.ast.Replacement> getAlternatives() {
-   return alternatives;
-  }
 
-  public <T> T accept(IASTVisitor<T> v) {
-	return v.visitReplacementAmbiguity(this);
-  }
-}
-
-
-
-
-
+  
   public boolean isUnconditional() {
     return false;
   }
-  
-static public class Unconditional extends Replacement {
-  // Production: sig("Unconditional",[arg("org.rascalmpl.ast.Expression","replacementExpression")])
 
+  static public class Unconditional extends Replacement {
+    // Production: sig("Unconditional",[arg("org.rascalmpl.ast.Expression","replacementExpression")])
   
-     private final org.rascalmpl.ast.Expression replacementExpression;
+    
+    private final org.rascalmpl.ast.Expression replacementExpression;
   
-
+    public Unconditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression) {
+      super(node);
+      
+      this.replacementExpression = replacementExpression;
+    }
   
-public Unconditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression) {
-  super(node);
+    @Override
+    public boolean isUnconditional() { 
+      return true; 
+    }
   
-    this.replacementExpression = replacementExpression;
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitReplacementUnconditional(this);
+    }
   
-}
-
-
-  @Override
-  public boolean isUnconditional() { 
-    return true; 
+    
+    @Override
+    public org.rascalmpl.ast.Expression getReplacementExpression() {
+      return this.replacementExpression;
+    }
+  
+    @Override
+    public boolean hasReplacementExpression() {
+      return true;
+    }	
   }
-
-  @Override
-  public <T> T accept(IASTVisitor<T> visitor) {
-    return visitor.visitReplacementUnconditional(this);
-  }
-  
-  
-     @Override
-     public org.rascalmpl.ast.Expression getReplacementExpression() {
-        return this.replacementExpression;
-     }
-     
-     @Override
-     public boolean hasReplacementExpression() {
-        return true;
-     }
-  	
-}
-
-
   public boolean isConditional() {
     return false;
   }
-  
-static public class Conditional extends Replacement {
-  // Production: sig("Conditional",[arg("org.rascalmpl.ast.Expression","replacementExpression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
 
+  static public class Conditional extends Replacement {
+    // Production: sig("Conditional",[arg("org.rascalmpl.ast.Expression","replacementExpression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions")])
   
-     private final org.rascalmpl.ast.Expression replacementExpression;
+    
+    private final org.rascalmpl.ast.Expression replacementExpression;
+    private final java.util.List<org.rascalmpl.ast.Expression> conditions;
   
-     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
+    public Conditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
+      super(node);
+      
+      this.replacementExpression = replacementExpression;
+      this.conditions = conditions;
+    }
   
-
+    @Override
+    public boolean isConditional() { 
+      return true; 
+    }
   
-public Conditional(IConstructor node , org.rascalmpl.ast.Expression replacementExpression,  java.util.List<org.rascalmpl.ast.Expression> conditions) {
-  super(node);
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitReplacementConditional(this);
+    }
   
-    this.replacementExpression = replacementExpression;
+    
+    @Override
+    public org.rascalmpl.ast.Expression getReplacementExpression() {
+      return this.replacementExpression;
+    }
   
-    this.conditions = conditions;
+    @Override
+    public boolean hasReplacementExpression() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+      return this.conditions;
+    }
   
-}
-
-
-  @Override
-  public boolean isConditional() { 
-    return true; 
+    @Override
+    public boolean hasConditions() {
+      return true;
+    }	
   }
-
-  @Override
-  public <T> T accept(IASTVisitor<T> visitor) {
-    return visitor.visitReplacementConditional(this);
-  }
-  
-  
-     @Override
-     public org.rascalmpl.ast.Expression getReplacementExpression() {
-        return this.replacementExpression;
-     }
-     
-     @Override
-     public boolean hasReplacementExpression() {
-        return true;
-     }
-  
-     @Override
-     public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-        return this.conditions;
-     }
-     
-     @Override
-     public boolean hasConditions() {
-        return true;
-     }
-  	
-}
-
-
-
 }
