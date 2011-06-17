@@ -111,7 +111,7 @@ public class TreeAdapter {
 			return (IList) tree.get("args");
 		}
 
-		throw new ImplementationError("Node has no args");
+		throw new ImplementationError("Node has no args: " + tree.getName());
 	}
 
 	public static boolean isLiteral(IConstructor tree) {
