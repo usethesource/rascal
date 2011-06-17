@@ -58,11 +58,11 @@ public void bootAST(Grammar g) {
   g = expandParameterizedSymbols(g);
   
   patterns = g.rules[sort("Pattern")];
-  patterns = visit(patterns) { case sort("Pattern") => sort("Expression") }
+  //patterns = visit(patterns) { case sort("Pattern") => sort("Expression") }
   
   // extend Expression with the Patterns
-  g.rules[sort("Expression")] += patterns;
-  g.rules -= (sort("Pattern"): {}, sort("RascalReservedKeywords"): {});
+  g.rules[sort("Expression")] = choice(sort("Expression"), {patterns, g.rules[sort("Expression")]}); 
+  g.rules -= (sort("Pattern"): choice(sort("Pattern"), {}));
   
   // make sure all uses of Pattern have been replaced by Expression
   g = visit(g) { case sort("Pattern") => sort("Expression") }
