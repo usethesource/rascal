@@ -35,7 +35,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Header;
-import org.rascalmpl.ast.LanguageAction;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Toplevel;
@@ -176,10 +175,6 @@ public class ASTBuilder {
 	
 	public Statement buildStatement(IConstructor parseTree) {
 		return buildSort(parseTree, "Statement");
-	}
-	
-	public LanguageAction buildAction(IConstructor parseTree) {
-		return buildSort(parseTree, "LanguageAction");
 	}
 	
 	public Command buildCommand(IConstructor parseTree) {
@@ -774,7 +769,7 @@ public class ASTBuilder {
 	
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
-			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !isRascalLiteral(kid)) {
+			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !isRascalLiteral(kid) && !TreeAdapter.isEmpty(kid)) {
 				writer.append(kid);	
 			} 
 			// skip layout
