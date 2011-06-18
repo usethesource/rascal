@@ -46,11 +46,6 @@ data Attr
   | \bracket() 
   ;
 
-data Visibility 
-  = \public()
-  | \private()
-  ;
-  
 data Associativity 
   = \left() 
   | \right() 
@@ -58,12 +53,12 @@ data Associativity
   | \non-assoc()
   ;
 
-data CharRange = range(int start, int end);
+data CharRange = range(int begin, int end);
 
 alias CharClass = list[CharRange];
 
 data Symbol 
-  = \start(Symbol symbol)
+  = \begin(Symbol symbol)
 // named non-terminals 
   | \sort(str string)  
   | \lex(str string) 
@@ -87,7 +82,7 @@ data Symbol
   | \seq(list[Symbol] sequence)
 // conditions   
   | \at-column(int column) // TODO: change into condition
-  | \start-of-line()  // TODO: change into condition
+  | \begin-of-line()  // TODO: change into condition
   | \end-of-line()  // TODO: change into condition
   | \conditional(Symbol symbol, set[Condition] conditions)
   ;
@@ -107,32 +102,32 @@ anno loc Tree@\loc;
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] start, loc input);
+public &T<:Tree java parse(type[&T<:Tree] \begin, loc input);
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] start, loc input);
+public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, loc input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] start, str input);
+public &T<:Tree java parse(type[&T<:Tree] begin, str input);
 
 @doc{Parse a string and return a parse tree, which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] start, str input);
+public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, str input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] start, str input, loc origin);
+public &T<:Tree java parse(type[&T<:Tree] begin, str input, loc origin);
 
 @doc{Parse a string and return a parse tree, which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] start, str input, loc origin);
+public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, str input, loc origin);
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
