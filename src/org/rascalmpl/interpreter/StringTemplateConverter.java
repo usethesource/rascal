@@ -327,7 +327,7 @@ public class StringTemplateConverter {
 		public Statement visitStringTemplateIfThen(IfThen x) {
 			Statement body = x.getBody().accept(this);
 			return ASTBuilder.makeStat("IfThen", x.getTree(), ASTBuilder.make("Label", "Empty", x.getTree()), x.getConditions(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()), ASTBuilder.make("NoElseMayFollow", x.getTree()));
+					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
