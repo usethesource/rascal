@@ -47,6 +47,7 @@ import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
@@ -1148,7 +1149,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return false;
 	}
 	
+	public boolean needBootstrapParser(PreModule preModule) {
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
 	public String getCachedParser(Module preModule) {
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
+				String tagString = ((TagString.Lexical)tag.getContents()).getString();
+				return tagString.substring(1, tagString.length() - 1);
+			}
+		}
+		return null;
+	}
+	
+	public String getCachedParser(PreModule preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
 				String tagString = ((TagString.Lexical)tag.getContents()).getString();
@@ -1242,6 +1263,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public String getModuleName(Module module) {
+		String name = module.getHeader().getName().toString();
+		if (name.startsWith("\\")) {
+			name = name.substring(1);
+		}
+		return name;
+	}
+	
+	public String getModuleName(PreModule module) {
 		String name = module.getHeader().getName().toString();
 		if (name.startsWith("\\")) {
 			name = name.substring(1);
