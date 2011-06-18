@@ -10,17 +10,15 @@
 @doc{
   This module implements the support for parameterized syntax definitions
 }
-module lang::rascal::syntax::Parameters
+module lang::rascal::grammar::definition::Parameters
 
 import Grammar;
-import lang::rascal::syntax::Normalization; // this module assumes normalized grammars
 import ParseTree;
 import List;
 import Set;
 
 public Grammar expandParameterizedSymbols(Grammar g) {
-  g.rules = index(expand({ g.rules[s] | s <- g.rules }), Symbol (Production p) { return p.rhs; });
-  return g;
+  return grammar(g.start, expand({g.rules[nt] | nt <- g.rules}));
 } 
  
 set[Production] expand(set[Production] prods) {

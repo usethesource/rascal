@@ -12,37 +12,77 @@
   
   It also provides a number of convenience functions on character classes.
 }
-module lang::rascal::syntax::Characters
+@bootstrapParser
+module lang::rascal::grammar::definition::Characters
 
+import lang::rascal::syntax::RascalRascal;
 import ParseTree;
+import String;
 import Grammar;
 import List;
+import IO;
 
 public data CharRange = \empty-range();    
   
-rule empty range(int from, int to) => \empty-range() when to < from;
-rule empty \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) => \char-class(a+b);
+public CharRange range(int from, int to) {
+  if (to < from)
+    return \empty-range();
+  else
+    fail;
+}
 
-rule merge \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) =>
-           \char-class(a+[range(min([from1,from2]),max([to1,to2]))]+b+c)
-     when (from1 <= from2 && to1 >= from2 - 1) 
-       || (from2 <= from1 && to2 >= from1 - 1)
-       || (from1 >= from2 && to1 <= to2)
-       || (from2 >= from1 && to2 <= to1);
-    
-rule order \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) =>
-           \char-class(a + [range(o,p)]+b+[range(n,m)]+c)
-     when p < n;
+public Symbol \char-class([list[CharRange] a,\empty-range(),list[CharRange] b]) 
+  = \char-class(a+b);
+
+public Symbol \char-class([list[CharRange] a,range(int from1, int to1),list[CharRange] b,range(int from2, int to2),list[CharRange] c]) {
+  if ((from1 <= from2 && to1 >= from2 - 1) 
+     || (from2 <= from1 && to2 >= from1 - 1)
+     || (from1 >= from2 && to1 <= to2)
+     || (from2 >= from1 && to2 <= to1)) 
+       return \char-class(a+[range(min([from1,from2]),max([to1,to2]))]+b+c);
+    else 
+      fail;
+}
+ 
+public Symbol \char-class([list[CharRange] a,range(int n,int m),list[CharRange] b, range(int o, int p), list[CharRange] c]) {
+  if (p < n) 
+    return \char-class(a + [range(o,p)]+b+[range(n,m)]+c);
+  else 
+    fail;
+}
      
 test \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
 test \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
 test \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
 test \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
-rule compl complement(\char-class(list[CharRange] r1)) 										=> \char-class(complement(r1));
-rule diff  difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(difference(r1,r2));
-rule union union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 			=> \char-class(union(r1,r2));
-rule inter intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	=> \char-class(intersection(r1,r2));
+public Symbol complement(\char-class(list[CharRange] r1)) 
+  = \char-class(complement(r1));
+  
+public Symbol default complement(Symbol s) {
+  throw "unsupported symbol for character class complement: <s>";
+}
+  
+public Symbol difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	
+  = \char-class(difference(r1,r2));
+
+public Symbol default difference(Symbol s, Symbol t) {
+  throw "unsupported symbols for  character class difference: <s> and <t>";
+}
+
+public Symbol union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2))
+ = \char-class(union(r1,r2));
+ 
+public Symbol default union(Symbol s, Symbol t) {
+  throw "unsupported symbols for union: <s> and <t>";
+}
+
+public Symbol intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 
+ = \char-class(intersection(r1,r2));
+
+public Symbol default intersection(Symbol s, Symbol t) {
+  throw "unsupported symbols for intersection: <s> and <t>";
+}
 
 public bool lessThan(CharRange r1, CharRange r2) {
   if (range(s1,e1) := r1, range(s2,e2) := r2) {
@@ -322,3 +362,43 @@ test intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == 
 
 test difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
 test difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
+
+
+public Symbol cc2ranges(Class cc) {
+   switch(cc) {
+     case (Class) `[<Range* ranges>]` : return \char-class([range(r) | r <- ranges]);
+     case (Class) `(<Class c>)`: return cc2ranges(c);
+     case (Class) `! <Class c>`: return complement(cc2ranges(c));
+     case (Class) `<Class l> && <Class r>`: return intersection(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> || <Class r>`: return union(cc2ranges(l), cc2ranges(r));
+     case (Class) `<Class l> - <Class r>`: return difference(cc2ranges(l), cc2ranges(r));
+     default: throw "missed a case <cc>";
+   }
+}
+      
+private CharRange range(Range r) {
+  switch (r) {
+    case (Range) `<Char c>` : return range(character(c),character(c));
+    case (Range) `<Char l> - <Char r>`: return range(character(l),character(r));
+    default: throw "missed a case <r>";
+  }
+} 
+ 
+private int character(Char c) {
+  switch (c) {
+    case [Char] /\\n/ : return charAt("\n", 0);
+    case [Char] /\\t/ : return charAt("\t", 0);
+    case [Char] /\\b/ : return charAt("\b", 0);
+    case [Char] /\\r/ : return charAt("\r", 0);
+    case [Char] /\\f/ : return charAt("\f", 0);
+    case [Char] /\\\>/ : return charAt("\>", 0);
+    case [Char] /\\\</ : return charAt("\<", 0);
+    case [Char] /<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
+    case [Char] /\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
+    case [Char] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
+    case [Char] /\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
+    case [Char] /\\<oct:[0-7]>/           : return toInt("0<oct>");
+    default: throw "missed a case <c>";
+  }
+}
