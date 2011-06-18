@@ -6,8 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::rascal::syntax::Regular
+module lang::rascal::grammar::definition::Regular
 
+import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Productions;
 import Grammar;
 import ParseTree;
 import Set;
@@ -15,7 +17,7 @@ import IO;
 
 public Grammar expandRegularSymbols(Grammar G) {
   for (Symbol rhs <- G.rules) {
-    if ({regular(rhs,_)} := G.rules[rhs]) { 
+    if (choice(rhs, {regular(rhs, _)}) := G.rules[rhs]) { 
       set[Production] init = {};
       
       for (p <- expand(rhs)) {
@@ -39,6 +41,12 @@ public set[Production] expand(Symbol s) {
     case \iter-star-seps(t, list[Symbol] seps) : 
       return {choice(s,{prod([],s,\no-attrs()),prod([\iter-seps(t,seps)],s,\no-attrs())})} 
              + expand(\iter-seps(t,seps));
+    case \alt(set[Symbol] alts) :
+      return {choice(s, {prod([a],s,\no-attrs()) | a <- alts})};
+    case \seq(list[Symbol] elems) :
+      return {prod(elems, s, \no-attrs())};
+    case \empty() :
+      return {prod([],s,\no-attrs())};
    }   
 
    throw "missed a case <s>";                   
@@ -67,6 +75,12 @@ private set[Symbol] regular(Symbol s) {
        result += {t};
      case t:\iter-star-seps(Symbol n,list[Symbol] sep) : 
        result += {t};
+     case t:\alt(set[Symbol] alts):
+       result += {t};
+     case t:\seq(list[Symbol] elems):
+       result += {t};
+     case t:\empty():
+       result += {t};  
   }
   return result;
 }  

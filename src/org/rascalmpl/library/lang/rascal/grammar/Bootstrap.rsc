@@ -9,16 +9,21 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @bootstrapParser
-module lang::rascal::syntax::Bootstrap
+module lang::rascal::grammar::Bootstrap
 
-import lang::rascal::syntax::Grammar2Rascal;
-import lang::rascal::syntax::Definition;
-import Grammar;
-import lang::rascal::syntax::Generator;
 import lang::rascal::syntax::RascalRascal; 
-import lang::rascal::syntax::ASTGen;
-import lang::rascal::syntax::Parameters;
+
+import lang::rascal::format::Grammar;
+
+import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::ParserGenerator;
+import lang::rascal::grammar::SyntaxTreeGenerator;
+import lang::rascal::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Modules;
+
+import Grammar;
 import ParseTree;
+
 import IO;
 import ValueIO;  
 
@@ -46,18 +51,18 @@ public Grammar getRascalGrammar() {
   println("parsing the rascal definition of rascal");
   Module \module = parse(#Module, inputFolder + "/<grammarName>.rsc");
   println("imploding the syntax definition and normalizing and desugaring it");
-  return module2grammar(\module);
+  return modules2grammar("lang::rascal::syntax::RascalRascal", {\module});
 }
 
 public void bootAST(Grammar g) {
   g = expandParameterizedSymbols(g);
   
   patterns = g.rules[sort("Pattern")];
-  patterns = visit(patterns) { case sort("Pattern") => sort("Expression") }
+  //patterns = visit(patterns) { case sort("Pattern") => sort("Expression") }
   
   // extend Expression with the Patterns
-  g.rules[sort("Expression")] += patterns;
-  g.rules -= (sort("Pattern"): {}, sort("RascalReservedKeywords"): {});
+  g.rules[sort("Expression")] = choice(sort("Expression"), {patterns, g.rules[sort("Expression")]}); 
+  g.rules -= (sort("Pattern"): choice(sort("Pattern"), {}));
   
   // make sure all uses of Pattern have been replaced by Expression
   g = visit(g) { case sort("Pattern") => sort("Expression") }
