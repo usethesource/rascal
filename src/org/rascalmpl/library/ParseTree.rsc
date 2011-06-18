@@ -30,49 +30,77 @@ data Tree
   | errorcycle(Symbol symbol, int cycleLength)
   ;
   
-data Production =
-     prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
-     regular(Symbol rhs, Attributes attributes);
+data Production 
+  = prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) 
+  | regular(Symbol rhs, Attributes attributes)
+  ;
 
-data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
+data Attributes 
+  = \no-attrs() 
+  | \attrs(list[Attr] attrs)
+  ;
   
-data Attr =
-     \assoc(Associativity \assoc) | 
-     \term(value \term) |  
-     \bracket() | \reject() |
-     \lex() | \literal() | \ciliteral();
+data Attr 
+  = \assoc(Associativity \assoc)  
+  | \term(value \term) 
+  | \bracket() 
+  ;
 
-data Associativity =
-     \left() | \right() | \assoc() | \non-assoc();
+data Visibility 
+  = \public()
+  | \private()
+  ;
+  
+data Associativity 
+  = \left() 
+  | \right() 
+  | \assoc() 
+  | \non-assoc()
+  ;
 
 data CharRange = range(int start, int end);
 
 alias CharClass = list[CharRange];
 
 data Symbol 
-  = \start(Symbol symbol) 
+  = \start(Symbol symbol)
+// named non-terminals 
+  | \sort(str string)  
+  | \lex(str string) 
+  | \layouts(str name) 
+  | \keywords(str name)
+  | \parameterized-sort(str sort, list[Symbol] parameters)  
+  | \parameter(str name)
   | \label(str name, Symbol symbol) 
+// terminals 
   | \lit(str string) 
-  | \cilit(str string)  
+  | \cilit(str string)
+  | \char-class(list[CharRange] ranges)  
+// regular expressions
   | \empty()  
   | \opt(Symbol symbol)  
-  | \sort(str string)   
-  | \layouts(str name) 
   | \iter(Symbol symbol)   
   | \iter-star(Symbol symbol)   
   | \iter-seps(Symbol symbol, list[Symbol] separators)   
   | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
   | \alt(set[Symbol] alternatives)
   | \seq(list[Symbol] sequence)
-  | \parameterized-sort(str sort, list[Symbol] parameters)  
-  | \parameter(str name) 
-  | \char-class(list[CharRange] ranges) 
-  | \follow(Symbol symbol, Symbol follow)
-  | \not-follow(Symbol symbol, Symbol follow)
-  | \precede(Symbol symbol, Symbol precede)
-  | \not-precede(Symbol symbol, Symbol precede)
+// conditions   
+  | \at-column(int column) // TODO: change into condition
+  | \start-of-line()  // TODO: change into condition
+  | \end-of-line()  // TODO: change into condition
+  | \conditional(Symbol symbol, set[Condition] conditions)
   ;
-     
+
+@doc{Conditions on symbols give rise to disambiguation filters.}    
+data Condition
+  = \follow(Symbol symbol)
+  | \not-follow(Symbol symbol)
+  | \precede(Symbol symbol)
+  | \not-precede(Symbol symbol)
+  | \delete(Symbol symbol)
+  ;
+         
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
 
