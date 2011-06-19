@@ -29,6 +29,7 @@ import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraphNode;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -146,9 +147,9 @@ public class Tree extends Figure {
 	}
 	
 
-	public void registerNames(){
-		super.registerNames();
-		if(root!=null) root.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
+		if(root!=null) root.registerNames(resolver);
 	}
 
 	@Override

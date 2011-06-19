@@ -36,6 +36,7 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -572,10 +573,10 @@ public class LatticeGraph extends Figure implements
 	}
 	
 
-	public void registerNames(){
-		super.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
 		for(LatticeGraphNode node : nodes){
-			node.figure.registerNames();
+			node.figure.registerNames(resolver);
 		}
 	}
 

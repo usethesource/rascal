@@ -19,6 +19,8 @@ import IO;
 /*
  * Rotation
  */
+ 
+ /*
 public void rot1a(){
   render(rotate(0.0, box(align(0.5, 0.5), size(50,70))));
 }
@@ -146,4 +148,6 @@ public void rot10(){
  public void sc5(){
    render(scale(0.5, 2.0, box(size(50,70))));
  }
+ 
+ */
  

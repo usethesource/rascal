@@ -54,6 +54,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 public class FigureSWTApplet implements IFigureApplet {
 
@@ -124,6 +125,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	private boolean fill = false, stroke = true;
 
 	final private Composite comp;
+	IEvaluatorContext ctx;
 
 	// private PGraphics canvas;
 	// private PFont stdFont;
@@ -150,6 +152,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		this.comp = comp;
 		this.device = comp.getDisplay();
 		this.figure = fig;
+		this.ctx = ctx;
 		initialize(comp, name);
 	}
 
@@ -157,6 +160,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this.comp = comp;
 		this.device = comp.getDisplay();
+		this.ctx = ctx;
 		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		initialize(comp, name);
 	}
@@ -174,7 +178,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.addMouseMoveListener(new MyMouseMoveListener());
 		comp.addMouseListener(new MyMouseListener());
 		comp.addPaintListener(new MyPaintListener());
-		comp.addControlListener(new ControlListener() {
+		comp.getParent().addControlListener(new ControlListener() {
 			
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -195,6 +199,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		prevFiguresUnderMouseSorted = new Vector<Figure>();
 		mouseOverTop = true;
 		computedValueChanged = true;
+		layoutFigures();
 	}
 	
 
@@ -248,7 +253,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		layoutFigures();
-		System.out.printf("draw\n");
+		
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 		
 		//figure.draw(left, top);
@@ -268,9 +273,14 @@ public class FigureSWTApplet implements IFigureApplet {
 	void layoutFigures() {
 		
 		if(resized || computedValueChanged){	
+			NameResolver resolver = new NameResolver(this, ctx);
 			for(PlacedFigure fig : mouseOverStack){
+				fig.figure.init();
 				fig.figure.computeFiguresAndProperties();
-				fig.figure.registerNames();
+				fig.figure.registerNames(resolver);
+				fig.figure.registerValues(resolver);
+				fig.figure.getLikes(resolver);
+				fig.figure.finalize();
 				
 			}
 		}
@@ -293,7 +303,6 @@ public class FigureSWTApplet implements IFigureApplet {
 					viewPort.setWidth(flip, Math.max(viewPort.getWidth(flip),
 							fig.figure.minSize.getWidth(flip)  ));
 				}
-				System.out.printf("Size figure %s\n", fig.figure.size);
 				fig.figure.layout();
 				for(boolean flip : Figure.BOTH_DIMENSIONS){
 					double margin = viewPort.getWidth(flip) -fig.figure.size.getWidth(flip);
@@ -659,24 +668,6 @@ public class FigureSWTApplet implements IFigureApplet {
 			gc = createGC(comp);
 		gc.setLineWidth(d);
 	}
-	
-	public void strokeStyle(int style) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		gc.setLineStyle(style);
-	}
-	
-	public void lineCap(int style) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		gc.setLineCap(style);
-	}
-	
-	public void lineJoin(int style) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		gc.setLineJoin(style);
-	}
 
 	public void textSize(double arg0) {
 		if (gc == null || gc.isDisposed())
@@ -996,6 +987,8 @@ public class FigureSWTApplet implements IFigureApplet {
 			mouseY = e.y;
 			//System.err.println("mouseDown:(" + mouseX + "," + mouseY + ")");
 			mousePressed();
+			//computedValueChanged = true;
+			redraw();
 		}
 
 		public void mouseDoubleClick(MouseEvent e) {
@@ -1013,14 +1006,16 @@ public class FigureSWTApplet implements IFigureApplet {
 	void changeRes(){
 		Composite p = comp.getParent().getParent().getParent().getParent();
         Point size =p. getSize();
-
-        double newXsize = (double)size.x * 0.8;
-        double newYsize = (double)size.y * 0.8;
+       
+        //p.getClientArea().width;
+        
+        double newXsize = ((double)comp.getParent().getClientArea().width); ;
+        double newYsize = (double)comp.getParent().getClientArea().height ;
         if(newXsize != width || newYsize != height){
             resized = true;
             width = newXsize;
             height = newYsize;
-            //System.out.printf("Resized %f %f\n",width,height);
+            System.out.printf("Resized %f %f\n",width,height);
             layoutFigures();
 
         }
@@ -1029,6 +1024,8 @@ public class FigureSWTApplet implements IFigureApplet {
 	class MyPaintListener implements PaintListener {
 
 		public void paintControl(PaintEvent e) {
+			if(e.count > 0 ) return;
+			
 			changeRes();
             gc = e.gc;
             gc.setAntialias(SWT.ON);

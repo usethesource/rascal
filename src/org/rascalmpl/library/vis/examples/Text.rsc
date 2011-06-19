@@ -16,6 +16,8 @@ import List;
 import Set;
 import IO;
 
+/*
+
 // Text
 public void txt1(){
 	render(text("Een label"));
@@ -146,3 +148,5 @@ public void txt13wc(){
      words = [text("<name>", fontSize(2*leesplank[name]), (arbInt(3) == 2) ? textAngle(-90) : textAngle(0)) | name <- leesplank];
      render(pack(words, width(400), fillColor("black"), gap(10), bottom(), left()));
 }
+
+*/

@@ -28,7 +28,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * 
  * @author paulk
  * 
- * TODO: specialize connectFrom
+ * TODO: fix me for resizing! specialize connectFrom
  *
  */
 

@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * A GraphNode is created for each "node" constructor that occurs in the graph.
@@ -116,9 +117,9 @@ public class LatticeGraphNode {
 	}
 	
 
-	public void registerNames(){
+	public void registerNames(NameResolver resolver){
 		if(figure!=null){
-			figure.registerNames();
+			figure.registerNames(resolver);
 		}
 	}
 	

@@ -15,6 +15,8 @@ import IO;
 import Number;
 import List;
 
+
+/*
 public alias NamedPairSeries  = 
        tuple[str name,list[tuple[num xval, num yval]]  values];
 
@@ -287,4 +289,5 @@ public void plotDemo() {
     render(simplePlot("simple plot", [[x, cos(PI()*x), sin(PI()*x)]|num x<-[-1,-5.0/6..1]], chartSize(400, 400), curvePlot(), step(1.0/7), xAxis(true), yAxis(true), xLabel("pi")));
     }
 
+*/
 

@@ -7,7 +7,11 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module vis::examples::Box
+
+module Box
+
+
+
 
 import vis::Figure;
 import vis::Render;
@@ -17,99 +21,90 @@ import List;
 import Set;
 import IO;
 
-// Unfilled box of 100x200
 public void box1(){
-	render(box(width(100), height(200)));
+	render(box());
 }
 
-// Unfilled box of 100x200
+
 public void box2(){
-	render(box(size(100,200)));
+	render(box(shrink(0.5)));
 }
 
-// Green box of 100x200
+
 public void box3(){
-	render(box(size(100,200), fillColor("green")));
+	render(box( fillColor("green")));
 }
 
-// Green box of 100x200 with red border
+
 public void box4(){
-	render(box(size(100,200), fillColor("green"), lineColor("red")));
+	render(box(hshrink(0.7), vshrink(0.2),fillColor("green"), lineColor("red")));
 }
 
-// Unsized blue outer box with white inner box of 40x40
 public void box5(){
-	render(box(box(size(40), fillColor("white")), fillColor("mediumblue"), gap(10)));
+	render(box(box(fillColor("white")), fillColor("mediumblue"), grow(1.5)));
 }
 
-// Unsized blue outer box with white inner ellipse of 40x60
 
 public void box6(){
-	render(box(ellipse(size(40,60), fillColor("white")), fillColor("mediumblue"), gap(10)));
+	render(box(ellipse(fillColor("white")), fillColor("mediumblue"), grow(2.0)));
 }
 
 // Unsized blue outer box with black inner text
 
 public void box7(){
-	render(box(text("een label"), fillColor("mediumblue"), gap(10)));
+	render(box(text("een label"), fillColor("mediumblue"), grow(1.2)));
 }
 
 // Unsized blue outer box with white inner text
 
 public void box8(){
-	render(box(text("een label", fontColor("white")), fillColor("mediumblue"), gap(10)));
+	render(box(text("een label", fontColor("white")), fillColor("mediumblue"),grow(1.2)));
 }
 
-// Blue outer box of 20x20 with black large inner text (only visible on mouse over)
 
 public void box9(){
-	render(box(text("een label"), width(20), height(20), fillColor("mediumblue"), gap(10)));
+	render(box(text("een label"),  fillColor("mediumblue"), grow(2.0),shrink(0.7)));
 }
 
-// Unsized outer box, with centered inner box of 100x200
 
 public void bbc(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red")), gap(5, 30)));
+	render(box(box(fillColor("green"), lineColor("red")), grow(2.0,1.5)));
 }
 
-// Sized outer box, with left-aligned inner box of 100x200
 
 public void bbl(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"),left()), width(150), height(300), gap(5, 30)));
+	render(box(box(fillColor("green"), lineColor("red"),left()), grow(2.0,1.5)));
 }
 
-// Sized outer box, with top-aligned inner box of 100x200
 
 public void bblt(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"),  left(), top()), width(150), height(300), gap(5,30)));
+	render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), top(),grow(1.2)), grow(2.0,1.5),resizable(false)));
 }
 
 // Sized outer box, with bottom-aligned inner box of 100x200
 public void bblb(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"), left(), bottom()), width(150), height(300), gap(5,30)));
+	render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), bottom(),grow(1.2)), grow(2.0,1.5),resizable(false)));
 }
 
-// Sized outer box, with right-aligned inner box of 100x200
 public void bbr(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right()), width(150), height(300), gap(5,30)));
+	render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),vresizable(false)));
 }
 
-// Sized outer box, with top-aligned and right-aligned inner box of 100x200
 public void bbrt(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right(), top()), width(150), height(300), gap(5,30)));
+	render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),top(),grow(1.2)), grow(2.0,1.5)));
 }
 
 // Sized outer box, with bottom-aligned and right-aligned inner box of 100x200
 public void bbrb(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right(), bottom()), width(150), height(300), gap(5,30)));
+	render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(100.0),hresizable(false)));
 }
 
 // unsized out box, top-align and right-align inner box of 100x200, gapFactor(0.3)
 public void ubbtr(){
-	render(box(box(size(100,200), fillColor("green"), lineColor("red"), right(), bottom()), gapFactor(0.3)));
+	render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(300.0),resizable(false)));
 }
 
 // size out box, top-align and right-align unsize inner box of, gapFactor(0.3)
 public void bubtr(){
-	render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), gapFactor(0.3),size(300,200)));
+	render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), grow(1.3),size(300.0,200.0),resizable(false)));
 }

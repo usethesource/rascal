@@ -16,17 +16,18 @@ package org.rascalmpl.library.vis;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.eclipse.swt.SWT;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.library.vis.containers.HScreen;
-import org.rascalmpl.library.vis.properties.Measure;
+import org.rascalmpl.library.vis.compose.Overlay;
+import org.rascalmpl.library.vis.containers.HAxis;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
-import org.rascalmpl.library.vis.util.Dimension;
+import org.rascalmpl.library.vis.util.Key;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * Figures are the foundation of Rascal visualization. They are based on a
@@ -57,30 +58,44 @@ public abstract class Figure implements Comparable<Figure> {
 	private double top; // the element's bounding box
 	public BoundingBox minSize;
 	public BoundingBox size;
+	public Coordinate globalLocation; // TODO: set this everywere
 	public boolean resizableX, resizableY;
-	
-	protected double scaleX, scaleY;
 
+	protected Figure () {
+		// TODO: needed for overlay.. remove this
+	}
+	
 	protected Figure(IFigureApplet fpa, PropertyManager properties) {
 		this.fpa = fpa;
 		this.properties = properties;
 		properties.computeProperties();
 		minSize = new BoundingBox();
 		size = new BoundingBox();
-		scaleX = scaleY = 1.0f;
+		globalLocation = new Coordinate();
 		sequenceNr = sequencer;
 		sequencer++;
 	}
 
-	public void registerNames() {
-		String id = properties.getStringProperty(Properties.ID);
-		if (id != null && !id.equals(""))
-			fpa.registerId(id, this);
+	public void init(){}
+	
+	public void registerNames(NameResolver resolver) {
+		resolver.register(this);
 	}
+	
+	public void registerValues(NameResolver resolver){
+		properties.registerMeasures(resolver);
+	}
+	
+	public void getLikes(NameResolver resolver){
+		properties.getLikes(resolver);
+	}
+
 
 	public void computeFiguresAndProperties() {
 		properties.computeProperties();
 	}
+	
+	public void finalize(){}
 
 	protected void setLeft(double left) {
 		this.left = left;
@@ -114,9 +129,6 @@ public abstract class Figure implements Comparable<Figure> {
 		fpa.fill(getColorProperty(Properties.FILL_COLOR));
 		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
 		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
-		fpa.strokeStyle(getLineStyleProperty());
-		fpa.lineCap(getLineCapProperty());
-		fpa.lineJoin(getLineJoinProperty());
 		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
 	}
 
@@ -124,52 +136,6 @@ public abstract class Figure implements Comparable<Figure> {
 		fpa.textFont(fpa.createFont(getStringProperty(Properties.FONT),
 				getIntegerProperty(Properties.FONT_SIZE)));
 		fpa.textColor(getColorProperty(Properties.FONT_COLOR));
-	}
-
-	public void gatherProjections(double left, double top,
-			Vector<HScreen.ProjectionPlacement> projections, boolean first,
-			String screenId, boolean horizontal) {
-
-	}
-
-	public Extremes getExtremesForAxis(String axisId, double offset,
-			boolean horizontal) {
-		if (horizontal
-				&& getMeasureProperty(Properties.WIDTH).axisName.equals(axisId)) {
-			double val = getMeasureProperty(Properties.WIDTH).value;
-			return new Extremes(offset - getHAlignProperty() * val, offset
-					+ (1 - getHAlignProperty()) * val);
-		} else if (!horizontal
-				&& getMeasureProperty(Properties.HEIGHT).axisName
-						.equals(axisId)) {
-			double val = getMeasureProperty(Properties.HEIGHT).value;
-			return new Extremes(offset - getVAlignProperty() * val, offset
-					+ (1 - getVAlignProperty()) * val);
-		} else {
-			return new Extremes();
-		}
-	}
-
-	public double getOffsetForAxis(String axisId, double offset,
-			boolean horizontal) {
-		if (horizontal
-				&& getMeasureProperty(Properties.WIDTH).axisName.equals(axisId)) {
-			return offset;
-		} else if (!horizontal
-				&& getMeasureProperty(Properties.HEIGHT).axisName
-						.equals(axisId)) {
-			return offset;
-		} else {
-			return Double.MAX_VALUE;
-		}
-	}
-
-	public Extremes getHorizontalBorders() {
-		return new Extremes(0, minSize.getWidth());
-	}
-
-	public Extremes getVerticalBorders() {
-		return new Extremes(0, minSize.getHeight());
 	}
 
 	/*
@@ -212,9 +178,18 @@ public abstract class Figure implements Comparable<Figure> {
 	public void bbox(){
 		for(boolean flip : BOTH_DIMENSIONS){
 			setResizableX(flip, getResizableX(flip) && getHResizableProperty(flip));
-			minSize.setWidth(flip, Math.max(minSize.getWidth(flip),getWidthProperty(flip)));
+			
 		}
-		setToMinSize();
+		if(!properties.isConverted(Properties.WIDTH)){
+			minSize.setWidth(Math.max(minSize.getWidth(),getWidthProperty()));
+		} else {
+			minSize.setWidth(getWidthProperty());
+		}
+		if(!properties.isConverted(Properties.HEIGHT)){
+			minSize.setHeight(Math.max(minSize.getHeight(),getHeightProperty()));
+		} else {
+			minSize.setHeight(getHeightProperty());
+		}
 	}
 	
 	// distribute actual available size, using size as the available size
@@ -410,12 +385,6 @@ public abstract class Figure implements Comparable<Figure> {
 		return false;
 	}
 
-	public void propagateScaling(double scaleX, double scaleY,
-			HashMap<String, Double> axisScales) {
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-		this.axisScales = axisScales;
-	}
 
 	/**
 	 * Give a figure the opportunity to remove allocated components, etc.
@@ -442,13 +411,33 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public void takeDesiredWidth(double width){
-		if(resizableX) size.setWidth(width);
-		else size.setWidth(minSize.getWidth());
+		if(properties.isConverted(Properties.WIDTH)){
+			size.setWidth(properties.getRealProperty(Properties.WIDTH));
+			properties.getKey(Properties.WIDTH).registerOffset(globalLocation.getX());
+			properties.getKey(Properties.WIDTH).registerOffset(globalLocation.getX()+size.getWidth());
+		} else if(resizableX){
+			size.setWidth(width);
+		} else {
+			size.setWidth(minSize.getWidth());
+		}
 	}
 	
 	public void takeDesiredHeight(double height){
-		if(resizableY) size.setHeight(height);
-		else size.setHeight(minSize.getHeight());
+		if(properties.isConverted(Properties.HEIGHT)){
+			size.setHeight(properties.getRealProperty(Properties.HEIGHT));
+			properties.getKey(Properties.HEIGHT).registerOffset(globalLocation.getY());
+			properties.getKey(Properties.HEIGHT).registerOffset(globalLocation.getY()+size.getHeight());
+		} else if(resizableY){
+			size.setHeight(height);
+		}
+		else{
+			size.setHeight(minSize.getHeight());
+		}
+	}
+	
+	public void takeDesiredHeight(boolean flip,double height){
+		if(flip) takeDesiredWidth(height);
+		else takeDesiredHeight(height);
 	}
 	
 	public void takeDesiredWidth(boolean flip, double width){
@@ -497,18 +486,6 @@ public abstract class Figure implements Comparable<Figure> {
 		return properties.getColorProperty(property);
 	}
 
-	public boolean isMeasurePropertySet(Properties property) {
-		return properties.isMeasurePropertySet(property);
-	}
-
-	public Measure getMeasureProperty(Properties property) {
-		return properties.getMeasureProperty(property);
-	}
-
-	public double getScaledMeasureProperty(Properties prop) {
-		return getScaled(prop, prop.dimension);
-	}
-
 	public boolean isHandlerPropertySet(Properties property) {
 		return properties.isHandlerPropertySet(property);
 	}
@@ -544,38 +521,6 @@ public abstract class Figure implements Comparable<Figure> {
 	public Figure getLabel() {
 		return getFigureProperty(Properties.LABEL);
 	}
-
-	protected double getScaled(Measure m, Dimension dimension) {
-		return getScaled(m, dimension, null);
-	}
-
-	double getScaled(Measure m, Dimension dimension, Properties prop) {
-		double scale;
-		switch (dimension) {
-		case X:
-			scale = scaleX;
-			break;
-		case Y:
-			scale = scaleY;
-			break;
-		default:
-			throw new Error("Unkown dimension!");
-		}
-		if (axisScales != null && axisScales.containsKey(m.axisName)
-				&& !m.axisName.equals("")) {
-
-			scale *= axisScales.get(m.axisName);
-			// System.out.printf("Getting on %s axis %s prop %s scale %f value %f scaledValued %f\n"
-			// , this, m.axisName, prop, scale, m.value, m.value*scale );
-		}
-		return m.value * scale;
-	}
-
-	double getScaled(Properties prop, Dimension dimension) {
-		Measure m = getMeasureProperty(prop);
-		return getScaled(m, dimension, prop);
-	}
-
 	// Anchors
 
 	public double leftAlign() {
@@ -654,37 +599,37 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public boolean isHeightPropertySet() {
-		return isMeasurePropertySet(Properties.HEIGHT);
+		return isRealPropertySet(Properties.HEIGHT);
 	}
 
 	public boolean isHGapPropertySet() {
-		return isMeasurePropertySet(Properties.HGAP);
+		return isRealPropertySet(Properties.HGAP);
 	}
 
 	public boolean isVGapPropertySet() {
-		return isMeasurePropertySet(Properties.VGAP);
+		return isRealPropertySet(Properties.VGAP);
 	}
 
 	// below are convience functions for measures, which are scaled (text and
 	// linewidth are not scaled)
 	public boolean isWidthPropertySet() {
-		return isMeasurePropertySet(Properties.WIDTH);
+		return isRealPropertySet(Properties.WIDTH);
 	}
 
 	public double getWidthProperty() {
-		return getScaledMeasureProperty(Properties.WIDTH);
+		return getRealProperty(Properties.WIDTH);
 	}
 
 	public double getHeightProperty() {
-		return getScaledMeasureProperty(Properties.HEIGHT);
+		return getRealProperty(Properties.HEIGHT);
 	}
 
 	public double getHGapProperty() {
-		return getScaledMeasureProperty(Properties.HGAP);
+		return getRealProperty(Properties.HGAP);
 	}
 
 	public double getVGapProperty() {
-		return getScaledMeasureProperty(Properties.VGAP);
+		return getRealProperty(Properties.VGAP);
 	}
 
 	// TODO: how to scale wedges!
@@ -694,38 +639,24 @@ public abstract class Figure implements Comparable<Figure> {
 
 
 	public double getHAlignProperty() {
+		if(properties.isConverted(Properties.WIDTH) && properties.getKey(Properties.WIDTH) instanceof HAxis){
+			return 0.0;
+		}
 		return getRealProperty(Properties.HALIGN);
 	}
 
 	public double getVAlignProperty() {
+		if(properties.isConverted(Properties.HEIGHT) && properties.getKey(Properties.HEIGHT) instanceof HAxis){
+			return 1.0;
+		}
+		if(properties.isConverted(Properties.HEIGHT) && properties.getKey(Properties.HEIGHT) instanceof Overlay.LocalOffsetKey ){
+			return 0.0;
+		}
 		return getRealProperty(Properties.VALIGN);
 	}
 
 	public double getLineWidthProperty() {
 		return getRealProperty(Properties.LINE_WIDTH);
-	}
-	
-	public int getLineStyleProperty() {
-		String s =  getStringProperty(Properties.LINE_STYLE);
-		if (s.equals("dash")) return SWT.LINE_DASH;
-		if (s.equals("dot")) return SWT.LINE_DOT;
-		if (s.equals("dashdot")) return SWT.LINE_DASHDOT;
-		if (s.equals("dashdotdot")) return SWT.LINE_DASHDOTDOT;
-		return SWT.LINE_SOLID;
-	}
-	
-	public int getLineCapProperty() {
-		String s =  getStringProperty(Properties.LINE_CAP);
-		if (s.equals("round")) return SWT.CAP_ROUND;
-		if (s.equals("square")) return SWT.CAP_SQUARE;
-		return SWT.CAP_FLAT;
-	}
-	
-	public int getLineJoinProperty() {
-		String s =  getStringProperty(Properties.LINE_JOIN);
-		if (s.equals("round")) return SWT.JOIN_ROUND;
-		if (s.equals("bevel")) return SWT.JOIN_BEVEL;
-		return SWT.JOIN_MITER;
 	}
 
 	public double getTextAngleProperty() {
@@ -750,58 +681,58 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public boolean isWidthPropertySet(boolean flip) {
 		if (flip)
-			return isMeasurePropertySet(Properties.HEIGHT);
+			return isRealPropertySet(Properties.HEIGHT);
 		else
-			return isMeasurePropertySet(Properties.WIDTH);
+			return isRealPropertySet(Properties.WIDTH);
 	}
 
 	public double getWidthProperty(boolean flip) {
 		if (flip)
-			return getScaledMeasureProperty(Properties.HEIGHT);
+			return getRealProperty(Properties.HEIGHT);
 		else
-			return getScaledMeasureProperty(Properties.WIDTH);
+			return getRealProperty(Properties.WIDTH);
 	}
 
 	public boolean isHeightPropertySet(boolean flip) {
 		if (flip)
-			return isMeasurePropertySet(Properties.WIDTH);
+			return isRealPropertySet(Properties.WIDTH);
 		else
-			return isMeasurePropertySet(Properties.HEIGHT);
+			return isRealPropertySet(Properties.HEIGHT);
 	}
 
 	public double getHeightProperty(boolean flip) {
 		if (flip)
-			return getScaledMeasureProperty(Properties.WIDTH);
+			return getRealProperty(Properties.WIDTH);
 		else
-			return getScaledMeasureProperty(Properties.HEIGHT);
+			return getRealProperty(Properties.HEIGHT);
 	}
 
 	public boolean isHGapPropertySet(boolean flip) {
 		if (flip)
-			return isMeasurePropertySet(Properties.VGAP);
+			return isRealPropertySet(Properties.VGAP);
 		else
-			return isMeasurePropertySet(Properties.HGAP);
+			return isRealPropertySet(Properties.HGAP);
 	}
 
 	public double getHGapProperty(boolean flip) {
 		if (flip)
-			return getScaledMeasureProperty(Properties.VGAP);
+			return getRealProperty(Properties.VGAP);
 		else
-			return getScaledMeasureProperty(Properties.HGAP);
+			return getRealProperty(Properties.HGAP);
 	}
 
 	public boolean isVGapPropertySet(boolean flip) {
 		if (flip)
-			return isMeasurePropertySet(Properties.HGAP);
+			return isRealPropertySet(Properties.HGAP);
 		else
-			return isMeasurePropertySet(Properties.VGAP);
+			return isRealPropertySet(Properties.VGAP);
 	}
 
 	public double getVGapProperty(boolean flip) {
 		if (flip)
-			return getScaledMeasureProperty(Properties.HGAP);
+			return getRealProperty(Properties.HGAP);
 		else
-			return getScaledMeasureProperty(Properties.VGAP);
+			return getRealProperty(Properties.VGAP);
 	}
 
 	public boolean isMouseOverSet() {
@@ -871,6 +802,11 @@ public abstract class Figure implements Comparable<Figure> {
 		else return isHGrowPropertySet();
 	}
 	
+	public boolean isVGrowPropertySet(boolean flip){
+		if(flip) return isHGrowPropertySet();
+		else return isVGrowPropertySet();
+	}
+	
 	public double getHGrowProperty() {
 		return properties.getRealProperty(Properties.HGROW);
 	}
@@ -882,6 +818,12 @@ public abstract class Figure implements Comparable<Figure> {
 	public double getHGrowProperty(boolean flip) {
 		if(flip) return getVGrowProperty();
 		else return getHGrowProperty();
+	}
+	
+
+	public double getVGrowProperty(boolean flip) {
+		if(flip) return getHGrowProperty();
+		else return getVGrowProperty();
 	}
 	
 
@@ -909,6 +851,12 @@ public abstract class Figure implements Comparable<Figure> {
 	public double getHShrinkProperty(boolean flip) {
 		if(flip) return getVShrinkProperty();
 		else return getHShrinkProperty();
+	}
+	
+
+	public double getVShrinkProperty(boolean flip) {
+		if(flip) return getHShrinkProperty();
+		else return getVShrinkProperty();
 	}
 	
 	public boolean isHStartGapPropertySet(){
@@ -976,7 +924,99 @@ public abstract class Figure implements Comparable<Figure> {
 		else return getHResizableProperty();
 	}
 	
+	public String getKeyIdForWidth(boolean flip){
+		if(flip) return properties.getKeyId(Properties.HEIGHT);
+		else return properties.getKeyId(Properties.WIDTH);
+	}
+	
+	public String getKeyIdForHeight(boolean flip){
+		if(flip) return properties.getKeyId(Properties.WIDTH);
+		else return properties.getKeyId(Properties.HEIGHT);
+	}
+	
+	public String getKeyIdForHLoc(boolean flip){
+		if(flip) return properties.getKeyId(Properties.VLOC);
+		else return properties.getKeyId(Properties.HLOC);
+	}
+	
+	public String getKeyIdForVLoc(boolean flip){
+		if(flip) return properties.getKeyId(Properties.HLOC);
+		else return properties.getKeyId(Properties.VLOC);
+	}
+	
+	public double getHLocProperty(){
+		return properties.getRealProperty(Properties.HLOC);
+	}
+	
+	public double getVLocProperty(){
+		return properties.getRealProperty(Properties.VLOC);
+	}
+	
+	public double getHLocProperty(boolean flip){
+		if(flip) return properties.getRealProperty(Properties.VLOC);
+		else return properties.getRealProperty(Properties.HLOC);
+	}
+	
+	public double getVLocProperty(boolean flip){
+		if(flip) return properties.getRealProperty(Properties.HLOC);
+		else return properties.getRealProperty(Properties.VLOC);
+	}
+	
+	public IValue getHLocPropertyUnconverted(boolean flip){
+		if(flip) return properties.getUnconverted(Properties.VLOC);
+		else return properties.getUnconverted(Properties.HLOC);
+	}
+	
+	public IValue getVLocPropertyUnconverted(boolean flip){
+		if(flip) return properties.getUnconverted(Properties.HLOC);
+		else return properties.getUnconverted(Properties.VLOC);
+	}
+	
+	public double getHConnectProperty(){
+		return properties.getRealProperty(Properties.HCONNECT);
+	}
+	
+	public double getVConnectProperty(){
+		return properties.getRealProperty(Properties.VCONNECT);
+	}
+	
+	public boolean isHLocPropertySet(){
+		return properties.isPropertySet(Properties.HLOC);
+	}
+	
+	public boolean isVLocPropertySet(){
+		return properties.isPropertySet(Properties.VLOC);
+	}
+	
 
+	public boolean isHLocPropertySet(boolean flip){
+		if(flip) return isVLocPropertySet();
+		else return isHLocPropertySet();
+	}
+	
+	public boolean isVLocPropertySet(boolean flip){
+		if(flip) return isHLocPropertySet();
+		else return isVLocPropertySet();
+	}
+	
+	public boolean isHLocPropertyConverted(){
+		return properties.isConverted(Properties.HLOC);
+	}
+	
+	public boolean isVLocPropertyConverted(){
+		return properties.isConverted(Properties.VLOC);
+	}
+
+	public boolean isHLocPropertyConverted(boolean flip){
+		if(flip) return isVLocPropertyConverted();
+		else return isHLocPropertyConverted();
+	}
+	
+	public boolean isVLocPropertyConverted(boolean flip){
+		if(flip) return isHLocPropertyConverted();
+		else return isVLocPropertyConverted();
+	}
+	
 	protected void print(Control c, double left, double top) {
 		GC gc = fpa.getPrinterGC();
 		if (gc != null) {

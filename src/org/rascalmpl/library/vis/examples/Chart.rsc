@@ -15,108 +15,79 @@ import vis::Chart;
 
 import Number;
 import List;
-import Set;
+
 import IO;
+import Real;
+import Integer;
 
-// Simple bar charts
 
-public void bar1(){
-    dt1 = [10, 12, 17, 0, 15, 7, 20, 40, 60];  
-    colors = colorScale(dt1, color("blue"), color("red"));  
-	b = hcat( [ box([height(d * 8), fillColor(colors(d))]) | d <- dt1 ],	
-                lineColor(0),
-                lineWidth(1),
-	            fillColor(125),
-	            width(10),
-	            bottom()
-               );
-    render(b);
-}
-
-public void bar2(){
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];
-    m = max(size(d1), size(d2));   
-    bars = [ hcat( [ box(fillColor("green"), height((d1[i] ? 0) * 8)),
-                     box(fillColor("red"), height((d2[i] ? 0) * 8))
-                   ],
-                   gap(5), top())
-           | int i <- [0 .. m]
-           ];
-    
-	b = hcat(bars,
-             lineColor(0),
-             lineWidth(1),
-	         width(10),
-	         top(),
-	         gap(10)
-             );
-    render(b);
-}
-
-public void bar3(){ 
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];
-    m = max(size(d1), size(d2));   
-    bars = [vcat( [ box(fillColor("green"), height((d1[i] ? 0) * 8)),
-                    box(fillColor("red"), height((d2[i] ? 0) * 8))
-                  ],
-                  gap(0))
-           | int i <- [0 .. m]
-           ];
-           
-	b = hcat(bars, 
-             lineColor(0),
-             lineWidth(1),
-	         width(10),
-	         gap(5),
-	         bottom()
-            );
-    render(b);
-}
-
-// Barchart: Horizontal composition of vertically stacked boxes
-public void bar4(){ 
-    d1 = [10, 12, 17, 15, 7]; 
-    d2 = [ 5,  6,  9,  7, 3, 20];
-    m = max(size(d1), size(d2));   
-    bars = [vcat( [ box(fillColor("green"), height((d1[i] ? 0) * 8)),
-                    box(fillColor("red"), height((d2[i] ? 0) * 8))
-                  ],
-                  gap(0))
-           | int i <- [0 .. m]
-           ];
-           
-	b = hcat(bars,
-             lineColor(0),
-             lineWidth(1),
-	         width(10),
-	         gap(5),
-	         bottom()
-            );
-    render(b);
+public Figure hBarChart(list[tuple[str,num]] vals,FProperty props...){
+	return bottomScreen("l",leftAxis("y",
+			hcat([box(height(convert(n,"y")),project(text(s),"l")) | <s,n> <- vals],hgrow(1.2))
+		),props);
 }
 
 
-
-private list[NamedPairSeries] pdata =
-        [ <"f", [<0, 50>, <10,50>, <20,50>, <30, 50>, <40, 50>, <50, 50>, <60,50>]>, 
-          <"g", [<50,0>, <50,50>, <50,100>]>,
-          <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>,
-          <"i", [<0, 60>, <10, 50>, <20, 40>, <30, 30>, <40, 20>, <50, 10>, <60, 0>]>,
-          <"j", [< -20, 20>, < -10, 10>, <0,0>, <10, -10>, <20, -20>]>,
-          <"k", [< -20, 40>, < -10, 10>, <0, 0>, <10, 10>, <20, 40>, <30, 90>]>                
-        ];
-        
-public void p0(){
-     mydata = [
-               <"h", [<0,0>, <10,10>, <20,20>, <30,30>, <40,40>, <50,50>, <60,60>]>
-               ];
-     render(xyChart("P0", 
-	                 mydata, chartSize(400,400), xLabel("The X axis"), yLabel("The Y axis")
-                  )
-           );
+public void testBarChart(){
+	render(title("Coolness of programming languages",
+		hBarChart([<"Rascal",140>,<"Java",50>,<"C",70>,<"C++",22>,<"Haskell",100>,<"PHP",1>,<"Scala",90>],stdFillColor(color("red",0.8)))));
 }
+
+public Figure hGroupedStackedBarChart(list[tuple[str,list[tuple[str,list[tuple[str,num]]]]]] vals,FProperty props...){
+	return vcat([
+			bottomScreen("group",
+			bottomScreen("elem",
+				leftAxis("y",
+			 		hcat([
+			   			hcat([
+			   				vstack([box(height(convert(n,"y")),fillColor(convert(sub,"sub"))) | <sub,n> <- elem]
+			   				,project(text(elemLabel),"elem"))
+			   			| <elemLabel,elem> <- e],project(text(group,fontSize(17)),"group"),hgrow(1.05))
+			   		| <group,e> <- vals ],hgrow(1.2),hcapGaps(true))
+			   	)
+			)
+		,vshrink(0.8)),
+		box(palleteKey("Components","sub"))
+		],props)
+		;
+}
+
+
+public void testGSBarChart(){
+	render(title("Detailed Coolness of programming languages",
+		hGroupedStackedBarChart(
+			[<"Functional languages",
+				[<"Clean",[<"type system",100.0>, <"syntax",60.0>,<"speed",40>]>,
+				 <"Haskell",[<"type system",120>, <"syntax",70>,<"speed",60>]>,
+				 <"Agda",[<"type system",160>, <"syntax",10>,<"speed",5>]>
+				]>,
+			<"Imperative languages",
+				[<"C",[<"type system",40>, <"syntax",60>,<"speed",100>]>,
+				 <"C++",[<"type system",70>, <"syntax",20>,<"speed",95>]>,
+				 <"Java",[<"type system",40>, <"syntax",40>,<"speed",50>]>
+				]>,
+			<"Semi-functional languages",
+				[<"Rascal",[<"type system",90>, <"syntax",200>,<"speed",10>]>,
+				 <"Scala",[<"type system",100>, <"syntax",50>,<"speed",50>]>,
+				 <"Erlang",[<"type system",40>, <"syntax",40>,<"speed",50>]>
+				]>
+			]
+		,vshrink(0.9))));	
+}
+
+public void graph(int n){
+	render(
+		title("Graph Demo",
+			bottomAxis("Time since epoch","x",
+			leftAxis("Lines of code","y",
+				overlay([
+					ellipse(shrink(0.02),fillColor("blue"),hpos(convert((1.0/toReal(n)) * toReal(x) , "x")),vpos(convert(((x == 0) ? 0 :arbReal()),"y")))
+					| x <- [0..n]],shapeConnected(true),shapeCurved(true))
+			))			
+		));
+}
+
+/*
 
 // Scatter plot
 
@@ -235,7 +206,7 @@ public void b4(){
 }
 
 // pieCharts
-
+/*
 public void pie0(){
  	render(pieChart("pie0", ("a" : 1, "b" : 1, "c" : 1, "z": 1)));
 }
@@ -256,3 +227,4 @@ public void pie3(){
  					ring(20)
  	));
 }
+*/

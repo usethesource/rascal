@@ -8,6 +8,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 
 public abstract class WithInnerFig extends Figure {
@@ -24,53 +25,6 @@ public abstract class WithInnerFig extends Figure {
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", minSize.getWidth(), minSize.getHeight(), getHAlignProperty(), getVAlignProperty());
 	}
 	
-
-	@Override public void destroy(){
-		if(innerFig != null)
-			innerFig.destroy();
-	}
-	
-	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
-		if(innerFig!=null){
-			innerFig.gatherProjections(left + innerFigLocation.getX(), top + innerFigLocation.getY(), projections, first, screenId, horizontal);
-		}
-	}
-	
-	public void propagateScaling(double scaleX,double scaleY,HashMap<String,Double> axisScales){
-		super.propagateScaling(scaleX, scaleY,axisScales);
-		if(innerFig != null){
-			innerFig.propagateScaling(scaleX, scaleY,axisScales);
-		}
-	}
-	
-	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
-		if(result.gotData()){
-			return result;
-		} else if(innerFig != null){
-			return innerFig.getExtremesForAxis(axisId, offset, horizontal);
-		} else {
-			return new Extremes();
-		}
-	}
-	
-	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
-		double result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Double.MAX_VALUE){
-			return result;
-		} else if (innerFig != null){
-			double off = 0.0f;
-			if(horizontal){
-				off = innerFigLocation.getX();
-			} else {
-				off = innerFigLocation.getY();
-			}
-			return Math.min(offset,offset + off);
-		} else {
-			return Double.MAX_VALUE;
-		}
-	}
-	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		if(!mouseInside(c.getX(), c.getY())) return false;
 		if(innerFig != null){
@@ -81,6 +35,13 @@ public abstract class WithInnerFig extends Figure {
 		return true;
 	}
 	
+	public void init(){
+		super.init();
+		if(innerFig!=null){
+			innerFig.init();
+		}
+	}
+	
 	public void computeFiguresAndProperties(){
 		super.computeFiguresAndProperties();
 		if(innerFig!=null){
@@ -88,9 +49,44 @@ public abstract class WithInnerFig extends Figure {
 		}
 	}
 	
-	public void registerNames(){
-		super.registerNames();
-		if(innerFig != null) innerFig.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
+		if(innerFig != null) innerFig.registerNames(resolver);
+	}
+	
+	public void registerValues(NameResolver resolver){
+		super.registerValues(resolver);
+		if(innerFig!=null) innerFig.registerValues(resolver);
+	}
+	
+
+	public void getLikes(NameResolver resolver){
+		super.getLikes(resolver);
+		if(innerFig!=null) innerFig.getLikes(resolver);
+	}
+	
+	public void layout(){
+		size.set(minSize);
+		if(innerFig != null) {
+			innerFig.size.set(innerFig.minSize);
+			innerFig.layout();
+		}
+	}
+	
+	
+	public void finalize(){
+		super.finalize();
+		if(innerFig!=null){
+			innerFig.finalize();
+		}
+	}
+	
+
+	public void destroy(){
+		super.destroy();
+		if(innerFig!=null){
+			innerFig.destroy();
+		}
 	}
 	
 }

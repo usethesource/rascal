@@ -22,6 +22,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.util.Key;
+import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -79,13 +81,14 @@ public class PropertyManager {
 		int nrStdProperties = 0;
 		for(IValue v : props){
 			String pname = ((IConstructor) v).getName();
-			
+			System.err.printf("%s\n",pname);
 			if(pname.startsWith("_child")){
 			} 
 			else if(pname.startsWith("std")){
 				pname = stripStd(pname);
 				nrStdProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();;
 			} else {
+				
 				nrExplicitProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();;
 			}
 		}
@@ -134,6 +137,24 @@ public class PropertyManager {
 		}
 	}
 	
+	public void registerMeasures(NameResolver resolver){
+		for(PropertyValue v : explicitValues){
+				v.registerMeasures(resolver);
+		}
+		for(PropertyValue v : stdValues){
+				v.registerMeasures(resolver);
+		}
+	}
+	
+	public void getLikes(NameResolver resolver){
+		for(PropertyValue v : explicitValues){
+				v.getLikes(resolver);
+		}
+		for(PropertyValue v : stdValues){
+				v.getLikes(resolver);
+		}
+	}
+	
 	public boolean isPropertySet(Properties property){
 		return safeBinarySearch(explicitValues, property) >= 0;
 	}
@@ -161,6 +182,29 @@ public class PropertyManager {
 			return parent.getStdPropertyValue(property);
 		} 
 		return null;
+	}
+	
+	public boolean isConverted(Properties property){
+		PropertyValue v = getPropertyValue(property);
+		if(v == null) return false;
+		return v.isConverted();
+	}
+	
+	public IValue getUnconverted(Properties property){
+		PropertyValue v = getPropertyValue(property);
+		return v.getUnconverted();
+	}
+	
+	public Key getKey(Properties property){
+		PropertyValue v = getPropertyValue(property);
+		if(v == null) return null;
+		return v.getKey();
+	}
+	
+	public String getKeyId(Properties property){
+		PropertyValue v = getPropertyValue(property);
+		if(v == null) return null;
+		return v.getKeyId();
 	}
 	
 	public Object getProperty(Properties property){
@@ -210,17 +254,7 @@ public class PropertyManager {
 		checkCorrectType(property, Types.REAL);
 		return (Double)getProperty(property);
 	}
-	
-	public boolean isMeasurePropertySet(Properties property){
-		checkCorrectType(property, Types.DIMENSIONAL);
-		return isPropertySet(property);
-	}
-	
-	public Measure getMeasureProperty(Properties property){
-		checkCorrectType(property, Types.DIMENSIONAL);
-		return (Measure)getProperty(property);
-	}
-	
+
 	public boolean isStringPropertySet(Properties property){
 		checkCorrectType(property, Types.STR);
 		return isPropertySet(property);

@@ -32,24 +32,15 @@ public class Scale extends WithInnerFig {
 	void bbox() {
 		//if(properties.getBooleanProperty(Properties.SCALE_ALL) && !propagated) propagateScaling(1.0f, 1.0f,null);
 		innerFig.bbox();
-		setNonResizable();
-		super.bbox();
 	}
 
 	@Override
 	public
 	void draw(double left, double top) {
 		fpa.pushMatrix();
-		fpa.translate(left, top);
 		fpa.scale(xscale, yscale);
-		innerFig.draw(0,0);
+		fpa.translate(left, top);
 		fpa.popMatrix();
-		
-	}
-
-	@Override
-	public void layout() {
-		// TODO Auto-generated method stub
 		
 	}
 

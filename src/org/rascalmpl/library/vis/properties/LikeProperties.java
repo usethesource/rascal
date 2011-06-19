@@ -13,26 +13,25 @@
 package org.rascalmpl.library.vis.properties;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 public class LikeProperties {
 
 	private static abstract class LikeProperty<PropType> extends PropertyValue<PropType> {
-		final Figure fig;
+		Figure fig;
 		Properties property;
+		String path;
 		
-		public LikeProperty(Properties property,String id, IFigureApplet fpa, IEvaluatorContext ctx){
+		public LikeProperty(Properties property,String path, IFigureApplet fpa, IEvaluatorContext ctx){
 			super(property);
-			this.fig = fpa.getRegisteredId(id);
-			if(this.fig == null)
-				throw RuntimeExceptionFactory.figureException("Cannot be the same as not (yet) existing figure", ctx.getValueFactory().string(id), ctx.getCurrentAST(),
-					ctx.getStackTrace());
+			this.path = path;
 			this.property = property;
 		}
 		
-		public void compute() {
+		public void getLikes(NameResolver resolver){
+			fig = resolver.resolve(path);
 		}
 		
 		public abstract PropType getValue() ;
@@ -105,19 +104,6 @@ public class LikeProperties {
 		@Override
 		public String getValue() {
 			return fig.properties.getStringProperty(property);
-		}
-	}
-	
-	static class LikeMeasureProperty extends LikeProperty<Measure>{
-		
-		public LikeMeasureProperty(Properties property, String id, IFigureApplet fpa,
-				IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
-		}
-
-		@Override
-		public Measure getValue() {
-			return fig.properties.getMeasureProperty(property);
 		}
 	}
 	

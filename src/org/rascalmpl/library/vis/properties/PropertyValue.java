@@ -11,6 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.properties;
 
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.library.vis.util.Key;
+import org.rascalmpl.library.vis.util.NameResolver;
+
 @SuppressWarnings("rawtypes")
 public abstract class PropertyValue<PropType> implements Comparable{
 	public Properties property;
@@ -24,7 +28,14 @@ public abstract class PropertyValue<PropType> implements Comparable{
 	}
 	
 	public abstract PropType getValue();
-	public abstract void compute();
+	public void compute(){}
+	public void registerMeasures(NameResolver resolver){}
+	public void getLikes(NameResolver resolver){}
+	
+	public boolean isConverted(){ return false;}
+	public String getKeyId() { return null; }
+	public Key<PropType> getKey() { return null; }
+	public IValue getUnconverted(){ return null; }
 	
 	public int compareTo(Object rhs){
 		if(rhs instanceof PropertyValue){

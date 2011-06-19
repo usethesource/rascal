@@ -45,6 +45,7 @@ public class ComputeFigure extends WithInnerFig {
 		}
 		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
 		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
+		innerFig.init();
 		innerFig.computeFiguresAndProperties();
 		properties = innerFig.properties;
 		//fpa.setComputedValueChanged();
@@ -57,43 +58,23 @@ public class ComputeFigure extends WithInnerFig {
 		minSize.setHeight(innerFig.minSize.getHeight());
 		resizableX = innerFig.resizableX;
 		resizableY = innerFig.resizableY;
-		super.bbox();
 	}
 
 	public void layout(){
+		System.out.printf("Setting size %s\n",size);
 		innerFig.size.set(size);
+		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();
+		
 	}
 	
 	@Override
 	public void draw(double left, double top) {
-		// System.err.println("ComputeFigure.draw: " + left + ", " + top + ", " + width + ", " + height);
+		System.err.println("ComputeFigure.draw: " + left + ", " + top + "\n");
 		this.setLeft(left);
 		this.setTop(top);
 		innerFig.draw(left,top);
 	}
-	
-	@Override 
-	public double topAlign(){
-		return innerFig != null ? innerFig.topAlign() : 0;
-	}
-	
-	@Override 
-	public double bottomAlign(){
-		return innerFig != null ? innerFig.bottomAlign() : 0;
-	}
-	
-	@Override 
-	public double leftAlign(){
-		return innerFig != null ? innerFig.leftAlign() : 0;
-	}
-	
-	@Override 
-	public double rightAlign(){
-		return innerFig != null ? innerFig.rightAlign() : 0;
-	}
-	
-	
 	
 
 }

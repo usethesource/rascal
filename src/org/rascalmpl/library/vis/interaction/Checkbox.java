@@ -60,7 +60,6 @@ public class Checkbox extends Figure {
 		// height = list.getSize().y;
 		minSize.setWidth(p.x);
 		minSize.setHeight(p.y);
-		setNonResizable();
 		super.bbox();
 	}
 
@@ -80,7 +79,7 @@ public class Checkbox extends Figure {
 		this.setTop(top);
 		// button.setSize(FigureApplet.round(getWidthProperty()),
 		// FigureApplet.round(getHeightProperty()));
-		button.setSize(FigureApplet.round(minSize.getWidth()), FigureApplet.round(minSize.getHeight()));
+		button.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		this.print(button, left, top);
@@ -94,6 +93,5 @@ public class Checkbox extends Figure {
 
 	@Override
 	public void layout() {
-		size.set(minSize);	
 	}
 }

@@ -1,6 +1,8 @@
 package org.rascalmpl.library.vis.properties;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.properties.Types;
@@ -8,8 +10,6 @@ import org.rascalmpl.library.vis.properties.PropertySetters.SingleIntOrRealPrope
 import org.rascalmpl.library.vis.util.Dimension;
 
 public enum Properties {
-	DRAW_SCREEN_X(Types.BOOL,true),
-	DRAW_SCREEN_Y(Types.BOOL,true),
 	SHAPE_CLOSED(Types.BOOL,false), 	
 	SHAPE_CONNECTED(Types.BOOL,false),
 	SHAPE_CURVED(Types.BOOL,false),
@@ -23,11 +23,14 @@ public enum Properties {
 	FILL_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("white").intValue()),     
 	FONT_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),    
 	LINE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),
+	GUIDE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("lightgray").intValue()),
 	
-	HEIGHT(Types.DIMENSIONAL,new Measure(0.0),Dimension.X),
-	HGAP(Types.DIMENSIONAL,new Measure(0.0),Dimension.X), 
-	VGAP(Types.DIMENSIONAL,new Measure(0.0),Dimension.Y), 	
-	WIDTH(Types.DIMENSIONAL,new Measure(0.0),Dimension.Y),
+	HEIGHT(Types.REAL,0.0,Dimension.X),
+	HGAP(Types.REAL,0.0,Dimension.X), 
+	VGAP(Types.REAL,0.0,Dimension.Y), 	
+	WIDTH(Types.REAL,0.0,Dimension.Y),
+	HLOC(Types.REAL,0.0,Dimension.X),
+	VLOC(Types.REAL,0.0,Dimension.Y),
 	
 	MOUSE_OVER(Types.FIGURE,null),
 	TO_ARROW(Types.FIGURE,null),
@@ -44,12 +47,11 @@ public enum Properties {
 	HGROW(Types.REAL, 1.0, Dimension.X),
 	HSHRINK(Types.REAL, 1.0, Dimension.X),
 	HALIGN(Types.REAL,0.5,Dimension.X),
-	MOUSEOVER_HALIGN(Types.REAL,0.5,Dimension.X),
+	HCONNECT(Types.REAL,0.5,Dimension.X),
+	VCONNECT(Types.REAL, 0.5, Dimension.Y),
+	MOUSEOVER_HALIGN(Types.REAL,0.5,Dimension.X), // TODO: remove this, replace with overlay rewrite
 	INNERRADIUS(Types.REAL,0.0), // TODO: innerradisu is not axis aligned
 	LINE_WIDTH(Types.REAL,1.0),
-	LINE_STYLE(Types.STR,"solid"),
-	LINE_JOIN(Types.STR,"miter"),
-	LINE_CAP(Types.STR,"flat"),
 	TEXT_ANGLE(Types.REAL,0.0), 	
 	FROM_ANGLE(Types.REAL,0.0),
 	TO_ANGLE(Types.REAL,0.0),			
@@ -83,8 +85,6 @@ public enum Properties {
 	
 	@SuppressWarnings("rawtypes")
 	public static final HashMap<String, PropertySetters.PropertySetter> propertySetters = new HashMap<String, PropertySetters.PropertySetter>() {{
-		put("drawScreenX", new PropertySetters.SingleBooleanPropertySetter(DRAW_SCREEN_X));
-		put("drawScreenY", new PropertySetters.SingleBooleanPropertySetter(DRAW_SCREEN_Y));
 		put("shapeClosed", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CLOSED));
 		put("shapeConnected", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CONNECTED));
 		put("shapeCurved", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));
@@ -95,7 +95,6 @@ public enum Properties {
 		put("hresizable", new PropertySetters.SingleBooleanPropertySetter(HRESIZABLE));
 		put("vresizable", new PropertySetters.SingleBooleanPropertySetter(VRESIZABLE));
 		// aliasses
-		put("drawScreen", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(DRAW_SCREEN_X, DRAW_SCREEN_Y));
 		put("hcapGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(HSTART_GAP, HEND_GAP));
 		put("vcapGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(VSTART_GAP, VEND_GAP));
 		put("resizable", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(HRESIZABLE, VRESIZABLE));
@@ -103,14 +102,18 @@ public enum Properties {
 		put("fillColor", new PropertySetters.SingleColorPropertySetter(FILL_COLOR));
 		put("fontColor", new PropertySetters.SingleColorPropertySetter(FONT_COLOR));
 		put("lineColor", new PropertySetters.SingleColorPropertySetter(LINE_COLOR));
+		put("guideColor",new PropertySetters.SingleColorPropertySetter(GUIDE_COLOR));
 		
-		put("height", new PropertySetters.SingleMeasurePropertySetter(HEIGHT));
-		put("hgap", new PropertySetters.SingleMeasurePropertySetter(HGAP));
-		put("vgap", new PropertySetters.SingleMeasurePropertySetter(VGAP));
-		put("width", new PropertySetters.SingleMeasurePropertySetter(WIDTH));
+		put("height", new PropertySetters.SingleIntOrRealPropertySetter(HEIGHT));
+		put("hgap", new PropertySetters.SingleIntOrRealPropertySetter(HGAP));
+		put("vgap", new PropertySetters.SingleIntOrRealPropertySetter(VGAP));
+		put("width", new PropertySetters.SingleIntOrRealPropertySetter(WIDTH));
+		put("hpos", new PropertySetters.SingleIntOrRealPropertySetter(HLOC));
+		put("vpos", new PropertySetters.SingleIntOrRealPropertySetter(VLOC));
 		// below: aliasses
-		put("gap", new PropertySetters.DualOrRepeatMeasurePropertySetter(HGAP, VGAP));
-		put("size", new PropertySetters.DualOrRepeatMeasurePropertySetter(WIDTH, HEIGHT));
+		put("pos", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HLOC, VLOC));
+		put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
+		put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
 		
 		put("mouseOver", new PropertySetters.SingleFigurePropertySetter(MOUSE_OVER));
 		put("toArrow", new PropertySetters.SingleFigurePropertySetter(TO_ARROW));
@@ -130,9 +133,6 @@ public enum Properties {
 		put("mouseOverHalign", new PropertySetters.SingleIntOrRealPropertySetter(MOUSEOVER_HALIGN));
 		put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
 		put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
-		put("lineStyle", new PropertySetters.SingleStrPropertySetter(LINE_STYLE));
-		put("lineCap", new PropertySetters.SingleStrPropertySetter(LINE_CAP));
-		put("lineJoin", new PropertySetters.SingleStrPropertySetter(LINE_JOIN));
 		put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
 		put("fromAngle", new PropertySetters.SingleIntOrRealPropertySetter(FROM_ANGLE));
 		put("toAngle", new PropertySetters.SingleIntOrRealPropertySetter(TO_ANGLE));
@@ -140,11 +140,14 @@ public enum Properties {
 		put("vgrow", new PropertySetters.SingleIntOrRealPropertySetter(VGROW));
 		put("vshrink", new PropertySetters.SingleIntOrRealPropertySetter(VSHRINK));
 		put("mouseOverValign", new PropertySetters.SingleRealPropertySetter(MOUSEOVER_VALIGN));
+		put("hconnect", new PropertySetters.SingleIntOrRealPropertySetter(HCONNECT));
+		put("vconnect", new PropertySetters.SingleIntOrRealPropertySetter(VCONNECT));
 		// below: aliases
 		put("align", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HALIGN, VALIGN));
 		put("mouseOverAlign", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(MOUSEOVER_HALIGN, MOUSEOVER_VALIGN));
 		put("grow", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGROW, VGROW));
 		put("shrink", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HSHRINK, VSHRINK));
+		put("connect", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HCONNECT, VCONNECT));
 		
 		put("direction", new PropertySetters.SingleStrPropertySetter(DIRECTION));
 		put("layer", new PropertySetters.SingleStrPropertySetter(LAYER));
@@ -155,8 +158,102 @@ public enum Properties {
 	}};
 	
 	
+	// Below:code to generate rascal code for properties
+	static enum Notations{
+		CONSTANT,
+		CONSTANT_SUGAR,
+		COMPUTED,
+		LIKE,
+		MEASURE;
+	}
+	
+	static String capitalize(String s){
+		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+	}
+	
+	static String argumentTypeInNotation(Types type,Notations n){
+		switch(n){
+		case CONSTANT:  return type.rascalName;
+		case CONSTANT_SUGAR:  return type.syntaxSugar;
+		case COMPUTED: return "computed" + capitalize(type.rascalName);
+		case LIKE: return "Like";
+		case MEASURE: return String.format("Convert", type.rascalName);
+		}
+		throw new Error("Unkown notation");
+	}
+	
+	static String argumentInNotation(Types type,Notations n){
+		switch(n){
+		case CONSTANT:  return String.format("%2s", type.shortName);
+		case CONSTANT_SUGAR:  return String.format("s%s", type.shortName);
+		case COMPUTED: return String.format("c%s", type.shortName);
+		case LIKE: return String.format("l%s", type.shortName);
+		case MEASURE: return String.format("m%s", type.shortName);
+		}
+		throw new Error("Unkown notation");
+	}
+	
+
+	
+	static Vector<String> genArgumentCode(HashMap<String, Integer> nameOccurances, Types type, int nrTimes){
+		Vector<String> result = new Vector<String>();
+		if(nrTimes == 0 ){
+			result.add("");
+			return result;
+		}
+		for(Notations n : Notations.values()){
+			if(type == Types.HANDLER && n == Notations.COMPUTED) continue;
+			if(n == Notations.CONSTANT_SUGAR && type.syntaxSugar == null) continue;
+			String typeName = argumentTypeInNotation(type, n);
+			String argName = argumentInNotation(type, n);
+			Vector<String> deeper = genArgumentCode(nameOccurances,type,nrTimes-1);
+			for(String rest : deeper){
+				int occur = 0;
+				if(nameOccurances.containsKey(argName)){
+					occur = nameOccurances.get(argName);
+				} 
+				String argNameN = argName+String.format("%d",occur);
+				nameOccurances.put(argName, occur+1);
+				String myArg = String.format("%-17s %s",typeName,argNameN);
+				if(!rest.equals("")){
+					myArg = myArg + ", " + rest;
+				}
+				result.add(myArg);
+			}
+		}
+		return result;
+	}
+	
+	static final boolean[] stds = {false,true};
+	
+	static String genPropertyCode(String propertyName,PropertySetters.PropertySetter setter,boolean std){
+		Types type = setter.getProperty(0).type;
+		HashMap<String, Integer> nameOccurances = new HashMap<String, Integer>();
+		String result = "";
+		for(int nrTimes = setter.minNrOfArguments(); nrTimes <= setter.maxNrOfArguments(); nrTimes++){
+			Vector<String> argStrings = genArgumentCode(nameOccurances, type, nrTimes);
+			for(String s : argStrings){
+				String propertyDesc ;
+				if(std){
+					propertyDesc = "std" + capitalize(propertyName);
+				} else {
+					propertyDesc = propertyName;
+				}
+				result= result + String.format("\t| %-20s (%s)\n",propertyDesc,s);
+			}
+		}
+		return result;
+	}
+	
 	// generates rascal code for properties!
 	public static void main(String[] argv){
+		String[] propertyNames = propertySetters.keySet().toArray(new String[0]);
+		Arrays.sort(propertyNames);
+		for(boolean std :stds){
+			for(String propertyName : propertyNames){
+				System.out.print(genPropertyCode(propertyName,propertySetters.get(propertyName),std));
+			}
+		}
 		
 	}
 }

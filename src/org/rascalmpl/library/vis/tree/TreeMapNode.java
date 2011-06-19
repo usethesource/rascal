@@ -21,6 +21,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * A TreeMapNode is created for each "node" constructor that occurs in the TreeMap.
@@ -151,10 +152,10 @@ public class TreeMapNode extends Figure {
 		return ret;
 	}
 	
-	public void registerNames(){
-		super.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
 		for(int i = children.size()-1 ; i >= 0 ; i--){
-			children.get(i).registerNames();
+			children.get(i).registerNames(resolver);
 		}
 	}
 

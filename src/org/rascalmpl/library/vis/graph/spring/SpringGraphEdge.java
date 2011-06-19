@@ -19,6 +19,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 import org.rascalmpl.library.vis.FigureApplet;
 
@@ -138,10 +139,10 @@ public class SpringGraphEdge extends Figure {
 	}
 	
 
-	public void registerNames(){
-		super.registerNames();
-		if(fromArrow!=null)fromArrow.registerNames();
-		if(toArrow!=null)toArrow.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
+		if(fromArrow!=null)fromArrow.registerNames(resolver);
+		if(toArrow!=null)toArrow.registerNames(resolver);
 	}
 
 

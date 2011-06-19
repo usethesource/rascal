@@ -36,6 +36,7 @@ public class Coordinate {
 	
 	public double getX(){ return x; }
 	public double getY() { return y; }
+	
 	public double getX(boolean flip) {
 		if(flip) return y;
 		else return x;
@@ -66,6 +67,26 @@ public class Coordinate {
 		else x = val;
 	}
 	
+	public void setY(boolean flip, double val) {
+		if(flip) x = val;
+		else y = val;
+	}
+	
+	public void set(double x, double y){
+		this.x = x;
+		this.y = y;
+	}
+	
+	public void set(boolean flip,double x, double y){
+		if(flip) set(y,x);
+		else set(x,y);
+	}
+	
+	public void set(Coordinate coordinate){
+		this.x = coordinate.x;
+		this.y = coordinate.y;
+	}
+	
 	public void clear(){
 		x = y = 0;
 	}
@@ -73,6 +94,11 @@ public class Coordinate {
 	public void addX(boolean flip, double val){
 		if(flip) y += val;
 		else x += val;
+	}
+	
+	public void addY(boolean flip, double val){
+		if(flip) x += val;
+		else y += val;
 	}
 	
 	public void addX( double val){
@@ -83,5 +109,7 @@ public class Coordinate {
 		y += val;
 	}
 	
-
+	public String toString(){
+		return "x:"+x+"y:"+y;
+	}
 }

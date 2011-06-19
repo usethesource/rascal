@@ -60,6 +60,12 @@ public class BoundingBox {
 		else width = val;
 	}
 	
+
+	public void setHeight(boolean flip, double val){
+		if(flip) width = val;
+		else height = val;
+	}
+	
 	public double getWidth(boolean flip){
 		if(flip) return height;
 		else return width;
@@ -90,6 +96,11 @@ public class BoundingBox {
 	public void addWidth(boolean flip, double val){
 		if(flip) height+= val;
 		else width += val;
+	}
+	
+	public void addHeight(boolean flip, double val){
+		if(flip) width+= val;
+		else height += val;
 	}
 	
 	public String toString(){

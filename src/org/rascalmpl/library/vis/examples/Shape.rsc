@@ -18,7 +18,7 @@ import Set;
 import IO;
 
 // Shape: line graph with circle on each point
-
+/*
 public void s1(int s){
     dt1 = [10, 20, 10, 30];
 	b = shape([ vertex(i * 50, 10 * dt1[i], ellipse(size(s), lineWidth(0), fillColor("red"))) | int i <- [0 .. size(dt1) -1]],
@@ -75,3 +75,4 @@ public void s4(){
                );
     render(overlay([sh1, sh2]));
 }
+*/

@@ -42,6 +42,7 @@ public class PropertyParsers {
 	interface PropertyParser<PropValue>{
 		PropertyValue<PropValue> parseProperty(IConstructor c, PropertyManager pm, int propIndex,
 				IFigureApplet fpa, IEvaluatorContext ctx);
+		 Properties getProperty();
 	}
 	
 	static abstract class AbstractPropertyParser<PropValue> implements PropertyParser<PropValue>{
@@ -52,6 +53,10 @@ public class PropertyParsers {
 			this.property = property;
 		}
 		
+		public Properties getProperty(){
+			return property;
+		}
+		
 		abstract boolean isLiteralType(Type type);
 		
 		abstract PropertyValue<PropValue> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
@@ -60,10 +65,12 @@ public class PropertyParsers {
 		
 		abstract PropertyValue<PropValue> makeComputedProperty(IValue arg,PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
 		
+		abstract PropertyValue<PropValue> makeMeasureProperty(IValue idVal, IValue valVal, IFigureApplet fpa,IEvaluatorContext ctx);
+		
 		public PropertyValue<PropValue> parseProperty(IConstructor c, PropertyManager pm, int propIndex,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
 			IValue arg = c.get(propIndex);
-			
+			System.out.print("Type  " + arg.getType().toString() + " " + this + "\n");
 			if(isLiteralType(arg.getType()))
 				return makeConstantProperty(arg, pm, fpa, ctx);
 			
@@ -71,6 +78,8 @@ public class PropertyParsers {
 				IConstructor cs = (IConstructor) arg;
 				if(cs.getName().equals("like")){
 					return makeLikeProperty(((IString) cs.get(0)).getValue(), fpa, ctx);
+				} else if(cs.getName().equals("convert")){
+					return makeMeasureProperty(cs.get(1),cs.get(0),fpa,ctx);
 				}
 			}
 			
@@ -115,6 +124,12 @@ public class PropertyParsers {
 		PropertyValue<Boolean> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedBooleanProperty(property,arg, fpa);
 		}
+
+		@Override
+		PropertyValue<Boolean> makeMeasureProperty(IValue idVal, IValue valVal,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new MeasureProperties.MeasureBooleanProperty(property, idVal, valVal, fpa, ctx);
+		}
 	} 
 	/**
 	 * Get an integer argument
@@ -148,6 +163,12 @@ public class PropertyParsers {
 		@Override
 		PropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedIntegerProperty(property,arg, fpa);
+		}
+
+		@Override
+		PropertyValue<Integer> makeMeasureProperty(IValue idVal, IValue valVal,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new MeasureProperties.MeasureIntegerProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
 	/**
@@ -183,6 +204,12 @@ public class PropertyParsers {
 		PropertyValue<String> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedStringProperty(property,arg, fpa);
 		}
+
+		@Override
+		PropertyValue<String> makeMeasureProperty(IValue idVal, IValue valVal,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new MeasureProperties.MeasureStringProperty(property, idVal, valVal, fpa, ctx);
+		}
 	}
 	
 	/**
@@ -200,7 +227,8 @@ public class PropertyParsers {
 
 		@Override
 		boolean isLiteralType(Type type) {
-			return type.isRealType();
+			
+			return type.isRealType()  || type.isRealType() || type.isNumberType();
 		}
 
 		@Override
@@ -217,6 +245,12 @@ public class PropertyParsers {
 		@Override
 		PropertyValue<Double> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedRealProperty(property,arg, fpa);
+		}
+
+		@Override
+		PropertyValue<Double> makeMeasureProperty(IValue idVal, IValue valVal,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new MeasureProperties.MeasureRealProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
 	
@@ -237,6 +271,7 @@ public class PropertyParsers {
 
 		@Override
 		boolean isLiteralType(Type type) {
+			
 			return type.isIntegerType() || type.isRealType() || type.isNumberType();
 		}
 		
@@ -247,6 +282,7 @@ public class PropertyParsers {
 			return new ConstantProperties.ConstantRealProperty(property,value);
 		}
 	}
+	
 	
 	public static double parseNum(IValue arg) {
 		double value;
@@ -260,25 +296,6 @@ public class PropertyParsers {
 		return value;
 	}
 
-	public static Measure parseMeasure(IValue arg) {
-		Measure val;
-		if(arg.getType().isIntegerType()){
-			val = new Measure(((IInteger) arg).intValue());
-		} else if(arg.getType().isRealType()) {
-			val = new Measure(((IReal) arg).floatValue());
-		} else { // measure
-			IConstructor cons = (IConstructor) arg;
-			float quantity;
-			if(cons.get(0).getType().isIntegerType()){
-				quantity = ((IInteger) cons.get(0)).intValue();
-			} else {
-				quantity = ((IReal) cons.get(0)).floatValue();
-			}
-			String id = ((IString)cons.get(1)).getValue();
-			val = new Measure(quantity,id);
-		}
-		return val;
-	}
 
 	/**
 	 * Get an color argument
@@ -330,34 +347,11 @@ public class PropertyParsers {
 		PropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedColorProperty(property,arg, fpa);
 		}
-	}
-	
-	
-	static class MeasureArgParser extends AbstractPropertyParser<Measure>{
-		public MeasureArgParser(Properties property) {
-			super(property);
-		}
 
 		@Override
-		boolean isLiteralType(Type type) {
-			return  type.isIntegerType() || type.isRealType() || (type.isAbstractDataType() && type.getName().equals("Measure"));
-		}
-
-		@Override
-		PropertyValue<Measure> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
-			Measure val = parseMeasure(arg);
-			return new ConstantProperties.ConstantMeasureProperty(property,val);
-		}
-
-		@Override
-		PropertyValue<Measure> makeLikeProperty(String id,
+		PropertyValue<Integer> makeMeasureProperty(IValue idVal, IValue valVal,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
-			return new LikeProperties.LikeMeasureProperty(property, id, fpa, ctx);
-		}
-
-		@Override
-		PropertyValue<Measure> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
-			return new ComputedProperties.ComputedMeasureProperty(property,arg, fpa);
+			return new MeasureProperties.MeasureColorProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
 	
@@ -390,6 +384,12 @@ public class PropertyParsers {
 		PropertyValue<Figure> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedFigureProperty(property,arg, fpa, pm, ctx);
 		}
+
+		@Override
+		PropertyValue<Figure> makeMeasureProperty(IValue idVal, IValue valVal,
+				IFigureApplet fpa, IEvaluatorContext ctx) {
+			return new MeasureProperties.MeasureFigureProperty(property, idVal, valVal, fpa, ctx);
+		}
 	}
 	
 	static class HandlerArgParser implements PropertyParser<Void>{
@@ -405,6 +405,11 @@ public class PropertyParsers {
 				IConstructor c, PropertyManager pm, int propIndex,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
 			 return new ComputedProperties.HandlerProperty(property,c.get(0),fpa);
+		}
+
+		@Override
+		public Properties getProperty() {
+			return property;
 		}
 		
 	}

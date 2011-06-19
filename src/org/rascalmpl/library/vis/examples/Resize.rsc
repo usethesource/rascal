@@ -67,23 +67,26 @@ public void testHalfNonResizable2(int n){
 public void recursiveThing(){
 	list[str] underMouse = [];
 	allColors = ["red","green","blue","orange","yellow","purple","brown"];
-	int depth = 4;
+	num depth = 4.0;
+	int d = 4;
 	void popColor() { underMouse = tail(underMouse); }
 
 	public Figure makeRecThing(list[str] cl){
 		void pushColor(){ underMouse= [head(cl)] + underMouse; }
 		if(size(cl) == 0) return space();
 		return ellipse(newgrid([[makeRecThing(tail(cl)),makeRecThing(tail(cl))],
-		[makeRecThing(tail(cl)),makeRecThing(tail(cl))]]),grow(1.3),fillColor(color(head(cl))));
+		[makeRecThing(tail(cl)),makeRecThing(tail(cl))]]),grow(1.3),fillColor(color(head(cl))),onMouseOver(pushColor),onMouseOff(popColor));
 	}
 	
 	
-	colorStack = computeFigure(Figure () { return hcat( [box(text(c),grow(2.0),resizable(false),fillColor(color(c))) | c <- reverse(underMouse)],hgrow(1.2),vshrink(0.2));});
+	colorStack = computeFigure(Figure () { return hcat( [box(text(c),hshrink((1.0/depth)*0.95),vshrink(0.9),fillColor(color(c))) | c <- reverse(underMouse)],vshrink(0.2),center());});
 	/*makeRecThing([color(s) | s <- ["red","green","blue"]])*/
-	render(makeRecThing(slice(allColors,0,depth)));
+	render(vcat([makeRecThing(slice(allColors,0,d)),colorStack]));
 }
 
-
+public overlayResize(){
+	render(overlay([box(hshrink(0.3),fillColor("red"),left()),box(hshrink(0.2),right(),fillColor("green")),box(shrink(0.1),fillColor("orange"))]));
+}
 
 
 

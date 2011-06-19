@@ -15,8 +15,8 @@ package org.rascalmpl.library.vis;
 import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
-
-
+// TODO: fix me! also take care global coordinates
+/*
 public class Rotate extends WithInnerFig {
 	private double angle;
 	private double leftAnchor;
@@ -35,8 +35,13 @@ public class Rotate extends WithInnerFig {
 	@Override
 	public
 	void bbox() {
-		
-		
+		innerFig.bbox();
+		for(boolean flip : BOTH_DIMENSIONS){
+			setResizableX(flip, innerFig.getResizableX(flip));
+		}
+		minSize.setWidth(innerFig.minSize.getWidth()*Math.cos(angle) + innerFig.minSize.getHeight()* Math.sin(angle));
+		minSize.setWidth(innerFig.minSize.getHeight()*Math.cos(angle) + innerFig.minSize.getWidth()* Math.sin(angle));
+		/*
 		sina = FigureApplet.abs(FigureApplet.sin(angle));
 		cosa =  FigureApplet.abs(FigureApplet.cos(angle));
 		
@@ -59,6 +64,12 @@ public class Rotate extends WithInnerFig {
 				   minSize.getWidth(), leftAnchor, rightAnchor, minSize.getHeight(), topAnchor, bottomAnchor);
 		setNonResizable();
 		super.bbox();
+		*/
+	/*
+	}
+	
+	public void layout(){
+		
 	}
 
 	@Override
@@ -107,10 +118,5 @@ public class Rotate extends WithInnerFig {
 		fpa.rect(-innerFig.minSize.getWidth()/2, -innerFig.minSize.getHeight()/2, innerFig.minSize.getWidth(), innerFig.minSize.getHeight());
 	}
 
-	@Override
-	public void layout() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
+*/

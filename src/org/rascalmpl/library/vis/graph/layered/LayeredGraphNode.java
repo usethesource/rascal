@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * A GraphNode is created for each "node" constructor that occurs in the graph.
@@ -526,8 +527,8 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		if(figure!=null)figure.computeFiguresAndProperties();
 	}
 
-	public void registerNames() {
-		if(figure!=null)figure.registerNames();
+	public void registerNames(NameResolver resolver){
+		if(figure!=null)figure.registerNames(resolver);
 	}
 
 	public void layout() {
