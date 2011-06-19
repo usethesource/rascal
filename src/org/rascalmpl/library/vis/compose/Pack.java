@@ -26,6 +26,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * @author paulk
  *
  */
+
+//TODO: fix me for resizing!
 public class Pack extends Compose {
 	
 	Node root;

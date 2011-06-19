@@ -25,6 +25,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * @author paulk
  *
  */
+
+// TODO: fix me for resizing!
 public class HVCat extends Compose {
 	
 	double leftElem[];
@@ -94,8 +96,8 @@ public class HVCat extends Compose {
 			Figure fig = figures[i];
 			double hrow = rowHeight[inRow[i]];
 			double rfiller = minSize.getWidth() - rowWidth[inRow[i]];
-			xPos[i] = leftElem[i] + fig.getHAlignProperty()  * rfiller;
-			yPos[i] = topRowElem[i] +  fig.getVAlignProperty() * (hrow - fig.minSize.getHeight());              
+			pos[i].setX( leftElem[i] + fig.getHAlignProperty()  * rfiller);
+			pos[i].setY( topRowElem[i] +  fig.getVAlignProperty() * (hrow - fig.minSize.getHeight()));              
 		}
 	}
 	

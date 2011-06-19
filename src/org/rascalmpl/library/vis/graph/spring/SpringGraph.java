@@ -26,6 +26,7 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
 
@@ -242,13 +243,13 @@ public class SpringGraph extends Figure {
 	}
 	
 
-	public void registerNames(){
-		super.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
 		for(SpringGraphNode node : nodes){
-			node.registerNames();
+			node.registerNames(resolver);
 		}
 		for(SpringGraphEdge edge : edges){
-			edge.registerNames();
+			edge.registerNames(resolver);
 		}
 	}
 

@@ -109,8 +109,7 @@ public class Combo extends Figure {
 		minSize.setWidth(p.x);
 		minSize.setHeight(p.y);
 		combo.setTextLimit(tLimit);
-		combo.setSize(FigureApplet.round(minSize.getWidth()), FigureApplet.round(minSize.getHeight()));
-		setNonResizable();
+		
 		super.bbox();
 	}
 
@@ -145,7 +144,6 @@ public class Combo extends Figure {
 					.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(combo.getItem(s)));
 		}
 		fpa.setComputedValueChanged();
-		fpa.redraw();
 	}
 
 	@Override
@@ -156,6 +154,7 @@ public class Combo extends Figure {
 		// combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
 		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		combo.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 		print(combo, left, top);
 	}
 
@@ -166,6 +165,5 @@ public class Combo extends Figure {
 	
 	@Override
 	public void layout() {
-		size.set(minSize);	
 	}
 }

@@ -105,11 +105,7 @@ public class FigureLibrary {
 		display.dispose();
 	}
 
-	public void render(IConstructor fig, IEvaluatorContext ctx) {
-		displayFigure("Figure", fig, ctx);
-	}
-
-	public void renderSave(IConstructor fig, ISourceLocation sloc,
+	public void renderSaveActual(IConstructor fig, ISourceLocation sloc,
 			IEvaluatorContext ctx) {
 		OutputStream out = null;
 		final Display display = new Display();
@@ -151,7 +147,7 @@ public class FigureLibrary {
 		}
 	}
 
-	public void render(IString name, IConstructor fig, IEvaluatorContext ctx) {
+	public void renderActual(IString name, IConstructor fig, IEvaluatorContext ctx) {
 		displayFigure(name.getValue(), fig, ctx);
 	}
 

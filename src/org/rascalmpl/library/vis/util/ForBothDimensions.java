@@ -9,6 +9,10 @@ public class ForBothDimensions <T>{
 		this.forY = forY;
 	}
 	
+	public ForBothDimensions(T forX){
+		this(forX,forX);
+	}
+	
 	public T getForX(boolean flip){
 		if(flip) return forY;
 		else return forX;

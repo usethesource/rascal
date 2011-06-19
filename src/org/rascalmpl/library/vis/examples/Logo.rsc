@@ -11,7 +11,7 @@ module vis::examples::Logo
 
 import vis::Figure;
 import vis::Render;
-
+/*
 private list[int] LogoData = [
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
@@ -267,3 +267,4 @@ private list[int] LogoData = [
 public void renderLogo(int pixelSize) {
   render(hvcat([box([size(pixelSize, pixelSize), lineWidth(0), lineColor(x), fillColor(x)]) | x <- LogoData], [size(50*pixelSize, 50*pixelSize)]));
 }
+*/

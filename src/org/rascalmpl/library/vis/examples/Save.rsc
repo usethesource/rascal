@@ -10,6 +10,7 @@ module vis::examples::Save
 
 import vis::Figure;
 import vis::Render;
+/*
 
 public void a(){
 
@@ -92,3 +93,4 @@ public void K(int n){
                |cwd:///tmp.png|
     );
 }
+*/

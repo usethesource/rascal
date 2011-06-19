@@ -30,6 +30,7 @@ import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -1499,13 +1500,13 @@ public class LayeredGraph extends Figure {
 	}
 	
 
-	public void registerNames(){
-		super.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
 		for(LayeredGraphNode node : nodes){
-			node.registerNames();
+			node.registerNames(resolver);
 		}
 		for(LayeredGraphEdge edge : edges){
-			edge.registerNames();
+			edge.registerNames(resolver);
 		}
 	}
 

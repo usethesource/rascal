@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module vis::examples::Compose
+module vis::examples::Compose;
 
 import vis::Figure;
 import vis::Render;
@@ -20,10 +20,10 @@ import IO;
 
 // Horizontal combination of boxes of 100x200 with rgb and (same) named colors
 public void hor1(){
-	render(hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue", 0.5)))],stdLineWidth(2), stdSize(100,200)));
+	render(hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue", 0.5)))],stdLineWidth(2)));
 }
 
-// Horizontal combination of boxes of 100x200 with named colors and opacity
+// Horizontal combination of boxeswith named colors and opacity
 public void hor2(){
 	render(hcat(   [
 	                 box(fillColor(color("mediumblue", 0.05))),
@@ -32,11 +32,12 @@ public void hor2(){
 	                 box(fillColor(color("mediumblue", 0.6))),
 	                 box(fillColor(color("mediumblue", 0.8))),
 	                 box(fillColor(color("mediumblue", 1.0)))
-	                ],
-	                stdSize(100,200)
+	                ]
+	               
 	                ));
 }
-// Horizontal combination of boxes of 100x200 with grey color and different opacities
+
+// Horizontal combination of boxes  with grey color and different opacities
 public void hor3(){
 	render(hcat(   [
 	                 box(fillColor(gray(125, 0.05))),
@@ -45,51 +46,39 @@ public void hor3(){
 	                 box(fillColor(gray(125, 0.6))),
 	                 box(fillColor(gray(125, 0.8))),
 	                 box(fillColor(gray(125, 1.0))) 
-	                ],
-	                stdSize(100,200)
+	                ]
 	                ));
 }
 
 // Horizontal combination of top-aligned boxes with some inherited colors
 public void hor4(){
-	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(size(150,100)),
-			        box(size(200,50), fillColor("green"))
+	render(hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),top()),
+			        box(vshrink(0.8),top()),
+			        box(shrink(0.1,0.5), fillColor("green"),top())
 			      ],
-			      stdFillColor("yellow"), gap(10),child(top())
-		));
+			      stdFillColor("yellow"), hgrow(1.1))
+		);
 }
 // Horizontal combination of bottom-aligned boxes with some inherited colors
 public void hor5(){
-	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(size(150,100)),
-			        box(size(200,50), fillColor("green"))
+	render(hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),bottom()),
+			        box(vshrink(0.8),bottom()),
+			        box(shrink(0.1,0.5), fillColor("green"),bottom())
 			      ],
-			      stdFillColor("yellow"), gap(10),child(bottom())
-		));
+			      stdFillColor("yellow"), hgrow(1.1))
+		);
 }
 
 // Horizontal combination of centered boxes with some inherited colors
 public void hor6(){
-	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(size(150,100)),
-			        box(size(200,50), fillColor("green"))
+	render(hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),vcenter()),
+			        box(vshrink(0.8),vcenter()),
+			        box(shrink(0.1,0.5), fillColor("green"),vcenter())
 			      ],
-			      stdFillColor("yellow"), gap(10),child(vcenter())
-		));
+			      stdFillColor("yellow"), hgrow(1.1))
+		);
 }
-
-// Horizontal, bottom aligned with on exception
-public void hor7(){
-	render(hcat(  [ box(size(100,200), fillColor("red")),
-			        box(align(0.5,0.8), size(150,100)),
-			        box(size(200,50), fillColor("green")),
-			        box(size(50,100), fillColor("yellow"))
-			      ],
-			      gap(10), child(bottom())
-		));
-}
-
+/*
 // Horizontal, nested
 public void hor8(){
 	render(hcat(  [ box(size(100,200), fillColor("red")),
@@ -397,6 +386,4 @@ public void alignandautoheight2() {
 public void alignandautoheight2() {
 	render(hcat([box(bottom()),box(top(),height(150)),box(vcenter())],width(300),height(200)));
 }
-
-
-
+*/

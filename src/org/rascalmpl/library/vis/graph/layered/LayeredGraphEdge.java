@@ -21,6 +21,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -448,11 +449,11 @@ public class LayeredGraphEdge extends Figure {
 		if(fromArrow!=null)label.computeFiguresAndProperties();
 	}
 	
-	public void registerNames(){
-		super.registerNames();
-		if(fromArrow!=null)fromArrow.registerNames();
-		if(fromArrow!=null)toArrow.registerNames();
-		if(fromArrow!=null)label.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
+		if(fromArrow!=null)fromArrow.registerNames(resolver);
+		if(fromArrow!=null)toArrow.registerNames(resolver);
+		if(fromArrow!=null)label.registerNames(resolver);
 	}
 
 	@Override

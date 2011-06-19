@@ -15,12 +15,11 @@ package org.rascalmpl.library.vis.compose;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * Abstract class for the composition of a list of visual elements.
@@ -31,15 +30,16 @@ import org.rascalmpl.library.vis.util.Coordinate;
 public abstract class Compose extends Figure {
 
 	final protected Figure[] figures;
-	protected double[] xPos;
-	protected double[] yPos;
+	protected Coordinate[] pos;
 	final private static boolean debug = false;
 
 	protected Compose(IFigureApplet fpa, Figure[] figures,PropertyManager properties) {
 		super(fpa, properties);
 		this.figures = figures;
-		xPos = new double[figures.length];
-		yPos = new double[figures.length];
+		pos = new Coordinate[figures.length];
+		for(int i = 0 ; i < figures.length ; i++){
+			pos[i] = new Coordinate();
+		}
 	}
 
 	@Override
@@ -50,10 +50,6 @@ public abstract class Compose extends Figure {
 		return super.keyPressed(key, keyCode);
 	}
 	
-	@Override public void destroy(){
-		for (int i = figures.length - 1; i >= 0; i--)
-			figures[i].destroy();
-	}
 		
 	
 	@Override
@@ -63,56 +59,10 @@ public abstract class Compose extends Figure {
 		setTop(top);
 		applyProperties();
 		for(int i = 0; i < figures.length; i++){
-			figures[i].draw(left + xPos[i], top + yPos[i]);
+			figures[i].draw(left + pos[i].getX(), top + pos[i].getY());
 		}
 	}
 	
-	public void propagateScaling(double scaleX,double scaleY, HashMap<String,Double> axisScales){
-		super.propagateScaling(scaleX, scaleY, axisScales);
-		for(Figure fig : figures){
-			fig.propagateScaling(scaleX, scaleY, axisScales);
-		}
-	}
-	
-	public void gatherProjections(double left, double top, Vector<HScreen.ProjectionPlacement> projections, boolean first, String screenId, boolean horizontal){
-		for(int i = 0 ; i < figures.length ; i++){
-			figures[i].gatherProjections(left + xPos[i], top + yPos[i], projections, first, screenId, horizontal);
-		}
-	}
-	
-
-	public Extremes getExtremesForAxis(String axisId, double offset, boolean horizontal){
-		Extremes result = super.getExtremesForAxis(axisId, offset, horizontal);
-		if(result.gotData()){
-			return result;
-		} else {
-			Extremes[] extremesList = new Extremes[figures.length];
-			for(int i = 0 ; i < figures.length ; i++){
-				extremesList[i] = figures[i].getExtremesForAxis(axisId, offset, horizontal);
-			}
-			return Extremes.merge(extremesList);
-		}
-	}
-	
-
-	public double getOffsetForAxis(String axisId, double offset, boolean horizontal){
-		double result = super.getOffsetForAxis(axisId, offset, horizontal);
-		if(result != Double.MAX_VALUE){
-			return result;
-		} else {
-			for(int i = 0 ; i < figures.length ; i++){
-				double off = 0.0f;
-				if(horizontal){
-					off = xPos[i];
-				} else {
-					off = yPos[i];
-				}
-				//System.out.printf("offset %f off %f %s\n",offset, off,this);
-				result = Math.min(result,figures[i].getOffsetForAxis(axisId, off+offset, horizontal));
-			}
-			return result;
-		}
-	}
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		if(!mouseInside(c.getX(), c.getY())) return false;
@@ -125,6 +75,13 @@ public abstract class Compose extends Figure {
 		return true;
 	}
 	
+	public void init(){
+		super.init();
+		for(Figure fig : figures){
+			fig.init();
+		}
+	}
+	
 	public void computeFiguresAndProperties(){
 		super.computeFiguresAndProperties();
 		for(Figure fig : figures){
@@ -132,18 +89,46 @@ public abstract class Compose extends Figure {
 		}
 	}
 	
-	public void registerNames(){
-		super.registerNames();
+	public void registerNames(NameResolver resolver){
+		super.registerNames(resolver);
 		for(Figure fig : figures){
-			fig.registerNames();
+			fig.registerNames(resolver);
+		}
+	}
+	
+
+	public void registerValues(NameResolver resolver){
+		super.registerValues(resolver);
+		for(Figure fig : figures){
+			fig.registerValues(resolver);
+		}
+	}
+	
+
+	public void getLikes(NameResolver resolver){
+		super.getLikes(resolver);
+		for(Figure fig : figures){
+			fig.getLikes(resolver);
 		}
 	}
 	
 	public void layout(){
-		size.set(minSize);
 		for(Figure fig : figures){
-			fig.size.set(fig.minSize);
 			fig.layout();
+		}
+	}
+	
+	public void finalize(){
+		super.finalize();
+		for(Figure fig : figures){
+			fig.finalize();
+		}
+	}
+	
+	public void destroy(){
+		super.destroy();
+		for(Figure fig : figures){
+			fig.destroy();
 		}
 	}
 }

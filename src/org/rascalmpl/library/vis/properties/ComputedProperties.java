@@ -115,32 +115,6 @@ public class ComputedProperties {
 		}
 	}
 	
-	public static class ComputedMeasureProperty extends ComputedProperty<Measure>{
-
-		public ComputedMeasureProperty(Properties property,IValue fun, IFigureApplet fpa) {
-			super(property,fun, fpa);
-		}
-
-		@Override
-		Measure convertValue(Result<IValue> res) {
-			if(res.getType().isIntegerType()){
-				return new Measure((double)((IInteger)res.getValue()).intValue());
-			}
-			else if(res.getType().isRealType()){
-				return new Measure((((IReal)res.getValue()).doubleValue()));
-			}
-			else if(res.getType().isNumberType()){
-				return new Measure((((INumber)res.getValue()).toReal().doubleValue()));
-			} else { // if(res.getType().isAbstractDataType() && res.getType().getName().equals("Measure")){
-				IConstructor c = (IConstructor)res.getValue();
-				double val = ((INumber)c.get(0)).toReal().doubleValue();
-				String name = ((IString)c.get(1)).getValue();
-				return new Measure(val,name);
-			} 
-		}
-
-	}
-	
 	public static class ComputedFigureProperty extends ComputedProperty<Figure>{
 		PropertyManager parentPm;
 		IFigureApplet fpa;

@@ -68,7 +68,6 @@ public abstract class Container extends WithInnerFig {
 	}
 	
 	public void layout(){
-		//super.layout();
 		double lw = getLineWidthProperty();
 		innerFigLocation.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
@@ -77,29 +76,17 @@ public abstract class Container extends WithInnerFig {
 				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(flip);
 				innerFig.takeDesiredWidth(flip, innerDesiredWidth);
 				innerFigLocation.addX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
+				innerFig.globalLocation.setX(flip,globalLocation.getX(flip) + innerFigLocation.getX(flip));
 			}
 		}
-		if(innerFig!=null)innerFig.layout();		
+		if(innerFig!=null)innerFig.layout();
+		
 	}
-	/*
-	public void newDraw(){
-		applyProperties();
-		drawContainer();
-		if(innerFig != null){
-			fpa.pushMatrix();
-			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
-			fpa.translate(innerFigLocation.getX(), innerFigLocation.getY());
-			innerFig.newDraw();
-			fpa.popMatrix();
-		}
-	}
-	*/
-	
 
 	@Override
 	public
 	void draw(double left, double top) {
-		System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
+		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
 		setLeft(left);
 		setTop(top);
 		applyProperties();

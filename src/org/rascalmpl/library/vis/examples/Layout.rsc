@@ -12,7 +12,7 @@ module vis::examples::Layout
 import vis::Figure;
 import vis::Render; 
 import Set;
-
+/*
 // =====  hvcat =====
 
 list[Figure] hvboxes = [box(size(50,50),fillColor("red")), box(size(30,30),fillColor("yellow")), 
@@ -125,3 +125,4 @@ public void pack2(){
 
   render(pack(boxes, width(200), height(170), lineWidth(0), gap(5,5), top()));
 }
+*/

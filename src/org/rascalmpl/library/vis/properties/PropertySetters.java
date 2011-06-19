@@ -22,6 +22,9 @@ public class PropertySetters {
 	public interface PropertySetter<PropValue>{
 		int execute(PropertyValue[] array,int startIndex,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx, PropertyManager pm);
 		int nrOfPropertiesProduced();
+		int minNrOfArguments();
+		int maxNrOfArguments();
+		Properties getProperty(int arg);
 	}
 	
 	public static class SinglePropertySetter<PropValue> implements PropertySetter<PropValue>{
@@ -42,6 +45,18 @@ public class PropertySetters {
 		@Override
 		public int nrOfPropertiesProduced() {
 			return 1;
+		}
+		
+		public int minNrOfArguments(){
+			return 1;
+		}
+		
+		public int maxNrOfArguments(){
+			return 1;
+		}
+		
+		public Properties getProperty(int arg){
+			return parser.getProperty();
 		}
 	}
 
@@ -72,6 +87,22 @@ public class PropertySetters {
 		@Override
 		public int nrOfPropertiesProduced() {
 			return 2;
+		}
+		
+		public int minNrOfArguments(){
+			return 1;
+		}
+		
+		public int maxNrOfArguments(){
+			return 2;
+		}
+		
+		public Properties getProperty(int arg){
+			if(arg == 0){
+				return parser1.getProperty();
+			} else {
+				return parser2.getProperty();
+			}
 		}
 	}
 	
@@ -107,22 +138,9 @@ public class PropertySetters {
 		}
 	}
 	
-	public static class SingleMeasurePropertySetter extends SinglePropertySetter<Measure>{
-		public SingleMeasurePropertySetter(Properties property) {
-			super(new PropertyParsers.MeasureArgParser(property));
-		}
-	}
-	
-
-	public static class DualOrRepeatMeasurePropertySetter extends DualOrRepeatSinglePropertySetter<Measure>{
-		public DualOrRepeatMeasurePropertySetter(Properties property1,Properties property2) {
-			super(new PropertyParsers.MeasureArgParser(property1),new PropertyParsers.MeasureArgParser(property2));
-		}
-	}
-	
 	public static class DualOrRepeatSingleRealPropertySetter extends DualOrRepeatSinglePropertySetter<Double>{
 		public DualOrRepeatSingleRealPropertySetter(Properties property1,Properties property2) {
-			super(new PropertyParsers.RealArgParser(property1),new PropertyParsers.RealArgParser(property2));
+			super(new PropertyParsers.IntOrRealArgParser(property1),new PropertyParsers.IntOrRealArgParser(property2));
 		}
 	}
 	

@@ -58,7 +58,6 @@ public class Choice extends Figure {
 		// height = list.getSize().y;
 		minSize.setWidth(p.x);
 		minSize.setHeight(p.y);
-		setNonResizable();
 		super.bbox();
 	}
 
@@ -77,8 +76,8 @@ public class Choice extends Figure {
 		this.setTop(top);
 //		list.setSize(FigureApplet.round(getWidthProperty()),
 //				FigureApplet.round(getHeightProperty()));
-		list.setSize(FigureApplet.round(minSize.getWidth()),
-				FigureApplet.round(minSize.getHeight()));
+		list.setSize(FigureApplet.round(size.getWidth()),
+				FigureApplet.round(size.getHeight()));
 		list.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		list.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		print(list, left, top);
@@ -92,7 +91,6 @@ public class Choice extends Figure {
 	
 	@Override
 	public void layout() {
-		size.set(minSize);	
 	}
 
 }

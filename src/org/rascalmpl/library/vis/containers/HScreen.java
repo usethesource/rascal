@@ -11,88 +11,100 @@ import org.rascalmpl.library.vis.util.Coordinate;
 
 public class HScreen extends WithInnerFig {
 	
-	Vector<ProjectionPlacement> projections; 
-	double borderMin, borderMax;
+	Vector<ProjectionPlacement> projections;
+	boolean flip;
+	double projectionsHeight;
+	boolean bottom;
 	
-	public HScreen(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+	public HScreen(boolean flip, boolean bottom, IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
 		projections = new Vector<HScreen.ProjectionPlacement>();
+		this.flip = flip;
+		projectionsHeight = 0;
+		this.bottom = bottom;
 	}
 	
-	public static class ProjectionPlacement{
-		double xPos, yPos , originalXposition, originalYPosition;
-		double gap;
-		Figure fig;
-		public ProjectionPlacement(double originalXposition, double originalYPosition, double gap, Figure fig) {
-			this.originalXposition = originalXposition;
-			this.originalYPosition = originalYPosition;
-			this.gap = gap;
-			this.fig = fig;
+	static class ProjectionPlacement{
+		Projection projection;
+		Coordinate location;
+		public ProjectionPlacement(Projection projection) {
+			this.projection = projection;
+			location = new Coordinate();
 		}
+	}
+	
+	public void init(){
+		super.init();
+		projections.clear();
+		
+	}
+	
+	void registerProjection(Projection projection){
+		projections.add(new ProjectionPlacement(projection));
+	}
+	
+	public boolean isVertical(){
+		return flip;
 	}
 	
 	@Override
 	public void bbox() {
 		innerFig.bbox();
-		minSize.setWidth(innerFig.minSize.getWidth());
-		minSize.setHeight(innerFig.minSize.getHeight());
-		innerFigLocation.clear();
-		startGatheringProjections();
-		double shiftX, shiftY;
-		shiftX = shiftY = 0.0f;
-		double oldWidth = minSize.getWidth();
-		double oldHeight = minSize.getHeight();
+		projectionsHeight = 0;
+		
 		for(ProjectionPlacement p : projections){
-			p.fig.bbox();
-			placeProjection(p);
-			shiftX = Math.max(shiftX,-p.xPos);
-			shiftY = Math.max(shiftY,-p.yPos);
-			minSize.setWidth(Math.max(minSize.getWidth(),p.xPos + p.fig.minSize.getWidth()));
-			minSize.setHeight(Math.max(minSize.getHeight(),p.yPos + p.fig.minSize.getHeight()));
+			Figure actualProjection = p.projection.projection;
+			projectionsHeight = Math.max(projectionsHeight,
+					actualProjection.minSize.getHeight(flip) / actualProjection.getVShrinkProperty(flip));
 		}
-		shiftX = addHorizontalSpacing(shiftX, oldWidth);
-		shiftY = addVerticalSpacing(shiftY,oldHeight);
-		setBorders(shiftX,shiftY, oldWidth, oldHeight);
-		minSize.setWidth(minSize.getWidth() + shiftX);
-		minSize.setHeight(minSize.getHeight() + shiftY);
-		for(ProjectionPlacement p : projections){
-			p.xPos+=shiftX;
-			p.yPos+=shiftY;
+		if(getVGrowProperty(flip)!= 1.0){
+			minSize.setHeight(flip,Math.max(innerFig.minSize.getHeight(flip) * getVGrowProperty(flip),
+					projectionsHeight / ( getVGrowProperty(flip)-1.0)));
+		} else {
+			minSize.setHeight(innerFig.minSize.getHeight(flip) + projectionsHeight + getLineWidthProperty());
 		}
-		innerFigLocation.setX(shiftX);
-		innerFigLocation.setY(shiftY);
-		//System.out.printf("hscreen w %f h %f shiftX %f shiftY %f\n",innerFigX,innerFigY,shiftX,shiftY);
-		setNonResizable();
-		super.bbox();
-	}
-
-	void setBorders(double shiftX,double shiftY, double oldWidth, double oldHeight) {
-		borderMin = shiftY;
-		borderMax = oldHeight + shiftY;
-	}
-
-	double addHorizontalSpacing(double shiftX, double oldWidth) {
-		return shiftX;
+		minSize.setWidth(flip, innerFig.minSize.getWidth(flip));
+		for(boolean flip : BOTH_DIMENSIONS){
+			setResizableX(flip, innerFig.getResizableX(flip));
+		}
 	}
 	
-	double addVerticalSpacing(double shiftY, double oldHeight) {
-		if(shiftY > 0.0f){
-			shiftY += getHGapProperty();
-		} 
-		if(minSize.getHeight() > oldHeight){
-			minSize.setHeight(minSize.getHeight() + getHGapProperty());
+	@Override
+	public void layout(){
+		
+		if(getVGrowProperty(flip) != 1.0){
+			innerFig.takeDesiredHeight(flip, size.getHeight(flip) / getVGrowProperty(flip));
+		} else {
+			innerFig.takeDesiredHeight(flip, size.getHeight(flip) - projectionsHeight + getLineWidthProperty());
 		}
-		return shiftY;
-	}
-
-	void startGatheringProjections() {
-		innerFig.gatherProjections(0.0f, 0.0f, projections, true, getIdProperty(), true);
-	}
-
-	void placeProjection(ProjectionPlacement p) {
-			p.xPos = p.originalXposition - p.fig.leftAlign();
-			boolean gapAbove = p.originalYPosition >=  getVAlignProperty() * innerFig.minSize.getHeight();
-			p.yPos = getVAlignProperty() * innerFig.minSize.getHeight() +  (gapAbove ? -p.gap : p.gap) - p.fig.topAlign();
+		innerFig.size.setWidth(flip, size.getWidth(flip));
+		double screenTop, screenHeight;
+		screenHeight = size.getHeight(flip) - innerFig.size.getHeight(flip);
+		if(bottom){
+			innerFigLocation.set(0,0);
+			
+			screenTop = innerFig.size.getHeight(flip);
+		} else {
+			screenTop = 0.0;
+			innerFigLocation.set(flip,0,size.getHeight(flip) - innerFig.size.getHeight(flip)); 
+		}
+		for(boolean flip : BOTH_DIMENSIONS){
+			innerFig.globalLocation.setX(flip, globalLocation.getX(flip) + innerFigLocation.getX(flip));
+		}
+		innerFig.layout();
+		for(ProjectionPlacement p : projections){
+			Figure projectFrom = p.projection.innerFig;
+			Figure projection = p.projection.projection;
+			//System.out.printf("Set innerfig %s %s\n",projectFrom.globalLocation.getX(flip),globalLocation.getX(flip));
+			p.location.setX(flip, projectFrom.globalLocation.getX(flip) - globalLocation.getX(flip));
+			p.location.setY(flip, screenTop);
+			projection.takeDesiredWidth(flip, projectFrom.size.getWidth(flip) / projection.getHShrinkProperty(flip));
+			projection.takeDesiredHeight(flip, screenHeight / projection.getVShrinkProperty(flip));
+			//System.out.printf("Set innerfig %s %s\n",projectFrom.size.getWidth(flip) ,projection.size.getWidth(flip));
+			p.location.addX(flip, (projectFrom.size.getWidth(flip) - projection.size.getWidth(flip)) * projection.getHAlignProperty(flip));
+			p.location.addY(flip, (screenHeight - projection.size.getHeight(flip)) * projection.getVAlignProperty(flip));
+			projection.layout();
+		}
 	}
 
 	@Override
@@ -101,42 +113,33 @@ public class HScreen extends WithInnerFig {
 		setTop(top);
 		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
 		for(ProjectionPlacement p : projections){
-			p.fig.draw(left + p.xPos, top + p.yPos );
+			p.projection.projection.draw(left + p.location.getX(), top +  p.location.getY() );
 		}
-		drawScreen(left, top);
+		//drawScreen(left, top);
 	}
 
 	void drawScreen(double left, double top) {
 		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
-		if(properties.getBooleanProperty(Properties.DRAW_SCREEN_X)){
-			fpa.line(left + innerFigLocation.getX() + innerFig.getHorizontalBorders().getMinimum(),
-					top + innerFigLocation.getY() + getVAlignProperty() * innerFig.minSize.getHeight(),
-					left + innerFigLocation.getX() +  innerFig.getHorizontalBorders().getMaximum(),
-					top + innerFigLocation.getY() + getVAlignProperty() * innerFig.minSize.getHeight());
-		}
+			if(bottom){
+				fpa.line(left + innerFigLocation.getX() , top + innerFigLocation.getY() + innerFig.size.getHeight(flip),
+						 left + innerFigLocation.getX() + innerFig.size.getWidth() , top + innerFigLocation.getY() + innerFig.size.getHeight(flip));
+			} else {
+				fpa.line(left + innerFigLocation.getX() , top + innerFigLocation.getY(),
+					 left + innerFigLocation.getX() + innerFig.size.getWidth() , top + innerFigLocation.getY());
+			}
 	}
-	
-	public Extremes getVerticalBorders(){
-		return new Extremes(borderMin,borderMax);
-	}
-	
+
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		if(!mouseInside(c.getX(), c.getY())) return false;
 
 		if(innerFig.getFiguresUnderMouse(c, result)) return true;
 		for(ProjectionPlacement pfig : projections){
-			if(pfig.fig.getFiguresUnderMouse(c, result)){
+			if(pfig.projection.projection.getFiguresUnderMouse(c, result)){
 				break;
 			}
 		}
 		result.add(this);
 		return true;
-	}
-
-	@Override
-	public void layout() {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	

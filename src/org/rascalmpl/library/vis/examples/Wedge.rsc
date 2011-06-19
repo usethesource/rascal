@@ -15,7 +15,7 @@ import Number;
 import List;
 import Set;
 import IO;
-
+/*
 public void w1a(){
   render(wedge(fromAngle(10), toAngle(90), fillColor("blue"), height(100), innerRadius(20)));
 }
@@ -158,3 +158,4 @@ public void wn(int delta){
  		height(100)
  		));
 }
+*/

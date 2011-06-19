@@ -69,12 +69,4 @@ public class ConstantProperties {
 			super(property,value);
 		}
 	}
-	
-	public static class ConstantMeasureProperty extends ConstantProperty<Measure>{
-		public ConstantMeasureProperty(Properties property,Measure value) {
-			super(property,value);
-		}
-		
-		
-	}
 }

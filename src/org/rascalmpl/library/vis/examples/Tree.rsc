@@ -12,11 +12,11 @@ import vis::Figure;
 import vis::Render;
 
 // Tree: 1 node
-
+/*
 public void tree1(){
 
    nodes =
-     	[ box(id("A"), width(20), height(20), fillColor("green"))
+     	[ box(id("A"), width(20), height(20), resizable(false), fillColor("green"))
      	];
      	
     edges = 
@@ -440,4 +440,4 @@ public void tree10f(){
     render(vcat([T1(), T2()], child(top()), gap(20), child(right())));
 }
 
-
+*/

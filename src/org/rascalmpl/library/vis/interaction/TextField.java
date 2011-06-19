@@ -31,7 +31,7 @@ import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
-
+// TODO: something is weird here, when resizing!!
 public class TextField extends Figure {
 	// Function of type Figure (list[str]) to compute new figure
 	private final IValue callback; // Function of type void() to inform backend

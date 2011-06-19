@@ -61,7 +61,7 @@ public class Button extends Figure {
 		Point p = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		minSize.setWidth(p.x);
 		minSize.setHeight(p.y);
-		setNonResizable();
+		setResizable();
 		super.bbox();
 	}
 
@@ -77,11 +77,12 @@ public class Button extends Figure {
 		this.setTop(top);
 		//button.setSize(FigureApplet.round(getWidthProperty()),
 		//		FigureApplet.round(getHeightProperty()));
-		button.setSize(FigureApplet.round(minSize.getWidth()),
-				FigureApplet.round(minSize.getHeight()));
+		button.setSize(FigureApplet.round(size.getWidth()),
+				FigureApplet.round(size.getHeight()));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left),
 		         FigureApplet.round(top));
+		
 		print(button, left, top);
 	}
 
@@ -94,7 +95,6 @@ public class Button extends Figure {
 
 	@Override
 	public void layout() {
-		size.set(minSize);	
 	}
 
 }

@@ -23,9 +23,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.compose.Grid;
+import org.rascalmpl.library.vis.compose.HStack;
 import org.rascalmpl.library.vis.compose.HVCat;
-import org.rascalmpl.library.vis.compose.NewGrid;
+import org.rascalmpl.library.vis.compose.Grid;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
 import org.rascalmpl.library.vis.compose.Place;
@@ -33,11 +33,10 @@ import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.HAxis;
 import org.rascalmpl.library.vis.containers.HScreen;
+import org.rascalmpl.library.vis.containers.NominalKey;
 import org.rascalmpl.library.vis.containers.Projection;
-import org.rascalmpl.library.vis.containers.Scrollable;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.VAxis;
-import org.rascalmpl.library.vis.containers.VScreen;
 import org.rascalmpl.library.vis.containers.Wedge;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraph;
 import org.rascalmpl.library.vis.graph.lattice.LatticeGraphEdge;
@@ -51,7 +50,6 @@ import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.Combo;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.TextField;
-import org.rascalmpl.library.vis.properties.Measure;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
@@ -85,10 +83,18 @@ public class FigureFactory {
 		ELLIPSE, 
 		GRAPH, 
 		GRID,
-		HAXIS,
-		HSCREEN,
+		LEFTAXIS,
+		RIGHTAXIS,
+		TOPAXIS,
+		BOTTOMAXIS,
+		LEFTSCREEN,
+		RIGHTSCREEN,
+		BOTTOMSCREEN,
+		TOPSCREEN,
+		HSTACK,
+		VSTACK,
 		HVCAT,
-		NEWGRID,
+		NOMINALKEY,
 		OUTLINE,
 		OVERLAY, 
 		PACK, 
@@ -97,16 +103,12 @@ public class FigureFactory {
 		ROTATE,
 		SCALE,
 		SCROLLABLE,
-		SHAPE,
 		SPACE,
 		TEXT, 
 		TEXTFIELD,
 		TREE,
 		TREEMAP,
 		USE,
-		VAXIS,
-		VERTEX,
-		VSCREEN,
 		WEDGE,
 		XAXIS
 		}
@@ -123,10 +125,18 @@ public class FigureFactory {
     	put("_ellipse",		Primitives.ELLIPSE);
     	put("_graph",		Primitives.GRAPH);
     	put("_grid",		Primitives.GRID);
-    	put("_haxis",       Primitives.HAXIS);      
-    	put("_hscreen",     Primitives.HSCREEN);
+    	put("_leftAxis",       Primitives.LEFTAXIS);    
+    	put("_rightAxis",       Primitives.RIGHTAXIS);   
+    	put("_topAxis",       Primitives.TOPAXIS);   
+    	put("_bottomAxis",       Primitives.BOTTOMAXIS);   
+    	put("_leftScreen",  Primitives.LEFTSCREEN);
+    	put("_rightScreen", Primitives.RIGHTSCREEN);
+    	put("_topScreen",   Primitives.TOPSCREEN);
+    	put("_bottomScreen",Primitives.BOTTOMSCREEN);
     	put("_hvcat",		Primitives.HVCAT);
-    	put("_newgrid",     Primitives.NEWGRID);
+    	put("_hstack",      Primitives.HSTACK);
+    	put("_vstack",      Primitives.VSTACK);
+    	put("_nominalKey",		Primitives.NOMINALKEY);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
     	put("_pack",		Primitives.PACK);	
@@ -135,16 +145,12 @@ public class FigureFactory {
     	put("_rotate",      Primitives.ROTATE);
     	put("_scale",		Primitives.SCALE);
     	put("_scrollable",  Primitives.SCROLLABLE);
-    	put("_shape",		Primitives.SHAPE);
     	put("_space",		Primitives.SPACE);
     	put("_text",		Primitives.TEXT);		
     	put("_textfield",	Primitives.TEXTFIELD);
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
     	put("_use",			Primitives.USE);
-    	put("_vaxis",       Primitives.VAXIS);  
-    	put("_vscreen",     Primitives.VSCREEN);
-    	put("_vertex",		Primitives.VERTEX);
     	put("_wedge",		Primitives.WEDGE);
     	put("_xaxis",		Primitives.XAXIS);
     }};
@@ -245,24 +251,44 @@ public class FigureFactory {
 				return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
-		case GRID: 
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new Grid(fpa, children , properties);
 
-		case HAXIS:
-			return new HAxis(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+		case LEFTAXIS:
+			return new VAxis(((IString) c.get(0)).getValue(),false,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+		case RIGHTAXIS:
+			return new VAxis(((IString) c.get(0)).getValue(),true,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+		case TOPAXIS:
+			return new HAxis(((IString) c.get(0)).getValue(),false,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+		case BOTTOMAXIS:
+			return new HAxis(((IString) c.get(0)).getValue(),true,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+						
 			
 			
-		case HSCREEN:
-			return new HScreen(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+		case LEFTSCREEN:
+			return new HScreen(true,false,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+		case RIGHTSCREEN:
+			return new HScreen(true,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+		case TOPSCREEN:
+			return new HScreen(false,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+		case BOTTOMSCREEN:
+			return new HScreen(false,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+		
+		case NOMINALKEY:
+			return new NominalKey(fpa,(IList)c.get(0),c.get(1),properties,childProps,ctx);
 			
 		case HVCAT:
 			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
 			return new HVCat(fpa, children, properties);
 			
-		case NEWGRID:
+		case HSTACK:
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new HStack(false,fpa, children, properties,ctx);
+		case VSTACK:
+			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
+			return new HStack(true,fpa, children, properties,ctx);
+			
+		case GRID:
 			Figure[][] elems = make2DList(fpa, c.get(0), properties, childPropsNext, ctx);
-			return new NewGrid(fpa, elems, properties);
+			return new Grid(fpa, elems, properties);
 			
 						
 		case OUTLINE: 
@@ -270,7 +296,7 @@ public class FigureFactory {
 			
 		case OVERLAY: 
 			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new Overlay(fpa, children, properties);
+			return new Overlay(fpa, children, properties,ctx);
 			
 		case PACK:  
 			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
@@ -292,12 +318,13 @@ public class FigureFactory {
 			}
 			Figure projecton = makeChild(projectionIndex,fpa,c,properties,childPropsNext,ctx);
 			Figure projection = makeChild(0,fpa,c,properties,childPropsNext,ctx);
-			return new Projection(fpa,name,projecton,projection,properties);
+			return new Projection(fpa,name,projecton,projection,properties,ctx);
 		case ROTATE:
 			//TODO
 			child =  makeChild(1,fpa,c,properties,childPropsNext,ctx);
 			double angle = PropertyParsers.parseNum(c.get(0));
-			return new Rotate(fpa, angle, child, properties);
+			throw new Error("Rotate out of order..");
+			//return new Rotate(fpa, angle, child, properties);
 			
 		case SCALE:
 			//TODO
@@ -314,10 +341,8 @@ public class FigureFactory {
 			child = makeChild(childIndex,fpa,c,properties,childPropsNext,ctx);
 			return new Scale(fpa,scaleX,scaleY,child,properties);
 		case SCROLLABLE:
-			return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
-		case SHAPE: 
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new Shape(fpa, children, properties);
+			throw new Error("Scrollable temporary out of order");
+			//return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
 			
 		case SPACE:
 			return new Space(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
@@ -339,25 +364,10 @@ public class FigureFactory {
 		case TREEMAP: 			
 			return new TreeMap(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
-		case USE:			
-			return new Use(fpa,makeChild(fpa,c,properties,childPropsNext,ctx), properties );
-			
-		case VAXIS:
-			return new VAxis(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
-		
-		case VSCREEN:
-			return new VScreen(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
-			
-		case VERTEX:			
-			Measure dx = PropertyParsers.parseMeasure(c.get(0));
-			Measure dy = PropertyParsers.parseMeasure(c.get(1));
-			if(c.arity() == 4){
-				child = makeChild(2,fpa,c,properties,childPropsNext,ctx);
-			} else {
-				child = null;
-			}
-			return new Vertex(fpa, dx,dy, child, properties);
-			
+		case USE:	
+			throw new Error("Use temporary out of order..");
+			//return new Use(fpa,makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+
 		case WEDGE:			
 			return new Wedge(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 		}
