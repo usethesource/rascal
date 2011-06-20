@@ -70,7 +70,7 @@ public class PropertyParsers {
 		public PropertyValue<PropValue> parseProperty(IConstructor c, PropertyManager pm, int propIndex,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
 			IValue arg = c.get(propIndex);
-			System.out.print("Type  " + arg.getType().toString() + " " + this + "\n");
+			//System.out.print("Type  " + arg.getType().toString() + " " + this + "\n");
 			if(isLiteralType(arg.getType()))
 				return makeConstantProperty(arg, pm, fpa, ctx);
 			

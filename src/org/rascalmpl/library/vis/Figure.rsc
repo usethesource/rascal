@@ -1543,3 +1543,11 @@ public Color rrgba(real r, real g, real b, real a){
 	return rgb(toInt(r * 255.0),toInt(g * 255.0),toInt(b * 255.0),a);
 }
 
+public Color randomColor(){
+	return rrgba(arbReal(),arbReal(),arbReal(),1.0);
+}
+
+public Color randomColorAlpha(){
+	return rrgba(arbReal(),arbReal(),arbReal(),arbReal());
+}
+

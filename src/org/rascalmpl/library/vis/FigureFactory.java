@@ -35,6 +35,7 @@ import org.rascalmpl.library.vis.containers.HAxis;
 import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.containers.NominalKey;
 import org.rascalmpl.library.vis.containers.Projection;
+import org.rascalmpl.library.vis.containers.Scrollable;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.VAxis;
 import org.rascalmpl.library.vis.containers.Wedge;
@@ -341,8 +342,8 @@ public class FigureFactory {
 			child = makeChild(childIndex,fpa,c,properties,childPropsNext,ctx);
 			return new Scale(fpa,scaleX,scaleY,child,properties);
 		case SCROLLABLE:
-			throw new Error("Scrollable temporary out of order");
-			//return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
+			//throw new Error("Scrollable temporary out of order");
+			return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
 			
 		case SPACE:
 			return new Space(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
