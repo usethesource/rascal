@@ -960,7 +960,7 @@ public abstract class SGTDBF implements IGTD{
 		}else{ // List
 			AbstractStackNode[] listChildren = stack.getChildren();
 			
-			for(int i = listChildren.length - 1; i >= 0; --i){
+			nextChild: for(int i = listChildren.length - 1; i >= 0; --i){
 				AbstractStackNode child = listChildren[i];
 				int childId = child.getId();
 				if(!shareListNode(childId, stack)){
@@ -974,9 +974,9 @@ public abstract class SGTDBF implements IGTD{
 						
 						// Filtering
 						IEnterFilter[] childEnterFilters = child.getEnterFilters();
-						if(childEnterFilters != null){
-							for(int j = childEnterFilters.length - 1; j >= 0; --j){
-								if(childEnterFilters[i].isFiltered(input, location, positionStore)) continue;
+						if (childEnterFilters != null){
+							for (int j = childEnterFilters.length - 1; j >= 0; --j){
+								if(childEnterFilters[i].isFiltered(input, location, positionStore)) continue nextChild;
 							}
 						}
 						
