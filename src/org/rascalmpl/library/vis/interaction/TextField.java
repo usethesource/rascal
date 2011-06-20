@@ -81,19 +81,20 @@ public class TextField extends Figure {
 		textfield.setText(text);
 		minSize.setWidth(getWidthProperty());
 		tLimit = FigureApplet.round(minSize.getWidth() / fpa.textWidth("b"));
-		if (text.length()>tLimit) {
+		/*if (text.length()>tLimit) {
 			  tLimit = text.length();	
 			  minSize.setWidth(fpa.textWidth(text));
-		}
+		}*/
 	}
 
 	@Override
 	public void bbox() {
-		Point p = textfield.computeSize(FigureApplet.round(minSize.getWidth()), SWT.DEFAULT, true);
+		Point p = textfield.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		minSize.setWidth(p.x);
 		minSize.setHeight(p.y);
-		textfield.setTextLimit(tLimit);
-		setNonResizable();
+		//textfield.setTextLimit(tLimit);
+		//setNonResizable();
+		setResizableX(false, true);
 		super.bbox();
 	}
 
@@ -125,7 +126,7 @@ public class TextField extends Figure {
 		this.setTop(top);
 		textfield.setForeground(validated ? trueColor : falseColor);
 		textfield
-				.setSize(FigureApplet.round(minSize.getWidth()), FigureApplet.round(minSize.getHeight()));
+				.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 		textfield.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		textfield
 				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
@@ -139,6 +140,5 @@ public class TextField extends Figure {
 	
 	@Override
 	public void layout() {
-		size.set(minSize);	
 	}
 }

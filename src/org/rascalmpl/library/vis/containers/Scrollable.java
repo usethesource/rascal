@@ -59,7 +59,7 @@ public class Scrollable extends Figure {
 				fpaNest.getFigureHeight()+1);
 		window.setSize(w,h);
 		*/
-		setNonResizable();
+		setResizable();
 		super.bbox();
 
 	}
@@ -69,11 +69,11 @@ public class Scrollable extends Figure {
 		// drawing is handled by swt, a new paintevent should 
 		// be handled by the nested figureswtapplet...
 		window.setLocation((int)Math.round(left), (int)Math.round(top));
+		window.setSize((int)size.getWidth(), (int)size.getHeight());
 	}
 
 	@Override
 	public void layout() {
-		// TODO Auto-generated method stub
 		
 	}
 

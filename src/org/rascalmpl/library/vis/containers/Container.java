@@ -126,7 +126,8 @@ public abstract class Container extends WithInnerFig {
 		append(getLeft()).append(",").
 		append(getTop()).append(",").
 		append(minSize.getWidth()).append(",").
-		append(minSize.getHeight()).append(")").toString();
+		append(minSize.getHeight()).append(",").append(size.getWidth()).append(",").
+		append(size.getHeight()).append(")").toString();
 	}
 
 }

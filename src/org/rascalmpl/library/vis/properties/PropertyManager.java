@@ -81,7 +81,7 @@ public class PropertyManager {
 		int nrStdProperties = 0;
 		for(IValue v : props){
 			String pname = ((IConstructor) v).getName();
-			System.err.printf("%s\n",pname);
+			//System.err.printf("%s\n",pname);
 			if(pname.startsWith("_child")){
 			} 
 			else if(pname.startsWith("std")){

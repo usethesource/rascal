@@ -7,56 +7,50 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module vis::examples::MouseOver
-// WARNING: outdated code that needs to be removed or fixed!
 import vis::Figure;
 import vis::Render; 
 import Set;
+import List;
+import Real;
+import Integer;
 
 
-//TODO Not yet decided what to do with this ******
 
-// Blue outer box of 20x20 with yellow larger inner box (only visible on mouse over)
-//Note: left/top borders of innerbox is not visible
-public void box10(){
-	render(box(width(20), height(20), fillColor("mediumblue"), gap(10), box(size(30,30), fillColor("yellow"))));
+
+public FProperty popup(str s){
+	return mouseOver(box(text(s),grow(1.2),resizable(false)));
 }
 
-public FProperty tip(str S){ 
-	return mouseOver(box(text(S, [fontColor("green")]), [fillColor("yellow")]));
+public void simple(){
+	render(box(popup("Hallo!!"),shrink(0.5)));
 }
 
-public void mo1(){
-	render(text([tip("XXX")], "A VERY LONG STRING"));
+public void mouseOverLeft(){
+	render(ellipse(mouseOver(ellipse(shrink(0.3),left()))));
 }
 
-public void mo2(){
-	render(box([ size(30,30), tip("XXX")]));
+public Figure tunnel(real hal, real val){
+	
+	return ( box(fillColor("black")) 
+	       | box(mouseOver(it),shrink(0.95),fillColor(rrgba(toReal(i)/50.0,0.0,0.0,1.0)),align(hal,val)) 
+	       | i <- [1..50]);
 }
 
-public void mo3(){
-	render(box([ size(100,200), fillColor("green"), mouseOver(box([size(100,200), fillColor("red")])) ]));
+public void straightTunnel(){
+	render(tunnel(0.5,0.5));
 }
 
-public void mo4(){
-	render(box([fillColor("blue"), gap(30), tip("Outer Box")], 
-	           box([fillColor("grey"), tip("Middle Box")], 
-	               box([fillColor("red"), size(200,200), tip("Inner Box")])
-	              )
-	          ));
+
+public void leftUpTunnel(){
+	render(tunnel(0.1,0.3));
 }
 
-public void mo5(){
-	render(hcat( [ mouseOver([lineColor("red")]) ],
-				    [
-	                 box([ width(100), height(200), text("A very wide label A"), fillColor(color("mediumblue", 0.05)) ]),
-	                 box([ width(100), height(200), text("A very wide label B"), fillColor(color("mediumblue", 0.2)) ]),
-	                 box([ width(100), height(200), text("A very wide label C"), fillColor(color("mediumblue", 0.4)) ]),
-	                 box([ width(100), height(200), text("A very wide label D"),  fillColor(color("mediumblue", 0.6)) ]),
-	                 box([ width(100), height(200), text("A very wide label E"), fillColor(color("mediumblue", 0.8)) ]),
-	                 box([ width(100), height(200), text("A very wide label F"), fillColor(color("mediumblue", 1.0)) ])
-	                ]));
+public void increaseSize(){
+	render( box(( box(fillColor("black")) 
+	       | box(mouseOver(it),hshrink(0.95),vshrink(1.05),fillColor(rrgba(toReal(i)/50.0,0.0,0.0,1.0))) 
+	       | i <- [1..50]),vshrink(0.1),fillColor("red")));
 }
+  
 
-public void xx1(){
-	render(hcat([text("ABC"), text("DEF"), text("GHI")]));
-}
+
+
