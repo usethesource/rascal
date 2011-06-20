@@ -220,17 +220,19 @@ public str symbol2rascal(Symbol sym) {
     case \start-of-line() :
         return "^";
     case \end-of-line():
-        return "$";
-    case reject(s, rs) :
-        return "<symbol2rascal(s)> <for (r <- rs) {>\\ <symbol2rascal(r)><}>"; // should be != ??
-    case follow(s, fs) :
-        return "<symbol2rascal(s)> <for (f <- fs) {>\>\> <symbol2rascal(f)><}>";
-    case \not-follow(s, fs) :
-        return "<symbol2rascal(s)> <for (f <- fs) {>!\>\> <symbol2rascal(f)><}>";
-    case precede(s, ps) :
-        return "<for (f <- fs) {><symbol2rascal(f)> \<\< <}><symbol2rascal(s)> ";
-    case \not-precede(s, ps) :
-        return "<for (f <- fs) {><symbol2rascal(f)> !\<\< <}><symbol2rascal(s)> ";            
+        return "$";    
+    case conditional(s, {c, d, r*}):
+        return symbol2rascal(conditional(conditional(s, {c}), {d, r})); 
+    case conditional(s, {delete(t)}) :
+        return "<symbol2rascal(s)> \\ <symbol2rascal(t)>"; 
+    case conditional(s, {follow(t)}) :
+        return "<symbol2rascal(s)> \>\> <symbol2rascal(t)>";
+    case conditional(s, {\not-follow(t)}) :
+        return "<symbol2rascal(s)> !\>\> <symbol2rascal(t)>";
+    case conditional(s, {precede(t)}) :
+        return "<symbol2rascal(t)> \<\< <symbol2rascal(s)> ";
+    case conditional(s, {\not-precede(t)}) :
+        return "<symbol2rascal(t)> !\<\< <symbol2rascal(s)> ";    
   }
   throw "symbol2rascal: missing case <sym>";
 }
