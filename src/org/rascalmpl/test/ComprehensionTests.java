@@ -178,7 +178,7 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test(expected=StaticError.class)
 	public void WrongADTType(){
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		runTest("int N <- [true, true, false];");
 	}
 	
