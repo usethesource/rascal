@@ -112,7 +112,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	private PlacedFigure currentFig;
 	private boolean mouseOverTop;
 	volatile GC gc;
-
+	private BoundingBox viewPort;
 	@SuppressWarnings("serial")
 	class Route extends ArrayList<TypedPoint> {
 
@@ -168,7 +168,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	void initialize(Composite comp, String name) {
-		
+		viewPort = new BoundingBox();
 		comp.getShell().setText(name);
 		gc = createGC(comp);
 		int colnum = (Integer) Properties.FILL_COLOR.stdDefault;
@@ -282,8 +282,19 @@ public class FigureSWTApplet implements IFigureApplet {
 			
 			
 			System.out.printf("draw %s %s %s\n", fig.figure,fig.coordinate ,fig.offset);
-			fig.figure.draw(left + fig.coordinate.getX()  + fig.offset.getX()
-					, top + fig.coordinate.getY() + fig.offset.getY());
+			Coordinate place = new Coordinate();
+			for(boolean flip : Figure.BOTH_DIMENSIONS){
+				place.setX(flip,fig.coordinate.getX(flip)  + fig.offset.getX(flip));
+				
+			}
+			
+			place.setX(Math.min( place.getX(), viewPort.getWidth() - fig.figure.size.getWidth()));
+			place.setY(Math.min( place.getY(), viewPort.getHeight() - fig.figure.size.getHeight()));
+			place.setX(Math.max(0,  place.getX()));
+			place.setY(Math.max(0, place.getY()));
+			
+			fig.figure.draw(  place.getX() 
+					,  place.getY());
 		}
 		//System.out.printf("\n");
 		//System.out.printf("Done drawing!\n");
@@ -310,14 +321,17 @@ public class FigureSWTApplet implements IFigureApplet {
 			}
 			
 		}
-
-		BoundingBox viewPort = new BoundingBox(
+		
+		if(resized){
+			viewPort = new BoundingBox(
 				width,
 				height);
+		}
 		//System.out.printf("drawing inside %s \n", viewPort);
 		PlacedFigure bottom = mouseOverStack.get(0);
 		//System.out.printf("drawing inside %s \n", bottom.bounds);
 		bottom.bounds.set(viewPort);
+		boolean bottomChanged = false;
 		for(int i = 0 ; i < mouseOverStack.size() ; i++){
 			PlacedFigure  fig = mouseOverStack.get(i);
 			if (resized || fig.computedValueChanged ) {
@@ -328,26 +342,32 @@ public class FigureSWTApplet implements IFigureApplet {
 					//System.out.printf("blab bla %f %s\n",  fig.coordinate.getX(flip) + fig.figure.minSize.getWidth(flip) / fig.figure.getHShrinkProperty(flip), flip);
 					fig.figure.takeDesiredWidth(flip, Math.max(fig.bounds.getWidth(flip) * fig.figure.getHShrinkProperty(flip),
 						fig.figure.minSize.getWidth(flip) ));
-					
-					viewPort.setWidth(flip, Math.max(viewPort.getWidth(flip),
-							fig.figure.minSize.getWidth(flip)  ));
+					if(i==0){
+						bottomChanged = true;
+						viewPort.setWidth(flip, Math.max(viewPort.getWidth(flip),
+								fig.figure.size.getWidth(flip)  ));
+					}
 				}
+				if(i==0){fig.bounds.set(viewPort);}
 				fig.figure.layout();
 				for(boolean flip : Figure.BOTH_DIMENSIONS){
 					double margin = (fig.bounds.getWidth(flip) - fig.figure.size.getWidth(flip)) ;
 					fig.offset.setX(flip, margin * fig.figure.getHAlignProperty(flip));
 				}
 				fig.computedValueChanged = false;
-			//System.out.printf("%f %f %f %f\n", fig.figure.size.getWidth(), fig.figure.size.getHeight(),fig.offset.getX(),fig.offset.getY());
+				//System.out.printf("Placed %d %s %s %s %s %s\n",i, fig.coordinate,fig.offset,fig.bounds,fig.figure.minSize,viewPort);
 			}
-			((ScrolledComposite)comp.getParent()).setMinSize(
-					(int)Math.ceil(viewPort.getWidth()), (int)Math.ceil(viewPort.getHeight()));
-			figureWidth = viewPort.getWidth();
-			figureHeight = viewPort.getHeight();
+			
 		}
-
+		if(bottomChanged){
+			
+		((ScrolledComposite)comp.getParent()).setMinSize(
+				(int)Math.ceil(viewPort.getWidth()), (int)Math.ceil(viewPort.getHeight()));
+		figureWidth = viewPort.getWidth();
+		figureHeight = viewPort.getHeight();
 		
 		comp.layout();
+		}
 		//comp.setSize(2000,800);
 		//System.out.printf("Setting %s %f %f\n",this, viewPort.getWidth(), viewPort.getHeight());
 		
@@ -499,6 +519,7 @@ public class FigureSWTApplet implements IFigureApplet {
 					top = comp.getBounds().height - fig.minSize.getHeight();
 				}
 				*/
+				System.out.printf("Pushed %s %s %s\n", new Coordinate(left,top),fig.size,mouseOver);
 				mouseOverStack.push(new PlacedFigure(new Coordinate(left,top),fig.size,mouseOver ));
 				layoutFigures();
 				comp.redraw();
