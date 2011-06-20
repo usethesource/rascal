@@ -13,7 +13,7 @@ public class MultiCharFollowRestriction implements ICompletionFilter{
 	}
 	
 	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
-		if((end + characters.length) >= input.length) return false;
+		if((end + characters.length - 1) >= input.length) return false;
 		
 		OUTER : for(int i = characters.length - 1; i >= 0; --i){
 			char next = input[end + i];
