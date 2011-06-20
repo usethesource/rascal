@@ -23,7 +23,7 @@ import Integer;
 
 public Figure hBarChart(list[tuple[str,num]] vals,FProperty props...){
 	return bottomScreen("l",leftAxis("y",
-			hcat([box(height(convert(n,"y")),project(text(s),"l")) | <s,n> <- vals],hgrow(1.2))
+			hcat([box(height(convert(n,"y")),project(text(s),"l")) | <s,n> <- vals],hgrow(1.2),hcapGaps(true))
 		),props);
 }
 

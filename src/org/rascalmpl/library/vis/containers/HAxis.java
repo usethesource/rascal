@@ -152,7 +152,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 	}
 	
 	int standardExtraPrecision(){
-		return 3;
+		return 1;
 	}
 	
 	int highestPrecision(){
@@ -160,7 +160,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 	}
 	
 	int lowestPrecision(){
-		return (int)Math.ceil(Math.log10(maxVal-minVal)) - standardExtraPrecision();
+		return (int)Math.min(Math.ceil(Math.log10(maxVal-minVal)), -standardExtraPrecision());
 	}
 	
 	double labelWidth(){
@@ -205,7 +205,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 				,minVal,maxVal
 				);
 
-		applyProperties(false);
+		applyProperties();
 		applyFontProperties();
 		
 		double direction = bottom ? 1.0f : -1.0f;
@@ -230,7 +230,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 						top + axisTop + -direction * innerFig.size.getHeight());
 			
 		
-				applyProperties(false);
+				applyProperties();
 				fpa.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? fpa.textAscent() : -fpa.textDescent()) );
 			}
 			fpa.line(tick.pixelPos ,
