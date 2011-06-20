@@ -121,7 +121,7 @@ public class TreeMapNode extends Figure {
 				          rootFigure.getIdProperty(), left,  top
 				          );
 		
-		rootFigure.applyProperties(false);
+		rootFigure.applyProperties();
 		fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		
 		int n = children.size();
