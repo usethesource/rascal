@@ -21,7 +21,7 @@ public enum Properties {
 	VRESIZABLE(Types.BOOL,true),
 	SHADOW(Types.BOOL,false),
 	
-	FILL_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("white").intValue()),     
+	FILL_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("white").intValue()),  
 	FONT_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),    
 	LINE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),
 	GUIDE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("lightgray").intValue()),

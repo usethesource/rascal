@@ -79,6 +79,8 @@ public class FigureSWTApplet implements IFigureApplet {
 				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
 	}
 
+	private boolean shadow; 
+	
 	private final int defaultWidth = 5000; // Default dimensions of canvas
 	private final int defaultHeight = 5000;
 
@@ -582,6 +584,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			paintShape(new DrawRectangle(), arg0, arg1, arg2, arg3);
 			gc.setAlpha(alpha0);
 		}
+		
 
 	}
 

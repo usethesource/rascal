@@ -127,7 +127,6 @@ public str palette(int n){
     return "black";
 }
 
-
 /*
 @doc{Create a list of font names}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
@@ -555,10 +554,6 @@ data FProperty =
 	| resizable            (Convert           mb6, computedBool      cb8)
 	| resizable            (Convert           mb7, Like              lb8)
 	| resizable            (Convert           mb8, Convert           mb4)
-	| shadow          	   (bool               b0)
-	| shadow               (computedBool      cb0)
-	| shadow               (Like              lb0)
-	| shadow               (Convert           mb0)
 	| shapeClosed          (bool               b0)
 	| shapeClosed          (computedBool      cb0)
 	| shapeClosed          (Like              lb0)

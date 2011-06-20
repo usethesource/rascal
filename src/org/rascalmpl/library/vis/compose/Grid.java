@@ -25,7 +25,7 @@ public class Grid extends Figure {
 	ForBothDimensions<Boolean> anyColumnResizeable;
 	ForBothDimensions<Double> totalMinWidthCollumns;
 	ForBothDimensions<Double> unresizableColumnsWidth;
-	ForBothDimensions<Double> autoColumnsMinWidth;
+	ForBothDimensions<Double> autoColumnsMaxMinWidth;
 	ForBothDimensions<Integer> nrAutoColumns;
 	ForBothDimensions<Double> totalColumnsShrink;
 	
@@ -52,7 +52,7 @@ public class Grid extends Figure {
 		anyColumnResizeable = new ForBothDimensions<Boolean>(false, false);
 		totalMinWidthCollumns = new ForBothDimensions<Double>(0.0,0.0);
 		unresizableColumnsWidth = new ForBothDimensions<Double>(0.0,0.0);
-		autoColumnsMinWidth = new ForBothDimensions<Double>(0.0,0.0);
+		autoColumnsMaxMinWidth = new ForBothDimensions<Double>(0.0,0.0);
 		nrAutoColumns = new ForBothDimensions<Integer>(0,0);
 		totalColumnsShrink = new ForBothDimensions<Double>(0.0,0.0);
 	}
@@ -72,13 +72,15 @@ public class Grid extends Figure {
 
 	public void computeMinWidth(boolean flip){
 		columnsNegMinWidth.setForX(flip,columnsNegMinWidth(flip));
+		nrAutoColumns.setForX(flip, nrAutoColumns(flip));
 		columnsMinWidth.setForX(flip,columnsMinWidth(flip));
-		autoColumnsMinWidth.setForX(flip, autoColumnsMinWidth(flip));
+		autoColumnsMaxMinWidth.setForX(flip, autoColumnsMaxMinWidth(flip));
+		setAutoCollumnsToSameWidth(flip);
 		//System.out.printf("auto col min width %f\n",autoColumnsMinWidth.getForX(flip));
 		columnsIWidth.setForX(flip, columnsIWidth(flip));
 		unresizableColumnsWidth.setForX(flip, unresizableColumnsWidth(flip));
 		columnsResizeableX.setForX(flip, columnsResizeableX(flip));
-		nrAutoColumns.setForX(flip, nrAutoColumns(flip));
+		
 		totalColumnsShrink.setForX(flip,totalColumnsShrink(flip));
 		
 		
@@ -105,7 +107,7 @@ public class Grid extends Figure {
 				} 
 			}
 		}
-		double nonShrinkWidth = autoColumnsMinWidth.getForX(flip) + unresizableColumnsWidth.getForX(flip);
+		double nonShrinkWidth = autoColumnsMaxMinWidth.getForX(flip) * nrAutoColumns.getForX(flip)+ unresizableColumnsWidth.getForX(flip);
 		return Math.max(totalMinWidth,nonShrinkWidth / (1.0 - totalColumnsShrink.getForX(flip)));
 		//System.out.printf("MinSize %f %s\n", Math.max(totalMinWidth,elementsWidth),flip);
 	}
@@ -135,7 +137,7 @@ public class Grid extends Figure {
 		double spaceForOtherColumns = spaceForColumns - spaceForSetShrinkColumns;
 		double spaceForUnresizableColumns = unresizableColumnsWidth.getForX(flip);
 		double spaceForAutoColumns = spaceForOtherColumns - spaceForUnresizableColumns;
-		double extraSpaceForAutoColumns = spaceForAutoColumns - autoColumnsMinWidth.getForX(flip);
+		double extraSpaceForAutoColumns = spaceForAutoColumns - (autoColumnsMaxMinWidth.getForX(flip) *  nrAutoColumns.getForX(flip));
 		double extraSpacePerAutoColumn = extraSpaceForAutoColumns / nrAutoColumns.getForX(flip);
 		if(nrAutoColumns.getForX(flip) == 0){
 			extraSpacePerAutoColumn = 0.0;
@@ -214,15 +216,25 @@ public class Grid extends Figure {
 		return total;
 	}
 	
-	double autoColumnsMinWidth(boolean flip){
-		double total = 0.0;
+	double autoColumnsMaxMinWidth(boolean flip){
+		double maxMinWidth = 0;
 		for(int column = 0 ; column < getNrColumns(flip); column++){
 			if(columnsResizeableX.getForX(flip)[column] 
 			    && columnsIWidth.getForX(flip)[column] == AUTO_SIZE){
-				total+= columnsMinWidth.getForX(flip)[column];
+				maxMinWidth = Math.max(maxMinWidth, columnsMinWidth.getForX(flip)[column]);
 			}
 		}
-		return total;
+		//System.out.printf("Auto collumns min width %f %f\n",  maxMinWidth * nrAutoColumns(flip),maxMinWidth);
+		return maxMinWidth ;
+	}
+	
+	void setAutoCollumnsToSameWidth(boolean flip){
+		for(int column = 0 ; column < getNrColumns(flip); column++){
+			if(columnsResizeableX.getForX(flip)[column] 
+			    && columnsIWidth.getForX(flip)[column] == AUTO_SIZE){
+				columnsMinWidth.getForX(flip)[column] = autoColumnsMaxMinWidth.getForX(flip);
+			}
+		}
 	}
 	
 	int nrAutoColumns(boolean flip){
@@ -395,7 +407,7 @@ public class Grid extends Figure {
 	void draw(double left, double top){
 		setLeft(left);
 		setTop(top);
-		applyProperties(false);
+		applyProperties();
 		for(int row = 0 ; row < nrRows; row++){
 			//fpa.line(left , top + rowCenters[row], left + 5000, top + rowCenters[row]);
 		}
