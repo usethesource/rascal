@@ -13,7 +13,7 @@ public class CharFollowRequirement implements ICompletionFilter{
 	}
 	
 	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
-		if((end + 1) >= input.length) return true;
+		if(end >= input.length) return true;
 		
 		char next = input[end];
 		for(int i = ranges.length - 1; i >= 0; --i){
