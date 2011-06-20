@@ -431,4 +431,12 @@ public class FigureColorUtils {
 			return highlightColors[n];
 		return highlightColors[0];
 	}
+	
+	public static int dropShadowColor() {
+		return figureColor(colorNames.get("black").intValue(), 0.3f);
+	}
+	
+	public static int noColor() {
+		return figureColor(colorNames.get("black").intValue(), 0.1f);
+	}
 }

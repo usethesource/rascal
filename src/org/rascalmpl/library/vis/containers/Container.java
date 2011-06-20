@@ -36,7 +36,7 @@ import org.rascalmpl.library.vis.util.Coordinate;
 
 public abstract class Container extends WithInnerFig {
 
-	final private static boolean debug = true;
+	final private static boolean debug = false;
 
 	public Container(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
@@ -87,14 +87,21 @@ public abstract class Container extends WithInnerFig {
 	public
 	void draw(double left, double top) {
 		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
+		if (getShadowProperty()) {
+			if (debug) System.err.println("drawShadow");
+			setLeft(left+shadowLeft);
+			setTop(top+shadowTop);
+			applyProperties(true);
+			drawContainer();		
+		}
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(false);
 		drawContainer();
 		if(innerFig!=null) {
 			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
 			innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
-		}
+		}	
 	}
 
 	

@@ -102,7 +102,7 @@ public class SpringGraphEdge extends Figure {
 	@Override
 	public
 	void draw(double left, double top) {
-		applyProperties();
+		applyProperties(false);
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
 				to.name + ": " + to.getX() + "," + to.getY() + ")");
 

@@ -55,7 +55,7 @@ public class VAxis extends HAxis {
 				,minVal,maxVal
 				);
 
-		applyProperties();
+		applyProperties(false);
 		applyFontProperties();
 		
 		double direction = bottom ? 1.0f : -1.0f;

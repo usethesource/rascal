@@ -56,7 +56,7 @@ public class Outline extends Figure {
 		this.setTop(top);
 		
 	    double lw = getLineWidthProperty();
-		applyProperties();
+		applyProperties(false);
 		if(debug) System.err.println("Outline.draw => " + minSize.getWidth() + ", " + minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
 			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());

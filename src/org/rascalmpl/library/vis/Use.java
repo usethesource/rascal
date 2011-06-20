@@ -54,7 +54,7 @@ public class Use extends WithInnerFig {
 	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		applyProperties();
+		applyProperties(false);
 		
 		innerFig.draw(left + getHAlignProperty()*(minSize.getWidth() - innerFig.minSize.getWidth()),
 					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()));

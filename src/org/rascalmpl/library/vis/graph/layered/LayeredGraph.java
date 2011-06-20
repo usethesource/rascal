@@ -413,7 +413,7 @@ public class LayeredGraph extends Figure {
 		this.setLeft(left);
 		this.setTop(top);
 
-		applyProperties();		
+		applyProperties(false);		
 		fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		for (LayeredGraphEdge e : edges)
 			e.draw(left, top);

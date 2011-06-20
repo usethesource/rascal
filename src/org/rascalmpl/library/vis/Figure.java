@@ -50,6 +50,8 @@ public abstract class Figure implements Comparable<Figure> {
 	private final boolean debug = false;
 	public IFigureApplet fpa;
 	protected HashMap<String, Double> axisScales;
+	
+	final protected int shadowLeft = 10, shadowTop = 10;
 
 
 	public PropertyManager properties;
@@ -125,12 +127,20 @@ public abstract class Figure implements Comparable<Figure> {
 		size.set(minSize);
 	}
 
-	public void applyProperties() {
-		fpa.fill(getColorProperty(Properties.FILL_COLOR));
-		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
-		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
+	public void applyProperties(boolean shadow) {
+		if (shadow) {
+			fpa.fill(FigureColorUtils.dropShadowColor());	
+			fpa.stroke(FigureColorUtils.dropShadowColor());
+			fpa.strokeWeight(0);
+		}
+		else {
+		    fpa.fill(getColorProperty(Properties.FILL_COLOR));
+		    fpa.stroke(getColorProperty(Properties.LINE_COLOR));
+	        fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));		   
+		}
 		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
 	}
+	
 
 	public void applyFontProperties() {
 		fpa.textFont(fpa.createFont(getStringProperty(Properties.FONT),
@@ -907,6 +917,10 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public boolean getVResizableProperty() {
 		return properties.getBooleanProperty(Properties.VRESIZABLE);
+	}
+	
+	public boolean getShadowProperty() {
+		return properties.getBooleanProperty(Properties.SHADOW);
 	}
 	
 	public boolean getHStartGapProperty(boolean flip) {

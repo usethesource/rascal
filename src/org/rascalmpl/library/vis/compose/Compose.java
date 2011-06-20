@@ -57,7 +57,7 @@ public abstract class Compose extends Figure {
 	void draw(double left, double top){
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(false);
 		for(int i = 0; i < figures.length; i++){
 			figures[i].draw(left + pos[i].getX(), top + pos[i].getY());
 		}

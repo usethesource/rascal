@@ -102,7 +102,7 @@ public class Text extends Figure {
 		this.setLeft(left);
 		this.setTop(top);
 		
-		applyProperties();
+		applyProperties(false);
 		applyFontProperties();
 	
 		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());

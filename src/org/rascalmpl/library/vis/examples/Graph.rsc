@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module vis::examples::Graph
+module Graph
 
 import vis::Figure;
 import vis::Render; 
