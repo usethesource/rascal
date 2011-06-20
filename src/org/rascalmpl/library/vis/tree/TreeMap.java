@@ -114,7 +114,7 @@ public class TreeMap extends Figure {
 		this.setTop(top);
 		
 		System.err.printf("Tree.draw(%f,%f)\n", left, top);
-		applyProperties(false);
+		applyProperties();
 		root.draw(left, top);
 	}
 	

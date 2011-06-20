@@ -116,7 +116,7 @@ public class Overlay extends Compose{
 	public void draw(double left, double top){
 		setLeft(left);
 		setTop(top);
-		applyProperties(false);
+		applyProperties();
         boolean closed = getClosedProperty();
         boolean curved = getCurvedProperty();
         boolean connected = getConnectedProperty() || closed || curved;

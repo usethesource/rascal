@@ -201,7 +201,7 @@ public class SpringGraph extends Figure {
 		this.setLeft(left);
 		this.setTop(top);
 
-		applyProperties(false);
+		applyProperties();
 		
 		for (SpringGraphEdge e : edges)
 			e.draw(left, top);

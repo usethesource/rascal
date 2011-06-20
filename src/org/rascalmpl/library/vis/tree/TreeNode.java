@@ -165,7 +165,7 @@ public class TreeNode extends Figure {
 		String id = rootFigure.getIdProperty();
 		int nChildren = children.size();
 		
-		applyProperties(false);
+		applyProperties();
 		
 		double positionRoot = left + rootPosition;
 		double leftRootFig = positionRoot - rootFigure.minSize.getWidth()/2;

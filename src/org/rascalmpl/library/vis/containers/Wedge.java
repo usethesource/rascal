@@ -268,7 +268,7 @@ public class Wedge extends Container {
 		
 		if(debug)System.err.printf("wedge.drawContainer: %f, %f\n", centerX, centerY);
 		
-		applyProperties(false);
+		applyProperties();
 		drawActualContainer();
 	}
 	
@@ -305,7 +305,7 @@ public class Wedge extends Container {
 		this.setLeft(left);
 		this.setTop(top);
 	
-		applyProperties(false);
+		applyProperties();
 		//if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHAlignProperty(), getVAlignProperty());
 
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){

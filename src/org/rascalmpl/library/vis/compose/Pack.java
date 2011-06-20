@@ -106,7 +106,7 @@ public class Pack extends Compose {
 		setLeft(left);
 		setTop(top);
 		
-		applyProperties(false);
+		applyProperties();
 
 		if(fits){
 			if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);

@@ -322,7 +322,7 @@ public class LatticeGraph extends Figure implements
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		applyProperties(false);
+		applyProperties();
 		for (LatticeGraphEdge e : edges)
 			e.draw(left, top);
 		for (LatticeGraphNode n : nodes) {
