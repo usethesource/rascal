@@ -19,6 +19,7 @@ public enum Properties {
 	VEND_GAP(Types.BOOL,false),
 	HRESIZABLE(Types.BOOL,true),
 	VRESIZABLE(Types.BOOL,true),
+	SHADOW(Types.BOOL,false),
 	
 	FILL_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("white").intValue()),     
 	FONT_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),    
@@ -94,6 +95,7 @@ public enum Properties {
 		put("vendGap", new PropertySetters.SingleBooleanPropertySetter(VEND_GAP));
 		put("hresizable", new PropertySetters.SingleBooleanPropertySetter(HRESIZABLE));
 		put("vresizable", new PropertySetters.SingleBooleanPropertySetter(VRESIZABLE));
+		put("shadow", new PropertySetters.SingleBooleanPropertySetter(SHADOW));
 		// aliasses
 		put("hcapGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(HSTART_GAP, HEND_GAP));
 		put("vcapGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(VSTART_GAP, VEND_GAP));

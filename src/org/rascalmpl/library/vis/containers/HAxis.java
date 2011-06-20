@@ -205,7 +205,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 				,minVal,maxVal
 				);
 
-		applyProperties();
+		applyProperties(false);
 		applyFontProperties();
 		
 		double direction = bottom ? 1.0f : -1.0f;
@@ -230,7 +230,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 						top + axisTop + -direction * innerFig.size.getHeight());
 			
 		
-				applyProperties();
+				applyProperties(false);
 				fpa.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? fpa.textAscent() : -fpa.textDescent()) );
 			}
 			fpa.line(tick.pixelPos ,

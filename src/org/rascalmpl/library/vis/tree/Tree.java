@@ -123,7 +123,7 @@ public class Tree extends Figure {
 		this.setTop(top);
 		
 		//System.err.printf("Tree.draw(%f,%f)\n", left, top);
-		applyProperties();
+		applyProperties(false);
 		root.draw(left, top);
 	}
 	

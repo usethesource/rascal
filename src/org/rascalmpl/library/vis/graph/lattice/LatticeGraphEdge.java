@@ -63,7 +63,7 @@ public class LatticeGraphEdge extends Figure {
 
 	@Override
 	public void draw(double left, double top) {
-		applyProperties();
+		applyProperties(false);
 		if (debug)
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
 					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x

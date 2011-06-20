@@ -108,7 +108,7 @@ public class Vertex extends Figure {
 	void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		applyProperties();
+		applyProperties(false);
 		if(debug){
 			System.err.println("Vertex: marker = " + marker);
 			System.err.printf("Vertex: marker at %f, %f\n", left, top);

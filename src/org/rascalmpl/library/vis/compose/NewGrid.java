@@ -344,7 +344,7 @@ public class NewGrid extends Figure {
 	void draw(double left, double top){
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(false);
 		for(int row = 0 ; row < nrRows; row++){
 			//fpa.line(left , top + rowCenters[row], left + 5000, top + rowCenters[row]);
 		}
