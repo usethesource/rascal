@@ -71,7 +71,7 @@ public class RegExpTests extends TestFramework{
 	
 	@Test
 	public void nomatchWithLocalVariable(){
-		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\" && x == \"123\");}"));
+		assertTrue(runTest("{ str x = \"123\"; if (/<x:[a-z]+>/ !:= \"abc\") false; else true;}"));
 		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\");  (x == \"123\");}"));
 	}
 	
@@ -118,7 +118,7 @@ public class RegExpTests extends TestFramework{
 	public void nomatchWithExternalModuleVariable(){
 		prepareModule("XX", "module XX public str x = \"abc\";");
 		runTestInSameEvaluator("import XX;");
-		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
+		assertTrue(runTestInSameEvaluator("if (/<x:[a-z]+>/ !:= \"pqr\") false; else (x == \"abc\");"));
 		assertTrue(runTestInSameEvaluator("{(/<x:[a-z]+>/ !:= \"pqr\") ; (x == \"abc\");}"));
 	}
 	
