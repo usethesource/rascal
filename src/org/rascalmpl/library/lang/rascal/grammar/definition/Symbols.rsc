@@ -3,7 +3,7 @@ module lang::rascal::grammar::definition::Symbols
 
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 import ParseTree;
 
 public bool match(Symbol checked, Symbol referenced) {
@@ -20,12 +20,8 @@ public Symbol sym2symbol(Sym sym) {
   switch (sym) {
     case (Sym) `<Nonterminal n>`          : 
       return sort("<n>");
-    case (Sym) `keyword[<Nonterminal n>]` : 
-      return keywords("<n>");
-    case (Sym) `layout[<Nonterminal n>]` : 
-      return layouts("<n>");
     case (Sym) `start[<Nonterminal n>]` : 
-      return start(sort("<n>"));
+      return \start(sort("<n>"));
     case (Sym) `<StringConstant l>` : 
       return lit(unescape(l));
     case (Sym) `<CaseInsensitiveStringConstant l>`: 

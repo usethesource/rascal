@@ -117,7 +117,13 @@ public class RascalShell {
 				console.printNewline();
 			}
 			catch (ParseError pe) {
-				console.printString("Parse error in command from <"+(pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">\n");
+				URI uri = pe.getLocation();
+				if (uri.getScheme().equals("stdin")) {
+					console.printString("Parse error in command from <"+(pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">\n");
+				}
+				else {
+					console.printString("Parse error in " + uri + " from <" + (pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">\n");
+				}
 			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");

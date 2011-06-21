@@ -46,6 +46,21 @@ public class Symbols {
 
 		throw new RuntimeException("Can't convert type to symbol: "+type);
 	}
+	
+	// TODO: there is a lot more to do to get this right.
+	public static IValue typeToLexSymbol(Type type) {
+		if (type.isUser()) {
+			return Factory.Symbol_Lex.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+		}
+		
+		// For nested lexicals some other solution must be designed
+		if (type.isSymbol()) {
+			return symbolAST2SymbolConstructor(type.getSymbol());
+		}
+
+		throw new RuntimeException("Can't convert type to symbol: "+type);
+	}
+
 
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
 	private static IValue symbolAST2SymbolConstructor(Sym symbol) {

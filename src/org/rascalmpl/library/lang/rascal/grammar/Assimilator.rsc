@@ -54,7 +54,7 @@ public set[Production] fromRascal(Grammar object) {
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
         prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
         prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
-        { prod(str2syms(L),l,attrs([\literal()])) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
+        { prod(str2syms(L),l,\no-attrs()) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
       | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
 }
 

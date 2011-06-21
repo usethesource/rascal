@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@bootstrapParser
 module lang::rascal::grammar::ParserGenerator
 
 import Grammar;
@@ -436,10 +437,10 @@ public str literals2ints(list[Symbol] chars){
       return "";
     }
     
-    str result = "<head(head(chars).ranges).start>";
+    str result = "<head(head(chars).ranges).begin>";
     
     for (ch <- tail(chars)) {
-        result += ",<head(ch.ranges).start>";
+        result += ",<head(ch.ranges).begin>";
     }
     
     return result;

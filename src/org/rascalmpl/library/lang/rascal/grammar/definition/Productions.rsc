@@ -10,7 +10,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Productions
      
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
@@ -35,7 +35,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
         prods += prod2prod(\layouts("<n>"), p);
       }
       case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
-        prods  += prod([sort("<n>")], start(sort("<n>")), \no-attrs()); 
+        prods  += prod([sort("<n>")], \start(sort("<n>")), \no-attrs()); 
         prods  += prod2prod(sort("<n>"), p);
       }
       case (SyntaxDefinition) `syntax <Sym s> = <Prod p>;` : {
