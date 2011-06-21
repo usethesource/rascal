@@ -140,7 +140,8 @@ public class ModuleEnvironment extends Environment {
 			if (env != null) {
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
 				
-				if (env.importedModules != null) {
+				// for now we only process imports of the top module
+				if (env.getName().equals(getName()) && env.importedModules != null) {
 					for (String i : env.importedModules.keySet()) {
 						importWriter.insert(VF.string(i));
 					}
