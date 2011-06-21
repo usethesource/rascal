@@ -217,8 +217,8 @@ syntax Expression
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
 	| Negative: "-" Expression argument 
-	> TransitiveClosure: Expression argument "+" 
-	| TransitiveReflexiveClosure: Expression argument "*" 
+	> TransitiveClosure: Expression argument "+" !>> "="
+	| TransitiveReflexiveClosure: Expression argument "*" !>> "=" 
 	> SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
 	| GetAnnotation: Expression expression "@" Name name 
 	> left Composition: Expression lhs "o" Expression rhs 

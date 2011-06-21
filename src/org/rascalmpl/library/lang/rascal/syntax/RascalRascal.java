@@ -6543,7 +6543,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       
       tmp[0] = new NonTerminalStackNode(-2491, 0, "$Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[1] = new NonTerminalStackNode(-2492, 1, "$layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(-2493, 2, prod___char_class___range__42_42_lit___42_attrs___literal, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(-2493, 2, prod___char_class___range__42_42_lit___42_attrs___literal, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][] {new char[] {61, 61 } })});
       return tmp;
 	}
     public final static AbstractStackNode[] prod___label_$Label_$layouts_LAYOUTLIST_visit_$Visit_$Expression_attrs___term__cons___86_105_115_105_116 = _init_prod___label_$Label_$layouts_LAYOUTLIST_visit_$Visit_$Expression_attrs___term__cons___86_105_115_105_116();
@@ -6603,7 +6603,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
     private static final AbstractStackNode[] _init_prod___argument_$Expression_$layouts_LAYOUTLIST_lit___43_$Expression_attrs___term__cons___84_114_97_110_115_105_116_105_118_101_67_108_111_115_117_114_101() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(-2496, 2, prod___char_class___range__43_43_lit___43_attrs___literal, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(-2496, 2, prod___char_class___range__43_43_lit___43_attrs___literal, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][] {new char[] {61, 61 } })});
       tmp[1] = new NonTerminalStackNode(-2495, 1, "$layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0] = new NonTerminalStackNode(-2494, 0, "$Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;

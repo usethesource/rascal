@@ -2955,7 +2955,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod___argument_Expression_layouts_LAYOUTLIST_lit___42_Expression_attrs___term__cons___84_114_97_110_115_105_116_105_118_101_82_101_102_108_101_120_105_118_101_67_108_111_115_117_114_101() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1152, 2, prod___char_class___range__42_42_lit___42_attrs___literal, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1152, 2, prod___char_class___range__42_42_lit___42_attrs___literal, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][] {new char[] {61, 61 } })});
       tmp[1] = new NonTerminalStackNode(1150, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0] = new NonTerminalStackNode(1148, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
@@ -2997,7 +2997,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod___argument_Expression_layouts_LAYOUTLIST_lit___43_Expression_attrs___term__cons___84_114_97_110_115_105_116_105_118_101_67_108_111_115_117_114_101() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1158, 2, prod___char_class___range__43_43_lit___43_attrs___literal, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1158, 2, prod___char_class___range__43_43_lit___43_attrs___literal, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][] {new char[] {61, 61 } })});
       tmp[1] = new NonTerminalStackNode(1156, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0] = new NonTerminalStackNode(1154, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
