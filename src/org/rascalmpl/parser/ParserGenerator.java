@@ -71,6 +71,8 @@ public class ParserGenerator {
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
+			
+			System.err.println("grammar is: " + grammar);
 			String normName = name.replaceAll("\\.", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);

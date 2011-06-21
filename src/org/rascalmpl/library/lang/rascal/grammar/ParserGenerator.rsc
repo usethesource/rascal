@@ -500,11 +500,11 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \start(s) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
-            if (/p:prod(list[Symbol] chars,sym,attrs([\literal()])) := grammar.rules[sym])
+            if (/p:prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
                 return <"new LiteralStackNode(<itemId>, <dot>, <value2id(p)>, new char[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
-            if (/p:prod(list[Symbol] chars,sym,attrs([literal()])) := grammar.rules[sym])
+            if (/p:prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
                 return <"new CaseInsensitiveLiteralStackNode(<itemId>, <dot>, <value2id(p)>, new char[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
