@@ -131,8 +131,8 @@ public class ModuleEnvironment extends Environment {
 		todo.addAll(getImports());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		Type ImportSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "Import"));
-		IMapWriter w = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(ImportSort)));
+		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
+		IMapWriter w = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
 		for (String m : todo) {
 			ModuleEnvironment env = heap.getModule(m);
@@ -147,7 +147,7 @@ public class ModuleEnvironment extends Environment {
 					}
 				}
 				
-				ISetWriter defWriter = VF.setWriter(ImportSort);
+				ISetWriter defWriter = VF.setWriter(DefSort);
 				
 				if (env.productions != null) {
 					for (IValue def : productions) {

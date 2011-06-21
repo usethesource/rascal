@@ -26,7 +26,7 @@ import Integer;
 // conversion functions
 
 public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
-  set[Production] prods = {prod([],empty(),\no-attrs())};
+  set[Production] prods = {prod([],empty(),\no-attrs()), prod([], layouts("$default$"), \no-attrs())};
   set[Symbol] starts = {};
   
   for (sd <- defs) {

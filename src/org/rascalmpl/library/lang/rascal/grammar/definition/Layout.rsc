@@ -15,6 +15,7 @@ import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
 import List;
+import IO;
 
 
 public GrammarDefinition \layouts(GrammarDefinition def) {
@@ -38,7 +39,7 @@ public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
   else if (i <- deps, /prod(_,l:layouts(_),_) := def.modules[i]) 
     return l;
   else 
-    return layouts("***default***"); // TODO: replace this by something like layouts(empty()), (high impact change) 
+    return layouts("$default$"); 
 }  
 
 @doc{intersperses layout symbols in all non-lexical productions}
@@ -62,6 +63,6 @@ private Symbol regulars(Symbol s, Symbol l) {
     case \iter-star(Symbol n) => \iter-star-seps(n, [l]) 
     case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) 
     case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l])
-    case \seq(list[Symbol] elems) => \seq(tail([l, s | s <- elems]))
+    case \seq(list[Symbol] elems) => \seq(tail([l, e | e <- elems]))
   }
 }

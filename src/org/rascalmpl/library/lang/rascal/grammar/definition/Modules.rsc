@@ -17,13 +17,13 @@ import lang::rascal::grammar::definition::Names;
 import Grammar;
 
 @doc{Converts internal module representation of Rascal interpreter to single grammar definition}
-public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[Import] defs] mod] mods) {
+public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[SyntaxDefinition] defs] mod] mods) {
   // note that we ignore extends here because they're resolved by the interpreter at the moment by 
   // cloning definitions into the module that extends.
   def = \definition(main, (m:\module(m, 
                                     mods[m].imports, 
                                     {}, 
-                                    syntax2grammar({ s | (Import) `<SyntaxDefinition s>` <- mods[m].defs})
+                                    syntax2grammar(mods[m].defs)
                                     ) 
                           | m <- mods));
   return resolve(fuse(layouts(def)));
