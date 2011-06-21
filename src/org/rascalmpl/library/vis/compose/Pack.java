@@ -12,11 +12,13 @@
 package org.rascalmpl.library.vis.compose;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.BoundingBox;
 
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
@@ -32,12 +34,41 @@ public class Pack extends Compose {
 	
 	Node root;
 	boolean fits = true;
-	static protected boolean debug = false;
+	static protected boolean debug = true;
 	boolean initialized = false;
 
 	public Pack(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
 		super(fpa, figures, properties);
 	}
+	
+	/*
+	 * Compare two Figures according to their surface and aspect ratio
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	
+	public class CompareAspectSize implements Comparator<Figure>{
+
+		@Override
+		public int compare(Figure o1, Figure o2) {
+			BoundingBox lhs = o1.minSize;
+			BoundingBox rhs = o2.minSize;
+			double r = (lhs.getHeight() > lhs.getWidth()) ? lhs.getHeight() / lhs.getWidth() : lhs.getWidth() / lhs.getHeight();
+			double or = (rhs.getHeight() > rhs.getWidth()) ? rhs.getHeight() / rhs.getWidth() : rhs.getWidth() / rhs.getHeight();
+					  
+			if (r < 2.0 && or < 2.0) { 
+				double s = lhs.getWidth() * lhs.getHeight(); 
+				double os = rhs.getWidth() * rhs.getHeight();
+				return s < os ? 1 : (s == os ? 0 : -1); 
+			} 
+			return r < or ? 1 : (r == or ? 0 : -1); 
+		}
+		
+	}
+	
+
+	 
+
 
 	@Override
 	public
@@ -68,8 +99,7 @@ public class Pack extends Compose {
 	//	height = opt/maxh < 1.2 ? 1.2f * maxh : 1.2f*opt;
 		
 		if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, minSize.getWidth(), minSize.getHeight());
-			
-		Arrays.sort(figures);
+		Arrays.sort(figures, new CompareAspectSize());
 		if(debug){
 			System.err.println("SORTED ELEMENTS:");
 			for(Figure v : figures){
@@ -145,23 +175,23 @@ class Node {
 	
 	public Node insert(Figure fig){
 		String id = fig.getIdProperty();
-		if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getWidth(), fig.minSize.getHeight());
+		//if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getWidth(), fig.minSize.getHeight());
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
-			if(Pack.debug)System.err.printf("insert:%s in left child\n", id);
+			//if(Pack.debug)System.err.printf("insert:%s in left child\n", id);
 			Node newNode = lnode.insert(fig);
 			if(newNode != null){
-				if(Pack.debug)System.err.printf("insert: %s in left child succeeded\n", id);
+				//if(Pack.debug)System.err.printf("insert: %s in left child succeeded\n", id);
 				return newNode;
 			}
 			// No room, try it in right child
-			if(Pack.debug)System.err.printf("insert: %s in left child failed, try right child\n", id);
+			//if(Pack.debug)System.err.printf("insert: %s in left child failed, try right child\n", id);
 			return rnode.insert(fig);
 		}
 		
 		// We are a leaf, if there is already a velem return
 		if(figure != null){
-			if(Pack.debug)System.err.printf("insert: %s: Already occupied\n", id);
+			//if(Pack.debug)System.err.printf("insert: %s: Already occupied\n", id);
 			return null;
 		}
 		
@@ -176,25 +206,25 @@ class Node {
 		double dw = width - fig.minSize.getWidth();
         double dh = height - fig.minSize.getHeight();
         
-       if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
+     //  if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
 		
 		if ((dw < hgap) || (dh < vgap))
 			return null;
 		
 		// If we are exactly right return
 		if((dw  <= 2 * hgap) && (dh <= 2 * vgap)){
-			if(Pack.debug)System.err.printf("insert: %s FITS!\n", id);
+			//if(Pack.debug)System.err.printf("insert: %s FITS!\n", id);
 			return this;
 		}
 		
 		// Create two children and decide how to split
 
         if(dw > dh) {
-        	if(Pack.debug)System.err.printf("%s: case dw > dh\n", id);
+        	//if(Pack.debug)System.err.printf("%s: case dw > dh\n", id);
         	lnode = new Node(left,                 top, left + fig.minSize.getWidth() + hgap, bottom);
         	rnode = new Node(left + fig.minSize.getWidth() + hgap, top, right,                bottom);
         } else {
-        	if(Pack.debug)System.err.printf("%s: case dw <= dh\n", id);
+        	//if(Pack.debug)System.err.printf("%s: case dw <= dh\n", id);
            	lnode = new Node(left, top,                  right, top + fig.minSize.getHeight() + vgap);
         	rnode = new Node(left, top + fig.minSize.getHeight() + vgap, right, bottom);
         }

@@ -211,7 +211,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		public boolean computedValueChanged;
 		
 		PlacedFigure(Coordinate coordinate, BoundingBox bounds,Figure figure){
-			System.out.printf("Created : %s %s %s\n",coordinate,bounds,figure);
+			//System.out.printf("Created : %s %s %s\n",coordinate,bounds,figure);
 			this.coordinate = coordinate;
 			this.figure = figure;
 			this.bounds = bounds;
@@ -281,7 +281,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		for(PlacedFigure fig : mouseOverStack){
 			
 			
-			System.out.printf("draw %s %s %s\n", fig.figure,fig.coordinate ,fig.offset);
+			//System.out.printf("draw %s %s %s\n", fig.figure,fig.coordinate ,fig.offset);
 			Coordinate place = new Coordinate();
 			for(boolean flip : Figure.BOTH_DIMENSIONS){
 				place.setX(flip,fig.coordinate.getX(flip)  + fig.offset.getX(flip));
@@ -307,7 +307,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	void layoutFigures() {
-		System.out.printf("Layout \n");
+		//System.out.printf("Layout \n");
 		NameResolver resolver = new NameResolver(this, ctx);
 		for(PlacedFigure fig : mouseOverStack){
 			if(fig.computedValueChanged){	

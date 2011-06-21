@@ -70,7 +70,7 @@ public class ComputeFigure extends WithInnerFig {
 	
 	@Override
 	public void draw(double left, double top) {
-		System.err.println("ComputeFigure.draw: " + left + ", " + top + "\n");
+		//System.err.println("ComputeFigure.draw: " + left + ", " + top + "\n");
 		this.setLeft(left);
 		this.setTop(top);
 		innerFig.draw(left,top);
