@@ -25,9 +25,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -60,6 +64,7 @@ import org.rascalmpl.values.uptr.Factory;
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
 	protected Map<String, ModuleEnvironment> importedModules;
+	protected Set<String> extended;
 	protected Map<Type, List<Type>> extensions;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
@@ -117,15 +122,46 @@ public class ModuleEnvironment extends Environment {
 		productions.add(x.getTree());
 	}
 	
-	@Override
-	public ISet getProductions() {
-		ISetWriter w = ValueFactoryFactory.getValueFactory().setWriter();
-		w.insertAll(productions);
+	/** 
+	 * Builds a map to communicate all relevant syntax definitions to the parser generator.
+	 * See lang::rascal::grammar::definition::Modules.modules2grammar()
+	 */
+	public IMap getSyntaxDefinition() {
+		Set<String> todo = new HashSet<String>();
+		todo.add(getName());
+		todo.addAll(getImports());
 		
-		for (String i : importedModules.keySet()) {
-			ModuleEnvironment m = importedModules.get(i);
-			w.insertAll(m.productions);
+		IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		Type ImportSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "Import"));
+		IMapWriter w = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(ImportSort)));
+		
+		for (String m : todo) {
+			ModuleEnvironment env = heap.getModule(m);
+			
+			if (env != null) {
+				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				
+				if (env.importedModules != null) {
+					for (String i : env.importedModules.keySet()) {
+						importWriter.insert(VF.string(i));
+					}
+				}
+				
+				ISetWriter defWriter = VF.setWriter(ImportSort);
+				
+				if (env.productions != null) {
+					for (IValue def : productions) {
+						defWriter.insert(def);
+					}
+				}
+				
+				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
+				w.put(VF.string(m), t);
+			}
 		}
+		
+		System.err.println(w.done());
+		
 		return w.done();
 	}
 	

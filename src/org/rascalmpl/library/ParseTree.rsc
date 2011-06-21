@@ -58,7 +58,7 @@ data CharRange = range(int begin, int end);
 alias CharClass = list[CharRange];
 
 data Symbol 
-  = \begin(Symbol symbol)
+  = \start(Symbol symbol)
 // named non-terminals 
   | \sort(str string)  
   | \lex(str string) 

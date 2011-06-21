@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 @bootstrapParser
-module lang::rascal::syntax::RascalRascal
+module lang::rascal::\syntax::RascalRascal
 
 lexical BooleanLiteral
 	= "true" 

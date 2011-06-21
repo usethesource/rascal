@@ -103,6 +103,12 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("insertAt([2,3], 2, 1) == [2, 3, 1];"));
 	}
 	
+	@Test 
+	public void testPolymorphism() {
+		prepare("import List;");
+		// triggered a bug where instantiated type parameters would be cached
+		assertTrue(runTestInSameEvaluator("prefix([1,2,3]) != [] && prefix([[],[],[]]) != []"));
+	}
 
 	@Test(expected=Throw.class)
 	public void testInsertAt() {

@@ -10,7 +10,7 @@
 
 module lang::rascal::grammar::definition::Layout
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
@@ -44,7 +44,7 @@ public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
 @doc{intersperses layout symbols in all non-lexical productions}
 public Grammar \layouts(Grammar g, Symbol l) {
   return top-down-break visit (g) {
-    case prod([Symbol x],start(x),as) => prod([l, x, l], start(x), as)
+    case prod([Symbol x],\start(x),as) => prod([l, x, l], \start(x), as)
     case prod(list[Symbol] lhs,sort(s),as) => prod(intermix(lhs, l),sort(s),as)
     case prod(list[Symbol] lhs,\parameterized-sort(s,n),as) => prod(intermix(lhs, l),\parameterized-sort(s,n),as) 
   }

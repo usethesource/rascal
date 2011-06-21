@@ -11,7 +11,7 @@
 @bootstrapParser
 module lang::rascal::grammar::Bootstrap
 
-import lang::rascal::syntax::RascalRascal; 
+import lang::rascal::\syntax::RascalRascal; 
 
 import lang::rascal::format::Grammar;
 

@@ -9,7 +9,7 @@
 @bootstrapParser
 module lang::rascal::grammar::definition::Literals
 
-import lang::rascal::syntax::RascalRascal;
+import lang::rascal::\syntax::RascalRascal;
 import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
