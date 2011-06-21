@@ -34,9 +34,9 @@ public GrammarDefinition \layouts(GrammarDefinition def) {
      will just produce an arbitrary one if there are multiple definitions
 }
 public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
-  if (/prod(_,l:layouts(_),_) := def.modules[name]) 
+  if (/prod(_,l:layouts(_),_) := def.modules[name], l != layouts("$default$")) 
     return l;
-  else if (i <- deps, /prod(_,l:layouts(_),_) := def.modules[i]) 
+  else if (i <- deps, /prod(_,l:layouts(_),_) := def.modules[i], l != layouts("$default$")) 
     return l;
   else 
     return layouts("$default$"); 
