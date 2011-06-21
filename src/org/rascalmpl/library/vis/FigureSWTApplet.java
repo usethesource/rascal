@@ -57,6 +57,8 @@ import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 public class FigureSWTApplet implements IFigureApplet {
+	
+	String name;
 
 	int halign = FigureApplet.LEFT, valign = FigureApplet.TOP;
 
@@ -201,6 +203,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		prevFiguresUnderMouseSorted = new Vector<Figure>();
 		mouseOverTop = true;
 		layoutFigures();
+		this.name = name;
 	}
 	
 	public class PlacedFigure {
@@ -1021,7 +1024,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public String getName() {
-		return "Rascal Figure";
+		return name;
 	}
 
 	public Object getFont() {
