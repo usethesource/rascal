@@ -27,7 +27,6 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -39,8 +38,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Test;
-import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -118,7 +117,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void declareProduction(Syntax x) {
+	public void declareProduction(SyntaxDefinition x) {
 		productions.add(x.getTree());
 	}
 	
@@ -367,13 +366,6 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public Type abstractDataType(String name, Type... parameters) {
 		return TF.abstractDataType(typeStore, name, parameters);
-	}
-	
-	@Override
-	public Type concreteSyntaxType(String name, org.rascalmpl.ast.Type type) {
-		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(type);
-		concreteSyntaxTypes.put(name, sort);
-		return sort;
 	}
 	
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
