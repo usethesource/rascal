@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -552,10 +553,6 @@ public class Environment {
 		return getRoot().abstractDataType(name, parameters);
 	}
 
-	public Type concreteSyntaxType(String name, org.rascalmpl.ast.Type type) {
-		return getRoot().concreteSyntaxType(name, type);
-	}
-
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
@@ -635,7 +632,7 @@ public class Environment {
 		this.nameFlags = null;
 	}
 
-	public void declareProduction(Syntax x) {
+	public void declareProduction(SyntaxDefinition x) {
 		getRoot().declareProduction(x);
 	}
 	
