@@ -39,7 +39,7 @@ bool isNonterminal(Symbol x) {
 }
 
 public set[Production] quotes() {
-  return {prod(str2syms(q),lit(q),\attrs([\literal()])) | q <- ["`","(",")","\<","\>"] };
+  return {prod(str2syms(q),lit(q),\no-attrs()) | q <- ["`","(",")","\<","\>"] };
 }
 
 public set[Production] layoutProductions(Grammar object) {
@@ -68,6 +68,7 @@ private list[Symbol] symbolLiterals(Symbol sym) {
   switch (sym) {
     case \sort(n) : return [lit(n)];
     case \lex(n) : return [lit(n)];
+    case \keywords(n): return [lit(n)];
     case \empty() : return [lit("("), rl, lit(")")];
     case \opt(s) : return [symbolLiterals,rl,lit("?")];
     case \START() : return [lit("START")];
