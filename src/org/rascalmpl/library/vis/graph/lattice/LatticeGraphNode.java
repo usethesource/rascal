@@ -72,6 +72,7 @@ public class LatticeGraphNode {
 	}
 
 	void draw(double left, double top) {
+		if (debug) System.err.println("draw:"+this.getClass()+" "+figure);
 		if (figure != null) {
 			figure.bbox();
 			figure.draw(x + left - figure.minSize.getWidth() / 2, y + top - figure.minSize.getHeight()
@@ -125,6 +126,7 @@ public class LatticeGraphNode {
 	
 	public void layout(){
 		if(figure!=null){
+			if (debug) System.err.println("layout:"+this.getClass()+" "+figure.minSize);
 			figure.setToMinSize();
 			figure.layout();
 		}
