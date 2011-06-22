@@ -49,7 +49,7 @@ public Grammar fuse(GrammarDefinition def) {
   todo = {def.main};
   done = {};
   
-  while (todo != []) {
+  while (todo != {}) {
     <name,todo> = takeOneFrom(todo);
     mod = def.modules[name];
     done += name; 
