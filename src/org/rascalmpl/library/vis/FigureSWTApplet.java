@@ -145,6 +145,12 @@ public class FigureSWTApplet implements IFigureApplet {
 	private int lastMouseY = 0;
 	private int mouseX = 0, mouseY = 0;
 
+	private int shadowColor;
+
+	private double shadowLeft;
+
+	private double shadowTop;
+
 	public FigureSWTApplet(Composite comp, IConstructor fig,
 			IEvaluatorContext ctx) {
 		this(comp, "Figure", fig, ctx);
@@ -634,6 +640,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		int arg0 = FigureApplet.round(x), arg1 = FigureApplet.round(y), arg2 = FigureApplet
 				.round(width), arg3 = FigureApplet.round(height);
 		if (fill) {
+			
 			gc.setAlpha(alphaFill);
 			paintShape(new FillRectangle(), arg0, arg1, arg2, arg3);
 			gc.setAlpha(alpha0);
@@ -1131,12 +1138,37 @@ public class FigureSWTApplet implements IFigureApplet {
 			return mode;
 		}
 	}
+	
+	class FillFigure {
+		protected void drawShadowFigure(int x, int y, int width, int height) {
+			translate(shadowLeft, shadowTop);
+			int arg0 = shadowColor;
+			int alpha0 = gc.getAlpha();
+			Color color0 = gc.getBackground();
+			int alpha = FigureColorUtils.getAlpha(arg0);
+			gc.setAlpha(alpha);
+			Color color = new Color(device,
+					FigureColorUtils.getRed(arg0), FigureColorUtils.getGreen(arg0),
+					FigureColorUtils.getBlue(arg0));
+			gc.setBackground(color);
+			if (this instanceof FillRectangle)
+			     gc.fillRectangle(x, y, width, height);
+			if (this instanceof FillOval)
+			     gc.fillOval(x, y, width, height);
+			translate(-shadowLeft, -shadowTop);
+			gc.setAlpha(alpha0);
+			gc.setBackground(color0);	
+		}
+	}
 
-	class FillOval implements PaintShape {
+	class FillOval extends FillFigure implements PaintShape {
 		Mode mode = ellipseM;
 
 		@Override
 		public void paintShape(int x, int y, int width, int height) {
+			if (shadow) {
+				drawShadowFigure(x, y, width, height);
+			}
 			gc.fillOval(x, y, width, height);
 		}
 
@@ -1146,11 +1178,14 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-	class FillRectangle implements PaintShape {
+	class FillRectangle  extends FillFigure implements PaintShape {
 		Mode mode = rectM;
 
 		@Override
 		public void paintShape(int x, int y, int width, int height) {
+			if (shadow) {
+				drawShadowFigure(x, y, width, height);
+			}
 			gc.fillRectangle(x, y, width, height);
 		}
 
@@ -1219,6 +1254,28 @@ public class FigureSWTApplet implements IFigureApplet {
 		 loader.save(out, mode);	
 		 gc.dispose();
 		 image.dispose();
+	}
+
+	@Override
+	public void setShadow(boolean shadow) {
+		this.shadow = shadow;
+		
+	}
+
+	@Override
+	public void setShadowColor(int color) {
+		this.shadowColor = color;	
+	}
+
+	@Override
+	public void setShadowLeft(double x) {
+		this.shadowLeft = x;
+		
+	}
+
+	@Override
+	public void setShadowTop(double y) {
+		this.shadowTop = y;	
 	}
 
 

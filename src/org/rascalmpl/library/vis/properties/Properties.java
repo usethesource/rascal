@@ -25,6 +25,7 @@ public enum Properties {
 	FONT_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),    
 	LINE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),
 	GUIDE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("lightgray").intValue()),
+	SHADOW_COLOR(Types.COLOR,FigureColorUtils.dropShadowColor()),
 	
 	HEIGHT(Types.REAL,0.0,Dimension.X),
 	HGAP(Types.REAL,0.0,Dimension.X), 
@@ -32,6 +33,8 @@ public enum Properties {
 	WIDTH(Types.REAL,0.0,Dimension.Y),
 	HLOC(Types.REAL,0.0,Dimension.X),
 	VLOC(Types.REAL,0.0,Dimension.Y),
+	SHADOWLEFT(Types.REAL,10.0,Dimension.X),
+	SHADOWTOP(Types.REAL,10.0,Dimension.Y),
 	
 	MOUSE_OVER(Types.FIGURE,null),
 	TO_ARROW(Types.FIGURE,null),
@@ -105,6 +108,7 @@ public enum Properties {
 		put("fontColor", new PropertySetters.SingleColorPropertySetter(FONT_COLOR));
 		put("lineColor", new PropertySetters.SingleColorPropertySetter(LINE_COLOR));
 		put("guideColor",new PropertySetters.SingleColorPropertySetter(GUIDE_COLOR));
+		put("shadowColor",new PropertySetters.SingleColorPropertySetter(SHADOW_COLOR));
 		
 		put("height", new PropertySetters.SingleIntOrRealPropertySetter(HEIGHT));
 		put("hgap", new PropertySetters.SingleIntOrRealPropertySetter(HGAP));
@@ -112,6 +116,9 @@ public enum Properties {
 		put("width", new PropertySetters.SingleIntOrRealPropertySetter(WIDTH));
 		put("hpos", new PropertySetters.SingleIntOrRealPropertySetter(HLOC));
 		put("vpos", new PropertySetters.SingleIntOrRealPropertySetter(VLOC));
+		put("shadowLeft", new PropertySetters.SingleIntOrRealPropertySetter(SHADOWLEFT));
+		put("shadowTop", new PropertySetters.SingleIntOrRealPropertySetter(SHADOWTOP));
+		
 		// below: aliasses
 		put("pos", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HLOC, VLOC));
 		put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
