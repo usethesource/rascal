@@ -37,7 +37,7 @@ public list[Message] findCauses(Tree a) {
 public list[Message] findCauses(Tree x, Tree y) {
   pX = { p | /Production p := x };
   pY = { p | /Production p := y };
-  result = [];
+  list[Message] result = [];
   
   if (pX == pY) {
     result += [info("The alternatives use the same productions", x@\loc)];
