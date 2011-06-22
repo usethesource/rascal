@@ -53,7 +53,7 @@ public Grammar fuse(GrammarDefinition def) {
     <name,todo> = takeOneFrom(todo);
     mod = def.modules[name];
     done += name; 
-    result = (result | compose(it, def.modules[i].grammar) | i <- mod.imports + mod.extends);
+    result = (compose(result, mod.grammar) | compose(it, def.modules[i].grammar) | i <- mod.imports + mod.extends);
     todo += (mod.extends - done);
   }
   
