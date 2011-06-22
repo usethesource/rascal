@@ -34,6 +34,8 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
+import org.rascalmpl.library.vis.graph.layered.LayeredGraphNode;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -538,12 +540,16 @@ public class LatticeGraph extends Figure implements
 		// The biggest first
 		return FigureApplet.round(o2.fitness - o1.fitness);
 	}
-
+	
 	@Override
 	public void bbox() {
+		for(LatticeGraphNode g : nodes){
+			g.bbox();
+		}
 		setNonResizable();
 		super.bbox();
 	}
+	
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		if(!mouseInside(c.getX(), c.getY())) return false;
@@ -584,10 +590,11 @@ public class LatticeGraph extends Figure implements
 	public void layout() {
 		size.set(minSize);
 		for(LatticeGraphNode node : nodes){
-			
-			node.figure.layout();
+			node.layout();
 		}
-		
-	}
-
+		for(LatticeGraphEdge edge : edges){
+			edge.layout();
+		}
+   }
 }
+
