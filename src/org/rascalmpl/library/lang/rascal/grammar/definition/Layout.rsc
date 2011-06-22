@@ -7,7 +7,6 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @bootstrapParser
-
 module lang::rascal::grammar::definition::Layout
 
 import lang::rascal::\syntax::RascalRascal;
