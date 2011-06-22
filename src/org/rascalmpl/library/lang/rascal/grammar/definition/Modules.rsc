@@ -15,6 +15,7 @@ import lang::rascal::grammar::definition::Layout;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Names;
 import Grammar;
+import Set;
 
 @doc{Converts internal module representation of Rascal interpreter to single grammar definition}
 public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[SyntaxDefinition] defs] mod] mods) {
@@ -39,9 +40,24 @@ public GrammarDefinition modules2definition(str main, set[Module] modules) {
   return \definition(main, (mod.name:mod | m <- modules, mod := module2grammar(m)));
 }
 
-@doc{Combines a set of modules into one big Grammar.}
+@doc{
+  Combines a set of modules into one big Grammar, projecting only the rules that
+  are visible locally, or via import and extend.
+}
 public Grammar fuse(GrammarDefinition def) {
-  return (grammar({},()) | compose(it, def.modules[name].grammar) | name <- def.modules);
+  result = grammar({},());
+  todo = {def.main};
+  done = {};
+  
+  while (todo != []) {
+    <name,todo> = takeOneFrom(todo);
+    mod = def.modules[name];
+    done += name; 
+    result = (result | compose(it, def.modules[i].grammar) | i <- mod.imports + mod.extends);
+    todo += (mod.extends - done);
+  }
+  
+  return result;
 }
  
 @doc{
