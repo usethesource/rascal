@@ -131,6 +131,13 @@ public abstract class Figure implements Comparable<Figure> {
 		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
 		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
 		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
+		boolean shadow = getBooleanProperty(Properties.SHADOW);
+		fpa.setShadow(shadow);
+		if (shadow) {
+			fpa.setShadowColor(getColorProperty(Properties.SHADOW_COLOR));
+			fpa.setShadowLeft(getRealProperty(Properties.SHADOWLEFT));
+			fpa.setShadowTop(getRealProperty(Properties.SHADOWTOP));
+		}
 	}
 
 	public void applyFontProperties() {
@@ -923,6 +930,10 @@ public abstract class Figure implements Comparable<Figure> {
 	public boolean getHResizableProperty(boolean flip) {
 		if(flip) return getVResizableProperty();
 		else return getHResizableProperty();
+	}
+	
+	public int getShadowColorProperty() {
+		return properties.getColorProperty(Properties.SHADOW_COLOR);
 	}
 	
 	public String getKeyIdForWidth(boolean flip){

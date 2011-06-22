@@ -99,4 +99,14 @@ public interface IFigureApplet {
 	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg);
 	
 	public void write(OutputStream out, int fileFormat /*SWT IMAGE_BMP, IMAGE_JPEG, IMAGE_ICO*/);
+	
+	public void setShadow(boolean shadow);
+	
+	public void setShadowColor(int color);
+	
+	public void setShadowLeft(double x);
+	
+	public void setShadowTop(double y);
+	
+	
 }
