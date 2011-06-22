@@ -8,9 +8,9 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::logic::\syntax::Truth
 
-import lang::std::Whitespace;
-import lang::std::Layout;
-import lang::std::Comment;
+extend lang::std::Whitespace;
+extend lang::std::Layout;
+extend lang::std::Comment;
   
 // True only accepts true Boolean formulas              
 syntax True 

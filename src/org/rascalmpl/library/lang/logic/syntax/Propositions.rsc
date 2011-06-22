@@ -8,11 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::logic::\syntax::Propositions
 
-import lang::logic::\syntax::Booleans;
-import lang::std::Whitespace;
-import lang::std::Layout;
-import lang::std::Comment;
-import lang::std::Id;
+extend lang::logic::\syntax::Booleans;
+extend lang::std::Id;
 
 syntax Formula 
   = id: Id name \ "true" \ "false";
