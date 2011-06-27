@@ -190,7 +190,7 @@ public class Grid extends Figure {
 		for(int row = 0 ; row < getNrRows(flip); row++){
 			Figure elem = getFigureFromMatrix(flip,row,column);
 			double iiWidth ; 
-			double offset = -columnsNegMinWidth.getForX(flip)[column];
+			double offset = 0; // -columnsNegMinWidth.getForX(flip)[column];
 			if(iWidth == AUTO_SIZE){
 				iiWidth = 1.0;
 			} else {

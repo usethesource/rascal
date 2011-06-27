@@ -21,6 +21,16 @@ import Real;
 import Integer;
 
 
+
+public void nominalKeyTest(){
+	render(
+		vcat([
+			hcat( [ box(text(n),fillColor(convert(t,"type")) | <n,t> <- 
+				[<"equals","public">,<"intersects","protected">,<"toString","public">,<"getPassWord","private">,<"union","protected">]] 
+			, palleteKey(id("type"))
+				);
+}
+
 public Figure hBarChart(list[tuple[str,num]] vals,FProperty props...){
 	return bottomScreen("l",leftAxis("y",
 			hcat([box(height(convert(n,"y")),project(text(s),"l")) | <s,n> <- vals],hgrow(1.2),hcapGaps(true))
