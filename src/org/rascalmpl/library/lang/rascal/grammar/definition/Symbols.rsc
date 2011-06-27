@@ -48,24 +48,18 @@ public Symbol sym2symbol(Sym sym) {
       return \iter-star(sym2symbol(s));
     case (Sym) `<Sym s> +?` : 
       return \iter(sym2symbol(s));
-    //case (Sym) `{<Sym s> <Sym sep>}*`  : {
-    case (Sym) `{<Sym s> <StringConstant l>}*` : {
-      sep = (Sym) `<StringConstant l>`; // TODO: support arbitrary separators
+    case (Sym) `{<Sym s> <Sym sep>}*`  : 
       return \iter-star-seps(sym2symbol(s), [sym2symbol(sep)]);
-    }
-    //case (Sym) `{<Sym s> <Sym sep>}+`  : {
-    case (Sym) `{<Sym s> <StringConstant l>}+`  : {
-      sep = (Sym) `<StringConstant l>`; // TODO: support arbitrary separators
+    case (Sym) `{<Sym s> <Sym sep>}+`  : 
       return \iter-seps(sym2symbol(s), [sym2symbol(sep)]);
-    }
     case (Sym) `(<Sym first> <Sym+ sequence>)` : 
       return seq([sym2symbol(first)] + [sym2symbol(elem) | elem <- sequence]);
-    case (Sym) `^` : // TODO: turn into conditional 
-      return \start-of-line();
-    case (Sym) `$` : // TODO: turn into conditional
-      return \end-of-line();
-    case (Sym) `@ <IntegerLiteral i>` : // TODO: turn into conditional
-      return \at-column(toInt("<i>")); 
+    case (Sym) `^ <Sym s>` : 
+      return conditional(sym2symbol(s), {\start-of-line()});
+    case (Sym) `<Sym s> $` : 
+      return conditional(sym2symbol(s), {\end-of-line()});
+    case (Sym) `<Sym s> @ <IntegerLiteral i>` : 
+      return conditional(sym2symbol(s), {\at-column(toInt("<i>"))}); 
     case (Sym) `<Sym s> >> <Sym r>` : 
       return conditional(sym2symbol(s), {follow(sym2symbol(r))});
     case (Sym) `<Sym s> !>> <Sym r>` : 

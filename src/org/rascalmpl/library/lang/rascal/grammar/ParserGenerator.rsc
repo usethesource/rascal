@@ -468,11 +468,14 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       exits += ["new CharFollowRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
       exits += ["new CharMatchRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
-      exits += ["new StringMatchRestriction(new char[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds]; 
+      exits += ["new StringMatchRestriction(new char[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
+      exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
       enters += ["new CharPrecedeRequirement(new char[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new char[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
-      enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds]; 
+      enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
+      enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
+      enters += ["new AtStartOfLineRequirement()" | \start-of-line() <- conds]; 
       
       sym = sym.symbol;
       if (sym is label)

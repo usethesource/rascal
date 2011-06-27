@@ -110,9 +110,9 @@ syntax Sym
 	// TODO | Combination: "(" Sym first "#" {Sym "#"}+ elements ")"
 	| Empty: "(" ")"
 // conditionals
-	| Column: "@" IntegerLiteral column // TODO: make unary conditional of symbol
-	| EndOfLine: "$" // TODO: make unary conditional of symbol
-	| StartOfLine: "^" // TODO: make unary conditional of symbol
+	| Column: Sym symbol "@" IntegerLiteral column 
+	| EndOfLine: Sym symbol "$" 
+	| StartOfLine: "^" Sym symbol
 	>  
 	assoc ( 
 	  left  ( Follow:     Sym symbol "\>\>" Sym match
