@@ -23,6 +23,8 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
+import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -196,7 +198,14 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 				actuals[i] = arg;
 				i++;
 			}
-			return (IConstructor) function.call(types, actuals);
+			
+			Result<IValue> result = function.call(types, actuals);
+
+			if (result.getType().isSubtypeOf(TF.voidType())) {
+					return null;
+			}
+			
+			return (IConstructor) result.getValue();
 		}
 		catch (ArgumentsMismatchError e) {
 			return null;

@@ -366,6 +366,54 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
+  public boolean isColumn() {
+    return false;
+  }
+
+  static public class Column extends Sym {
+    // Production: sig("Column",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.IntegerLiteral","column")])
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.IntegerLiteral column;
+  
+    public Column(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.IntegerLiteral column) {
+      super(node);
+      
+      this.symbol = symbol;
+      this.column = column;
+    }
+  
+    @Override
+    public boolean isColumn() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymColumn(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.IntegerLiteral getColumn() {
+      return this.column;
+    }
+  
+    @Override
+    public boolean hasColumn() {
+      return true;
+    }	
+  }
   public boolean isAlternative() {
     return false;
   }
@@ -584,32 +632,6 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
-  public boolean isStartOfLine() {
-    return false;
-  }
-
-  static public class StartOfLine extends Sym {
-    // Production: sig("StartOfLine",[])
-  
-    
-  
-    public StartOfLine(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isStartOfLine() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymStartOfLine(this);
-    }
-  
-    	
-  }
   public boolean isEmpty() {
     return false;
   }
@@ -660,6 +682,43 @@ public abstract class Sym extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymOptional(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  }
+  public boolean isEndOfLine() {
+    return false;
+  }
+
+  static public class EndOfLine extends Sym {
+    // Production: sig("EndOfLine",[arg("org.rascalmpl.ast.Sym","symbol")])
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public EndOfLine(IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(node);
+      
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isEndOfLine() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymEndOfLine(this);
     }
   
     
@@ -891,32 +950,6 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
-  public boolean isEndOfLine() {
-    return false;
-  }
-
-  static public class EndOfLine extends Sym {
-    // Production: sig("EndOfLine",[])
-  
-    
-  
-    public EndOfLine(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isEndOfLine() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymEndOfLine(this);
-    }
-  
-    	
-  }
   public boolean isIterSep() {
     return false;
   }
@@ -999,43 +1032,6 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public boolean hasString() {
-      return true;
-    }	
-  }
-  public boolean isColumn() {
-    return false;
-  }
-
-  static public class Column extends Sym {
-    // Production: sig("Column",[arg("org.rascalmpl.ast.IntegerLiteral","column")])
-  
-    
-    private final org.rascalmpl.ast.IntegerLiteral column;
-  
-    public Column(IConstructor node , org.rascalmpl.ast.IntegerLiteral column) {
-      super(node);
-      
-      this.column = column;
-    }
-  
-    @Override
-    public boolean isColumn() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymColumn(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.IntegerLiteral getColumn() {
-      return this.column;
-    }
-  
-    @Override
-    public boolean hasColumn() {
       return true;
     }	
   }
@@ -1125,6 +1121,43 @@ public abstract class Sym extends AbstractAST {
     public boolean hasMatch() {
       return true;
     }
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }	
+  }
+  public boolean isStartOfLine() {
+    return false;
+  }
+
+  static public class StartOfLine extends Sym {
+    // Production: sig("StartOfLine",[arg("org.rascalmpl.ast.Sym","symbol")])
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+  
+    public StartOfLine(IConstructor node , org.rascalmpl.ast.Sym symbol) {
+      super(node);
+      
+      this.symbol = symbol;
+    }
+  
+    @Override
+    public boolean isStartOfLine() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymStartOfLine(this);
+    }
+  
+    
     @Override
     public org.rascalmpl.ast.Sym getSymbol() {
       return this.symbol;

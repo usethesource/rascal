@@ -538,12 +538,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Class<IGTD> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
 
 		if (parser == null || force) {
-			String parserName;
-			if (rootScope == currentModule) {
-				parserName = "__Shell__";
-			} else {
-				parserName = currentModule.getName().replaceAll("::", ".");
-			}
+			String parserName = currentModule.getName(); // .replaceAll("::", ".");
 
 			parser = pg.getParser(this, loc, parserName, definitions);
 			getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
@@ -564,12 +559,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Class<IGTD> parser = getHeap().getRascalParser(env.getName(), productions);
 
 		if (parser == null) {
-			String parserName;
-			if (rootScope == env) {
-				parserName = "__Shell__";
-			} else {
-				parserName = env.getName().replaceAll("::", ".");
-			}
+			String parserName = env.getName(); // .replaceAll("::", ".");
 
 			System.err.println("generating " + parserName);
 			// force regeneration of object parser such that super class name aligns... (a workaround)
