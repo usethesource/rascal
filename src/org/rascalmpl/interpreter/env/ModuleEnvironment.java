@@ -126,43 +126,52 @@ public class ModuleEnvironment extends Environment {
 	 * See lang::rascal::grammar::definition::Modules.modules2grammar()
 	 */
 	public IMap getSyntaxDefinition() {
-		Set<String> todo = new HashSet<String>();
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
 		todo.add(getName());
-		todo.addAll(getImports());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
-		IMapWriter w = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(DefSort)));
+		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
-		for (String m : todo) {
+		while (!todo.isEmpty()) {
+			String m = todo.get(0);
+			todo.remove(0);
+			
+			if (done.contains(m)) {
+				continue;
+			}
+			
+			done.add(m);
+			
 			ModuleEnvironment env = heap.getModule(m);
 			
 			if (env != null) {
+				Set<String> imps = env.importedModules != null ? env.importedModules.keySet() : Collections.<String>emptySet();
+				imps.removeAll(done);
+				todo.addAll(imps);
+				
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
 				
-				// for now we only process imports of the top module
-				if (env.getName().equals(getName()) && env.importedModules != null) {
-					for (String i : env.importedModules.keySet()) {
-						importWriter.insert(VF.string(i));
-					}
+				for (String i : imps) {
+					importWriter.insert(VF.string(i));
 				}
 				
 				ISetWriter defWriter = VF.setWriter(DefSort);
 				
 				if (env.productions != null) {
-					for (IValue def : productions) {
+					for (IValue def : env.productions) {
 						defWriter.insert(def);
 					}
 				}
 				
 				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
-				w.put(VF.string(m), t);
+				result.put(VF.string(m), t);
 			}
 		}
 		
-		System.err.println(w.done());
 		
-		return w.done();
+		return result.done();
 	}
 	
 	public boolean isModuleEnvironment() {

@@ -48,11 +48,9 @@ public class ParserGenerator {
 		this.vf = factory;
 		
 		monitor.startJob("Loading parser generator", 100, 139);
-		System.err.println("Loading parser generator");
 		evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
 		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
 		evaluator.doImport(monitor, "lang::rascal::grammar::Assimilator");
-		System.err.println("done loading generator");
 		monitor.endJob(true);
 	}
 	
@@ -72,8 +70,7 @@ public class ParserGenerator {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
 			
-			System.err.println("grammar is: " + grammar);
-			String normName = name.replaceAll("\\.", "_");
+			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString, "/tmp/parser.java");
@@ -99,7 +96,7 @@ public class ParserGenerator {
 		try {
 			monitor.event("Importing and normalizing grammar: " + name, 10);
 			IConstructor grammar = getGrammar(monitor, name, definition);
-			String normName = name.replaceAll("\\.", "_");
+			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for Rascal parser:" + name, 10);
 			IString classString = (IString) evaluator.call(monitor, "generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
 			debugOutput(classString, "/tmp/metaParser.java");

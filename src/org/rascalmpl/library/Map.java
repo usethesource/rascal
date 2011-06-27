@@ -105,6 +105,8 @@ public class Map {
 		Type valueType = M.getValueType();
 		Type keySetType = types.setType(keyType);
 	
+		// TODO: fix bug, difference between isEqual and equals breaks this code! HashMap uses equals!!
+		
 		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
