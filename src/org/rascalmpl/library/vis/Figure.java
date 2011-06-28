@@ -352,7 +352,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * Draw focus around this figure
 	 */
 	public void drawFocus() {
-		fpa.stroke(255, 0, 0);
+		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
 		fpa.strokeWeight(1);
 		fpa.noFill();
 		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());

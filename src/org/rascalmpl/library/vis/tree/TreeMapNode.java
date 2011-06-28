@@ -18,6 +18,7 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -134,7 +135,7 @@ public class TreeMapNode extends Figure {
 	@Override
 	public void drawFocus(){
 		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), getLeft(), getTop());
-		fpa.stroke(255, 0,0);
+		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
 		fpa.noFill();
 		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}

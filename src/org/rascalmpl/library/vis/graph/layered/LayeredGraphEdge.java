@@ -183,7 +183,6 @@ public class LayeredGraphEdge extends Figure {
 		if (cp == 0)
 			return;
 		
-		fpa.smooth();
 		fpa.noFill();
 		fpa.beginShape();
 		double x1 = points[0];

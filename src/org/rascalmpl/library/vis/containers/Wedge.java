@@ -13,6 +13,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -277,7 +278,7 @@ public class Wedge extends Container {
 		centerX = getLeft() + leftAnchor;
 		centerY = getTop() + topAnchor;
 		
-		fpa.stroke(255, 0,0);
+		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
 		fpa.strokeWeight(1);
 		fpa.noFill();
 			
