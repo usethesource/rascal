@@ -46,8 +46,6 @@ public interface IFigureApplet {
 	public void line(double arg0, double arg1, double arg2, double arg3);
 	public void rect(double arg0, double arg1, double arg2, double arg3);
 	public void ellipse(double arg0, double arg1, double arg2, double arg3);
-	public void rectMode(int arg0);
-	public void ellipseMode(int arg0);
 	public void fill(int arg0);
 	public void stroke(int arg0);
 	public void strokeWeight(double arg0);
@@ -79,7 +77,6 @@ public interface IFigureApplet {
 	public void print(Printer printer);
 	public void dispose();
 	public Object createFont(String fontName, double fontSize);
-	public void smooth();
 	
 	public void setCursor(Cursor cursor);
 	public Cursor getCursor();
@@ -87,7 +84,6 @@ public interface IFigureApplet {
 	public void setBackground(Color color);
 	public void setForeground(Color color);	
 	public GC getPrinterGC();
-	public void stroke(double arg0, double arg1, double arg2);
 	public String getName();
 
 	void checkIfIsCallBack(IValue fun,IEvaluatorContext ctx);

@@ -32,6 +32,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
@@ -337,7 +338,7 @@ public class LatticeGraph extends Figure implements
 	 */
 	public void drawFocus() {
 		// System.err.println("drawFocus: " + this.left);
-		fpa.stroke(255, 0, 0);
+		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
 		fpa.strokeWeight(1);
 		fpa.noFill();
 		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());

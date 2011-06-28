@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -27,6 +28,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  *
  */
 public class Ellipse extends Container {
+	
+	final static boolean debug = false;
 
 	public Ellipse(IFigureApplet fpa, Figure inner, PropertyManager properties) {
 		super(fpa, inner, properties);
@@ -34,8 +37,8 @@ public class Ellipse extends Container {
 	
 	@Override
 	void drawContainer(){
-		fpa.ellipseMode(FigureApplet.CORNERS);
-		fpa.ellipse(getLeft(), getTop(), getLeft() + size.getWidth(), getTop() + size.getHeight());
+		if (debug) System.err.println("drawContainer:"+this.getClass()+" "+getLeft()+" "+getTop()+" "+size.getWidth()+" "+size.getHeight());
+		fpa.ellipse(getLeft(), getTop(), size.getWidth(), size.getHeight());
 	}
 	
 	@Override
@@ -91,10 +94,9 @@ public class Ellipse extends Container {
 	 */
 	@Override
 	public void drawFocus(){
-		fpa.stroke(255, 0,0);
+		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
 		fpa.noFill();
-		fpa.ellipseMode(FigureApplet.CORNERS);
-		fpa.ellipse(getLeft(), getTop(), getLeft() + minSize.getWidth(), getTop() + minSize.getHeight());
+		fpa.ellipse(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 	
 	@Override
