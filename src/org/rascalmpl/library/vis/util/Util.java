@@ -56,4 +56,18 @@ public class Util {
 		for(double b : vals) { if(b == toCount) result++; }
 		return result;
 	}
+	
+	public static void mapMul(double[] vals,double factor){
+		for(int i = 0 ; i  < vals.length ; i++){
+			vals[i]*=factor;
+		}
+	}
+	
+	public static void replaceVal(double[] vals, double from, double to){
+		for(int i = 0 ; i  < vals.length ; i++){
+			if(vals[i]==from){
+				vals[i] = to;
+			}
+		}
+	}
 }

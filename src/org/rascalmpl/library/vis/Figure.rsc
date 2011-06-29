@@ -1121,47 +1121,7 @@ public FProperty grandChild(FProperty props ...){
 	return _child([_child(props)]);
 }
 
-/*
- * Vertex and Edge: auxiliary data types
- */
 
-data Vertex = 
-     _vertex(Measure x, Measure y, FProperties props)             	    // vertex in a shape          
-   | _vertex(Measure x, Measure y, Figure marker, FProperties props)    // vertex with marker
-   ;
-   
-public Vertex vertex(num x, num y, FProperty props ...){
-   return _vertex(measure(x,""), measure(y,""), props);
-}
-
-public Vertex vertex(num x, num y, Figure marker, FProperty props ...){
-   return _vertex(measure(x,""), measure(y,""), marker, props);
-}
-
-public Vertex vertex(num x, Measure y, FProperty props ...){
-   return _vertex(measure(x,""), y, props);
-}
-
-public Vertex vertex(num x, Measure y, Figure marker, FProperty props ...){
-   return _vertex(measure(x,""), y, marker, props);
-}
-
-public Vertex vertex(Measure x, num y, FProperty props ...){
-   return _vertex(x, measure(y,""), props);
-}
-
-public Vertex vertex(Measure x, num y, Figure marker, FProperty props ...){
-   return _vertex(x, measure(y,""), marker, props);
-}
-
-public Vertex vertex(Measure x, Measure y, FProperty props ...){
-   return _vertex(x, y, props);
-}
-
-public Vertex vertex(Measure x, Measure y, Figure marker, FProperty props ...){
-   return _vertex(x, y, marker, props);
-}
-   
 data Edge =			 							// edge between between two elements in complex shapes like tree or graph
      _edge(str from, str to, FProperties prop)
  //  | _edge(str from, str to, Figure toArrow, FProperties prop)
@@ -1174,12 +1134,14 @@ public Edge edge(str from, str to, FProperty props ...){
   return _edge(from, to, props);
 }
 
-//public Edge edge(str from, str to, Figure toArrow, FProperty props ...){
-//  return _edge(from, to, toArrow, props);
-//}
-//public Edge edge(str from, str to, Figure toArrow, Figure fromArrow, FProperty props ...){
-//  return _edge(from, to, toArrow, fromArrow, props);
-//}
+public Edge edge(str from, str to, Figure toArrowP, FProperty props ...){
+  return _edge(from, to, [toArrow(toArrowP)] + props);
+}
+public Edge edge(str from, str to, Figure fromArrowP, Figure toArrowP,  FProperty props ...){
+  return _edge(from, to, [toArrow(toArrowP),fromArrow(fromArrowP)] + props);
+}
+
+
 
 /*
  * Figure: a visual element, the principal visualization datatype
@@ -1244,9 +1206,7 @@ data Figure =
                    
    | _overlay(Figures figs, FProperties props)// overlay (stacked) composition
    
-                								// shape of to be connected vertices
-   | _shape(list[Vertex] points, FProperties props)
-   
+
    | _grid(list[list[Figure]] figMatrix, FProperties props)
    
   								                // composition by 2D packing
@@ -1424,9 +1384,6 @@ public Figure overlay(Figures figs, FProperty props ...){
   return _overlay(figs, props);
 }
 
-public Figure shape(list[Vertex] points, FProperty props ...){
-  return _shape(points, props);
-}
 
 public Figure grid(list[list[Figure]] figs, FProperty props ...){
   return _grid(figs, props);
@@ -1437,11 +1394,11 @@ public Figure pack(Figures figs, FProperty props ...){
 }
 
 public Figure graph(Figures nodes, Edges edges, FProperty props...){
-  return _graph(nodes, edges, props);
+  return _graph(nodes, edges, [stdResizable(false)] + props);
 }
 
 public Figure tree(Figures nodes, Edges edges, FProperty props...){
-  return _tree(nodes, edges, props);
+  return _tree(nodes, edges, [stdResizable(false)] + props);
 }
 
 public Figure treemap(Figures nodes, Edges edges, FProperty props...){
@@ -1566,5 +1523,9 @@ public Color randomColor(){
 
 public Color randomColorAlpha(){
 	return rrgba(arbReal(),arbReal(),arbReal(),arbReal());
+}
+
+public Figure point(FProperty props...){
+	return space([resizable(false), size(0)] + props);
 }
 

@@ -53,7 +53,8 @@ public class TextField extends Figure {
 	public TextField(IFigureApplet fpa, String text, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		trueColor = fpa.getRgbColor(getFontColorProperty());
-		falseColor = fpa.getColor(SWT.COLOR_RED);
+		
+		falseColor = fpa.getRgbColor(SWT.COLOR_RED);
 		textfield = new Text(fpa.getComp(), SWT.SINGLE | SWT.BORDER);
 		fpa.checkIfIsCallBack(cb, ctx);
 		this.callback = cb;

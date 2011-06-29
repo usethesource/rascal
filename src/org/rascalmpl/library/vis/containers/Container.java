@@ -44,6 +44,7 @@ public abstract class Container extends WithInnerFig {
 	}
 	
 	public void bbox(){
+		
 		if(innerFig!=null)innerFig.bbox();
 		minSize.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
@@ -55,17 +56,16 @@ public abstract class Container extends WithInnerFig {
 	}
 	
 	public void computeMinWidth(boolean flip){
-		double lw = getLineWidthProperty();
 		
-		minSize.setWidth(flip,lw);
 		if(innerFig!=null){ 
-			minSize.addWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip));
+			minSize.setWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip));
 		}
 	}
 	
 	double getGrowFactor(boolean flip){
 		return Math.max(getHGrowProperty(flip), 1.0 / innerFig.getHShrinkProperty(flip));
 	}
+	
 	
 	public void layout(){
 		double lw = getLineWidthProperty();

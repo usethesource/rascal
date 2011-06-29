@@ -29,7 +29,8 @@ public class Box extends Container {
 
 	@Override
 	void drawContainer(){
-		fpa.rect(getLeft(), getTop(), size.getWidth(), size.getHeight());
+		double lw = getLineWidthProperty();
+		fpa.rect(getLeft()-lw, getTop()-lw, size.getWidth() + lw, size.getHeight() + lw);
 	}
 	
 	@Override
