@@ -184,10 +184,7 @@ public abstract class Figure implements Comparable<Figure> {
 
 	// top down compute minimum size
 	public void bbox(){
-		for(boolean flip : BOTH_DIMENSIONS){
-			setResizableX(flip, getResizableX(flip) && getHResizableProperty(flip));
-			
-		}
+		
 		if(!properties.isConverted(Properties.WIDTH)){
 			minSize.setWidth(Math.max(minSize.getWidth(),getWidthProperty()));
 		} else {
@@ -197,6 +194,12 @@ public abstract class Figure implements Comparable<Figure> {
 			minSize.setHeight(Math.max(minSize.getHeight(),getHeightProperty()));
 		} else {
 			minSize.setHeight(getHeightProperty());
+		}
+		for(boolean flip : BOTH_DIMENSIONS){
+			setResizableX(flip, getResizableX(flip) && getHResizableProperty(flip));
+			if(!getResizableX(flip)){
+				size.setWidth(flip,minSize.getWidth(flip));
+			}
 		}
 	}
 	

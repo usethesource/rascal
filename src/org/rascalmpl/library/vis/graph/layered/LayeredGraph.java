@@ -1471,14 +1471,13 @@ public class LayeredGraph extends Figure {
 		if(!mouseInside(c.getX(), c.getY())) return false;
 		boolean found = false;
 		for(int i = nodes.size()-1 ; i >= 0 ; i--){
-			if(nodes.get(i).figure != null){
-				nodes.get(i).figure.getFiguresUnderMouse(c, result);
+			if(nodes.get(i).figure != null && nodes.get(i).figure.getFiguresUnderMouse(c, result)){
 				found=true;
 				break;
 			}
 		}
 		if(!found){
-			for(int i = nodes.size()-1 ; i >= 0 ; i--){
+			for(int i = edges.size()-1 ; i >= 0 ; i--){
 				if(edges.get(i).getFiguresUnderMouse(c, result)){
 					break;
 				}

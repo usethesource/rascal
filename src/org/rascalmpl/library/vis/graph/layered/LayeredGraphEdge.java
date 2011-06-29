@@ -215,6 +215,8 @@ public class LayeredGraphEdge extends Figure {
 	@Override
 	public
 	void draw(double left, double top) {
+		setLeft(left);
+		setTop(top);
 		applyProperties();
 		
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
@@ -437,22 +439,23 @@ public class LayeredGraphEdge extends Figure {
 	}
 	
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
-		// TODO: Implement me!
-		return false;
+		return (fromArrow!=null && fromArrow.getFiguresUnderMouse(c,result)) ||
+				(label!=null && label.getFiguresUnderMouse(c,result)) ||
+				(toArrow!=null && toArrow.getFiguresUnderMouse(c,result));
 	}
 	
 	public void computeFiguresAndProperties(){
 		super.computeFiguresAndProperties();
 		if(fromArrow!=null)fromArrow.computeFiguresAndProperties();
-		if(fromArrow!=null)toArrow.computeFiguresAndProperties();
-		if(fromArrow!=null)label.computeFiguresAndProperties();
+		if(toArrow!=null)toArrow.computeFiguresAndProperties();
+		if(label!=null)label.computeFiguresAndProperties();
 	}
 	
 	public void registerNames(NameResolver resolver){
 		super.registerNames(resolver);
 		if(fromArrow!=null)fromArrow.registerNames(resolver);
-		if(fromArrow!=null)toArrow.registerNames(resolver);
-		if(fromArrow!=null)label.registerNames(resolver);
+		if(toArrow!=null)toArrow.registerNames(resolver);
+		if(label!=null)label.registerNames(resolver);
 	}
 
 	@Override

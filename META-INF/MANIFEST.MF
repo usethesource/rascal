@@ -62,4 +62,5 @@ Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt
 Import-Package: javax.servlet,
  javax.servlet.http,
- org.eclipse.swt
+ org.eclipse.swt,
+ org.rascalmpl.library.vis

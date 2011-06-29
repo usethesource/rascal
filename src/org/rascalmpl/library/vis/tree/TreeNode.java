@@ -211,15 +211,17 @@ public class TreeNode extends Figure {
 	}
 
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
-		for(int i = children.size()-1 ; i >= 0 ; i--){
-			if(children.get(i).getFiguresUnderMouse(c, result)){
+		boolean ret = false;
+		for(TreeNode child : children){
+			if(child.getFiguresUnderMouse(c, result)){
+				ret = true;
 				break;
 			}
 		}
 		if(rootFigure.getFiguresUnderMouse(c, result)) {
-			result.add(rootFigure);
+			ret = true;
 		}
-		return true;
+		return ret;
 	}
 	
 	public void registerNames(NameResolver resolver){

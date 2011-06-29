@@ -13,12 +13,14 @@ package org.rascalmpl.library.vis.compose;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
+import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
@@ -146,6 +148,7 @@ public class Pack extends Compose {
 			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		}
 	}
+	
 }
 
 class Node {

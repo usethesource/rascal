@@ -138,6 +138,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	// private PFont stdFont;
 
 	public Composite getComp() {
+		System.out.printf("Getcomp %s\n", comp);
 		return comp;
 	}
 
@@ -169,8 +170,9 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
 			IEvaluatorContext ctx) {
-		this.figure = FigureFactory.make(this, fig, null, null, ctx);
 		this.comp = comp;
+		this.figure = FigureFactory.make(this, fig, null, null, ctx);
+		
 		this.device = comp.getDisplay();
 		this.ctx = ctx;
 		initialize(comp, name);
@@ -186,6 +188,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	void initialize(Composite comp, String name) {
+		
 		viewPort = new BoundingBox();
 		comp.getShell().setText(name);
 		gc = createGC(comp);
@@ -282,7 +285,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		layoutFigures();
-
+		System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 
 		// figure.draw(left, top);
@@ -320,6 +323,7 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	private void layoutFigures() {
 		// System.out.printf("Layout \n");
+		System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
 		NameResolver resolver = new NameResolver(this, ctx);
 		for (PlacedFigure fig : mouseOverStack) {
 			if (fig.computedValueChanged) {
@@ -496,14 +500,14 @@ public class FigureSWTApplet implements IFigureApplet {
 		figuresUnderMouseSorted.addAll(figuresUnderMouse);
 		Collections.sort(figuresUnderMouseSorted);
 		executeMouseOverOffHandlers();
+		/*
+		 System.out.printf("under mouse:");
+		 for(Figure fig : figuresUnderMouseSorted) {
+		 System.out.printf("%s ", fig);
+		 }
 
-		// System.out.printf("under mouse:");
-		// for(Figure fig : figuresUnderMouseSorted) {
-		// System.out.printf("%s ", fig);
-		// }
-
-		// System.out.printf("\n");
-
+		 System.out.printf("\n");
+		 */
 	}
 
 	void setMouseOverFigure() {
@@ -520,9 +524,10 @@ public class FigureSWTApplet implements IFigureApplet {
 			if (!donotPop) {
 				if (!mouseOverCausesStack.isEmpty()) {
 					mouseOverCausesStack.peek().executeMouseOffHandlers();
-					System.out.printf("Mouse off %s %d\n",
+					/* System.out.printf("Mouse off %s %d\n",
 							mouseOverCausesStack.peek(),
 							mouseOverCausesStack.peek().sequenceNr);
+							*/
 					mouseOverCausesStack.pop();
 					comp.redraw();
 				}
@@ -534,7 +539,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		for (Figure fig : figuresUnderMouse) {
 			if (fig.isMouseOverSet()) {
 				fig.executeMouseOverHandlers();
-				System.out.printf("Mouse over %s %d\n", fig, fig.sequenceNr);
+				//System.out.printf("Mouse over %s %d\n", fig, fig.sequenceNr);
 				mouseOverCausesStack.push(fig);
 				Figure mouseOver = fig.getMouseOverProperty();
 				// mouseOver.bbox();
@@ -558,8 +563,9 @@ public class FigureSWTApplet implements IFigureApplet {
 				 * if(top + fig.minSize.getHeight() > vie.height){ top =
 				 * comp.getBounds().height - fig.minSize.getHeight(); }
 				 */
-				System.out.printf("Pushed %s %s %s\n",
+				/* System.out.printf("Pushed %s %s %s\n",
 						new Coordinate(left, top), fig.size, mouseOver);
+				*/
 				mouseOverStack.push(new PlacedFigure(new Coordinate(left, top),
 						fig.size, mouseOver));
 				layoutFigures();
