@@ -132,10 +132,6 @@ public class Overlay extends Compose{
         	fpa.vertex(left + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
     				top + pos[0].getY()  + figures[0].getVConnectProperty() * figures[0].size.getHeight()  );
         }
-        if(connected && curved  && figures.length >= 0){
-        	fpa.curveVertex(left + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
-    				top + pos[0].getY()  + figures[0].getVConnectProperty() * figures[0].size.getHeight()  );
-		}	
         if(connected){
 	        for(int i = 0 ; i < figures.length ; i++){
 	        	if(curved ){
@@ -149,10 +145,6 @@ public class Overlay extends Compose{
         }
         
         if(connected){
-			if(curved){
-				fpa.curveVertex(left + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
-        				top + pos[figures.length-1].getY()  + figures[figures.length-1].getVConnectProperty() * figures[figures.length-1].size.getHeight()  );
-			}
 			if(closed){
 				fpa.vertex(left + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
         				top + pos[figures.length-1].getY()  + figures[figures.length-1].getVConnectProperty() * figures[figures.length-1].size.getHeight()  );

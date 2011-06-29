@@ -9,6 +9,14 @@
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
+
+/* 
+ * See http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm 
+ * and
+ * Forcing Bezier Interpolation
+ * http://people.sc.fsu.edu/~jburkardt/html/bezier_interpolation.html
+ */
+
 package org.rascalmpl.library.vis;
 
 import java.util.ArrayList;
