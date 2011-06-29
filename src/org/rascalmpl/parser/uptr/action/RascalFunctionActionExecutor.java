@@ -121,7 +121,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			try {
 				return (IConstructor) func.call(
 						new Type[] {TF.setType(type)}, new IValue[] {alts}
-				);
+				).getValue();
 			}
 			catch (ArgumentsMismatchError e) {
 				return ambCluster;
