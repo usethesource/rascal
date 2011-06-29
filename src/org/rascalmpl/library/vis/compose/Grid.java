@@ -146,7 +146,7 @@ public class Grid extends Figure {
 		for(int column = 0 ; column < getNrColumns(flip) ; column++){
 			double colWidth;
 			if(columnsResizeableX.getForX(flip)[column]){
-				System.out.printf("Column %d resizable! factor %f\n", column, columnsShrinkWidth.getForX(flip)[column]);
+				//System.out.printf("Column %d resizable! factor %f\n", column, columnsShrinkWidth.getForX(flip)[column]);
 				colWidth= spaceForResizableColumns * columnsShrinkWidth.getForX(flip)[column];
 			} else {
 				colWidth= columnsShrinkWidth.getForX(flip)[column];
@@ -159,7 +159,7 @@ public class Grid extends Figure {
 				} else {
 					elem.takeDesiredWidth(flip,colWidth);
 				}
-				System.out.printf("Took width %f %s\n",elem.size.getWidth(flip),elem);
+				//System.out.printf("Took width %f %s\n",elem.size.getWidth(flip),elem);
 				double margin =(colWidth- elem.size.getWidth(flip))  * elem.getHAlignProperty(flip) ;
 				setXPos(flip, row, column, left + margin);
 			}

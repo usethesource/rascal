@@ -38,6 +38,12 @@ public class Text extends Figure {
 		//if(debug)System.err.printf("Text: %s\n", txt.getValue());
 	}
 	
+	public void computeFiguresAndProperties() {
+		super.computeFiguresAndProperties();
+		txt.compute();
+	}
+	
+	
 	@Override
 	public
 	void bbox(){
