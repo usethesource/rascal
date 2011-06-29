@@ -66,7 +66,6 @@ public class TextField extends Figure {
 
 		textfield.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				System.out.printf("Text changed!!!\n");
 				doValidate();
 			}
 		});

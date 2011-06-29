@@ -19,10 +19,34 @@ public class Grid extends Figure {
 	Coordinate[][] pos;
 	int nrColumns, nrRows;
 	ForBothDimensions<double[]> columnBorders;
-	ForBothDimensions<double[]> columnsShrinkWidth;
-	ForBothDimensions<boolean[]> columnsResizeableX;
-	ForBothDimensions<Double> unresizableColumnsWidth;
+	ForBothDimensions<Size[]> columnsSize;
+	ForBothDimensions<Double> totalShrink;
+	ForBothDimensions<Integer> nrAutoColumns;
+	ForBothDimensions<Double> unresizableOrAutoColumnsWidth;
 	ForBothDimensions<Boolean> anyColumnResizable;
+	
+
+	
+	static enum SizeInfo{
+		SHRINK_SET,
+		AUTO_SIZE,
+		UNRESIZABLE;
+	}
+	
+	static class Size{
+		SizeInfo sizeInfo;
+		double minSize;
+		double shrink;
+		Size(SizeInfo sizeInfo, double minSize,double shrink){
+			this.sizeInfo = sizeInfo;
+			this.minSize = minSize;
+			this.shrink = shrink;
+		}
+		
+		Size(SizeInfo sizeInfo, double minSize){
+			this(sizeInfo, minSize,0);
+		}
+	}
 	
 	public Grid(IFigureApplet fpa, Figure[][] figureMatrix,
 			PropertyManager properties) {
@@ -40,9 +64,10 @@ public class Grid extends Figure {
 		}
 		
 		columnBorders = new ForBothDimensions<double[]>(new double[nrColumns], new double[nrRows]) ;
-		columnsShrinkWidth  = new ForBothDimensions<double[]>(new double[nrColumns], new double[nrRows]) ;
-		columnsResizeableX = new ForBothDimensions<boolean[]>(new boolean[nrColumns], new boolean[nrRows]) ;
-		unresizableColumnsWidth = new ForBothDimensions<Double>(0.0,0.0);
+		nrAutoColumns = new ForBothDimensions<Integer>(0, 0);
+		columnsSize = new ForBothDimensions<Grid.Size[]>(new Size[nrColumns], new Size[nrRows]);
+		unresizableOrAutoColumnsWidth = new ForBothDimensions<Double>(0.0,0.0);
+		totalShrink = new ForBothDimensions<Double>(0.0,0.0);
 		anyColumnResizable = new ForBothDimensions<Boolean>(false,false);
 	}
 	
@@ -57,57 +82,84 @@ public class Grid extends Figure {
 		}
 		setResizable();
 		super.bbox();
+		//System.out.printf("Grid minsize %s\n",minSize);
 	}
 	
 
 	public void computeMinWidth(boolean flip){
-		columnsResizeableX.setForX(flip, columnsResizeableX(flip));
-		double[] columnsShrinkWidth = columnsShrinkWidth(flip);
-		int nrAutoColumns = Util.count(columnsShrinkWidth, AUTO_SIZE);
-		double totalColumnsShrink = Util.sum(columnsShrinkWidth) - nrAutoColumns * AUTO_SIZE;
-		double autoColumnsShrink = (1.0 - totalColumnsShrink) / (double)nrAutoColumns;
-		Util.replaceVal(columnsShrinkWidth, AUTO_SIZE, autoColumnsShrink);
-		this.columnsShrinkWidth.setForX(flip, columnsShrinkWidth);
-		double unresizableColumnsWidth = setShrinkWidthOfUnresizableColumnsToMinWidth(flip);
-		this.unresizableColumnsWidth.setForX(flip, unresizableColumnsWidth);
-		anyColumnResizable.setForX(flip, totalColumnsShrink != 0.0 || nrAutoColumns !=0);
-		double minWidth = computeMinWidthOfResizableColumns(flip) + unresizableColumnsWidth;
-		minWidth*= getHGrowProperty(flip);
-		minSize.setWidth(flip, minWidth);
-	}
-
-	private double setShrinkWidthOfUnresizableColumnsToMinWidth(boolean flip){
-		double totalUnresizableWidth = 0;
-		double[] columnsShrinkWidth = this.columnsShrinkWidth.getForX(flip);
-		for(int column = 0 ; column < getNrColumns(flip); column++){
-			if(columnsResizeableX.getForX(flip)[column]) continue;
-			double minWidth = 0.0;
-			for(int row = 0 ; row < getNrRows(flip) ; row++){
-				minWidth = Math.max(minWidth,getFigureFromMatrix(flip, row, column).minSize.getWidth(flip));
+		this.columnsSize.setForX(flip,getSizeInfoOfColumns(flip));
+		this.unresizableOrAutoColumnsWidth.setForX(flip, unresizableOrAutoColumnsWidth(flip));
+		this.nrAutoColumns.setForX(flip, nrAutoColumns(flip));
+		double minSize = 0;
+		double totalShrink = 0;
+		for(Size s : this.columnsSize.getForX(flip)){
+			if(s.sizeInfo == SizeInfo.SHRINK_SET){
+				minSize= Math.max(minSize, s.minSize / s.shrink);
+				totalShrink+= s.shrink;
 			}
-			columnsShrinkWidth[column] = minWidth;
-			totalUnresizableWidth+= minWidth;
 		}
-		return totalUnresizableWidth;
+		//System.out.printf("Unresizable columns width %f\n",unresizableOrAutoColumnsWidth.getForX(flip));
+		minSize = Math.max(minSize, unresizableOrAutoColumnsWidth.getForX(flip) / (1.0 - totalShrink) );
+		minSize*= getHGrowProperty(flip);
+		anyColumnResizable.setForX(flip, !(nrAutoColumns.getForX(flip) == 0 && totalShrink == 0));
+		this.totalShrink.setForX(flip, totalShrink);
+		this.minSize.setWidth(flip, minSize);
+		
 	}
 	
-	private double computeMinWidthOfResizableColumns(boolean flip) {
-		double minWidth = 0;
-		double[] columnsShrinkWidth = this.columnsShrinkWidth.getForX(flip);
-		for(int column = 0 ; column < getNrColumns(flip); column++){
-			if(!columnsResizeableX.getForX(flip)[column]) continue;
-			double columnShrinkWidth = columnsShrinkWidth[column];
-			for(int row = 0 ; row < getNrRows(flip) ; row++){
-				Figure fig = getFigureFromMatrix(flip, row, column);
-				double figShrink = fig.getHShrinkProperty(flip);
-				if(figShrink == AUTO_SIZE){
-					figShrink = columnShrinkWidth;
-				} 
-				minWidth += fig.minSize.getWidth(flip)/figShrink;
+	private double unresizableOrAutoColumnsWidth(boolean flip){
+		double result = 0;
+		Size[] columnSize = this.columnsSize.getForX(flip);
+		for(Size s : columnSize){
+			if(s.sizeInfo == SizeInfo.UNRESIZABLE || s.sizeInfo == SizeInfo.AUTO_SIZE){
+				result += s.minSize;
 			}
 		}
-		return minWidth;
+		return result;
 	}
+	
+	private int nrAutoColumns(boolean flip){
+		int result = 0;
+		Size[] columnSize = this.columnsSize.getForX(flip);
+		for(Size s : columnSize){
+			if(s.sizeInfo == SizeInfo.AUTO_SIZE){
+				result++;
+			}
+		}
+		return result;
+	}
+	
+	private Size[] getSizeInfoOfColumns(boolean flip){
+		Size[] result = new Size[getNrColumns(flip)];
+		for(int column = 0 ; column < getNrColumns(flip); column++){
+			result[column] = getSizeInfoOfColumn(flip, column);
+		}
+		return result;
+	}
+	
+	private Size getSizeInfoOfColumn(boolean flip, int column){
+		double minSize = 0;
+		double shrink = 0;
+		boolean resizable = false;
+		for(int row = 0 ; row < getNrRows(flip); row++){
+			Figure fig = getFigureFromMatrix(flip, row, column);
+			resizable= resizable || fig.getResizableX(flip);
+			if(fig.getResizableX(flip) && fig.isHShrinkPropertySet(flip)){
+				shrink = Math.max(shrink, fig.getHShrinkProperty(flip));
+			}
+			minSize= Math.max(minSize,fig.minSize.getWidth(flip));
+		}
+		SizeInfo sizeInfo;
+		if(!resizable){
+			sizeInfo = SizeInfo.UNRESIZABLE;
+		} else if(shrink == 0){
+			sizeInfo = SizeInfo.AUTO_SIZE;
+		} else {
+			sizeInfo = SizeInfo.SHRINK_SET;
+		}
+		return new Size(sizeInfo,minSize,shrink);
+	}
+
 	
 	
 	
@@ -126,13 +178,20 @@ public class Grid extends Figure {
 	
 	public void layoutX(boolean flip) {
 		double spaceForColumns;
-		double spaceForResizableColumns;
-		if(!anyColumnResizable.getForX()){
-			spaceForColumns = unresizableColumnsWidth.getForX(flip);
-			spaceForResizableColumns = 0.0;
+		if(!anyColumnResizable.getForX(flip)){
+			spaceForColumns = unresizableOrAutoColumnsWidth.getForX(flip);
 		} else {
 			spaceForColumns = size.getWidth(flip) / getHGrowProperty(flip);
-			spaceForResizableColumns= spaceForColumns - unresizableColumnsWidth.getForX(flip);
+		}
+		double spaceLeftOver = (((1.0 - totalShrink.getForX(flip)) * spaceForColumns) 
+				- unresizableOrAutoColumnsWidth.getForX(flip));
+		double extraSpacePerAutoColumn ;
+		//System.out.printf("Space for columns %f nr auto cols %d\n", spaceForColumns, nrAutoColumns.getForX(flip));
+		if(nrAutoColumns.getForX(flip) == 0 && totalShrink.getForX(flip) == 0.0){
+			spaceForColumns-=spaceLeftOver;
+			extraSpacePerAutoColumn = 0.0;
+		}  else {
+			extraSpacePerAutoColumn = spaceLeftOver / (double)nrAutoColumns.getForX(flip);
 		}
 		double whitespace = size.getWidth(flip) - spaceForColumns;
 		double left = 0;
@@ -144,18 +203,20 @@ public class Grid extends Figure {
 			left+=gapSize*0.5;
 		}
 		for(int column = 0 ; column < getNrColumns(flip) ; column++){
-			double colWidth;
-			if(columnsResizeableX.getForX(flip)[column]){
-				//System.out.printf("Column %d resizable! factor %f\n", column, columnsShrinkWidth.getForX(flip)[column]);
-				colWidth= spaceForResizableColumns * columnsShrinkWidth.getForX(flip)[column];
-			} else {
-				colWidth= columnsShrinkWidth.getForX(flip)[column];
-			}
 			columnBorders.getForX(flip)[column]=left;
+			Size s = columnsSize.getForX(flip)[column];
+			double colWidth = 0;
+			switch(s.sizeInfo){
+				case SHRINK_SET: colWidth = s.shrink * spaceForColumns; break;
+				case AUTO_SIZE : colWidth = s.minSize + extraSpacePerAutoColumn; break;
+				case UNRESIZABLE: colWidth = s.minSize; break;
+			}
+			
+			
 			for(int row = 0 ; row < getNrRows(flip); row++){
 				Figure elem = getFigureFromMatrix(flip,row,column);
 				if(elem.isHShrinkPropertySet(flip)){
-					elem.takeDesiredWidth(flip, elem.getHShrinkProperty(flip)*spaceForResizableColumns);
+					elem.takeDesiredWidth(flip, elem.getHShrinkProperty(flip)*spaceForColumns);
 				} else {
 					elem.takeDesiredWidth(flip,colWidth);
 				}
@@ -165,17 +226,6 @@ public class Grid extends Figure {
 			}
 			left+=gapSize + colWidth;
 		}
-	}
-	
-	int nrAutoColumns(boolean flip){
-		int total = 0;
-		for(int column = 0 ; column < getNrColumns(flip); column++){
-			if(columnsResizeableX.getForX(flip)[column] 
-			    && columnsShrinkWidth.getForX(flip)[column] == AUTO_SIZE){
-				total++;
-			}
-		}
-		return total;
 	}
 
 	double nrHGaps(boolean flip) {
@@ -206,45 +256,7 @@ public class Grid extends Figure {
 		else return figureMatrix[row][collumn];
 	}
 
-	
 
-
-	private double columnShrinkWidth(boolean flip,int collumn){
-		if(!columnResizeableX(flip, collumn)) return 0.0;
-		double result = AUTO_SIZE;
-		for(int row = 0 ; row < getNrRows(flip); row++){
-			Figure fig = getFigureFromMatrix(flip, row, collumn);
-			if(fig.isHShrinkPropertySet(flip)){
-				result = Math.max(result,fig.getHShrinkProperty(flip));
-			}
-		}
-		return result;
-	}
-	
-	private double[] columnsShrinkWidth(boolean flip){
-		double[] result = new double[getNrColumns(flip)];
-		for(int collumn = 0 ; collumn < getNrColumns(flip); collumn++){
-			result[collumn]= columnShrinkWidth(flip, collumn);
-		}
-		return result;
-	}
-	
-	private boolean columnResizeableX(boolean flip,int collumn){
-		boolean result = false;
-		for(int row = 0 ; row < getNrRows(flip); row++){
-			Figure fig = getFigureFromMatrix(flip, row, collumn);
-			result = result || fig.getResizableX(flip);
-		}
-		return result;
-	}
-	
-	private boolean[] columnsResizeableX(boolean flip){
-		boolean[] result = new boolean[getNrColumns(flip)];
-		for(int collumn = 0 ; collumn < getNrColumns(flip); collumn++){
-			result[collumn]= columnResizeableX(flip, collumn);
-		}
-		return result;
-	}
 	
 	
 	private void setXPos(boolean flip, int row, int collumn,double val){

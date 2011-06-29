@@ -202,7 +202,7 @@ public class FigureFactory {
 	
 	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
 		String ename = c.getName();
-		System.out.printf("Creating %s\n",ename);
+		//System.out.printf("Creating %s\n",ename);
 		properties = PropertyManager.extendProperties(fpa, c, properties, childProps, ctx);
 		IList childPropsNext = PropertyManager.getChildProperties((IList) c.get(c.arity()-1));
 		if(childProps != null){
