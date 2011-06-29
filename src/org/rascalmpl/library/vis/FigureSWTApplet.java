@@ -138,7 +138,6 @@ public class FigureSWTApplet implements IFigureApplet {
 	// private PFont stdFont;
 
 	public Composite getComp() {
-		System.out.printf("Getcomp %s\n", comp);
 		return comp;
 	}
 
@@ -171,10 +170,12 @@ public class FigureSWTApplet implements IFigureApplet {
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
 			IEvaluatorContext ctx) {
 		this.comp = comp;
-		this.figure = FigureFactory.make(this, fig, null, null, ctx);
-		
 		this.device = comp.getDisplay();
 		this.ctx = ctx;
+		this.figure = FigureFactory.make(this, fig, null, null, ctx);
+		
+		
+		
 		initialize(comp, name);
 	}
 
@@ -285,7 +286,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		layoutFigures();
-		System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
+		//System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 
 		// figure.draw(left, top);
@@ -323,11 +324,11 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	private void layoutFigures() {
 		// System.out.printf("Layout \n");
-		System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
+		//System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
 		NameResolver resolver = new NameResolver(this, ctx);
 		for (PlacedFigure fig : mouseOverStack) {
 			if (fig.computedValueChanged) {
-				System.out.printf("compute on %s \n", fig.figure);
+				//System.out.printf("compute on %s \n", fig.figure);
 				fig.figure.init();
 				fig.figure.computeFiguresAndProperties();
 				fig.figure.registerNames(resolver);
@@ -349,7 +350,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			PlacedFigure fig = mouseOverStack.get(i);
 			if (resized || fig.computedValueChanged) {
 				currentFig = fig;
-				System.out.printf("Bbox on %s\n", fig);
+				//System.out.printf("Bbox on %s\n", fig);
 				fig.figure.bbox();
 				for (boolean flip : Figure.BOTH_DIMENSIONS) {
 					// System.out.printf("blab bla %f %s\n",
@@ -656,7 +657,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void setComputedValueChanged() {
-		currentFig.computedValueChanged = true;
+		if(currentFig !=null) currentFig.computedValueChanged = true;
 	}
 
 	public void line(double arg0, double arg1, double arg2, double arg3) {
@@ -1050,7 +1051,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			resized = true;
 			width = newXsize;
 			height = newYsize;
-			System.out.printf("Resized %f %f\n", width, height);
+			//System.out.printf("Resized %f %f\n", width, height);
 			layoutFigures();
 
 		}

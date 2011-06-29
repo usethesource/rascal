@@ -357,7 +357,7 @@ public class FigureFactory {
 		case TEXTFIELD:
 			validate = null;
 			if(c.arity() > 3) validate = c.get(2);
-			return new TextField(fpa,  ((IString) c.get(0)).getValue(), c.get(1), null, ctx, properties);
+			return new TextField(fpa,  ((IString) c.get(0)).getValue(), c.get(1), validate, ctx, properties);
 			
 		case TREE: 			
 			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);

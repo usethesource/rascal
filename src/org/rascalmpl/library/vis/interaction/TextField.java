@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -52,9 +53,9 @@ public class TextField extends Figure {
 
 	public TextField(IFigureApplet fpa, String text, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
-		trueColor = fpa.getRgbColor(getFontColorProperty());
+		trueColor = fpa.getRgbColor(getFillColorProperty());
 		
-		falseColor = fpa.getRgbColor(SWT.COLOR_RED);
+		falseColor = new Color(fpa.getComp().getDisplay(), 255, 0, 0);
 		textfield = new Text(fpa.getComp(), SWT.SINGLE | SWT.BORDER);
 		fpa.checkIfIsCallBack(cb, ctx);
 		this.callback = cb;
@@ -65,6 +66,7 @@ public class TextField extends Figure {
 
 		textfield.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
+				System.out.printf("Text changed!!!\n");
 				doValidate();
 			}
 		});
@@ -74,7 +76,7 @@ public class TextField extends Figure {
 				try {
 					doCallBack();
 				} catch (Exception ex) {
-					System.err.println("EXCEPTION");
+					System.err.println("EXCEPTION" + ex);
 					ex.printStackTrace();
 				}
 			}
@@ -82,6 +84,7 @@ public class TextField extends Figure {
 		textfield.setText(text);
 		minSize.setWidth(getWidthProperty());
 		tLimit = FigureApplet.round(minSize.getWidth() / fpa.textWidth("b"));
+		doValidate();
 		/*if (text.length()>tLimit) {
 			  tLimit = text.length();	
 			  minSize.setWidth(fpa.textWidth(text));
@@ -100,12 +103,15 @@ public class TextField extends Figure {
 	}
 
 	public boolean doValidate() {
+		
 		if (validate != null) {
+			System.out.printf("Validating123!\n");
 			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
 					validate, TypeFactory.getInstance().stringType(),
 					vf.string(textfield.getText()));
 			validated = res.getValue().isEqual(vf.bool(true));
-			textfield.setForeground(validated ? trueColor : falseColor);
+			//textfield.setForeground(validated ? trueColor : falseColor);
+			textfield.setBackground(validated ? trueColor : falseColor);
 			textfield.redraw();
 			return validated;
 		}
@@ -113,10 +119,12 @@ public class TextField extends Figure {
 	}
 
 	public void doCallBack() {
+		//System.out.printf("callbacking!\n");
 		if (validated) {
 			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
 					.getInstance().stringType(), vf.string(textfield.getText()));
 			fpa.setComputedValueChanged();
+			fpa.redraw();
 		}
 		textfield.redraw();
 	}
@@ -125,10 +133,10 @@ public class TextField extends Figure {
 	public void draw(double left, double top) {
 		this.setLeft(left);
 		this.setTop(top);
-		textfield.setForeground(validated ? trueColor : falseColor);
+		textfield.setForeground(fpa.getRgbColor(getFontColorProperty()));
 		textfield
 				.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
-		textfield.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		textfield.setBackground(validated ? trueColor : falseColor);
 		textfield
 				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		print(textfield, left, top);
