@@ -34,7 +34,7 @@ public abstract class PropertyValue<PropType> implements Comparable{
 	
 	public boolean isConverted(){ return false;}
 	public String getKeyId() { return null; }
-	public Key<PropType> getKey() { return null; }
+	public Key getKey() { return null; }
 	public IValue getUnconverted(){ return null; }
 	
 	public int compareTo(Object rhs){

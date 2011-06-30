@@ -4,7 +4,6 @@ import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -17,7 +16,6 @@ import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 
-@SuppressWarnings("rawtypes")
 public class NominalKey extends WithInnerFig implements Key{
 
 	IValue whole;
@@ -45,29 +43,36 @@ public class NominalKey extends WithInnerFig implements Key{
 	}
 	
 	public void finalize(){
-		super.computeFiguresAndProperties();
+		System.out.printf("Nominal finalize bbox start!\n");
 		if(innerFig != null){
 			innerFig.destroy();
 		}
 		
 		TypeFactory tf = TypeFactory.getInstance();
-		
-		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()), ValueFactory.getInstance().list(originals.toArray(tmpArray))).getValue();
+		System.out.printf("Executing callback!.... !\n");
+		IList originalsL = ValueFactory.getInstance().list(originals.toArray(tmpArray));
+		System.out.printf("Created list %s! callback!.... !\n", originalsL);
+		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()),originalsL).getValue();
+		System.out.printf("Creatingg.... !\n");
 		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
+		System.out.printf("done.... !\n");
 		innerFig.init();
 		innerFig.computeFiguresAndProperties();
+		System.out.printf("compute and init done.... !\n");
 		NameResolver resolver = new NameResolver(fpa, ctx);
 		innerFig.registerNames(resolver);
 		innerFig.registerValues(resolver);
 		innerFig.getLikes(resolver);
 		innerFig.finalize();
 		properties = innerFig.properties;
+		System.out.printf("Nominal finalize bbox done!\n");
 	}
 	
 	public void bbox(){
 		innerFig.bbox();
 		minSize.set(innerFig.minSize);
 		setResizable();
+		System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	@Override
@@ -75,6 +80,7 @@ public class NominalKey extends WithInnerFig implements Key{
 		innerFig.size.set(size);
 		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();
+		System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	public void registerNames(NameResolver resolver) {
@@ -90,17 +96,15 @@ public class NominalKey extends WithInnerFig implements Key{
 
 
 	@Override
-	public void registerValue(Properties prop, Object val) {
-		System.out.printf("Registered!!!\n");
+	public void registerValue(Properties prop, IValue val) {
 		for(int i = 0 ; i < originals.size() ; i++ ){
-			if(originals.get(i).isEqual((IValue)val)){
+			if(originals.get(i).isEqual(val)){
 				return ;
 			}
 		}
 		if(originals.size()  < possibilities.length()){
-			originals.add((IValue)val);
+			originals.add(val);
 		} 
-		
 	}
 
 
@@ -114,7 +118,8 @@ public class NominalKey extends WithInnerFig implements Key{
 
 
 	@Override
-	public Object scaleValue(Object val) {
+	public IValue scaleValue(IValue val) {
+		
 		for(int i = 0 ; i < originals.size()  ; i++){
 			if(originals.get(i).isEqual((IValue)val)){
 				return possibilities.get(i);

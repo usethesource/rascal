@@ -13,6 +13,8 @@ import Real;
 import List;
 import Set;
 import IO;
+import String;
+import ToString;
 
 /*
  * Declarations and library functions for Rascal Visualization
@@ -1220,7 +1222,7 @@ data Figure =
    
    | _treemap(Figures nodes, Edges edges, FProperties props)
    
-   | _nominalKey(list[value] possibilities, Figure (list[str]) whole,FProperties props)
+   | _nominalKey(list[value] possibilities, Figure (list[value]) whole,FProperties props)
    
 /* transformation */
 
@@ -1501,16 +1503,20 @@ public Figure normalize(Figure f){
 
 
 public Figure palleteKey (str name, str key,FProperty props...){
- return  _nominalKey(p12,Figure (list[str] orig) { return vcat([
+ return  _nominalKey(p12,Figure (list[value] orig) { 
+ 		Figure inner;
+ 		if(size(orig) == 0) inner = space(); 
+ 		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.2),vgrow(1.1));
+ 		return vcat([
  		text(name,fontSize(13)),
  		box(
- 			grid([[box(fillColor(p12[i])), text(orig[i],left())] | i <- [0..size(orig)-1]],hgrow(1.2),vgrow(1.3))
+ 			inner
  		)
  		]);},[id(key)]); 
 }
 
 public Figure title(str name, Figure inner){
-	return vcat([text(name,fontSize(17)), box(inner,shrink(0.9),grow(1.1))]);
+	return vcat([text(name,fontSize(17)), box(inner,grow(1.1))]);
 }
 
 public Color rrgba(real r, real g, real b, real a){

@@ -65,7 +65,7 @@ public class PropertyParsers {
 		
 		abstract PropertyValue<PropValue> makeComputedProperty(IValue arg,PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
 		
-		abstract PropertyValue<PropValue> makeMeasureProperty(IValue idVal, IValue valVal, IFigureApplet fpa,IEvaluatorContext ctx);
+		abstract PropertyValue<PropValue> makeMeasureProperty(IValue idVal, IValue valVal, IFigureApplet fpa,PropertyManager pm,IEvaluatorContext ctx);
 		
 		public PropertyValue<PropValue> parseProperty(IConstructor c, PropertyManager pm, int propIndex,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
@@ -79,7 +79,7 @@ public class PropertyParsers {
 				if(cs.getName().equals("like")){
 					return makeLikeProperty(((IString) cs.get(0)).getValue(), fpa, ctx);
 				} else if(cs.getName().equals("convert")){
-					return makeMeasureProperty(cs.get(1),cs.get(0),fpa,ctx);
+					return makeMeasureProperty(cs.get(1),cs.get(0),fpa,pm,ctx);
 				}
 			}
 			
@@ -127,7 +127,7 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Boolean> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureApplet fpa,  PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureBooleanProperty(property, idVal, valVal, fpa, ctx);
 		}
 	} 
@@ -167,7 +167,7 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Integer> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureApplet fpa, PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureIntegerProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -207,7 +207,7 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<String> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureApplet fpa, PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureStringProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -249,7 +249,7 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Double> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureApplet fpa,  PropertyManager pm,IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureRealProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -350,7 +350,7 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Integer> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureApplet fpa,  PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureColorProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -387,8 +387,8 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Figure> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
-			return new MeasureProperties.MeasureFigureProperty(property, idVal, valVal, fpa, ctx);
+				IFigureApplet fpa,  PropertyManager pm,IEvaluatorContext ctx) {
+			return new MeasureProperties.MeasureFigureProperty(property, idVal, valVal, fpa, ctx, pm);
 		}
 	}
 	

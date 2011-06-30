@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.compose;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
@@ -12,11 +13,11 @@ import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class HStack extends Compose implements Key<Double>{
+public class HStack extends Compose implements Key{
 
 	boolean flip;
 	IEvaluatorContext ctx;
-	Key<Double> actualKey;
+	Key actualKey;
 	double stackState;
 	
 	public HStack(boolean flip,IFigureApplet fpa, Figure[] figures,
@@ -51,7 +52,7 @@ public class HStack extends Compose implements Key<Double>{
 			if(flip){
 				left -= figures[i].getWidthProperty(flip);
 			}
-			System.out.printf("Jahoor2 %f..\n",left);
+			//System.out.printf("Jahoor2 %f..\n",left);
 			pos[i].setX(flip, left);
 			pos[i].setY(flip,0);
 			figures[i].globalLocation.setX(flip,globalLocation.getX(flip) + left);
@@ -78,13 +79,13 @@ public class HStack extends Compose implements Key<Double>{
 				throw RuntimeExceptionFactory.figureException("Stack: height/width of first element does not convert to key!", ctx.getValueFactory().string(""), ctx.getCurrentAST(),
 						ctx.getStackTrace());
 			} 
-			System.out.printf("Changing key %s..\n",actualKeyId);
+			//System.out.printf("Changing key %s..\n",actualKeyId);
 			actualKey = (Key)resolver.resolve(actualKeyId);
 			resolver.register(actualKeyId,this);
 			for(Figure fig : figures){
 				fig.registerValues(resolver);
 			}
-			System.out.printf("Restoring key %s..\n",actualKeyId);
+			//System.out.printf("Restoring key %s..\n",actualKeyId);
 			resolver.register(actualKeyId,(Figure)actualKey);
 		}
 		
@@ -92,19 +93,19 @@ public class HStack extends Compose implements Key<Double>{
 	}
 	
 	@Override
-	public void registerValue(Properties prop,Object val) {
-		if(val instanceof IValue && (((IValue)val).getType().isNumberType() || ((IValue)val).getType().isIntegerType() || ((IValue)val).getType().isRealType())){
+	public void registerValue(Properties prop,IValue val) {
+		if((val.getType().isNumberType() || val.getType().isIntegerType() || (val).getType().isRealType())){
 			
 			double pval = PropertyParsers.parseNum((IValue)val);
 			stackState+=pval;
-			System.out.printf("Registering at stack %f\n",stackState);
+			//System.out.printf("Registering at stack %f\n",stackState);
 			actualKey.registerValue(prop,ValueFactoryFactory.getValueFactory().real(stackState));
 		}
 	}
 
 	@Override
-	public Double scaleValue(Object val) {
-		System.out.printf("Scaling %f\n",actualKey.scaleValue(val));
+	public IValue scaleValue(IValue val) {
+		//System.out.printf("Scaling %f\n",actualKey.scaleValue(val));
 		return actualKey.scaleValue(val);
 	}
 

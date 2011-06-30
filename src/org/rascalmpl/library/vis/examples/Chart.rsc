@@ -22,12 +22,13 @@ import Integer;
 
 
 
+
 public void nominalKeyTest(){
 	render(
 		vcat([
-			hcat( [ box(text(n),fillColor(convert(t,"type")) | <n,t> <- 
-				[<"equals","public">,<"intersects","protected">,<"toString","public">,<"getPassWord","private">,<"union","protected">]] 
-			, palleteKey(id("type"))
+			hcat( [ box(text(n),fillColor(convert(t,"type"))) | <n,t> <- 
+				[<"equals","public">,<"intersects","protected">,<"toString","public">,<"getPassWord","private">,<"union","protected">]]) 
+			, palleteKey("Types","type")])
 				);
 }
 
@@ -87,13 +88,13 @@ public void testGSBarChart(){
 
 public void graph(int n){
 	render(
-		title("Graph Demo",
+		 title("Graph Demo",
 			bottomAxis("Time since epoch","x",
 			leftAxis("Lines of code","y",
 				overlay([
-					ellipse(shrink(0.02),fillColor("blue"),hpos(convert((1.0/toReal(n)) * toReal(x) , "x")),vpos(convert(((x == 0) ? 0 :arbReal()),"y")))
+					ellipse(shrink(0.02),fillColor("blue"),hpos(convert( toReal(x) , "x")),vpos(convert(((x == 0) ? 0 :arbReal()),"y")))
 					| x <- [0..n]],shapeConnected(true),shapeCurved(true))
-			))			
+			) )			
 		));
 }
 

@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 
@@ -40,11 +41,11 @@ public class ComputedProperties {
 			this.fpa = fpa;
 		}
 		
-		abstract PropType convertValue(Result<IValue> res);
+		abstract PropType convertValue(IValue res);
 		
 		public synchronized void compute() {
 			Result<IValue> res = fpa.executeRascalCallBackWithoutArguments(fun);
-			value = convertValue(res);
+			value = convertValue(res.getValue());
 			fpa.setComputedValueChanged();
 		}
 		
@@ -60,13 +61,17 @@ public class ComputedProperties {
 			super(property,fun, fpa);
 		}
 
-		Double convertValue(Result<IValue> res){
+		static Double convertValueS(IValue res){
 			if(res.getType().isIntegerType())
-				return (double)((IInteger) res.getValue()).intValue();
+				return (double)((IInteger) res).intValue();
 			else if(res.getType().isRealType())
-				return ((IReal) res.getValue()).doubleValue();
+				return ((IReal) res).doubleValue();
 			else
-				return ((INumber) res.getValue()).toReal().doubleValue();
+				return ((INumber) res).toReal().doubleValue();
+		}
+		
+		Double convertValue(IValue res){
+			return convertValueS(res);
 		}
 	}
 	
@@ -76,9 +81,13 @@ public class ComputedProperties {
 			super(property,fun, fpa);
 		}
 
+		static String convertValueS(IValue res){
+			return ((IString) res).getValue();
+		}
+		
 		@Override
-		String convertValue(Result<IValue> res) {
-			return ((IString) res.getValue()).getValue();
+		String convertValue(IValue res) {
+			return convertValueS(res);
 		}
 
 	}
@@ -89,9 +98,13 @@ public class ComputedProperties {
 			super(property,fun, fpa);
 		}
 
+		static Boolean convertValueS(IValue res){
+			return ((IBool) res).getValue();
+		}
+		
 		@Override
-		Boolean convertValue(Result<IValue> res) {
-			return ((IBool) res.getValue()).getValue();
+		Boolean convertValue(IValue res) {
+			return convertValueS(res);
 		}
 
 	}
@@ -102,9 +115,13 @@ public class ComputedProperties {
 			super(property,fun, fpa);
 		}
 
+		static Integer convertValueS(IValue res){
+			return ((IInteger) res).intValue();
+		}
+		
 		@Override
-		Integer convertValue(Result<IValue> res) {
-			return ((IInteger) res.getValue()).intValue();
+		Integer convertValue(IValue res) {
+			return convertValueS(res);
 		}
 
 	}
@@ -113,6 +130,28 @@ public class ComputedProperties {
 		public ComputedColorProperty(Properties property,IValue fun, IFigureApplet fpa) {
 			super(property,fun, fpa);
 		}
+		
+		static Integer convertValueS(IValue res){
+			if (res.getType().isStringType()) {
+				String s = ((IString) res).getValue().toLowerCase();
+				if(s.length() == 0)
+					s = "black";
+				IInteger cl = FigureColorUtils.colorNames.get(s);
+				if (cl != null){
+					return cl.intValue();
+				} else {
+					return 0;
+				}
+			} else {
+				return ComputedIntegerProperty.convertValueS(res);
+			}
+		}
+		
+		@Override
+		Integer convertValue(IValue res) {
+			return convertValueS(res);
+		}
+
 	}
 	
 	public static class ComputedFigureProperty extends ComputedProperty<Figure>{
@@ -126,12 +165,16 @@ public class ComputedProperties {
 			this.parentPm = parentPm;
 			this.ctx = ctx;
 		}
-
-		@Override
-		Figure convertValue(Result<IValue> res) {
-			Figure fig = FigureFactory.make(fpa, ((IConstructor) res.getValue()), parentPm, null, ctx);
+		
+		static Figure convertValueS(IFigureApplet fpa,IValue res,PropertyManager parentPm, IEvaluatorContext ctx) {
+			Figure fig = FigureFactory.make(fpa, ((IConstructor) res), parentPm, null, ctx);
 			fig.bbox();
 			return fig;
+		}
+
+		@Override
+		Figure convertValue(IValue res) {
+			return convertValueS(fpa,res,parentPm,ctx);
 		}
 		
 		public synchronized void compute() {
@@ -151,7 +194,7 @@ public class ComputedProperties {
 		}
 
 		@Override
-		Void convertValue(Result<IValue> res) {
+		Void convertValue(IValue res) {
 			return null;
 		}
 	}
