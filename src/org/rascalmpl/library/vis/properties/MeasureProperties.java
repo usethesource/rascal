@@ -1,6 +1,6 @@
 package org.rascalmpl.library.vis.properties;
 
-import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -25,7 +25,10 @@ public class MeasureProperties {
 		IValue valVal;
 		String lastId;
 		IValue lastVal;
-		Key<PropType> key;
+		PropType lastValP;
+		boolean alreadyParsed;
+
+		Key key;
 
 		public MeasureProperty(Properties property,IValue idVal, IValue valVal, IFigureApplet fpa,IEvaluatorContext ctx){
 			super(property);
@@ -50,15 +53,16 @@ public class MeasureProperties {
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
 		public void registerMeasures(NameResolver resolver){
 			//System.out.printf("Resolving lastId\n");
+			alreadyParsed = false;
 			Figure k = resolver.resolve(lastId);
 			if(k instanceof Key){
-				key = (Key<PropType>)k;
+				key = (Key)k;
 				if(property == Properties.WIDTH || property == Properties.HEIGHT){
 					key.registerValue(property,ValueFactoryFactory.getValueFactory().real(0));
 				}
+				//System.out.printf("Lastval %s\n", lastVal);
 				key.registerValue(property,lastVal);
 				
 			} else {
@@ -68,24 +72,31 @@ public class MeasureProperties {
 		}
 		
 		public PropType getValue() {
-			if(property == Properties.WIDTH || property == Properties.HEIGHT){
-				double high = (Double)key.scaleValue(lastVal);
-				double low = (Double)key.scaleValue(ValueFactoryFactory.getValueFactory().real(0));
-				//System.out.printf("High %f low %f\n", high , low);
-				return (PropType)new Double(high-low);
-			} else {
-				if(property == Properties.FILL_COLOR){
-					// TODO: fix this horrible hack
-					return (PropType)(Integer)(FigureColorUtils.colorNames.get(((IString)key.scaleValue(lastVal)).getValue()).intValue());
+			
+			//if(!alreadyParsed){
+				IValue v;
+				if(property == Properties.WIDTH || property == Properties.HEIGHT){
+					System.out.printf("Lastval %s\n", lastVal);
+					IReal high = (IReal)key.scaleValue(lastVal);
+					IReal low = (IReal)key.scaleValue(ValueFactoryFactory.getValueFactory().real(0));
+					//System.out.printf("High %f low %f\n", high , low);
+					v = high.subtract(low);
+				} else {
+					v= key.scaleValue(lastVal);
 				}
-				return key.scaleValue(lastVal);
-			}
+				lastValP = parseVal(v);
+				alreadyParsed = true;
+				//System.out.printf("getting parsed thingie %s!\n",lastValP);
+			//}
+			return lastValP;
 		}	
+		
+		abstract PropType parseVal(IValue v);
 		
 		public boolean isConverted() { return true; }
 		
 		public String getKeyId() { return lastId; }
-		public Key<PropType> getKey() { return key; }
+		public Key getKey() { return key; }
 		
 		public IValue getUnconverted() { return lastVal;}
 	}
@@ -95,12 +106,22 @@ public class MeasureProperties {
 				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
+
+		@Override
+		Double parseVal(IValue v) {
+			return ComputedProperties.ComputedRealProperty.convertValueS(v);
+		}
 	}
 	
 	public static class MeasureStringProperty extends MeasureProperty<String>{
 		public MeasureStringProperty(Properties property, IValue idVal,
 				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
+		}
+
+		@Override
+		String parseVal(IValue v) {
+			return ComputedProperties.ComputedStringProperty.convertValueS(v);
 		}
 	}
 	
@@ -109,12 +130,22 @@ public class MeasureProperties {
 				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
+
+		@Override
+		Boolean parseVal(IValue v) {
+			return ComputedProperties.ComputedBooleanProperty.convertValueS(v);
+		}
 	}
 	
 	public static class MeasureIntegerProperty extends MeasureProperty<Integer>{
 		public MeasureIntegerProperty(Properties property, IValue idVal,
 				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
+		}
+
+		@Override
+		Integer parseVal(IValue v) {
+			return ComputedProperties.ComputedIntegerProperty.convertValueS(v);
 		}
 	}
 	
@@ -123,12 +154,25 @@ public class MeasureProperties {
 				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
+
+		@Override
+		Integer parseVal(IValue v) {
+			return ComputedProperties.ComputedColorProperty.convertValueS(v);
+		}
 	}
 	
 	public static class MeasureFigureProperty extends MeasureProperty<Figure>{
+		PropertyManager parentPm;
+		
 		public MeasureFigureProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
+				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx,PropertyManager parentPm) {
 			super(property, idVal, valVal, fpa, ctx);
+			this.parentPm = parentPm;
+		}
+
+		@Override
+		Figure parseVal(IValue v) {
+			return ComputedProperties.ComputedFigureProperty.convertValueS(fpa,v,parentPm,ctx);
 		}
 	}
 }

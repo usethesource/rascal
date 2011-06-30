@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.containers;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -10,7 +11,7 @@ import org.rascalmpl.library.vis.properties.PropertyParsers;
 import org.rascalmpl.library.vis.util.Key;
 
 
-public class HAxis extends WithInnerFig implements Key<Double> {
+public class HAxis extends WithInnerFig implements Key {
 	
 
 	final static double majorTickHeight = 5;
@@ -46,26 +47,29 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 		super.init();
 	}
 	
+	private boolean isNumber(IValue val){
+		return val.getType().isNumberType() || val.getType().isIntegerType() || val.getType().isRealType();
+	}
+	
 	@Override
-	public void registerValue(Properties prop,Object val) {
-		//System.out.printf("Registering at axis %s\n",val);
-		if(val instanceof IValue && (((IValue)val).getType().isNumberType() || ((IValue)val).getType().isIntegerType() || ((IValue)val).getType().isRealType())){
-			double pval = PropertyParsers.parseNum((IValue)val);
-			//System.out.printf("Processed %f %s\n", pval,getIdProperty());
+	public void registerValue(Properties prop,IValue val) {
+		if(isNumber(val)){
+			double pval = PropertyParsers.parseNum(val);
 			minVal = Math.min(minVal,pval);
 			maxVal = Math.max(maxVal,pval);
+			//System.out.printf("Registering at axis %f\n",pval);
 		}
 	}
 
 	@Override
-	public Double scaleValue(Object val) {
-		if(val instanceof IValue && (((IValue)val).getType().isNumberType() || ((IValue)val).getType().isIntegerType() || ((IValue)val).getType().isRealType())){
-			double pval = PropertyParsers.parseNum((IValue)val);
+	public IValue scaleValue(IValue val) {
+		if(isNumber(val)){
+			double pval = PropertyParsers.parseNum(val);
 			//System.out.printf("Converted %f\n", scale * pval);
-			//System.out.printf("%f -> %f %f\n",  pval, scale * (pval-minVal) ,minVal);
-			return scale * (pval-minVal)  ;
+			//System.out.printf("%s -> %f -> %f %f\n", val, pval, scale * (pval-minVal) ,minVal);
+			return ValueFactory.getInstance().real(scale * (pval-minVal)) ;
 		}
-		return 0.0;
+		return ValueFactory.getInstance().real(0.0);
 	}
 	
 	void computeScale(double pixelSpace){
@@ -112,6 +116,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 	
 	public void layout(){
 		computeScale(pixelSpace());
+		//System.out.printf("Computing scale %f %f %f %f\n",minVal,maxVal,pixelSpace(),scale);
 		double axisHeight = axisHeight();
 		double spacing ;
 		if(innerFig instanceof HAxis && ((HAxis)innerFig).flip != flip){
@@ -178,7 +183,7 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 	public void draw(double left, double top){
 		setLeft(left);
 		setTop(top);
-		System.out.printf("innersize %s\n",innerFig.size);
+		//System.out.printf("innersize %s\n",innerFig.size);
 		double axisTop ;
 		if(bottom){
 			axisTop = innerFig.size.getHeight(flip);
@@ -189,14 +194,14 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 		double pixelSpace = pixelSpace(); 
 		double leftOffset ;
 		if(innerFig instanceof VAxis && !((VAxis)innerFig).bottom){
-			System.out.printf("Data dan weer wel\n");
+			//System.out.printf("Data dan weer wel\n");
 				leftOffset = ((VAxis)innerFig).axisHeight();
 		} else {
 				leftOffset =0.0;
 		}
 		double spacing = spacing();
 		double outerSpace = outerSpace();
-		System.out.printf("left offset %f\n",leftOffset);
+		//System.out.printf("left offset %f\n",leftOffset);
 		Tick[] ticks = getTicks(minimumMajorTicksInterval(), 
 				left + leftOffset
 				, left + leftOffset + spacing * innerFig.getRealProperty(alignProp())
@@ -334,5 +339,6 @@ public class HAxis extends WithInnerFig implements Key<Double> {
 		maxOffset = Math.max(maxOffset, offset);
 		
 	}
+
 	
 }

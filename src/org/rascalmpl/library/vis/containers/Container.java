@@ -58,7 +58,7 @@ public abstract class Container extends WithInnerFig {
 	public void computeMinWidth(boolean flip){
 		
 		if(innerFig!=null){ 
-			minSize.setWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip));
+			minSize.setWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip) + getLineWidthProperty());
 		}
 	}
 	
@@ -72,7 +72,7 @@ public abstract class Container extends WithInnerFig {
 		innerFigLocation.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
 			if(innerFig != null) {
-				double sizeWithouthBorders = size.getWidth(flip) - 2*lw ;
+				double sizeWithouthBorders = size.getWidth(flip) - lw ;
 				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(flip);
 				innerFig.takeDesiredWidth(flip, innerDesiredWidth);
 				innerFigLocation.addX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
@@ -86,7 +86,7 @@ public abstract class Container extends WithInnerFig {
 	@Override
 	public
 	void draw(double left, double top) {
-		System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
+		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
 
 		setLeft(left);
 		setTop(top);

@@ -1095,8 +1095,10 @@ public class FigureSWTApplet implements IFigureApplet {
 		Cursor cursor0 = comp.getCursor();
 		Cursor cursor = new Cursor(device, SWT.CURSOR_WAIT);
 		comp.setCursor(cursor);
+		System.out.printf("got here: \n");
 		Result<IValue> result = ((ICallableValue) callback).call(argTypes,
 				argVals);
+		System.out.printf("result of callback: %s\n",result);
 		comp.setCursor(cursor0);
 		cursor.dispose();
 		return result;

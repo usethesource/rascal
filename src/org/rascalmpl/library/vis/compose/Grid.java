@@ -221,7 +221,7 @@ public class Grid extends Figure {
 					elem.takeDesiredWidth(flip,colWidth);
 				}
 				//System.out.printf("Took width %f %s\n",elem.size.getWidth(flip),elem);
-				double margin =(colWidth- elem.size.getWidth(flip))  * elem.getHAlignProperty(flip) ;
+				double margin =Math.max(0.0,(colWidth- elem.size.getWidth(flip))  * elem.getHAlignProperty(flip)) ;
 				setXPos(flip, row, column, left + margin);
 			}
 			left+=gapSize + colWidth;

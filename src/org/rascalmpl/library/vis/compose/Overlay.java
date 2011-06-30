@@ -75,7 +75,7 @@ public class Overlay extends Compose{
 	}
 
 	public void layout(){
-		System.out.printf("osize : %s\n",size);
+		//System.out.printf("osize : %s\n",size);
 		ForBothDimensions<Double> minLocs = new ForBothDimensions<Double>(Double.MAX_VALUE);
 		for(Figure fig : figures){
 			for(boolean flip : BOTH_DIMENSIONS){
@@ -161,12 +161,12 @@ public class Overlay extends Compose{
 	public void registerValues(NameResolver resolver){
 			
 			properties.registerMeasures(resolver);
-			ForBothDimensions<Key<Double>> actualKeys = new ForBothDimensions<Key<Double>>(null);
+			ForBothDimensions<Key> actualKeys = new ForBothDimensions<Key>(null);
 			if(figures.length > 0){
 				for(boolean flip : BOTH_DIMENSIONS){
 					String actualKeyId = figures[0].getKeyIdForHLoc(flip);
 					if(actualKeyId != null){
-						actualKeys.setForX(flip, (Key<Double>)resolver.resolve(actualKeyId));
+						actualKeys.setForX(flip, (Key)resolver.resolve(actualKeyId));
 						resolver.register(actualKeyId,new LocalOffsetKey(flip, actualKeys.getForX(flip)));
 					}
 				}
@@ -183,18 +183,18 @@ public class Overlay extends Compose{
 			
 	}
 	
-	public class LocalOffsetKey extends Figure implements Key<Double>{
+	public class LocalOffsetKey extends Figure implements Key{
 		// TODO: this is no figure...
-		Key<Double> actualKey;
+		Key actualKey;
 		boolean flip;
 		
-		public LocalOffsetKey(boolean flip,Key<Double> actualKey) {
+		public LocalOffsetKey(boolean flip,Key actualKey) {
 			this.flip= flip;
 			this.actualKey = actualKey;
 		}
 		@Override
-		public void registerValue(Properties prop,Object val) {
-			// TODO: do not pass rascal value around..
+		public void registerValue(Properties prop,IValue val) {
+			
 			
 			if(prop == Properties.HLOC || prop == Properties.VLOC) {
 				actualKey.registerValue(prop,val);
@@ -221,7 +221,7 @@ public class Overlay extends Compose{
 		}
 
 		@Override
-		public Double scaleValue(Object val) {
+		public IValue scaleValue(IValue val) {
 			return actualKey.scaleValue(val);
 		}
 
