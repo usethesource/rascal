@@ -131,4 +131,11 @@ public abstract class Compose extends Figure {
 			fig.destroy();
 		}
 	}
+	
+	public void bbox(){
+		for(Figure fig : figures){
+			fig.bbox();
+		}
+		super.bbox();
+	}
 }

@@ -44,9 +44,10 @@ public class Outline extends Figure {
 		minSize.setWidth(minSize.getWidth() + 2*lw);
 		minSize.setHeight(minSize.getHeight() + 2*lw);
 		if(debug) System.err.println("Outline.bbox => " + minSize.getWidth() + ", " + minSize.getHeight());
-		if(debug)System.err.printf("Outline.bbox: topAnchor=%f, bottomAnchor=%f\n", topAlign(), bottomAlign());
+		//if(debug)System.err.printf("Outline.bbox: topAnchor=%f, bottomAnchor=%f\n", topAlign(), bottomAlign());
 		setNonResizable();
 		super.bbox();
+	
 	}
 	
 	@Override
@@ -57,7 +58,7 @@ public class Outline extends Figure {
 		
 	    double lw = getLineWidthProperty();
 		applyProperties();
-		if(debug) System.err.println("Outline.draw => " + minSize.getWidth() + ", " + minSize.getHeight());
+		/* if(debug) */ System.err.println("Outline.draw => " + minSize.getWidth() + ", " + minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
 			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 			for(IValue v : lineInfo){

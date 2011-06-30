@@ -13,14 +13,13 @@ package org.rascalmpl.library.vis.compose;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
-import org.rascalmpl.library.vis.util.Coordinate;
 
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
@@ -36,7 +35,7 @@ public class Pack extends Compose {
 	
 	Node root;
 	boolean fits = true;
-	static protected boolean debug = true;
+	static protected boolean debug =false;
 	boolean initialized = false;
 
 	public Pack(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
@@ -68,53 +67,44 @@ public class Pack extends Compose {
 		
 	}
 	
-
-	 
-
-
 	@Override
-	public
-	void bbox() {
-		if(initialized)
-			return;
-		minSize.setWidth(getWidthProperty());
-		minSize.setHeight(getHeightProperty());
-
+	public void layout(){
 		Node.hgap = getHGapProperty();
 		Node.vgap = getVGapProperty();
-		double surface = 0;
+		/* double surface = 0;
 		double maxw = 0;
 		double maxh = 0;
 		double ratio = 1;
 		for(Figure fig : figures){
-			fig.bbox();
+			//fig.bbox();
 			maxw = Math.max(maxw, fig.minSize.getWidth());
 			maxh = Math.max(maxh, fig.minSize.getHeight());
 			surface += fig.minSize.getWidth() * fig.minSize.getHeight();
 			ratio = (ratio +fig.minSize.getHeight()/fig.minSize.getWidth())/2;
-		}
-		double opt = FigureApplet.sqrt(surface);
-		minSize.setWidth(opt);
-		minSize.setHeight(ratio * opt);
+		} */
+//		double opt = FigureApplet.sqrt(surface);
+//		minSize.setWidth(opt);
+//		minSize.setHeight(ratio * opt);
 
 		//width = opt/maxw < 1.2 ? 1.2f * maxw : 1.2f*opt;
 	//	height = opt/maxh < 1.2 ? 1.2f * maxh : 1.2f*opt;
 		
-		if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, minSize.getWidth(), minSize.getHeight());
+		//if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, minSize.getWidth(), minSize.getHeight());
 		Arrays.sort(figures, new CompareAspectSize());
 		if(debug){
-			System.err.println("SORTED ELEMENTS:");
+			System.err.println("SORTED ELEMENTS!:");
 			for(Figure v : figures){
-				System.err.printf("\t%s, width=%f, height=%f\n", v.getIdProperty(), v.minSize.getWidth(), v.minSize.getHeight());
+				System.err.printf("\t%s, width=%f, height=%f\n", v, v.minSize.getWidth(), v.minSize.getHeight());
 			}
 		}
 		
-		fits = false;
-		while(!fits){
-			fits = true;
-			minSize.setWidth(minSize.getWidth() * 1.2f);
-			minSize.setHeight(minSize.getHeight() * 1.2f);
-			root = new Node(0, 0, minSize.getWidth(), minSize.getHeight());
+		fits = true;
+		//while(!fits){
+			//fits = true;
+			//size.setWidth(size.getWidth() * 1.2f);
+			//size.setHeight(size.getHeight() * 1.2f);
+	
+			root = new Node(0, 0, size.getWidth(), size.getHeight());
 			
 			for(Figure fig : figures){
 				Node nd = root.insert(fig);
@@ -125,27 +115,38 @@ public class Pack extends Compose {
 				}
 				nd.figure = fig;
 			}
-		}
-		initialized = true;
-		setNonResizable();
+		//}
+		//initialized = true;
+	}
+	
+	@Override
+	public void bbox(){
+		setResizable();
 		super.bbox();
 	}
+	
 
 	@Override
 	public
 	void draw(double left, double top) {
-		if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
+		//if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
 		setLeft(left);
 		setTop(top);
 		
-		applyProperties();
+		
 
 		if(fits){
 			if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
 			root.draw(left, top);
 		} else {
-			fpa.fill(0);
-			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
+			String message = "Pack: cannot fit!";
+			System.err.printf("Pack: cannot fit\n");
+			applyProperties();
+			fpa.fill(FigureColorUtils.figureColor(180, 180, 180));
+			fpa.rect(left, top, size.getWidth(), size.getHeight());
+			applyFontProperties();
+			fpa.text(message, left + size.getWidth()/2.0 - fpa.textWidth(message)/2.0, top + size.getHeight()/2.0 - fpa.textAscent() );
+			
 		}
 	}
 	
@@ -245,3 +246,4 @@ class Node {
 		}
 	}
 }
+
