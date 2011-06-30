@@ -71,6 +71,11 @@ public class Pack extends Compose {
 	public void layout(){
 		Node.hgap = getHGapProperty();
 		Node.vgap = getVGapProperty();
+		
+		for(Figure v : figures){
+			v.takeDesiredWidth(v.minSize.getWidth());
+			v.takeDesiredHeight(v.minSize.getHeight());
+		}
 		/* double surface = 0;
 		double maxw = 0;
 		double maxh = 0;
