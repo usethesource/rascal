@@ -1512,7 +1512,7 @@ public Figure palleteKey (str name, str key,FProperty props...){
  		box(
  			inner
  		)
- 		]);},[id(key)]); 
+ 		],props);},[id(key)] ); 
 }
 
 public Figure title(str name, Figure inner){

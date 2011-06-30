@@ -99,7 +99,9 @@ public class Grid extends Figure {
 			}
 		}
 		//System.out.printf("Unresizable columns width %f\n",unresizableOrAutoColumnsWidth.getForX(flip));
-		minSize = Math.max(minSize, unresizableOrAutoColumnsWidth.getForX(flip) / (1.0 - totalShrink) );
+		if(totalShrink != 1.0){
+			minSize = Math.max(minSize, unresizableOrAutoColumnsWidth.getForX(flip) / (1.0 - totalShrink) );
+		}
 		minSize*= getHGrowProperty(flip);
 		anyColumnResizable.setForX(flip, !(nrAutoColumns.getForX(flip) == 0 && totalShrink == 0));
 		this.totalShrink.setForX(flip, totalShrink);
