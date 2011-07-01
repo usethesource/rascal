@@ -1224,6 +1224,8 @@ data Figure =
    
    | _nominalKey(list[value] possibilities, Figure (list[value]) whole,FProperties props)
    
+   | _intervalKey(value (real part) interpolate, Figure (value low, value high) explain,FProperties props)
+   
 /* transformation */
 
    | _rotate(num angle, Figure fig, FProperties props)			    // Rotate element around its anchor point
@@ -1534,4 +1536,18 @@ public Color randomColorAlpha(){
 public Figure point(FProperty props...){
 	return space([resizable(false), size(0)] + props);
 }
+
+public Figure greenRedKey(str name, str key, FProperty props...){
+	return  _intervalKey( value (real part) { return interpolateColor(color("green"),color("red"),part); },
+				Figure (value low,value high) {
+ 		Figure inner = hcat([vcat([box(fillColor("green")),text(toString(low))]),
+ 							vcat([box(fillColor("red")),text(toString(high))])]
+ 						);
+ 		return hcat([
+ 		text(name,fontSize(13)),
+ 		box(
+ 			inner
+ 		)
+ 		],[ hgrow(1.1)] + props);},[id(key)] ); 
+ }
 

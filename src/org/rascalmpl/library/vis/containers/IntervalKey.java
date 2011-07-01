@@ -4,8 +4,10 @@ import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -15,41 +17,43 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 
+public class IntervalKey extends WithInnerFig implements Key {
 
-public class NominalKey extends WithInnerFig implements Key{
-
-	IValue whole;
-	IList possibilities;
-	Vector<IValue> originals;
+	IValue explain;
+	IValue interpolate;
+	// TODO: can this type be more general? (i.e. Comparable)
+	INumber low,high, interval;
 	final private IEvaluatorContext ctx;
 	private IList childProps;
-	IValue[] tmpArray ;
 	String id;
 	
-	public NominalKey(IFigureApplet fpa, IList possibilties, IValue whole, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
+	public IntervalKey(IFigureApplet fpa, IValue interpolate, IValue explain, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
 		super(fpa,null,properties);
 		this.ctx = ctx;
 		this.childProps = childProps;
-		this.whole = whole;
-		this.possibilities = possibilties;
-		this.originals = new Vector<IValue>(possibilties.length());
-		tmpArray = new IValue[originals.size()];
 		id = getIdProperty();
+		this.explain = explain;
+		this.interpolate = interpolate;
 	}
 	
+
 	public void init(){
 		super.init();
-		originals.clear();
+		interval = high = low = null;
 	}
 	
 	public void finalize(){
+		interval = high.subtract(low);
+		//System.out.printf("Nominal finalize bbox start!\n");
 		if(innerFig != null){
 			innerFig.destroy();
 		}
 		
 		TypeFactory tf = TypeFactory.getInstance();
-		IList originalsL = ValueFactory.getInstance().list(originals.toArray(tmpArray));
-		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()),originalsL).getValue();
+		Type[] argTypes = {tf.valueType(),tf.valueType()};
+		IValue[] args = {low,high};
+		IConstructor figureCons = (IConstructor)
+			fpa.executeRascalCallBack(explain,argTypes,args).getValue();
 		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
 		innerFig.init();
 		innerFig.computeFiguresAndProperties();
@@ -65,7 +69,7 @@ public class NominalKey extends WithInnerFig implements Key{
 		innerFig.bbox();
 		minSize.set(innerFig.minSize);
 		setResizable();
-		System.out.printf("Nominal key bbox done!\n");
+		//System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	@Override
@@ -90,14 +94,18 @@ public class NominalKey extends WithInnerFig implements Key{
 
 	@Override
 	public void registerValue(Properties prop, IValue val) {
-		for(int i = 0 ; i < originals.size() ; i++ ){
-			if(originals.get(i).isEqual(val)){
-				return ;
-			}
+		if(!(val instanceof INumber)) return;
+		INumber n = (INumber) val;
+		if(low == null){
+			low = n;
+		} else if(n.less(low).getValue()){
+			low = n;
 		}
-		if(originals.size()  < possibilities.length()){
-			originals.add(val);
-		} 
+		if(high == null){
+			high = n;
+		} else if(n.greater(high).getValue()){
+			high = n;
+		}
 	}
 
 
@@ -112,13 +120,12 @@ public class NominalKey extends WithInnerFig implements Key{
 
 	@Override
 	public IValue scaleValue(IValue val) {
-		
-		for(int i = 0 ; i < originals.size()  ; i++){
-			if(originals.get(i).isEqual((IValue)val)){
-				return possibilities.get(i);
-			}
-		}
-		return possibilities.get(0);
+		if(!(val instanceof INumber)) return ValueFactory.getInstance().real(0);
+		INumber n = (INumber) val;
+		INumber part = n.subtract(low).divide(interval,10);
+		TypeFactory tf = TypeFactory.getInstance();
+		return 
+			fpa.executeRascalCallBackSingleArgument(interpolate, tf.valueType(), part).getValue(); 
 	}
 
 
@@ -127,5 +134,5 @@ public class NominalKey extends WithInnerFig implements Key{
 	public String getId() {
 		return id;
 	}
-
+	
 }

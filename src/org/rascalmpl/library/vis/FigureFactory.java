@@ -33,6 +33,7 @@ import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.HAxis;
 import org.rascalmpl.library.vis.containers.HScreen;
+import org.rascalmpl.library.vis.containers.IntervalKey;
 import org.rascalmpl.library.vis.containers.NominalKey;
 import org.rascalmpl.library.vis.containers.Projection;
 import org.rascalmpl.library.vis.containers.Scrollable;
@@ -96,6 +97,7 @@ public class FigureFactory {
 		VSTACK,
 		HVCAT,
 		NOMINALKEY,
+		INTERVALKEY,
 		OUTLINE,
 		OVERLAY, 
 		PACK, 
@@ -137,7 +139,8 @@ public class FigureFactory {
     	put("_hvcat",		Primitives.HVCAT);
     	put("_hstack",      Primitives.HSTACK);
     	put("_vstack",      Primitives.VSTACK);
-    	put("_nominalKey",		Primitives.NOMINALKEY);
+    	put("_nominalKey",  Primitives.NOMINALKEY);
+    	put("_intervalKey", Primitives.INTERVALKEY);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
     	put("_pack",		Primitives.PACK);	
@@ -273,6 +276,9 @@ public class FigureFactory {
 		case BOTTOMSCREEN:
 			return new HScreen(false,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
 		
+			
+		case INTERVALKEY:
+			return new IntervalKey(fpa,c.get(0),c.get(1),properties,childProps,ctx);
 		case NOMINALKEY:
 			return new NominalKey(fpa,(IList)c.get(0),c.get(1),properties,childProps,ctx);
 			
