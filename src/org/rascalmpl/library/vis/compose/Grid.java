@@ -166,7 +166,7 @@ public class Grid extends Figure {
 	
 	
 	public void layout(){
-		//System.out.printf("Actual size %s\n",size);
+		//System.out.printf("Grid layout %s\n",size);
 		for(boolean flip: BOTH_DIMENSIONS){
 			layoutX(flip);
 		}

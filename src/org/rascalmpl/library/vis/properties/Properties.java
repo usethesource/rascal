@@ -10,6 +10,7 @@ import org.rascalmpl.library.vis.properties.PropertySetters.SingleIntOrRealPrope
 import org.rascalmpl.library.vis.util.Dimension;
 
 public enum Properties {
+	MOUSE_STICK(Types.BOOL,true),
 	SHAPE_CLOSED(Types.BOOL,false), 	
 	SHAPE_CONNECTED(Types.BOOL,false),
 	SHAPE_CURVED(Types.BOOL,false),
@@ -89,6 +90,7 @@ public enum Properties {
 	
 	@SuppressWarnings("rawtypes")
 	public static final HashMap<String, PropertySetters.PropertySetter> propertySetters = new HashMap<String, PropertySetters.PropertySetter>() {{
+		put("mouseStick" , new PropertySetters.SingleBooleanPropertySetter(MOUSE_STICK));
 		put("shapeClosed", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CLOSED));
 		put("shapeConnected", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CONNECTED));
 		put("shapeCurved", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));

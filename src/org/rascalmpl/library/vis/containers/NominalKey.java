@@ -65,7 +65,7 @@ public class NominalKey extends WithInnerFig implements Key{
 		innerFig.bbox();
 		minSize.set(innerFig.minSize);
 		setResizable();
-		System.out.printf("Nominal key bbox done!\n");
+		//System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class NominalKey extends WithInnerFig implements Key{
 		innerFig.size.set(size);
 		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();
-		System.out.printf("Nominal key bbox done!\n");
+		//System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	public void registerNames(NameResolver resolver) {

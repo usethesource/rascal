@@ -57,9 +57,9 @@ public class HStack extends Compose implements Key{
 			pos[i].setY(flip,0);
 			figures[i].globalLocation.setX(flip,globalLocation.getX(flip) + left);
 			figures[i].globalLocation.setY(flip,globalLocation.getX(flip) + pos[i].getY());
-			System.out.printf("Setting height to %f\n", size.getHeight(flip));
+			//System.out.printf("Setting height to %f\n", size.getHeight(flip));
 			figures[i].takeDesiredHeight(flip, size.getHeight(flip));
-			System.out.printf("Got height to %f\n", figures[i].size.getHeight(flip));
+			//System.out.printf("Got height to %f\n", figures[i].size.getHeight(flip));
 			figures[i].takeDesiredWidth(flip,  size.getWidth(flip));
 			figures[i].layout();
 			if(!flip){

@@ -89,7 +89,7 @@ public class Button extends Figure {
 	@Override
 	public void destroy() {
 		// fpa.setComputedValueChanged();
-		System.out.printf("destroying button\n");
+		//System.out.printf("destroying button\n");
 		button.dispose();
 	}
 

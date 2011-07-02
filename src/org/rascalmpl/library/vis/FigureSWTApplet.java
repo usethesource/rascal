@@ -49,6 +49,7 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
@@ -106,6 +107,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	private int top = 0;
 	private double width = 0;
 	private double height = 0;
+	private boolean layingOut = false;
 
 	private Stack<PlacedFigure> mouseOverStack;
 	private Stack<Figure> mouseOverCausesStack;
@@ -279,10 +281,16 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.redraw();
 	}
 
-	private void drawFigure() {
+	private synchronized void  drawFigure() {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
+		if(layingOut){
+			System.err.printf("Will not draw while laying out!\n");
+		
+			return;
+		}
 		layoutFigures();
+		
 		//System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
 		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 
@@ -320,84 +328,99 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	private void layoutFigures() {
+		if(layingOut){
+			System.err.printf("Will not relayout while laying out!\n");
+			return;
+		}
+		synchronized(this){
 		// System.out.printf("Layout \n");
 		//System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
-		NameResolver resolver = new NameResolver(this, ctx);
-		for (PlacedFigure fig : mouseOverStack) {
-			if (fig.computedValueChanged) {
-				//System.out.printf("compute on %s \n", fig.figure);
-				fig.figure.init();
-				fig.figure.computeFiguresAndProperties();
-				fig.figure.registerNames(resolver);
-				fig.figure.registerValues(resolver);
-				fig.figure.getLikes(resolver);
-				fig.figure.finalize();
-				fig.figure.bbox();
-			}
-		}
-
-		if (resized) {
-			viewPort = new BoundingBox(width, height);
-		}
-		// System.out.printf("drawing inside %s \n", viewPort);
-		PlacedFigure bottom = mouseOverStack.get(0);
-		// System.out.printf("drawing inside %s \n", bottom.bounds);
-		bottom.bounds.set(viewPort);
-		boolean bottomChanged = false;
-		for (int i = 0; i < mouseOverStack.size(); i++) {
-			PlacedFigure fig = mouseOverStack.get(i);
-			if (resized || fig.computedValueChanged) {
+			layingOut = true;
+			NameResolver resolver = new NameResolver(this, ctx);
+			for (PlacedFigure fig : mouseOverStack) {
 				currentFig = fig;
-				//System.out.printf("Bbox on %s\n", fig);
+				if (fig.computedValueChanged) {
+					//System.out.printf("compute on %s \n", fig.figure);
+					fig.figure.init();
+					fig.figure.computeFiguresAndProperties();
+					fig.figure.registerNames(resolver);
+					fig.figure.registerValues(resolver);
+					fig.figure.getLikes(resolver);
+					fig.figure.finalize();
+					fig.figure.bbox();
+					
+					
+				}
 				
-				for (boolean flip : Figure.BOTH_DIMENSIONS) {
-					// System.out.printf("blab bla %f %s\n",
-					// fig.coordinate.getX(flip) +
-					// fig.figure.minSize.getWidth(flip) /
-					// fig.figure.getHShrinkProperty(flip), flip);
-					fig.figure.takeDesiredWidth(flip, Math.max(
-							fig.bounds.getWidth(flip)
-									* fig.figure.getHShrinkProperty(flip),
-							fig.figure.minSize.getWidth(flip)));
-					if (i == 0) {
-						bottomChanged = true;
-						viewPort.setWidth(flip, Math.max(
-								viewPort.getWidth(flip),
-								fig.figure.size.getWidth(flip)));
-					}
-				}
-				if (i == 0) {
-					fig.bounds.set(viewPort);
-				}
-				fig.figure.layout();
-				for (boolean flip : Figure.BOTH_DIMENSIONS) {
-					double margin = (fig.bounds.getWidth(flip) - fig.figure.size
-							.getWidth(flip));
-					fig.offset.setX(flip,
-							margin * fig.figure.getHAlignProperty(flip));
-				}
-				fig.computedValueChanged = false;
-				// System.out.printf("Placed %d %s %s %s %s %s\n",i,
-				// fig.coordinate,fig.offset,fig.bounds,fig.figure.minSize,viewPort);
 			}
-
-		}
-		if (bottomChanged) {
-
-			((ScrolledComposite) comp.getParent()).setMinSize(
-					(int) Math.ceil(viewPort.getWidth()),
-					(int) Math.ceil(viewPort.getHeight()));
-			figureWidth = viewPort.getWidth();
-			figureHeight = viewPort.getHeight();
-
-			comp.layout();
+			//TODO: fix this hack;
+			if(mouseOverStack.elementAt(0).computedValueChanged && mouseOverStack.size() == 2){mouseOverStack.pop();}
+	
+			
+			viewPort = new BoundingBox(width, height);
+			
+			// System.out.printf("drawing inside %s \n", viewPort);
+			PlacedFigure bottom = mouseOverStack.get(0);
+			// System.out.printf("drawing inside %s \n", bottom.bounds);
+			bottom.bounds.set(viewPort);
+			boolean bottomChanged = false;
+			for (int i = 0; i < mouseOverStack.size(); i++) {
+				PlacedFigure fig = mouseOverStack.get(i);
+				if (resized || fig.computedValueChanged) {
+					currentFig = fig;
+					//System.out.printf("Bbox on %s\n", fig);
+					
+					for (boolean flip : Figure.BOTH_DIMENSIONS) {
+						// System.out.printf("blab bla %f %s\n",
+						// fig.coordinate.getX(flip) +
+						// fig.figure.minSize.getWidth(flip) /
+						// fig.figure.getHShrinkProperty(flip), flip);
+						fig.figure.takeDesiredWidth(flip, Math.max(
+								fig.bounds.getWidth(flip)
+										* fig.figure.getHShrinkProperty(flip),
+								fig.figure.minSize.getWidth(flip) * fig.figure.getHShrinkProperty(flip)));
+						if (i == 0) {
+							bottomChanged = true;
+							viewPort.setWidth(flip, Math.max(
+									viewPort.getWidth(flip),
+									fig.figure.size.getWidth(flip)));
+						}
+					}
+					if (i == 0) {
+						fig.bounds.set(viewPort);
+					}
+					fig.figure.layout();
+					for (boolean flip : Figure.BOTH_DIMENSIONS) {
+						double margin = (fig.bounds.getWidth(flip) - fig.figure.size
+								.getWidth(flip));
+						fig.offset.setX(flip,
+								margin * fig.figure.getHAlignProperty(flip));
+					}
+					fig.computedValueChanged = false;
+					// System.out.printf("Placed %d %s %s %s %s %s\n",i,
+					// fig.coordinate,fig.offset,fig.bounds,fig.figure.minSize,viewPort);
+				}
+	
+			}
+			if (bottomChanged) {
+	
+				((ScrolledComposite) comp.getParent()).setMinSize(
+						(int) Math.ceil(viewPort.getWidth()),
+						(int) Math.ceil(viewPort.getHeight()));
+				figureWidth = viewPort.getWidth();
+				figureHeight = viewPort.getHeight();
+	
+				comp.layout();
+			}
+			
+			mouseMoved();	
+			layingOut = false;
+			
 		}
 		// comp.setSize(2000,800);
 		// System.out.printf("Setting %s %f %f\n",this, viewPort.getWidth(),
-		// viewPort.getHeight());
-
+		// viewPort.getHeight());	
 	}
-
 	public int getFigureWidth() {
 		return FigureApplet.round(figureWidth);
 	}
@@ -490,7 +513,7 @@ public class FigureSWTApplet implements IFigureApplet {
 					mouseX, mouseY), figuresUnderMouse);
 			mouseOverTop = false;
 		} else {
-			mouseOverTop = true;
+			mouseOverTop = true ; // mouseOverStack.size() <= 1  || mouseOverStack.peek().figure.properties.isBooleanPropertySet(Properties.MOUSE_STICK) ;
 		}
 		swp = prevFiguresUnderMouseSorted;
 		prevFiguresUnderMouseSorted = figuresUnderMouseSorted;
@@ -499,6 +522,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		figuresUnderMouseSorted.addAll(figuresUnderMouse);
 		Collections.sort(figuresUnderMouseSorted);
 		executeMouseOverOffHandlers();
+		//comp.redraw();
 		/*
 		 System.out.printf("under mouse:");
 		 for(Figure fig : figuresUnderMouseSorted) {
@@ -515,7 +539,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			boolean donotPop = false;
 			for (Figure fig : figuresUnderMouse) {
 				if (fig.isMouseOverSet()
-						&& fig.getMouseOverProperty() == mouseOverStack.peek().figure) {
+						&& fig.getMouseOverProperty() == mouseOverStack.peek().figure ) {
 					donotPop = true;
 					break;
 				}
@@ -577,14 +601,23 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	void handleMouseClick() {
 		// System.out.printf("Handling mouse click2!\n");
-		for (Figure fig : figuresUnderMouse) {
-			if (fig.isHandlerPropertySet(Properties.MOUSE_CLICK)) {
-				// System.out.printf("MOUSE click on %s!\n",fig);
-				fig.executeOnClick();
-				comp.redraw();
-				return;
-			} else {
-				// System.out.printf("no mouse click on %s!\n",fig);
+		synchronized (this) {
+			for (Figure fig : figuresUnderMouse) {
+				if(mouseOverTop){
+					currentFig = mouseOverStack.peek();
+				} else {
+					if(mouseOverStack.size() >= 1){
+						currentFig = mouseOverStack.elementAt(mouseOverStack.size()-2);
+					}
+				}
+				if (fig.isHandlerPropertySet(Properties.MOUSE_CLICK)) {
+					// System.out.printf("MOUSE click on %s!\n",fig);
+					fig.executeOnClick();
+					comp.redraw();
+					return;
+				} else {
+					// System.out.printf("no mouse click on %s!\n",fig);
+				}
 			}
 		}
 
@@ -613,9 +646,9 @@ public class FigureSWTApplet implements IFigureApplet {
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
 		setMouseOverFigure();
-		if (computedValueChanged()) {
+		/*if (computedValueChanged()) {
 			comp.redraw();
-		}
+		}*/
 		/*
 		 * figure.getFiguresUnderMouse(new Coordinate(mouseX,mouseY),
 		 * figuresUnderMouse); if (debug)
@@ -642,7 +675,8 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void mousePressed() {
-		handleMouseClick();
+		
+			handleMouseClick();
 		/*
 		 * if (debug) System.err.println("=== FigurePApplet.mousePressed: " +
 		 * mouseX + ", " + mouseY); lastMouseX = mouseX; lastMouseY = mouseY;
@@ -655,7 +689,13 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public void setComputedValueChanged() {
-		if(currentFig !=null) currentFig.computedValueChanged = true;
+		synchronized (this) {
+			
+		
+		for(PlacedFigure fig : mouseOverStack){
+			fig.computedValueChanged = true;
+		}
+		}
 	}
 
 	public void line(double arg0, double arg1, double arg2, double arg3) {
@@ -1091,23 +1131,39 @@ public class FigureSWTApplet implements IFigureApplet {
 
 	public Result<IValue> executeRascalCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
-		assert (callback instanceof ICallableValue);
-		Cursor cursor0 = comp.getCursor();
-		Cursor cursor = new Cursor(device, SWT.CURSOR_WAIT);
-		comp.setCursor(cursor);
-		//System.out.printf("got here: \n");
-		Result<IValue> result = ((ICallableValue) callback).call(argTypes,
-				argVals);
-		//System.out.printf("result of callback: %s\n",result);
-		comp.setCursor(cursor0);
-		cursor.dispose();
-		return result;
+		
+		
+			
+		synchronized (this) {
+			assert (callback instanceof ICallableValue);
+			Cursor cursor0 = comp.getCursor();
+			Cursor cursor = new Cursor(device, SWT.CURSOR_WAIT);
+			comp.setCursor(cursor);
+			//System.err.printf("doing callBack: %s \n", callback);
+			
+			Result<IValue> result =null;
+			try{
+				result = ((ICallableValue) callback).call(argTypes,
+						argVals);
+			} catch(Throw e){
+				e.printStackTrace();
+				System.err.printf("Callback error: " + e.getMessage() + "" + e.getTrace() );
+			}
+			 
+			
+			//System.err.printf("done callBack: \n");
+			comp.setCursor(cursor0);
+			cursor.dispose();
+			return result;
+		}
+			
 
 	}
 
 	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) {
 		Type[] argTypes = {};
 		IValue[] argVals = {};
+		
 		return executeRascalCallBack(callback, argTypes, argVals);
 	}
 

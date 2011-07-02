@@ -43,7 +43,7 @@ public class ComputedProperties {
 		
 		abstract PropType convertValue(IValue res);
 		
-		public synchronized void compute() {
+		public void compute() {
 			Result<IValue> res = fpa.executeRascalCallBackWithoutArguments(fun);
 			value = convertValue(res.getValue());
 			fpa.setComputedValueChanged();
