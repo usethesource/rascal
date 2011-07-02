@@ -115,7 +115,7 @@ public Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to)
 }
 
 @doc{Create a fixed color palette}
-public list[str] p12 = [ "navy", "violet", "yellow", "aqua", 
+public list[str] p12 = [ "yellow", "aqua", "navy", "violet", 
                           "red", "darkviolet", "maroon", "green",
                           "teal", "blue", "olive", "lime"];
                           
@@ -275,7 +275,10 @@ data FProperty =
 /* sizes */
 	  project              (Figure f0, str p0)
 	 | _child               (FProperties props)
-| align                (Convert           mr0)
+	| align                (num                r0)
+	| align                (computedNum       cr0)
+	| align                (Like              lr0)
+	| align                (Convert           mr0)
 	| align                (num                r2, num                r1)
 	| align                (num                r3, computedNum       cr1)
 	| align                (num                r4, Like              lr1)
@@ -386,6 +389,11 @@ data FProperty =
 	| grow                 (Convert           mr6, computedNum       cr8)
 	| grow                 (Convert           mr7, Like              lr8)
 	| grow                 (Convert           mr8, Convert           mr4)
+	| guideColor           (Color              c0)
+	| guideColor           (str               sc0)
+	| guideColor           (computedColor     cc0)
+	| guideColor           (Like              lc0)
+	| guideColor           (Convert           mc0)
 	| halign               (num                r0)
 	| halign               (computedNum       cr0)
 	| halign               (Like              lr0)
@@ -507,6 +515,10 @@ data FProperty =
 	| mouseOverValign      (computedNum       cr0)
 	| mouseOverValign      (Like              lr0)
 	| mouseOverValign      (Convert           mr0)
+	| mouseStick           (bool               b0)
+	| mouseStick           (computedBool      cb0)
+	| mouseStick           (Like              lb0)
+	| mouseStick           (Convert           mb0)
 	| onClick              (void ()            h0)
 	| onClick              (Like              lh0)
 	| onClick              (Convert           mh0)
@@ -815,6 +827,11 @@ data FProperty =
 	| stdGrow              (Convert           mr6, computedNum       cr8)
 	| stdGrow              (Convert           mr7, Like              lr8)
 	| stdGrow              (Convert           mr8, Convert           mr4)
+	| stdGuideColor        (Color              c0)
+	| stdGuideColor        (str               sc0)
+	| stdGuideColor        (computedColor     cc0)
+	| stdGuideColor        (Like              lc0)
+	| stdGuideColor        (Convert           mc0)
 	| stdHalign            (num                r0)
 	| stdHalign            (computedNum       cr0)
 	| stdHalign            (Like              lr0)
@@ -936,6 +953,10 @@ data FProperty =
 	| stdMouseOverValign   (computedNum       cr0)
 	| stdMouseOverValign   (Like              lr0)
 	| stdMouseOverValign   (Convert           mr0)
+	| stdMouseStick        (bool               b0)
+	| stdMouseStick        (computedBool      cb0)
+	| stdMouseStick        (Like              lb0)
+	| stdMouseStick        (Convert           mb0)
 	| stdOnClick           (void ()            h0)
 	| stdOnClick           (Like              lh0)
 	| stdOnClick           (Convert           mh0)
@@ -985,6 +1006,23 @@ data FProperty =
 	| stdResizable         (Convert           mb6, computedBool      cb8)
 	| stdResizable         (Convert           mb7, Like              lb8)
 	| stdResizable         (Convert           mb8, Convert           mb4)
+	| stdShadow            (bool               b0)
+	| stdShadow            (computedBool      cb0)
+	| stdShadow            (Like              lb0)
+	| stdShadow            (Convert           mb0)
+	| stdShadowColor       (Color              c0)
+	| stdShadowColor       (str               sc0)
+	| stdShadowColor       (computedColor     cc0)
+	| stdShadowColor       (Like              lc0)
+	| stdShadowColor       (Convert           mc0)
+	| stdShadowLeft        (num                r0)
+	| stdShadowLeft        (computedNum       cr0)
+	| stdShadowLeft        (Like              lr0)
+	| stdShadowLeft        (Convert           mr0)
+	| stdShadowTop         (num                r0)
+	| stdShadowTop         (computedNum       cr0)
+	| stdShadowTop         (Like              lr0)
+	| stdShadowTop         (Convert           mr0)
 	| stdShapeClosed       (bool               b0)
 	| stdShapeClosed       (computedBool      cb0)
 	| stdShapeClosed       (Like              lb0)
@@ -1517,6 +1555,17 @@ public Figure palleteKey (str name, str key,FProperty props...){
  		],props);},[id(key)] ); 
 }
 
+public Figure hPalleteKey (str name, str key,FProperty props...){
+ return  _nominalKey(p12,Figure (list[value] orig) { 
+ 		Figure inner;
+ 		if(size(orig) == 0) inner = space(); 
+ 		else inner = hcat([vcat([box(fillColor(p12[i])),text(toString(orig[i]))],hgrow(1.05)) | i <- [0..size(orig)-1]],hgrow(1.05));
+ 		return box(hcat([
+ 		text(name,fontSize(13)),
+ 		inner
+ 		], hgrow(1.1)),[hgrow(1.05)] + props);},[id(key)] ); 
+}
+
 public Figure title(str name, Figure inner){
 	return vcat([text(name,fontSize(17)), box(inner,grow(1.1))]);
 }
@@ -1537,17 +1586,16 @@ public Figure point(FProperty props...){
 	return space([resizable(false), size(0)] + props);
 }
 
-public Figure greenRedKey(str name, str key, FProperty props...){
-	return  _intervalKey( value (real part) { return interpolateColor(color("green"),color("red"),part); },
+
+public Figure colorIntervalKey(str name, str key, Color lowc, Color highc, FProperty props...){
+	return  _intervalKey( value (real part) { return interpolateColor(lowc,highc,part); },
 				Figure (value low,value high) {
- 		Figure inner = hcat([vcat([box(fillColor("green")),text(toString(low))]),
- 							vcat([box(fillColor("red")),text(toString(high))])]
+ 		Figure inner = hcat([vcat([box(fillColor(lowc)),text(toString(low))]),
+ 							vcat([box(fillColor(highc)),text(toString(high))])]
  						);
- 		return hcat([
+ 		return box(hcat([
  		text(name,fontSize(13)),
- 		box(
- 			inner
- 		)
- 		],[ hgrow(1.1)] + props);},[id(key)] ); 
+ 		inner
+ 		], hgrow(1.1)),[hgrow(1.05)] + props);},[id(key)] ); 
  }
 

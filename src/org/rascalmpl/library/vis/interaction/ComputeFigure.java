@@ -61,7 +61,6 @@ public class ComputeFigure extends WithInnerFig {
 	}
 
 	public void layout(){
-		System.out.printf("Setting size %s\n",size);
 		innerFig.size.set(size);
 		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();

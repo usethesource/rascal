@@ -43,7 +43,22 @@ public class IntervalKey extends WithInnerFig implements Key {
 	}
 	
 	public void finalize(){
-		interval = high.subtract(low);
+		if(high == null){
+			high = ValueFactory.getInstance().real(0);
+		} 
+		if(low == null){
+			low = ValueFactory.getInstance().real(0);
+		}
+		if(low.toReal().isEqual(high.toReal())){
+			low = ValueFactory.getInstance().real(0);
+		}
+		if(low.toReal().isEqual(high.toReal())){
+			interval = ValueFactory.getInstance().real(1);
+		} else {
+			interval = high.subtract(low);
+		}
+		
+		
 		//System.out.printf("Nominal finalize bbox start!\n");
 		if(innerFig != null){
 			innerFig.destroy();
@@ -52,8 +67,10 @@ public class IntervalKey extends WithInnerFig implements Key {
 		TypeFactory tf = TypeFactory.getInstance();
 		Type[] argTypes = {tf.valueType(),tf.valueType()};
 		IValue[] args = {low,high};
+		//System.out.printf("IntervalKey %s explain callBack!\n",id);
 		IConstructor figureCons = (IConstructor)
 			fpa.executeRascalCallBack(explain,argTypes,args).getValue();
+		//System.out.printf("IntervalKey %s explain done!\n",id);
 		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
 		innerFig.init();
 		innerFig.computeFiguresAndProperties();
@@ -77,7 +94,6 @@ public class IntervalKey extends WithInnerFig implements Key {
 		innerFig.size.set(size);
 		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();
-		System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	public void registerNames(NameResolver resolver) {
@@ -122,10 +138,18 @@ public class IntervalKey extends WithInnerFig implements Key {
 	public IValue scaleValue(IValue val) {
 		if(!(val instanceof INumber)) return ValueFactory.getInstance().real(0);
 		INumber n = (INumber) val;
-		INumber part = n.subtract(low).divide(interval,10);
+		INumber part;
+	
+			//System.out.printf("DIv undefined? %s %s %s",low, high,interval);
+			part = n.subtract(low).divide(interval,10);
+	
+		
 		TypeFactory tf = TypeFactory.getInstance();
-		return 
-			fpa.executeRascalCallBackSingleArgument(interpolate, tf.valueType(), part).getValue(); 
+		//System.out.printf("IntervalKey %s scale callBack!\n",id);
+		IValue res =  
+			fpa.executeRascalCallBackSingleArgument(interpolate, tf.valueType(), part).getValue();
+		//System.out.printf("IntervalKey %s scale done!\n",id);
+		return res;
 	}
 
 

@@ -371,6 +371,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public void executeMouseOverOffHandlers(Properties prop) {
 		if (isHandlerPropertySet(prop)) {
 			executeHandlerProperty(prop);
+			fpa.setComputedValueChanged();
 		}
 	}
 
