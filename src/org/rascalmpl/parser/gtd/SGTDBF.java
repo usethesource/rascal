@@ -842,7 +842,7 @@ public abstract class SGTDBF implements IGTD{
 			return;
 		}
 		
-		for(int i = nrOfExpects - 1; i >= 0; --i){
+		EXPECTS: for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
 			
 			AbstractStackNode last = expectedNodes[expectedNodes.length - 1];
@@ -876,7 +876,7 @@ public abstract class SGTDBF implements IGTD{
 				IEnterFilter[] enterFilters = first.getEnterFilters();
 				if(enterFilters != null){
 					for(int j = enterFilters.length - 1; j >= 0; --j){
-						if(enterFilters[i].isFiltered(input, location, positionStore)) continue;
+						if(enterFilters[i].isFiltered(input, location, positionStore)) continue EXPECTS;
 					}
 				}
 				
@@ -960,7 +960,7 @@ public abstract class SGTDBF implements IGTD{
 		}else{ // List
 			AbstractStackNode[] listChildren = stack.getChildren();
 			
-			for(int i = listChildren.length - 1; i >= 0; --i){
+			CHILDREN: for(int i = listChildren.length - 1; i >= 0; --i){
 				AbstractStackNode child = listChildren[i];
 				int childId = child.getId();
 				if(!shareListNode(childId, stack)){
@@ -976,7 +976,7 @@ public abstract class SGTDBF implements IGTD{
 						IEnterFilter[] childEnterFilters = child.getEnterFilters();
 						if(childEnterFilters != null){
 							for(int j = childEnterFilters.length - 1; j >= 0; --j){
-								if(childEnterFilters[i].isFiltered(input, location, positionStore)) continue;
+								if(childEnterFilters[i].isFiltered(input, location, positionStore)) continue CHILDREN;
 							}
 						}
 						
