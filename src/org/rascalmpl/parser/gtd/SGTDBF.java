@@ -181,6 +181,7 @@ public abstract class SGTDBF implements IGTD{
 						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 						AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 						if(nextResult != null){
+							// Encountered stack 'overtake'.
 							propagateEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size());
 							return alternative;
 						}
@@ -204,8 +205,12 @@ public abstract class SGTDBF implements IGTD{
 			next = next.getCleanCopy();
 		}
 		
+		if(!node.isMatchable() || result.isEmpty()){
+			next.updateNode(node, result);
+		}else{
+			next.updateNodeAfterNonEmptyMatchable(node, result);
+		}
 		next.setStartLocation(location);
-		next.updateNode(node, result);
 		
 		sharedNextNodes.putUnsafe(next.getId(), next);
 		stacksToExpand.push(next);
