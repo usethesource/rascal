@@ -11886,8 +11886,6 @@ public class MetaRascalRascal extends ObjectRascalRascal implements IParserInfo 
     	expect(prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Renamings_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101, Renamings.prod___lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_Renamings_attrs___term__cons___77_101_116_97_86_97_114_105_97_98_108_101);
   }
   public void layouts_$QUOTES() {
-    super.layouts_$QUOTES();
-    
     // prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term(lex())]))
     	expect(prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex, layouts_$QUOTES.prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex);
   }

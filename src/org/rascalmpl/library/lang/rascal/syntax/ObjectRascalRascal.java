@@ -671,7 +671,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod___char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_lit_data_attrs___literal = (IConstructor) _read("prod([\\char-class([range(100,100)]),\\char-class([range(97,97)]),\\char-class([range(116,116)]),\\char-class([range(97,97)])],lit(\"data\"),attrs([literal()]))", Factory.Production);
   private static final IConstructor prod___lit___46_46_46_Prod_attrs___term__cons___79_116_104_101_114_115 = (IConstructor) _read("prod([lit(\"...\")],sort(\"Prod\"),attrs([term(cons(\"Others\"))]))", Factory.Production);
   private static final IConstructor prod___DataTarget_attrs___term__cons___69_109_112_116_121 = (IConstructor) _read("prod([],sort(\"DataTarget\"),attrs([term(cons(\"Empty\"))]))", Factory.Production);
-  private static final IConstructor prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex = (IConstructor) _read("prod([\\iter-star(\\char-class([range(9,10),range(13,13),range(32,32)]))],layouts(\"$QUOTES\"),attrs([term(lex())]))", Factory.Production);
   private static final IConstructor prod___mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringTail_StringTail_attrs___term__cons___77_105_100_73_110_116_101_114_112_111_108_97_116_101_100 = (IConstructor) _read("prod([label(\"mid\",sort(\"MidStringChars\")),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),label(\"tail\",sort(\"StringTail\"))],sort(\"StringTail\"),attrs([term(cons(\"MidInterpolated\"))]))", Factory.Production);
   private static final IConstructor prod___char_class___range__124_124_URLChars_lit___58_47_47_ProtocolChars_attrs___lex = (IConstructor) _read("prod([\\char-class([range(124,124)]),sort(\"URLChars\"),lit(\"://\")],sort(\"ProtocolChars\"),attrs([lex()]))", Factory.Production);
   private static final IConstructor prod___layouts_LAYOUTLIST_Commands_layouts_LAYOUTLIST_start__Commands_no_attrs = (IConstructor) _read("prod([layouts(\"LAYOUTLIST\"),sort(\"Commands\"),layouts(\"LAYOUTLIST\")],start(sort(\"Commands\")),\\no-attrs())", Factory.Production);
@@ -5399,17 +5398,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
 	    }
 	  }
 	
-  private static class layouts_$QUOTES {
-    
-	    public final static AbstractStackNode[] prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex = _init_prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex();
-	    private static final AbstractStackNode[] _init_prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex() {
-      AbstractStackNode[] tmp = new AbstractStackNode[1];
-      
-	      tmp[0] = new ListStackNode(9478, 0, regular__iter_star__char_class___range__9_10_range__13_13_range__32_32_no_attrs , new CharStackNode(9480, 0, new char[][]{{9,10},{13,13},{32,32}}), false);
-                  return tmp;
-	    }
-	  }
-	
   private static class PostProtocolChars {
     
 	    public final static AbstractStackNode[] prod___lit___62_URLChars_lit___58_47_47_PostProtocolChars_attrs___lex = _init_prod___lit___62_URLChars_lit___58_47_47_PostProtocolChars_attrs___lex();
@@ -8090,12 +8078,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     // prod([lit("renaming"),layouts("LAYOUTLIST"),label("renamings",\iter-seps(sort("Renaming"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]))],sort("Renamings"),attrs([term(cons("Default"))]))
     	expect(prod___lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_Renamings_attrs___term__cons___68_101_102_97_117_108_116, Renamings.prod___lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_Renamings_attrs___term__cons___68_101_102_97_117_108_116);
   }
-  public void layouts_$QUOTES() {
-    
-    
-    // prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term(lex())]))
-    	expect(prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex, layouts_$QUOTES.prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex);
-  }
+  
   public void PostProtocolChars() {
     
     
