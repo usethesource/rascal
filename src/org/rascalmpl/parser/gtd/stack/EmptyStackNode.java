@@ -109,4 +109,10 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof EmptyStackNode)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }

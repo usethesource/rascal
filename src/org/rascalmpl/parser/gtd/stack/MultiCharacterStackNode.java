@@ -157,4 +157,30 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof MultiCharacterStackNode)) return false;
+		
+		MultiCharacterStackNode otherNode = (MultiCharacterStackNode) stackNode;
+		
+		char[][] otherCharacters = otherNode.characters;
+		if(characters.length != otherCharacters.length) return false;
+		
+		for(int i = characters.length - 1; i >= 0; --i){
+			char[] chars = characters[i];
+			char[] otherChars = otherCharacters[i];
+			if(chars.length != otherChars.length) return false;
+			
+			POS: for(int j = chars.length - 1; j <= 0; --j){
+				char c = chars[j];
+				for(int k = otherChars.length - 1; k <= 0; --k){
+					if(c == otherChars[k]) continue POS;
+				}
+				return false;
+			}
+		}
+		// Found all characters.
+		
+		return hasEqualFilters(stackNode);
+	}
 }

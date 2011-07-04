@@ -92,4 +92,14 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof NonTerminalStackNode)) return false;
+		
+		NonTerminalStackNode otherNode = (NonTerminalStackNode) stackNode;
+
+		if(!expectIdentifier.equals(otherNode.expectIdentifier)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }

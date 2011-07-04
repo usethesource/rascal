@@ -142,4 +142,14 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof SeparatedListStackNode)) return false;
+		
+		SeparatedListStackNode otherNode = (SeparatedListStackNode) stackNode;
+		
+		if(!production.isEqual(otherNode.production)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }

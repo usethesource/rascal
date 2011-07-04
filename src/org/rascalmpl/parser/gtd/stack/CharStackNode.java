@@ -113,24 +113,20 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return result;
 	}
 	
-	public static int getNumericCharValue(char character){
-		return (character < 128) ? character : Character.getNumericValue(character); // Just ignore the Unicode garbage when possible.
-	}
-	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append('[');
 		char[] range = ranges[0];
-		sb.append(getNumericCharValue(range[0]));
+		sb.append(range[0]);
 		sb.append('-');
-		sb.append(getNumericCharValue(range[1]));
+		sb.append(range[1]);
 		for(int i = ranges.length - 2; i >= 0; --i){
 			sb.append(',');
 			range = ranges[i];
-			sb.append(getNumericCharValue(range[0]));
+			sb.append(range[0]);
 			sb.append('-');
-			sb.append(getNumericCharValue(range[1]));
+			sb.append(range[1]);
 		}
 		sb.append(']');
 		
@@ -140,5 +136,26 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		sb.append(')');
 		
 		return sb.toString();
+	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof CharStackNode)) return false;
+		
+		CharStackNode otherNode = (CharStackNode) stackNode;
+		
+		char[][] otherRanges = otherNode.ranges;
+		if(ranges.length != otherRanges.length) return false;
+		
+		OUTER: for(int i = ranges.length - 1; i >= 0; --i){
+			char[] range = ranges[i];
+			for(int j = otherRanges.length - 1; j >= 0; --j){
+				char[] otherRange = otherRanges[j];
+				if(range[0] == otherRange[0] && range[1] == otherRange[1]) continue OUTER;
+			}
+			return false; // Could not find a certain range.
+		}
+		// Found all ranges.
+		
+		return hasEqualFilters(stackNode);
 	}
 }

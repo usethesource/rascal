@@ -33,4 +33,19 @@ public class StringPrecedeRestriction implements IEnterFilter{
 		
 		return true;	
 	}
+	
+	public boolean isEqual(IEnterFilter otherEnterFilter){
+		if(!(otherEnterFilter instanceof StringPrecedeRestriction)) return false;
+		
+		StringPrecedeRestriction otherStringPrecedeFilter = (StringPrecedeRestriction) otherEnterFilter;
+		
+		char[] otherString = otherStringPrecedeFilter.string;
+		if(string.length != otherString.length) return false;
+		
+		for(int i = string.length - 1; i >= 0; --i){
+			if(string[i] != otherString[i]) return false;
+		}
+		
+		return true;
+	}
 }

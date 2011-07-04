@@ -129,4 +129,14 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof ListStackNode)) return false;
+		
+		ListStackNode otherNode = (ListStackNode) stackNode;
+		
+		if(!production.isEqual(otherNode.production)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }

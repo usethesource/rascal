@@ -29,4 +29,30 @@ public class MultiCharFollowRequirement implements ICompletionFilter{
 		
 		return false;
 	}
+	
+	public boolean isEqual(ICompletionFilter otherCompletionFilter){
+		if(!(otherCompletionFilter instanceof MultiCharFollowRequirement)) return false;
+		
+		MultiCharFollowRequirement otherMultiCharFollowFilter = (MultiCharFollowRequirement) otherCompletionFilter;
+		
+		char[][] otherCharacters = otherMultiCharFollowFilter.characters;
+		if(characters.length != otherCharacters.length) return false;
+		
+		for(int i = characters.length - 1; i >= 0; --i){
+			char[] chars = characters[i];
+			char[] otherChars = otherCharacters[i];
+			if(chars.length != otherChars.length) return false;
+			
+			POS: for(int j = chars.length - 1; j <= 0; --j){
+				char c = chars[j];
+				for(int k = otherChars.length - 1; k <= 0; --k){
+					if(c == otherChars[k]) continue POS;
+				}
+				return false;
+			}
+		}
+		// Found all characters.
+		
+		return true;
+	}
 }

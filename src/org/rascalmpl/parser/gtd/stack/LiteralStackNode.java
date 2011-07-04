@@ -120,4 +120,14 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof LiteralStackNode)) return false;
+		
+		LiteralStackNode otherNode = (LiteralStackNode) stackNode;
+		
+		if(!production.isEqual(otherNode.production)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }

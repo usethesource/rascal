@@ -128,4 +128,14 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof OptionalStackNode)) return false;
+		
+		OptionalStackNode otherNode = (OptionalStackNode) stackNode;
+		
+		if(!production.isEqual(otherNode.production)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }
