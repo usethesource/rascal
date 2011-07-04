@@ -7,7 +7,6 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 
 // TODO Use this thing as soon as we get rid of rejects and old style follow restrictions.
-// TODO Don't match on id's, check true equality.
 public class ExpectBuilder{
 	private final SortedIntegerObjectList<DoubleArrayList<IConstructor, AbstractStackNode[]>> alternatives;
 	
@@ -57,7 +56,7 @@ public class ExpectBuilder{
 						AbstractStackNode alternativeItem = alternative[k];
 						alternativeItem.setProduction(alternative);
 						
-						if(alternativeItem.getId() != sharedExpect[k].getId()){
+						if(alternativeItem.equals(sharedExpect[k])){
 							break;
 						}
 					}

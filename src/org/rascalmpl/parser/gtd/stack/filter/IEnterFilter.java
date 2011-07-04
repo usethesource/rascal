@@ -15,4 +15,6 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 
 public interface IEnterFilter{
 	boolean isFiltered(char[] input, int start, PositionStore positionStore);
+	
+	boolean isEqual(IEnterFilter otherEnterFilter);
 }

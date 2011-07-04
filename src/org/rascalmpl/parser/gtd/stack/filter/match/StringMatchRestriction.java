@@ -32,4 +32,19 @@ public class StringMatchRestriction implements ICompletionFilter{
 		
 		return true;
 	}
+	
+	public boolean isEqual(ICompletionFilter otherCompletionFilter){
+		if(!(otherCompletionFilter instanceof StringMatchRestriction)) return false;
+		
+		StringMatchRestriction otherStringMatchFilter = (StringMatchRestriction) otherCompletionFilter;
+		
+		char[] otherString = otherStringMatchFilter.string;
+		if(string.length != otherString.length) return false;
+		
+		for(int i = string.length - 1; i >= 0; --i){
+			if(string[i] != otherString[i]) return false;
+		}
+		
+		return true;
+	}
 }

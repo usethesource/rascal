@@ -125,4 +125,14 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof AlternativeStackNode)) return false;
+		
+		AlternativeStackNode otherNode = (AlternativeStackNode) stackNode;
+
+		if(!production.isEqual(otherNode.production)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }

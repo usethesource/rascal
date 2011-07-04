@@ -15,4 +15,6 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 
 public interface ICompletionFilter{
 	boolean isFiltered(char[] input, int start, int end, PositionStore positionStore);
+	
+	boolean isEqual(ICompletionFilter otherCompletionFilter);
 }

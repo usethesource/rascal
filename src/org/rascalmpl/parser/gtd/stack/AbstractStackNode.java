@@ -146,6 +146,8 @@ public abstract class AbstractStackNode{
 	
 	public abstract AbstractNode match(char[] input, int location);
 	
+	public abstract boolean isEqual(AbstractStackNode stackNode);
+	
 	// Last node specific stuff.
 	public void setParentProduction(IConstructor parentProduction){
 		this.parentProduction = parentProduction;
@@ -182,6 +184,28 @@ public abstract class AbstractStackNode{
 		}
 		
 		return false;
+	}
+	
+	public boolean hasEqualFilters(AbstractStackNode otherNode){
+		IEnterFilter[] otherEnterFilters = otherNode.enterFilters;
+		OUTER: for(int i = enterFilters.length - 1; i >= 0; --i){
+			IEnterFilter enterFilter = enterFilters[i];
+			for(int j = otherEnterFilters.length - 1; j >= 0; --j){
+				if(enterFilter.isEqual(otherEnterFilters[j])) continue OUTER;
+			}
+			return false;
+		}
+		
+		ICompletionFilter[] otherCompletionFilters = otherNode.completionFilters;
+		OUTER: for(int i = completionFilters.length - 1; i >= 0; --i){
+			ICompletionFilter completionFilter = completionFilters[i];
+			for(int j = otherCompletionFilters.length - 1; j >= 0; --j){
+				if(completionFilter.isEqual(otherCompletionFilters[j])) continue OUTER;
+			}
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public void markAsReject(){

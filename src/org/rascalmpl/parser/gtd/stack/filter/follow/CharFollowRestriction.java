@@ -25,4 +25,24 @@ public class CharFollowRestriction implements ICompletionFilter{
 		
 		return false;
 	}
+	
+	public boolean isEqual(ICompletionFilter otherCompletionFilter){
+		if(!(otherCompletionFilter instanceof CharFollowRestriction)) return false;
+		
+		CharFollowRestriction otherCharFollowFilter = (CharFollowRestriction) otherCompletionFilter;
+		
+		char[][] otherRanges = otherCharFollowFilter.ranges;
+		
+		OUTER: for(int i = ranges.length - 1; i >= 0; --i){
+			char[] range = ranges[i];
+			for(int j = otherRanges.length - 1; j >= 0; --j){
+				char[] otherRange = otherRanges[j];
+				if(range[0] == otherRange[0] && range[1] == otherRange[1]) continue OUTER;
+			}
+			return false; // Could not find a certain range.
+		}
+		// Found all ranges.
+		
+		return true;
+	}
 }

@@ -32,4 +32,19 @@ public class StringFollowRestriction implements ICompletionFilter{
 		
 		return true;
 	}
+	
+	public boolean isEqual(ICompletionFilter otherCompletionFilter){
+		if(!(otherCompletionFilter instanceof StringFollowRestriction)) return false;
+		
+		StringFollowRestriction otherStringFollowFilter = (StringFollowRestriction) otherCompletionFilter;
+		
+		char[] otherString = otherStringFollowFilter.string;
+		if(string.length != otherString.length) return false;
+		
+		for(int i = string.length - 1; i >= 0; --i){
+			if(string[i] != otherString[i]) return false;
+		}
+		
+		return true;
+	}
 }

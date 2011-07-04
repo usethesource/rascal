@@ -25,4 +25,24 @@ public class CharPrecedeRequirement implements IEnterFilter{
 		
 		return true;
 	}
+	
+	public boolean isEqual(IEnterFilter otherEnterFilter){
+		if(!(otherEnterFilter instanceof CharPrecedeRequirement)) return false;
+		
+		CharPrecedeRequirement otherCharPrecedeFilter = (CharPrecedeRequirement) otherEnterFilter;
+		
+		char[][] otherRanges = otherCharPrecedeFilter.ranges;
+		
+		OUTER: for(int i = ranges.length - 1; i >= 0; --i){
+			char[] range = ranges[i];
+			for(int j = otherRanges.length - 1; j >= 0; --j){
+				char[] otherRange = otherRanges[j];
+				if(range[0] == otherRange[0] && range[1] == otherRange[1]) continue OUTER;
+			}
+			return false; // Could not find a certain range.
+		}
+		// Found all ranges.
+		
+		return true;
+	}
 }

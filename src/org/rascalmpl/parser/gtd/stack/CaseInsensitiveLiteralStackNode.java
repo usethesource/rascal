@@ -176,4 +176,14 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		
 		return sb.toString();
 	}
+	
+	public boolean isEqual(AbstractStackNode stackNode){
+		if(!(stackNode instanceof CaseInsensitiveLiteralStackNode)) return false;
+		
+		CaseInsensitiveLiteralStackNode otherNode = (CaseInsensitiveLiteralStackNode) stackNode;
+		
+		if(!production.isEqual(otherNode.production)) return false;
+		
+		return hasEqualFilters(stackNode);
+	}
 }
