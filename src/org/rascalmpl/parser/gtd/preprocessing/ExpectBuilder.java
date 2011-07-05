@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.AlternativeStackNode;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
@@ -26,7 +27,13 @@ public class ExpectBuilder{
 			alternatives.add(alternativeLength, alternativesList);
 		}
 		
-		alternativesList.add(production, alternative);
+		// Clone the alternative so we don't get entangled in look-ahead related issues.
+		AbstractStackNode[] clonedAlternative = new AlternativeStackNode[alternativeLength];
+		for(int i = alternativeLength - 1; i >= 0; --i){
+			clonedAlternative[i] = alternative[i].getCleanCopy();
+		}
+		
+		alternativesList.add(production, clonedAlternative);
 	}
 	
 	// Builds the expect matrix and calculates sharing.
