@@ -11,6 +11,8 @@
 package org.rascalmpl.parser.uptr.action;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -70,7 +72,8 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 		String cons = ProductionAdapter.getConstructorName(prod);
 		
 		if (cons.equals(father)) {
-			IConstructor arg = (IConstructor) TreeAdapter.getArgs(tree).get(pos);
+			IList args = TreeAdapter.getArgs(tree);
+			IConstructor arg = (IConstructor) args.get(pos);
 			
 			if (TreeAdapter.isAppl(arg)) {
 				String constructorName = TreeAdapter.getConstructorName(arg);
@@ -110,7 +113,20 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 					return null;
 				}
 				else {
-					return arg.set("alternatives", alts);
+					// Reconstruct the tree.
+					IListWriter newArgs = VF.listWriter(Factory.Tree);
+					
+					for(int i = args.length() - 1; i > pos; --i){
+						newArgs.insert(args.get(i));
+					}
+					
+					newArgs.insert(arg.set("alternatives", alts));
+					
+					for(int i = pos - 1; i >= 0; --i){
+						newArgs.insert(args.get(i));
+					}
+					
+					return tree.set("args", newArgs.done());
 				}
 			}
 		}
