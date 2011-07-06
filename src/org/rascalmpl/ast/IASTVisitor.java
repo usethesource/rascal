@@ -236,6 +236,54 @@ public interface IASTVisitor<T> {
 
   public T visitFunctionModifiersList(FunctionModifiers.List x);
 
+  public T visitSymNotFollow(Sym.NotFollow x);
+
+  public T visitSymSequence(Sym.Sequence x);
+
+  public T visitSymParameter(Sym.Parameter x);
+
+  public T visitSymNonterminal(Sym.Nonterminal x);
+
+  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
+
+  public T visitSymColumn(Sym.Column x);
+
+  public T visitSymAlternative(Sym.Alternative x);
+
+  public T visitSymIterStarSep(Sym.IterStarSep x);
+
+  public T visitSymStart(Sym.Start x);
+
+  public T visitSymNotPrecede(Sym.NotPrecede x);
+
+  public T visitSymIter(Sym.Iter x);
+
+  public T visitSymParametrized(Sym.Parametrized x);
+
+  public T visitSymEmpty(Sym.Empty x);
+
+  public T visitSymOptional(Sym.Optional x);
+
+  public T visitSymEndOfLine(Sym.EndOfLine x);
+
+  public T visitSymFollow(Sym.Follow x);
+
+  public T visitSymCharacterClass(Sym.CharacterClass x);
+
+  public T visitSymLabeled(Sym.Labeled x);
+
+  public T visitSymIterStar(Sym.IterStar x);
+
+  public T visitSymIterSep(Sym.IterSep x);
+
+  public T visitSymLiteral(Sym.Literal x);
+
+  public T visitSymUnequal(Sym.Unequal x);
+
+  public T visitSymPrecede(Sym.Precede x);
+
+  public T visitSymStartOfLine(Sym.StartOfLine x);
+
   public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
 
   public T visitStatementGlobalDirective(Statement.GlobalDirective x);
@@ -594,54 +642,6 @@ public interface IASTVisitor<T> {
 
   public T visitCommandsList(Commands.List x);
 
-  public T visitSymNotFollow(Sym.NotFollow x);
-
-  public T visitSymSequence(Sym.Sequence x);
-
-  public T visitSymParameter(Sym.Parameter x);
-
-  public T visitSymNonterminal(Sym.Nonterminal x);
-
-  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
-
-  public T visitSymColumn(Sym.Column x);
-
-  public T visitSymAlternative(Sym.Alternative x);
-
-  public T visitSymIterStarSep(Sym.IterStarSep x);
-
-  public T visitSymStart(Sym.Start x);
-
-  public T visitSymNotPrecede(Sym.NotPrecede x);
-
-  public T visitSymIter(Sym.Iter x);
-
-  public T visitSymEmpty(Sym.Empty x);
-
-  public T visitSymOptional(Sym.Optional x);
-
-  public T visitSymEndOfLine(Sym.EndOfLine x);
-
-  public T visitSymFollow(Sym.Follow x);
-
-  public T visitSymCharacterClass(Sym.CharacterClass x);
-
-  public T visitSymLabeled(Sym.Labeled x);
-
-  public T visitSymIterStar(Sym.IterStar x);
-
-  public T visitSymParametrized(Sym.Parametrized x);
-
-  public T visitSymIterSep(Sym.IterSep x);
-
-  public T visitSymLiteral(Sym.Literal x);
-
-  public T visitSymUnequal(Sym.Unequal x);
-
-  public T visitSymPrecede(Sym.Precede x);
-
-  public T visitSymStartOfLine(Sym.StartOfLine x);
-
   public T visitPathTailMid(PathTail.Mid x);
 
   public T visitPathTailPost(PathTail.Post x);
@@ -836,8 +836,8 @@ public interface IASTVisitor<T> {
   public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x);
   public T visitDatePartAmbiguity(DatePart.Ambiguity x);
   public T visitBoundAmbiguity(Bound.Ambiguity x);
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
   public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
+  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
   public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
   public T visitJustDateAmbiguity(JustDate.Ambiguity x);
   public T visitFieldAmbiguity(Field.Ambiguity x);
@@ -891,8 +891,8 @@ public interface IASTVisitor<T> {
   public T visitNonterminalAmbiguity(Nonterminal.Ambiguity x);
   public T visitCommandsAmbiguity(Commands.Ambiguity x);
   public T visitProtocolTailAmbiguity(ProtocolTail.Ambiguity x);
-  public T visitSymAmbiguity(Sym.Ambiguity x);
   public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x);
+  public T visitSymAmbiguity(Sym.Ambiguity x);
   public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
   public T visitStringMiddleAmbiguity(StringMiddle.Ambiguity x);
   public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x);

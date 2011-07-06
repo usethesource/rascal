@@ -84,6 +84,9 @@ public class Factory {
 	public static final Type Condition_Precede = tf.constructor(uptr, Condition, "precede", Symbol, "symbol");
 	public static final Type Condition_NotPrecede = tf.constructor(uptr, Condition, "not-precede", Symbol, "symbol");
 	public static final Type Condition_Delete = tf.constructor(uptr, Condition, "delete", Symbol, "symbol");
+	public static final Type Condition_EndOfLine = tf.constructor(uptr, Condition, "end-of-line");
+	public static final Type Condition_StartOfLine = tf.constructor(uptr, Condition, "begin-of-line");
+	public static final Type Condition_AtColumn = tf.constructor(uptr, Condition, "at-column", tf.integerType(), "column");
 	
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", tf.stringType(), "name", Symbol, "symbol");
 	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "start");
