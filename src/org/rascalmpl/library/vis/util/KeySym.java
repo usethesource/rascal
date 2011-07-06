@@ -53,8 +53,8 @@ public class KeySym {
 	public static String unPrintableKeyName(KeyEvent e){
 		switch(e.keyCode){
 		case SWT.ALT: 
-			if(e.keyLocation == SWT.LEFT) return "keyAltLeft";
-			else return "keyAltRight";
+//			if(e.keyCode == SWT.LEFT) return "keyAltLeft";
+			/*else*/ return "keyAltRight";
 		case SWT.ARROW_DOWN: return "keyArrowDown";
 		case SWT.ARROW_LEFT: return "keyArrowLeft";
 		case SWT.ARROW_RIGHT: return "keyArrowRight";
@@ -62,11 +62,11 @@ public class KeySym {
 		case SWT.BREAK: return "keyBreak";
 		case SWT.CAPS_LOCK: return "keyCapsLock";
 		case SWT.COMMAND:
-			if(e.keyLocation == SWT.LEFT) return "keyCommandLeft";
-			else return "keyCommandRight";
+//			if(e.keyLocation == SWT.LEFT) return "keyCommandLeft";
+			/*else*/ return "keyCommandRight";
 		case SWT.CTRL:
-			if(e.keyLocation == SWT.LEFT) return "keyControlLeft";
-			else return "keyControlRight";
+//			if(e.keyLocation == SWT.LEFT) return "keyControlLeft";
+			/*else*/ return "keyControlRight";
 		case SWT.END: return "keyEnd";
 		case SWT.F1: return "keyF1";
 		case SWT.F10: return "keyF10";
@@ -75,12 +75,12 @@ public class KeySym {
 		case SWT.F13: return "keyF13";
 		case SWT.F14: return "keyF14";
 		case SWT.F15: return "keyF15";
-		case SWT.F16: return "keyF16";
-		case SWT.F17: return "keyF17";
-		case SWT.F18: return "keyF18";
-		case SWT.F19: return "keyF19";
+//		case SWT.F16: return "keyF16";
+//		case SWT.F17: return "keyF17";
+//		case SWT.F18: return "keyF18";
+//		case SWT.F19: return "keyF19";
 		case SWT.F2: return "keyF2";
-		case SWT.F20: return "keyF20";
+//		case SWT.F20: return "keyF20";
 		case SWT.F3: return "keyF3";
 		case SWT.F4: return "keyF4";
 		case SWT.F5: return "keyF5";
@@ -115,8 +115,8 @@ public class KeySym {
 		case SWT.PRINT_SCREEN: return "keyPrintScreen";
 		case SWT.SCROLL_LOCK: return "keyScrollLock";
 		case SWT.SHIFT: 
-			if(e.keyLocation == SWT.LEFT) return "keyShiftLeft";
-			else return "keyShiftRight";
+//			if(e.keyLocation == SWT.LEFT) return "keyShiftLeft";
+			/*else*/ return "keyShiftRight";
 		case 8 : return "keyBackSpace";
 		case '\t': return "keyTab";
 		case 13: return "keyEnter";
