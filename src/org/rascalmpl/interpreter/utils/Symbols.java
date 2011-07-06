@@ -28,6 +28,7 @@ import org.rascalmpl.ast.Range;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
+import org.rascalmpl.ast.Nonterminal.Lexical;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -102,8 +103,14 @@ public class Symbols {
 		if (symbol.isOptional()) {
 			return Factory.Symbol_Opt.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
 		}
+		
+		if (symbol.isStart()) {
+			Nonterminal nonterminal = symbol.getNonterminal();
+			return Factory.Symbol_Start_Sort.make(factory, Factory.Symbol_Sort.make(factory, factory.string(((Nonterminal.Lexical) nonterminal).getString())));	
+		}
 		if (symbol.isNonterminal()) {
-			IString name = factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString());
+			Nonterminal nonterminal = symbol.getNonterminal();
+			IString name = factory.string(((Nonterminal.Lexical) nonterminal).getString());
 			return Factory.Symbol_Sort.make(factory, name);
 		}
 		
