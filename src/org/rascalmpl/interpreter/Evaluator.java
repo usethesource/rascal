@@ -540,7 +540,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if (rootScope == currentModule) {
 				parserName = "__Shell__";
 			} else {
-				parserName = currentModule.getName().replaceAll("::", ".");
+				parserName = currentModule.getName(); // .replaceAll("::", ".");
 			}
 
 			parser = pg.getParser(this, loc, parserName, productions);
@@ -566,7 +566,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if (rootScope == env) {
 				parserName = "__Shell__";
 			} else {
-				parserName = env.getName().replaceAll("::", ".");
+				parserName = env.getName(); // .replaceAll("::", ".");
 			}
 
 			// force regeneration of object parser such that super class name aligns... (a workaround)
