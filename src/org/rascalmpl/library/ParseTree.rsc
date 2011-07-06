@@ -80,10 +80,6 @@ data Symbol
   | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
   | \alt(set[Symbol] alternatives)
   | \seq(list[Symbol] sequence)
-// conditions   
-  | \at-column(int column) // TODO: change into condition
-  | \begin-of-line()  // TODO: change into condition
-  | \end-of-line()  // TODO: change into condition
   | \conditional(Symbol symbol, set[Condition] conditions)
   ;
 
@@ -94,6 +90,9 @@ data Condition
   | \precede(Symbol symbol)
   | \not-precede(Symbol symbol)
   | \delete(Symbol symbol)
+  | \at-column(int column) 
+  | \begin-of-line()  
+  | \end-of-line()  
   ;
          
 @doc{provides access to the source location of a parse tree node}
