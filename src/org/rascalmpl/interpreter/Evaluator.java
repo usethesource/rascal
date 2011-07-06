@@ -540,7 +540,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if (rootScope == currentModule) {
 				parserName = "__Shell__";
 			} else {
-				parserName = currentModule.getName(); // .replaceAll("::", ".");
+				// why was the replaceAll gone?
+				//parserName = currentModule.getName(); // .replaceAll("::", ".");
+				parserName = currentModule.getName().replaceAll("::", ".");
 			}
 
 			parser = pg.getParser(this, loc, parserName, productions);
