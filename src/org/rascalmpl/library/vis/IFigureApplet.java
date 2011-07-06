@@ -49,6 +49,7 @@ public interface IFigureApplet {
 	public void fill(int arg0);
 	public void stroke(int arg0);
 	public void strokeWeight(double arg0);
+	public void strokeStyle(int style);
 	public void textSize(double arg0);
 	public void textColor(int arg0);
 	public void textAlign(int arg0, int arg1);

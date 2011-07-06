@@ -479,6 +479,10 @@ data FProperty =
 	| lineColor            (computedColor     cc0)
 	| lineColor            (Like              lc0)
 	| lineColor            (Convert           mc0)
+	| lineStyle            (str               s0)  // solid, dash, dot, dashdot, dashdotdot
+	| lineStyle            (computedStr       cs0)
+	| lineStyle            (Like              ls0)
+	| lineStyle            (Convert           ms0)
 	| lineWidth            (num                r0)
 	| lineWidth            (computedNum       cr0)
 	| lineWidth            (Like              lr0)

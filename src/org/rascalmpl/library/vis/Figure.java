@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Control;
@@ -130,7 +131,9 @@ public abstract class Figure implements Comparable<Figure> {
 		fpa.fill(getColorProperty(Properties.FILL_COLOR));
 		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
 		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
+		fpa.strokeStyle(getLineStyleProperty());
 		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
+		
 		boolean shadow = getBooleanProperty(Properties.SHADOW);
 		fpa.setShadow(shadow);
 		if (shadow) {
@@ -670,6 +673,17 @@ public abstract class Figure implements Comparable<Figure> {
 	public double getLineWidthProperty() {
 		return getRealProperty(Properties.LINE_WIDTH);
 	}
+	
+	 public int getLineStyleProperty() {
+         String s =  getStringProperty(Properties.LINE_STYLE);
+         if (s.equals("dash")) return SWT.LINE_DASH;
+         if (s.equals("dot")) return SWT.LINE_DOT;
+         if (s.equals("dashdot")) return SWT.LINE_DASHDOT;
+         if (s.equals("dashdotdot")) return SWT.LINE_DASHDOTDOT;
+         return SWT.LINE_SOLID;
+     }
+
+
 
 	public double getTextAngleProperty() {
 		return getRealProperty(Properties.TEXT_ANGLE);

@@ -15,6 +15,11 @@
  * and
  * Forcing Bezier Interpolation
  * http://people.sc.fsu.edu/~jburkardt/html/bezier_interpolation.html
+ * 
+ * Cubic Spline Interpolation  (Sky McKinley and Megan Levine)
+ * http://online.redwoods.cc.ca.us/instruct/darnold/laproj/fall98/Skymeg/proj.pdf
+ * 
+ * 
  */
 
 package org.rascalmpl.library.vis;

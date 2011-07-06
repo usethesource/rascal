@@ -57,6 +57,7 @@ public enum Properties {
 	MOUSEOVER_HALIGN(Types.REAL,0.5,Dimension.X), // TODO: remove this, replace with overlay rewrite
 	INNERRADIUS(Types.REAL,0.0), // TODO: innerradisu is not axis aligned
 	LINE_WIDTH(Types.REAL,1.0),
+	LINE_STYLE(Types.STR,"solid"),
 	TEXT_ANGLE(Types.REAL,0.0), 	
 	FROM_ANGLE(Types.REAL,0.0),
 	TO_ANGLE(Types.REAL,0.0),			
@@ -109,7 +110,8 @@ public enum Properties {
 		put("fillColor", new PropertySetters.SingleColorPropertySetter(FILL_COLOR));
 		put("fontColor", new PropertySetters.SingleColorPropertySetter(FONT_COLOR));
 		put("lineColor", new PropertySetters.SingleColorPropertySetter(LINE_COLOR));
-		put("guideColor",new PropertySetters.SingleColorPropertySetter(GUIDE_COLOR));
+		put("lineStyle", new PropertySetters.SingleStrPropertySetter(LINE_STYLE));
+		put("guideColor",new PropertySetters.SingleColorPropertySetter(GUIDE_COLOR));	
 		put("shadowColor",new PropertySetters.SingleColorPropertySetter(SHADOW_COLOR));
 		
 		put("height", new PropertySetters.SingleIntOrRealPropertySetter(HEIGHT));
