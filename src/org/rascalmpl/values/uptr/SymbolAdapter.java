@@ -239,6 +239,9 @@ public class SymbolAdapter {
 			b.append(']');
 			return b.toString();
 		}
+		if (isStartSort(symbol)) {
+			return "start[" + toString(getStart(symbol)) + "]";
+		}
 		if (isParameter(symbol)) {
 			return "&" + getName(symbol);
 		}

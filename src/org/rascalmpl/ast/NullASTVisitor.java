@@ -456,6 +456,102 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSymNotFollow(Sym.NotFollow x) { 
+    return null; 
+  }
+
+  public T visitSymSequence(Sym.Sequence x) { 
+    return null; 
+  }
+
+  public T visitSymParameter(Sym.Parameter x) { 
+    return null; 
+  }
+
+  public T visitSymNonterminal(Sym.Nonterminal x) { 
+    return null; 
+  }
+
+  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x) { 
+    return null; 
+  }
+
+  public T visitSymColumn(Sym.Column x) { 
+    return null; 
+  }
+
+  public T visitSymAlternative(Sym.Alternative x) { 
+    return null; 
+  }
+
+  public T visitSymIterStarSep(Sym.IterStarSep x) { 
+    return null; 
+  }
+
+  public T visitSymStart(Sym.Start x) { 
+    return null; 
+  }
+
+  public T visitSymNotPrecede(Sym.NotPrecede x) { 
+    return null; 
+  }
+
+  public T visitSymIter(Sym.Iter x) { 
+    return null; 
+  }
+
+  public T visitSymParametrized(Sym.Parametrized x) { 
+    return null; 
+  }
+
+  public T visitSymEmpty(Sym.Empty x) { 
+    return null; 
+  }
+
+  public T visitSymOptional(Sym.Optional x) { 
+    return null; 
+  }
+
+  public T visitSymEndOfLine(Sym.EndOfLine x) { 
+    return null; 
+  }
+
+  public T visitSymFollow(Sym.Follow x) { 
+    return null; 
+  }
+
+  public T visitSymCharacterClass(Sym.CharacterClass x) { 
+    return null; 
+  }
+
+  public T visitSymLabeled(Sym.Labeled x) { 
+    return null; 
+  }
+
+  public T visitSymIterStar(Sym.IterStar x) { 
+    return null; 
+  }
+
+  public T visitSymIterSep(Sym.IterSep x) { 
+    return null; 
+  }
+
+  public T visitSymLiteral(Sym.Literal x) { 
+    return null; 
+  }
+
+  public T visitSymUnequal(Sym.Unequal x) { 
+    return null; 
+  }
+
+  public T visitSymPrecede(Sym.Precede x) { 
+    return null; 
+  }
+
+  public T visitSymStartOfLine(Sym.StartOfLine x) { 
+    return null; 
+  }
+
   public T visitStatementVariableDeclaration(Statement.VariableDeclaration x) { 
     return null; 
   }
@@ -1172,102 +1268,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitSymNotFollow(Sym.NotFollow x) { 
-    return null; 
-  }
-
-  public T visitSymSequence(Sym.Sequence x) { 
-    return null; 
-  }
-
-  public T visitSymParameter(Sym.Parameter x) { 
-    return null; 
-  }
-
-  public T visitSymNonterminal(Sym.Nonterminal x) { 
-    return null; 
-  }
-
-  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x) { 
-    return null; 
-  }
-
-  public T visitSymColumn(Sym.Column x) { 
-    return null; 
-  }
-
-  public T visitSymAlternative(Sym.Alternative x) { 
-    return null; 
-  }
-
-  public T visitSymIterStarSep(Sym.IterStarSep x) { 
-    return null; 
-  }
-
-  public T visitSymStart(Sym.Start x) { 
-    return null; 
-  }
-
-  public T visitSymNotPrecede(Sym.NotPrecede x) { 
-    return null; 
-  }
-
-  public T visitSymIter(Sym.Iter x) { 
-    return null; 
-  }
-
-  public T visitSymEmpty(Sym.Empty x) { 
-    return null; 
-  }
-
-  public T visitSymOptional(Sym.Optional x) { 
-    return null; 
-  }
-
-  public T visitSymEndOfLine(Sym.EndOfLine x) { 
-    return null; 
-  }
-
-  public T visitSymFollow(Sym.Follow x) { 
-    return null; 
-  }
-
-  public T visitSymCharacterClass(Sym.CharacterClass x) { 
-    return null; 
-  }
-
-  public T visitSymLabeled(Sym.Labeled x) { 
-    return null; 
-  }
-
-  public T visitSymIterStar(Sym.IterStar x) { 
-    return null; 
-  }
-
-  public T visitSymParametrized(Sym.Parametrized x) { 
-    return null; 
-  }
-
-  public T visitSymIterSep(Sym.IterSep x) { 
-    return null; 
-  }
-
-  public T visitSymLiteral(Sym.Literal x) { 
-    return null; 
-  }
-
-  public T visitSymUnequal(Sym.Unequal x) { 
-    return null; 
-  }
-
-  public T visitSymPrecede(Sym.Precede x) { 
-    return null; 
-  }
-
-  public T visitSymStartOfLine(Sym.StartOfLine x) { 
-    return null; 
-  }
-
   public T visitPathTailMid(PathTail.Mid x) { 
     return null; 
   }
@@ -1722,11 +1722,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
+  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
     return null; 
   }
 
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
+  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
     return null; 
   }
 
@@ -1942,11 +1942,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitSymAmbiguity(Sym.Ambiguity x) { 
+  public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x) { 
     return null; 
   }
 
-  public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x) { 
+  public T visitSymAmbiguity(Sym.Ambiguity x) { 
     return null; 
   }
 

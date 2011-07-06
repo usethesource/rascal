@@ -3307,7 +3307,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitSymParametrized(Parametrized x) {
 		// TODO Auto-generated method stub
-		return H(0, eX(x.getPnonterminal()), BoxADT.LBRACK,
+		return H(0, eX(x.getNonterminal()), BoxADT.LBRACK,
 				eXs(x.getParameters()), BoxADT.RBRACK);
 	}
 

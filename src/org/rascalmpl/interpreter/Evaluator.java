@@ -417,7 +417,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IConstructor parseObject(IConstructor startSort, URI location, char[] input, boolean withErrorTree){
 		IGTD parser = getObjectParser(location);
 		String name = "";
-		if (SymbolAdapter.isStart(startSort)) {
+		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
 			startSort = SymbolAdapter.getStart(startSort);
 		}

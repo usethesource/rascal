@@ -72,13 +72,6 @@ public abstract class Sym extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Sym> getAlternatives() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasPnonterminal() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.ParameterizedNonterminal getPnonterminal() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasString() {
     return false;
   }
@@ -632,6 +625,54 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
+  public boolean isParametrized() {
+    return false;
+  }
+
+  static public class Parametrized extends Sym {
+    // Production: sig("Parametrized",[arg("org.rascalmpl.ast.Nonterminal","nonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters")])
+  
+    
+    private final org.rascalmpl.ast.Nonterminal nonterminal;
+    private final java.util.List<org.rascalmpl.ast.Sym> parameters;
+  
+    public Parametrized(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
+      super(node);
+      
+      this.nonterminal = nonterminal;
+      this.parameters = parameters;
+    }
+  
+    @Override
+    public boolean isParametrized() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymParametrized(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Nonterminal getNonterminal() {
+      return this.nonterminal;
+    }
+  
+    @Override
+    public boolean hasNonterminal() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Sym> getParameters() {
+      return this.parameters;
+    }
+  
+    @Override
+    public boolean hasParameters() {
+      return true;
+    }	
+  }
   public boolean isEmpty() {
     return false;
   }
@@ -899,54 +940,6 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public boolean hasSymbol() {
-      return true;
-    }	
-  }
-  public boolean isParametrized() {
-    return false;
-  }
-
-  static public class Parametrized extends Sym {
-    // Production: sig("Parametrized",[arg("org.rascalmpl.ast.ParameterizedNonterminal","pnonterminal"),arg("java.util.List\<org.rascalmpl.ast.Sym\>","parameters")])
-  
-    
-    private final org.rascalmpl.ast.ParameterizedNonterminal pnonterminal;
-    private final java.util.List<org.rascalmpl.ast.Sym> parameters;
-  
-    public Parametrized(IConstructor node , org.rascalmpl.ast.ParameterizedNonterminal pnonterminal,  java.util.List<org.rascalmpl.ast.Sym> parameters) {
-      super(node);
-      
-      this.pnonterminal = pnonterminal;
-      this.parameters = parameters;
-    }
-  
-    @Override
-    public boolean isParametrized() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymParametrized(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.ParameterizedNonterminal getPnonterminal() {
-      return this.pnonterminal;
-    }
-  
-    @Override
-    public boolean hasPnonterminal() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Sym> getParameters() {
-      return this.parameters;
-    }
-  
-    @Override
-    public boolean hasParameters() {
       return true;
     }	
   }
