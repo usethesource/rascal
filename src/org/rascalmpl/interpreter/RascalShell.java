@@ -53,7 +53,7 @@ public class RascalShell {
 	private final static String PROMPT = "rascal>";
 	private final static String CONTINUE_PROMPT = ">>>>>>>";
 	private final static int LINE_LIMIT = 200;
-	private static final String SHELL_MODULE = "***shell***";
+	private static final String SHELL_MODULE = "$shell$";
 	
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
