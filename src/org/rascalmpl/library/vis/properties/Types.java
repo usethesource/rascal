@@ -4,7 +4,7 @@ public enum Types {
 	BOOL("bool","b"),
 	COLOR("Color","c","str"),
 	FIGURE("Figure","f"),
-	HANDLER("void ()","h"),
+	HANDLER("","h"),
 	INT("int","i"),
 	REAL("num","r"),
 	STR("str","s");

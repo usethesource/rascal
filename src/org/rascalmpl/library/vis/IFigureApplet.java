@@ -32,8 +32,6 @@ public interface IFigureApplet {
 	public void redraw();
 	public int getFigureWidth();
 	public int getFigureHeight();
-	public void registerId(String id, Figure fig);
-	public Figure getRegisteredId(String id);
 	public void registerFocus(Figure f);
 	public boolean isRegisteredAsFocus(Figure f);
 	public void unRegisterFocus(Figure f);

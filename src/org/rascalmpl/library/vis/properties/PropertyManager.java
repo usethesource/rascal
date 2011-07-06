@@ -25,7 +25,7 @@ import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
-
+import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
  * Manage the properties of a figure.
@@ -305,4 +305,18 @@ public class PropertyManager {
 		checkCorrectType(property, Types.HANDLER);
 		getPropertyValue(property).compute();
 	}
+	
+
+	public void executeVoidHandlerProperty(Properties property,Type[] types,IValue[] args ){
+		getPropertyValue(property).executeVoid(types, args);
+	}
+	
+	public IValue executeHandlerPropertyWithSingleArgument(Properties property,Type type,IValue arg ){
+		return getPropertyValue(property).executeWithSingleArg(type, arg);
+	}
+	
+	public IValue executeHandlerProperty(Properties property,Type[] types,IValue[] args ){
+		return getPropertyValue(property).execute(types, args);
+	}
+	
 }

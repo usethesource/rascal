@@ -21,17 +21,23 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -54,6 +60,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.library.vis.util.KeySym;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.util.BoundingBox;
@@ -84,11 +91,11 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	private boolean shadow;
-
+	private boolean mouseExited = true;
 	private final int defaultWidth = 5000; // Default dimensions of canvas
 	private final int defaultHeight = 5000;
 
-	private Figure figure; // The figure that is drawn on the canvas
+	//private Figure figure; // The figure that is drawn on the canvas
 	private IList primitives;
 	private double figureWidth = defaultWidth;
 	private double figureHeight = defaultHeight;
@@ -164,9 +171,9 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this.comp = comp;
 		this.device = comp.getDisplay();
-		this.figure = fig;
+		
 		this.ctx = ctx;
-		initialize(comp, name);
+		initialize(comp, name,fig);
 	}
 
 	public FigureSWTApplet(Composite comp, String name, IConstructor fig,
@@ -174,8 +181,8 @@ public class FigureSWTApplet implements IFigureApplet {
 		this.comp = comp;
 		this.device = comp.getDisplay();
 		this.ctx = ctx;
-		this.figure = FigureFactory.make(this, fig, null, null, ctx);
-		initialize(comp, name);
+		Figure figure = FigureFactory.make(this, fig, null, null, ctx);
+		initialize(comp, name,figure);
 	}
 
 	public FigureSWTApplet(Composite comp, String name, IList primitives,
@@ -184,10 +191,10 @@ public class FigureSWTApplet implements IFigureApplet {
 		this.comp = comp;
 		this.device = comp.getDisplay();
 		this.ctx = ctx;
-		initialize(comp, name);
+		initialize(comp, name,null);
 	}
 
-	void initialize(Composite comp, String name) {
+	void initialize(Composite comp, String name,Figure fig) {
 		
 		viewPort = new BoundingBox();
 		comp.getShell().setText(name);
@@ -210,13 +217,15 @@ public class FigureSWTApplet implements IFigureApplet {
 				redraw();
 			}
 		});
-		if (figure != null) {
+		comp.addKeyListener(new MyKeyListener());
+		if (fig != null) {
 			comp.addMouseMoveListener(new MyMouseMoveListener());
 			comp.addMouseListener(new MyMouseListener());
+			comp.addMouseTrackListener(new MyMouseTrackListener());
 			mouseOverStack = new Stack<PlacedFigure>();
 			mouseOverCausesStack = new Stack<Figure>();
 			mouseOverStack.push(new PlacedFigure(new Coordinate(0, 0),
-					new BoundingBox(), figure));
+					new BoundingBox(), fig));
 			figuresUnderMouse = new Vector<Figure>();
 			prevFiguresUnderMouse = new Vector<Figure>();
 			figuresUnderMouseSorted = new Vector<Figure>();
@@ -285,10 +294,10 @@ public class FigureSWTApplet implements IFigureApplet {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		if(layingOut){
-			System.err.printf("Will not draw while laying out!\n");
-		
+			System.out.print("Will not draw while laying out!");
 			return;
 		}
+		boolean drawing = true;
 		layoutFigures();
 		
 		//System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
@@ -328,10 +337,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	private void layoutFigures() {
-		if(layingOut){
-			System.err.printf("Will not relayout while laying out!\n");
-			return;
-		}
+		
 		synchronized(this){
 		// System.out.printf("Layout \n");
 		//System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
@@ -417,6 +423,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			layingOut = false;
 			
 		}
+		//this.notifyAll();
 		// comp.setSize(2000,800);
 		// System.out.printf("Setting %s %f %f\n",this, viewPort.getWidth(),
 		// viewPort.getHeight());	
@@ -430,15 +437,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		return FigureApplet.round(figureHeight);
 	}
 
-	public void registerId(String id, Figure fig) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public Figure getRegisteredId(String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public void registerFocus(Figure f) {
 		focus = f;
@@ -479,6 +477,7 @@ public class FigureSWTApplet implements IFigureApplet {
 						// System.out.printf("Mouse over %s \n",figuresUnderMouseSorted.get(i),figuresUnderMouseSorted.get(i).sequenceNr);
 						figuresUnderMouseSorted.get(i)
 								.executeMouseOverHandlers();
+						comp.redraw();
 					}
 
 				}
@@ -490,6 +489,7 @@ public class FigureSWTApplet implements IFigureApplet {
 							.isHandlerPropertySet(Properties.ON_MOUSEOFF)) {
 						prevFiguresUnderMouseSorted.get(j)
 								.executeMouseOffHandlers();
+						comp.redraw();
 					}
 				}
 				j++;
@@ -504,8 +504,12 @@ public class FigureSWTApplet implements IFigureApplet {
 		figuresUnderMouse = prevFiguresUnderMouse;
 		figuresUnderMouse.clear();
 		PlacedFigure topPlacedFigure = mouseOverStack.peek();
-		topPlacedFigure.figure.getFiguresUnderMouse(new Coordinate(mouseX,
+		if(mouseExited){
+			figuresUnderMouse.clear();
+		} else {
+			topPlacedFigure.figure.getFiguresUnderMouse(new Coordinate(mouseX,
 				mouseY), figuresUnderMouse);
+		}
 		if (figuresUnderMouse.isEmpty() && mouseOverStack.size() != 1) {
 			PlacedFigure topPlacedFigurePrev = mouseOverStack
 					.get(mouseOverStack.size() - 2);
@@ -987,12 +991,13 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	private void print() {
+		/*
 		if (figure != null) {
 			figure.bbox();
 			figureWidth = figure.minSize.getWidth();
 			figureHeight = figure.minSize.getHeight();
 			figure.draw(left, top);
-		}
+		} */
 	}
 
 	public Object createFont(String fontName, double fontSize) {
@@ -1032,6 +1037,54 @@ public class FigureSWTApplet implements IFigureApplet {
 	public Object getFont() {
 		// TODO Auto-generated method stub
 		return gc.getFont();
+	}
+	
+	class MyKeyListener implements KeyListener{
+		IMap modifierMap;
+		
+		public MyKeyListener() {
+			Type[] empty = {};
+			Type modType = ctx.getCurrentEnvt().abstractDataType("KeyModifier", empty);
+			modifierMap = ValueFactory.getInstance().map(modType, TypeFactory.getInstance().boolType());
+		}
+		
+		public void keyPressed(KeyEvent e){
+			IValue keySym = KeySym.toRascalKey(e, ctx);
+			modifierMap = KeySym.toRascalModifiers(e, modifierMap, ctx);
+			for(Figure fig : figuresUnderMouse){
+				fig.executeKeyDownHandlers(keySym, modifierMap);
+			}
+		}
+		
+		public void keyReleased(KeyEvent e){
+			IValue keySym = KeySym.toRascalKey(e, ctx);
+			modifierMap = KeySym.toRascalModifiers(e, modifierMap, ctx);
+			for(Figure fig : figuresUnderMouse){
+				fig.executeKeyUpHandlers(keySym, modifierMap);
+			}
+		}
+		
+	}
+	
+	class MyMouseTrackListener implements MouseTrackListener{
+
+		@Override
+		public void mouseEnter(MouseEvent e) {
+			comp.forceFocus();
+			mouseExited= false;
+		}
+
+		@Override
+		public void mouseExit(MouseEvent e) {
+			mouseExited = true;
+			mouseMoved();
+		}
+
+		@Override
+		public void mouseHover(MouseEvent e) {
+			
+		}
+		
 	}
 
 	class MyMouseMoveListener implements MouseMoveListener {
@@ -1095,12 +1148,12 @@ public class FigureSWTApplet implements IFigureApplet {
 			gc.setAntialias(SWT.ON);
 			gc.setTextAntialias(SWT.ON);
 			gc.setAdvanced(true);
-			if (figure != null) {
+			//if (figure != null) {
 				changeRes();
 				FigureSWTApplet.this.drawFigure();
-			} else if (primitives != null) {
+			/* } else if (primitives != null) {
 				FigureSWTApplet.this.drawPrimitives();
-			}
+			}*/
 			resized = false;
 		}
 	}

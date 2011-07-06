@@ -31,6 +31,7 @@ import org.rascalmpl.library.vis.util.Coordinate;
  */
 
 // TODO: fix me!
+/*
 public class Place extends Figure {
 	
 	private Figure bottomFigure;
@@ -94,3 +95,4 @@ public class Place extends Figure {
 		
 	}
 }
+*/

@@ -8,6 +8,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module vis::Figure
 
+import vis::KeySym;
 import Integer;
 import Real;
 import List;
@@ -272,10 +273,10 @@ public alias FProperties = list[FProperty];
 data Convert = convert(value v, value id);
 
 data FProperty =
-/* sizes */
-	  project              (Figure f0, str p0)
+	   timer                (int delay, int () cb)
+	 | project              (Figure f0, str p0)
 	 | _child               (FProperties props)
-	| align                (num                r0)
+| align                (num                r0)
 	| align                (computedNum       cr0)
 	| align                (Like              lr0)
 	| align                (Convert           mr0)
@@ -523,15 +524,11 @@ data FProperty =
 	| mouseStick           (computedBool      cb0)
 	| mouseStick           (Like              lb0)
 	| mouseStick           (Convert           mb0)
-	| onClick              (void ()            h0)
-	| onClick              (Like              lh0)
-	| onClick              (Convert           mh0)
-	| onMouseOff           (void ()            h0)
-	| onMouseOff           (Like              lh0)
-	| onMouseOff           (Convert           mh0)
-	| onMouseOver          (void ()            h0)
-	| onMouseOver          (Like              lh0)
-	| onMouseOver          (Convert           mh0)
+	| onClick              (void ()           h0)
+	| onKeyDown            (void (KeySym,map[KeyModifier,bool]) kh0)
+	| onKeyUp              (void (KeySym,map[KeyModifier,bool]) kh0)
+	| onMouseOff           (void ()           h0)
+	| onMouseOver          (void ()           h0)
 	| pos                  (num                r0)
 	| pos                  (computedNum       cr0)
 	| pos                  (Like              lr0)
@@ -961,15 +958,11 @@ data FProperty =
 	| stdMouseStick        (computedBool      cb0)
 	| stdMouseStick        (Like              lb0)
 	| stdMouseStick        (Convert           mb0)
-	| stdOnClick           (void ()            h0)
-	| stdOnClick           (Like              lh0)
-	| stdOnClick           (Convert           mh0)
-	| stdOnMouseOff        (void ()            h0)
-	| stdOnMouseOff        (Like              lh0)
-	| stdOnMouseOff        (Convert           mh0)
-	| stdOnMouseOver       (void ()            h0)
-	| stdOnMouseOver       (Like              lh0)
-	| stdOnMouseOver       (Convert           mh0)
+	| stdOnClick           (void ()           h0)
+	| stdOnKeyDown         (void (KeySym,map[KeyModifier,bool]) kh0)
+	| stdOnKeyUp           (void (KeySym,map[KeyModifier,bool]) kh0)
+	| stdOnMouseOff        (void ()           h0)
+	| stdOnMouseOver       (void ()           h0)
 	| stdPos               (num                r0)
 	| stdPos               (computedNum       cr0)
 	| stdPos               (Like              lr0)
@@ -1154,7 +1147,8 @@ data FProperty =
 	| stdWidth             (num                r0)
 	| stdWidth             (computedNum       cr0)
 	| stdWidth             (Like              lr0)
-	| stdWidth             (Convert           mr0);   
+	| stdWidth             (Convert           mr0)
+;   
 
 public FProperty child(FProperty props ...){
 	throw "child is currently out of order (broken)";
@@ -1234,7 +1228,9 @@ data Figure =
    
    | _projection(Figure fig, str id, Figure project,FProperties props)   // project from the location of fig to the screen id 
    
-   | _scrollable(Figure fig, FProperties props)     
+   | _scrollable(Figure fig, FProperties props)
+        
+   | _timer(int delay,int () callBack, Figure inner,FProperties props)
 
 /* composition */
    
@@ -1527,7 +1523,7 @@ public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
 }  
 
 public Figure normalize(Figure f){
-	return visit(f){
+	f = visit(f){
 		case Figure f : {
 			if([_*,project(y,z),_*] := f.props){
 				projects = [];
@@ -1543,6 +1539,23 @@ public Figure normalize(Figure f){
 			} else { fail ; } 
 		}
 	}
+	f = visit(f){
+		case Figure f : {
+			if([_*,timer(y,z),_*] := f.props){
+				projects = [];
+				otherProps = [];
+				for(elem <- f.props){
+					if(timer(_,_) := elem){
+						projects+=[elem];
+					} else {
+						otherProps+=[elem];
+					}
+				}
+				insert (f[props = otherProps] | _timer(p,i,it,[]) | timer(p,i) <- projects);
+			} else { fail ; } 
+		}
+	}
+	return f;
 }
 
 
@@ -1570,8 +1583,8 @@ public Figure hPalleteKey (str name, str key,FProperty props...){
  		], hgrow(1.1)),[hgrow(1.05)] + props);},[id(key)] ); 
 }
 
-public Figure title(str name, Figure inner){
-	return vcat([text(name,fontSize(17)), box(inner,grow(1.1))]);
+public Figure title(str name, Figure inner,FProperty props...){
+	return vcat([text(name,fontSize(17)), box(inner,grow(1.1))],props);
 }
 
 public Color rrgba(real r, real g, real b, real a){
@@ -1603,3 +1616,4 @@ public Figure colorIntervalKey(str name, str key, Color lowc, Color highc, FProp
  		], hgrow(1.1)),[hgrow(1.05)] + props);},[id(key)] ); 
  }
 
+alias KeyHandler = void (KeySym,map[KeyModifier,bool]);
