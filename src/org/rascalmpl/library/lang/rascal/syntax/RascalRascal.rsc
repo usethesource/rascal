@@ -87,9 +87,9 @@ syntax Signature
 
 syntax Sym
 // named non-terminals
-	= Nonterminal: Nonterminal nonterminal
+	= Nonterminal: Nonterminal nonterminal !>> "["
 	| Parameter: "&" Nonterminal nonterminal 
-	| Parametrized: ParameterizedNonterminal pnonterminal "[" {Sym ","}+ parameters "]"
+	| Parametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]"
 	| Start: "start" "[" Nonterminal nonterminal "]"
 	| Labeled: Sym symbol NonterminalLabel label
 // literals 
@@ -488,7 +488,7 @@ syntax ProtocolTail
 	| Post: PostProtocolChars post ;
 
 lexical Nonterminal
-	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] !>> [\[];
+	= [A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] \ RascalReservedKeywords;
 
 syntax PathTail
 	= Mid: MidPathChars mid Expression expression PathTail tail 
@@ -642,6 +642,7 @@ keyword RascalKeywords
 	| "one" 
 	| "throw" 
 	| "set" 
+	| "start"
 	| "fun" 
 	| "non-terminal" 
 	| "rule" 

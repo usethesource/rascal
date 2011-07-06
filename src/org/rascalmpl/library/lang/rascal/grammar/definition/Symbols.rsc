@@ -13,7 +13,7 @@ public bool match(Symbol checked, Symbol referenced) {
     referenced = referenced.symbol;
     
   return referenced == checked;
-}
+} 
 
 
 public Symbol sym2symbol(Sym sym) {
@@ -26,7 +26,7 @@ public Symbol sym2symbol(Sym sym) {
       return lit(unescape(l));
     case (Sym) `<CaseInsensitiveStringConstant l>`: 
       return cilit(unescape(l));
-    case (Sym) `<ParameterizedNonterminal n>[<{Sym ","}+ syms>]` : 
+    case (Sym) `<Nonterminal n>[<{Sym ","}+ syms>]` : 
       return \parameterized-sort("<n>",separgs2symbols(syms)); 
     case (Sym) `<Sym s> <NonterminalLabel n>` : 
       return label("<n>", sym2symbol(s));

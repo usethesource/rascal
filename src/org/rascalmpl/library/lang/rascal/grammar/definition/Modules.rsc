@@ -92,16 +92,22 @@ public tuple[str, set[str], set[str]] getModuleMetaInf(mod) {
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (mod) {
     case (Module) `<Tags _> module <QualifiedName name> <ModuleParameters _> <Import* is> <Body _>` :
-    return <"<name>", { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
+    return <deslash("<name>"), { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
                     , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
     case (Module) `<Tags _> module <QualifiedName name> <Import* is> <Body _>`:
-    return <"<name>", { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
+    return <deslash("<name>"), { "<i>" | (Import) `import <QualifiedName  i>;` <- is } 
                     , { "<i>" | (Import) `extend <QualifiedName  i>;` <- is }>; 
   }
   
   throw "unexpected module syntax <mod>";
 } 
  
+str deslash(str input) {
+  return visit(input) {
+    case /\\/ => ""
+  }
+}
+
 public Grammar imports2grammar(set[Import] imports) {
   return syntax2grammar({ s | (Import) `<SyntaxDefinition s>` <- imports});
 }

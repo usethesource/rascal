@@ -11,7 +11,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   
   // find any condition defined by a keyword sort
   // we use '/' to skip over 'meta' wrappers
-  while ({other*, cond} := conds, keywords(name) := cond.symbol || meta(keywords(name)) := cond.symbol) {
+  while ({other*, cond} := conds, cond has symbol, keywords(name) := cond.symbol || meta(keywords(name)) := cond.symbol) {
     if (name in done) 
       return conds; // failsafe for erroneous cyclic keywords definition! 
      
