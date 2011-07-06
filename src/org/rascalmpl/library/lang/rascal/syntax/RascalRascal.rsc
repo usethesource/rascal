@@ -363,9 +363,6 @@ syntax Replacement
 	= Unconditional: Expression replacementExpression 
 	| Conditional: Expression replacementExpression "when" {Expression ","}+ conditions ;
 
-lexical ParameterizedNonterminal
-	= [A-Z] [0-9 A-Z _ a-z]* !>> ![\[];
-	
 syntax DataTarget
 	= Empty: 
 	| Labeled: Name label ":" ;
