@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
@@ -196,6 +197,19 @@ public class ComputedProperties {
 		@Override
 		Void convertValue(IValue res) {
 			return null;
+		}
+		@Override
+		public IValue executeWithSingleArg(Type type,IValue arg){
+			return fpa.executeRascalCallBackSingleArgument(fun, type, arg).getValue();
+		}
+		
+		public void  executeVoid(Type[] types,IValue[] args){
+			fpa.executeRascalCallBack(fun, types, args);
+		}
+		
+		@Override
+		public IValue execute(Type[] types,IValue[] args){
+			return fpa.executeRascalCallBack(fun, types, args).getValue();
 		}
 	}
 }

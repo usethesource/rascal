@@ -11,6 +11,7 @@
 module List
 
 import Exception;
+import Integer;
 
 @doc{Delete nth element from list}
 @javaClass{org.rascalmpl.library.List}
@@ -29,6 +30,10 @@ public &T last(list[&T] lst) throws EmptyList {
   if ([list[&T] p, &T l] := lst) 
     return l;
   throw EmptyList();
+}
+@doc{get min(size(l),n) elements from the front of the list}
+public list[&T] take(int n,list[&T] l){
+	return [ l[i] | i <- [0..min(size(l)-1,n-1)]];
 }
 
 @doc{Remove multiple occurrences of elements in a list. The first occurrence remains.}
@@ -249,6 +254,17 @@ public set[&T] java toSet(list[&T] lst);
 public rel[&T,&T] toRel(list[&T] lst) {
   return { <from,to> | [_*, &T from, &T to, _*] := lst };
 }
+
+@doc{mixes two lists, i.e. mix([1,3..10],[2,4..10]) == [1..10]}
+public list[&T] mix(list[&T] l,list[&T] r){
+	result = [];
+	for(i <- [0..max(size(l),size(r))-1]){
+		if(i < size(l)) result+=[l[i]];
+		if(i < size(r)) result+=[r[i]];
+	}
+	return result;
+}
+	 	
 
 @doc{Convert a list to a string}
 @javaClass{org.rascalmpl.library.List}

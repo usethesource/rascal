@@ -16,7 +16,9 @@ package org.rascalmpl.library.vis;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Transform;
@@ -27,7 +29,6 @@ import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
-import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
@@ -369,6 +370,27 @@ public abstract class Figure implements Comparable<Figure> {
 			return false;
 		result.add(this);
 		return true;
+	}
+	
+	
+	public void executeKeyDownHandlers(IValue keySym, IMap modifiers){
+		Type[] types = {keySym.getType(),modifiers.getType()};
+		IValue[] args = {keySym,modifiers};
+		if(isHandlerPropertySet(Properties.ON_KEY_DOWN)){
+			properties.executeVoidHandlerProperty(Properties.ON_KEY_DOWN, types, args);
+		}
+		fpa.setComputedValueChanged();
+		fpa.redraw();
+	}
+	
+	public void executeKeyUpHandlers(IValue keySym, IMap modifiers){
+		Type[] types = {keySym.getType(),modifiers.getType()};
+		IValue[] args = {keySym,modifiers};
+		if(isHandlerPropertySet(Properties.ON_KEY_UP)){
+			properties.executeVoidHandlerProperty(Properties.ON_KEY_UP, types, args);
+		}
+		fpa.setComputedValueChanged();
+		fpa.redraw();
 	}
 
 	public void executeMouseOverOffHandlers(Properties prop) {

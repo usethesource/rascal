@@ -28,7 +28,6 @@ import org.rascalmpl.library.vis.compose.HVCat;
 import org.rascalmpl.library.vis.compose.Grid;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
-import org.rascalmpl.library.vis.compose.Place;
 import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.HAxis;
@@ -52,6 +51,7 @@ import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.Combo;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.TextField;
+import org.rascalmpl.library.vis.interaction.Timer;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
@@ -109,6 +109,7 @@ public class FigureFactory {
 		SPACE,
 		TEXT, 
 		TEXTFIELD,
+		TIMER,
 		TREE,
 		TREEMAP,
 		USE,
@@ -152,6 +153,7 @@ public class FigureFactory {
     	put("_space",		Primitives.SPACE);
     	put("_text",		Primitives.TEXT);		
     	put("_textfield",	Primitives.TEXTFIELD);
+    	put("_timer",		Primitives.TIMER);
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
     	put("_use",			Primitives.USE);
@@ -310,7 +312,8 @@ public class FigureFactory {
 			return new Pack(fpa, children, properties);
 			
 		case PLACE:
-			return new Place(fpa, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
+			throw new Error("Place out of order..");
+			//return new Place(fpa, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
 
 		case PROJECTION:
 			String name;
@@ -364,6 +367,8 @@ public class FigureFactory {
 			validate = null;
 			if(c.arity() > 3) validate = c.get(2);
 			return new TextField(fpa,  ((IString) c.get(0)).getValue(), c.get(1), validate, ctx, properties);
+		case TIMER:
+			return new Timer(fpa, (int)PropertyParsers.parseNum(c.get(0)), c.get(1), makeChild(2,fpa,c,properties,childPropsNext,ctx), properties );
 			
 		case TREE: 			
 			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);

@@ -42,9 +42,9 @@ public enum Properties {
 	FROM_ARROW(Types.FIGURE,null),
 	LABEL(Types.FIGURE,null),
 	
-	MOUSE_CLICK(Types.HANDLER,null),
-	ON_MOUSEOVER(Types.HANDLER,null),
-	ON_MOUSEOFF(Types.HANDLER,null),
+	MOUSE_CLICK(Types.HANDLER,null,"void ()","h"),
+	ON_MOUSEOVER(Types.HANDLER,null,"void ()","h"),
+	ON_MOUSEOFF(Types.HANDLER,null,"void ()","h"),
 	
 	DOI(Types.INT,1000000),            // degree of interest
 	FONT_SIZE(Types.INT,12),
@@ -71,22 +71,37 @@ public enum Properties {
 	HINT(Types.STR,""),			
 	ID(Types.STR,""), 		
 	FONT(Types.STR,"Helvetica"),
-	TEXT(Types.STR,"");
+	TEXT(Types.STR,""),
+	
+	ON_KEY_DOWN(Types.HANDLER,null,"void (KeySym,map[KeyModifier,bool])","kh"),
+	ON_KEY_UP(Types.HANDLER,null,"void (KeySym,map[KeyModifier,bool])","kh");
 	
 	
 	public Object stdDefault;
 	public Types type;
 	public Dimension dimension;
+	public String callBackType;
+	public String shortCallBackType;
 	
 	
 	Properties(Types type,Object stdDefault){
-		this(type,stdDefault,null);
+		this(type,stdDefault,null,null);
+	}
+	
+	Properties(Types type, Object stdDefault, String callBackType,String shortCallBackType){
+		this(type,stdDefault,null,callBackType,shortCallBackType);
 	}
 	
 	Properties(Types type,Object stdDefault, Dimension dimension){
+		this(type,stdDefault,dimension,null,null);
+	}
+	
+	Properties(Types type,Object stdDefault, Dimension dimension,String callBackType,String shortCallBackType){
 		this.type = type;
 		this.stdDefault = stdDefault;
 		this.dimension =dimension;
+		this.callBackType = callBackType;
+		this.shortCallBackType = shortCallBackType;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -168,6 +183,9 @@ public enum Properties {
 		put("id", new PropertySetters.SingleStrPropertySetter(ID));
 		put("font", new PropertySetters.SingleStrPropertySetter(FONT));
 		put("text", new PropertySetters.SingleStrPropertySetter(TEXT));
+		
+		put("onKeyDown", new PropertySetters.SingleHandlerPropertySetter(ON_KEY_DOWN));
+		put("onKeyUp", new PropertySetters.SingleHandlerPropertySetter(ON_KEY_UP));
 	}};
 	
 	
@@ -184,7 +202,8 @@ public enum Properties {
 		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
 	}
 	
-	static String argumentTypeInNotation(Types type,Notations n){
+	static String argumentTypeInNotation(Types type,Notations n, Properties prop){
+		if(prop.callBackType != null) return prop.callBackType;
 		switch(n){
 		case CONSTANT:  return type.rascalName;
 		case CONSTANT_SUGAR:  return type.syntaxSugar;
@@ -195,7 +214,8 @@ public enum Properties {
 		throw new Error("Unkown notation");
 	}
 	
-	static String argumentInNotation(Types type,Notations n){
+	static String argumentInNotation(Types type,Notations n, Properties prop){
+		if(prop.shortCallBackType != null) return prop.shortCallBackType;
 		switch(n){
 		case CONSTANT:  return String.format("%2s", type.shortName);
 		case CONSTANT_SUGAR:  return String.format("s%s", type.shortName);
@@ -208,18 +228,19 @@ public enum Properties {
 	
 
 	
-	static Vector<String> genArgumentCode(HashMap<String, Integer> nameOccurances, Types type, int nrTimes){
+	static Vector<String> genArgumentCode(HashMap<String, Integer> nameOccurances, Types type, int nrTimes, Properties prop){
 		Vector<String> result = new Vector<String>();
 		if(nrTimes == 0 ){
 			result.add("");
 			return result;
 		}
 		for(Notations n : Notations.values()){
-			if(type == Types.HANDLER && n == Notations.COMPUTED) continue;
+			if(type == Types.HANDLER && n != Notations.CONSTANT) continue;
 			if(n == Notations.CONSTANT_SUGAR && type.syntaxSugar == null) continue;
-			String typeName = argumentTypeInNotation(type, n);
-			String argName = argumentInNotation(type, n);
-			Vector<String> deeper = genArgumentCode(nameOccurances,type,nrTimes-1);
+			
+			String typeName= argumentTypeInNotation(type, n,prop);
+			String argName = argumentInNotation(type, n,prop);
+			Vector<String> deeper = genArgumentCode(nameOccurances,type,nrTimes-1,prop);
 			for(String rest : deeper){
 				int occur = 0;
 				if(nameOccurances.containsKey(argName)){
@@ -244,7 +265,7 @@ public enum Properties {
 		HashMap<String, Integer> nameOccurances = new HashMap<String, Integer>();
 		String result = "";
 		for(int nrTimes = setter.minNrOfArguments(); nrTimes <= setter.maxNrOfArguments(); nrTimes++){
-			Vector<String> argStrings = genArgumentCode(nameOccurances, type, nrTimes);
+			Vector<String> argStrings = genArgumentCode(nameOccurances, type, nrTimes,setter.getProperty(0));
 			for(String s : argStrings){
 				String propertyDesc ;
 				if(std){
