@@ -43,12 +43,12 @@ private Edge arrow(str from, str to, str typ) {
 	else
 		return edge(to, from, toArrow());
 }
-private Figure toArrow() {
-	return shape([vertex(0,0), vertex(3,5), vertex(6,0)], shapeConnected(true));
+private FProperty toArrow() {
+	return toArrow(shape([vertex(0,0), vertex(3,5), vertex(6,0)], shapeConnected(true)));
 }
 
-private Figure fromArrow() {
-	return ellipse(size(4));
+private FProperty fromArrow() {
+	return fromArrow(ellipse(size(4)));
 }
 
 private Color getColor(str name) {
