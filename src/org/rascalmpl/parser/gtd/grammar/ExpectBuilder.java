@@ -36,7 +36,7 @@ public class ExpectBuilder{
 	}
 	
 	// Builds the expect matrix and calculates sharing.
-	public AbstractStackNode[][] buildExpectMatrix(){
+	public AbstractStackNode[] buildExpectArray(){
 		HashMap<AbstractStackNode, AbstractStackNode[]> constructedExpects = new HashMap<AbstractStackNode, AbstractStackNode[]>();
 		
 		for(int i = alternatives.size() - 1; i >= 0; --i){
@@ -87,11 +87,11 @@ public class ExpectBuilder{
 		}
 		
 		int nrOfConstructedExpects = constructedExpects.size();
-		AbstractStackNode[][] expectMatrix = new AbstractStackNode[nrOfConstructedExpects][];
+		AbstractStackNode[] expectMatrix = new AbstractStackNode[nrOfConstructedExpects];
 		Iterator<AbstractStackNode[]> constructedExpectsIterator = constructedExpects.valueIterator();
 		int i = nrOfConstructedExpects;
 		while(constructedExpectsIterator.hasNext()){
-			expectMatrix[--i] = constructedExpectsIterator.next();
+			expectMatrix[--i] = constructedExpectsIterator.next()[0];
 		}
 		
 		return expectMatrix;
