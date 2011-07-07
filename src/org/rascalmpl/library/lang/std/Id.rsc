@@ -8,6 +8,5 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::std::Id
 
-syntax Id = lex [a-z A-Z][a-z A-Z 0-9 _]+
-          # [a-z A-Z 0-9 _]
+lexical Id = [a-z A-Z 0-9 _] !<< [a-z A-Z][a-z A-Z 0-9 _]+ !>> [a-z A-Z 0-9 _]
           ;
