@@ -8,4 +8,4 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::std::Whitespace
 
-syntax Whitespace = lex [\ \t\n\f\r];
+lexical Whitespace = [\ \t\n\f\r]; 
