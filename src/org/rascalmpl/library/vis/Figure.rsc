@@ -1617,3 +1617,10 @@ public Figure colorIntervalKey(str name, str key, Color lowc, Color highc, FProp
  }
 
 alias KeyHandler = void (KeySym,map[KeyModifier,bool]);
+
+public Figure triangle(int side,FProperty props...){
+  return overlay([point(left(),bottom()),point(top()), point(right(),bottom())], 
+  	[shapeConnected(true), shapeClosed(true),  size(side,sqrt(3.0/4.0) * toReal(side)),
+  	resizable(false)] + props);
+}
+
