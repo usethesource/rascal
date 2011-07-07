@@ -881,7 +881,7 @@ public abstract class SGTDBF implements IGTD{
 				IEnterFilter[] enterFilters = first.getEnterFilters();
 				if(enterFilters != null){
 					for(int j = enterFilters.length - 1; j >= 0; --j){
-						if(enterFilters[i].isFiltered(input, location, positionStore)) continue EXPECTS;
+						if(enterFilters[j].isFiltered(input, location, positionStore)) continue EXPECTS;
 					}
 				}
 				
