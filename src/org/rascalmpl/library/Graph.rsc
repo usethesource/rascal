@@ -127,14 +127,14 @@ private int extractMinimum()
      return min;
 }
   
-private list[int] extractPath(int start, int u)
+private list[int] extractPath(int begin, int u)
 {
     list[int] path = [u];
-    while(pred[u] != start){
+    while(pred[u] != begin){
           u = pred[u];
           path = u + path;
     }
-    return start + path;
+    return begin + path;
 }
   
 public rel[int,int] examp = {<1,2>,<2,3>,<3,4>,<2,4>};

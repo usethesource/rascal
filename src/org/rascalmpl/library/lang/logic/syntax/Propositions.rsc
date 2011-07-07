@@ -6,13 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::syntax::Propositions
+module lang::logic::\syntax::Propositions
 
-import lang::logic::syntax::Booleans;
-import lang::std::Whitespace;
-import lang::std::Layout;
-import lang::std::Comment;
+extend lang::logic::\syntax::Booleans;
+extend lang::std::Id;
 
 syntax Formula 
-  = lex id: [A-Za-z][A-Za-z0-9]*
-  ;
+  = id: Id name \ "true" \ "false";

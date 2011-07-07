@@ -6,11 +6,11 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::syntax::Booleans
-
-import lang::std::Whitespace;
-import lang::std::Layout;
-import lang::std::Comment;
+module lang::logic::\syntax::Booleans
+ 
+extend lang::std::Whitespace;
+extend lang::std::Layout;
+extend lang::std::Comment;
 
 syntax Formula
   = \true :  "true"

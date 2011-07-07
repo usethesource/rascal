@@ -31,7 +31,6 @@ import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.LocalVariableDeclaration;
-import org.rascalmpl.ast.NoElseMayFollow;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.StringConstant;
@@ -452,8 +451,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		public IfThen(IConstructor __param1, Label __param2,
 				List<org.rascalmpl.ast.Expression> __param3,
-				org.rascalmpl.ast.Statement __param4, NoElseMayFollow __param5) {
-			super(__param1, __param2, __param3, __param4, __param5);
+				org.rascalmpl.ast.Statement __param4) {
+			super(__param1, __param2, __param3, __param4);
 		}
 
 		@Override

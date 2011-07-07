@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -48,10 +48,9 @@ public class ParserGenerator {
 		this.vf = factory;
 		
 		monitor.startJob("Loading parser generator", 100, 139);
-		evaluator.doImport(monitor, "lang::rascal::syntax::Generator");
-		evaluator.doImport(monitor, "lang::rascal::syntax::Normalization");
-		evaluator.doImport(monitor, "lang::rascal::syntax::Definition");
-		evaluator.doImport(monitor, "lang::rascal::syntax::Assimilator");
+		evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
+		evaluator.doImport(monitor, "lang::rascal::grammar::Assimilator");
 		monitor.endJob(true);
 	}
 	
@@ -64,13 +63,14 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
-	public Class<IGTD> getParser(IRascalMonitor monitor, URI loc, String name, ISet imports) {
+	public Class<IGTD> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
 		monitor.startJob("Generating parser", 100, 90);
 		
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
-			IConstructor grammar = getGrammar(monitor, imports);
-			String normName = name.replaceAll("\\.", "_");
+			IConstructor grammar = getGrammar(monitor, name, definition);
+			
+			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString, "/tmp/parser.java");
@@ -92,11 +92,11 @@ public class ParserGenerator {
 	 * Note that this method works under the assumption that a normal parser was generated before!
 	 * The class that this parser generates will inherit from that previously generated parser.
 	 */
-	public Class<IGTD> getRascalParser(IRascalMonitor monitor, URI loc, String name, ISet imports, IGTD objectParser) {
+	public Class<IGTD> getRascalParser(IRascalMonitor monitor, URI loc, String name, IMap definition, IGTD objectParser) {
 		try {
 			monitor.event("Importing and normalizing grammar: " + name, 10);
-			IConstructor grammar = getGrammar(monitor, imports);
-			String normName = name.replaceAll("\\.", "_");
+			IConstructor grammar = getGrammar(monitor, name, definition);
+			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for Rascal parser:" + name, 10);
 			IString classString = (IString) evaluator.call(monitor, "generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
 			debugOutput(classString, "/tmp/metaParser.java");
@@ -130,7 +130,7 @@ public class ParserGenerator {
 		}
 	}
 	
-	public IConstructor getGrammar(IRascalMonitor monitor, ISet imports) {
-		return (IConstructor) evaluator.call(monitor, "imports2grammar", imports);
+	public IConstructor getGrammar(IRascalMonitor monitor, String main, IMap definition) {
+		return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), definition);
 	}
 }

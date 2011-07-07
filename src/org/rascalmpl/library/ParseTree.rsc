@@ -30,81 +30,103 @@ data Tree
   | errorcycle(Symbol symbol, int cycleLength)
   ;
   
-data Production =
-     prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
-     regular(Symbol rhs, Attributes attributes);
+data Production 
+  = prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) 
+  | regular(Symbol rhs, Attributes attributes)
+  ;
 
-data Attributes = \no-attrs() | \attrs(list[Attr] attrs);
+data Attributes 
+  = \no-attrs() 
+  | \attrs(list[Attr] attrs)
+  ;
   
-data Attr =
-     \assoc(Associativity \assoc) | 
-     \term(value \term) |  
-     \bracket() | \reject() |
-     \lex() | \literal() | \ciliteral();
+data Attr 
+  = \assoc(Associativity \assoc)  
+  | \term(value \term) 
+  | \bracket() 
+  ;
 
-data Associativity =
-     \left() | \right() | \assoc() | \non-assoc();
+data Associativity 
+  = \left() 
+  | \right() 
+  | \assoc() 
+  | \non-assoc()
+  ;
 
-data CharRange = range(int start, int end);
+data CharRange = range(int begin, int end);
 
 alias CharClass = list[CharRange];
 
 data Symbol 
-  = \start(Symbol symbol) 
+  = \start(Symbol symbol)
+// named non-terminals 
+  | \sort(str string)  
+  | \lex(str string) 
+  | \layouts(str name) 
+  | \keywords(str name)
+  | \parameterized-sort(str sort, list[Symbol] parameters)  
+  | \parameter(str name)
   | \label(str name, Symbol symbol) 
+// terminals 
   | \lit(str string) 
-  | \cilit(str string)  
+  | \cilit(str string)
+  | \char-class(list[CharRange] ranges)  
+// regular expressions
   | \empty()  
   | \opt(Symbol symbol)  
-  | \sort(str string)   
-  | \layouts(str name) 
   | \iter(Symbol symbol)   
   | \iter-star(Symbol symbol)   
   | \iter-seps(Symbol symbol, list[Symbol] separators)   
   | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
   | \alt(set[Symbol] alternatives)
   | \seq(list[Symbol] sequence)
-  | \parameterized-sort(str sort, list[Symbol] parameters)  
-  | \parameter(str name) 
-  | \char-class(list[CharRange] ranges) 
-  | \follow(Symbol symbol, Symbol follow)
-  | \not-follow(Symbol symbol, Symbol follow)
-  | \precede(Symbol symbol, Symbol precede)
-  | \not-precede(Symbol symbol, Symbol precede)
+  | \conditional(Symbol symbol, set[Condition] conditions)
   ;
-     
+
+@doc{Conditions on symbols give rise to disambiguation filters.}    
+data Condition
+  = \follow(Symbol symbol)
+  | \not-follow(Symbol symbol)
+  | \precede(Symbol symbol)
+  | \not-precede(Symbol symbol)
+  | \delete(Symbol symbol)
+  | \at-column(int column) 
+  | \begin-of-line()  
+  | \end-of-line()  
+  ;
+         
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] start, loc input);
+public &T<:Tree java parse(type[&T<:Tree] \begin, loc input);
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] start, loc input);
+public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, loc input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] start, str input);
+public &T<:Tree java parse(type[&T<:Tree] begin, str input);
 
 @doc{Parse a string and return a parse tree, which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] start, str input);
+public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, str input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] start, str input, loc origin);
+public &T<:Tree java parse(type[&T<:Tree] begin, str input, loc origin);
 
 @doc{Parse a string and return a parse tree, which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] start, str input, loc origin);
+public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, str input, loc origin);
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}

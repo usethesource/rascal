@@ -21,30 +21,30 @@ public class FailedTestError extends ControlException {
 	private String trace = null;
 	private ISourceLocation loc;
 
-	public FailedTestError(Test.Labeled t) {
-		super("test " + t.getLabeled().toString() + " failed.");
-		this.loc = t.getLocation();
-	}
+//	public FailedTestError(Test.Labeled t) {
+//		super("test " + t.getLabeled().toString() + " failed.");
+//		this.loc = t.getLocation();
+//	}
 	
 	public FailedTestError(Test.Unlabeled t) {
 		super("test failed");
 		this.loc = t.getLocation();
 	}
 
-	public FailedTestError(Test.Labeled t, Throw tr) {
-		super("test " + t.getLabeled() + " failed due to unexpected Rascal exception: " + tr.getMessage());
-		this.loc = tr.getLocation();
-	}
+//	public FailedTestError(Test.Labeled t, Throw tr) {
+//		super("test " + t.getLabeled() + " failed due to unexpected Rascal exception: " + tr.getMessage());
+//		this.loc = tr.getLocation();
+//	}
 	
 	public FailedTestError(Test.Unlabeled t, Throw tr) {
 		super("test failed due to unexpected Rascal exception: " + tr.getMessage());
 		this.loc = tr.getLocation();
 	}
 	
-	public FailedTestError(Test.Labeled t, Throwable e) {
-		super("test " + t.getLabeled() + " failed due to unexpected Java exception: " + e.getMessage(), e);
-		this.loc = t.getLocation();
-	}
+//	public FailedTestError(Test.Labeled t, Throwable e) {
+//		super("test " + t.getLabeled() + " failed due to unexpected Java exception: " + e.getMessage(), e);
+//		this.loc = t.getLocation();
+//	}
 	
 	public FailedTestError(Test.Unlabeled t, Throwable e) {
 		super("test failed due to unexpected Java exception: " + e.getMessage(), e);

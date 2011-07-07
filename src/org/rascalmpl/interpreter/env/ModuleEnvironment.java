@@ -25,9 +25,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -35,8 +38,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Test;
-import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -60,6 +63,7 @@ import org.rascalmpl.values.uptr.Factory;
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
 	protected Map<String, ModuleEnvironment> importedModules;
+	protected Set<String> extended;
 	protected Map<Type, List<Type>> extensions;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
@@ -113,20 +117,61 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void declareProduction(Syntax x) {
+	public void declareProduction(SyntaxDefinition x) {
 		productions.add(x.getTree());
 	}
 	
-	@Override
-	public ISet getProductions() {
-		ISetWriter w = ValueFactoryFactory.getValueFactory().setWriter();
-		w.insertAll(productions);
+	/** 
+	 * Builds a map to communicate all relevant syntax definitions to the parser generator.
+	 * See lang::rascal::grammar::definition::Modules.modules2grammar()
+	 */
+	public IMap getSyntaxDefinition() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		todo.add(getName());
 		
-		for (String i : importedModules.keySet()) {
-			ModuleEnvironment m = importedModules.get(i);
-			w.insertAll(m.productions);
+		IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
+		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(DefSort)));
+		
+		while (!todo.isEmpty()) {
+			String m = todo.get(0);
+			todo.remove(0);
+			
+			if (done.contains(m)) {
+				continue;
+			}
+			
+			done.add(m);
+			
+			ModuleEnvironment env = heap.getModule(m);
+			
+			if (env != null) {
+				Set<String> imps = env.importedModules != null ? env.importedModules.keySet() : Collections.<String>emptySet();
+				imps.removeAll(done);
+				todo.addAll(imps);
+				
+				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				
+				for (String i : imps) {
+					importWriter.insert(VF.string(i));
+				}
+				
+				ISetWriter defWriter = VF.setWriter(DefSort);
+				
+				if (env.productions != null) {
+					for (IValue def : env.productions) {
+						defWriter.insert(def);
+					}
+				}
+				
+				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
+				result.put(VF.string(m), t);
+			}
 		}
-		return w.done();
+		
+		
+		return result.done();
 	}
 	
 	public boolean isModuleEnvironment() {
@@ -331,13 +376,6 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public Type abstractDataType(String name, Type... parameters) {
 		return TF.abstractDataType(typeStore, name, parameters);
-	}
-	
-	@Override
-	public Type concreteSyntaxType(String name, org.rascalmpl.ast.Type type) {
-		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(type);
-		concreteSyntaxTypes.put(name, sort);
-		return sort;
 	}
 	
 	public Type concreteSyntaxType(String name, IConstructor symbol) {

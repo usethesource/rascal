@@ -18,25 +18,26 @@ import Set;
 import Relation;
 import Graph;
 import Grammar;
-import lang::rascal::syntax::Grammar2Rascal;
+import lang::rascal::format::Grammar;
+import lang::rascal::format::Escape;
 
 public list[Message] diagnose(Tree t) {
   return [findCauses(x) | x <- {a | /Tree a:amb(_) := t}];
 }
 
-public void diagnose(str amb) {
-  diagnose(readTextValueString(#Tree, amb));
+public list[Message] diagnose(str amb) {
+  return diagnose(readTextValueString(#Tree, amb));
 }
 
 public list[Message] findCauses(Tree a) {
-  return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc)]
+  return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc?|stdin:///|)]
        + [findCauses(x, y) | [_*,Tree x,_*,Tree y, _*] := toList(a.alternatives), true /* workaround alert*/];
 }
     
 public list[Message] findCauses(Tree x, Tree y) {
   pX = { p | /Production p := x };
   pY = { p | /Production p := y };
-  result = [];
+  list[Message] result = [];
   
   if (pX == pY) {
     result += [info("The alternatives use the same productions", x@\loc)];
@@ -66,8 +67,8 @@ public list[Message] verticalCauses(Tree x, Tree y) {
 
 public list[Message] deeperCauses(Tree x, Tree y) {
   // collect lexical trees
-  rX = {<t,yield(t)> | /t:appl(prod(_,_,attrs([_*,\lex(),_*])),_) := x};
-  rY = {<t,yield(t)> | /t:appl(prod(_,_,attrs([_*,\lex(),_*])),_) := y};
+  rX = {<t,yield(t)> | /t:appl(prod(_,\lex(_),_),_) := x};
+  rY = {<t,yield(t)> | /t:appl(prod(_,\lex(_),_),_) := y};
  
   // collect literals
   lX = {<yield(t),t> | /t:appl(prod(_,l:lit(_),_),_) := x};
@@ -168,16 +169,16 @@ public list[Message] reorderingCauses(Tree x, Tree y) {
 list[Message] priorityCauses(Tree x, Tree y) {
   if (/appl(p,[appl(q,_),_*]) := x, /Tree t:appl(q,[_*,appl(p,_)]) := y, p != q) {
       return [error("You might add this priority rule (or vice versa):
-                    '  <alt2rascal(first(p.rhs,[p,q]))>", t@\loc)
+                    '  <alt2rascal(priority(p.rhs,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
-                    '  <alt2rascal(\assoc(p.rhs, \left(), {p,q}))>", t@\loc)];
+                    '  <alt2rascal(associativity(p.rhs, \left(), {p,q}))>", t@\loc)];
   }
   
   if (/appl(p,[appl(q,_),_*]) := y, /Tree t:appl(q,[_*,appl(p,_)]) := x, p != q) {
       return [error("You might add this priority rule (or vice versa):
-                    '  <alt2rascal(first(p.rhs,[p,q]))>", t@\loc)
+                    '  <alt2rascal(priority(p.rhs,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
-                    '  <alt2rascal(\assoc(p.rhs, \left(), {p,q}))>", t@\loc)];
+                    '  <alt2rascal(associativity(p.rhs, \left(), {p,q}))>", t@\loc)];
   }
   
   return [];
