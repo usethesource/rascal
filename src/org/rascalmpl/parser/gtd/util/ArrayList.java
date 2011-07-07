@@ -56,6 +56,13 @@ public class ArrayList<E>{
 		return false;
 	}
 	
+	public int findIndex(E object){
+		for(int i = size - 1; i >= 0; --i){
+			if(data[i].equals(object)) return i;
+		}
+		return -1;
+	}
+	
 	public E remove(int index){
 		E object = data[index];
 		if(index != --size){
