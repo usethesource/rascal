@@ -6,92 +6,111 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
+@contributor{Vadim Zaytsev - Vadim.Zaytsev@cwi.nl - CWI}
 @doc{
   This modules defines an simple but effective internal format for the representation of context-free grammars.
-  
-  The core of the format is the Production type from the ParseTree module. A grammar is simply collection of such
-  productions. Where there is interaction between productions, usually to define disambiguation filters, the Production
-  type is extended with combinators.
 }
 module Grammar
 
 import ParseTree;
 import Set;
-import Graph;
+import IO;
 
 @doc{
-  A grammar is a set of productions and set of start symbols.
-  We also provide constructors for grammar modules (grammars with names and imports).
+  Grammar is the internal representation (AST) of syntax definitions used in Rascal.
+  A grammar is a set of productions and set of start symbols. The productions are 
+  stored in a map for efficient access.
 }
-data Grammar = \grammar(set[Symbol] start, map[Symbol, set[Production]] rules)
-             // | \module(str name, set[str] imports, Grammar grammar)
-             // | \modules(str main, set[Grammar] modules)
-             ;
+data Grammar 
+  = \grammar(set[Symbol] starts, map[Symbol sort, Production def] rules)
+  ;
 
-@doc{
-  Conveniently construct a grammar from a set of production rules
-}
+data GrammarModule
+  = \module(str name, set[str] imports, set[str] extends, Grammar grammar);
+ 
+data GrammarDefinition
+  = \definition(str main, map[str name, GrammarModule mod] modules);
+
+anno loc Production@\loc;
+ 
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
-  return grammar(starts, index(prods, Symbol (Production p) { return p.rhs; }));
-}
+  rules = ();
+  for (p <- prods)
+    rules[p.rhs] = p.rhs in rules ? choice(p.rhs, {p, rules[p.rhs]}) : choice(p.rhs, {p}); 
+  return grammar(starts, rules);
+} 
            
 @doc{
 Here we extend productions with basic combinators allowing to
-construct ordered and un-ordered compositions, and also a difference operator.
+construct ordered and un-ordered compositions, and associativity groups.
 
 The intended semantics are that 
  	'choice' means unordered choice,
- 	'first'  means ordered choice, where alternatives are tried from left to right,
-	'diff'   means all alternatives of the first argument are accepted, unless one
- 		         of the alternatives from the right argument are accepted.
+ 	'priority'  means ordered choice, where alternatives are tried from left to right,
     'assoc'  means all alternatives are acceptible, but nested on the declared side
     'others' means '...', which is substituted for a choice among the other definitions
-    'restrict' means the language defined by rhs, but predicated on a certain lookahead restriction
+    'reference' means a reference to another production rule which should be substituted there,
+                for extending priority chains and such.
 } 
-data Production = \choice(Symbol rhs, set[Production] alternatives)
-                // will be renamed to 'prio'                           
-                | \first(Symbol rhs, list[Production] choices)
-                | \assoc(Symbol rhs, Associativity \assoc, set[Production] alternatives)
-                // deprecated:      
-                | \diff(Symbol rhs, Production language, set[Production] alternatives)
-                // deprecated:
-                | \restrict(Symbol rhs, Production language, set[Production] restrictions)
-                | \others(Symbol rhs)
-                | \action(Symbol rhs, Production prod, Tree action)
-                | \action(Symbol rhs, Tree action) // for amb nodes
-                ;
+data Production 
+  = \choice(Symbol rhs, set[Production] alternatives)
+  | \priority(Symbol rhs, list[Production] choices)
+  | \associativity(Symbol rhs, Associativity \assoc, set[Production] alternatives)
+  | \others(Symbol rhs)
+  | \reference(Symbol rhs, str cons)
+  ;
 
 @doc{
-  this symbol indicates the language of lookahead restrictions for a certain other symbol
+  These combinators are defined on Symbol, but it is checked (elsewhere) that only char-classes are passed in.
 }
-data Symbol = restricted(Symbol s);
-
+data Symbol 
+  = intersection(Symbol lhs, Symbol rhs)
+  | union(Symbol lhs, Symbol rhs)
+  | difference(Symbol lhs, Symbol rhs)
+  | complement(Symbol cc)
+  ;
+  
 @doc{
-  These combinators are defined on Symbol, but we assume that only char-classes are passed in.
-}
-data Symbol = intersection(Symbol lhs, Symbol rhs)
-            | union(Symbol lhs, Symbol rhs)
-            | difference(Symbol lhs, Symbol rhs)
-            | complement(Symbol cc);
-            
+  An item is an index into the symbol list of a production rule
+}  
+data Item = item(Production production, int index);
 
-@doc{
-  Compose two grammars, by adding the rules of g2 to the rules of g1.
-  The start symbols of g1 will be the start symbols of the resulting grammar.
-}
-public Grammar compose(Grammar g1, Grammar g2) {
-  set[Production] empty = {};
-  for (s <- g2.rules)
-    g1.rules[s]?empty += g2.rules[s];
-  return g1;
-}    
+// The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
 
-@doc{
-  Compute the symbol dependency graph. This graph does not report intermediate nodes
-  for regular expressions.
+@doc{Nested choice is flattened}
+public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
+  = choice(s, a+b);
+  
+@doc{Nested priority is flattened}
+public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
+  = priority(s,a+b+c);
+   
+@doc{Choice under associativity is flattened}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
+  = associativity(s, as, a+b); 
+  
+@doc{Nested (equal) associativity is flattened}             
+public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
+  if (a == b)  
+    return associativity(rhs, a, rest + alts) ;
+  else
+    fail;
 }
-@experimental
-public Graph[Symbol] symbolDependencies(Grammar g) {
-  return { <from,to> | /prod([_*,/Symbol to:sort(_),_*],Symbol from:sort(_),_) := g};
+
+public Production associativity(Symbol rhs, Associativity a, {prod(list[Symbol] lhs,Symbol rhs,\no-attrs()), set[Production] rest})  
+  = \associativity(rhs, a, rest + {prod(lhs, rhs, attrs([\assoc(a)]))});
+
+public Production associativity(Symbol rhs, Associativity a, {prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)), set[Production] rest}) {
+ if (\assoc(_) <- as) 
+   fail;
+ return \associativity(rhs, a, rest + {prod(lhs, rhs, attrs(as + [\assoc(a)]))});
 }
+
+@doc{Priority under an associativity group defaults to choice}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
+  = associativity(s, as, a + { e | e <- b}); 
+
+@doc{Empty attrs default to \no-attrs()}
+public Attributes  attrs([]) 
+  = \no-attrs();

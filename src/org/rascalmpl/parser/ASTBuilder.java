@@ -186,6 +186,10 @@ public class ASTBuilder {
 		if (TreeAdapter.isAppl(parseTree)) {
 			IConstructor tree = (IConstructor) TreeAdapter.getArgs(parseTree).get(1);
 			
+			if (TreeAdapter.isAmb(tree)) {
+				throw new Ambiguous(tree);
+			}
+			
 			if (sortName(tree).equals(sort)) {
 				return (T) buildValue(tree);
 			}
@@ -714,10 +718,11 @@ public class ASTBuilder {
 		if (exp.isTypedVariable()) {
 			Expression.TypedVariable var = (Expression.TypedVariable) exp;
 			IValue type = Symbols.typeToSymbol(var.getType());
+			IValue lexType = Symbols.typeToLexSymbol(var.getType());
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (type.equals(expected) ) {
+			if (type.equals(expected) || lexType.equals(expected) ) {
 				return true;
 			}
 			

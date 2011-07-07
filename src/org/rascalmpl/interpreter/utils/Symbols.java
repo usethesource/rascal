@@ -28,6 +28,7 @@ import org.rascalmpl.ast.Range;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
+import org.rascalmpl.ast.Nonterminal.Lexical;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -46,6 +47,21 @@ public class Symbols {
 
 		throw new RuntimeException("Can't convert type to symbol: "+type);
 	}
+	
+	// TODO: there is a lot more to do to get this right.
+	public static IValue typeToLexSymbol(Type type) {
+		if (type.isUser()) {
+			return Factory.Symbol_Lex.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+		}
+		
+		// For nested lexicals some other solution must be designed
+		if (type.isSymbol()) {
+			return symbolAST2SymbolConstructor(type.getSymbol());
+		}
+
+		throw new RuntimeException("Can't convert type to symbol: "+type);
+	}
+
 
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
 	private static IValue symbolAST2SymbolConstructor(Sym symbol) {
@@ -68,16 +84,16 @@ public class Symbols {
 		if (symbol.isIterSep()) {
 			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol());
-//			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
-			IValue sepSym = literal2Symbol(symbol.getSep());
+			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
+//			IValue sepSym = literal2Symbol(symbol.getSep());
 			IValue seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
 			return Factory.Symbol_IterSepX.make(factory, elementSym, seps);
 		}
 		if (symbol.isIterStarSep()) {
 			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol());
-//			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
-			IValue sepSym = literal2Symbol(symbol.getSep());
+			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
+//			IValue sepSym = literal2Symbol(symbol.getSep());
 			IValue seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
 			return Factory.Symbol_IterStarSepX.make(factory, elementSym, seps);
 		}
@@ -87,8 +103,14 @@ public class Symbols {
 		if (symbol.isOptional()) {
 			return Factory.Symbol_Opt.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
 		}
+		
+		if (symbol.isStart()) {
+			Nonterminal nonterminal = symbol.getNonterminal();
+			return Factory.Symbol_Start_Sort.make(factory, Factory.Symbol_Sort.make(factory, factory.string(((Nonterminal.Lexical) nonterminal).getString())));	
+		}
 		if (symbol.isNonterminal()) {
-			IString name = factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString());
+			Nonterminal nonterminal = symbol.getNonterminal();
+			IString name = factory.string(((Nonterminal.Lexical) nonterminal).getString());
 			return Factory.Symbol_Sort.make(factory, name);
 		}
 		

@@ -140,17 +140,8 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator __eval, boolean withImports) {
-			Sym type = this.getSyntax().getDefined();
-			IValueFactory vf = __eval.getValueFactory();
-			
-			if (type.isNonterminal()) {
-				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				__eval.getCurrentEnvt().concreteSyntaxType(nt, (IConstructor) Factory.Symbol_Sort.make(vf, vf.string(nt)));
-			}
-			
-			__eval.getCurrentEnvt().declareProduction(this);
-			return null;
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			return getSyntax().declareSyntax(eval, withImports);
 		}
 		
 		@Override

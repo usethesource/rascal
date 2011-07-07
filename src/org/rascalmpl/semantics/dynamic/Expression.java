@@ -94,7 +94,7 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
-import org.rascalmpl.parser.uptr.action.RascalActionExecutor;
+import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
 
@@ -945,7 +945,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						Parser.START_COMMAND,
 						this.getLocation().getURI(),
 						command.toCharArray(),
-						new RascalActionExecutor(__eval, __eval.getCurrentEnvt(), true, Parser.getInfo()),
+						new RascalFunctionActionExecutor(__eval),
 						new NodeToUPTR());
 
 				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter

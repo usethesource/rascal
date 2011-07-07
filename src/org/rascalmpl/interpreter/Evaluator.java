@@ -26,12 +26,14 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -47,10 +49,12 @@ import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
@@ -72,7 +76,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
@@ -87,7 +90,6 @@ import org.rascalmpl.library.lang.rascal.syntax.MetaRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.ObjectRascalRascal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.IParserInfo;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -96,7 +98,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.parser.uptr.action.BootRascalActionExecutor;
-import org.rascalmpl.parser.uptr.action.RascalActionExecutor;
+import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.FileURIResolver;
@@ -415,7 +417,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IConstructor parseObject(IConstructor startSort, URI location, char[] input, boolean withErrorTree){
 		IGTD parser = getObjectParser(location);
 		String name = "";
-		if (SymbolAdapter.isStart(startSort)) {
+		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
 			startSort = SymbolAdapter.getStart(startSort);
 		}
@@ -424,7 +426,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		__setInterrupt(false);
-		IActionExecutor exec = new RascalActionExecutor(this, getCurrentEnvt(), false, (IParserInfo) parser);
+		IActionExecutor exec = new RascalFunctionActionExecutor(this);
 		
 		IConstructor result = null;
 		try{
@@ -532,21 +534,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		ParserGenerator pg = getParserGenerator();
-		ISet productions = currentModule.getProductions();
-		Class<IGTD> parser = getHeap().getObjectParser(currentModule.getName(), productions);
+		IMap definitions = currentModule.getSyntaxDefinition();
+		Class<IGTD> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
 
 		if (parser == null || force) {
-			String parserName;
-			if (rootScope == currentModule) {
-				parserName = "__Shell__";
-			} else {
-				// why was the replaceAll gone?
-				//parserName = currentModule.getName(); // .replaceAll("::", ".");
-				parserName = currentModule.getName().replaceAll("::", ".");
-			}
+			String parserName = currentModule.getName(); // .replaceAll("::", ".");
 
-			parser = pg.getParser(this, loc, parserName, productions);
-			getHeap().storeObjectParser(currentModule.getName(), productions, parser);
+			parser = pg.getParser(this, loc, parserName, definitions);
+			getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
 		}
 
 		try {
@@ -560,17 +555,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private IGTD getRascalParser(ModuleEnvironment env, URI input) {
 		ParserGenerator pg = getParserGenerator();
-		ISet productions = env.getProductions();
+		IMap productions = env.getSyntaxDefinition();
 		Class<IGTD> parser = getHeap().getRascalParser(env.getName(), productions);
 
 		if (parser == null) {
-			String parserName;
-			if (rootScope == env) {
-				parserName = "__Shell__";
-			} else {
-				parserName = env.getName(); // .replaceAll("::", ".");
-			}
+			String parserName = env.getName(); // .replaceAll("::", ".");
 
+			System.err.println("generating " + parserName);
 			// force regeneration of object parser such that super class name aligns... (a workaround)
 			IGTD objectParser = getObjectParser(env, input, true);
 			parser = pg.getRascalParser(this, input, parserName, productions, objectParser);
@@ -589,9 +580,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
+			System.err.println("loading grammar for " + uri);
 			ParserGenerator pgen = getParserGenerator();
-			ModuleEnvironment env = getHeap().getModule(uri.getAuthority());
-			return pgen.getGrammar(monitor, env.getProductions());
+			String main = uri.getAuthority();
+			ModuleEnvironment env = getHeap().getModule(main);
+			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
 		}
 		finally {
 			setMonitor(old);
@@ -1083,7 +1076,34 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		event("Parsing imports and syntax definitions at " + location);
 		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new NodeToUPTR());
 
-		Module preModule = getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
+		if (TreeAdapter.isAmb(prefix)) {
+			ISet alts = TreeAdapter.getAlternatives(prefix);
+			Iterator<IValue> iterator = alts.iterator();
+			IConstructor first = (IConstructor) iterator.next();
+			IConstructor second = (IConstructor) iterator.next();
+			if (first.isEqual(second)) {
+				System.err.println("samesame???");
+				throw new IllegalArgumentException();
+			}
+			
+			throw new Ambiguous(prefix);
+		}
+		
+		IConstructor top = (IConstructor) TreeAdapter.getArgs(prefix).get(1);
+		
+		if (TreeAdapter.isAmb(top)) {
+			ISet alts = TreeAdapter.getAlternatives(top);
+			Iterator<IValue> iterator = alts.iterator();
+			IConstructor first = (IConstructor) iterator.next();
+			IConstructor second = (IConstructor) iterator.next();
+			if (first.isEqual(second)) {
+				System.err.println("samesame???");
+				throw new IllegalArgumentException();
+			}
+//			throw new Ambiguous(top);
+		}
+		
+		Module preModule = getBuilder().buildModule(top);
 		String name = getModuleName(preModule);
 
 		if(env == null){
@@ -1100,7 +1120,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		event("Declaring syntax for module " + name);
 		preModule.declareSyntax(this, true);
 
-		ISet prods = env.getProductions();
 		IGTD parser = null;
 		IConstructor result = null;
 		event("Parsing complete module " + name);
@@ -1109,11 +1128,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parser = new MetaRascalRascal();
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
-			else if (prods.isEmpty() || !containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
+			else if (!containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 				parser = new RascalRascal();
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
 			else {
+				System.err.println("parsing module " + name);
 				parser = getRascalParser(env, location);
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			}
@@ -1152,7 +1172,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return false;
 	}
 	
+	public boolean needBootstrapParser(PreModule preModule) {
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
 	public String getCachedParser(Module preModule) {
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
+				String tagString = ((TagString.Lexical)tag.getContents()).getString();
+				return tagString.substring(1, tagString.length() - 1);
+			}
+		}
+		return null;
+	}
+	
+	public String getCachedParser(PreModule preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
 				String tagString = ((TagString.Lexical)tag.getContents()).getString();
@@ -1246,6 +1286,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public String getModuleName(Module module) {
+		return Names.fullName(module.getHeader().getName());
+	}
+	
+	public String getModuleName(PreModule module) {
 		String name = module.getHeader().getName().toString();
 		if (name.startsWith("\\")) {
 			name = name.substring(1);
