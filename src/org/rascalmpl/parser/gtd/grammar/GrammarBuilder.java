@@ -2,9 +2,11 @@ package org.rascalmpl.parser.gtd.grammar;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.grammar.symbol.Symbol;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
@@ -89,7 +91,7 @@ public class GrammarBuilder{
 		}
 		
 		public int countRanges(){
-			int counter = 1;
+			int counter = 0;
 			LookAheadRange lar = this;
 			do{
 				++counter;
@@ -115,18 +117,20 @@ public class GrammarBuilder{
 	}
 	
 	private static class Alternative{
+		public final IConstructor prod;
 		public final Symbol[] symbols;
 		public final char[][] lookAheadRanges;
 		
-		public Alternative(Symbol[] symbols, char[][] lookAheadRanges){
+		public Alternative(IConstructor prod, Symbol[] symbols, char[][] lookAheadRanges){
 			super();
 			
+			this.prod = prod;
 			this.symbols = symbols;
 			this.lookAheadRanges = lookAheadRanges;
 		}
 	}
 	
-	public void registerAlternative(String sortName, Symbol[] symbols, char[][] lookAheadRanges){
+	public void registerAlternative(String sortName, IConstructor prod, Symbol[] symbols, char[][] lookAheadRanges){
 		// Register the missing look-ahead ranges (if any).
 		for(int i = lookAheadRanges.length - 1; i >= 0; --i){
 			char[] lookAheadRange = lookAheadRanges[i];
@@ -146,7 +150,7 @@ public class GrammarBuilder{
 			productions.putUnsafe(sortIdentifier, alternatives);
 		}
 		
-		alternatives.add(new Alternative(symbols, lookAheadRanges));
+		alternatives.add(new Alternative(prod, symbols, lookAheadRanges));
 	}
 	
 	public void restrict(Symbol child, Symbol parent){
@@ -160,11 +164,12 @@ public class GrammarBuilder{
 	}
 	
 	public Grammar build(){
+		State state = new State();
+		
 		int nrOfLookAheadRanges = lookAheadChain.countRanges() - 1;
-		// TODO Assign look-ahead identifiers.
 		
 		int nrOfSorts = sortIdentifierCounter + 1;
-		AbstractStackNode[][][] expectMatrix = new AbstractStackNode[nrOfSorts][][];
+		AbstractStackNode[][][] expectMatrix = new AbstractStackNode[nrOfSorts][nrOfLookAheadRanges][];
 		
 		Iterator<Entry<ArrayList<Alternative>>> productionIterator = productions.entryIterator();
 		while(productionIterator.hasNext()){
@@ -172,27 +177,83 @@ public class GrammarBuilder{
 			int sortIdentifier = production.key;
 			ArrayList<Alternative> alternatives = production.value;
 			
-			// Get Look-ahead clusters.
+			// Gather the data for the construction of look-ahead clusters.
+			IntegerKeyedHashMap<DoubleArrayList<IConstructor, Symbol[]>> lookAheadClusters = new IntegerKeyedHashMap<DoubleArrayList<IConstructor, Symbol[]>>();
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				Alternative alternative = alternatives.get(i);
+				IConstructor prod = alternative.prod;
 				Symbol[] symbols = alternative.symbols;
 				char[][] lookAheadRanges = alternative.lookAheadRanges;
 				
-				// TODO Get the alternatives
-				
-				AbstractStackNode[][] expectTable = new AbstractStackNode[nrOfLookAheadRanges][];
 				for(int j = lookAheadRanges.length - 1; j >= 0; --j){
-					char[] lookAheadRangeIdentifier = lookAheadRanges[j];
+					char[] lookAheadRange = lookAheadRanges[j];
+					int startOfRange = lookAheadRange[0];
+					int endOfRange = lookAheadRange[1];
 					
-					// TODO Insert the alternatives.
+					if(endOfRange <= Grammar.MAX_CODE_POINT){
+						IntegerList lookAheadIdentifiers = lookAheadChain.getIdentifiers(startOfRange, endOfRange);
+						
+						for(int k = lookAheadIdentifiers.size() - 1; k >= 0; --k){
+							int lookAheadIdentifier = lookAheadIdentifiers.get(k);
+							
+							DoubleArrayList<IConstructor, Symbol[]> lookAheadCluster = lookAheadClusters.get(lookAheadIdentifier);
+							if(lookAheadCluster == null){
+								lookAheadCluster = new DoubleArrayList<IConstructor, Symbol[]>();
+								lookAheadClusters.putUnsafe(lookAheadIdentifier, lookAheadCluster);
+							}
+							lookAheadCluster.add(prod, symbols);
+						}
+					}else{ // Treat Unicode code points differently.
+						int lookAheadIdentifier = Grammar.UNICODE_OVERFLOW_SLOT;
+						
+						DoubleArrayList<IConstructor, Symbol[]> lookAheadCluster = lookAheadClusters.get(lookAheadIdentifier);
+						if(lookAheadCluster == null){
+							lookAheadCluster = new DoubleArrayList<IConstructor, Symbol[]>();
+							lookAheadClusters.putUnsafe(lookAheadIdentifier, lookAheadCluster);
+						}
+						lookAheadCluster.add(prod, symbols);
+					}
+				}
+			}
+			
+			// Build the alternatives for each look-ahead cluster.
+			Iterator<Entry<DoubleArrayList<IConstructor, Symbol[]>>> lookAheadClustersIterator = lookAheadClusters.entryIterator();
+			while(lookAheadClustersIterator.hasNext()){
+				Entry<DoubleArrayList<IConstructor, Symbol[]>> lookAheadClusterEntry = lookAheadClustersIterator.next();
+				int lookAheadIdentifier = lookAheadClusterEntry.key;
+				DoubleArrayList<IConstructor, Symbol[]> lookAheadCluster = lookAheadClusterEntry.value;
+				
+				ExpectBuilder expectBuilder = new ExpectBuilder();
+				
+				for(int j = lookAheadCluster.size() - 1; j >= 0; --j){
+					IConstructor prod = lookAheadCluster.getFirst(j);
+					Symbol[] symbols = lookAheadCluster.getSecond(j);
+					AbstractStackNode[] symbolNodes = new AbstractStackNode[symbols.length];
+					for(int k = symbols.length - 1; k >= 0; --k){
+						symbolNodes[k] = symbols[k].buildNode(state, k);
+					}
+					
+					expectBuilder.addAlternative(prod, symbolNodes);
 				}
 				
-				expectMatrix[sortIdentifier] = expectTable;
+				expectMatrix[sortIdentifier][lookAheadIdentifier] = expectBuilder.buildExpectArray();
 			}
 		}
 		
+		// Build the look-ahead table.
+		int[] lookAheadTable = new int[Grammar.LOOK_AHEAD_TABLE_SIZE];
+		
+		LookAheadRange lookAheadRange = lookAheadChain.next;
+		int lookAheadIdentifier = -1;
+		do{
+			for(int i = lookAheadRange.end - 1; i >= lookAheadRange.start; --i){
+				lookAheadTable[i] = ++lookAheadIdentifier;
+			}
+		}while((lookAheadRange = lookAheadRange.next) != null);
+		
 		// TODO Handle restrictions.
 		
-		return null; // Temp.
+		
+		return new Grammar(expectMatrix, lookAheadTable);
 	}
 }
