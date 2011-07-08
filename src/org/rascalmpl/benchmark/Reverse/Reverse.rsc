@@ -53,7 +53,7 @@ public bool measure(){
 	for(int i <- [0 .. size]){
 		L = L + arbInt();
 	}
-	start = realTime();
+	begin = realTime();
 	rev1(L);
 	end1 = realTime();
 	rev2(L);
@@ -63,7 +63,7 @@ public bool measure(){
 	reverse(L);
 	end4 = realTime();
 	
-	used1 = end1 - start;
+	used1 = end1 - begin;
 	used2 = end2 - end1;
 	used3 = end3 - end2;
 	used4 = end4 - end3;
