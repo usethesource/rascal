@@ -84,7 +84,7 @@ public abstract class FunctionDeclaration extends
 			if (hasJavaModifier(this)) {
 				throw new JavaMethodLinkError(
 						"may not use java modifier with a function that has a body",
-						null, this);
+						null, this, null);
 			}
 
 			if (!this.getBody().isDefault()) {
@@ -128,7 +128,7 @@ public abstract class FunctionDeclaration extends
 			if (hasJavaModifier(this)) {
 				throw new JavaMethodLinkError(
 						"may not use java modifier with a function that has a body",
-						null, this);
+						null, this, null);
 			}
 
 			lambda = new RascalFunction(eval, this, varArgs, eval
