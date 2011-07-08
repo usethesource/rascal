@@ -55,52 +55,43 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		this.ctx = ctx;
 	}
 	
-	@Override
 	public void completed(Object environment, boolean filtered) {
 
 	}
 
-	@Override
 	public Object createRootEnvironment() {
 		return ctx.getCurrentEnvt();
 	}
 
-	@Override
 	public Object enteringListNode(IConstructor production, int index,
 			Object environment) {
 		return environment;
 	}
 
-	@Override
 	public Object enteringListProduction(IConstructor production,
 			Object env) {
 		return env;
 	}
 
-	@Override
 	public Object enteringNode(IConstructor production, int index,
 			Object environment) {
 		return environment;
 	}
 
-	@Override
 	public Object enteringProduction(IConstructor production,
 			Object env) {
 		return env;
 	}
 
-	@Override
 	public void exitedListProduction(IConstructor production, boolean filtered,
 			Object environment) {
 
 	}
 
-	@Override
 	public void exitedProduction(IConstructor production, boolean filtered,
 			Object environment) {
 	}
 
-	@Override
 	public IConstructor filterAmbiguity(IConstructor ambCluster,
 			Object environment) {
 		ISet alts = (ISet) ambCluster.get("alternatives");
@@ -129,30 +120,25 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		return ambCluster;
 	}
 
-	@Override
 	public IConstructor filterCycle(IConstructor cycle, Object environment) {
 		return cycle;
 	}
 
-	@Override
 	public IConstructor filterListAmbiguity(IConstructor ambCluster,
 			Object environment) {
 		return filterAmbiguity(ambCluster, environment);
 	}
 
-	@Override
 	public IConstructor filterListCycle(IConstructor cycle,
 			Object environment) {
 		return cycle;
 	}
 
-	@Override
 	public IConstructor filterListProduction(IConstructor tree,
 			Object environment) {
 		return tree;
 	}
 
-	@Override
 	public IConstructor filterProduction(IConstructor tree,
 			Object environment) {
 		String cons = TreeAdapter.getConstructorName(tree);
@@ -206,7 +192,6 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		}
 	}
 
-	@Override
 	public boolean isImpure(IConstructor rhs) {
 		return true;
 	}

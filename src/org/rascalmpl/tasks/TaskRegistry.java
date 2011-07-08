@@ -44,7 +44,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getProducer(K, N)
 	 */
-	@Override
 	public ITask<K,N,V> getProducer(K key, N name) {
 		ITask<K, N, V> producer = producers.get(key);
 		return producer;
@@ -53,7 +52,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#produce(org.rascalmpl.interpreter.IRascalMonitor, org.rascalmpl.tasks.ITransaction, K, N)
 	 */
-	@Override
 	public boolean produce(IRascalMonitor monitor, ITransaction<K, N, V> tr, K key, N name) {
 		ITask<K, N, V> producer = getProducer(key, name);
 		if(producer == null)
@@ -64,7 +62,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#registerProducer(org.rascalmpl.tasks.ITask)
 	 */
-	@Override
 	public void registerProducer(ITask<K,N,V> producer) {
 		for(K key : producer.getKeys())
 			producers.put(key, producer);
@@ -73,7 +70,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#unregisterProducer(org.rascalmpl.tasks.ITask)
 	 */
-	@Override
 	public void unregisterProducer(ITask<K,N,V> producer) {
 		for(K key : producer.getKeys()) {
 			if(producers.get(key) == producer)
@@ -84,7 +80,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#setRefPolicy(K, org.rascalmpl.tasks.RefFactPolicy)
 	 */
-	@Override
 	public void setRefPolicy(K key, RefFactPolicy policy) {
 		refPolicies.put(key, policy);
 	}
@@ -92,7 +87,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#setDepPolicy(K, org.rascalmpl.tasks.DepFactPolicy)
 	 */
-	@Override
 	public void setDepPolicy(K key, DepFactPolicy policy) {
 		depPolicies.put(key, policy);
 	}
@@ -100,7 +94,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getDepPolicy(K)
 	 */
-	@Override
 	public DepFactPolicy getDepPolicy(K key) {
 		DepFactPolicy policy = depPolicies.get(key);
 		if(policy == null)
@@ -111,7 +104,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getRefPolicy(K)
 	 */
-	@Override
 	public RefFactPolicy getRefPolicy(K key) {
 		RefFactPolicy policy = refPolicies.get(key);
 		if(policy == null)
@@ -122,7 +114,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getKeys()
 	 */
-	@Override
 	public Collection<K> getKeys() {
 		return producers.keySet();
 	}
@@ -130,7 +121,6 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#clear()
 	 */
-	@Override
 	public void clear() {
 		producers.clear();
 		schedulers.clear();

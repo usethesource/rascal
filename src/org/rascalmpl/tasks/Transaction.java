@@ -71,17 +71,15 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		else
 			this.stderr = stderr;
 	}
-	@Override
+
 	public Type getType() {
 		return TransactionType;
 	}
 
-	@Override
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return null;
 	}
 
-	@Override
 	public boolean isEqual(IValue other) {
 		return false;
 	}
@@ -90,7 +88,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	public IValue getFact(Type key, IValue name) {
 		return getFact(new NullRascalMonitor(), key, name);
 	}*/
-	@Override
 	public IValue getFact(IRascalMonitor monitor, Type key, IValue name) {
 		IFact<IValue> fact = null;
 		synchronized (this) {
@@ -124,7 +121,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			return null;
 	}
 
-	@Override
 	public IValue queryFact(Type key, IValue name) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = query(k);
@@ -144,7 +140,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		
 	}
 	
-	@Override
 	public synchronized void removeFact(Type key, IValue name) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
@@ -157,18 +152,15 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		}
 	}
 
-	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value) {
 		return setFact(key, name, value, null, FactFactory.getInstance());
 	}
 
-	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
 			Collection<IFact<IValue>> dependencies) {
 		return setFact(key, name, value, dependencies, FactFactory.getInstance());
 	}
 
-	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
 			Collection<IFact<IValue>> dependencies, IFactFactory factory) {
 		Key k = new Key(key, name);
@@ -200,8 +192,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			s = s.substring(0, len) + "...";
 		return s;
 	}
-		
-	@Override
+	
 	public void abandon() {
 		for(IFact<IValue> fact : map.values()) {
 			notifyListeners(((Key)fact.getKey()).type, fact, Change.REMOVED);
@@ -212,7 +203,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		deps.clear();
 	}
 
-	@Override
 	public void commit() {
 		if(parent != null) {
 			if(parent.parent == null) {
@@ -245,7 +235,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		}
 	}
 
-	@Override
 	public void commit(Collection<IFact<IValue>> deps) {
 		if(parent != null) {
 			for(Key k : removed) {
@@ -274,8 +263,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			}
 	}
 
-	
-	@Override
 	public synchronized void registerListener(IDependencyListener listener, Type key) {
 		Collection<IDependencyListener> ls = listeners.get(key);
 		if(ls == null)
@@ -285,7 +272,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		listeners.put(key, ls);
 	}
 
-	@Override
 	public synchronized void unregisterListener(IDependencyListener listener, Type key) {
 		Collection<IDependencyListener> ls = listeners.get(key);
 		if(ls != null) {
@@ -315,11 +301,9 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		return key.getName() + "(" + n + ")";
 	}
 
-	@Override
 	public IFact<IValue> findFact(Type key, IValue name) {
 		return query(new Key(key, name));
 	}
-
 
 	class Key {
 		public final Type type;
@@ -380,7 +364,6 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		return g.getGraph();
 	}
 
-	@Override
 	public synchronized void expire(Object key) {
 		Key k = (Key) key;
 		map.remove(k);

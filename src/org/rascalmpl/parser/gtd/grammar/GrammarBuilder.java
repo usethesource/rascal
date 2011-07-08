@@ -13,10 +13,11 @@ import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap.Entry;
 
+// TODO Consolidate expect id generation.
 public class GrammarBuilder{
 	private final IntegerKeyedHashMap<ArrayList<Alternative>> productions;
 	private final ObjectKeyedIntegerMap<String> sortMappings;
-	private LookAheadRange lookAheadChain;
+	private final LookAheadRange lookAheadChain;
 	private final HashMap<Symbol, ArrayList<Symbol>> restrictions;
 	
 	private int sortIdentifierCounter = -1;

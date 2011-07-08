@@ -50,7 +50,6 @@ public class Pack extends Compose {
 	
 	public class CompareAspectSize implements Comparator<Figure>{
 
-		@Override
 		public int compare(Figure o1, Figure o2) {
 			BoundingBox lhs = o1.minSize;
 			BoundingBox rhs = o2.minSize;

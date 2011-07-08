@@ -400,14 +400,12 @@ public class PropertyParsers {
 			this.property = property;
 		}
 		
-		@Override
 		public PropertyValue<Void> parseProperty(
 				IConstructor c, PropertyManager pm, int propIndex,
 				IFigureApplet fpa, IEvaluatorContext ctx) {
 			 return new ComputedProperties.HandlerProperty(property,c.get(0),fpa);
 		}
-
-		@Override
+		
 		public Properties getProperty() {
 			return property;
 		}

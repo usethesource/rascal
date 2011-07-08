@@ -163,8 +163,7 @@ public class Manager {
 				}
 			}
 		}
-
-		@Override
+		
 		public boolean produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr,
 				Type key, IValue name) {
 			Transaction t = (Transaction)tr;
@@ -177,8 +176,7 @@ public class Manager {
 				throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), result.getType(), ctx.getCurrentAST());
 				
 		}
-
-		@Override
+		
 		public Collection<Type> getKeys() {
 			return keys;
 		}

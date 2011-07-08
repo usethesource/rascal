@@ -36,7 +36,6 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.eclipse.db.IFact#setValue(org.eclipse.imp.pdb.facts.T)
 	 */
-	@Override
 	public synchronized boolean setValue(V val) {
 		V oldValue = value;
 		if(oldValue == null)
@@ -54,7 +53,6 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 			return false;
 	}
 
-	@Override
 	public synchronized void changed(IFact<?> fact, Change change, Object moreInfo) {
 		switch(change) {
 		case CHANGED:
@@ -120,8 +118,6 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 		clearRef();
 	}
 
-
-	@Override
 	public synchronized V getValue() {
 		if(status == IFact.FACT_OK)
 			return value;
@@ -132,7 +128,6 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public synchronized boolean updateFrom(IFact<V> fact) {
 		boolean result = false;
 		synchronized(fact) {

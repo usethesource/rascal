@@ -206,13 +206,10 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.setBackground(color);
 		comp.addPaintListener(new MyPaintListener());
 		comp.getParent().addControlListener(new ControlListener() {
-
-			@Override
 			public void controlResized(ControlEvent e) {
 				redraw();
 			}
 
-			@Override
 			public void controlMoved(ControlEvent e) {
 				redraw();
 			}
@@ -1067,20 +1064,17 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 	
 	class MyMouseTrackListener implements MouseTrackListener{
-
-		@Override
+		
 		public void mouseEnter(MouseEvent e) {
 			comp.forceFocus();
 			mouseExited= false;
 		}
-
-		@Override
+		
 		public void mouseExit(MouseEvent e) {
 			mouseExited = true;
 			mouseMoved();
 		}
-
-		@Override
+		
 		public void mouseHover(MouseEvent e) {
 			
 		}
@@ -1263,25 +1257,21 @@ public class FigureSWTApplet implements IFigureApplet {
 		gc.dispose();
 		image.dispose();
 	}
-
-	@Override
+	
 	public void setShadow(boolean shadow) {
 		this.shadow = shadow;
 
 	}
-
-	@Override
+	
 	public void setShadowColor(int color) {
 		this.shadowColor = color;
 	}
-
-	@Override
+	
 	public void setShadowLeft(double x) {
 		this.shadowLeft = x;
 
 	}
-
-	@Override
+	
 	public void setShadowTop(double y) {
 		this.shadowTop = y;
 	}

@@ -38,7 +38,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getProducer(Type, IValue)
 	 */
-	@Override
 	public ITask<Type,IValue,IValue> getProducer(Type key, IValue name) {
 		Map<Type, ITask<Type, IValue, IValue>> producerMap = producers.get(key);
 		if(producerMap != null) {
@@ -56,7 +55,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#produce(org.rascalmpl.interpreter.IRascalMonitor, org.rascalmpl.tasks.ITransaction, Type, IValue)
 	 */
-	@Override
 	public boolean produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr, Type key, IValue name) {
 		ITask<Type, IValue, IValue> producer = getProducer(key, name);
 		if(producer == null)
@@ -67,7 +65,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#registerProducer(org.rascalmpl.tasks.ITask)
 	 */
-	@Override
 	public void registerProducer(ITask<Type,IValue,IValue> producer) {
 		for(Type key : producer.getKeys()) {
 			if(key.isTupleType()) {
@@ -87,7 +84,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#unregisterProducer(org.rascalmpl.tasks.ITask)
 	 */
-	@Override
 	public void unregisterProducer(ITask<Type,IValue,IValue> producer) {
 		for(Type key : producer.getKeys()) {
 			if(key.isTupleType()) {
@@ -112,7 +108,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#setRefPolicy(Type, org.rascalmpl.tasks.RefFactPolicy)
 	 */
-	@Override
 	public void setRefPolicy(Type key, RefFactPolicy policy) {
 		refPolicies.put(key, policy);
 	}
@@ -120,7 +115,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#setDepPolicy(Type, org.rascalmpl.tasks.DepFactPolicy)
 	 */
-	@Override
 	public void setDepPolicy(Type key, DepFactPolicy policy) {
 		depPolicies.put(key, policy);
 	}
@@ -128,7 +122,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getDepPolicy(Type)
 	 */
-	@Override
 	public DepFactPolicy getDepPolicy(Type key) {
 		DepFactPolicy policy = depPolicies.get(key);
 		if(policy == null)
@@ -139,7 +132,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getRefPolicy(Type)
 	 */
-	@Override
 	public RefFactPolicy getRefPolicy(Type key) {
 		RefFactPolicy policy = refPolicies.get(key);
 		if(policy == null)
@@ -150,7 +142,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getKeys()
 	 */
-	@Override
 	public Collection<Type> getKeys() {
 		return producers.keySet();
 	}
@@ -158,7 +149,6 @@ public class PDBValueTaskRegistry implements ITaskRegistry<Type, IValue, IValue>
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#clear()
 	 */
-	@Override
 	public void clear() {
 		producers.clear();
 		depPolicies.clear();

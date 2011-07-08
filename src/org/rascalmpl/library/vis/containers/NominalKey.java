@@ -85,10 +85,7 @@ public class NominalKey extends WithInnerFig implements Key{
 		innerFig.draw(left, top);
 		
 	}
-
-
-
-	@Override
+	
 	public void registerValue(Properties prop, IValue val) {
 		for(int i = 0 ; i < originals.size() ; i++ ){
 			if(originals.get(i).isEqual(val)){
@@ -99,18 +96,12 @@ public class NominalKey extends WithInnerFig implements Key{
 			originals.add(val);
 		} 
 	}
-
-
-
-	@Override
+	
 	public void registerOffset(double offset) {
 		return;
 		
 	}
-
-
-
-	@Override
+	
 	public IValue scaleValue(IValue val) {
 		
 		for(int i = 0 ; i < originals.size()  ; i++){
@@ -120,10 +111,7 @@ public class NominalKey extends WithInnerFig implements Key{
 		}
 		return possibilities.get(0);
 	}
-
-
-
-	@Override
+	
 	public String getId() {
 		return id;
 	}

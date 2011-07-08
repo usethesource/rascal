@@ -92,7 +92,6 @@ public class HStack extends Compose implements Key{
 		
 	}
 	
-	@Override
 	public void registerValue(Properties prop,IValue val) {
 		if((val.getType().isNumberType() || val.getType().isIntegerType() || (val).getType().isRealType())){
 			
@@ -103,18 +102,15 @@ public class HStack extends Compose implements Key{
 		}
 	}
 
-	@Override
 	public IValue scaleValue(IValue val) {
 		//System.out.printf("Scaling %f\n",actualKey.scaleValue(val));
 		return actualKey.scaleValue(val);
 	}
 
-	@Override
 	public String getId() {
 		return getIdProperty();
 	}
 
-	@Override
 	public void registerOffset(double offset) {
 		actualKey.registerOffset(offset);
 	}
