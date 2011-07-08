@@ -608,7 +608,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		if(node.isEndNode()){
-			if(!result.isEmpty() || node.getId() == IExpandableStackNode.DEFAULT_LIST_EPSILON_ID){ // Handle special list case.
+			if(!result.isEmpty() || node.getId() == IExpandableStackNode.DEFAULT_LIST_EPSILON_ID){ // Only go into the nullable fix path for nullables (special list epsilons can be ignored as well).
 				updateEdges(node, result);
 			}else{
 				updateNullableEdges(node, result);
