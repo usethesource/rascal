@@ -131,8 +131,6 @@ public class ErrorTreeBuilder{
 					if(alternativeNext.isEndNode()){
 						sharedNext.markAsEndNode();
 						sharedNext.setParentProduction(alternativeNext.getParentProduction());
-						sharedNext.setFollowRestriction(alternativeNext.getFollowRestriction());
-						sharedNext.setReject(alternativeNext.isReject());
 					}
 					
 					sharedNext.addProduction(prod);
@@ -179,7 +177,7 @@ public class ErrorTreeBuilder{
 					//if(filteredParents == null || !filteredParents.contains(edge.getId())){
 						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
 						if(resultStore != null){
-							if(!resultStore.isRejected()) resultStore.addAlternative(production, resultLink);
+							resultStore.addAlternative(production, resultLink);
 						}else{
 							resultStore = (!edge.isExpandable()) ? new ErrorSortContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
 							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
@@ -200,15 +198,6 @@ public class ErrorTreeBuilder{
 	
 	private void move(AbstractStackNode node, AbstractNode result){
 		boolean handleNexts = true;
-		if(node.isEndNode()){
-			if(!result.isRejected()){
-				if(!node.isReject()){
-					handleNexts = !followEdges(node, result);
-				}else{
-					// Ignore rejects.
-				}
-			}
-		}
 		
 		if(handleNexts && node.hasNext()){
 			moveToNext(node, result);

@@ -31,10 +31,6 @@ public abstract class AbstractNode{
 	
 	public abstract boolean isSeparator();
 	
-	public abstract void setRejected();
-	
-	public abstract boolean isRejected();
-	
 	public static class CycleMark{
 		public int depth = Integer.MAX_VALUE;
 		

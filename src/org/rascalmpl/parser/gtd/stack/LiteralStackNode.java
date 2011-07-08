@@ -32,15 +32,6 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		result = new LiteralNode(production, literal);
 	}
 	
-	public LiteralStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, char[] literal){
-		super(id, dot, followRestrictions);
-		
-		this.literal = literal;
-		this.production = production;
-		
-		result = new LiteralNode(production, literal);
-	}
-	
 	public LiteralStackNode(int id, int dot, IConstructor production, char[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

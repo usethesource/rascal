@@ -29,12 +29,4 @@ public class EpsilonNode extends AbstractNode{
 	public boolean isSeparator(){
 		return false;
 	}
-	
-	public void setRejected(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean isRejected(){
-		return false;
-	}
 }

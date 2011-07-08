@@ -24,12 +24,6 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		this.expectIdentifier = expectIdentifier;
 	}
 	
-	public NonTerminalStackNode(int id, int dot, IMatchableStackNode[] followRestrictions, String expectIdentifier){
-		super(id, dot, followRestrictions);
-		
-		this.expectIdentifier = expectIdentifier;
-	}
-	
 	public NonTerminalStackNode(int id, int dot, String expectIdentifier, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

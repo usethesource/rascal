@@ -419,11 +419,6 @@ public class ListContainerNodeConverter{
 			cycleMark.reset();
 		}
 		
-		if(node.isRejected()){
-			filteringTracker.setLastFilered(node.getOffset(), node.getEndOffset());
-			return null;
-		}
-		
 		ISourceLocation sourceLocation = null;
 		URI input = node.getInput();
 		if(!(node.isLayout() || input == null)){

@@ -33,8 +33,6 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	protected final int offset;
 	protected final int endOffset;
 	
-	protected boolean rejected;
-	
 	protected final boolean isNullable;
 	protected final boolean isSeparator;
 	protected final boolean isLayout;
@@ -108,18 +106,5 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	
 	public ArrayList<Link> getAdditionalAlternatives(){
 		return alternatives;
-	}
-	
-	public void setRejected(){
-		rejected = true;
-		
-		// Clean up.
-		firstAlternative = null;
-		alternatives = null;
-		productions = null;
-	}
-	
-	public boolean isRejected(){
-		return rejected;
 	}
 }

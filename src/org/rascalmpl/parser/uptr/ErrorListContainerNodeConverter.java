@@ -283,11 +283,6 @@ public class ErrorListContainerNodeConverter{
 			cycleMark.reset();
 		}
 		
-		if(node.isRejected()){
-			// TODO Handle filtering.
-			return null;
-		}
-		
 		ISourceLocation sourceLocation = null;
 		URI input = node.getInput();
 		if(!(node.isLayout() || input == null)){

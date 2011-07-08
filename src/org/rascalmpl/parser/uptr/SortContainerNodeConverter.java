@@ -58,14 +58,11 @@ public class SortContainerNodeConverter{
 		for(int i = prefixes.size() - 1; i >= 0; --i){
 			Link prefix = prefixes.get(i);
 			
-			AbstractNode resultNode = prefix.getNode();
-			if(!resultNode.isRejected()){
-				int length = postFix.length;
-				AbstractNode[] newPostFix = new AbstractNode[length + 1];
-				System.arraycopy(postFix, 0, newPostFix, 1, length);
-				newPostFix[0] = resultNode;
-				gatherProduction(converter, prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
-			}
+			int length = postFix.length;
+			AbstractNode[] newPostFix = new AbstractNode[length + 1];
+			System.arraycopy(postFix, 0, newPostFix, 1, length);
+			newPostFix[0] = prefix.getNode();
+			gatherProduction(converter, prefix, newPostFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
@@ -118,11 +115,6 @@ public class SortContainerNodeConverter{
 			}
 			
 			cycleMark.reset();
-		}
-		
-		if(node.isRejected()){
-			filteringTracker.setLastFilered(node.getOffset(), node.getEndOffset());
-			return null;
 		}
 		
 		ISourceLocation sourceLocation = null;

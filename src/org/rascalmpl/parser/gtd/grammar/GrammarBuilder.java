@@ -14,6 +14,7 @@ import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap.Entry;
 
 // TODO Consolidate expect id generation.
+// TODO Handle restrictions.
 public class GrammarBuilder{
 	private final IntegerKeyedHashMap<ArrayList<Alternative>> productions;
 	private final ObjectKeyedIntegerMap<String> sortMappings;
@@ -164,7 +165,7 @@ public class GrammarBuilder{
 		restrictedParents.add(parent);
 	}
 	
-	public Grammar build(){
+	private AbstractStackNode[][][] buildExpectMatrix(){
 		State state = new State();
 		
 		int nrOfLookAheadRanges = lookAheadChain.countRanges() - 1;
@@ -191,7 +192,7 @@ public class GrammarBuilder{
 					int startOfRange = lookAheadRange[0];
 					int endOfRange = lookAheadRange[1];
 					
-					if(endOfRange <= Grammar.MAX_CODE_POINT){
+					if(endOfRange <= Grammar.MAX__LOOKAHEAD_CODE_POINT){
 						IntegerList lookAheadIdentifiers = lookAheadChain.getIdentifiers(startOfRange, endOfRange);
 						
 						for(int k = lookAheadIdentifiers.size() - 1; k >= 0; --k){
@@ -205,7 +206,7 @@ public class GrammarBuilder{
 							lookAheadCluster.add(prod, symbols);
 						}
 					}else{ // Treat Unicode code points differently.
-						int lookAheadIdentifier = Grammar.UNICODE_OVERFLOW_SLOT;
+						int lookAheadIdentifier = Grammar.LOOKAHEAD_OVERFLOW_SLOT;
 						
 						DoubleArrayList<IConstructor, Symbol[]> lookAheadCluster = lookAheadClusters.get(lookAheadIdentifier);
 						if(lookAheadCluster == null){
@@ -241,7 +242,10 @@ public class GrammarBuilder{
 			}
 		}
 		
-		// Build the look-ahead table.
+		return expectMatrix;
+	}
+	
+	private int[] buildLookAheadTable(){
 		int[] lookAheadTable = new int[Grammar.LOOK_AHEAD_TABLE_SIZE];
 		
 		LookAheadRange lookAheadRange = lookAheadChain.next;
@@ -252,8 +256,18 @@ public class GrammarBuilder{
 			}
 		}while((lookAheadRange = lookAheadRange.next) != null);
 		
-		// TODO Handle restrictions.
+		return lookAheadTable;
+	}
+	
+	public Grammar build(){
+		// Build the look-ahead table.
+		int[] lookAheadTable = buildLookAheadTable();
 		
+		// TODO Build the restriction table.
+		
+		
+		// Build the expect matrix.
+		AbstractStackNode[][][] expectMatrix = buildExpectMatrix();
 		
 		return new Grammar(expectMatrix, lookAheadTable);
 	}

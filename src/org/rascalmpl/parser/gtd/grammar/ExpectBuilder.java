@@ -9,6 +9,7 @@ import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 
+// TODO Handle restrictions.
 public class ExpectBuilder{
 	private final SortedIntegerObjectList<DoubleArrayList<IConstructor, AbstractStackNode[]>> alternatives;
 	

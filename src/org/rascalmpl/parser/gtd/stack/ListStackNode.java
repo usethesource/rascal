@@ -35,16 +35,6 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	public ListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, boolean isPlusList){
-		super(id, dot, followRestrictions);
-		
-		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
-		
-		this.children = generateChildren(child);
-		this.emptyChild = isPlusList ? null : generateEmptyChild();
-	}
-	
 	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
