@@ -31,15 +31,6 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		this.children = generateChildren(children);
 	}
 	
-	public SequenceStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode[] children){
-		super(id, dot, followRestrictions);
-		
-		this.production = production;
-		this.name = String.valueOf(id);
-		
-		this.children = generateChildren(children);
-	}
-	
 	public SequenceStackNode(int id, int dot, IConstructor production, AbstractStackNode[] children, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

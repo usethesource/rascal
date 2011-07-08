@@ -51,14 +51,11 @@ public class ErrorSortContainerNodeConverter{
 		for(int i = prefixes.size() - 1; i >= 0; --i){
 			Link prefix = prefixes.get(i);
 			
-			AbstractNode resultNode = prefix.getNode();
-			if(!resultNode.isRejected()){
-				int length = postFix.length;
-				AbstractNode[] newPostFix = new AbstractNode[length + 1];
-				System.arraycopy(postFix, 0, newPostFix, 1, length);
-				newPostFix[0] = resultNode;
-				gatherProduction(converter, prefix, newPostFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
-			}
+			int length = postFix.length;
+			AbstractNode[] newPostFix = new AbstractNode[length + 1];
+			System.arraycopy(postFix, 0, newPostFix, 1, length);
+			newPostFix[0] = prefix.getNode();
+			gatherProduction(converter, prefix, newPostFix, unmatchedInput, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		}
 	}
 	
@@ -91,11 +88,6 @@ public class ErrorSortContainerNodeConverter{
 	public static IConstructor convertToUPTR(NodeToUPTR converter, ErrorSortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		if(depth <= cycleMark.depth){
 			cycleMark.reset();
-		}
-		
-		if(node.isRejected()){
-			// TODO Handle filtering.
-			return null;
 		}
 		
 		ISourceLocation sourceLocation = null;

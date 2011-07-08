@@ -35,16 +35,6 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	public SeparatedListStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
-		super(id, dot, followRestrictions);
-		
-		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
-		
-		this.children = generateChildren(child, separators);
-		this.emptyChild = isPlusList ? null : generateEmptyChild();
-	}
-	
 	public SeparatedListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

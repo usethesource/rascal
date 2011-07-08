@@ -31,15 +31,6 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		this.children = generateAlternatives(alternatives);
 	}
 	
-	public AlternativeStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, AbstractStackNode[] alternatives){
-		super(id, dot, followRestrictions);
-		
-		this.production = production;
-		this.name = String.valueOf(id);
-		
-		this.children = generateAlternatives(alternatives);
-	}
-	
 	public AlternativeStackNode(int id, int dot, IConstructor production, AbstractStackNode[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

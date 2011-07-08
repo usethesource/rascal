@@ -39,10 +39,8 @@ public abstract class AbstractStackNode{
 	
 	// Last node specific filter stuff
 	private IConstructor parentProduction;
-	private IMatchableStackNode[] followRestrictions;
 	private final IEnterFilter[] enterFilters;
 	private final ICompletionFilter[] completionFilters;
-	private boolean isReject;
 	
 	public AbstractStackNode(int id, int dot){
 		super();
@@ -52,19 +50,6 @@ public abstract class AbstractStackNode{
 		
 		this.startLocation = -1;
 		
-		this.enterFilters = null;
-		this.completionFilters = null;
-	}
-	
-	public AbstractStackNode(int id, int dot, IMatchableStackNode[] followRestrictions){
-		super();
-		
-		this.id = id;
-		this.dot = dot;
-		
-		this.startLocation = -1;
-		
-		this.followRestrictions = followRestrictions;
 		this.enterFilters = null;
 		this.completionFilters = null;
 	}
@@ -97,10 +82,8 @@ public abstract class AbstractStackNode{
 		isLayout = original.isLayout;
 		
 		parentProduction = original.parentProduction;
-		followRestrictions = original.followRestrictions;
 		enterFilters = original.enterFilters;
 		completionFilters = original.completionFilters;
-		isReject = original.isReject;
 	}
 	
 	// General.
@@ -157,33 +140,12 @@ public abstract class AbstractStackNode{
 		return parentProduction;
 	}
 	
-	public void setFollowRestriction(IMatchableStackNode[] followRestrictions){
-		this.followRestrictions = followRestrictions;
-	}
-	
-	public IMatchableStackNode[] getFollowRestriction(){
-		return followRestrictions;
-	}
-	
 	public IEnterFilter[] getEnterFilters(){
 		return enterFilters;
 	}
 	
 	public ICompletionFilter[] getCompletionFilters(){
 		return completionFilters;
-	}
-	
-	public boolean isReductionFiltered(char[] input, int location){
-		// Check if follow restrictions apply.
-		if(followRestrictions != null){
-			for(int i = followRestrictions.length - 1; i >= 0; --i){
-				IMatchableStackNode followRestriction = followRestrictions[i];
-				if((location + followRestriction.getLength()) <= input.length &&
-					followRestriction.matchWithoutResult(input, location)) return true;
-			}
-		}
-		
-		return false;
 	}
 	
 	public boolean hasEqualFilters(AbstractStackNode otherNode){
@@ -206,18 +168,6 @@ public abstract class AbstractStackNode{
 		}
 		
 		return true;
-	}
-	
-	public void markAsReject(){
-		isReject = true;
-	}
-	
-	public void setReject(boolean isReject){
-		this.isReject = isReject;
-	}
-	
-	public boolean isReject(){
-		return isReject;
 	}
 	
 	// Sharing.

@@ -34,16 +34,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		result = null;
 	}
 	
-	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, IMatchableStackNode[] followRestrictions, char[] ciLiteral){
-		super(id, dot, followRestrictions);
-		
-		this.production = production;
-		
-		this.ciLiteral = fill(ciLiteral);
-		
-		result = null;
-	}
-	
 	public CaseInsensitiveLiteralStackNode(int id, int dot, IConstructor production, char[] ciLiteral, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

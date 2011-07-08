@@ -40,14 +40,6 @@ public class CharNode extends AbstractNode{
 		return false;
 	}
 	
-	public void setRejected(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean isRejected(){
-		return false;
-	}
-	
 	// Cache the results for all 7-bit ascii characters.
 	public static CharNode createCharNode(char character){
 		if(character < charNodeConstants.length){
