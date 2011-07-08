@@ -1624,3 +1624,51 @@ public Figure triangle(int side,FProperty props...){
   	resizable(false)] + props);
 }
 
+public Figure headNormal(FProperty props...) {
+  list[tuple[real x, real y]]  tup = [<0.,1.>, <0.5, 0.>, <1., 1.>];
+		  return space(overlay([
+		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
+		  [ shapeConnected(true), shapeClosed(true)]+props), stdSize(10));
+}
+
+public Figure headInv(FProperty props...) {
+  list[tuple[real x, real y]]  tup = [<0.,0.>, <0.5, 1.>, <1., 0.>];
+   return space(overlay([
+		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
+		  [ shapeConnected(true), shapeClosed(true)]+props),  stdSize(10));
+		
+}
+
+public  Figure headDot(FProperty props...) {
+	return space(ellipse(props),  stdSize(10));
+}
+
+public  Figure headBox(FProperty props...) {
+	return space(ellipse(props),  stdSize(10));
+}
+
+public Figure headDiamond(FProperty props...) {
+  list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
+		  return space(overlay([
+		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
+		  [ shapeConnected(true), shapeClosed(true)]+props),  stdWidth(10), stdHeight(15));
+}
+
+public  Figure headBox(FProperty props...) {
+	return space(ellipse(props),  stdSize(10));
+}
+
+public  Figure shapeEllipse(Figure fig, str key, FProperty props...) {
+	return space(ellipse(fig, props),  stdWidth(40), stdHeight(20), id(key));
+}
+
+public  Figure shapeDoubleEllipse(Figure fig, str key, FProperty props...) {
+	return space(ellipse(ellipse(fig, shrink(0.7)+props), props),  stdWidth(40), stdHeight(20), id(key));
+}
+
+public  Figure shapeBox(Figure fig, str key, FProperty props...) {
+	return space(box(fig, props),  stdSize(20), id(key));
+}
+
+
+
