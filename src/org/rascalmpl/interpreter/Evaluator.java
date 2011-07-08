@@ -142,7 +142,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 */
 	private IRascalMonitor monitor;
 	
-
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private Stack<Integer> indentStack = new Stack<Integer>();
 	private final RascalURIResolver rascalPathResolver;
@@ -187,7 +186,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				l.add(java.net.URI.create("cwd:///"));
 				l.add(java.net.URI.create("std:///"));
 				l.add(java.net.URI.create("testdata:///"));
-
+				l.add(java.net.URI.create("benchmarks:///"));
+				
 				String property = java.lang.System.getProperty("rascal.path");
 
 				if (property != null) {
@@ -218,7 +218,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
-
+		
+		ClassResourceInputOutput benchmarkdata = new ClassResourceInputOutput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		resolverRegistry.registerInput(benchmarkdata);
+		
 		resolverRegistry.registerInput(new JarURIResolver(getClass()));
 
 		resolverRegistry.registerInputOutput(rascalPathResolver);
