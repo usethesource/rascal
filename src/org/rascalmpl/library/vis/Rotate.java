@@ -12,9 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import org.rascalmpl.library.vis.containers.WithInnerFig;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-
 // TODO: fix me! also take care global coordinates
 /*
 public class Rotate extends WithInnerFig {

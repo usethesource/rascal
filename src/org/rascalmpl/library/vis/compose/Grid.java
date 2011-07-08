@@ -6,7 +6,6 @@ import org.rascalmpl.library.vis.EmptyFigure;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.NameResolver;

@@ -35,8 +35,6 @@ import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
-import org.rascalmpl.library.vis.graph.layered.LayeredGraphNode;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;

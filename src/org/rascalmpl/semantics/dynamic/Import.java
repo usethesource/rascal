@@ -16,10 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.ImportedModule;
-import org.rascalmpl.ast.Nonterminal;
-import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
@@ -27,7 +24,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
-import org.rascalmpl.values.uptr.Factory;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
 	

@@ -28,7 +28,6 @@ import org.rascalmpl.ast.Range;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
-import org.rascalmpl.ast.Nonterminal.Lexical;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;

@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.properties.Types;
-import org.rascalmpl.library.vis.properties.PropertySetters.SingleIntOrRealPropertySetter;
 import org.rascalmpl.library.vis.util.Dimension;
 
 public enum Properties {

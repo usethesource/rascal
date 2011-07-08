@@ -11,20 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
-
-import java.util.Vector;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.properties.Properties;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.Coordinate;
-
 /*
  * Given are a first figure (bottomFigure) that contains a second figure (refFigure) with identity id.
  * Place a third figure (topFigure) on top of refFigure
