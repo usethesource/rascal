@@ -175,12 +175,12 @@ public datetime decrementMilliseconds(datetime dt) {
 }
 
 @doc{A closed interval on the time axis.}
-data interval = Interval(datetime start, datetime end);
+data interval = Interval(datetime begin, datetime end);
 
 @doc{Given two datetime values, create an interval.}
-// TODO: Question, should we throw here if start > end?
-public interval createInterval(datetime start, datetime end) {
-	return Interval(start,end);
+// TODO: Question, should we throw here if begin > end?
+public interval createInterval(datetime begin, datetime end) {
+	return Interval(begin,end);
 }
 
 @doc{A duration of time, measured in individual years, months, etc.}
@@ -188,39 +188,39 @@ data duration = Duration(int years, int months, int days,
                          int hours, int minutes, int seconds, int milliseconds);
 
 @javaClass{org.rascalmpl.library.DateTime}
-private tuple[int,int,int,int,int,int,int] java createDurationInternal(datetime start, datetime end);
+private tuple[int,int,int,int,int,int,int] java createDurationInternal(datetime begin, datetime end);
 
 // TODO: Add an exception for the non-matching case
-@doc{Create a new duration representing the duration between the start and end dates.}
-public duration createDuration(datetime start, datetime end) {	
-	switch(createDurationInternal(start,end)) {
+@doc{Create a new duration representing the duration between the begin and end dates.}
+public duration createDuration(datetime begin, datetime end) {	
+	switch(createDurationInternal(begin,end)) {
 	  case <int y,int m,int d,int h,int min,int s,int ms>:
 		return Duration(y,m,d,h,min,s,ms);
 	}
 	return Duration(0,0,0,0,0,0,0);
 }
 
-@doc{Given an interval, create a new duration representing the duration between the interval start and end.}
+@doc{Given an interval, create a new duration representing the duration between the interval begin and end.}
 public duration createDuration(interval i) {
-	return createDuration(i.start,i.end);	
+	return createDuration(i.begin,i.end);	
 }                         
 
-@doc{Return the number of days in an interval, including the start and end days.}
+@doc{Return the number of days in an interval, including the begin and end days.}
 public int daysInInterval(interval i) {
-	return daysDiff(i.start,i.end);
+	return daysDiff(i.begin,i.end);
 }
 
 @doc{Return the difference between two dates and/or datetimes in days.} 
 @javaClass{org.rascalmpl.library.DateTime}
-public int java daysDiff(datetime start, datetime end);
+public int java daysDiff(datetime begin, datetime end);
 
-@doc{Given an interval i, return a list of days [i.start, ..., i.end]}
+@doc{Given an interval i, return a list of days [i.begin, ..., i.end]}
 public list[datetime] dateRangeByDay(interval i) {
 	list[datetime] l = [];
 	datetime loopDate = i.end.justDate;
-	datetime startDate = i.start.justDate;
+	datetime beginDate = i.begin.justDate;
 	
-	while (loopDate >= startDate) {
+	while (loopDate >= beginDate) {
 		l = insertAt(l,0,loopDate);
 		loopDate = decrementDays(loopDate);
 	}
