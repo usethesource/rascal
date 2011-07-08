@@ -45,22 +45,18 @@ public abstract class AbstractFact<V> implements IFact<V> {
 		this.keyName = keyName;
 		this.exp = exp;
 	}
-	@Override
 	public boolean isValid() {
 		return status == IFact.FACT_OK;
 	}
 	
-	@Override
 	public void registerListener(IDependencyListener listener) {
 		listeners.add(listener);
 	}
 
-	@Override
 	public void unregisterListener(IDependencyListener listener) {
 		listeners.remove(listener);
 	}
 
-	@Override
 	public synchronized void remove() {
 		for(IDependencyListener l : listeners) {
 			l.changed(this, REMOVED, null);
@@ -104,8 +100,6 @@ public abstract class AbstractFact<V> implements IFact<V> {
 		return keyName;
 	}
 
-
-	@Override
 	public synchronized void setDepends(Collection<IFact<V>> deps) {
 		for(IFact<?> foo : dependencies) {
 			if(!deps.contains(foo))
@@ -119,12 +113,10 @@ public abstract class AbstractFact<V> implements IFact<V> {
 		dependencies.addAll(deps);
 	}
 
-	@Override
 	public synchronized Collection<IFact<?>> getDepends() {
 		return Collections.unmodifiableCollection(dependencies);
 	}
 	
-	@Override
 	public int getStatus() {
 		return status;
 	}

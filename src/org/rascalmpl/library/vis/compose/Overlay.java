@@ -192,7 +192,7 @@ public class Overlay extends Compose{
 			this.flip= flip;
 			this.actualKey = actualKey;
 		}
-		@Override
+		
 		public void registerValue(Properties prop,IValue val) {
 			
 			
@@ -213,19 +213,16 @@ public class Overlay extends Compose{
 			}
 		}
 
-		@Override
 		public void registerOffset(double offset) {
 			//System.out.printf("Registering offset %f\n",offset);
 			actualKey.registerOffset(offset);
 			
 		}
 
-		@Override
 		public IValue scaleValue(IValue val) {
 			return actualKey.scaleValue(val);
 		}
 
-		@Override
 		public String getId() {
 			return actualKey.getId();
 		}

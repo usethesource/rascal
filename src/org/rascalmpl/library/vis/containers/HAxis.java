@@ -51,7 +51,6 @@ public class HAxis extends WithInnerFig implements Key {
 		return val.getType().isNumberType() || val.getType().isIntegerType() || val.getType().isRealType();
 	}
 	
-	@Override
 	public void registerValue(Properties prop,IValue val) {
 		if(isNumber(val)){
 			double pval = PropertyParsers.parseNum(val);
@@ -61,7 +60,6 @@ public class HAxis extends WithInnerFig implements Key {
 		}
 	}
 
-	@Override
 	public IValue scaleValue(IValue val) {
 		if(isNumber(val)){
 			double pval = PropertyParsers.parseNum(val);
@@ -327,12 +325,10 @@ public class HAxis extends WithInnerFig implements Key {
 		return result;
 	}
 
-	@Override
 	public String getId() {
 		return getIdProperty();
 	}
 
-	@Override
 	public void registerOffset(double offset) {
 		//System.out.printf("Registering offset %f",offset);
 		minOffset = Math.min(minOffset, offset);

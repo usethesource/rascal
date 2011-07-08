@@ -41,8 +41,7 @@ public class PropertySetters {
 			array[startIndex] = parser.parseProperty(c, pm, 0, fpa, ctx);
 			return startIndex+1;
 		}
-
-		@Override
+		
 		public int nrOfPropertiesProduced() {
 			return 1;
 		}
@@ -83,8 +82,7 @@ public class PropertySetters {
 			array[startIndex+1] = parser2.parseProperty( c, pm, secondIndex, fpa, ctx);
 			return startIndex+2;
 		}
-
-		@Override
+		
 		public int nrOfPropertiesProduced() {
 			return 2;
 		}

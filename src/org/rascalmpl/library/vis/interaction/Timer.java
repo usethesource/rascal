@@ -62,7 +62,6 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 			cancel = false;
 		}
 		
-		@Override
 		public void run() {
 			if(cancel) return;
 			if(fpa.getComp().isDisposed()) return;

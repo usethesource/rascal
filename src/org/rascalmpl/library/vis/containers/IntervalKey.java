@@ -105,10 +105,7 @@ public class IntervalKey extends WithInnerFig implements Key {
 		innerFig.draw(left, top);
 		
 	}
-
-
-
-	@Override
+	
 	public void registerValue(Properties prop, IValue val) {
 		if(!(val instanceof INumber)) return;
 		INumber n = (INumber) val;
@@ -123,18 +120,12 @@ public class IntervalKey extends WithInnerFig implements Key {
 			high = n;
 		}
 	}
-
-
-
-	@Override
+	
 	public void registerOffset(double offset) {
 		return;
 		
 	}
-
-
-
-	@Override
+	
 	public IValue scaleValue(IValue val) {
 		if(!(val instanceof INumber)) return ValueFactory.getInstance().real(0);
 		INumber n = (INumber) val;
@@ -151,10 +142,7 @@ public class IntervalKey extends WithInnerFig implements Key {
 		//System.out.printf("IntervalKey %s scale done!\n",id);
 		return res;
 	}
-
-
-
-	@Override
+	
 	public String getId() {
 		return id;
 	}
