@@ -25,7 +25,15 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.ast.*;
+import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Catch;
+import org.rascalmpl.ast.Char;
+import org.rascalmpl.ast.Declarator;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.IASTVisitor;
+import org.rascalmpl.ast.LocalVariableDeclaration;
+import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Assignable.Annotation;
 import org.rascalmpl.ast.Assignable.Constructor;
 import org.rascalmpl.ast.Assignable.FieldAccess;
@@ -150,15 +158,6 @@ import org.rascalmpl.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.HexIntegerLiteral;
 import org.rascalmpl.ast.IntegerLiteral.OctalIntegerLiteral;
 import org.rascalmpl.ast.Kind.Anno;
-import org.rascalmpl.ast.Sym.Alternative;
-import org.rascalmpl.ast.Sym.NotFollow;
-import org.rascalmpl.ast.Sym.NotPrecede;
-import org.rascalmpl.ast.Sym.Precede;
-import org.rascalmpl.ast.Sym.Sequence;
-import org.rascalmpl.ast.Sym.Start;
-import org.rascalmpl.ast.Sym.Unequal;
-import org.rascalmpl.ast.SyntaxDefinition.Keyword;
-//import org.rascalmpl.ast.LanguageAction.Build;
 import org.rascalmpl.ast.Literal.Boolean;
 import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.Literal.Location;
@@ -221,12 +220,20 @@ import org.rascalmpl.ast.Strategy.TopDownBreak;
 import org.rascalmpl.ast.StringLiteral.Template;
 import org.rascalmpl.ast.StringTail.MidInterpolated;
 import org.rascalmpl.ast.StringTail.MidTemplate;
+import org.rascalmpl.ast.Sym.Alternative;
 import org.rascalmpl.ast.Sym.Column;
 import org.rascalmpl.ast.Sym.EndOfLine;
 import org.rascalmpl.ast.Sym.Nonterminal;
+import org.rascalmpl.ast.Sym.NotFollow;
+import org.rascalmpl.ast.Sym.NotPrecede;
 import org.rascalmpl.ast.Sym.Parameter;
 import org.rascalmpl.ast.Sym.Parametrized;
+import org.rascalmpl.ast.Sym.Precede;
+import org.rascalmpl.ast.Sym.Sequence;
+import org.rascalmpl.ast.Sym.Start;
 import org.rascalmpl.ast.Sym.StartOfLine;
+import org.rascalmpl.ast.Sym.Unequal;
+import org.rascalmpl.ast.SyntaxDefinition.Keyword;
 import org.rascalmpl.ast.SyntaxDefinition.Language;
 import org.rascalmpl.ast.SyntaxDefinition.Layout;
 import org.rascalmpl.ast.Test.LabeledParameterized;
@@ -3581,39 +3588,33 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	}
 
-	@Override
 	public IValue visitCommandsAmbiguity(org.rascalmpl.ast.Commands.Ambiguity x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
+	
 	public IValue visitCommandsList(org.rascalmpl.ast.Commands.List x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitFunctionDeclarationConditional(
 			org.rascalmpl.ast.FunctionDeclaration.Conditional x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitFunctionModifierTest(
 			org.rascalmpl.ast.FunctionModifier.Test x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitTestLabeledParameterized(LabeledParameterized x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IValue visitTestParameterized(Parameterized x) {
 		// TODO Auto-generated method stub
 		return null;
