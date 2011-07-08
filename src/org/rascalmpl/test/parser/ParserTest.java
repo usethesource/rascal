@@ -144,15 +144,6 @@ public class ParserTest extends TestCase{
 		executeParser(new AmbiguousEpsilonList());
 	}
 	
-	public void testFollowRestriction(){
-		executeParser(new FollowRestriction());
-	}
-	
-	public void testReject(){
-		executeParser(new Reject1());
-		executeParser(new Reject4());
-	}
-	
 	public void testListSharing(){
 		executeParser(new ListOverlap());
 	}
