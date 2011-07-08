@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
-import java.util.HashMap;
 import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;

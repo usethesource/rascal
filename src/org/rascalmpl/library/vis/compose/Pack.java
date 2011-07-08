@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;

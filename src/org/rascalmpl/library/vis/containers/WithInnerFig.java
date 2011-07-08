@@ -1,9 +1,7 @@
 package org.rascalmpl.library.vis.containers;
 
-import java.util.HashMap;
 import java.util.Vector;
 
-import org.rascalmpl.library.vis.Extremes;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.properties.PropertyManager;

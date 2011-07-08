@@ -2,8 +2,6 @@ package org.rascalmpl.library.vis.util;
 
 import java.util.Arrays;
 
-import org.rascalmpl.library.vis.Figure;
-
 public class Util {
 	
 	public static <T> void makeRectangular(T[][] source, T pad){

@@ -13,7 +13,6 @@
 package org.rascalmpl.library.vis;
 
 import org.rascalmpl.library.vis.containers.WithInnerFig;
-import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class Scale extends WithInnerFig {
