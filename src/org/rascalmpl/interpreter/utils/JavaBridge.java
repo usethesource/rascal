@@ -310,20 +310,20 @@ public class JavaBridge {
 			}
 		} 
 		catch (IllegalArgumentException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func);
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		} catch (InstantiationException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func);
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		} catch (IllegalAccessException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func);
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		} catch (InvocationTargetException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func);
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		} catch (SecurityException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func);
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		} catch (NoSuchMethodException e) {
-			throw new JavaMethodLinkError(className, e.getMessage(), func);
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		}
 		
-		throw new JavaMethodLinkError(className, "class not found", func);
+		throw new JavaMethodLinkError(className, "class not found", func, null);
 	}
 
 	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
