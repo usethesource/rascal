@@ -148,8 +148,9 @@ public class ModuleEnvironment extends Environment {
 			
 			if (env != null) {
 				Set<String> imps = env.importedModules != null ? env.importedModules.keySet() : Collections.<String>emptySet();
-				imps.removeAll(done);
-				todo.addAll(imps);
+				for (String impname : imps)
+					if (!done.contains(impname))
+						todo.add(impname);
 				
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
 				
