@@ -105,35 +105,27 @@ public class ErrorTreeBuilder{
 		
 		ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
 		if(alternateProds != null){
-			int nextNextDot = nextDot + 1;
-			
-			// Handle alternative nexts (and prefix sharing).
-			sharedPrefixNext.dirtyClear();
-			
-			sharedPrefixNext.add(next.getId(), next);
-			
-			IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = next.getEdges();
-			ArrayList<Link>[] prefixesMap = next.getPrefixesMap();
+			IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = null;
+			ArrayList<Link>[] prefixesMap = null;
+			if(next != null){
+				edgesMap = next.getEdges();
+				prefixesMap = next.getPrefixesMap();
+			}
 			
 			for(int i = alternateProds.size() - 1; i >= 0; --i){
 				prod = alternateProds.get(i);
 				if(nextDot == prod.length) continue;
-				AbstractStackNode alternativeNext = prod[nextDot];
-				int alternativeNextId = alternativeNext.getId();
+				AbstractStackNode newAlternativeNext = prod[nextDot];
 				
-				AbstractStackNode sharedNext = sharedPrefixNext.findValue(alternativeNextId);
-				if(sharedNext == null){
-					alternativeNext.setProduction(prod);
-					updateAlternativeNextNode(alternativeNext, edgesMap, prefixesMap);
+				if(edgesMap != null){
+					updateAlternativeNextNode(newAlternativeNext, edgesMap, prefixesMap);
+				}else{
+					AbstractStackNode alternativeNext = updateNextNode(newAlternativeNext, node, result);
 					
-					sharedPrefixNext.add(alternativeNextId, alternativeNext);
-				}else if(nextNextDot < prod.length){
-					if(alternativeNext.isEndNode()){
-						sharedNext.markAsEndNode();
-						sharedNext.setParentProduction(alternativeNext.getParentProduction());
+					if(alternativeNext != null){
+						edgesMap = alternativeNext.getEdges();
+						prefixesMap = alternativeNext.getPrefixesMap();
 					}
-					
-					sharedNext.addProduction(prod);
 				}
 			}
 		}
@@ -198,6 +190,9 @@ public class ErrorTreeBuilder{
 	
 	private void move(AbstractStackNode node, AbstractNode result){
 		boolean handleNexts = true;
+		if(node.isEndNode()){
+			handleNexts = !followEdges(node, result);
+		}
 		
 		if(handleNexts && node.hasNext()){
 			moveToNext(node, result);
