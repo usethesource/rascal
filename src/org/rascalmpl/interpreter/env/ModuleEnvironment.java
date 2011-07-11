@@ -134,36 +134,42 @@ public class ModuleEnvironment extends Environment {
 		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
 		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
-		while (!todo.isEmpty()) {
+		while(!todo.isEmpty()){
 			String m = todo.get(0);
 			todo.remove(0);
 			
-			if (done.contains(m)) {
-				continue;
-			}
+			if(done.contains(m)) continue;
 			
 			done.add(m);
 			
 			ModuleEnvironment env = heap.getModule(m);
 			
-			if (env != null) {
-				Set<String> imps = env.importedModules != null ? env.importedModules.keySet() : Collections.<String>emptySet();
-				for (String impname : imps)
-					if (!done.contains(impname))
-						todo.add(impname);
-				
+			if(env != null){
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
-				
-				for (String i : imps) {
-					importWriter.insert(VF.string(i));
+				for(String impname : env.getImports()){
+					if(!done.contains(impname)) todo.add(impname);
+					
+					importWriter.insert(VF.string(impname));
 				}
 				
 				ISetWriter defWriter = VF.setWriter(DefSort);
+				for(IValue def : env.productions){
+					defWriter.insert(def);
+				}
 				
-				if (env.productions != null) {
-					for (IValue def : env.productions) {
-						defWriter.insert(def);
-					}
+				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
+				result.put(VF.string(m), t);
+			}else if(m == getName()){ // This is the root scope.
+				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				for(String impname : importedModules.keySet()){
+					if(!done.contains(impname)) todo.add(impname);
+					
+					importWriter.insert(VF.string(impname));
+				}
+				
+				ISetWriter defWriter = VF.setWriter(DefSort);
+				for(IValue def : productions){
+					defWriter.insert(def);
 				}
 				
 				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
