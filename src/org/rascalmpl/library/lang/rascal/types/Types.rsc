@@ -204,7 +204,6 @@ public RType convertBasicType(BasicType t) {
         case (BasicType)`node` : return makeNodeType();
         case (BasicType)`void` : return makeVoidType();
         case (BasicType)`loc` : return makeLocType();
-        case (BasicType)`lex` : return makeLexType();
         case (BasicType)`datetime` : return makeDateTimeType();
         case (BasicType)`non-terminal` : return makeNonTerminalType();
 
