@@ -148,22 +148,22 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			
 			if (var != null && var instanceof ICallableValue) {
 				ICallableValue function = (ICallableValue) var;
-				IList args = TreeAdapter.getASTArgs(tree);
 				
-				// first try without layout and literal args and an actual parameter
-				// for each "field"
-				IConstructor result = call(function, args);
-				
-				if (result == null) {
-					result = call(function, TreeAdapter.getArgs(tree));
-				}
-				
-				if (result != null) {
+				try{
+					// First try without layout and literal args and an actual parameter for each "field"
+					IConstructor result = call(function, TreeAdapter.getASTArgs(tree));
+					if(result == null){
+						result = call(function, TreeAdapter.getArgs(tree));
+					}
+					
+					if(result == null){
+						System.err.println("ERROR: action failed: " + function.getType());
+						return tree; // TODO Handle the error properly.
+					}
+					
 					return result;
-				}
-				else {
-					System.err.println("WARNING: action failed: " + function.getType());
-					return tree;
+				}catch(Failure f){
+					return null;
 				}
 			}
 		}
@@ -172,21 +172,19 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 	}
 
 	private IConstructor call(ICallableValue function, IList args) {
-		try {
-			Type[] types = new Type[args.length()];
-			IValue[] actuals = new IValue[args.length()];
-			int i = 0;
-			for (IValue arg : args) {
+		try{
+			int nrOfArgs = args.length();
+			Type[] types = new Type[nrOfArgs];
+			IValue[] actuals = new IValue[nrOfArgs];
+			
+			for(int i = nrOfArgs - 1; i >= 0; --i){
+				IValue arg = args.get(i);
 				types[i] = arg.getType();
 				actuals[i] = arg;
-				i++;
 			}
+			
 			return (IConstructor) function.call(types, actuals);
-		}
-		catch (ArgumentsMismatchError e) {
-			return null;
-		}
-		catch (Failure e) {
+		}catch(ArgumentsMismatchError e){
 			return null;
 		}
 	}
