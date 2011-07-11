@@ -3,8 +3,8 @@ package org.rascalmpl.parser.gtd.grammar;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 
 public class Grammar{
-	public final static int LOOK_AHEAD_TABLE_SIZE = 0x10000;
-	public final static int MAX__LOOKAHEAD_CODE_POINT = 0xfffe;
+	public final static int LOOKAHEAD_TABLE_SIZE = 0x10000;
+	public final static int LOOKAHEAD_MAX_CODE_POINT = 0xfffe;
 	public final static int LOOKAHEAD_OVERFLOW_SLOT = 0xffff;
 	
 	private final AbstractStackNode[][][] expectMatrix;
@@ -18,7 +18,7 @@ public class Grammar{
 	}
 	
 	public AbstractStackNode[] getAlternatives(int sortIdentifier, char lookAhead){
-		if(lookAhead > MAX__LOOKAHEAD_CODE_POINT){
+		if(lookAhead > LOOKAHEAD_MAX_CODE_POINT){
 			return expectMatrix[sortIdentifier][LOOKAHEAD_OVERFLOW_SLOT];
 		}
 		return expectMatrix[sortIdentifier][lookAheadTable[lookAhead]];

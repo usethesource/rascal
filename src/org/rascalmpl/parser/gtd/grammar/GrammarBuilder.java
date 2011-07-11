@@ -192,7 +192,7 @@ public class GrammarBuilder{
 					int startOfRange = lookAheadRange[0];
 					int endOfRange = lookAheadRange[1];
 					
-					if(endOfRange <= Grammar.MAX__LOOKAHEAD_CODE_POINT){
+					if(endOfRange <= Grammar.LOOKAHEAD_MAX_CODE_POINT){
 						IntegerList lookAheadIdentifiers = lookAheadChain.getIdentifiers(startOfRange, endOfRange);
 						
 						for(int k = lookAheadIdentifiers.size() - 1; k >= 0; --k){
@@ -246,7 +246,7 @@ public class GrammarBuilder{
 	}
 	
 	private int[] buildLookAheadTable(){
-		int[] lookAheadTable = new int[Grammar.LOOK_AHEAD_TABLE_SIZE];
+		int[] lookAheadTable = new int[Grammar.LOOKAHEAD_TABLE_SIZE];
 		
 		LookAheadRange lookAheadRange = lookAheadChain.next;
 		int lookAheadIdentifier = -1;
