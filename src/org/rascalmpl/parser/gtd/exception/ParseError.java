@@ -9,8 +9,6 @@ import org.rascalmpl.parser.gtd.util.Stack;
 
 public class ParseError extends RuntimeException{
 	private static final long serialVersionUID = 3755880608516802997L;
-
-	private final String message;
 	
 	private final URI location;
 	private final int offset;
@@ -25,9 +23,7 @@ public class ParseError extends RuntimeException{
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
 	
 	public ParseError(String message, URI location, int offset, int length, int beginLine, int endLine, int beginColumn, int endColumn, Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
-		super();
-		
-		this.message = message;
+		super(message);
 		
 		this.location = location;
 		this.offset = offset;
@@ -43,10 +39,8 @@ public class ParseError extends RuntimeException{
 	}
 	
 	public ParseError(String message, URI location, int offset, int length, int beginLine, int endLine, int beginColumn, int endColumn){
-		super();
-
-		this.message = message;
-
+		super(message);
+		
 		this.location = location;
 		this.offset = offset;
 		this.length = length;
@@ -58,10 +52,6 @@ public class ParseError extends RuntimeException{
 		this.unexpandableNodes = null;
 		this.unmatchableNodes = null;
 		this.filteredNodes = null;
-	}
-	
-	public String getMessage(){
-		return message;
 	}
 	
 	public URI getLocation(){
@@ -92,7 +82,6 @@ public class ParseError extends RuntimeException{
 		return endColumn;
 	}
 	
-	
 	public Stack<AbstractStackNode> getUnexpandableNodes(){
 		return unexpandableNodes;
 	}
@@ -103,5 +92,28 @@ public class ParseError extends RuntimeException{
 	
 	public DoubleStack<AbstractStackNode, AbstractNode> getFilteredNodes(){
 		return filteredNodes;
+	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(getMessage());
+		sb.append("\n");
+		sb.append("At ");
+		sb.append(location);
+		sb.append(" offset=");
+		sb.append(offset);
+		sb.append(" length=");
+		sb.append(length);
+		sb.append(" begin=");
+		sb.append(beginLine);
+		sb.append(":");
+		sb.append(beginColumn);
+		sb.append(" end=");
+		sb.append(endLine);
+		sb.append(":");
+		sb.append(endColumn);
+		
+		return sb.toString();
 	}
 }
