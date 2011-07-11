@@ -103,7 +103,7 @@ public class ErrorTreeBuilder{
 		next.setProduction(prod);
 		next = updateNextNode(next, node, result);
 		
-		ArrayList<AbstractStackNode[]> alternateProds = node.getAlternateProductions();
+		AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 		if(alternateProds != null){
 			IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = null;
 			ArrayList<Link>[] prefixesMap = null;
@@ -112,8 +112,8 @@ public class ErrorTreeBuilder{
 				prefixesMap = next.getPrefixesMap();
 			}
 			
-			for(int i = alternateProds.size() - 1; i >= 0; --i){
-				prod = alternateProds.get(i);
+			for(int i = alternateProds.length - 1; i >= 0; --i){
+				prod = alternateProds[i];
 				if(nextDot == prod.length) continue;
 				AbstractStackNode newAlternativeNext = prod[nextDot];
 				
