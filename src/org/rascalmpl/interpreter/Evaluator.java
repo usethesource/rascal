@@ -106,6 +106,7 @@ import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -538,6 +539,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		ParserGenerator pg = getParserGenerator();
 		IMap definitions = currentModule.getSyntaxDefinition();
+		
 		Class<IGTD> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
 
 		if (parser == null || force) {

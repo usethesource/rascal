@@ -77,7 +77,7 @@ public class MakeBox {
 
 	final private GlobalEnvironment heap = new GlobalEnvironment();
 	final private ModuleEnvironment root = heap
-			.addModule(new ModuleEnvironment("***MakeBox***", heap));
+			.addModule(new ModuleEnvironment("___MakeBox___", heap));
 
 	final private Evaluator commandEvaluator;
 

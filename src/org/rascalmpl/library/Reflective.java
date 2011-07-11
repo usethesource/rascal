@@ -37,7 +37,7 @@ public class Reflective {
 		try {
 			IConstructor tree = null;
 			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URI.create("rascal:///" + modulePath.getValue()));
-			tree = ctx.getEvaluator().parseModule(ctx.getEvaluator(), uri, new ModuleEnvironment("***getModuleParseTree***", ctx.getHeap()));
+			tree = ctx.getEvaluator().parseModule(ctx.getEvaluator(), uri, new ModuleEnvironment("___getModuleParseTree___", ctx.getHeap()));
 			return TreeAdapter.getArgs(tree).get(1);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.moduleNotFound(modulePath, null, null);
