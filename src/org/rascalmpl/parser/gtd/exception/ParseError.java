@@ -98,6 +98,7 @@ public class ParseError extends RuntimeException{
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(getMessage());
+		
 		sb.append("\n");
 		sb.append("At ");
 		sb.append(location);
@@ -113,6 +114,66 @@ public class ParseError extends RuntimeException{
 		sb.append(endLine);
 		sb.append(":");
 		sb.append(endColumn);
+		
+		return sb.toString();
+	}
+	
+	public String toDetailedString(){
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(getMessage());
+		
+		sb.append("\n");
+		sb.append("At ");
+		sb.append(location);
+		sb.append(" offset=");
+		sb.append(offset);
+		sb.append(" length=");
+		sb.append(length);
+		sb.append(" begin=");
+		sb.append(beginLine);
+		sb.append(":");
+		sb.append(beginColumn);
+		sb.append(" end=");
+		sb.append(endLine);
+		sb.append(":");
+		sb.append(endColumn);
+		
+		sb.append("\n");
+		sb.append("Unexpandable nodes: ");
+		int nrOfUnexpandableNodes = unexpandableNodes.getSize();
+		if(nrOfUnexpandableNodes == 0){
+			sb.append("none");
+		}else{
+			for(int i = nrOfUnexpandableNodes - 1; i >= 0; --i){
+				sb.append("\n");
+				sb.append(unexpandableNodes.get(i));
+			}
+		}
+		
+		sb.append("\n");
+		sb.append("Unmatchable nodes: ");
+		int nrOfUnmatchableNodes = unmatchableNodes.getSize();
+		if(nrOfUnmatchableNodes == 0){
+			sb.append("none");
+		}else{
+			for(int i = nrOfUnmatchableNodes - 1; i >= 0; --i){
+				sb.append("\n");
+				sb.append(unmatchableNodes.get(i));
+			}
+		}
+		
+		sb.append("\n");
+		sb.append("Filtered nodes: ");
+		int nrOfFilteredNodes = filteredNodes.getSize();
+		if(nrOfFilteredNodes == 0){
+			sb.append("none");
+		}else{
+			for(int i = nrOfFilteredNodes - 1; i >= 0; --i){
+				sb.append("\n");
+				sb.append(filteredNodes.getFirst(i));
+			}
+		}
 		
 		return sb.toString();
 	}
