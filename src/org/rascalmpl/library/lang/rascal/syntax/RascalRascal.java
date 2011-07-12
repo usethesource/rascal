@@ -8753,7 +8753,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
     // prod([lit("default")],meta(sort("FunctionModifier")),attrs([term(cons("Default"))]))
     expect(prod___lit_default_$FunctionModifier_attrs___term__cons___68_101_102_97_117_108_116, $FunctionModifier.prod___lit_default_$FunctionModifier_attrs___term__cons___68_101_102_97_117_108_116);
     // prod([lit("test")],meta(sort("FunctionModifier")),attrs([term(cons("Test"))]))
-    expect(prod___lit_test_$FunctionModifier_attrs___term__cons___84_101_115_116, $FunctionModifier.prod___lit_test_$FunctionModifier_attrs___term__cons___84_101_115_116);
+   // expect(prod___lit_test_$FunctionModifier_attrs___term__cons___84_101_115_116, $FunctionModifier.prod___lit_test_$FunctionModifier_attrs___term__cons___84_101_115_116);
   }
   public void $Assignment() {
     
