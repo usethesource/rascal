@@ -722,14 +722,14 @@ public class ASTBuilder {
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (type.equals(expected) || lexType.equals(expected) ) {
+			if (type.isEqual(expected) || lexType.isEqual(expected) ) {
 				return true;
 			}
 			
 			if (SymbolAdapter.isAnyList((IConstructor) type) || SymbolAdapter.isOpt((IConstructor) type)) {
 				
 				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) type);
-				return elem.equals(expected);
+				return elem.isEqual(expected);
 			}
 
 			return false;
@@ -740,7 +740,7 @@ public class ASTBuilder {
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
-			if (type.equals(expected) ) {
+			if (type.isEqual(expected) ) {
 				return true;
 			}
 			return false;
