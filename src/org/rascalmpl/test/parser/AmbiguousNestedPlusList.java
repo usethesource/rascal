@@ -41,7 +41,7 @@ public class AmbiguousNestedPlusList extends SGTDBF implements IParserTest{
 	private final static IConstructor PROD_S_PLUSLISTA = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_A), VF.set());
 	private final static IConstructor PROD_PLUSLISTA = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_A);
 	private final static IConstructor PROD_A_PLUSLISTa = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_PLUS_LIST_a), VF.set());
-	private final static IConstructor PROD_PLUSLISTa = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a, VF.set());
+	private final static IConstructor PROD_PLUSLISTa = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a);
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
