@@ -76,23 +76,16 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \label(n,s) : return symbolLiterals(s); 
     case \lit(n) : return [lit(quote(n))];
     case \cilit(n) : return [lit(ciquote(n))]; 
-    case \cf(s) : return symbolLiterals(s);
-    case \lex(s) : return symbolLiterals(s);
-    case \empty() : return "";
     case \layouts(n) : return [];
     case \iter(s) : return [symbolLiterals(s),rl,lit("+")];
     case \iter-star(s) : return [symbolLiterals(s),rl,lit("*")];
     case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("+")];
     case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")];
-    case \empty() : return [lit("("), rl, lit(")")];
     case \alt(alts) : return [lit("("),rl,tail(tail(tail([rl,lit("|"),rl,symbolLiterals(t) | t <- seps ]))),rl,lit(")")];
     case \seq(elems) : return [lit("("),rl,tail([rl,symbolLiterals(t) | t <- elems]),rl,lit(")")];  
     case \parameterized-sort(n, params) : return [lit(n),rl,lit("["),rl,tail(tail(tail([rl,lit(","),rl,symbolLiterals(p) | p <- params]))),rl,lit("]")]; 
     case \parameter(n) : return [lit("&"),rl,lit(n)];
     case \char-class(list[CharRange] ranges) : return [lit("["),rl,tail([rl,rangeLiterals(r) | r <- ranges]),rl,lit("]")];
-    case \at-column(c) : return [lit("@"),rl,lit("<c>")];
-    case \start-of-line() : return [lit("^")];
-    case \end-of-line() : return [lit("$")];
     default: throw "unsupported symbol <sym>";
   }
 }
