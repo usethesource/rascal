@@ -236,7 +236,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    public final static AbstractStackNode[] <id> = _init_<id>();
            '    private static final AbstractStackNode[] _init_<id>() {
            '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
-           '      <for (Item i <- lhses) { pi = value2id(i.production); ii = (i.index != -1) ? i.index : 0;>
+           '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[i].new>;<}>
            '      return tmp;
            '	}<}>
@@ -334,6 +334,7 @@ private str split(str x) {
 @doc{this function selects all symbols for which a parse method should be generated}
 private bool isNonterminal(Symbol s) {
   switch (s) {
+    case \label(_,x) : return isNonterminal(x);
     case \sort(_) : return true;
     case \lex(_) : return true;
     case \keywords(_) : return true;
@@ -452,8 +453,9 @@ public str ciliterals2ints(list[Symbol] chars){
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
-    if (sym is label) // ignore labels 
-      sym = sym.symbol;
+    if (\label(_,n) := sym){ // ignore labels 
+      return sym2newitem(grammar, n, id, dot);
+    }
       
     itemId = id();
     
@@ -476,10 +478,6 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
       enters += ["new AtStartOfLineRequirement()" | \start-of-line() <- conds]; 
-      
-      sym = sym.symbol;
-      if (sym is label)
-        sym = sym.symbol;
     }
     
     filters  = "new IEnterFilter[] {<(enters != []) ? head(enters) : ""><for (enters != [], f <- tail(enters)) {>, <f><}>}"
@@ -570,6 +568,7 @@ public str sym2name(Symbol s){
     switch(s){
         case sort(x) : return "<x>";
         case meta(x) : return "$<sym2name(x)>";
+        case label(_,x) : return sym2name(x);
         default      : return value2id(s);
     }
 }
@@ -579,9 +578,11 @@ public str value2id(value v) {
 }
 
 str v2i(value v) {
+	if(label(str x,Symbol u) := v) return v2i(u);
+	
     switch (v) {
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
-        case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
+        //case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
         case "cons"(str x) : return "cons_<escId(x)>";
         case sort(str s)   : return "<s>";
