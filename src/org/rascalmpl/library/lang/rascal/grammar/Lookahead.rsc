@@ -22,7 +22,7 @@ import Map;
 import Exception;
 
 // This production wrapper encodes what the lookahead set is for the productions it wraps
-public data Production = lookahead(Symbol rhs, set[Symbol] classes, Production production);
+public data Production = lookahead(Symbol def, set[Symbol] classes, Production production);
 public data Symbol = eoi();     // end-of-input marker
 private data Grammar = simple(set[Symbol] starts, set[Production] productions);
 
@@ -34,11 +34,11 @@ private data Grammar = simple(set[Symbol] starts, set[Production] productions);
 }
 public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
   G2 = expandRegularSymbols(removeLabels(G));
-  <fst, fol> = firstAndFollow(simple(G2.starts, { p | /Production p:prod(_,_,_) := G2}));
+  <fst, fol> = firstAndFollow(simple(G2.starts, {p | /Production p:prod(_,_,_) := G2}));
     
   return visit(G) {
-    case Production p:prod([], Symbol rhs, _) => lookahead(rhs, fol[rhs], p)
-    case Production p:prod(list[Symbol] lhs, Symbol rhs, _) : {
+    case Production p:prod(Symbol rhs,[],  _) => lookahead(rhs, fol[rhs], p)
+    case Production p:prod(Symbol rhs,list[Symbol] lhs,  _) : {
       lhs = removeLabels(lhs);
       
 	  classes = first(lhs, fst);
@@ -175,20 +175,24 @@ public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
 
 public Grammar removeLabels(Grammar G) {
   return visit(G) {
-    case prod(lhs, rhs, a) => prod(removeLabels(lhs), rhs, a)
+    case prod(rhs, lhs, a) => prod(removeLabel(rhs), removeLabels(lhs), a)
   }
 }
 
+public Symbol removeLabel(Symbol sym) {
+  return (label(_,s2) := s) ? s2 : s;
+}
+
 public list[Symbol] removeLabels(list[Symbol] syms) {
-  return [(label(_,s2) := s) ? s2 : s | s <- syms ];
+  return [removeLabel(s) | s <- syms ];
 }
 
 public set[Symbol] usedSymbols(Grammar G){
-   return { s |  Production p:prod(_,_,_) <- G.productions, /Symbol s <- p.lhs };
+   return { s |  Production p:prod(_,_,_) <- G.productions, /Symbol s <- p.symbols };
 }
 
 public set[Symbol] definedSymbols(Grammar G) {
-   return { p.rhs |  Production p <- G.productions};
+   return { p.def |  Production p <- G.productions};
 }
 
 public set[Symbol] allSymbols(Grammar G){
@@ -229,7 +233,7 @@ public SymbolUse first(Grammar G) {
   SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 
                   + (S : {}      | Symbol S   <- defSymbols);
 	        
-  def2lhs = {<S , lhs> | S <- defSymbols, prod(lhs, S, _) <- G.productions};
+  def2lhs = {<S , lhs> | S <- defSymbols, prod(S, lhs, _) <- G.productions};
   
   solve (FIRST) {
     for (<S, lhs> <- def2lhs) {
@@ -246,12 +250,12 @@ public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    
    rel[Symbol, Symbol] F = {<S, eoi()> | Symbol S <- G.starts};
    
-   for (Production p <- G.productions, [_*, current, symbols*] := p.lhs) {
+   for (Production p <- G.productions, [_*, current, symbols*] := p.symbols) {
        if (current in defSymbols) {
           flw =  first(symbols, FIRST);
           if (empty() in flw || isEmpty(symbols)) {
              flw -=  {empty()};
-             flw += {p.rhs};
+             flw += {p.def};
           }
           F += {<current, s> | s <- flw};
        }
@@ -303,7 +307,7 @@ test firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 */
 
 private Production pr(Symbol rhs, list[Symbol] lhs) {
-  return prod(lhs, rhs, \no-attrs());
+  return prod(rhs,lhs,{});
 }
 
 public Grammar Lit1 = simple({}, {

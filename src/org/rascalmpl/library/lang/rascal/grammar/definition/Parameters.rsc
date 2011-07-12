@@ -20,10 +20,14 @@ import Set;
 public Grammar expandParameterizedSymbols(Grammar g) {
   return grammar(g.starts, expand({g.rules[nt] | nt <- g.rules}));
 } 
- 
+
+private Symbol delabel(Symbol l) {
+  return (label(x,m) := l) ? m : l;
+}
+
 set[Production] expand(set[Production] prods) {
   // First we collect all the parametrized definitions
-  defs = { p | p <- prods, \parameterized-sort(_,[\parameter(_),_*]) := p.rhs };
+  defs = { p | p <- prods, \parameterized-sort(_,[\parameter(_),_*]) := delabel(p.def) };
   result = prods - defs;
   
   // Then we collect all the uses of parameterized sorts in the other productions
@@ -36,7 +40,7 @@ set[Production] expand(set[Production] prods) {
   instantiated = {};
   while (uses != {}) {
     instances = {};
-    for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := def.rhs) {
+    for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := def.def) {
        instantiated += {\parameterized-sort(name,actuals)};
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
        instances = {instances, visit (def) {

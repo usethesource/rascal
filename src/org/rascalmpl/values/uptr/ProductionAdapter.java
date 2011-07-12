@@ -18,6 +18,7 @@ package org.rascalmpl.values.uptr;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -29,23 +30,25 @@ public class ProductionAdapter {
 	}
 
 	public static String getConstructorName(IConstructor tree) {
-		for (IValue attr : getAttributes(tree)) {
-			if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
-				IValue value = ((IConstructor)attr).get("term");
-				if (value.getType().isNodeType() && ((INode) value).getName().equals("cons")) {
-					return ((IString) ((INode) value).get(0)).getValue();
-				}
-			}
+		IConstructor def = getDefined(tree);
+		
+		if (SymbolAdapter.isLabel(def)) {
+			return SymbolAdapter.getLabel(def);
 		}
+		
 		return null;
 	}
 	
-	public static IConstructor getRhs(IConstructor tree) {
-		return (IConstructor) tree.get("rhs");
+	public static IConstructor getType(IConstructor tree) {
+		return SymbolAdapter.delabel(getDefined(tree));
 	}
 	
-	public static IList getLhs(IConstructor tree) {
-		return (IList) tree.get("lhs");
+	public static IConstructor getDefined(IConstructor tree) {
+		return (IConstructor) tree.get("def");
+	}
+	
+	public static IList getSymbols(IConstructor tree) {
+		return (IList) tree.get("symbols");
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
@@ -53,11 +56,11 @@ public class ProductionAdapter {
 	}
 	
 	public static boolean isLayout(IConstructor tree) {
-		return SymbolAdapter.isLayouts(getRhs(tree));
+		return SymbolAdapter.isLayouts(getType(tree));
 	}
 	
 	public static String getSortName(IConstructor tree) {
-		IConstructor rhs = getRhs(tree);
+		IConstructor rhs = getType(tree);
 		
 		if (SymbolAdapter.isSort(rhs) 
 				|| SymbolAdapter.isLex(rhs) 
@@ -70,35 +73,30 @@ public class ProductionAdapter {
 		return "";
 	}
 	
-	public static IList getAttributes(IConstructor tree) {
-		if (isList(tree)) {
-			return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
-		}
-		IConstructor attributes = (IConstructor) tree.get("attributes");
-		
-		if (attributes.getConstructorType() == Factory.Attributes_Attrs) {
-			return (IList) attributes.get("attrs");
+	public static ISet getAttributes(IConstructor tree) {
+		if (isDefault(tree)) {
+			return (ISet) tree.get("attributes");
 		}
 		
-		return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
+		return ValueFactoryFactory.getValueFactory().set(Factory.Attr);
 	}
 
 	public static boolean isLiteral(IConstructor tree) {
-		return SymbolAdapter.isLiteral(getRhs(tree));
+		return SymbolAdapter.isLiteral(getType(tree));
 	}
 
 	public static boolean isCILiteral(IConstructor tree) {
-		return SymbolAdapter.isCILiteral(getRhs(tree));
+		return SymbolAdapter.isCILiteral(getType(tree));
 	}
 
 	public static boolean isList(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Production_Regular
-		    && SymbolAdapter.isAnyList(getRhs(tree)); 
+		    && SymbolAdapter.isAnyList(getType(tree)); 
 	}
 	
 	public static boolean isOpt(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Production_Regular
-			&& SymbolAdapter.isOpt(getRhs(tree));
+			&& SymbolAdapter.isOpt(getType(tree));
 	}
 	
 	public static boolean isDefault(IConstructor tree) {
@@ -110,19 +108,19 @@ public class ProductionAdapter {
 	}
 
 	public static boolean isSeparatedList(IConstructor tree) {
-		IConstructor rhs = getRhs(tree);
+		IConstructor rhs = getType(tree);
 		return SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs);
 	}
 
 	public static boolean isLexical(IConstructor tree) {
-		return hasLexAttribute(tree) || SymbolAdapter.isLex(getRhs(tree));
+		return SymbolAdapter.isLex(getType(tree));
 	}
  
 	public static String getCategory(IConstructor tree) {
-		if (!isList(tree)) {
+		if (!isRegular(tree)) {
 			for (IValue attr : getAttributes(tree)) {
-				if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
-					IValue value = ((IConstructor)attr).get("term");
+				if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+					IValue value = ((IConstructor)attr).get("tag");
 					if (value.getType().isNodeType() && ((INode) value).getName().equals("category")) {
 						return ((IString) ((INode) value).get(0)).getValue();
 					}
@@ -137,26 +135,13 @@ public class ProductionAdapter {
 	}
 
 	public static boolean hasAttribute(IConstructor tree, IValue wanted) {
-		for (IValue attr : getAttributes(tree)) {
-			if (attr.isEqual(wanted)) {
-				return true;
-			}
-			// TODO: this is quick workaround, around the fact that attrs are sometimes "nodes" and sometimes constructors, perhaps this can be removed by now?
-			if (attr.toString().equals(wanted.toString())) {
-				return true;
-			}
-		}
-		return false;
+		return getAttributes(tree).contains(wanted);
 	}
 	
-	public static boolean hasLexAttribute(IConstructor tree) {
-		return hasAttribute(tree, Factory.Attribute_Lex) || hasAttribute(tree, Factory.Attribute_LexX) /* TODO: remove the first assmit */;
-	}
-
 	public static boolean shouldFlatten(IConstructor surrounding, IConstructor nested) {
 		if (ProductionAdapter.isList(nested)) {
-			IConstructor nestedRhs = ProductionAdapter.getRhs(nested);
-			IConstructor surroundingRhs = ProductionAdapter.getRhs(surrounding);
+			IConstructor nestedRhs = ProductionAdapter.getType(nested);
+			IConstructor surroundingRhs = ProductionAdapter.getType(surrounding);
 			
 			if (surroundingRhs.isEqual(nestedRhs)) {
 				return true;

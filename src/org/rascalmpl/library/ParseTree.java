@@ -51,7 +51,7 @@ public class ParseTree {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getURI());
 
 			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))) {
+				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
 					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
 				}
 			}
@@ -69,7 +69,7 @@ public class ParseTree {
 		
 		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getURI());
 
-		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
+		if(SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
 			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
 		}
 		return pt;
@@ -82,7 +82,7 @@ public class ParseTree {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
 
 			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))) {
+				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
 					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
 				}
 			}
@@ -101,7 +101,7 @@ public class ParseTree {
 		
 		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
 
-		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
+		if(SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
 			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
 		}
 
@@ -115,7 +115,7 @@ public class ParseTree {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
 
 			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))) {
+				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
 					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
 				}
 			}
@@ -134,7 +134,7 @@ public class ParseTree {
 		
 		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
 		
-		if(SymbolAdapter.isStart(ProductionAdapter.getRhs(TreeAdapter.getProduction(pt)))){
+		if(SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
 			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
 		}
 		

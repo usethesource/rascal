@@ -113,7 +113,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env) {
-		return RascalTypeFactory.getInstance().nonTerminalType(ProductionAdapter.getRhs(production));
+		return RascalTypeFactory.getInstance().nonTerminalType(ProductionAdapter.getType(production));
 	}
 
 	@Override

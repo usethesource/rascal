@@ -26,7 +26,7 @@ import Integer;
 // conversion functions
 
 public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
-  set[Production] prods = {prod([],empty(),\no-attrs()), prod([], layouts("$default$"), \no-attrs())};
+  set[Production] prods = {prod(empty(),[],{}), prod(layouts("$default$"),[],{})};
   set[Symbol] starts = {};
   
   for (sd <- defs) {
@@ -35,7 +35,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
         prods += prod2prod(\layouts("<n>"), p);
       }
       case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
-        prods += prod([label("top", sort("<n>"))], \start(sort("<n>")), \no-attrs()); 
+        prods += prod(\start(sort("<n>")),[label("top", sort("<n>"))],{}); 
         prods += prod2prod(sort("<n>"), p);
       }
       case (SyntaxDefinition) `syntax <Sym s> = <Prod p>;` : {
@@ -57,13 +57,13 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case (Prod) `<ProdModifier* ms> <Name n> : ()` :
-      return attribute(prod([], nt, mods2attrs(ms)), term("cons"("<n>")));
+      return prod(label("<n>",nt), [], mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> ()` :
-      return prod([], nt, mods2attrs(ms));
+      return prod(nt, [], mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return attribute(prod(args2symbols(args), nt, mods2attrs(ms)), term("cons"("<n>")));
+      return prod(label("<n>",nt),args2symbols(args),mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
-      return prod(args2symbols(args), nt, mods2attrs(ms));
+      return prod(nt, args2symbols(args), mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
     case (Prod) `<Prod l> > <Prod r>` : 

@@ -86,7 +86,7 @@ public class ErrorListContainerNodeConverter{
 			}
 		}
 		
-		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
+		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(production), VF.integer(1));
 		cycle = actionExecutor.filterListCycle(cycle, environment);
 		if(cycle == null){
 			return convertedCycle;
@@ -295,7 +295,7 @@ public class ErrorListContainerNodeConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(node.getFirstProduction()), VF.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(node.getFirstProduction()), VF.integer(depth - index));
 			cycle = actionExecutor.filterListCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			

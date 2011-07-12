@@ -58,20 +58,12 @@ public class Factory {
 	public static final Type Tree_Error_Amb = tf.constructor(uptr, Tree, "erroramb", Alternatives, "alternatives");
 	public static final Type Tree_Error_Cycle = tf.constructor(uptr, Tree, "errorcycle", Symbol, "symbol", tf.integerType(), "cycleLength");
 	
-	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", tf.listType(Symbol), "lhs", Symbol, "rhs", Attributes, "attributes");
-	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "rhs", Attributes, "attributes");
-	
-	public static final Type Attributes_NoAttrs = tf.constructor(uptr, Attributes, "no-attrs");
-	public static final Type Attributes_Attrs = tf.constructor(uptr, Attributes, "attrs", tf.listType(Attr), "attrs");
+	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", Symbol, "def", tf.listType(Symbol), "symbols",  tf.setType(Attr), "attributes");
+	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "def");
 	
 	public static final Type Attr_Assoc = tf.constructor(uptr, Attr, "assoc", Associativity, "assoc");
-	public static final Type Attr_Term = tf.constructor(uptr, Attr, "term", tf.valueType(), "term");
-	public static final Type Attr_Id = tf.constructor(uptr, Attr, "id", tf.stringType(), "moduleName");
+	public static final Type Attr_Tag = tf.constructor(uptr, Attr, "tag", tf.valueType(), "tag");
 	public static final Type Attr_Bracket = tf.constructor(uptr, Attr, "bracket");
-	public static final Type Attr_Reject = tf.constructor(uptr, Attr, "reject");
-	public static final Type Attr_LiteralX = tf.constructor(uptr, Attr, "literal");
-	public static final Type Attr_CiLiteralX = tf.constructor(uptr, Attr, "ciliteral");
-	public static final Type Attr_LexX = tf.constructor(uptr, Attr, "lex");
 	
 	public static final Type Associativity_Left = tf.constructor(uptr, Associativity, "left");
 	public static final Type Associativity_Right = tf.constructor(uptr, Associativity, "right");
@@ -120,11 +112,6 @@ public class Factory {
 	public static final String Length = "len";
 
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	public static final IValue Attribute_Lex = Attr_Term.make(vf, vf.node("lex"));
-	public static final IValue Attribute_LexX = Attr_LexX.make(vf);
-	public static final IValue Attribute_Literal = Attr_Term.make(vf, vf.node("literal"));
-	public static final IValue Attribute_LiteralX = Attr_LiteralX.make(vf);
-	public static final IValue Attribute_CiLiteralX = Attr_CiLiteralX.make(vf);
 	public static final IValue Attribute_Assoc_Left = Attr_Assoc.make(vf, Associativity_Left.make(vf));
 	public static final IValue Attribute_Assoc_Right = Attr_Assoc.make(vf, Associativity_Right.make(vf));
 	public static final IValue Attribute_Assoc_Non_Assoc = Attr_Assoc.make(vf, Associativity_NonAssoc.make(vf));

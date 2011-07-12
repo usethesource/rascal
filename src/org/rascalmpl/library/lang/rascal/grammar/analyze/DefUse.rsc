@@ -20,5 +20,5 @@ public set[Symbol] usedNotDefined(Grammar g) {
 
 public set[Symbol] definedNotUsed(Grammar g) {
   <used, defined> = usedAndDefined(g);
-  return used - {s | s <- defined, !(s is start)};
+  return used - {s | s <- defined, !(s is \start)}; 
 }

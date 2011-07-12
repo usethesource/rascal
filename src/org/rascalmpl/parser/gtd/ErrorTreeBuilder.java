@@ -202,7 +202,7 @@ public class ErrorTreeBuilder{
 	private IConstructor getParentSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
-		return ProductionAdapter.getRhs(last.getParentProduction());
+		return ProductionAdapter.getType(last.getParentProduction());
 	}
 	
 	private IConstructor findSymbol(AbstractStackNode node){
@@ -213,12 +213,12 @@ public class ErrorTreeBuilder{
 		
 		IConstructor prod = last.getParentProduction();
 		if(!ProductionAdapter.isRegular(prod)){
-			IList lhs = ProductionAdapter.getLhs(prod);
+			IList lhs = ProductionAdapter.getSymbols(prod);
 			return (IConstructor) lhs.get(dot);
 		}
 		
 		// Regular
-		IConstructor rhs = ProductionAdapter.getRhs(prod);
+		IConstructor rhs = ProductionAdapter.getType(prod);
 		IConstructor symbol = (IConstructor) rhs.get("symbol");
 		if(dot == 0){
 			return symbol;

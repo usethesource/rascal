@@ -37,14 +37,14 @@ public class NonTerminalType extends ExternalType {
 			this.symbol = cons;
 		}
 		else if (cons.getType() == Factory.Production) {
-			this.symbol = ProductionAdapter.getRhs(TreeAdapter.getProduction(cons));
+			this.symbol = ProductionAdapter.getType(cons);
 		}
 		else if (cons.getConstructorType() == Factory.Tree_Appl) {
-			this.symbol = ProductionAdapter.getRhs(TreeAdapter.getProduction(cons));
+			this.symbol = TreeAdapter.getType(cons);
 		}
 		else if (cons.getConstructorType() == Factory.Tree_Amb) {
 			IConstructor first = (IConstructor) TreeAdapter.getAlternatives(cons).iterator().next();
-			this.symbol = ProductionAdapter.getRhs(TreeAdapter.getProduction(first));
+			this.symbol = TreeAdapter.getType(first);
 		}
 		else {
 			throw new ImplementationError("Invalid concrete syntax type constructor");

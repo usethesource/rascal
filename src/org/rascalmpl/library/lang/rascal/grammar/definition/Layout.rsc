@@ -33,9 +33,9 @@ public GrammarDefinition \layouts(GrammarDefinition def) {
      will just produce an arbitrary one if there are multiple definitions
 }
 public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
-  if (/prod(_,l:layouts(_),_) := def.modules[name], l != layouts("$default$")) 
+  if (/prod(l:layouts(_),_,_) := def.modules[name], l != layouts("$default$")) 
     return l;
-  else if (i <- deps, /prod(_,l:layouts(_),_) := def.modules[i], l != layouts("$default$")) 
+  else if (i <- deps, /prod(l:layouts(_),_,_) := def.modules[i], l != layouts("$default$")) 
     return l;
   else 
     return layouts("$default$"); 
@@ -44,9 +44,9 @@ public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
 @doc{intersperses layout symbols in all non-lexical productions}
 public Grammar \layouts(Grammar g, Symbol l) {
   return top-down-break visit (g) {
-    case prod([Symbol x],\start(y),as) => prod([l, x, l], \start(y), as)
-    case prod(list[Symbol] lhs,sort(s),as) => prod(intermix(lhs, l),sort(s),as)
-    case prod(list[Symbol] lhs,\parameterized-sort(s,n),as) => prod(intermix(lhs, l),\parameterized-sort(s,n),as) 
+    case prod(\start(y),[Symbol x],as) => prod(\start(y),[l, x, l],  as)
+    case prod(sort(s),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l),as)
+    case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as) 
   }
 } 
 

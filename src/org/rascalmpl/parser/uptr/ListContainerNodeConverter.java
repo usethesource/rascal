@@ -173,7 +173,7 @@ public class ListContainerNodeConverter{
 			}
 		}
 		
-		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
+		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(production), VF.integer(1));
 		cycle = actionExecutor.filterListCycle(cycle, environment);
 		if(cycle == null){
 			return convertedCycle;
@@ -334,7 +334,7 @@ public class ListContainerNodeConverter{
 			
 			// Splice the elements into the list if the ambiguity cluster got filtered properly.
 			if(TreeAdapter.isAppl(prefixResult)){
-				if(ProductionAdapter.getRhs(TreeAdapter.getProduction(prefixResult)).equals(ProductionAdapter.getRhs(production))){
+				if(ProductionAdapter.getType(TreeAdapter.getProduction(prefixResult)).equals(ProductionAdapter.getType(production))){
 					IConstructor filteredAlternative = gatheredPrefixes.get(0);
 					IList filteredAlternativeChildrenList = TreeAdapter.getArgs(filteredAlternative);
 					
@@ -402,7 +402,7 @@ public class ListContainerNodeConverter{
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 		
-		IConstructor rhs = ProductionAdapter.getRhs(node.getFirstProduction());
+		IConstructor rhs = ProductionAdapter.getType(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		
 		if(depth <= cycleMark.depth){

@@ -16,7 +16,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
       return conds; // failsafe for erroneous cyclic keywords definition! 
      
     // now look up the definition of the keyword sort and weave it in.
-    conds = other + {cond[symbol=s] | choice(_, alts) := g.rules[cond.symbol], prod([s],_,_) <- alts};
+    conds = other + {cond[symbol=s] | choice(_, alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
   }
   
   return conds;  

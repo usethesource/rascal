@@ -10,5 +10,5 @@ import Graph;
 }
 @experimental
 public Graph[Symbol] symbolDependencies(Grammar g) {
-  return { <from,to> | /prod([_*,/Symbol to:sort(_),_*],Symbol from:sort(_),_) := g};
+  return { <from,to> | /prod(Symbol from:sort(_),[_*,/Symbol to:sort(_),_*],_) := g};
 }

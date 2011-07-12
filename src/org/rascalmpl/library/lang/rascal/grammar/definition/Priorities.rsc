@@ -14,17 +14,17 @@ public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
-    case prod([list[Symbol] o,t],s,attrs([_*,\assoc(left()),_*])) :
+    case prod(s, [list[Symbol] o,t],{_*,\assoc(left())}) :
       if (match(t, s)) return {<p, size(o), p>};
-    case prod([list[Symbol] o,t],s,attrs([_*,\assoc(\assoc()),_*])) :
+    case prod(s,[list[Symbol] o,t],{_*,\assoc(\assoc())}) :
       if (match(t, s)) return {<p, size(o), p>};
-    case prod([t,_*],s,attrs([_*,\assoc(\right()),_*])) :
+    case prod(s,[t,_*],{_*,\assoc(\right())}) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod([t,list[Symbol] o,u],s,attrs([_*,\assoc(\non-assoc()),_*])) :
+    case prod(s,[t,list[Symbol] o,u],{_*,\assoc(\non-assoc())}) :
       if (match(t, s) && match(u, s)) return {<p, 0, p>,<p,size(o) + 1,p>};       
-    case prod([t,_*],s,attrs([_*,\assoc(\non-assoc()),_*])) :
+    case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, 0, p>}; 
-    case prod([list[Symbol] o,t],s,attrs([_*,\assoc(\non-assoc()),_*])) :
+    case prod(s,[list[Symbol] o,t],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, size(o), p>};
     case choice(_, set[Production] alts) : 
       return {doNotNest(a) | a <- alts};
@@ -47,19 +47,18 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
   for ({Production pivot, set[Production] rest} := alts,  Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
-        for (/Production father:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- rest, match(r,rhs)) {
+        for (/Production father:prod(Symbol rhs, lhs:[_*,Symbol r],_) <- rest, match(r,rhs)) 
           result += {<father, size(lhs) - 1, child>};
-        }
       case \assoc():
-        for (/Production father:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, match(r,rhs)) 
+        for (/Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,rhs)) 
           result += {<father, size(lhs) - 1, child>};
       case \right():
-        for (/Production father:prod(lhs:[Symbol l,_*],Symbol rhs,_) <- alts, match(l,rhs)) 
+        for (/Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,rhs)) 
           result += {<father, 0, child>};
       case \non-assoc(): {
-        for (/Production father:prod(lhs:[_*,Symbol r],Symbol rhs,_) <- alts, match(r,rhs)) 
+        for (/Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,rhs)) 
           result += {<father, size(lhs) - 1, child>};
-        for (/Production father:prod(lhs:[Symbol l,_*],Symbol rhs,_) <- alts, match(l,rhs)) 
+        for (/Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,rhs)) 
           result += {<father, 0, child>};
       }
     } 
@@ -96,7 +95,7 @@ DoNotNest priority(list[Production] levels) {
   result = {};
   for (<Production father, Production child> <- ordering) {
     switch (father) {
-      case prod(lhs:[Symbol l,_*,Symbol r],Symbol rhs,_) : {
+      case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
         if (match(l,rhs) && match(r,rhs)) {
           result += {<father, 0, child>, <father, size(lhs) - 1, child>};
         }   
@@ -104,14 +103,14 @@ DoNotNest priority(list[Production] levels) {
           fail;
         }
       }
-      case prod(lhs:[Symbol l,_*],Symbol rhs,_) :
+      case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
         if (match(l,rhs)) {
           result += {<father, 0, child>};
         }   
         else { 
           fail;
         }
-      case prod(lhs:[_*,Symbol r],Symbol rhs,_) :
+      case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
         if (match(r,rhs)) {
           result += {<father, size(lhs) - 1, child>};
         }   

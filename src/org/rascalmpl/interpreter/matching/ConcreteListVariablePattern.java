@@ -127,7 +127,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 			// then forced to be +. Second, it checks that both either use, or do not use, separators, so
 			// lists where one does and one does not use separators will not match. Finally, it makes sure
 			// both use the same iterated symbol.
-			IConstructor subjectListType = ProductionAdapter.getRhs(TreeAdapter.getProduction(subjectTree));
+			IConstructor subjectListType = TreeAdapter.getType(subjectTree);
 			IConstructor declaredListType = declaredType.getSymbol();
 			if ( (SymbolAdapter.isStarList(declaredListType) && SymbolAdapter.isAnyList(subjectListType)) || (SymbolAdapter.isPlusList(declaredListType) && SymbolAdapter.isPlusList(subjectListType))) {
 				if (SymbolAdapter.isSepList(declaredListType) == SymbolAdapter.isSepList(subjectListType)) {
@@ -154,7 +154,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 
 	private IValue wrapWithListProd(IValue subject) {
 		IList args = (IList) subject;
-		IValue prod = Factory.Production_Regular.make(ctx.getValueFactory(), declaredType.getSymbol(), Factory.Attributes_NoAttrs.make(ctx.getValueFactory()));
+		IValue prod = Factory.Production_Regular.make(ctx.getValueFactory(), declaredType.getSymbol());
 		
 		if (args.length() == 1) {
 			IConstructor arg = (IConstructor) args.get(0);

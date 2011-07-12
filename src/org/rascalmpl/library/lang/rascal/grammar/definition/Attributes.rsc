@@ -8,19 +8,11 @@ import IO;
 
 @doc{adds an attribute to all productions it can find}
 public Production attribute(Production p, Attr a) {
-  return visit (p) {
-    case prod(lhs,rhs,\no-attrs()) => prod(lhs, rhs, attrs([a]))
-    case prod(lhs,rhs,attrs(list[Attr] l)) => prod(lhs, rhs, attrs([l, a]))
-  }
+  return p[attributes=p.attributes+{a}];
 }
 
-public Attributes mods2attrs(Name name, ProdModifier* mods) {
-  return attrs([term("cons"("<name>"))] + [ mod2attr(m) | m <- mods]);
-}
-
-public Attributes mods2attrs(ProdModifier* mods) {
-  res = attrs([mod2attr(m) | ProdModifier m <- mods]);
-  return (res == attrs([])) ? \no-attrs() : res;
+public set[Attr] mods2attrs(ProdModifier* mods) {
+  return {mod2attr(m) | ProdModifier m <- mods};
 }
  
 public Attr mod2attr(ProdModifier m) {
@@ -30,10 +22,10 @@ public Attr mod2attr(ProdModifier m) {
     case (ProdModifier) `non-assoc`: return \assoc(\non-assoc());
     case (ProdModifier) `assoc`: return \assoc(\assoc());
     case (ProdModifier) `bracket`: return \bracket();
-    case (ProdModifier) `@ <Name n> = <StringConstant s>` : return \term("<n>"(unescape(s)));
-    case (ProdModifier) `@ <Name n> = <Literal l>` : return \term("<n>"("<l>"));
-    case (ProdModifier) `@ <Name n>` : return \term("<n>"());
-    case (ProdModifier) `@ <Name n> <TagString s>` : return \term("<n>"("<s>"));
+    case (ProdModifier) `@ <Name n> = <StringConstant s>` : return \tag("<n>"(unescape(s)));
+    case (ProdModifier) `@ <Name n> = <Literal l>` : return \tag("<n>"("<l>"));
+    case (ProdModifier) `@ <Name n>` : return \tag("<n>"());
+    case (ProdModifier) `@ <Name n> <TagString s>` : return \tag("<n>"("<s>"));
     default: throw "missed a case <m>";
   }
 }

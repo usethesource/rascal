@@ -101,7 +101,7 @@ public class SortContainerNodeInErrorConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor rhsSymbol = ProductionAdapter.getRhs(node.getFirstProduction());
+			IConstructor rhsSymbol = ProductionAdapter.getType(node.getFirstProduction());
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhsSymbol, VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle == null){

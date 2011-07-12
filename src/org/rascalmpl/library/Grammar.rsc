@@ -37,7 +37,7 @@ anno loc Production@\loc;
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   rules = ();
   for (p <- prods)
-    rules[p.rhs] = p.rhs in rules ? choice(p.rhs, {p, rules[p.rhs]}) : choice(p.rhs, {p}); 
+    rules[p.def] = p.def in rules ? choice(p.def, {p, rules[p.def]}) : choice(p.def, {p}); 
   return grammar(starts, rules);
 } 
            
@@ -54,11 +54,11 @@ The intended semantics are that
                 for extending priority chains and such.
 } 
 data Production 
-  = \choice(Symbol rhs, set[Production] alternatives)
-  | \priority(Symbol rhs, list[Production] choices)
-  | \associativity(Symbol rhs, Associativity \assoc, set[Production] alternatives)
-  | \others(Symbol rhs)
-  | \reference(Symbol rhs, str cons)
+  = \choice(Symbol def, set[Production] alternatives)
+  | \priority(Symbol def, list[Production] choices)
+  | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives)
+  | \others(Symbol def)
+  | \reference(Symbol def, str cons)
   ;
 
 @doc{
@@ -98,19 +98,13 @@ public Production associativity(Symbol rhs, Associativity a, {associativity(Symb
     fail;
 }
 
-public Production associativity(Symbol rhs, Associativity a, {prod(list[Symbol] lhs,Symbol rhs,\no-attrs()), set[Production] rest})  
-  = \associativity(rhs, a, rest + {prod(lhs, rhs, attrs([\assoc(a)]))});
-
-public Production associativity(Symbol rhs, Associativity a, {prod(list[Symbol] lhs,Symbol rhs,attrs(list[Attr] as)), set[Production] rest}) {
- if (\assoc(_) <- as) 
-   fail;
- return \associativity(rhs, a, rest + {prod(lhs, rhs, attrs(as + [\assoc(a)]))});
+public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), set[Production] rest}) {
+  if (!(\assoc(_) <- as)) 
+	  return \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})});
+  else fail;
 }
 
 @doc{Priority under an associativity group defaults to choice}
 public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
 
-@doc{Empty attrs default to \no-attrs()}
-public Attributes  attrs([]) 
-  = \no-attrs();

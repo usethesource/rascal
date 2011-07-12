@@ -35,8 +35,8 @@ public class CharPlusList extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_char_a_z = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Range, VF.integer(97), VF.integer(122))));
 	private final static IConstructor SYMBOL_PLUS_LIST_a_z = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a_z);
 	
-	private final static IConstructor PROD_S_PLUSLISTa_z = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_PLUS_LIST_a_z), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_PLUSLISTa_z = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a_z, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_PLUSLISTa_z = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_a_z), VF.set());
+	private final static IConstructor PROD_PLUSLISTa_z = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a_z);
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode CHAR0 = new CharStackNode(0, 0, new char[][]{{'a', 'z'}});
@@ -55,7 +55,7 @@ public class CharPlusList extends SGTDBF implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "appl(prod([iter(\\char-class([range(97,122)]))],sort(\"S\"),\\no-attrs()),[appl(regular(iter(\\char-class([range(97,122)])),\\no-attrs()),[char(97),char(98),char(99)])])";
+		String expectedInput = "appl(prod(sort(\"S\"),[iter(\\char-class([range(97,122)]))],{}),[appl(regular(iter(\\char-class([range(97,122)]))),[char(97),char(98),char(99)])])";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 

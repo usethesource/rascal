@@ -33,7 +33,7 @@ public class CharRange extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_char_a_z = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Range, VF.integer(97), VF.integer(122))));
 	
-	private final static IConstructor PROD_PLUSLISTa_z_a_z = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_a_z), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_PLUSLISTa_z_a_z = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_char_a_z), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode CHAR_a0 = new CharStackNode(0, 0, new char[][]{{'a','z'}});
@@ -51,7 +51,7 @@ public class CharRange extends SGTDBF implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "appl(prod([\\char-class([range(97,122)])],sort(\"S\"),\\no-attrs()),[char(97)])";
+		String expectedInput = "appl(prod(sort(\"S\"),[\\char-class([range(97,122)])],{}),[char(97)])";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 

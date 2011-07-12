@@ -175,8 +175,29 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private void declareAbstractDataTypes(Set<UserType> abstractDataTypes) {
-		for (UserType decl : abstractDataTypes) {
-			declareAbstractDataType(decl, env);
+//		for (UserType decl : abstractDataTypes) {
+//			declareAbstractDataType(decl, env);
+//		}
+		
+		List<UserType> todo = new LinkedList<UserType>();
+		todo.addAll(abstractDataTypes);
+		
+		int countdown = todo.size();
+		while (!todo.isEmpty()) {
+			UserType trial = todo.remove(0);
+			--countdown;
+			try {
+				declareAbstractDataType(trial, env);
+				countdown = todo.size();
+			}
+			catch (UndeclaredTypeError e) {
+				if (countdown == 0) {	
+					// Cycle
+					throw e;
+				}
+				// Put at end of queue
+				todo.add(trial);
+			}
 		}
 	}
 
