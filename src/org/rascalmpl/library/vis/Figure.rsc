@@ -1187,7 +1187,7 @@ public Edge edge(str from, str to, Figure fromArrowP, Figure toArrowP,  FPropert
  
 public alias Figures = list[Figure];
  
-data Figure = 
+public data Figure = 
 /* atomic primitives */
 
      _text(str s, FProperties props)		    // text label
@@ -1644,7 +1644,7 @@ public  Figure headDot(FProperty props...) {
 }
 
 public  Figure headBox(FProperty props...) {
-	return space(ellipse(props),  stdSize(10));
+	return space(box(props),  stdSize(10));
 }
 
 public Figure headDiamond(FProperty props...) {
@@ -1658,17 +1658,50 @@ public  Figure headBox(FProperty props...) {
 	return space(ellipse(props),  stdSize(10));
 }
 
+public  Figure shapeEllipse(str key, FProperty props...) {
+	return space(ellipse(props), stdId(key), stdWidth(40), stdHeight(30));
+}
+
+public  Figure shapeDoubleEllipse(str key, FProperty props...) {
+	return space(ellipse(ellipse(props+stdShrink(0.8)), props),  stdId(key), stdWidth(40), stdHeight(30));
+}
+
+public  Figure shapeBox(str key, FProperty props...) {
+	return space(box(fig, props),stdId(key), stdWidth(40), stdHeight(30));
+}
+
+public Figure shapeDiamond(str key, FProperty props...) {
+  list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
+		  return space(overlay([
+		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
+		  props+shapeConnected(true)+shapeClosed(true)),  stdId(key), stdWidth(60), stdHeight(40));
+}
+
+public Figure shapeParallelogram(str key, FProperty props...) {
+  real delta = 0.30;
+  list[tuple[real x, real y]]  tup = [<delta, 0.>, <1., 0.>, <1.-delta, 1.>, <0., 1.>];
+		  return space(overlay([
+		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
+		  props+shapeConnected(true)+shapeClosed(true)),  stdId(key), stdWidth(80), stdHeight(50));
+}
+
 public  Figure shapeEllipse(Figure fig, str key, FProperty props...) {
-	return space(ellipse(fig, props),  stdWidth(40), stdHeight(20), id(key));
+	return overlay([shapeEllipse(key, props), fig], stdId(key));
 }
 
 public  Figure shapeDoubleEllipse(Figure fig, str key, FProperty props...) {
-	return space(ellipse(ellipse(fig, shrink(0.7)+props), props),  stdWidth(40), stdHeight(20), id(key));
+	return overlay([shapeDoubleEllipse(key, props), fig], stdId(key));
 }
 
 public  Figure shapeBox(Figure fig, str key, FProperty props...) {
-	return space(box(fig, props),  stdSize(20), id(key));
+	return overlay([shapeBox(key, props), fig], stdId(key));
 }
 
+public  Figure shapeDiamond(Figure fig, str key, FProperty props...) {
+	return overlay([shapeDiamond(key, props), fig], stdId(key));
+}
 
+public  Figure shapeParallelogram(Figure fig, str key, FProperty props...) {
+	return overlay([shapeParallelogram(key, props), fig], stdId(key));
+}
 
