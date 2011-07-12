@@ -29,17 +29,18 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		super(id, dot);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
+		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
 		
 		this.children = generateChildren(optional);
 		this.emptyChild = generateEmptyChild();
 	}
 	
+
 	public OptionalStackNode(int id, int dot, IConstructor production, AbstractStackNode optional, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
+		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
 		
 		this.children = generateChildren(optional);
 		this.emptyChild = generateEmptyChild();

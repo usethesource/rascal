@@ -65,7 +65,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			IConstructor prod = TreeAdapter.getProduction(tree);
 			
 			if (!ProductionAdapter.isRegular(prod)) {
-				IList syms = ProductionAdapter.getLhs(prod);
+				IList syms = ProductionAdapter.getSymbols(prod);
 
 				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
 				for (int i = 0; i < syms.length(); i++) {
@@ -102,7 +102,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			int found = -1;
 			IConstructor foundType = null;
 			IConstructor prod = TreeAdapter.getProduction(tree);
-			IList syms = ProductionAdapter.getLhs(prod);
+			IList syms = ProductionAdapter.getSymbols(prod);
 			
 			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
 			for (int i = 0; i < syms.length(); i++) {
@@ -142,7 +142,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	public <U extends IValue> Result<U> has(Name name) {
 		if (TreeAdapter.isAppl(getValue())) {
 			IConstructor prod = TreeAdapter.getProduction(getValue());
-			IList syms = ProductionAdapter.getLhs(prod);
+			IList syms = ProductionAdapter.getSymbols(prod);
 			String tmp = Names.name(name);
 			
 			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.

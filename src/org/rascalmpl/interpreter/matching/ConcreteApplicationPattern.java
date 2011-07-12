@@ -180,7 +180,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
-			if (!SymbolAdapter.isLiteral(ProductionAdapter.getRhs(production))) {
+			if (!SymbolAdapter.isLiteral(ProductionAdapter.getType(production))) {
 				if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
 					// fail early if the subject's production is not the same
 					hasNext = false;

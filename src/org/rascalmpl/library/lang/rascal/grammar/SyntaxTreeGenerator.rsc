@@ -54,16 +54,19 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
     case conditional(s,_) => s
   }
   
-  for (/p:prod(_,sort(name),attrs([_*,term("cons"(c)),_*])) := g) 
+  for (/p:prod(label(c,sort(name)),_,_) := g) 
      m[name]?sigs += {sig(c, productionArgs(pkg, p))};
 
-  for (/p:prod(_,\parameterized-sort(name,[sort(a)]),attrs([_*,term("cons"(c)),_*])) := g) 
+  for (/p:prod(label(c,\parameterized-sort(name,[sort(a)])),_,_) := g) 
      m[name + "_" + a]?sigs += {sig(c, productionArgs(pkg, p))};
 
   for (sn <- m) 
     asts += ast(sn, m[sn]);
     
-  for (/p:prod(_,\lex(s),_) := g) 
+  for (/p:prod(\lex(s),_,_) := g) 
+     asts += leaf(s);
+     
+  for (/p:prod(label(_,\lex(s)),_,_) := g) 
      asts += leaf(s);
   
   return asts;
@@ -239,7 +242,7 @@ public str lexicalClass(str name) {
 
 list[Arg] productionArgs(str pkg, Production p) {
    str l = "java.util.List";
-   return for (label(str name, Symbol sym) <- p.lhs) {
+   return for (label(str name, Symbol sym) <- p.symbols) {
      a = arg("", name);
      switch (sym) {
        case \sort(str s): a.typ = "<pkg>.<s>"; 

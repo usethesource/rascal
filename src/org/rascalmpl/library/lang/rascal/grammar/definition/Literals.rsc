@@ -16,8 +16,8 @@ import ParseTree;
 import String;
 
 public Grammar literals(Grammar g) {
-  return compose(g, grammar({}, {prod(str2syms(s),lit(s),\no-attrs()) | /lit(s) <- g}
-                              + {prod(cistr2syms(s),cilit(s),\no-attrs()) | /cilit(s) <- g}));
+  return compose(g, grammar({}, {prod(lit(s),str2syms(s),{}) | /lit(s) <- g}
+                              + {prod(cilit(s),cistr2syms(s),{}) | /cilit(s) <- g}));
 }
 
 public list[Symbol] str2syms(str x) {

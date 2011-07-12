@@ -74,6 +74,10 @@ public class TreeAdapter {
 	public static IConstructor getProduction(IConstructor tree) {
 		return (IConstructor) tree.get("prod");
 	}
+	
+	public static IConstructor getType(IConstructor tree) {
+		return ProductionAdapter.getType(getProduction(tree));
+	}
 
 	public static String getSortName(IConstructor tree)
 			throws FactTypeUseException {
@@ -141,7 +145,7 @@ public class TreeAdapter {
 	}
 
 	private static int getSeparatorCount(IConstructor tree) {
-		return SymbolAdapter.getSeparators(ProductionAdapter.getRhs(getProduction(tree))).length();
+		return SymbolAdapter.getSeparators(ProductionAdapter.getType(getProduction(tree))).length();
 	}
 
 	public static boolean isLexical(IConstructor tree) {
@@ -161,7 +165,7 @@ public class TreeAdapter {
 	}
 
 	public static IList getASTArgs(IConstructor tree) {
-		if (SymbolAdapter.isStartSort(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)))) {
+		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
 			return getArgs(tree).delete(0).delete(1);
 		}
 		
@@ -410,7 +414,7 @@ public class TreeAdapter {
 		IConstructor prod = getProduction(tree);
 		if (isAppl(tree)) {
 			if (ProductionAdapter.isDefault(prod)) {
-			   return ProductionAdapter.getLhs(prod).length() == 1;
+			   return ProductionAdapter.getSymbols(prod).length() == 1;
 			}
 			else if (ProductionAdapter.isList(prod)) {
 				return getArgs(tree).length() == 1;
@@ -435,7 +439,7 @@ public class TreeAdapter {
 			IConstructor prod = getProduction(tree);
 
 			if (ProductionAdapter.isList(prod)) {
-				IConstructor sym = ProductionAdapter.getRhs(prod);
+				IConstructor sym = ProductionAdapter.getType(prod);
 
 				if (SymbolAdapter.isIterStar(sym) || SymbolAdapter.isIterStarSeps(sym)) {
 					return getArgs(tree).length() > 0;
@@ -450,7 +454,7 @@ public class TreeAdapter {
 			IConstructor prod = getProduction(tree);
 
 			if (ProductionAdapter.isList(prod)) {
-				IConstructor sym = ProductionAdapter.getRhs(prod);
+				IConstructor sym = ProductionAdapter.getType(prod);
 
 				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym)) { 
 					return true;
@@ -512,14 +516,7 @@ public class TreeAdapter {
 	}
 
 	public static boolean isRascalLexical(IConstructor tree) {
-		return ProductionAdapter.hasLexAttribute(getProduction(tree)) || SymbolAdapter.isLex(ProductionAdapter.getRhs(getProduction(tree))); 
-	}
-
-	public static boolean hasLexAttribute(IConstructor tree) {
-		if (isAppl(tree)) {
-			return ProductionAdapter.hasLexAttribute(getProduction(tree));
-		}
-		return false;
+		return SymbolAdapter.isLex(getType(tree)); 
 	}
 
 	public static IConstructor locateDeepestContextFreeNode(IConstructor tree, int offset) {
@@ -576,6 +573,6 @@ public class TreeAdapter {
 	}
 
 	public static boolean isEmpty(IConstructor kid) {
-		return isAppl(kid) && SymbolAdapter.isEmpty(ProductionAdapter.getRhs(getProduction(kid)));
+		return isAppl(kid) && SymbolAdapter.isEmpty(ProductionAdapter.getType(getProduction(kid)));
 	}
 }

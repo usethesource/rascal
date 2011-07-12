@@ -97,7 +97,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	
 
 	private int getDelta(IConstructor prod) {
-		IConstructor rhs = ProductionAdapter.getRhs(prod);
+		IConstructor rhs = ProductionAdapter.getType(prod);
 		
 		if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
 			return SymbolAdapter.getSeparators(rhs).length();

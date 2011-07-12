@@ -39,8 +39,8 @@ public class CILiteral extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_char_l = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(108))));
 	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
 	
-	private final static IConstructor PROD_S_A = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_A), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_bla_bla = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), SYMBOL_bla, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_A = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A), VF.set());
+	private final static IConstructor PROD_bla_bla = VF.constructor(Factory.Production_Default,  SYMBOL_bla, VF.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, 0, PROD_bla_bla, new char[]{'b','l','a'});
@@ -58,7 +58,7 @@ public class CILiteral extends SGTDBF implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(108)]),\\char-class([single(97)])],cilit(\"bla\"),\\no-attrs()),[char(66),char(108),char(97)])])";
+		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"A\")],{}),[appl(prod(cilit(\"bla\"),[\\char-class([single(98)]),\\char-class([single(108)]),\\char-class([single(97)])],{}),[char(66),char(108),char(97)])])";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 

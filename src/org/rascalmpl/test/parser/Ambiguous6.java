@@ -48,17 +48,17 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
 	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
 	
-	private final static IConstructor PROD_S_A = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_A), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_S_E = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_E), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_A_B = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_B), SYMBOL_A, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_B_C = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_C), SYMBOL_B, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_C_D = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_D), SYMBOL_C, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_D_E = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_E), SYMBOL_D, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_D_a = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_a), SYMBOL_D, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_E_F = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_F), SYMBOL_E, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_F_G = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_G), SYMBOL_F, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_G_a = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_a), SYMBOL_G, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_a), SYMBOL_a, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_A = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A), VF.set());
+	private final static IConstructor PROD_S_E = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_E), VF.set());
+	private final static IConstructor PROD_A_B = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_B), VF.set());
+	private final static IConstructor PROD_B_C = VF.constructor(Factory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_C), VF.set());
+	private final static IConstructor PROD_C_D = VF.constructor(Factory.Production_Default,  SYMBOL_C, VF.list(SYMBOL_D), VF.set());
+	private final static IConstructor PROD_D_E = VF.constructor(Factory.Production_Default,  SYMBOL_D, VF.list(SYMBOL_E), VF.set());
+	private final static IConstructor PROD_D_a = VF.constructor(Factory.Production_Default,  SYMBOL_D, VF.list(SYMBOL_a), VF.set());
+	private final static IConstructor PROD_E_F = VF.constructor(Factory.Production_Default,  SYMBOL_E, VF.list(SYMBOL_F), VF.set());
+	private final static IConstructor PROD_F_G = VF.constructor(Factory.Production_Default,  SYMBOL_F, VF.list(SYMBOL_G), VF.set());
+	private final static IConstructor PROD_G_a = VF.constructor(Factory.Production_Default,  SYMBOL_G, VF.list(SYMBOL_a), VF.set());
+	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
@@ -117,7 +117,7 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "amb({appl(prod([sort(\"A\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([sort(\"C\")],sort(\"B\"),\\no-attrs()),[appl(prod([sort(\"D\")],sort(\"C\"),\\no-attrs()),[amb({appl(prod([lit(\"a\")],sort(\"D\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])]),appl(prod([sort(\"E\")],sort(\"D\"),\\no-attrs()),[appl(prod([sort(\"F\")],sort(\"E\"),\\no-attrs()),[appl(prod([sort(\"G\")],sort(\"F\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"G\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])})])])])]),appl(prod([sort(\"E\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"F\")],sort(\"E\"),\\no-attrs()),[appl(prod([sort(\"G\")],sort(\"F\"),\\no-attrs()),[appl(prod([lit(\"a\")],sort(\"G\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)])])])])])})";
+		String expectedInput = "amb({appl(prod(sort(\"S\"),[sort(\"A\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\")],{}),[appl(prod(sort(\"B\"),[sort(\"C\")],{}),[appl(prod(sort(\"C\"),[sort(\"D\")],{}),[amb({appl(prod(sort(\"D\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])]),appl(prod(sort(\"D\"),[sort(\"E\")],{}),[appl(prod(sort(\"E\"),[sort(\"F\")],{}),[appl(prod(sort(\"F\"),[sort(\"G\")],{}),[appl(prod(sort(\"G\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])])])})])])])]),appl(prod(sort(\"S\"),[sort(\"E\")],{}),[appl(prod(sort(\"E\"),[sort(\"F\")],{}),[appl(prod(sort(\"F\"),[sort(\"G\")],{}),[appl(prod(sort(\"G\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])])])})";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 

@@ -100,7 +100,7 @@ public class SortContainerNodeConverter{
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 
-		IConstructor rhs = ProductionAdapter.getRhs(node.getFirstProduction());
+		IConstructor rhs = ProductionAdapter.getType(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		
 		if(depth <= cycleMark.depth){

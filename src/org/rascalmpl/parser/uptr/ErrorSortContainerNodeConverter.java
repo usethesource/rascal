@@ -102,7 +102,7 @@ public class ErrorSortContainerNodeConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(node.getFirstProduction()), VF.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(node.getFirstProduction()), VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			

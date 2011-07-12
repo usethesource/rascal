@@ -4,7 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
@@ -21,14 +26,64 @@ import org.rascalmpl.values.uptr.Factory;
 public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
   
   protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
-    try {
-      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
-    }
-    catch (FactTypeUseException e) {
-      throw new RuntimeException("unexpected exception in generated parser", e);  
-    } catch (IOException e) {
-      throw new RuntimeException("unexpected exception in generated parser", e);  
-    }
+	  try {
+		  if (type == Factory.Production && s.contains("attrs")) {
+			  INode node = (INode) new StandardTextReader().read(VF, new TypeStore(), TypeFactory.getInstance().valueType(), new ByteArrayInputStream(s.getBytes()));
+
+			  if (node.getName().equals("prod")) {
+				  IValue def = node.get(1);
+				  IValue symbols = node.get(0);
+				  INode attrs = (INode) node.get(2);
+				  ISetWriter as = VF.setWriter();
+				  IString cons = null;
+
+				  if (!attrs.getName().equals("no-attrs")) {
+					  IList l = (IList) attrs.get(0);
+					  for (IValue a : l) {
+						  INode n = (INode) a;
+						  
+						  if (n.getName().equals("term")) {
+							  IValue arg = n.get(0);
+							  
+							  if (arg.getType().isNodeType() && ((INode) arg).getName().equals("cons")) {
+								  cons = (IString) ((INode) arg).get(0);
+							  }
+							  else {
+								  as.insert(VF.node("tag", n.get(0)));
+							  }
+						  }
+						  else {
+							  as.insert(a);
+						  }
+					  }
+				  }
+
+				  if (cons == null) {
+					  s = VF.node("prod", def, symbols, as.done()).toString();
+				  }
+				  else {
+					  s = VF.node("prod", VF.node("label", cons, def), symbols, as.done()).toString();
+				  }
+
+			  }
+			  else { // regular
+				  s = VF.node("regular", node.get(0)).toString();
+			  }
+		  }
+
+		  return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+	  }
+	  catch (FactTypeUseException e) {
+		  throw new RuntimeException("unexpected exception in generated parser", e);  
+	  } 
+	  catch (IOException e) {
+		  throw new RuntimeException("unexpected exception in generated parser", e);  
+	  }
+	  catch (Throwable e) {
+		  System.err.println(e);
+		  e.printStackTrace();
+		  throw new RuntimeException("???", e);
+	  }
   }
 	
   protected static java.lang.String _concat(String ...args) {
@@ -1430,8 +1485,15 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
     
   // initialize priorities     
   static {
-    _dontNest = _initDontNest();
-    _resultStoreIdMappings = _initDontNestGroups();
+	  try {
+		  _dontNest = _initDontNest();
+		  _resultStoreIdMappings = _initDontNestGroups();
+	  }
+	  catch (Throwable e) {
+		  System.err.println(e.getMessage());
+		  e.printStackTrace();
+		  throw new RuntimeException("static??", e);
+	  }
   }
     
   // Production declarations

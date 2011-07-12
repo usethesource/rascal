@@ -21,6 +21,7 @@ import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -45,7 +46,7 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	public IConstructor filterProduction(IConstructor tree,
 			Object environment) {
 		IConstructor prod = TreeAdapter.getProduction(tree);
-		IConstructor sym = ProductionAdapter.getRhs(prod);
+		IConstructor sym = ProductionAdapter.getType(prod);
 		
 		if (sym.isEqual(STAT)) {
 			return filterStatement(tree, prod);

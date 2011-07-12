@@ -328,7 +328,7 @@ lexical DatePart
 
 syntax FunctionModifier
 	= Java: "java" 
-	| Test: "test"
+//	| Test: "test" TODO
 	| Default: "default";
 
 syntax Assignment

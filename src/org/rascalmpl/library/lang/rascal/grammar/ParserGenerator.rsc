@@ -99,7 +99,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     gr = literals(gr);
     
     println("establishing production set");
-    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_,_) := p};
+    uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
     println("generating item allocations");
     newItems = generateNewItems(gr, newItem);
@@ -260,13 +260,13 @@ public &T <: value unmeta(&T <: value p) {
 
 rel[int,int] computeDontNests(Items items, Grammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
-  prodItems = (p:items[rhs][item(p,size(lhs)-1)].itemId | /Production p:prod(list[Symbol] lhs,Symbol rhs, _) := grammar);
+  prodItems = (p:items[rhs][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations
   dnn       = {doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[father.rhs][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
+  return {<items[father.def][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
 }
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
@@ -277,14 +277,14 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
   map[Item,tuple[str new, int itemId]] fresh = ();
   
   visit (g) {
-    case Production p:prod([],Symbol s,_) : {
+    case Production p:prod(Symbol s,[],_) : {
        int counter = newItem();
        items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
     }
-    case Production p:prod(list[Symbol] lhs, Symbol s,_) : 
+    case Production p:prod(Symbol s,list[Symbol] lhs, _) : 
       for (int i <- index(lhs)) 
         items[s]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem, i));
-    case Production p:regular(Symbol s, _) :
+    case Production p:regular(Symbol s) :
       switch(s) {
         case \iter(Symbol elem) : 
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
@@ -346,8 +346,8 @@ private bool isNonterminal(Symbol s) {
 }
 
 public str generateParseMethod(Items items, bool callSuper, Production p) {
-  return "public void <sym2name(p.rhs)>() {
-         '  <if (callSuper) {>super.<sym2name(p.rhs)>();<}>
+  return "public void <sym2name(p.def)>() {
+         '  <if (callSuper) {>super.<sym2name(p.def)>();<}>
          '  <generateExpect(items, p, false)>
          '}";
 }
@@ -359,7 +359,7 @@ public str generateExpect(Items items, Production p, bool reject){
     switch (p) {
       case prod(_,_,_) : 
 	       return "// <p>
-	              'expect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.rhs)>.<value2id(p)>);";
+	              'expect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.def)>.<value2id(p)>);";
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
                '  <generateExpect(items, q, reject)>
@@ -370,15 +370,15 @@ public str generateExpect(Items items, Production p, bool reject){
         return "if (<generateClassConditional(classes)>) {
                '  <generateExpect(items, q, reject)>
                '} else {
-               '  <generateExpect(items, choice(q.rhs, rest), reject)>
+               '  <generateExpect(items, choice(q.def, rest), reject)>
                '}";
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){>
                '<generateExpect(items, q, reject)><}>";
       case priority(_, list[Production] ps) : 
-        return generateExpect(items, choice(p.rhs, { q | q <- ps }), reject);
+        return generateExpect(items, choice(p.def, { q | q <- ps }), reject);
       case associativity(_,_,set[Production] ps) :
-        return generateExpect(items, choice(p.rhs, ps), reject); 
+        return generateExpect(items, choice(p.def, ps), reject); 
     }
     
     throw "not implemented <p>";
@@ -489,7 +489,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \sort(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \empty() : 
-            return <"new EmptyStackNode(<itemId>, <dot>, <value2id(regular(sym,\no-attrs()))>, <filters>)", itemId>;
+            return <"new EmptyStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
         case \lex(n) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \keywords(n) : 
@@ -503,35 +503,35 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         case \start(s) : 
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
-            if (/p:prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
+            if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
                 return <"new LiteralStackNode(<itemId>, <dot>, <value2id(p)>, new char[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
-            if (/p:prod(list[Symbol] chars,sym,_) := grammar.rules[sym])
+            if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
                 return <"new CaseInsensitiveLiteralStackNode(<itemId>, <dot>, <value2id(p)>, new char[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
-            return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym,\no-attrs()))>, <sym2newitem(grammar, s, id, 0).new>, true, <filters>)",itemId>;
+            return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, true, <filters>)",itemId>;
         case \iter-star(s) :
-            return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym,\no-attrs()))>, <sym2newitem(grammar, s, id, 0).new>, false, <filters>)", itemId>;
+            return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, false, <filters>)", itemId>;
         case \iter-seps(Symbol s,list[Symbol] seps) : {
-            reg = regular(sym,\no-attrs());
+            reg = regular(sym);
             return <"new SeparatedListStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, true, <filters>)",itemId>;
         }
         case \iter-star-seps(Symbol s,list[Symbol] seps) : {
-            reg = regular(sym,\no-attrs());
+            reg = regular(sym);
             return <"new SeparatedListStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, false, <filters>)",itemId>;
         }
         case \opt(s) : {
-            reg =  regular(sym,\no-attrs());
+            reg =  regular(sym);
             return <"new OptionalStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, <filters>)", itemId>;
         }
         case \alt(as) : {
             alts = [a | a <- as];
-            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateAltExpects(grammar, id, alts)>}, <filters>)", itemId>;
+            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym))>, new AbstractStackNode[]{<generateAltExpects(grammar, id, alts)>}, <filters>)", itemId>;
         }
         case \seq(ss) : {
-            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym, \no-attrs()))>, new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
+            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym))>, new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode(<itemId>, <dot>, new char[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
@@ -580,7 +580,7 @@ public str value2id(value v) {
 
 str v2i(value v) {
     switch (v) {
-        case item(p:prod(_,Symbol u,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
+        case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
         case "cons"(str x) : return "cons_<escId(x)>";

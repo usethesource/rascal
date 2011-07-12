@@ -29,23 +29,28 @@ data Tree
   | erroramb(set[Tree] alternatives)
   | errorcycle(Symbol symbol, int cycleLength)
   ;
-  
+
+@doc{
+  Productions are the rules of a grammar, with a defined non-terminal, a list
+  of terminal and non-terminal symbols and a possibly empty set of attributes.
+}
 data Production 
-  = prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) 
-  | regular(Symbol rhs, Attributes attributes)
+  = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) 
+  | regular(Symbol def)
   ;
 
-data Attributes 
-  = \no-attrs() 
-  | \attrs(list[Attr] attrs)
-  ;
-  
+@doc{
+  Attributes document additional semantics of a production rule. Neither tags nor
+  brackets are processed by the parser generator. Rather downstream processors are
+  activated by these. Associativity is a parser generator feature though. 
+}
 data Attr 
   = \assoc(Associativity \assoc)  
-  | \term(value \term) 
+  | \tag(value \tag) 
   | \bracket() 
   ;
 
+@doc{These are the kinds of associativity}
 data Associativity 
   = \left() 
   | \right() 
@@ -57,22 +62,30 @@ data CharRange = range(int begin, int end);
 
 alias CharClass = list[CharRange];
 
+@doc{The start symbol wraps any symbol to indicate it will occur at the top}
+data Symbol = \start(Symbol symbol);
+
+@doc{These symbols are the named non-terminals} 
 data Symbol 
-  = \start(Symbol symbol)
-// named non-terminals 
-  | \sort(str string)  
+  = \sort(str string)  
   | \lex(str string) 
   | \layouts(str name) 
   | \keywords(str name)
   | \parameterized-sort(str sort, list[Symbol] parameters)  
   | \parameter(str name)
-  | \label(str name, Symbol symbol) 
-// terminals 
-  | \lit(str string) 
+  | \label(str name, Symbol symbol)
+  ; 
+
+@doc{These are the terminal symbols}
+data Symbol 
+  = \lit(str string) 
   | \cilit(str string)
-  | \char-class(list[CharRange] ranges)  
-// regular expressions
-  | \empty()  
+  | \char-class(list[CharRange] ranges)
+  ;
+    
+@doc{These are the regular expressions}
+data Symbol
+  = \empty()  
   | \opt(Symbol symbol)  
   | \iter(Symbol symbol)   
   | \iter-star(Symbol symbol)   
@@ -80,8 +93,10 @@ data Symbol
   | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
   | \alt(set[Symbol] alternatives)
   | \seq(list[Symbol] sequence)
-  | \conditional(Symbol symbol, set[Condition] conditions)
   ;
+  
+@doc{The conditional wrapper adds conditions to the existance of an instance of a symbol}
+data Symbol = \conditional(Symbol symbol, set[Condition] conditions);
 
 @doc{Conditions on symbols give rise to disambiguation filters.}    
 data Condition

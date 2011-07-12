@@ -530,7 +530,7 @@ public class ASTBuilder {
 		ISet alternatives = TreeAdapter.getAlternatives(pattern);
 		List<Expression> result = new ArrayList<Expression>(alternatives.size());
 		 
-		IConstructor expected = ProductionAdapter.getRhs(TreeAdapter.getProduction(antiQuote));
+		IConstructor expected = ProductionAdapter.getType(TreeAdapter.getProduction(antiQuote));
 
 		// any alternative that is a typed variable must be parsed using a 
 		// MetaVariable that produced exactly the same type as is declared inside
@@ -705,7 +705,7 @@ public class ASTBuilder {
 			}
 			Expression result = (Expression) buildValue(arg);
 		
-			if (result != null && correctlyNestedPattern(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree)), result)) {
+			if (result != null && correctlyNestedPattern(TreeAdapter.getType(tree), result)) {
 				return result;
 			}
 			return null;
@@ -833,7 +833,7 @@ public class ASTBuilder {
 	private boolean isRascalLiteral(IConstructor tree) {
 		if (TreeAdapter.isAppl(tree)) {
 			IConstructor prod = TreeAdapter.getProduction(tree);
-			IConstructor rhs = ProductionAdapter.getRhs(prod);
+			IConstructor rhs = ProductionAdapter.getType(prod);
 			
 			if (SymbolAdapter.isParameterizedSort(rhs) && SymbolAdapter.getName(rhs).equals("_WrappedLiteral")) {
 				return true;

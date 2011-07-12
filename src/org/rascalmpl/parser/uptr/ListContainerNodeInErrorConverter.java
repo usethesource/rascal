@@ -99,10 +99,10 @@ public class ListContainerNodeInErrorConverter{
 			}
 		}
 		
-		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
+		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(production), VF.integer(1));
 		cycle = actionExecutor.filterListCycle(cycle, environment);
 		if(cycle == null){
-			cycle = VF.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getRhs(production), VF.integer(1));
+			cycle = VF.constructor(Factory.Tree_Error_Cycle, ProductionAdapter.getType(production), VF.integer(1));
 		}
 		
 		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
@@ -266,7 +266,7 @@ public class ListContainerNodeInErrorConverter{
 			
 			// Splice the elements into the list if the ambiguity cluster got filtered properly.
 			if(TreeAdapter.isAppl(prefixResult)){
-				if(ProductionAdapter.getRhs(TreeAdapter.getProduction(prefixResult)).equals(ProductionAdapter.getRhs(production))){
+				if(ProductionAdapter.getType(TreeAdapter.getProduction(prefixResult)).equals(ProductionAdapter.getType(production))){
 					IConstructor filteredAlternative = gatheredPrefixes.get(0);
 					IList filteredAlternativeChildrenList = TreeAdapter.getArgs(filteredAlternative);
 					
@@ -343,7 +343,7 @@ public class ListContainerNodeInErrorConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor rhsSymbol = ProductionAdapter.getRhs(node.getFirstProduction());
+			IConstructor rhsSymbol = ProductionAdapter.getType(node.getFirstProduction());
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhsSymbol, VF.integer(depth - index));
 			cycle = actionExecutor.filterListCycle(cycle, environment);
 			if(cycle == null){

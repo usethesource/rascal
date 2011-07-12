@@ -16,12 +16,12 @@ import Set;
 import IO;
 
 public Grammar expandRegularSymbols(Grammar G) {
-  for (Symbol rhs <- G.rules) {
-    if (choice(rhs, {regular(rhs, _)}) := G.rules[rhs]) { 
+  for (Symbol def <- G.rules) {
+    if (choice(def, {regular(def)}) := G.rules[def]) { 
       set[Production] init = {};
       
-      for (p <- expand(rhs)) {
-        G.rules[p.rhs]?init += {p};
+      for (p <- expand(def)) {
+        G.rules[p.def]?init += {p};
       }
     }
   }
@@ -31,22 +31,22 @@ public Grammar expandRegularSymbols(Grammar G) {
 public set[Production] expand(Symbol s) {
   switch (s) {
     case \opt(t) : 
-      return {choice(s,{prod([],s,\no-attrs()),prod([t],s,\no-attrs())})};
+      return {choice(s,{prod(s,[],{}),prod(s,[t],{})})};
     case \iter(t) : 
-      return {choice(s,{prod([t],s,\no-attrs()),prod([t,s],s,\no-attrs())})};
+      return {choice(s,{prod(s,[t],{}),prod(s,[t,s],{})})};
     case \iter-star(t) : 
-      return {choice(s,{prod([],s,\no-attrs()),prod([iter(t)],s,\no-attrs())})} + expand(iter(t));
+      return {choice(s,{prod(s,[],{}),prod(s,[iter(t)],{})})} + expand(iter(t));
     case \iter-seps(t,list[Symbol] seps) : 
-      return {choice(s, {prod([t],s,\no-attrs()),prod([t,seps,s],s,\no-attrs())})};
+      return {choice(s, {prod(s,[t],{}),prod(s,[t,seps,s],{})})};
     case \iter-star-seps(t, list[Symbol] seps) : 
-      return {choice(s,{prod([],s,\no-attrs()),prod([\iter-seps(t,seps)],s,\no-attrs())})} 
+      return {choice(s,{prod(s,[],{}),prod(s,[\iter-seps(t,seps)],{})})} 
              + expand(\iter-seps(t,seps));
     case \alt(set[Symbol] alts) :
-      return {choice(s, {prod([a],s,\no-attrs()) | a <- alts})};
+      return {choice(s, {prod(s,[a],{}) | a <- alts})};
     case \seq(list[Symbol] elems) :
-      return {prod(elems, s, \no-attrs())};
+      return {prod(s,elems, {})};
     case \empty() :
-      return {prod([],s,\no-attrs())};
+      return {prod(s,[],{})};
    }   
 
    throw "missed a case <s>";                   
@@ -59,10 +59,10 @@ public Grammar makeRegularStubs(Grammar g) {
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {
-  return {regular(reg,\no-attrs()) | /Production p:prod(_,_,_) <- prods, sym <- p.lhs, reg <- regular(sym) };
+  return {regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
 }
 
-private set[Symbol] regular(Symbol s) {
+private set[Symbol] getRegular(Symbol s) {
   result = {};
   visit (s) {
      case t:\opt(Symbol n) : 

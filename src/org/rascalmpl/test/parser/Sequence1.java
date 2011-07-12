@@ -42,12 +42,12 @@ public class Sequence1 extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_d = VF.constructor(Factory.Symbol_Lit, VF.string("d"));
 	private final static IConstructor SYMBOL_char_d = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(100))));
 	
-	private final static IConstructor PROD_S_a_SEQbc_d = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_a, SYMBOL_SEQ_bc, SYMBOL_d), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_SEQbc = VF.constructor(Factory.Production_Regular, SYMBOL_SEQ_bc, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_a), SYMBOL_a, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_b_b = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_b), SYMBOL_b, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_c_c = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_c), SYMBOL_c, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_d_d = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_d), SYMBOL_d, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_a_SEQbc_d = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_a, SYMBOL_SEQ_bc, SYMBOL_d), VF.set());
+	private final static IConstructor PROD_SEQbc = VF.constructor(Factory.Production_Regular, SYMBOL_SEQ_bc);
+	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
+	private final static IConstructor PROD_b_b = VF.constructor(Factory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
+	private final static IConstructor PROD_c_c = VF.constructor(Factory.Production_Default,  SYMBOL_c, VF.list(SYMBOL_char_c), VF.set());
+	private final static IConstructor PROD_d_d = VF.constructor(Factory.Production_Default,  SYMBOL_d, VF.list(SYMBOL_char_d), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, 0, PROD_a_a, new char[]{'a'});
@@ -69,7 +69,7 @@ public class Sequence1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "appl(prod([lit(\"a\"),seq([lit(\"b\"),lit(\"c\")]),lit(\"d\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(97)])],lit(\"a\"),\\no-attrs()),[char(97)]),appl(regular(seq([lit(\"b\"),lit(\"c\")]),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)]),appl(prod([\\char-class([single(99)])],lit(\"c\"),\\no-attrs()),[char(99)])]),appl(prod([\\char-class([single(100)])],lit(\"d\"),\\no-attrs()),[char(100)])])";
+		String expectedInput = "appl(prod(sort(\"S\"),[lit(\"a\"),seq([lit(\"b\"),lit(\"c\")]),lit(\"d\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)]),appl(regular(seq([lit(\"b\"),lit(\"c\")])),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)]),appl(prod(lit(\"c\"),[\\char-class([single(99)])],{}),[char(99)])]),appl(prod(lit(\"d\"),[\\char-class([single(100)])],{}),[char(100)])])";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 	

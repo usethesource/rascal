@@ -39,28 +39,28 @@ bool isNonterminal(Symbol x) {
 }
 
 public set[Production] quotes() {
-  return {prod(str2syms(q),lit(q),\no-attrs()) | q <- ["`","(",")","\<","\>"] };
+  return {prod(lit(q),str2syms(q),{}) | q <- ["`","(",")","\<","\>"] };
 }
 
 public set[Production] layoutProductions(Grammar object) {
-  return {prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term("lex"())]))};
+  return {prod(layouts("$QUOTES"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{})};
 }
 
 private Symbol rl = layouts("$QUOTES");
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] fromRascal(Grammar object) {
-  return  { prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteQuoted"))])),
-        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Expression")),attrs([term("cons"("ConcreteTypedQuoted"))])),
-        prod([lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteQuoted"))])),
-        prod([lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],meta(sort("Pattern")),attrs([term("cons"("ConcreteTypedQuoted"))])),
-        { prod(str2syms(L),l,\no-attrs()) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
+  return  {prod(meta(label("ConcreteQuoted",sort("Expression"))),[lit("`"),rl,nont,rl,lit("`")],{}),
+        prod(meta(label("ConcreteTypedQuoted",sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
+        prod(meta(label("ConcreteQuoted",sort("Pattern"))),[lit("`"),rl,nont,rl,lit("`")],{}),
+        prod(meta(label("ConcreteTypedQuoted",sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
+        { prod(l,str2syms(L),{}) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
       | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
 }
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] toRascal(Grammar object) {
-  return  { prod([lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],nont,attrs([term("cons"("MetaVariable"))])) 
+  return  { prod(label("MetaVariable",nont),[lit("\<"),rl,meta(sort("Pattern")),rl,lit("\>")],{}) 
           | Symbol nont <- object.rules, isNonterminal(nont)};
 }
 

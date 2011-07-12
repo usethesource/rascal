@@ -41,13 +41,13 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
 	private final static IConstructor SYMBOL_char_b = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(98))));
 	
-	private final static IConstructor PROD_S_Aab = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_A, SYMBOL_ab), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_S_bab = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_bab), SYMBOL_START_S, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_A_B = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_B), SYMBOL_A, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_B_b = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_b), SYMBOL_B, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_b_b = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_b), SYMBOL_b, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_ab_ab = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), SYMBOL_ab, VF.constructor(Factory.Attributes_NoAttrs));
-	private final static IConstructor PROD_bab_bab = VF.constructor(Factory.Production_Default, VF.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), SYMBOL_bab, VF.constructor(Factory.Attributes_NoAttrs));
+	private final static IConstructor PROD_S_Aab = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A, SYMBOL_ab), VF.set());
+	private final static IConstructor PROD_S_bab = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_bab), VF.set());
+	private final static IConstructor PROD_A_B = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_B), VF.set());
+	private final static IConstructor PROD_B_b = VF.constructor(Factory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_b), VF.set());
+	private final static IConstructor PROD_b_b = VF.constructor(Factory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
+	private final static IConstructor PROD_ab_ab = VF.constructor(Factory.Production_Default,  SYMBOL_ab, VF.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), VF.set());
+	private final static IConstructor PROD_bab_bab = VF.constructor(Factory.Production_Default,  SYMBOL_bab, VF.list(SYMBOL_char_b, SYMBOL_char_a, SYMBOL_char_b), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
@@ -79,7 +79,7 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "amb({appl(prod([sort(\"A\"),lit(\"ab\")],sort(\"S\"),\\no-attrs()),[appl(prod([sort(\"B\")],sort(\"A\"),\\no-attrs()),[appl(prod([lit(\"b\")],sort(\"B\"),\\no-attrs()),[appl(prod([\\char-class([single(98)])],lit(\"b\"),\\no-attrs()),[char(98)])])]),appl(prod([\\char-class([single(98)]),\\char-class([single(97)]),\\char-class([single(98)])],lit(\"ab\"),\\no-attrs()),[char(97),char(98)])]),appl(prod([lit(\"bab\")],sort(\"S\"),\\no-attrs()),[appl(prod([\\char-class([single(98)]),\\char-class([single(97)]),\\char-class([single(98)])],lit(\"bab\"),\\no-attrs()),[char(98),char(97),char(98)])])})";
+		String expectedInput = "amb({appl(prod(sort(\"S\"),[sort(\"A\"),lit(\"ab\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])]),appl(prod(lit(\"ab\"),[\\char-class([single(98)]),\\char-class([single(97)]),\\char-class([single(98)])],{}),[char(97),char(98)])]),appl(prod(sort(\"S\"),[lit(\"bab\")],{}),[appl(prod(lit(\"bab\"),[\\char-class([single(98)]),\\char-class([single(97)]),\\char-class([single(98)])],{}),[char(98),char(97),char(98)])])})";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
 	}
 

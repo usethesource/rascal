@@ -29,7 +29,7 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		super(id, dot);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
+		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
 		
 		this.children = generateChildren(child);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
@@ -39,7 +39,7 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getRhs(production))+id; // Add the id to make it unique.
+		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
 		
 		this.children = generateChildren(child);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
