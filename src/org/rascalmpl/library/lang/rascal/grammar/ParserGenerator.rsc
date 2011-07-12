@@ -103,7 +103,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
  
     println("generating item allocations");
     newItems = generateNewItems(gr, newItem);
-   
+    
     println("computing priority and associativity filter");
     rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
     // this creates groups of children that forbidden below certain parents
@@ -348,37 +348,37 @@ private bool isNonterminal(Symbol s) {
 public str generateParseMethod(Items items, bool callSuper, Production p) {
   return "public void <sym2name(p.def)>() {
          '  <if (callSuper) {>super.<sym2name(p.def)>();<}>
-         '  <generateExpect(items, p, false)>
+         '  <generateExpect(items, p)>
          '}";
 }
 
-public str generateExpect(Items items, Production p, bool reject){
+public str generateExpect(Items items, Production p){
     // note that this code heavily leans on the fact that production combinators are normalized 
     // (distribution and factoring laws have been applied to put a production expression in canonical form)
     
     switch (p) {
       case prod(_,_,_) : 
 	       return "// <p>
-	              'expect<reject ? "Reject" : "">(<value2id(p)>, <sym2name(p.def)>.<value2id(p)>);";
+	              'expect(<value2id(p)>, <sym2name(p.def)>.<value2id(p)>);";
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
-               '  <generateExpect(items, q, reject)>
+               '  <generateExpect(items, q)>
                '}";
       case choice(_, {l:lookahead(_, _, q)}) :
-        return generateExpect(items, l, reject);
+        return generateExpect(items, l);
       case choice(_, {lookahead(_, classes, Production q), set[Production] rest}) :
         return "if (<generateClassConditional(classes)>) {
-               '  <generateExpect(items, q, reject)>
+               '  <generateExpect(items, q)>
                '} else {
-               '  <generateExpect(items, choice(q.def, rest), reject)>
+               '  <generateExpect(items, choice(q.def, rest))>
                '}";
       case choice(_, set[Production] ps) :
         return "<for (Production q <- ps){>
-               '<generateExpect(items, q, reject)><}>";
+               '<generateExpect(items, q)><}>";
       case priority(_, list[Production] ps) : 
-        return generateExpect(items, choice(p.def, { q | q <- ps }), reject);
+        return generateExpect(items, choice(p.def, { q | q <- ps }));
       case associativity(_,_,set[Production] ps) :
-        return generateExpect(items, choice(p.def, ps), reject); 
+        return generateExpect(items, choice(p.def, ps)); 
     }
     
     throw "not implemented <p>";
