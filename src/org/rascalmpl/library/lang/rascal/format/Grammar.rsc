@@ -124,28 +124,6 @@ test prod2rascal(
 	"EXP \"||\" EXP \n\t\> EXP \"-\" EXP \n\t\> EXP \"+\" EXP ";	
 */
 
-public str attrs2mods(Attributes as) {
-  switch (as) {
-    case \no-attrs(): 
-      return "";
-      
-    case \attrs([list[Attr] a,term(node zz:"cons"(str c)),list[Attr] b]) : {
-      return attrs2mods(\attrs([a,b])) + "<c>: ";
-      }
-      
-    case \attrs([a,b*]): {
-        if(size(b) == 0)
-           return "<attr2mod(a)> ";
-        return "<attr2mod(a)> <attrs2mods(\attrs(b))>"; 
-      }
-      
-    case \attrs([]):
-    	return "";  
-    	 
-    default:   throw "attrs2rascal: missing case <attrs>";
-  }
-}
-
 /*
 test attrs2mods(\attrs([\assoc(\left())])) == "left ";
 test attrs2mods(\attrs([\assoc(\left()), \assoc(\right())])) == "left right ";
