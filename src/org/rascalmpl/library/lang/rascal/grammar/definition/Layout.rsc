@@ -51,8 +51,8 @@ public Grammar \layouts(Grammar g, Symbol l) {
     case prod(\start(y),[Symbol x],as) => prod(\start(y),[l, x, l],  as)
     case prod(sort(s),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l),as)
     case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as)
-    case prod(label(_,sort(s)),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l),as)
-    case prod(label(_,\parameterized-sort(s,n)),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as) 
+    case prod(label(t,sort(s)),list[Symbol] lhs,as) => prod(label(t,sort(s)),intermix(lhs, l),as)
+    case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l),as) 
   }
 } 
 
