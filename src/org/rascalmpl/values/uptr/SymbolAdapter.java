@@ -164,10 +164,6 @@ public class SymbolAdapter {
 		return isStarList(tree) || isPlusList(tree);
 	}
 	
-	public static boolean isCfOptLayout(IConstructor tree) {
-		return false;
-	}
-	
 	public static boolean isOpt(IConstructor tree) {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Factory.Symbol_Opt;
@@ -176,7 +172,7 @@ public class SymbolAdapter {
 	public static String toString(IConstructor symbol) {
 		// TODO: this does not do the proper escaping and such!!
 		
-		if (isSort(symbol)) {
+		if (isSort(symbol) || isLex(symbol) || isKeyword(symbol)) {
 			return getName(symbol);
 		}
 		if (isIterPlusSeps(symbol)) {
