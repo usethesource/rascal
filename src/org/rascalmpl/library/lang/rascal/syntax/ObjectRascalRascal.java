@@ -8784,12 +8784,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     // prod([lit("renaming"),layouts("LAYOUTLIST"),label("renamings",\iter-seps(sort("Renaming"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]))],sort("Renamings"),attrs([term(cons("Default"))]))
     expect(prod___lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_Renamings_attrs___term__cons___68_101_102_97_117_108_116, Renamings.prod___lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_Renamings_attrs___term__cons___68_101_102_97_117_108_116);
   }
-  public void layouts_$QUOTES() {
-    
-    
-    // prod([\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],layouts("$QUOTES"),attrs([term(lex())]))
-    expect(prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex, layouts_$QUOTES.prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex);
-  }
+  
   public void Statement() {
     
     
