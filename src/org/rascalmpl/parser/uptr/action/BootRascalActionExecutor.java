@@ -21,7 +21,6 @@ import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -41,12 +40,17 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	private static final IConstructor TYPE = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Type"));
 	private static final IConstructor MAP_EXP = (IConstructor) Factory.Symbol_ParameterizedSort.make(VF, VF.string("Mapping"), VF.list(EXP));
 	private static final IConstructor MAP_PAT = (IConstructor) Factory.Symbol_ParameterizedSort.make(VF, VF.string("Mapping"), VF.list(PAT));
+	private boolean inConcreteSyntax = false;
 
 	@Override
 	public IConstructor filterProduction(IConstructor tree,
 			Object environment) {
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		IConstructor sym = ProductionAdapter.getType(prod);
+		
+		if (inConcreteSyntax) {
+			return tree;
+		}
 		
 		if (sym.isEqual(STAT)) {
 			return filterStatement(tree, prod);
@@ -72,6 +76,10 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	private IConstructor filterArg(IConstructor tree, IConstructor prod, String father, int pos, String... children) {
 		String cons = ProductionAdapter.getConstructorName(prod);
 		
+		if (cons == null) {
+			// oops trying to filter in concrete syntax...
+			return tree;
+		}
 		if (cons.equals(father)) {
 			IList args = TreeAdapter.getArgs(tree);
 			IConstructor arg = (IConstructor) args.get(pos);

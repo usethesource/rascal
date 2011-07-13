@@ -260,14 +260,19 @@ public &T <: value unmeta(&T <: value p) {
 
 rel[int,int] computeDontNests(Items items, Grammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
-  prodItems = (p:items[rhs][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
+  prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations
   dnn       = {doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[father.def][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
+  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
 }
+
+private Symbol getType(Production p) = getType(p.def);
+private Symbol getType(label(_,s)) = s;
+private Symbol default getType(s) = s;
+
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
@@ -279,12 +284,13 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
   visit (g) {
     case Production p:prod(Symbol s,[],_) : {
        int counter = newItem();
-       items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
+       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
     }
-    case Production p:prod(Symbol s,list[Symbol] lhs, _) : 
+    case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
       for (int i <- index(lhs)) 
-        items[s]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem, i));
-    case Production p:regular(Symbol s) :
+        items[getType(s)]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem, i));
+    }
+    case Production p:regular(Symbol s) : 
       switch(s) {
         case \iter(Symbol elem) : 
           items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
@@ -453,7 +459,7 @@ public str ciliterals2ints(list[Symbol] chars){
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
-    if (sym is label) // ignore labels 
+    if (sym is label)  // ignore labels 
       sym = sym.symbol;
       
     itemId = id();
@@ -476,11 +482,11 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       enters += ["new CharPrecedeRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
-      enters += ["new AtStartOfLineRequirement()" | \start-of-line() <- conds]; 
+      enters += ["new AtStartOfLineRequirement()" | \start-of-line() <- conds];
       
       sym = sym.symbol;
       if (sym is label)
-        sym = sym.symbol;
+        sym = sym.symbol; 
     }
     
     filters  = "new IEnterFilter[] {<(enters != []) ? head(enters) : ""><for (enters != [], f <- tail(enters)) {>, <f><}>}"
@@ -580,12 +586,10 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str v2i(value v) {
-	if(label(str x,Symbol u) := v) return v2i(u);
-	
+str v2i(value v) {	
     switch (v) {
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
-        //case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
+        case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
         case "cons"(str x) : return "cons_<escId(x)>";
         case sort(str s)   : return "<s>";

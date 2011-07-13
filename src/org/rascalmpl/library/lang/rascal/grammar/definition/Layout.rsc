@@ -35,8 +35,12 @@ public GrammarDefinition \layouts(GrammarDefinition def) {
 public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
   if (/prod(l:layouts(_),_,_) := def.modules[name], l != layouts("$default$")) 
     return l;
+  else if (/prod(label(_,l:layouts(_)),_,_) := def.modules[name], l != layouts("$default$")) 
+    return l;  
   else if (i <- deps, /prod(l:layouts(_),_,_) := def.modules[i], l != layouts("$default$")) 
     return l;
+   else if (i <- deps, /prod(label(_,l:layouts(_)),_,_) := def.modules[i], l != layouts("$default$")) 
+    return l;  
   else 
     return layouts("$default$"); 
 }  
@@ -46,7 +50,9 @@ public Grammar \layouts(Grammar g, Symbol l) {
   return top-down-break visit (g) {
     case prod(\start(y),[Symbol x],as) => prod(\start(y),[l, x, l],  as)
     case prod(sort(s),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l),as)
-    case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as) 
+    case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as)
+    case prod(label(_,sort(s)),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l),as)
+    case prod(label(_,\parameterized-sort(s,n)),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l),as) 
   }
 } 
 

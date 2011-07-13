@@ -50,10 +50,10 @@ private Symbol rl = layouts("$QUOTES");
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] fromRascal(Grammar object) {
-  return  {prod(meta(label("ConcreteQuoted",sort("Expression"))),[lit("`"),rl,nont,rl,lit("`")],{}),
-        prod(meta(label("ConcreteTypedQuoted",sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
-        prod(meta(label("ConcreteQuoted",sort("Pattern"))),[lit("`"),rl,nont,rl,lit("`")],{}),
-        prod(meta(label("ConcreteTypedQuoted",sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
+  return  {prod(label("ConcreteQuoted",meta(sort("Expression"))),[lit("`"),rl,nont,rl,lit("`")],{}),
+        prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
+        prod(label("ConcreteQuoted",meta(sort("Pattern"))),[lit("`"),rl,nont,rl,lit("`")],{}),
+        prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
         { prod(l,str2syms(L),{}) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
       | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
 }
