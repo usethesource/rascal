@@ -1959,7 +1959,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod___lit___46_46_46_Prod_attrs___term__cons___79_116_104_101_114_115 = (IConstructor) _read("prod([lit(\"...\")],sort(\"Prod\"),attrs([term(cons(\"Others\"))]))", Factory.Production);
   private static final IConstructor prod___lit_fail_RascalKeywords_no_attrs = (IConstructor) _read("prod([lit(\"fail\")],keywords(\"RascalKeywords\"),\\no-attrs())", Factory.Production);
   private static final IConstructor prod___DataTarget_attrs___term__cons___69_109_112_116_121 = (IConstructor) _read("prod([],sort(\"DataTarget\"),attrs([term(cons(\"Empty\"))]))", Factory.Production);
-  private static final IConstructor prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex = (IConstructor) _read("prod([\\iter-star(\\char-class([range(9,10),range(13,13),range(32,32)]))],layouts(\"$QUOTES\"),attrs([term(lex())]))", Factory.Production);
   private static final IConstructor prod___char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_lit_non_terminal_no_attrs = (IConstructor) _read("prod([\\char-class([range(110,110)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(45,45)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(109,109)]),\\char-class([range(105,105)]),\\char-class([range(110,110)]),\\char-class([range(97,97)]),\\char-class([range(108,108)])],lit(\"non-terminal\"),\\no-attrs())", Factory.Production);
   private static final IConstructor prod___layouts_LAYOUTLIST_Commands_layouts_LAYOUTLIST_start__Commands_no_attrs = (IConstructor) _read("prod([layouts(\"LAYOUTLIST\"),sort(\"Commands\"),layouts(\"LAYOUTLIST\")],start(sort(\"Commands\")),\\no-attrs())", Factory.Production);
   private static final IConstructor prod___lit_it_Expression_attrs___term__cons___73_116 = (IConstructor) _read("prod([lit(\"it\")],sort(\"Expression\"),attrs([term(cons(\"It\"))]))", Factory.Production);
@@ -6341,16 +6340,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
       tmp[2] = new SeparatedListStackNode(4534, 2, regular__iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_no_attrs, new NonTerminalStackNode(4536, 0, "Renaming", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4538, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4540, 2, prod___char_class___range__44_44_lit___44_no_attrs, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4542, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[1] = new NonTerminalStackNode(4532, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0] = new LiteralStackNode(4530, 0, prod___char_class___range__114_114_char_class___range__101_101_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_lit_renaming_no_attrs, new char[] {114,101,110,97,109,105,110,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      return tmp;
-	}
-  }
-	
-  private static class layouts_$QUOTES {
-    public final static AbstractStackNode[] prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex = _init_prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex();
-    private static final AbstractStackNode[] _init_prod___iter_star__char_class___range__9_10_range__13_13_range__32_32_layouts_$QUOTES_attrs___term__lex() {
-      AbstractStackNode[] tmp = new AbstractStackNode[1];
-      
-      tmp[0] = new ListStackNode(4548, 0, regular__iter_star__char_class___range__9_10_range__13_13_range__32_32_no_attrs, new CharStackNode(4550, 0, new char[][]{{9,10},{13,13},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
