@@ -453,9 +453,8 @@ public str ciliterals2ints(list[Symbol] chars){
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
-    if (\label(_,n) := sym){ // ignore labels 
-      return sym2newitem(grammar, n, id, dot);
-    }
+    if (sym is label) // ignore labels 
+      sym = sym.symbol;
       
     itemId = id();
     
@@ -478,6 +477,10 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
       enters += ["new AtStartOfLineRequirement()" | \start-of-line() <- conds]; 
+      
+      sym = sym.symbol;
+      if (sym is label)
+        sym = sym.symbol;
     }
     
     filters  = "new IEnterFilter[] {<(enters != []) ? head(enters) : ""><for (enters != [], f <- tail(enters)) {>, <f><}>}"
