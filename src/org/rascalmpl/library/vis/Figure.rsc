@@ -1658,50 +1658,50 @@ public  Figure headBox(FProperty props...) {
 	return space(ellipse(props),  stdSize(10));
 }
 
-public  Figure shapeEllipse(str key, FProperty props...) {
-	return space(ellipse(props), stdId(key), stdWidth(40), stdHeight(30));
+public  Figure shapeEllipse(FProperty props...) {
+	return space(ellipse(props), props+stdWidth(40)+stdHeight(30));
 }
 
-public  Figure shapeDoubleEllipse(str key, FProperty props...) {
-	return space(ellipse(ellipse(props+stdShrink(0.8)), props),  stdId(key), stdWidth(40), stdHeight(30));
+public  Figure shapeDoubleEllipse(FProperty props...) {
+	return space(ellipse(ellipse(props+stdShrink(0.8)), props),  props+stdWidth(40)+stdHeight(30));
 }
 
-public  Figure shapeBox(str key, FProperty props...) {
-	return space(box(fig, props),stdId(key), stdWidth(40), stdHeight(30));
+public  Figure shapeBox(FProperty props...) {
+	return space(box(fig, props),props+stdWidth(40)+stdHeight(30));
 }
 
-public Figure shapeDiamond(str key, FProperty props...) {
+public Figure shapeDiamond(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
 		  return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  props+shapeConnected(true)+shapeClosed(true)),  stdId(key), stdWidth(60), stdHeight(40));
+		  props+shapeConnected(true)+shapeClosed(true)),  props+stdWidth(60)+stdHeight(40));
 }
 
-public Figure shapeParallelogram(str key, FProperty props...) {
+public Figure shapeParallelogram(FProperty props...) {
   real delta = 0.30;
   list[tuple[real x, real y]]  tup = [<delta, 0.>, <1., 0.>, <1.-delta, 1.>, <0., 1.>];
 		  return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  props+shapeConnected(true)+shapeClosed(true)),  stdId(key), stdWidth(80), stdHeight(50));
+		  props+shapeConnected(true)+shapeClosed(true)),  props+stdWidth(80)+stdHeight(50));
 }
 
-public  Figure shapeEllipse(Figure fig, str key, FProperty props...) {
-	return overlay([shapeEllipse(key, props), fig], stdId(key));
+public  Figure shapeEllipse(Figure fig, FProperty props...) {
+	return overlay([shapeEllipse(props), fig], props);
 }
 
-public  Figure shapeDoubleEllipse(Figure fig, str key, FProperty props...) {
-	return overlay([shapeDoubleEllipse(key, props), fig], stdId(key));
+public  Figure shapeDoubleEllipse(Figure fig,  FProperty props...) {
+	return overlay([shapeDoubleEllipse(props), fig], props);
 }
 
-public  Figure shapeBox(Figure fig, str key, FProperty props...) {
-	return overlay([shapeBox(key, props), fig], stdId(key));
+public  Figure shapeBox(Figure fig, FProperty props...) {
+	return overlay([shapeBox(props), fig], props);
 }
 
-public  Figure shapeDiamond(Figure fig, str key, FProperty props...) {
-	return overlay([shapeDiamond(key, props), fig], stdId(key));
+public  Figure shapeDiamond(Figure fig, FProperty props...) {
+	return overlay([shapeDiamond(props), fig], props);
 }
 
-public  Figure shapeParallelogram(Figure fig, str key, FProperty props...) {
-	return overlay([shapeParallelogram(key, props), fig], stdId(key));
+public  Figure shapeParallelogram(Figure fig, FProperty props...) {
+	return overlay([shapeParallelogram(props), fig], props);
 }
 
