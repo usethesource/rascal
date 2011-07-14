@@ -530,7 +530,7 @@ public class ASTBuilder {
 		ISet alternatives = TreeAdapter.getAlternatives(pattern);
 		List<Expression> result = new ArrayList<Expression>(alternatives.size());
 		 
-		IConstructor expected = ProductionAdapter.getType(TreeAdapter.getProduction(antiQuote));
+		IConstructor expected = TreeAdapter.getType(antiQuote);
 
 		// any alternative that is a typed variable must be parsed using a 
 		// MetaVariable that produced exactly the same type as is declared inside
@@ -718,6 +718,7 @@ public class ASTBuilder {
 		if (exp.isTypedVariable()) {
 			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
 
+			
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
 			if (SymbolAdapter.isEqual(expressionType, expected)) {
@@ -728,6 +729,8 @@ public class ASTBuilder {
 				IConstructor elem = SymbolAdapter.getSymbol(expressionType);
 				return SymbolAdapter.isEqual(elem, expected);
 			}
+			
+			return false;
 		}else if (exp.isGuarded()) {
 			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
 
