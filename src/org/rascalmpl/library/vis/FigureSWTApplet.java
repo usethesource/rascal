@@ -172,7 +172,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this.comp = comp;
 		this.device = comp.getDisplay();
-		this.renderDisplay = (comp.getParent() != null);
+		this.renderDisplay = !comp.getShell().equals(comp);
 		this.ctx = ctx;
 		initialize(comp, name, fig);
 	}
@@ -181,7 +181,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this.comp = comp;
 		this.device = comp.getDisplay();
-		this.renderDisplay = (comp.getParent() != null);
+		this.renderDisplay = !comp.getShell().equals(comp);
 		this.ctx = ctx;
 		Figure figure = FigureFactory.make(this, fig, null, null, ctx);
 		initialize(comp, name, figure);
@@ -191,7 +191,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			IEvaluatorContext ctx) {
 		this.primitives = primitives;
 		this.comp = comp;
-		this.renderDisplay = (comp.getParent() != null);
+		this.renderDisplay = !comp.getShell().equals(comp);
 		this.device = comp.getDisplay();
 		this.ctx = ctx;
 		initialize(comp, name, null);
