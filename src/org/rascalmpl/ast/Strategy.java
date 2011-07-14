@@ -113,32 +113,6 @@ public abstract class Strategy extends AbstractAST {
   
     	
   }
-  public boolean isInnermost() {
-    return false;
-  }
-
-  static public class Innermost extends Strategy {
-    // Production: sig("Innermost",[])
-  
-    
-  
-    public Innermost(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isInnermost() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStrategyInnermost(this);
-    }
-  
-    	
-  }
   public boolean isBottomUpBreak() {
     return false;
   }
@@ -161,6 +135,32 @@ public abstract class Strategy extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStrategyBottomUpBreak(this);
+    }
+  
+    	
+  }
+  public boolean isInnermost() {
+    return false;
+  }
+
+  static public class Innermost extends Strategy {
+    // Production: sig("Innermost",[])
+  
+    
+  
+    public Innermost(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isInnermost() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStrategyInnermost(this);
     }
   
     	

@@ -580,54 +580,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isNoMatch() {
-    return false;
-  }
-
-  static public class NoMatch extends Expression {
-    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
-  
-    
-    private final org.rascalmpl.ast.Expression pattern;
-    private final org.rascalmpl.ast.Expression expression;
-  
-    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-      super(node);
-      
-      this.pattern = pattern;
-      this.expression = expression;
-    }
-  
-    @Override
-    public boolean isNoMatch() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionNoMatch(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
-    }
-  
-    @Override
-    public boolean hasExpression() {
-      return true;
-    }	
-  }
   public boolean isEnumerator() {
     return false;
   }
@@ -654,6 +606,54 @@ public abstract class Expression extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionEnumerator(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getPattern() {
+      return this.pattern;
+    }
+  
+    @Override
+    public boolean hasPattern() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getExpression() {
+      return this.expression;
+    }
+  
+    @Override
+    public boolean hasExpression() {
+      return true;
+    }	
+  }
+  public boolean isNoMatch() {
+    return false;
+  }
+
+  static public class NoMatch extends Expression {
+    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
+  
+    
+    private final org.rascalmpl.ast.Expression pattern;
+    private final org.rascalmpl.ast.Expression expression;
+  
+    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+      super(node);
+      
+      this.pattern = pattern;
+      this.expression = expression;
+    }
+  
+    @Override
+    public boolean isNoMatch() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionNoMatch(this);
     }
   
     
@@ -1389,54 +1389,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isGuarded() {
-    return false;
-  }
-
-  static public class Guarded extends Expression {
-    // Production: sig("Guarded",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Expression","pattern")])
-  
-    
-    private final org.rascalmpl.ast.Type type;
-    private final org.rascalmpl.ast.Expression pattern;
-  
-    public Guarded(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
-      super(node);
-      
-      this.type = type;
-      this.pattern = pattern;
-    }
-  
-    @Override
-    public boolean isGuarded() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionGuarded(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
-    }
-  
-    @Override
-    public boolean hasType() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }	
-  }
   public boolean isVariableBecomes() {
     return false;
   }
@@ -1473,6 +1425,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getPattern() {
+      return this.pattern;
+    }
+  
+    @Override
+    public boolean hasPattern() {
+      return true;
+    }	
+  }
+  public boolean isGuarded() {
+    return false;
+  }
+
+  static public class Guarded extends Expression {
+    // Production: sig("Guarded",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Expression","pattern")])
+  
+    
+    private final org.rascalmpl.ast.Type type;
+    private final org.rascalmpl.ast.Expression pattern;
+  
+    public Guarded(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
+      super(node);
+      
+      this.type = type;
+      this.pattern = pattern;
+    }
+  
+    @Override
+    public boolean isGuarded() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionGuarded(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
       return true;
     }
     @Override

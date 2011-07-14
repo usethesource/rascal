@@ -191,43 +191,6 @@ public abstract class Type extends AbstractAST {
       return true;
     }	
   }
-  public boolean isVariable() {
-    return false;
-  }
-
-  static public class Variable extends Type {
-    // Production: sig("Variable",[arg("org.rascalmpl.ast.TypeVar","typeVar")])
-  
-    
-    private final org.rascalmpl.ast.TypeVar typeVar;
-  
-    public Variable(IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
-      super(node);
-      
-      this.typeVar = typeVar;
-    }
-  
-    @Override
-    public boolean isVariable() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitTypeVariable(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.TypeVar getTypeVar() {
-      return this.typeVar;
-    }
-  
-    @Override
-    public boolean hasTypeVar() {
-      return true;
-    }	
-  }
   public boolean isStructured() {
     return false;
   }
@@ -262,6 +225,43 @@ public abstract class Type extends AbstractAST {
   
     @Override
     public boolean hasStructured() {
+      return true;
+    }	
+  }
+  public boolean isVariable() {
+    return false;
+  }
+
+  static public class Variable extends Type {
+    // Production: sig("Variable",[arg("org.rascalmpl.ast.TypeVar","typeVar")])
+  
+    
+    private final org.rascalmpl.ast.TypeVar typeVar;
+  
+    public Variable(IConstructor node , org.rascalmpl.ast.TypeVar typeVar) {
+      super(node);
+      
+      this.typeVar = typeVar;
+    }
+  
+    @Override
+    public boolean isVariable() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeVariable(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.TypeVar getTypeVar() {
+      return this.typeVar;
+    }
+  
+    @Override
+    public boolean hasTypeVar() {
       return true;
     }	
   }

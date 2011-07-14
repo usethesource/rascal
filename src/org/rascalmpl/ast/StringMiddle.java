@@ -30,18 +30,18 @@ public abstract class StringMiddle extends AbstractAST {
   }
 
   
-  public boolean hasTail() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.StringMiddle getTail() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasTail() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.StringMiddle getTail() {
     throw new UnsupportedOperationException();
   }
   public boolean hasMid() {
@@ -89,6 +89,65 @@ public abstract class StringMiddle extends AbstractAST {
   
 
   
+  public boolean isTemplate() {
+    return false;
+  }
+
+  static public class Template extends StringMiddle {
+    // Production: sig("Template",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringMiddle","tail")])
+  
+    
+    private final org.rascalmpl.ast.MidStringChars mid;
+    private final org.rascalmpl.ast.StringTemplate template;
+    private final org.rascalmpl.ast.StringMiddle tail;
+  
+    public Template(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
+      super(node);
+      
+      this.mid = mid;
+      this.template = template;
+      this.tail = tail;
+    }
+  
+    @Override
+    public boolean isTemplate() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringMiddleTemplate(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.MidStringChars getMid() {
+      return this.mid;
+    }
+  
+    @Override
+    public boolean hasMid() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.StringTemplate getTemplate() {
+      return this.template;
+    }
+  
+    @Override
+    public boolean hasTemplate() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.StringMiddle getTail() {
+      return this.tail;
+    }
+  
+    @Override
+    public boolean hasTail() {
+      return true;
+    }	
+  }
   public boolean isMid() {
     return false;
   }
@@ -173,65 +232,6 @@ public abstract class StringMiddle extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringMiddle getTail() {
-      return this.tail;
-    }
-  
-    @Override
-    public boolean hasTail() {
-      return true;
-    }	
-  }
-  public boolean isTemplate() {
-    return false;
-  }
-
-  static public class Template extends StringMiddle {
-    // Production: sig("Template",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringMiddle","tail")])
-  
-    
-    private final org.rascalmpl.ast.MidStringChars mid;
-    private final org.rascalmpl.ast.StringTemplate template;
-    private final org.rascalmpl.ast.StringMiddle tail;
-  
-    public Template(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringMiddle tail) {
-      super(node);
-      
-      this.mid = mid;
-      this.template = template;
-      this.tail = tail;
-    }
-  
-    @Override
-    public boolean isTemplate() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringMiddleTemplate(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.MidStringChars getMid() {
-      return this.mid;
-    }
-  
-    @Override
-    public boolean hasMid() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringTemplate getTemplate() {
-      return this.template;
-    }
-  
-    @Override
-    public boolean hasTemplate() {
       return true;
     }
     @Override

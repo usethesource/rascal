@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Test;
-import org.rascalmpl.ast.Test.Labeled;
 import org.rascalmpl.ast.Test.Unlabeled;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -104,23 +103,23 @@ public class TestEvaluator {
 			super();
 		}
 		
-		public Result<IBool> visitTestLabeled(Labeled x){
-			Result<IValue> result = ResultFactory.bool(true, eval);
-//			System.err.println("visitTestLabeled: " + x);
-			
-			try{
-				result = x.getExpression().interpret(eval);
-			}catch(Throw e){
-				testResultListener.report(false, x.toString(), x.getLocation(), e);
-			}catch(Throwable e){
-				testResultListener.report(false, x.toString(), x.getLocation(), e);
-			}
-			
-			testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
-			
-			return ResultFactory.bool(result.isTrue(), eval);
-		}
-		
+//		public Result<IBool> visitTestLabeled(Labeled x){
+//			Result<IValue> result = ResultFactory.bool(true, eval);
+////			System.err.println("visitTestLabeled: " + x);
+//			
+//			try{
+//				result = x.getExpression().interpret(eval);
+//			}catch(Throw e){
+//				testResultListener.report(false, x.toString(), x.getLocation(), e);
+//			}catch(Throwable e){
+//				testResultListener.report(false, x.toString(), x.getLocation(), e);
+//			}
+//			
+//			testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
+//			
+//			return ResultFactory.bool(result.isTrue(), eval);
+//		}
+//		
 		public Result<IBool> visitTestUnlabeled(Unlabeled x){
 			Result<IValue> result = ResultFactory.bool(true, eval);
 //			System.err.println("visitTestUnlabeled: " + x);

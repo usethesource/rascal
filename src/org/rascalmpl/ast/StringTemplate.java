@@ -44,13 +44,6 @@ public abstract class StringTemplate extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasPreStats() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasPostStatsElse() {
     return false;
   }
@@ -63,6 +56,13 @@ public abstract class StringTemplate extends AbstractAST {
   }
 
   public org.rascalmpl.ast.StringMiddle getThenString() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasPreStats() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
     throw new UnsupportedOperationException();
   }
   public boolean hasElseString() {
@@ -86,18 +86,18 @@ public abstract class StringTemplate extends AbstractAST {
   public org.rascalmpl.ast.Expression getCondition() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasBody() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.StringMiddle getBody() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasPostStatsThen() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStatsThen() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBody() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.StringMiddle getBody() {
     throw new UnsupportedOperationException();
   }
   public boolean hasConditions() {
@@ -145,6 +145,76 @@ public abstract class StringTemplate extends AbstractAST {
   
 
   
+  public boolean isIfThen() {
+    return false;
+  }
+
+  static public class IfThen extends StringTemplate {
+    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")])
+  
+    
+    private final java.util.List<org.rascalmpl.ast.Expression> conditions;
+    private final java.util.List<org.rascalmpl.ast.Statement> preStats;
+    private final org.rascalmpl.ast.StringMiddle body;
+    private final java.util.List<org.rascalmpl.ast.Statement> postStats;
+  
+    public IfThen(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+      super(node);
+      
+      this.conditions = conditions;
+      this.preStats = preStats;
+      this.body = body;
+      this.postStats = postStats;
+    }
+  
+    @Override
+    public boolean isIfThen() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringTemplateIfThen(this);
+    }
+  
+    
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+      return this.conditions;
+    }
+  
+    @Override
+    public boolean hasConditions() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
+      return this.preStats;
+    }
+  
+    @Override
+    public boolean hasPreStats() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.StringMiddle getBody() {
+      return this.body;
+    }
+  
+    @Override
+    public boolean hasBody() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
+      return this.postStats;
+    }
+  
+    @Override
+    public boolean hasPostStats() {
+      return true;
+    }	
+  }
   public boolean isIfThenElse() {
     return false;
   }
@@ -245,76 +315,6 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public boolean hasPostStatsElse() {
-      return true;
-    }	
-  }
-  public boolean isIfThen() {
-    return false;
-  }
-
-  static public class IfThen extends StringTemplate {
-    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")])
-  
-    
-    private final java.util.List<org.rascalmpl.ast.Expression> conditions;
-    private final java.util.List<org.rascalmpl.ast.Statement> preStats;
-    private final org.rascalmpl.ast.StringMiddle body;
-    private final java.util.List<org.rascalmpl.ast.Statement> postStats;
-  
-    public IfThen(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
-      super(node);
-      
-      this.conditions = conditions;
-      this.preStats = preStats;
-      this.body = body;
-      this.postStats = postStats;
-    }
-  
-    @Override
-    public boolean isIfThen() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTemplateIfThen(this);
-    }
-  
-    
-    @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-      return this.conditions;
-    }
-  
-    @Override
-    public boolean hasConditions() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
-      return this.preStats;
-    }
-  
-    @Override
-    public boolean hasPreStats() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringMiddle getBody() {
-      return this.body;
-    }
-  
-    @Override
-    public boolean hasBody() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
-      return this.postStats;
-    }
-  
-    @Override
-    public boolean hasPostStats() {
       return true;
     }	
   }

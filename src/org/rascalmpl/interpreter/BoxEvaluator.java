@@ -236,7 +236,6 @@ import org.rascalmpl.ast.Sym.Unequal;
 import org.rascalmpl.ast.SyntaxDefinition.Keyword;
 import org.rascalmpl.ast.SyntaxDefinition.Language;
 import org.rascalmpl.ast.SyntaxDefinition.Layout;
-import org.rascalmpl.ast.Test.LabeledParameterized;
 import org.rascalmpl.ast.Test.Parameterized;
 import org.rascalmpl.ast.Test.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
@@ -2223,15 +2222,15 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
-		/** tags:Tags "test" expression:Expression ":" labeled:StringLiteral */
-		return list(
-				eX(x.getTags()),
-				H(1,
-						BoxADT.KW("test"),
-						HOV(0, eX(x.getExpression()), BoxADT.COLON,
-								eX(x.getLabel()))));
-	}
+//	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
+//		/** tags:Tags "test" expression:Expression ":" labeled:StringLiteral */
+//		return list(
+//				eX(x.getTags()),
+//				H(1,
+//						BoxADT.KW("test"),
+//						HOV(0, eX(x.getExpression()), BoxADT.COLON,
+//								eX(x.getLabel()))));
+//	}
 
 	public IValue visitTestUnlabeled(Unlabeled x) {
 		/* tags:Tags "test" expression:Expression */
@@ -3430,17 +3429,17 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitParameterizedNonterminalAmbiguity(
-			org.rascalmpl.ast.ParameterizedNonterminal.Ambiguity x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitParameterizedNonterminalLexical(
-			org.rascalmpl.ast.ParameterizedNonterminal.Lexical x) {
-		// TODO Auto-generated method stub
-		return ESC(x.getString());
-	}
+//	public IValue visitParameterizedNonterminalAmbiguity(
+//			org.rascalmpl.ast.ParameterizedNonterminal.Ambiguity x) {
+//		// TODO Auto-generated method stub
+//		return L(x.getClass().toString());
+//	}
+//
+//	public IValue visitParameterizedNonterminalLexical(
+//			org.rascalmpl.ast.ParameterizedNonterminal.Lexical x) {
+//		// TODO Auto-generated method stub
+//		return ESC(x.getString());
+//	}
 
 	public IValue visitSymParameter(Parameter x) {
 		// TODO Auto-generated method stub
@@ -3604,16 +3603,16 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
-	public IValue visitFunctionModifierTest(
-			org.rascalmpl.ast.FunctionModifier.Test x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	public IValue visitFunctionModifierTest(
+//			org.rascalmpl.ast.FunctionModifier.Test x) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
-	public IValue visitTestLabeledParameterized(LabeledParameterized x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	public IValue visitTestLabeledParameterized(LabeledParameterized x) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	public IValue visitTestParameterized(Parameterized x) {
 		// TODO Auto-generated method stub

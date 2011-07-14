@@ -138,32 +138,6 @@ public abstract class ShellCommand extends AbstractAST {
   
     	
   }
-  public boolean isListModules() {
-    return false;
-  }
-
-  static public class ListModules extends ShellCommand {
-    // Production: sig("ListModules",[])
-  
-    
-  
-    public ListModules(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isListModules() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandListModules(this);
-    }
-  
-    	
-  }
   public boolean isEdit() {
     return false;
   }
@@ -200,6 +174,32 @@ public abstract class ShellCommand extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  }
+  public boolean isListModules() {
+    return false;
+  }
+
+  static public class ListModules extends ShellCommand {
+    // Production: sig("ListModules",[])
+  
+    
+  
+    public ListModules(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isListModules() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandListModules(this);
+    }
+  
+    	
   }
   public boolean isHistory() {
     return false;
@@ -253,6 +253,32 @@ public abstract class ShellCommand extends AbstractAST {
   
     	
   }
+  public boolean isHelp() {
+    return false;
+  }
+
+  static public class Help extends ShellCommand {
+    // Production: sig("Help",[])
+  
+    
+  
+    public Help(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isHelp() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandHelp(this);
+    }
+  
+    	
+  }
   public boolean isSetOption() {
     return false;
   }
@@ -301,58 +327,6 @@ public abstract class ShellCommand extends AbstractAST {
       return true;
     }	
   }
-  public boolean isHelp() {
-    return false;
-  }
-
-  static public class Help extends ShellCommand {
-    // Production: sig("Help",[])
-  
-    
-  
-    public Help(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isHelp() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandHelp(this);
-    }
-  
-    	
-  }
-  public boolean isTest() {
-    return false;
-  }
-
-  static public class Test extends ShellCommand {
-    // Production: sig("Test",[])
-  
-    
-  
-    public Test(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isTest() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitShellCommandTest(this);
-    }
-  
-    	
-  }
   public boolean isUndeclare() {
     return false;
   }
@@ -389,5 +363,31 @@ public abstract class ShellCommand extends AbstractAST {
     public boolean hasName() {
       return true;
     }	
+  }
+  public boolean isTest() {
+    return false;
+  }
+
+  static public class Test extends ShellCommand {
+    // Production: sig("Test",[])
+  
+    
+  
+    public Test(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isTest() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandTest(this);
+    }
+  
+    	
   }
 }
