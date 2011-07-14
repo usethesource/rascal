@@ -61,32 +61,6 @@ public abstract class Assignment extends AbstractAST {
   
 
   
-  public boolean isIfDefined() {
-    return false;
-  }
-
-  static public class IfDefined extends Assignment {
-    // Production: sig("IfDefined",[])
-  
-    
-  
-    public IfDefined(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isIfDefined() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitAssignmentIfDefined(this);
-    }
-  
-    	
-  }
   public boolean isAddition() {
     return false;
   }
@@ -109,6 +83,32 @@ public abstract class Assignment extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignmentAddition(this);
+    }
+  
+    	
+  }
+  public boolean isIfDefined() {
+    return false;
+  }
+
+  static public class IfDefined extends Assignment {
+    // Production: sig("IfDefined",[])
+  
+    
+  
+    public IfDefined(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isIfDefined() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitAssignmentIfDefined(this);
     }
   
     	

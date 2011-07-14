@@ -89,6 +89,54 @@ public abstract class SyntaxDefinition extends AbstractAST {
   
 
   
+  public boolean isKeyword() {
+    return false;
+  }
+
+  static public class Keyword extends SyntaxDefinition {
+    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+  
+    
+    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.Prod production;
+  
+    public Keyword(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(node);
+      
+      this.defined = defined;
+      this.production = production;
+    }
+  
+    @Override
+    public boolean isKeyword() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSyntaxDefinitionKeyword(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getDefined() {
+      return this.defined;
+    }
+  
+    @Override
+    public boolean hasDefined() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Prod getProduction() {
+      return this.production;
+    }
+  
+    @Override
+    public boolean hasProduction() {
+      return true;
+    }	
+  }
   public boolean isLanguage() {
     return false;
   }
@@ -129,54 +177,6 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public boolean hasStart() {
       return true;
     }
-    @Override
-    public org.rascalmpl.ast.Sym getDefined() {
-      return this.defined;
-    }
-  
-    @Override
-    public boolean hasDefined() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Prod getProduction() {
-      return this.production;
-    }
-  
-    @Override
-    public boolean hasProduction() {
-      return true;
-    }	
-  }
-  public boolean isKeyword() {
-    return false;
-  }
-
-  static public class Keyword extends SyntaxDefinition {
-    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
-  
-    
-    private final org.rascalmpl.ast.Sym defined;
-    private final org.rascalmpl.ast.Prod production;
-  
-    public Keyword(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
-      super(node);
-      
-      this.defined = defined;
-      this.production = production;
-    }
-  
-    @Override
-    public boolean isKeyword() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSyntaxDefinitionKeyword(this);
-    }
-  
-    
     @Override
     public org.rascalmpl.ast.Sym getDefined() {
       return this.defined;

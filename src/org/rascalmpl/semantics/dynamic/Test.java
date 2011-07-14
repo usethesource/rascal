@@ -23,25 +23,25 @@ import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Test extends org.rascalmpl.ast.Test {
 
-	static public class Labeled extends org.rascalmpl.ast.Test.Labeled {
-
-		
-
-		public Labeled(IConstructor node, Tags tags, Name label,
-				Expression expression) {
-			super(node, tags, label, expression);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			__eval.getCurrentModuleEnvironment().addTest(this);
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
-		}
-
-	}
+//	static public class Labeled extends org.rascalmpl.ast.Test.Labeled {
+//
+//		
+//
+//		public Labeled(IConstructor node, Tags tags, Name label,
+//				Expression expression) {
+//			super(node, tags, label, expression);
+//			// TODO Auto-generated constructor stub
+//		}
+//
+//		@Override
+//		public Result<IValue> interpret(Evaluator __eval) {
+//
+//			__eval.getCurrentModuleEnvironment().addTest(this);
+//			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+//
+//		}
+//
+//	}
 
 	static public class Unlabeled extends org.rascalmpl.ast.Test.Unlabeled {
 

@@ -87,32 +87,6 @@ public abstract class Kind extends AbstractAST {
   
     	
   }
-  public boolean isRule() {
-    return false;
-  }
-
-  static public class Rule extends Kind {
-    // Production: sig("Rule",[])
-  
-    
-  
-    public Rule(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isRule() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindRule(this);
-    }
-  
-    	
-  }
   public boolean isVariable() {
     return false;
   }
@@ -135,6 +109,32 @@ public abstract class Kind extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindVariable(this);
+    }
+  
+    	
+  }
+  public boolean isRule() {
+    return false;
+  }
+
+  static public class Rule extends Kind {
+    // Production: sig("Rule",[])
+  
+    
+  
+    public Rule(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isRule() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindRule(this);
     }
   
     	
@@ -191,32 +191,6 @@ public abstract class Kind extends AbstractAST {
   
     	
   }
-  public boolean isTag() {
-    return false;
-  }
-
-  static public class Tag extends Kind {
-    // Production: sig("Tag",[])
-  
-    
-  
-    public Tag(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isTag() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindTag(this);
-    }
-  
-    	
-  }
   public boolean isData() {
     return false;
   }
@@ -239,6 +213,32 @@ public abstract class Kind extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindData(this);
+    }
+  
+    	
+  }
+  public boolean isTag() {
+    return false;
+  }
+
+  static public class Tag extends Kind {
+    // Production: sig("Tag",[])
+  
+    
+  
+    public Tag(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isTag() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindTag(this);
     }
   
     	

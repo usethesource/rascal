@@ -248,43 +248,6 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
-  public boolean isParameter() {
-    return false;
-  }
-
-  static public class Parameter extends Sym {
-    // Production: sig("Parameter",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
-  
-    
-    private final org.rascalmpl.ast.Nonterminal nonterminal;
-  
-    public Parameter(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
-      
-      this.nonterminal = nonterminal;
-    }
-  
-    @Override
-    public boolean isParameter() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymParameter(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Nonterminal getNonterminal() {
-      return this.nonterminal;
-    }
-  
-    @Override
-    public boolean hasNonterminal() {
-      return true;
-    }	
-  }
   public boolean isNonterminal() {
     return false;
   }
@@ -309,6 +272,43 @@ public abstract class Sym extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymNonterminal(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Nonterminal getNonterminal() {
+      return this.nonterminal;
+    }
+  
+    @Override
+    public boolean hasNonterminal() {
+      return true;
+    }	
+  }
+  public boolean isParameter() {
+    return false;
+  }
+
+  static public class Parameter extends Sym {
+    // Production: sig("Parameter",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+  
+    
+    private final org.rascalmpl.ast.Nonterminal nonterminal;
+  
+    public Parameter(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(node);
+      
+      this.nonterminal = nonterminal;
+    }
+  
+    @Override
+    public boolean isParameter() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymParameter(this);
     }
   
     
@@ -455,6 +455,43 @@ public abstract class Sym extends AbstractAST {
       return true;
     }	
   }
+  public boolean isStart() {
+    return false;
+  }
+
+  static public class Start extends Sym {
+    // Production: sig("Start",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
+  
+    
+    private final org.rascalmpl.ast.Nonterminal nonterminal;
+  
+    public Start(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
+      super(node);
+      
+      this.nonterminal = nonterminal;
+    }
+  
+    @Override
+    public boolean isStart() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymStart(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Nonterminal getNonterminal() {
+      return this.nonterminal;
+    }
+  
+    @Override
+    public boolean hasNonterminal() {
+      return true;
+    }	
+  }
   public boolean isIterStarSep() {
     return false;
   }
@@ -500,43 +537,6 @@ public abstract class Sym extends AbstractAST {
   
     @Override
     public boolean hasSep() {
-      return true;
-    }	
-  }
-  public boolean isStart() {
-    return false;
-  }
-
-  static public class Start extends Sym {
-    // Production: sig("Start",[arg("org.rascalmpl.ast.Nonterminal","nonterminal")])
-  
-    
-    private final org.rascalmpl.ast.Nonterminal nonterminal;
-  
-    public Start(IConstructor node , org.rascalmpl.ast.Nonterminal nonterminal) {
-      super(node);
-      
-      this.nonterminal = nonterminal;
-    }
-  
-    @Override
-    public boolean isStart() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSymStart(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Nonterminal getNonterminal() {
-      return this.nonterminal;
-    }
-  
-    @Override
-    public boolean hasNonterminal() {
       return true;
     }	
   }

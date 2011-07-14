@@ -96,65 +96,6 @@ public abstract class StringTail extends AbstractAST {
   
 
   
-  public boolean isMidTemplate() {
-    return false;
-  }
-
-  static public class MidTemplate extends StringTail {
-    // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")])
-  
-    
-    private final org.rascalmpl.ast.MidStringChars mid;
-    private final org.rascalmpl.ast.StringTemplate template;
-    private final org.rascalmpl.ast.StringTail tail;
-  
-    public MidTemplate(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
-      super(node);
-      
-      this.mid = mid;
-      this.template = template;
-      this.tail = tail;
-    }
-  
-    @Override
-    public boolean isMidTemplate() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTailMidTemplate(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.MidStringChars getMid() {
-      return this.mid;
-    }
-  
-    @Override
-    public boolean hasMid() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringTemplate getTemplate() {
-      return this.template;
-    }
-  
-    @Override
-    public boolean hasTemplate() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringTail getTail() {
-      return this.tail;
-    }
-  
-    @Override
-    public boolean hasTail() {
-      return true;
-    }	
-  }
   public boolean isMidInterpolated() {
     return false;
   }
@@ -202,6 +143,65 @@ public abstract class StringTail extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.StringTail getTail() {
+      return this.tail;
+    }
+  
+    @Override
+    public boolean hasTail() {
+      return true;
+    }	
+  }
+  public boolean isMidTemplate() {
+    return false;
+  }
+
+  static public class MidTemplate extends StringTail {
+    // Production: sig("MidTemplate",[arg("org.rascalmpl.ast.MidStringChars","mid"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")])
+  
+    
+    private final org.rascalmpl.ast.MidStringChars mid;
+    private final org.rascalmpl.ast.StringTemplate template;
+    private final org.rascalmpl.ast.StringTail tail;
+  
+    public MidTemplate(IConstructor node , org.rascalmpl.ast.MidStringChars mid,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
+      super(node);
+      
+      this.mid = mid;
+      this.template = template;
+      this.tail = tail;
+    }
+  
+    @Override
+    public boolean isMidTemplate() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringTailMidTemplate(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.MidStringChars getMid() {
+      return this.mid;
+    }
+  
+    @Override
+    public boolean hasMid() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.StringTemplate getTemplate() {
+      return this.template;
+    }
+  
+    @Override
+    public boolean hasTemplate() {
       return true;
     }
     @Override

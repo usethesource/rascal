@@ -82,6 +82,54 @@ public abstract class ImportedModule extends AbstractAST {
   
 
   
+  public boolean isRenamings() {
+    return false;
+  }
+
+  static public class Renamings extends ImportedModule {
+    // Production: sig("Renamings",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Renamings","renamings")])
+  
+    
+    private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.Renamings renamings;
+  
+    public Renamings(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
+      super(node);
+      
+      this.name = name;
+      this.renamings = renamings;
+    }
+  
+    @Override
+    public boolean isRenamings() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitImportedModuleRenamings(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Renamings getRenamings() {
+      return this.renamings;
+    }
+  
+    @Override
+    public boolean hasRenamings() {
+      return true;
+    }	
+  }
   public boolean isActualsRenaming() {
     return false;
   }
@@ -129,54 +177,6 @@ public abstract class ImportedModule extends AbstractAST {
   
     @Override
     public boolean hasActuals() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Renamings getRenamings() {
-      return this.renamings;
-    }
-  
-    @Override
-    public boolean hasRenamings() {
-      return true;
-    }	
-  }
-  public boolean isRenamings() {
-    return false;
-  }
-
-  static public class Renamings extends ImportedModule {
-    // Production: sig("Renamings",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Renamings","renamings")])
-  
-    
-    private final org.rascalmpl.ast.QualifiedName name;
-    private final org.rascalmpl.ast.Renamings renamings;
-  
-    public Renamings(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Renamings renamings) {
-      super(node);
-      
-      this.name = name;
-      this.renamings = renamings;
-    }
-  
-    @Override
-    public boolean isRenamings() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitImportedModuleRenamings(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.QualifiedName getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
       return true;
     }
     @Override

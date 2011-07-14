@@ -113,32 +113,6 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isList() {
-    return false;
-  }
-
-  static public class List extends BasicType {
-    // Production: sig("List",[])
-  
-    
-  
-    public List(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isList() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeList(this);
-    }
-  
-    	
-  }
   public boolean isReal() {
     return false;
   }
@@ -161,6 +135,32 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeReal(this);
+    }
+  
+    	
+  }
+  public boolean isList() {
+    return false;
+  }
+
+  static public class List extends BasicType {
+    // Production: sig("List",[])
+  
+    
+  
+    public List(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isList() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeList(this);
     }
   
     	
@@ -581,28 +581,28 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isReifiedConstructor() {
+  public boolean isNode() {
     return false;
   }
 
-  static public class ReifiedConstructor extends BasicType {
-    // Production: sig("ReifiedConstructor",[])
+  static public class Node extends BasicType {
+    // Production: sig("Node",[])
   
     
   
-    public ReifiedConstructor(IConstructor node ) {
+    public Node(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isReifiedConstructor() { 
+    public boolean isNode() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedConstructor(this);
+      return visitor.visitBasicTypeNode(this);
     }
   
     	
@@ -633,28 +633,28 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isNode() {
+  public boolean isReifiedConstructor() {
     return false;
   }
 
-  static public class Node extends BasicType {
-    // Production: sig("Node",[])
+  static public class ReifiedConstructor extends BasicType {
+    // Production: sig("ReifiedConstructor",[])
   
     
   
-    public Node(IConstructor node ) {
+    public ReifiedConstructor(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isNode() { 
+    public boolean isReifiedConstructor() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeNode(this);
+      return visitor.visitBasicTypeReifiedConstructor(this);
     }
   
     	
