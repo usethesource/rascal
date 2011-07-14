@@ -715,7 +715,7 @@ public class ASTBuilder {
 
 
 	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {
-		if (exp.isTypedVariable() || exp.isGuarded()) {
+		if (exp.isTypedVariable()) {
 			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
 
 			// the declared type inside the pattern must match the produced type outside the brackets
@@ -724,10 +724,16 @@ public class ASTBuilder {
 				return true;
 			}
 			
-			if (SymbolAdapter.isAnyList((IConstructor) expressionType) || SymbolAdapter.isOpt((IConstructor) expressionType)) {
-				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) expressionType);
+			if (SymbolAdapter.isAnyList(expressionType) || SymbolAdapter.isOpt(expressionType)) {
+				IConstructor elem = SymbolAdapter.getSymbol(expressionType);
 				return SymbolAdapter.isEqual(elem, expected);
 			}
+		}else if (exp.isGuarded()) {
+			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
+
+			// the declared type inside the pattern must match the produced type outside the brackets
+			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
+			return (SymbolAdapter.isEqual(expressionType, expected));
 		}
 		
 		return true;
