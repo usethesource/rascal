@@ -715,35 +715,19 @@ public class ASTBuilder {
 
 
 	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {
-		if (exp.isTypedVariable()) {
-			Expression.TypedVariable var = (Expression.TypedVariable) exp;
-			IValue type = Symbols.typeToSymbol(var.getType());
-			IValue lexType = Symbols.typeToLexSymbol(var.getType());
+		if (exp.isTypedVariable() || exp.isGuarded()) {
+			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
-			if (type.isEqual(expected) || lexType.isEqual(expected) ) {
+			if (SymbolAdapter.isEqual(expressionType, expected)) {
 				return true;
 			}
 			
-			if (SymbolAdapter.isAnyList((IConstructor) type) || SymbolAdapter.isOpt((IConstructor) type)) {
-				
-				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) type);
-				return elem.isEqual(expected);
+			if (SymbolAdapter.isAnyList((IConstructor) expressionType) || SymbolAdapter.isOpt((IConstructor) expressionType)) {
+				IConstructor elem = SymbolAdapter.getSymbol((IConstructor) expressionType);
+				return SymbolAdapter.isEqual(elem, expected);
 			}
-
-			return false;
-		}
-		else if (exp.isGuarded()) {
-			Expression.Guarded var = (Expression.Guarded) exp;
-			IValue type = Symbols.typeToSymbol(var.getType());
-
-			// the declared type inside the pattern must match the produced type outside the brackets
-			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.
-			if (type.isEqual(expected) ) {
-				return true;
-			}
-			return false;
 		}
 		
 		return true;

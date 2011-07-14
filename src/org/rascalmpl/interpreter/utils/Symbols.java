@@ -15,6 +15,7 @@ package org.rascalmpl.interpreter.utils;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -35,13 +36,13 @@ import org.rascalmpl.values.uptr.Factory;
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
 	
-	public static IValue typeToSymbol(Type type) {
+	public static IConstructor typeToSymbol(Type type) {
 		if (type.isUser()) {
-			return Factory.Symbol_Sort.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+			return (IConstructor) Factory.Symbol_Sort.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
 		}
 		
 		if (type.isSymbol()) {
-			return symbolAST2SymbolConstructor(type.getSymbol());
+			return (IConstructor) symbolAST2SymbolConstructor(type.getSymbol());
 		}
 
 		throw new RuntimeException("Can't convert type to symbol: "+type);
