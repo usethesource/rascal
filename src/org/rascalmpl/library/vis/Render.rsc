@@ -12,6 +12,7 @@
 module vis::Render
 
 import vis::Figure;
+import IO;
 
 /*
  * Library functions for rendering a figure.
@@ -19,14 +20,17 @@ import vis::Figure;
 
 public void render(Figure fig){
 	render("Rascal figure",fig);
+	}
 
 public void render(str name,Figure fig){
 	renderActual(name,normalize(fig));
 }
 
+
 public void renderSave(Figure fig,loc file){
-	renderSaveActual(fig,file);
+	renderSaveActual(normalize(fig),file);
 }
+
 
 
 @doc{Render a figure, in named tab}
@@ -34,12 +38,11 @@ public void renderSave(Figure fig,loc file){
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public void java renderActual(str name, Figure fig);
 
-/*
 @doc{Render a figure and write it to file}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public void java renderSaveActual(Figure fig, loc file);
-*/
+
 
 @doc{Set custom colors for errors}
 @javaClass{org.rascalmpl.library.vis.FigureColorUtils}
@@ -48,3 +51,11 @@ public void java setErrorColors(list[Color] colors);
 @doc{Set custom colors for editor highlights}
 @javaClass{org.rascalmpl.library.vis.FigureColorUtils}
 public void java setHighlightColors(list[Color] colors);
+
+/* for Testing
+public void r() {
+   Figure f = ellipse(size(100));
+   render(f);
+   renderSave(f, |file:///ufs/bertl/aap.png|);
+}
+*/

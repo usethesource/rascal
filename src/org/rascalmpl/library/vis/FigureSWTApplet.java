@@ -437,7 +437,6 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	public int getFigureHeight() {
-		// System.err.println("getFigureHeight: " + figureHeight);
 		return FigureApplet.round(figureHeight);
 	}
 
@@ -1123,8 +1122,8 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 	void changeRes() {
-		Composite p = comp.getParent().getParent().getParent().getParent();
-		Point size = p.getSize();
+		// Composite p = comp.getParent().getParent().getParent().getParent();
+		// Point size = p.getSize();
 
 		// p.getClientArea().width;
 
