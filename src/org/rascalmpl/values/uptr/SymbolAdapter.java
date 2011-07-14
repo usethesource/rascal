@@ -17,6 +17,7 @@ package org.rascalmpl.values.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -73,13 +74,17 @@ public class SymbolAdapter {
 		
 	public static IConstructor getSymbol(IConstructor tree) {
 		tree = delabel(tree);
-		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree)) {
+		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree) || isConditional(tree)) {
 			return ((IConstructor) tree.get("symbol"));
 		}
 		
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 	
+	private static boolean isConditional(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Symbol_Conditional;
+	}
+
 	public static String getLabelName(IConstructor tree) {
 		return ((IString) tree.get("name")).getValue();
 	}
@@ -123,6 +128,7 @@ public class SymbolAdapter {
 	public static boolean isParameterizedSort(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_ParameterizedSort;
 	}
+
 	
 	public static boolean isLiteral(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Lit;
@@ -280,5 +286,122 @@ public class SymbolAdapter {
 
 	public static boolean isEmpty(IConstructor rhs) {
 		return rhs.getConstructorType() == Factory.Symbol_Empty;
+	}
+	
+	/**
+	 * Computes symbol equality modulo lex/sort/layout/keyword distinction and modulo labels and conditions
+	 */
+	public static boolean isEqual(IConstructor l, IConstructor r) {
+		while (isLabel(l)) {
+			l = getLabeledSymbol(l);
+		}
+		
+		while (isLabel(r)) {
+			r = getLabeledSymbol(r);
+		}
+		
+		while (isConditional(l)) {
+			l = getSymbol(l);
+		}
+		
+		while (isConditional(r)) {
+			r = getSymbol(r);
+		}
+		
+		if (isSort(l) || isLex(l) || isKeyword(l) || isLayouts(l)) {
+			if (isLex(r) || isSort(r) || isKeyword(r) || isLayouts(r)) {
+				return getName(l).equals(getName(r));
+			}
+		}
+		
+		if (isParameterizedSort(l) && isParameterizedSort(r)) {
+			return getName(l).equals(getName(r)) && isEqual(getParameters(l), getParameters(r));
+		}
+		
+		if (isParameter(l) && isParameter(r)) {
+			return getName(l).equals(getName(r));
+		}
+		
+		if ((isIterPlusSeps(l) && isIterPlusSeps(r)) || (isIterStarSeps(l) && isIterStarSeps(r))) {
+			return isEqual(getSymbol(l), getSymbol(r)) && isEqual(getSeparators(l), getSeparators(r));
+		}
+		
+		if ((isIterPlus(l) && isIterPlus(r)) || (isIterStar(l) && isIterStar(r)) || (isOpt(l) && isOpt(r))) {
+			return isEqual(getSymbol(l), getSymbol(r));
+		}
+		
+		if (isEmpty(l) && isEmpty(r)) {
+			return true;
+		}
+		
+		if (isAlt(l) && isAlt(r)) {
+			return isEqual(getAlternatives(l), getAlternatives(r));
+		}
+		
+		if (isSeq(l) && isSeq(r)) {
+			return isEqual(getSequence(l), getSequence(r));
+		}
+		
+		if ((isLiteral(l) && isLiteral(r)) || (isCILiteral(l) && isCILiteral(r)) || (isCharClass(l) && isCharClass(r))) {
+			return l.isEqual(r);
+		}
+		
+		return false;
+	}
+
+	private static IList getParameters(IConstructor l) {
+		return (IList) l.get("parameters");
+	}
+
+	private static boolean isCharClass(IConstructor r) {
+		return r.getConstructorType() == Factory.Symbol_CharClass;
+	}
+
+	private static IList getSequence(IConstructor r) {
+		return (IList) r.get("sequence");
+	}
+
+	private static boolean isEqual(ISet l, ISet r) {
+		if (l.size() != r.size()) {
+			return false;
+		}
+		
+		OUTER:for (IValue le : l) {
+			for (IValue re : r) {
+				if (isEqual((IConstructor) le, (IConstructor) re)) {
+					continue OUTER; // found a match
+				}
+
+				return false; // no partner found
+			}
+		}
+
+		return true;
+	}
+
+	private static ISet getAlternatives(IConstructor r) {
+		return (ISet) r.get("alternatives");
+	}
+
+	private static boolean isAlt(IConstructor l) {
+		return l.getConstructorType() == Factory.Symbol_Alt;
+	}
+
+	private static boolean isSeq(IConstructor l) {
+		return l.getConstructorType() == Factory.Symbol_Seq;
+	}
+	
+	private static boolean isEqual(IList l, IList r) {
+		if (l.length() != r.length()) {
+			return false;
+		}
+			
+		for (int i = 0; i < l.length(); i++) {
+			if (!isEqual((IConstructor) l.get(i), (IConstructor) r.get(i))) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 }
