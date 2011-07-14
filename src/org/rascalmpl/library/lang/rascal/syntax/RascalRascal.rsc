@@ -161,10 +161,8 @@ syntax Kind
 	| Tag: "tag" ;
 
 syntax Test
-	= Labeled: Tags tags "test" Name label Expression expression 
-	| Unlabeled: Tags tags "test" Expression expression
+	= Unlabeled: Tags tags "test" Expression expression
 	| Parameterized: Tags tags "test" Parameters parameters Expression expression
-	| LabeledParameterized: Tags tags "test" Name label Parameters parameters Expression expression 
 	;
 
 syntax ImportedModule
