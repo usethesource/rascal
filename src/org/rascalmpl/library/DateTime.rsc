@@ -188,7 +188,7 @@ data duration = Duration(int years, int months, int days,
                          int hours, int minutes, int seconds, int milliseconds);
 
 @javaClass{org.rascalmpl.library.DateTime}
-private tuple[int,int,int,int,int,int,int] java createDurationInternal(datetime begin, datetime end);
+private java tuple[int,int,int,int,int,int,int] createDurationInternal(datetime begin, datetime end);
 
 // TODO: Add an exception for the non-matching case
 @doc{Create a new duration representing the duration between the begin and end dates.}
