@@ -31,19 +31,19 @@ public map[IdCon, set[IdCon]] canReach(FSM fsm){
 // Examples and tests
 
 public FSM example0 =
-	   finite-state machine
+	   `finite-state machine
 	      state S1;
-    	  state S2;
-	      trans a: S1 -> S2;
+	      state S2;
+	      trans a: S1 -> S2`;
 
 public FSM example = 
-       finite-state machine
+       `finite-state machine
           state S1;
     	  state S2;
 	      state S3;
 	      trans a: S1 -> S2;
 	      trans b: S2 -> S1;
-	      trans a: S1 -> S3;
+	      trans a: S1 -> S3`;
 
 IdCon S1 = (IdCon) `S1`;
 IdCon S2 = (IdCon) `S2`;
