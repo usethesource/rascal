@@ -8,14 +8,14 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::sdf2::util::SDF2Grammar
-     
+      
 // Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
    
 // Todo List:
 // - Some tests are marked with @ignore (and commented out) since they trigger a Rascal bug:
 //   . The expression: `(Group) `A -> B <1>`; triggers a bug in AST construction
 //   . The test (Class) `[]` == \char-class([]);  // gives unsupported operation
-    
+                    
 import IO;
 import String;
 import Integer;
@@ -26,20 +26,44 @@ import lang::sdf2::syntax::Sdf2;
 import lang::rascal::syntax::Characters;
 import lang::rascal::syntax::Normalization;
        
-public Grammar sdf2grammar(loc input) {
+public GrammarDefinition sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
 
-public Grammar sdf2module2grammar(str name, list[loc] path) {
+public GrammarDefinition sdf2module2grammar(str name, list[loc] path) {
   return sdf2grammar(loadSDF2Module(name, path));
 }
 
-// Convert given SDF definition
+// {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{})}
 
-public Grammar sdf2grammar(SDF definition) {
-  return dup(grammar(getStartSymbols(definition), 
-                 getProductions(definition) 
-                 + {prod([\iter-star(sort("LAYOUT"))],layouts("LAYOUTLIST"),\no-attrs())}));
+public GrammarDefinition sdf2grammar(SDF def) {
+  if ((SDF) `definition <Module* mods>` := def) {
+    ms = ();
+    for (Module m <- mods) {
+      gm = getModule(m);
+      ms[gm.name] = gm;
+    } 
+    
+    return definition("Main", ms);
+  }
+  
+  throw "Unknown format for SDF2";
+}
+
+public GrammarModule getModule(Module m) {
+  if (/<ModuleId id> := m) {
+    name = visit("<id>") { case /\// => "::" };
+    prods = getProductions(m);
+    imps = getImports(m); 
+    // note that imports in SDF2 have the semantics of extends in Rascal
+    return \module(name, {}, imps, dup(grammar({}, prods)));
+  }
+  
+  throw "can not found module name in <m>";
+}
+
+public set[str] getImports(Module m) {
+  return { visit ("<imp>") { case /\// => "::" } | /Import i := m, /ModuleId imp := i}; 
 }
 
 public Grammar dup(Grammar g) {
@@ -50,11 +74,13 @@ public Grammar dup(Grammar g) {
   }
   
   g = visit(g) {
-    case prod(l,r,a1) : if ({p:prod(l,r,_), _*} := prods) insert p;
+    case prod(l,r,a1) : 
+      if ({p:prod(l,r,_), _*} := prods) 
+        insert p;
   }
   
-  ordered = { p | /\first(_,/Production p:prod(_,_,_)) := g }
-          + { p | /\assoc(_,_,/Production p:prod(_,_,_)) := g};
+  ordered = { p | /\priority(_,/Production p:prod(_,_,_)) := g }
+          + { p | /\associativity(_,_,/Production p:prod(_,_,_)) := g};
   
   // for toplevel alternatives
   for (nt <- g.rules, p <- g.rules[nt], p in ordered) {
@@ -69,23 +95,15 @@ public Grammar dup(Grammar g) {
   return g;
 }
 
-public Attributes fuse(Attributes a1, Attributes a2) {
-  switch (<a1,a2>) {
-    case <\no-attrs(),_>         : return a2;
-    case <_,\no-attrs()>         : return a1;
-    case <attrs(as1),attrs(as2)> : return attrs(as1+as2);
-  }
-  throw "unexpected attrs <a1> or <a2>";
-}
-
 test bool test1() = sdf2grammar(
         `definition 
          module X
          exports
            context-free syntax
               "abc" -> ABC`).rules[sort("ABC")] ==
-         {prod([lit("abc")],sort("ABC"),\no-attrs())};
+         {prod(sort("ABC"),[lit("abc")],{})};
 
+// \char-class([range(97,122),range(48,57)])
 test bool test2() = rs := sdf2grammar(
 		`definition
 		 module PICOID
@@ -94,8 +112,7 @@ test bool test2() = rs := sdf2grammar(
              [a-z] [a-z0-9]* -> PICO-ID  
            lexical restrictions
              PICO-ID -/- [a-z0-9]`).rules 
-     && prod([\char-class([range(97,122)]),\iter-star(\char-class([range(97,122),range(48,57)]))],sort("PICO-ID"),attrs([\lex()])) in rs[sort("PICO-ID")]          
-     && restrict(sort("PICO-ID"),others(sort("PICO-ID")),{prod([\char-class([range(97,122),range(48,57)])],restricted(sort("PICO-ID")),\no-attrs())}) in rs[sort("PICO-ID")]              
+     && prod(lex("PICO-ID"),[\char-class([range(97,122)]),\conditional(\iter-star(\char-class([range(97,122),range(48,57)])),{\not-follow(\char-class([range(97,122),range(48,57)]))})],{}) in rs[lex("PICO-ID")]          
      ;
      
 test bool test3() = rs := sdf2grammar(
@@ -104,12 +121,12 @@ test bool test3() = rs := sdf2grammar(
          exports
            lexical syntax
              ~[\0-\31\n\t\"\\]          -> StrChar {cons("normal")}`).rules
-     && prod([\char-class([range(26,33),range(35,91),range(93,65535)])],sort("StrChar"),attrs([term("cons"("normal")),\lex()])) in rs[sort("StrChar")]
+     && prod(label("normal",sort("StrChar")),[\char-class([range(26,33),range(35,91),range(93,65535)])],{}) in rs[sort("StrChar")]
      ;
        
-public set[Production] getProductions(SDF definition) {
+public set[Production] getProductions(Module mod) {
  res = {};
- visit (definition) {
+ visit (mod) {
     case (Grammar) `syntax <Prod* prods>`:
     	res += getProductions(prods, true);
     	
@@ -118,15 +135,6 @@ public set[Production] getProductions(SDF definition) {
     	
     case (Grammar) `context-free syntax <Prod* prods>`:
     	res += getProductions(prods, false);
-    	
-    	case (Grammar) `restrictions <Restriction* rests>`:
-    	res += getRestrictions(rests, false);
-    	
-    case (Grammar) `lexical restrictions <Restriction* rests>`:
-    	res += getRestrictions(rests, true);
-    	
-    case (Grammar) `context-free restrictions <Restriction* rests>` :
-    	res += getRestrictions(rests, false);
     	
     case (Grammar) `priorities <{Priority ","}* prios>`:
     	res += getPriorities(prios,false);
@@ -140,23 +148,33 @@ public set[Production] getProductions(SDF definition) {
   return res;
 }
 
+//case (Grammar) `restrictions <Restriction* rests>`:
+    //  res += getRestrictions(rests, false);
+    //  
+    //case (Grammar) `lexical restrictions <Restriction* rests>`:
+    //  res += getRestrictions(rests, true);
+        
+    //case (Grammar) `context-free restrictions <Restriction* rests>` :
+    //  res += getRestrictions(rests, false);
+    //  
+    
 test bool test4() = getProductions((SDF) `definition module A exports syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),attrs([\lex()]))};
+     {prod(sort("B"),[sort("A")],{})};
      
 test bool test5() = getProductions((SDF) `definition module A exports lexical syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),attrs([\lex()]))};
+     {prod(lex("B"),[sort("A")],{})};
      
 test bool test6() = getProductions((SDF) `definition module A exports lexical syntax A -> B B -> C`) ==
-     {prod([sort("B")],sort("C"),attrs([\lex()])),prod([sort("A")],sort("B"),attrs([\lex()]))};
+     {prod(lex("C"),[sort("B")],{}),prod(lex("B"),[sort("A")],{})};
      
 test bool test7() = getProductions((SDF) `definition module A exports context-free syntax A -> B`) ==
-     {prod([sort("A")],sort("B"),\no-attrs())};
+     {prod(sort("B"),[sort("A")],sort("B"),{})};
      
-test bool test8() = getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
-     {restrict(sort("ID"),others(sort("ID")),{prod([\char-class([range(97,122)])],restricted(sort("ID")),\no-attrs())})};
-    
 test bool test9() = getProductions((SDF) `definition module A exports priorities A -> B > C -> D`) ==
-     {first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())])};
+     {prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{})};
+
+test bool test9() = getProductions((SDF) `definition module A exports priorities B "*" B -> B > B "+" B -> B`) ==
+     {priority(sort("B"),[prod(sort("B"),[sort("B"),lit("*"),sort("B")],{}),prod(sort("B"),[sort("B"),lit("+"),sort("B")],{})])};
 
 
 public set[Production] getProductions(Prod* prods, bool isLex){
@@ -165,44 +183,21 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 
 Production fixParameters(Production input) {
   return innermost visit(input) {
-    case prod(lhs, \parameterized-sort(str name, [pre*, sort(str x), post*]), as) =>
-         prod(visit (lhs) { case sort(x) => \parameter(x) }, \parameterized-sort(name,[pre,\parameter(x),post]),as)
+    case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
+         prod(\parameterized-sort(name,[pre,\parameter(x),post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
   }
 }
 
 public Production getProduction(Prod P, bool isLex) {
   switch (P) {
-    case (Prod) `<Syms syms> -> <Sym sym>`:
-    	return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([\lex()]))
-    	               : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
+    case (Prod) `<Syms syms> -> <Sort sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
+        return prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {});
       
+    case (Prod) `<Syms syms> -> <Sort sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
+        return prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `));
+          
     case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` :
- 		if(attrs([list[Attr] a]) := getAttributes(ats)) {
- 		    newSym = getSymbol(sym, isLex);
-    		result = (isLex) ? prod(getSymbols(syms, isLex),newSym, \attrs([a, \lex()]))
-    	               	     : prod(getSymbols(syms, isLex),newSym, \attrs([a]));
-    	    
-    	    if (term("reject"()) in a) {
- 		       return diff(newSym, \others(newSym), {result});
- 		    }
- 		    return result;
-    	}
-    	else {
-    		return (isLex) ? prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\attrs([\lex()]))
-    	               	   : prod(getSymbols(syms, isLex),getSymbol(sym, isLex),\no-attrs());
-    	}
-    	
-    //case (Prod) `<IdCon id> (<{Sym ","}* syms>) -> <Sym sym>`:
-    //	throw "prefix functions not supported by SDF import yet";
-    //	
-    //case (Prod) `<IdCon id> (<{Sym ","}* syms>) -> <Sym sym> {<{Attribute ","}* attrs>}` :
-    //	throw "prefix functions not supported by SDF import yet";
-    //	
-    //case (Prod) `<StrCon s> (<{Sym ","}* syms>) -> <Sym sym>`:
-    //	throw "prefix functions not supported by SDF import yet";
-    //	
-    //case (Prod) `<StrCon s> (<{Sym ","}* syms>) -> <Sym sym> {<{Attribute ","}* attrs>}` :
-    //	throw "prefix functions not supported by SDF import yet";
+        return prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats));
     	
     default:
     	throw "missing case <P>";
@@ -210,30 +205,28 @@ public Production getProduction(Prod P, bool isLex) {
 }
 
 test bool test10() = getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, false) == 
-     prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs());
+     prod(sort("ID-TYPE"),[sort("PICO-ID"),lit(":"),sort("TYPE")],{});
      
 test bool test11() = getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
-     prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([\lex()]));
+     prod(sort("ID-TYPE"),[sort("PICO-ID"),lit(":"),sort("TYPE")],attrs([\lex()]));
 
 test bool test12() = getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, false) ==
-     prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
-               sort("ID-TYPE"),
-               attrs([term("cons"("decl")),\assoc(left())]));
+     prod(sort("ID-TYPE"),[sort("PICO-ID"), lit(":"), sort("TYPE")],{\assoc(left())});
                
 test bool test13() = getProduction((Prod) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
-	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term("cons"("whitespace")),\lex()]));
-
+	 prod(sort("LAYOUT"),[\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],{});
+ 
 test bool test14() = getProduction((Prod) `{~[\n]* [\n]}* -> Rest`, true) ==
-     prod([\iter-star-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[\char-class([range(10,10)])])],sort("Rest"),attrs([\lex()]));
+     prod(sort("Rest"),[\iter-star-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[\char-class([range(10,10)])])],{});
 
 
 // ----- getRestrictions, getRestriction -----
 
-public set[Production] getRestrictions(Restriction* restrictions, bool isLex) {
+public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
   return { getRestriction(r, isLex) | Restriction r <- restrictions };
 }
 
-public set[Production] getRestriction(Restriction restriction, bool isLex) {
+public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
   switch (restriction) {
     case (Restriction) `-/- <Lookaheads ls>` :
     	return {};
@@ -244,51 +237,51 @@ public set[Production] getRestriction(Restriction restriction, bool isLex) {
            + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
            
     case (Restriction) `<Sym s1> -/- <Lookaheads ls>` :
-      return {restrict(getSymbol(s1, isLex), others(getSymbol(s1, isLex)), getLookaheads(getSymbol(s1,isLex),ls))};
+      return {conditional(getSymbol(s1, isLex), {\not-follow(l) | l <- getLookaheads(ls) })};
       
-    default:
-    	throw "missing case <restriction>";
+    default: {
+       println("Warning: ignored <restriction>");
+       return {};
+    }
   }
 }
 
 test bool test18() = getRestriction((Restriction) `-/- [a-z]`, true) == {};
 
 test bool test19() = getRestriction((Restriction) `ID -/- [a-z]`, true) == 
-     {restrict(sort("ID"),others(sort("ID")),{prod([\char-class([range(97,122)])],restricted(sort("ID")),\no-attrs())})};
+     {conditional(sort("ID"),{\not-follow(\char-class([range(97,122)]))})};
    
 
 // ----- getLookaheads, getLookahead -----
 
-public set[Production] getLookaheads(Symbol sym, Lookaheads ls) {
+public set[Symbol] getLookaheads(Lookaheads ls) {
    switch (ls) {
      case (Lookaheads) `<Class c>` :
-     	return {prod([getCharClass(c)],restricted(sym),\no-attrs())};
-     	
-     case (Lookaheads) `<Class c>.<Lookaheads ls>` :
-     	return {prod([getCharClass(c)] + x, restricted(sym), \no-attrs()) | prod(list[Symbol] x, _,_) <- getLookaheads(sym,ls)};
+     	return {getCharClass(c)};
+     	  	
      case (Lookaheads) `<Lookaheads l> | <Lookaheads r>` :
-     	return getLookaheads(sym,l) + getLookaheads(sym,r);
+     	return getLookaheads(l) + getLookaheads(r);
      	
      case (Lookaheads) `(<Lookaheads l>)` :
-     	return getLookaheads(sym,l);
+     	return getLookaheads(l);
      	
-     case (Lookaheads) `[[<{Lookahead ","}* _>]]`:
-     	throw "unsupported lookahead construction <ls>";
-     	
-     default: throw "unsupported lookahead construction <ls>";
+     default: {
+        println("Warning: ignored <ls>");
+        return {};
+     }
    }
 }
  
-test bool test21() = getLookaheads(sort("X"), (Lookaheads) `[a-z]`) == 
-     {prod([\char-class([range(97,122)])],restricted(sort("X")),\no-attrs())};
+test bool test21() = getLookaheads((Lookaheads) `[a-z]`) == 
+     {\char-class([range(97,122)])};
      
-test bool test22() = getLookaheads(sort("X"), (Lookaheads) `[a-z] . [0-9]`) ==
-     {prod([\char-class([range(97,122)]),\char-class([range(48,57)])],restricted(sort("X")),\no-attrs())};
+test bool test22() = getLookaheads((Lookaheads) `[a-z] . [0-9]`) ==
+     {};
        
-test bool test23() = getLookaheads(sort("X"), (Lookaheads) `([a-z] . [0-9]) | [\"]`) ==
-     {prod([\char-class([range(97,122)]),\char-class([range(48,57)])], restricted(sort("X")),\no-attrs()),
-      prod([\char-class([range(34,34)])],restricted(sort("X")),\no-attrs())};
-     
+test bool test23() = getLookaheads((Lookaheads) `([a-z] ) | [\"]`) ==
+     {\char-class([range(97,122)]),
+      \char-class([range(34,34)])};
+      
 // ----- getPriorities, getPriority -----
 
 public set[Production] getPriorities({Priority ","}* priorities, bool isLex) {
@@ -317,23 +310,22 @@ public Production getPriority(Group group, bool isLex) {
 }
      	
 test bool test24() = getPriority((Group) `A -> B`, false) == 
-     prod([sort("A")],sort("B"),\no-attrs());
+     prod([sort("A")],sort("B"),{});
      
 test bool test25() = getPriority((Group) `A -> B .`, false) == 
-     prod([sort("A")],sort("B"),\no-attrs());
+     prod([sort("A")],sort("B"),{});
      
-//@ignore
-//test bool test26() = getPriority((Group) `A -> B <1>`, false) == 
-//     prod([sort("A")],sort("B"),\no-attrs());
+test bool test26() = getPriority((Group) `A -> B <1>`, false) == 
+     prod(sort("B"),[sort("A")],{});
       
 test bool test27() = getPriority((Group) `{A -> B C -> D}`, false) == 
-	 choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});  
+	 choice(sort("B"),{prod([sort("C")],sort("D"),{}),prod([sort("A")],sort("B"),{})});  
 	  
 test bool test28() = getPriority((Group) `{left: A -> B}`, false) == 
-     \assoc(sort("B"),\left(),{prod([sort("A")],sort("B"),\no-attrs())});
+     \associativity(sort("B"),\left(),{prod([sort("A")],sort("B"),{})});
      
 test bool test29() = getPriority((Group) `{left: A -> B B -> C}`, false) ==
-     \assoc(sort("B"),\left(),{prod([sort("B")],sort("C"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
+     \associativity(sort("B"),\left(),{prod([sort("B")],sort("C"),{}),prod([sort("A")],sort("B"),{})});
 
 public Production getPriority(Priority priority, bool isLex) {
    switch (priority) {
@@ -341,31 +333,30 @@ public Production getPriority(Priority priority, bool isLex) {
      	return getPriority(g, isLex);
          
      case (Priority) `<Group g1> <Assoc a> <Group g2>` : 
-       return \assoc(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<Group g1>`, isLex), getPriority((Priority) `<Group g2>`,isLex)});
+       return \associativity(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<Group g1>`, isLex), getPriority((Priority) `<Group g2>`,isLex)});
  
      case (Priority) `<{Group "\>"}+ groups>` : 
-       return first(definedSymbol(groups,isLex), [getPriority(group,isLex) | Group group <- groups]);
+       return priority(definedSymbol(groups,isLex), [getPriority(group,isLex) | Group group <- groups]);
    }
 }
 
 test bool test30() = getPriority((Priority) `A -> B`, false) == 
-     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs())]);
+     priority(sort("B"),[prod(sort("B"),[sort("A")],{})]);
      
 test bool test31() = getPriority((Priority) `A -> B .`, false) == 
-     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs())]);
+     priority(sort("B"),[prod([sort("A")],{})]);
 
-//@ignore   
-//test bool test32) = getPriority((Priority) `A -> B <1>`, false) == 
-//     prod([sort("A")],sort("B"),\no-attrs());
+test bool test32() = getPriority((Priority) `A -> B <1>`, false) == 
+     prod(sort("B"),[sort("A")],{});
      
 test bool test33() = getPriority((Priority) `{A -> B C -> D}`, false) == 
-     first(sort("B"),[choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())})]);
+     first(sort("B"),[choice(sort("B"),{prod(sort("D"),[sort("C")],{}),prod(sort("B"),[sort("A")],{})})]);
      
 test bool test34() = getPriority((Priority) `A -> B > C -> D`, false) ==
-     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())]);
+     first(sort("B"),[prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{})]);
      
 test bool test35() = getPriority((Priority) `A -> B > C -> D > E -> F`, false) ==
-     first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs()),prod([sort("E")],sort("F"),\no-attrs())]);
+     first(sort("B"),[prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{}),prod(sort("F"),[sort("E")],{})]);
 
 // ----- definedSymbol -----
 
@@ -382,9 +373,9 @@ public Symbol definedSymbol((&T <: Tree) v, bool isLex) {
 
 // ----- getStartSymbols -----
 
-public set[Symbol] getStartSymbols(SDF definition) {
+public set[Symbol] getStartSymbols(Module mod) {
   result = {};
-  visit(definition) {
+  visit(mod) {
     case (Grammar) `context-free start-symbols <Sym* syms>` :
     	result += { getSymbol(sym, true) | sym <- syms };
     case (Grammar) `lexical start-symbols <Sym* syms>`      :
@@ -480,11 +471,11 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `{<Sym s> <Sym sep>} +`  :
     	return \iter-seps(getSymbol(s,isLex), [getSymbol(sep, isLex)]);
     	
-    case (Sym) `{<Sym s> <Sym sep>} *?` :
-    	return \iter-star-seps(getSymbol(s,isLex),  [getSymbol(sep, isLex)]);
-    	
-    case (Sym) `{<Sym s> <Sym sep>} +?` :
-    	return \opt(\iter-seps(getSymbol(s,isLex),  [getSymbol(sep, isLex)]));
+    case (Sym) `<Sym s>?` :
+        return \opt(getSymbol(s, isLex));
+        
+    case (Sym) `(<Symbol* seq>)` :
+        return seq([getSymbol(e, isLex) | e <- seq]);
     	
     default: throw "missed a case <sym>";
   } 
@@ -701,50 +692,50 @@ test bool testCCX7() = ((Character) `\n`)   == 10;
 
 // ----- getAttributes, getAttribute, getAssociativity -----
 
-public Attributes getAttributes(Attrs as) {
+public set[Attr] getAttributes(Attrs as) {
   if ((Attrs) `{ <{Attribute ","}* mods> }` := as) {
-	  return attrs([getAttribute(m) | Attribute m <- mods]);
+	  return {getAttribute(m) | Attribute m <- mods};
   }
-  return \no-attrs();
+  return {};
 }
    
 test bool testAs() = getAttributes((Attrs) `{left, cons("decl")}`) == attrs([\assoc(\left()),term("cons"("decl"))]);
 
-public Attr getAttribute(Attribute m) {
+public set[Attr] getAttribute(Attribute m) {
   switch (m) {
     case (Attribute) `<Assoc as>`:
-     	return \assoc(getAssociativity(as));
+     	return {\assoc(getAssociativity(as))};
      	
     case (Attribute) `bracket`:
-    	return \bracket();
+    	return {\bracket()};
     
-    case (Attribute) `cons(<StrCon c>)` : {
-    	return term("cons"(unescape(c)));
-    	}
+    case (Attribute) `cons(<StrCon c>)` : 
+        return {};
+        
     case (Attribute) `memo`:
-    	return term("memo"());
+    	return {\tag("memo"())};
     	
     case (Attribute) `prefer`:
-        return term("prefer"());
+        return {\tag("prefer"())};
         
     case (Attribute) `avoid` :
-        return term("avoid"());
+        return {\tag("avoid"())};
     	
     case (Attribute) `reject` :
-        return term("reject"());
+        return {};
         
     case (Attribute) `<IdCon c>(<StrCon a>)` : 
-        return term("<c>"(unescape(a)));
+        return {\tag("<c>"(unescape(a)))};
         
     case (Attribute) `<ATerm t>`:
-        return term("<t>");
+        return {\tag("<t>")};
         
-    default: throw "missed a case <m>";
+    default: 
+        return {};
   }
 }
 
 test bool testAs2() = getAttribute((Attribute) `left`)        == \assoc(\left());
-test bool testAs3() = getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
  
 private Associativity getAssociativity(Assoc as){
   switch (as) {
