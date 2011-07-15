@@ -38,22 +38,14 @@ public class TestEvaluator {
 	}
 
 	public void test(String moduleName) {
-		Environment old = eval.getCurrentEnvt();
+		ModuleEnvironment topModule = (ModuleEnvironment) eval.getHeap().getModule(moduleName);
 		
-		ModuleEnvironment module = eval.getHeap().getModule(moduleName);
-		if (module == null) {
-			throw new IllegalArgumentException();
-		}
-		
-		try {
-			eval.setCurrentEnvt(module);
-			eval.pushEnv();
-			test();
-		}
-		finally {
-			eval.unwind(module);
-			if (old != null) {
-				eval.setCurrentEnvt(old);
+		if (topModule != null) {
+			runTests(topModule, topModule.getTests());
+
+			for (String i : topModule.getImports()) {
+				ModuleEnvironment mod = topModule.getImport(i);
+				runTests(mod, mod.getTests());
 			}
 		}
 	}
