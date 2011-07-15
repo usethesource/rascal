@@ -46,13 +46,13 @@ public str grammar2rascal(Grammar g, list[Symbol] nonterminals) {
 }
 
 bool same(Production p, Production q) {
-  return p.rhs == q.rhs;
+  return p.def == q.def;
 }
 
 public str topProd2rascal(Production p) {
-  if (regular(_,_) := p) return "";
+  if (regular(_) := p) return "";
   
-  return "<(\start(_) := p.rhs) ? "start ":""><(\layouts(_) := p.rhs) ? "layout <layoutname(p.rhs)>" : "syntax <symbol2rascal(p.rhs)>">
+  return "<(\start(_) := p.def) ? "start ":""><(\layouts(_) := p.def) ? "layout <layoutname(p.def)>" : "syntax <symbol2rascal(p.def)>">
          '  = <prod2rascal(p)>
          '  ;";
 }
@@ -64,7 +64,7 @@ str layoutname(Symbol s) {
 }
 
 public str alt2rascal(Production p) {
-  return "<symbol2rascal(p.rhs)> = <prod2rascal(p)>";
+  return "<symbol2rascal(p.def)> = <prod2rascal(p)>";
 }
 
 public str prod2rascal(Production p) {
@@ -93,10 +93,10 @@ public str prod2rascal(Production p) {
     case others(sym):
         return "...";
  
-    case prod(list[Symbol] lhs,Symbol rhs,Attributes attrs) :
-      	return "<attrs2mods(attrs)><for(s <- lhs){><symbol2rascal(s)> <}>";
+    case prod(Symbol rhs,list[Symbol] lhs,set[Attr] as) :
+      	return "<for (a <- as) {><attr2mod(a)><}><for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    case regular(_,_) :
+    case regular(_) :
     	    return "";
     
     default: throw "missed a case <p>";
