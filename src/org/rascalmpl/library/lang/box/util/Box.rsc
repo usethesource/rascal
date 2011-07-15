@@ -45,4 +45,4 @@ anno int Box@height;
 @javaClass{org.rascalmpl.library.box.MakeBox}
 @reflect{Uses URI Resolver Registry}
 
-public Box java makeBox(loc file);
+public java Box makeBox(loc file);

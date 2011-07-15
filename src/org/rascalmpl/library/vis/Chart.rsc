@@ -524,48 +524,48 @@ public alias realSeriesMultipleData =
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, map[str,int] facts, ChartProperty settings...);
+public java void barChart(str title, map[str,int] facts, ChartProperty settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, map[str,real] facts, ChartProperty settings...);
+public java void barChart(str title, map[str,real] facts, ChartProperty settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, list[str] categories, list[intSeries] facts, ChartProperty settings...);
+public java void barChart(str title, list[str] categories, list[intSeries] facts, ChartProperty settings...);
 
 @doc{draw a bar chart}
 @javaClass{org.rascalmpl.library.viz.BarChart}
-public void java barChart(str title, list[str] categories, list[realSeries] facts, ChartProperty settings...);
+public java void barChart(str title, list[str] categories, list[realSeries] facts, ChartProperty settings...);
 
 // boxPlot aka BoxAndWiskerPlot
 
 @doc{draw a boxPlot}
 @javaClass{org.rascalmpl.library.viz.BoxPlot}
-public void java boxplot(str title, list[intSeriesMultipleData] facts, ChartProperty settings...);
+public java void boxplot(str title, list[intSeriesMultipleData] facts, ChartProperty settings...);
 
 @doc{draw a boxplot}
 @javaClass{org.rascalmpl.library.viz.BoxPlot}
-public void java boxplot(str title, list[realSeriesMultipleData] facts, ChartProperty settings...);
+public java void boxplot(str title, list[realSeriesMultipleData] facts, ChartProperty settings...);
 
 // histogram
 
 @doc{draw a histogram}
 @javaClass{org.rascalmpl.library.viz.Histogram}
-public void java histogram(str title, list[intSeries] facts, int nbins, ChartProperty settings...);
+public java void histogram(str title, list[intSeries] facts, int nbins, ChartProperty settings...);
 
 @doc{draw a histogram}
 @javaClass{org.rascalmpl.library.viz.Histogram}
-public void java histogram(str title, list[realSeries] facts, int nbins, ChartProperty settings...);
+public java void histogram(str title, list[realSeries] facts, int nbins, ChartProperty settings...);
 
 // xyChart
 
 @doc{draw an xy chart}
 @javaClass{org.rascalmpl.library.viz.XYChart}
-public void java xyChart(str title, list[intSeries] facts, ChartProperty settings...);
+public java void xyChart(str title, list[intSeries] facts, ChartProperty settings...);
 
 @doc{draw an xy chart}
 @javaClass{org.rascalmpl.library.viz.XYChart}
-public void java xyChart(str title, list[realSeries] facts, ChartProperty settings...);
+public java void xyChart(str title, list[realSeries] facts, ChartProperty settings...);
 
 ***/

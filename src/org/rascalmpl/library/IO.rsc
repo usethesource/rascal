@@ -17,12 +17,12 @@ import Exception;
 @doc{Print a value on the output stream and add a newline.}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
-public void java println(value arg);
+public java void println(value arg);
 
 @doc{Print a value on the output stream.}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
-public void java print(value arg);
+public java void print(value arg);
 
 @doc{Print and return true, for debugging complex Boolean expressions or comprehensions}
 public bool bprintln(value arg) 
@@ -34,12 +34,12 @@ public bool bprintln(value arg)
 @doc{Print a in indented representation of a value and add a newline at the end}
 @reflect{for getting IO streams}
 @javaClass{org.rascalmpl.library.IO}
-public bool java iprintln(value arg); 
+public java bool iprintln(value arg); 
 
 @doc{Print a in indented representation of a value}
 @reflect{for getting IO streams}
 @javaClass{org.rascalmpl.library.IO}
-public bool java iprint(value arg); 
+public java bool iprint(value arg); 
 
 @doc{Print and return true, for debugging complex Boolean expressions or comprehensions}
 public bool bprint(value arg) 
@@ -51,65 +51,65 @@ public bool bprint(value arg)
 @doc{Print a value on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
-public void java rprintln(value arg);
+public java void rprintln(value arg);
 
 @doc{Print a value on the output stream, but do not convert parse trees or remove quotes from strings}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{for getting IO streams}
-public void java rprint(value arg);
+public java void rprint(value arg);
 
 @doc{Read a named file as list of strings.}
 @deprecated{Use @see str readFile(loc file)}
 @javaClass{org.rascalmpl.library.IO}
-public list[str] java readFile(str filename)
+public java list[str] readFile(str filename)
 throws NoSuchFileError(str msg), IOError(str msg);
 
 @doc{Read the contents from a file location}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public str java readFile(loc file)
+public java str readFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{Check whether a certain location exists}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public bool java exists(loc file);
+public java bool exists(loc file);
 
 @doc{Check last modification time of location}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public datetime java lastModified(loc file);
+public java datetime lastModified(loc file);
 
 @doc{Check whether a certain location is a directory}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public bool java isDirectory(loc file);
+public java bool isDirectory(loc file);
 
 @doc{Create a directory}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public bool java mkDirectory(loc file);
+public java bool mkDirectory(loc file);
 
 @doc{Check whether a certain location is a file}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public bool java isFile(loc file);
+public java bool isFile(loc file);
 
 @doc{List the entries in a directory}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public list[str] java listEntries(loc file);
+public java list[str] listEntries(loc file);
 
 @doc{Read the contents from a file location into a list of lines.}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public list[str] java readFileLines(loc file)
+public java list[str] readFileLines(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{Read the contents from a file location into a list of bytes.}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public list[int] java readFileBytes(loc file)
+public java list[int] readFileBytes(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 
@@ -121,7 +121,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 }
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public void java writeFile(loc file, value V...)
+public java void writeFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{Write a textual representation of some values to a file
@@ -132,7 +132,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 }
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public void java appendToFile(loc file, value V...)
+public java void appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{locate a (file) name in a certain path}

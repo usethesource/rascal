@@ -19,12 +19,12 @@ import String;
 public str backquote = "`";
 
 @javaClass{org.rascalmpl.library.SystemAPI}
-public str java getSystemProperty(str property);
+public java str getSystemProperty(str property);
 
 /*
 @doc{Returns content of location <loc> which is assumed a rascal program. The backquotes
 will be replaced by stringquotes. And the stringquotes inside them will be escaped.}
 @javaClass{org.rascalmpl.library.SystemAPI}
-public str java getRascalFileContent(loc g) throws 
+public java str getRascalFileContent(loc g) throws 
               UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 */

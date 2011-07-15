@@ -16,9 +16,9 @@ module AUT
 
 }
 @javaClass{org.rascalmpl.library.AUT}
-public rel[int, str, int] java readAUT(str nameAUTFile);
+public java rel[int, str, int] readAUT(str nameAUTFile);
 
 @doc{write an AUT file}
 @javaClass{org.rascalmpl.library.AUT}
-public void java writeAUT(str nameAUTFile, rel[int, str, int] r);
+public java void writeAUT(str nameAUTFile, rel[int, str, int] r);
 

@@ -18,14 +18,12 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.ast.Test;
-import org.rascalmpl.ast.Test.Unlabeled;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 
 public class TestEvaluator {
@@ -71,75 +69,34 @@ public class TestEvaluator {
 		}
 	}
 	
-	private void runTests(ModuleEnvironment env, List<Test> tests){
-		Environment old = eval.getCurrentEnvt();
+	private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
+		testResultListener.start(tests.size());
+
 		try {
-			eval.setCurrentEnvt(env);
-			
-			Visitor visitor = new Visitor();
-			testResultListener.start(tests.size());
-			for(int i = tests.size() - 1; i >= 0; i--){
-				try {
-					eval.pushEnv();
-					tests.get(i).accept(visitor);
+			for(int i = tests.size() - 1; i >= 0; i--) {
+				AbstractFunction test = tests.get(i);
+
+				try{
+					Result<IValue> result = test.call(new Type[0], new IValue[0]);
+
+					if (result.getType().isBoolType()) {
+						boolean success = ((IBool) result.getValue()).getValue();
+						testResultListener.report(success, test.getName(), test.getAst().getLocation());
+					}
 				}
-				finally {
-					eval.unwind(env);
+				catch(StaticError e) {
+					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e);
+				}
+				catch(Throw e){
+					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e);
+				}
+				catch(Throwable e){
+					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e);
 				}
 			}
 		}
 		finally {
-			if (old != null) {
-				eval.setCurrentEnvt(old);
-			}
-		}
-		
-		testResultListener.done();
-	}
-	
-	private class Visitor extends NullASTVisitor<Result<IBool>>{
-		
-		public Visitor(){
-			super();
-		}
-		
-//		public Result<IBool> visitTestLabeled(Labeled x){
-//			Result<IValue> result = ResultFactory.bool(true, eval);
-////			System.err.println("visitTestLabeled: " + x);
-//			
-//			try{
-//				result = x.getExpression().interpret(eval);
-//			}catch(Throw e){
-//				testResultListener.report(false, x.toString(), x.getLocation(), e);
-//			}catch(Throwable e){
-//				testResultListener.report(false, x.toString(), x.getLocation(), e);
-//			}
-//			
-//			testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
-//			
-//			return ResultFactory.bool(result.isTrue(), eval);
-//		}
-//		
-		public Result<IBool> visitTestUnlabeled(Unlabeled x){
-			Result<IValue> result = ResultFactory.bool(true, eval);
-//			System.err.println("visitTestUnlabeled: " + x);
-			
-			try{
-				result = x.getExpression().interpret(eval);
-				testResultListener.report(result.isTrue(), x.toString(), x.getLocation());
-			}
-			catch(StaticError e) {
-				testResultListener.report(false, x.toString(), x.getLocation(), e);
-			}
-			catch(Throw e){
-				testResultListener.report(false, x.toString(), x.getLocation(), e);
-			}catch(Throwable e){
-				testResultListener.report(false, x.toString(), x.getLocation(), e);
-			}
-			
-			
-			
-			return ResultFactory.bool(result.isTrue(), eval);
+			testResultListener.done();
 		}
 	}
 }

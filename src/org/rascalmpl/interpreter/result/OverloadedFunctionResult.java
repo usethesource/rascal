@@ -15,6 +15,7 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
@@ -362,6 +363,27 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		}
 		
 		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, newDefaults, ctx);
+	}
+	
+	public List<AbstractFunction> getTests() {
+		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+		for (AbstractFunction f : primaryCandidates) {
+			if (f.isTest()) {
+				result.add(f);
+			}
+		}
+		
+		for (AbstractFunction f : defaultCandidates) {
+			if (f.isTest()) {
+				result.add(f);
+			}
+		}
+		
+		return result;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	public Evaluator getEval(){

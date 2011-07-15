@@ -51,38 +51,36 @@ public Symbol \char-class([list[CharRange] a,range(int n,int m),list[CharRange] 
     fail;
 }
      
-/* commented out to avoid ambiguity between labeled and unlabeled tests 
-test \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
-test \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
-test \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
-test \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
-*/
+test bool testFlip() = \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
+test bool testMerge() = \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
+test bool testEnvelop() = \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
+test bool testEnvelop2() = \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
 public Symbol complement(\char-class(list[CharRange] r1)) 
   = \char-class(complement(r1));
   
-public Symbol default complement(Symbol s) {
+public default Symbol  complement(Symbol s) {
   throw "unsupported symbol for character class complement: <s>";
 }
   
 public Symbol difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	
   = \char-class(difference(r1,r2));
 
-public Symbol default difference(Symbol s, Symbol t) {
+public default Symbol  difference(Symbol s, Symbol t) {
   throw "unsupported symbols for  character class difference: <s> and <t>";
 }
 
 public Symbol union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2))
  = \char-class(union(r1,r2));
  
-public Symbol default union(Symbol s, Symbol t) {
+public default Symbol  union(Symbol s, Symbol t) {
   throw "unsupported symbols for union: <s> and <t>";
 }
 
 public Symbol intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 
  = \char-class(intersection(r1,r2));
 
-public Symbol default intersection(Symbol s, Symbol t) {
+public default Symbol  intersection(Symbol s, Symbol t) {
   throw "unsupported symbols for intersection: <s> and <t>";
 }
 
@@ -350,22 +348,20 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   throw "did not expect to end up here! <l> - <r>";
 }
 
-/* commented out to avoid ambiguity (see above)
-test complement(\char-class([])) == \char-class([range(0,65535)]);
-test complement(\char-class([range(0,0)])) == \char-class([range(1,65535)]);
-test complement(\char-class([range(1,1)])) == \char-class([range(0,0),range(2,65535)]);
-test complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(0,9),range(21,29),range(41,65535)]);
-test complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(0,9),range(41,65535)]);
+test bool comp() = complement(\char-class([])) == \char-class([range(0,65535)]);
+test bool comp2() = complement(\char-class([range(0,0)])) == \char-class([range(1,65535)]);
+test bool comp3() = complement(\char-class([range(1,1)])) == \char-class([range(0,0),range(2,65535)]);
+test bool comp4() = complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(0,9),range(21,29),range(41,65535)]);
+test bool comp5() = complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(0,9),range(41,65535)]);
 
-test union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
-test union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
+test bool union1() = union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
+test bool union2() = union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
  
-test intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
-test intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
+test bool inter1() = intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
+test bool inter2() = intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
 
-test difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
-test difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
-*/
+test bool diff1() = difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
+test bool diff2() = difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
 
 public Symbol cc2ranges(Class cc) {
    switch(cc) {

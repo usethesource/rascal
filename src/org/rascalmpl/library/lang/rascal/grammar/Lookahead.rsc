@@ -300,11 +300,9 @@ private set[Symbol] mergeCC(set[Symbol] su) {
 
 public Grammar G0 = simple({sort("S")}, {});
 
-/* commented out to avoid an ambiguity between labeled and non-labeled tests
-test first(G0) == ();
+test bool testEmpty() = first(G0) == ();
 
-test firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
-*/
+test bool testEmpty() = firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
 private Production pr(Symbol rhs, list[Symbol] lhs) {
   return prod(rhs,lhs,{});
@@ -326,13 +324,11 @@ public Grammar G1 = simple({sort("E")},
 	pr(sort("B"), [lit("1")])
 } + Lit1.productions);
 
-/* commented out to avoid ambiguity (see above)
-test usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
+test bool used1()  = usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
 
-test definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
-*/
+test bool defined1() = definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
 
-test G1.starts < definedSymbols(G1);
+test bool startsDefined() = G1.starts < definedSymbols(G1);
 
 public SymbolUse firstLit1 = (
   lit("0"):{\char-class([range(48,48)])},
@@ -341,12 +337,10 @@ public SymbolUse firstLit1 = (
   lit("+"):{\char-class([range(43,43)])}
 );
 
-/*
-test SymbolUse F := first(G1) 
+test bool first1() = SymbolUse F := first(G1) 
      && F[sort("E")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
      && F[sort("B")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
      ;
-*/
                        
 public Grammar G2 = simple({sort("E")},
 {
@@ -357,12 +351,10 @@ public Grammar G2 = simple({sort("E")},
     pr(sort("B"), [lit("1")])
 } + Lit1.productions);
 
-/* commented out due to ambiguity 
-test SymbolUse F := first(G2)
+test bool first2() = SymbolUse F := first(G2)
      && F[sort("E")] == {\char-class([range(48,48)]),\char-class([range(49,49)])}
      && F[sort("B")] == {\char-class([range(48,48)]),\char-class([range(49,49)])}
      ;
-*/
 
 public Grammar G3 = simple( {sort("E")},
 {
@@ -383,28 +375,24 @@ public Grammar G3 = simple( {sort("E")},
 
 private SymbolUse F3 = first(G3);
 
-/* avoiding ambiguity in tests
-test F3[sort("F")] == {\char-class([range(105,105)]),\char-class([range(40,40)])};
-test F3[sort("T")] == F3[sort("F")];
-test F3[sort("E")] == F3[sort("T")];
-test F3[lit("*")] == {\char-class([range(42,42)])};
-test F3[lit("+")] == {\char-class([range(43,43)])};
-test F3[lit("id")] == {\char-class([range(105,105)])};
-test F3[sort("E1")] == {empty()} + F3[lit("+")];
-test F3[sort("T1")] == {empty()} + F3[lit("*")];
-test F3[lit("(")] == {\char-class([range(40,40)])};
-test F3[lit(")")] == {\char-class([range(41,41)])};
-*/     
+test bool tF31() = F3[sort("F")] == {\char-class([range(105,105)]),\char-class([range(40,40)])};
+test bool tF32() = F3[sort("T")] == F3[sort("F")];
+test bool tF33() = F3[sort("E")] == F3[sort("T")];
+test bool tF34() = F3[lit("*")] == {\char-class([range(42,42)])};
+test bool tF35() = F3[lit("+")] == {\char-class([range(43,43)])};
+test bool tF36() = F3[lit("id")] == {\char-class([range(105,105)])};
+test bool tF37() = F3[sort("E1")] == {empty()} + F3[lit("+")];
+test bool tF38() = F3[sort("T1")] == {empty()} + F3[lit("*")];
+test bool tF39() = F3[lit("(")] == {\char-class([range(40,40)])};
+test bool tF310() = F3[lit(")")] == {\char-class([range(41,41)])};
       
 public SymbolUse Fol3 = follow(G3, first(G3));
  
-/*
-test Fol3[sort("E")] == {\char-class([range(41,41)]), eoi()};
-test Fol3[sort("E1")] == {\char-class([range(41,41)]), eoi()};
-test Fol3[sort("T")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
-test Fol3[sort("T1")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
-test Fol3[sort("F")] == {\char-class([range(43,43)]),\char-class([range(42,42)]),\char-class([range(41,41)]),eoi()};
-*/     
+test bool tFol31() = Fol3[sort("E")] == {\char-class([range(41,41)]), eoi()};
+test bool tFol32() = Fol3[sort("E1")] == {\char-class([range(41,41)]), eoi()};
+test bool tFol33() = Fol3[sort("T")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
+test bool tFol34() = Fol3[sort("T1")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
+test bool tFol35() = Fol3[sort("F")] == {\char-class([range(43,43)]),\char-class([range(42,42)]),\char-class([range(41,41)]),eoi()};
        
 public Grammar Session = simple({sort("Session")},
 {
@@ -424,23 +412,21 @@ public Grammar Session = simple({sort("Session")},
 
 private SymbolUse SF = first(Session);
 
-/*
-test SF[sort("Question")] == {\char-class([range(63,63)])};
-test SF[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])};
-test SF[sort("Facts")] == {\char-class([range(33,33)]),empty()};
-test SF[lit("a")] == {\char-class([range(97,97)])};
-test SF[lit("!")] == {\char-class([range(33,33)])};
-test SF[lit("?")] == {\char-class([range(63,63)])};
-test SF[lit("(")] == {\char-class([range(40,40)])};
-test SF[lit(")")] == {\char-class([range(41,41)])};
-test SF[sort("STRING")] == {\char-class([range(97,97)])};
-test SF[sort("Fact")] == {\char-class([range(33,33)])};
+test bool tSF1() = SF[sort("Question")] == {\char-class([range(63,63)])};
+test bool tSF2() = SF[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])};
+test bool tSF3() = SF[sort("Facts")] == {\char-class([range(33,33)]),empty()};
+test bool tSF4() = SF[lit("a")] == {\char-class([range(97,97)])};
+test bool tSF5() = SF[lit("!")] == {\char-class([range(33,33)])};
+test bool tSF6() = SF[lit("?")] == {\char-class([range(63,63)])};
+test bool tSF7() = SF[lit("(")] == {\char-class([range(40,40)])};
+test bool tSF8() = SF[lit(")")] == {\char-class([range(41,41)])};
+test bool tSF9() = SF[sort("STRING")] == {\char-class([range(97,97)])};
+test bool tSF10() = SF[sort("Fact")] == {\char-class([range(33,33)])};
      
-test follow(Session, first(Session)) >=
+test bool testFollow() = follow(Session, first(Session)) >=
  	 (sort("Question"):{\char-class([range(41,41)]),eoi()},
  	 sort("Session"):{\char-class([range(41,41)]),eoi()},
  	 sort("Facts"):{\char-class([range(63,63)])},
  	 sort("STRING"):{\char-class([range(33,33),range(41,41),range(63,63)]),eoi()},
  	 sort("Fact"):{\char-class([range(33,33),range(63,63)])}
  	 );
-*/

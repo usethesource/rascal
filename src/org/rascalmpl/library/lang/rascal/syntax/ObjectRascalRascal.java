@@ -40,1189 +40,1189 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     IntegerKeyedHashMap<IntegerList> result = org.rascalmpl.library.lang.rascal.syntax.RascalRascal._initDontNest(); 
     
     
-    _putDontNest(result, 1296, 1294);
-    _putDontNest(result, 1306, 1284);
-    _putDontNest(result, 1372, 1402);
-    _putDontNest(result, 1382, 1392);
-    _putDontNest(result, 1058, 1214);
-    _putDontNest(result, 1100, 1224);
-    _putDontNest(result, 1266, 1304);
-    _putDontNest(result, 1128, 1392);
-    _putDontNest(result, 1100, 1372);
+    _putDontNest(result, 1318, 1328);
+    _putDontNest(result, 1282, 1308);
+    _putDontNest(result, 1308, 1338);
+    _putDontNest(result, 4678, 4940);
+    _putDontNest(result, 690, 1114);
+    _putDontNest(result, 1126, 1398);
+    _putDontNest(result, 1380, 1378);
+    _putDontNest(result, 1292, 1338);
+    _putDontNest(result, 1320, 1318);
     _putDontNest(result, 434, 432);
-    _putDontNest(result, 1362, 1372);
-    _putDontNest(result, 1080, 1204);
-    _putDontNest(result, 1140, 1264);
-    _putDontNest(result, 1110, 1234);
-    _putDontNest(result, 1090, 1402);
-    _putDontNest(result, 1120, 1432);
-    _putDontNest(result, 1126, 1382);
-    _putDontNest(result, 1404, 1402);
-    _putDontNest(result, 1120, 1244);
-    _putDontNest(result, 1150, 1274);
-    _putDontNest(result, 1126, 1234);
-    _putDontNest(result, 1234, 1304);
-    _putDontNest(result, 714, 1138);
-    _putDontNest(result, 1120, 1352);
-    _putDontNest(result, 1204, 1412);
+    _putDontNest(result, 1378, 1388);
+    _putDontNest(result, 1076, 1200);
+    _putDontNest(result, 1096, 1220);
+    _putDontNest(result, 1126, 1250);
+    _putDontNest(result, 1066, 1190);
+    _putDontNest(result, 4694, 4940);
+    _putDontNest(result, 5346, 5384);
+    _putDontNest(result, 1102, 1358);
+    _putDontNest(result, 1160, 1408);
+    _putDontNest(result, 1056, 1368);
+    _putDontNest(result, 1310, 1368);
+    _putDontNest(result, 1110, 1250);
+    _putDontNest(result, 1056, 1180);
+    _putDontNest(result, 1104, 1260);
+    _putDontNest(result, 1086, 1210);
+    _putDontNest(result, 5330, 5384);
+    _putDontNest(result, 1116, 1388);
     _putDontNest(result, 248, 452);
-    _putDontNest(result, 1214, 1422);
-    _putDontNest(result, 1110, 1382);
     _putDontNest(result, 424, 442);
-    _putDontNest(result, 1296, 1342);
-    _putDontNest(result, 1284, 1314);
-    _putDontNest(result, 1306, 1332);
-    _putDontNest(result, 1352, 1382);
-    _putDontNest(result, 1134, 1274);
-    _putDontNest(result, 1294, 1352);
-    _putDontNest(result, 1342, 1432);
-    _putDontNest(result, 1284, 1362);
-    _putDontNest(result, 1134, 1194);
-    _putDontNest(result, 1140, 1184);
-    _putDontNest(result, 1036, 1224);
-    _putDontNest(result, 1128, 1204);
-    _putDontNest(result, 4644, 4962);
-    _putDontNest(result, 1134, 1342);
-    _putDontNest(result, 1236, 1412);
-    _putDontNest(result, 1036, 1372);
-    _putDontNest(result, 1246, 1422);
-    _putDontNest(result, 1334, 1392);
-    _putDontNest(result, 1150, 1194);
-    _putDontNest(result, 714, 1422);
-    _putDontNest(result, 1186, 1304);
-    _putDontNest(result, 1140, 1332);
-    _putDontNest(result, 1080, 1392);
-    _putDontNest(result, 1150, 1342);
-    _putDontNest(result, 1304, 1382);
-    _putDontNest(result, 1316, 1362);
-    _putDontNest(result, 1344, 1342);
-    _putDontNest(result, 1314, 1372);
-    _putDontNest(result, 1286, 1392);
-    _putDontNest(result, 1090, 1214);
-    _putDontNest(result, 1014, 1412);
-    _putDontNest(result, 1140, 1284);
-    _putDontNest(result, 1150, 1294);
-    _putDontNest(result, 1342, 1352);
+    _putDontNest(result, 1368, 1398);
+    _putDontNest(result, 1348, 1378);
+    _putDontNest(result, 1034, 1190);
+    _putDontNest(result, 1110, 1398);
+    _putDontNest(result, 1192, 1408);
+    _putDontNest(result, 1330, 1388);
+    _putDontNest(result, 1320, 1398);
+    _putDontNest(result, 1066, 1270);
+    _putDontNest(result, 4724, 4946);
+    _putDontNest(result, 1240, 1408);
+    _putDontNest(result, 1280, 1358);
+    _putDontNest(result, 1290, 1348);
+    _putDontNest(result, 1110, 1170);
+    _putDontNest(result, 1116, 1160);
+    _putDontNest(result, 1104, 1180);
+    _putDontNest(result, 1056, 1260);
+    _putDontNest(result, 1102, 1210);
+    _putDontNest(result, 1066, 1378);
+    _putDontNest(result, 1096, 1280);
+    _putDontNest(result, 1116, 1308);
+    _putDontNest(result, 1126, 1318);
+    _putDontNest(result, 1338, 1348);
+    _putDontNest(result, 1328, 1358);
+    _putDontNest(result, 1126, 1170);
+    _putDontNest(result, 1116, 1240);
+    _putDontNest(result, 1034, 1270);
+    _putDontNest(result, 1096, 1328);
+    _putDontNest(result, 1110, 1318);
+    _putDontNest(result, 1076, 1348);
+    _putDontNest(result, 1104, 1368);
+    _putDontNest(result, 1272, 1408);
+    _putDontNest(result, 1086, 1358);
+    _putDontNest(result, 1282, 1260);
     _putDontNest(result, 422, 452);
-    _putDontNest(result, 1294, 1432);
-    _putDontNest(result, 1332, 1362);
-    _putDontNest(result, 1134, 1294);
-    _putDontNest(result, 1058, 1402);
-    _putDontNest(result, 1184, 1214);
-    _putDontNest(result, 1194, 1204);
-    _putDontNest(result, 1244, 1274);
-    _putDontNest(result, 1254, 1264);
-    _putDontNest(result, 1296, 1422);
-    _putDontNest(result, 1306, 1412);
-    _putDontNest(result, 5704, 5704);
-    _putDontNest(result, 1234, 1402);
-    _putDontNest(result, 1256, 1392);
-    _putDontNest(result, 1264, 1432);
-    _putDontNest(result, 1216, 1352);
-    _putDontNest(result, 1226, 1362);
-    _putDontNest(result, 1234, 1244);
-    _putDontNest(result, 1204, 1332);
-    _putDontNest(result, 1214, 1342);
-    _putDontNest(result, 1194, 1314);
-    _putDontNest(result, 1254, 1382);
-    _putDontNest(result, 1244, 1372);
-    _putDontNest(result, 1110, 1120);
-    _putDontNest(result, 1090, 1148);
-    _putDontNest(result, 1014, 1274);
-    _putDontNest(result, 714, 1264);
-    _putDontNest(result, 1214, 1294);
-    _putDontNest(result, 1266, 1402);
-    _putDontNest(result, 1224, 1392);
-    _putDontNest(result, 1204, 1284);
-    _putDontNest(result, 1224, 1254);
-    _putDontNest(result, 1090, 1132);
-    _putDontNest(result, 1036, 1114);
-    _putDontNest(result, 1090, 1304);
-    _putDontNest(result, 1216, 1432);
-    _putDontNest(result, 1276, 1372);
-    _putDontNest(result, 1264, 1352);
-    _putDontNest(result, 1274, 1362);
-    _putDontNest(result, 1080, 1126);
-    _putDontNest(result, 1058, 1148);
-    _putDontNest(result, 1236, 1284);
-    _putDontNest(result, 1206, 1382);
-    _putDontNest(result, 1274, 1314);
-    _putDontNest(result, 1246, 1294);
-    _putDontNest(result, 1206, 1264);
-    _putDontNest(result, 1058, 1132);
+    _putDontNest(result, 1282, 1388);
+    _putDontNest(result, 1358, 1368);
+    _putDontNest(result, 4938, 4946);
+    _putDontNest(result, 1034, 1378);
+    _putDontNest(result, 1180, 1210);
+    _putDontNest(result, 1190, 1200);
+    _putDontNest(result, 5676, 5676);
+    _putDontNest(result, 4668, 4688);
+    _putDontNest(result, 690, 1318);
+    _putDontNest(result, 690, 1240);
+    _putDontNest(result, 1200, 1368);
+    _putDontNest(result, 1170, 1338);
+    _putDontNest(result, 1192, 1328);
+    _putDontNest(result, 1272, 1270);
+    _putDontNest(result, 1170, 1180);
+    _putDontNest(result, 1250, 1260);
+    _putDontNest(result, 1012, 1398);
+    _putDontNest(result, 1260, 1388);
+    _putDontNest(result, 1180, 1308);
+    _putDontNest(result, 1270, 1398);
+    _putDontNest(result, 1160, 1280);
+    _putDontNest(result, 1190, 1318);
+    _putDontNest(result, 1170, 1290);
+    _putDontNest(result, 1230, 1358);
+    _putDontNest(result, 1220, 1348);
+    _putDontNest(result, 1182, 1240);
+    _putDontNest(result, 990, 1250);
+    _putDontNest(result, 990, 1388);
+    _putDontNest(result, 1242, 1378);
+    _putDontNest(result, 1160, 1328);
+    _putDontNest(result, 1222, 1398);
+    _putDontNest(result, 1202, 1338);
+    _putDontNest(result, 1104, 1150);
+    _putDontNest(result, 1240, 1270);
+    _putDontNest(result, 1160, 1190);
+    _putDontNest(result, 5354, 5364);
+    _putDontNest(result, 1220, 1250);
+    _putDontNest(result, 1318, 1408);
+    _putDontNest(result, 690, 1160);
+    _putDontNest(result, 1212, 1308);
+    _putDontNest(result, 1202, 1290);
+    _putDontNest(result, 1252, 1348);
+    _putDontNest(result, 1152, 1368);
+    _putDontNest(result, 1262, 1358);
+    _putDontNest(result, 1192, 1280);
+    _putDontNest(result, 1056, 1150);
+    _putDontNest(result, 1202, 1260);
+    _putDontNest(result, 1192, 1270);
+    _putDontNest(result, 1034, 1108);
+    _putDontNest(result, 1012, 1240);
+    _putDontNest(result, 1012, 1318);
+    _putDontNest(result, 1212, 1388);
+    _putDontNest(result, 1172, 1348);
+    _putDontNest(result, 1210, 1378);
+    _putDontNest(result, 1240, 1280);
+    _putDontNest(result, 1182, 1358);
+    _putDontNest(result, 1190, 1398);
+    _putDontNest(result, 1270, 1318);
+    _putDontNest(result, 1152, 1230);
+    _putDontNest(result, 1162, 1220);
+    _putDontNest(result, 1066, 1124);
     _putDontNest(result, 328, 442);
-    _putDontNest(result, 1354, 1412);
-    _putDontNest(result, 1344, 1422);
-    _putDontNest(result, 4746, 4968);
-    _putDontNest(result, 1014, 1194);
-    _putDontNest(result, 714, 1294);
-    _putDontNest(result, 1058, 1304);
-    _putDontNest(result, 1014, 1332);
-    _putDontNest(result, 1184, 1432);
-    _putDontNest(result, 1186, 1244);
-    _putDontNest(result, 1176, 1254);
+    _putDontNest(result, 990, 1170);
+    _putDontNest(result, 690, 1398);
+    _putDontNest(result, 990, 1308);
+    _putDontNest(result, 1096, 1408);
+    _putDontNest(result, 1272, 1328);
+    _putDontNest(result, 1210, 1220);
+    _putDontNest(result, 1160, 1270);
+    _putDontNest(result, 1066, 1108);
+    _putDontNest(result, 1200, 1230);
+    _putDontNest(result, 1076, 1090);
+    _putDontNest(result, 1172, 1250);
+    _putDontNest(result, 1170, 1260);
+    _putDontNest(result, 1398, 1408);
     _putDontNest(result, 310, 452);
-    _putDontNest(result, 1392, 1422);
-    _putDontNest(result, 1402, 1412);
-    _putDontNest(result, 714, 1342);
-    _putDontNest(result, 5382, 5402);
-    _putDontNest(result, 1014, 1284);
-    _putDontNest(result, 1196, 1372);
-    _putDontNest(result, 1184, 1352);
-    _putDontNest(result, 1140, 1412);
-    _putDontNest(result, 1194, 1362);
-    _putDontNest(result, 1150, 1422);
-    _putDontNest(result, 1214, 1224);
-    _putDontNest(result, 1196, 1274);
-    _putDontNest(result, 1100, 1114);
-    _putDontNest(result, 1204, 1234);
-    _putDontNest(result, 1422, 1432);
+    _putDontNest(result, 1232, 1368);
+    _putDontNest(result, 1180, 1388);
+    _putDontNest(result, 1250, 1290);
+    _putDontNest(result, 1272, 1280);
+    _putDontNest(result, 1260, 1308);
+    _putDontNest(result, 1056, 1102);
+    _putDontNest(result, 1086, 1096);
+    _putDontNest(result, 1034, 1124);
+    _putDontNest(result, 1230, 1240);
     _putDontNest(result, 398, 412);
-    _putDontNest(result, 1284, 1304);
-    _putDontNest(result, 714, 1184);
-    _putDontNest(result, 1134, 1422);
-    _putDontNest(result, 1236, 1332);
-    _putDontNest(result, 1226, 1314);
-    _putDontNest(result, 1246, 1342);
-    _putDontNest(result, 1186, 1402);
-    _putDontNest(result, 1176, 1392);
-    _putDontNest(result, 1090, 1244);
-    _putDontNest(result, 1126, 1264);
-    _putDontNest(result, 4710, 4962);
-    _putDontNest(result, 1080, 1314);
-    _putDontNest(result, 1140, 1382);
-    _putDontNest(result, 1090, 1352);
-    _putDontNest(result, 1344, 1352);
-    _putDontNest(result, 1354, 1362);
-    _putDontNest(result, 1362, 1402);
-    _putDontNest(result, 5382, 5382);
+    _putDontNest(result, 1012, 1160);
+    _putDontNest(result, 1222, 1318);
+    _putDontNest(result, 1162, 1378);
+    _putDontNest(result, 1240, 1328);
+    _putDontNest(result, 1250, 1338);
+    _putDontNest(result, 1086, 1240);
+    _putDontNest(result, 1104, 1230);
+    _putDontNest(result, 990, 1090);
+    _putDontNest(result, 5364, 5384);
+    _putDontNest(result, 1110, 1348);
+    _putDontNest(result, 1116, 1358);
+    _putDontNest(result, 1076, 1318);
+    _putDontNest(result, 1066, 1328);
+    _putDontNest(result, 1320, 1328);
     _putDontNest(result, 442, 422);
-    _putDontNest(result, 5412, 5412);
-    _putDontNest(result, 1392, 1432);
-    _putDontNest(result, 1100, 1274);
-    _putDontNest(result, 1128, 1254);
-    _putDontNest(result, 714, 1088);
-    _putDontNest(result, 1036, 1294);
-    _putDontNest(result, 1372, 1372);
-    _putDontNest(result, 1332, 1332);
-    _putDontNest(result, 1422, 1422);
-    _putDontNest(result, 1342, 1342);
-    _putDontNest(result, 1382, 1382);
-    _putDontNest(result, 1412, 1412);
-    _putDontNest(result, 1284, 1284);
-    _putDontNest(result, 1294, 1294);
-    _putDontNest(result, 1134, 1224);
-    _putDontNest(result, 1036, 1194);
-    _putDontNest(result, 1236, 1304);
-    _putDontNest(result, 1128, 1362);
-    _putDontNest(result, 1134, 1372);
-    _putDontNest(result, 1036, 1342);
-    _putDontNest(result, 1206, 1412);
-    _putDontNest(result, 1394, 1402);
-    _putDontNest(result, 1352, 1392);
-    _putDontNest(result, 1294, 1342);
-    _putDontNest(result, 1306, 1314);
+    _putDontNest(result, 1328, 1368);
+    _putDontNest(result, 1282, 1290);
+    _putDontNest(result, 690, 1064);
+    _putDontNest(result, 1162, 1408);
+    _putDontNest(result, 1034, 1280);
+    _putDontNest(result, 1348, 1348);
+    _putDontNest(result, 1282, 1338);
+    _putDontNest(result, 1308, 1308);
+    _putDontNest(result, 1398, 1398);
+    _putDontNest(result, 1318, 1318);
+    _putDontNest(result, 1358, 1358);
+    _putDontNest(result, 1388, 1388);
+    _putDontNest(result, 1096, 1270);
+    _putDontNest(result, 1056, 1290);
+    _putDontNest(result, 1034, 1328);
+    _putDontNest(result, 1210, 1408);
+    _putDontNest(result, 1370, 1378);
+    _putDontNest(result, 1330, 1338);
     _putDontNest(result, 396, 432);
-    _putDontNest(result, 1284, 1332);
-    _putDontNest(result, 1140, 1234);
-    _putDontNest(result, 1150, 1224);
-    _putDontNest(result, 1110, 1264);
-    _putDontNest(result, 1080, 1174);
-    _putDontNest(result, 714, 1120);
-    _putDontNest(result, 1120, 1402);
-    _putDontNest(result, 1150, 1372);
-    _putDontNest(result, 1196, 1422);
-    _putDontNest(result, 1090, 1432);
-    _putDontNest(result, 1344, 1432);
-    _putDontNest(result, 1080, 1254);
-    _putDontNest(result, 1120, 1214);
-    _putDontNest(result, 1014, 1114);
-    _putDontNest(result, 1204, 1304);
-    _putDontNest(result, 1244, 1422);
+    _putDontNest(result, 1086, 1160);
+    _putDontNest(result, 1076, 1170);
+    _putDontNest(result, 4724, 4940);
+    _putDontNest(result, 1012, 1096);
+    _putDontNest(result, 690, 1032);
+    _putDontNest(result, 1096, 1378);
+    _putDontNest(result, 1126, 1348);
+    _putDontNest(result, 1056, 1338);
+    _putDontNest(result, 1066, 1280);
+    _putDontNest(result, 1086, 1308);
+    _putDontNest(result, 1102, 1388);
+    _putDontNest(result, 1280, 1368);
+    _putDontNest(result, 1102, 1160);
+    _putDontNest(result, 1116, 1210);
+    _putDontNest(result, 1126, 1200);
+    _putDontNest(result, 1076, 1250);
+    _putDontNest(result, 1104, 1338);
+    _putDontNest(result, 1086, 1388);
     _putDontNest(result, 248, 422);
-    _putDontNest(result, 1110, 1284);
-    _putDontNest(result, 1126, 1332);
-    _putDontNest(result, 1334, 1382);
-    _putDontNest(result, 1126, 1184);
-    _putDontNest(result, 1036, 1274);
-    _putDontNest(result, 1058, 1432);
-    _putDontNest(result, 1100, 1294);
-    _putDontNest(result, 1128, 1314);
+    _putDontNest(result, 1102, 1308);
+    _putDontNest(result, 1242, 1408);
+    _putDontNest(result, 1318, 1398);
+    _putDontNest(result, 1310, 1358);
+    _putDontNest(result, 1338, 1378);
+    _putDontNest(result, 1034, 1220);
+    _putDontNest(result, 1076, 1398);
+    _putDontNest(result, 1104, 1290);
     _putDontNest(result, 254, 432);
-    _putDontNest(result, 1306, 1362);
-    _putDontNest(result, 1296, 1352);
-    _putDontNest(result, 1128, 1174);
-    _putDontNest(result, 1110, 1184);
-    _putDontNest(result, 1100, 1194);
-    _putDontNest(result, 1058, 1244);
-    _putDontNest(result, 4614, 4962);
-    _putDontNest(result, 1058, 1352);
-    _putDontNest(result, 1100, 1342);
-    _putDontNest(result, 1276, 1422);
-    _putDontNest(result, 1296, 1432);
-    _putDontNest(result, 714, 1056);
-    _putDontNest(result, 1080, 1362);
-    _putDontNest(result, 1126, 1284);
-    _putDontNest(result, 1254, 1412);
-    _putDontNest(result, 1110, 1332);
-    _putDontNest(result, 1304, 1392);
+    _putDontNest(result, 4694, 4946);
+    _putDontNest(result, 1308, 1388);
+    _putDontNest(result, 1110, 1200);
+    _putDontNest(result, 1056, 1230);
+    _putDontNest(result, 1066, 1220);
+    _putDontNest(result, 1102, 1240);
+    _putDontNest(result, 1096, 1190);
+    _putDontNest(result, 4678, 4946);
+    _putDontNest(result, 690, 1096);
     _putDontNest(result, 424, 452);
-    _putDontNest(result, 1314, 1402);
-    _putDontNest(result, 1286, 1382);
-    _putDontNest(result, 4710, 4716);
-    _putDontNest(result, 714, 1372);
-    _putDontNest(result, 1140, 1304);
-    _putDontNest(result, 1224, 1362);
-    _putDontNest(result, 1196, 1342);
-    _putDontNest(result, 1266, 1432);
-    _putDontNest(result, 1234, 1274);
-    _putDontNest(result, 1256, 1264);
-    _putDontNest(result, 1246, 1372);
-    _putDontNest(result, 1274, 1392);
-    _putDontNest(result, 1234, 1352);
-    _putDontNest(result, 1036, 1422);
-    _putDontNest(result, 1206, 1332);
-    _putDontNest(result, 1216, 1402);
-    _putDontNest(result, 1204, 1204);
-    _putDontNest(result, 1244, 1244);
-    _putDontNest(result, 1214, 1214);
-    _putDontNest(result, 1254, 1254);
-    _putDontNest(result, 1058, 1114);
+    _putDontNest(result, 1292, 1388);
+    _putDontNest(result, 1290, 1378);
+    _putDontNest(result, 5666, 5676);
+    _putDontNest(result, 690, 1190);
+    _putDontNest(result, 1272, 1378);
+    _putDontNest(result, 1152, 1290);
+    _putDontNest(result, 1202, 1368);
+    _putDontNest(result, 1252, 1398);
+    _putDontNest(result, 1170, 1210);
+    _putDontNest(result, 5330, 5354);
+    _putDontNest(result, 1200, 1240);
+    _putDontNest(result, 4688, 4678);
+    _putDontNest(result, 1222, 1348);
+    _putDontNest(result, 1034, 1408);
+    _putDontNest(result, 1210, 1328);
+    _putDontNest(result, 1262, 1388);
+    _putDontNest(result, 1182, 1308);
+    _putDontNest(result, 1162, 1280);
+    _putDontNest(result, 1152, 1338);
+    _putDontNest(result, 1180, 1180);
+    _putDontNest(result, 1220, 1220);
+    _putDontNest(result, 1190, 1190);
+    _putDontNest(result, 1230, 1230);
+    _putDontNest(result, 1260, 1260);
+    _putDontNest(result, 1270, 1270);
     _putDontNest(result, 328, 452);
-    _putDontNest(result, 1284, 1412);
-    _putDontNest(result, 1294, 1422);
     _putDontNest(result, 316, 432);
-    _putDontNest(result, 4806, 4962);
-    _putDontNest(result, 1014, 1402);
-    _putDontNest(result, 1176, 1314);
-    _putDontNest(result, 1226, 1392);
-    _putDontNest(result, 1256, 1362);
-    _putDontNest(result, 1206, 1284);
-    _putDontNest(result, 1236, 1382);
-    _putDontNest(result, 1234, 1432);
-    _putDontNest(result, 1264, 1402);
-    _putDontNest(result, 1100, 1148);
-    _putDontNest(result, 1110, 1126);
-    _putDontNest(result, 1224, 1264);
-    _putDontNest(result, 1266, 1274);
-    _putDontNest(result, 1342, 1422);
+    _putDontNest(result, 990, 1378);
+    _putDontNest(result, 1200, 1338);
+    _putDontNest(result, 1220, 1398);
+    _putDontNest(result, 1170, 1368);
+    _putDontNest(result, 1210, 1280);
+    _putDontNest(result, 1162, 1328);
+    _putDontNest(result, 1172, 1318);
+    _putDontNest(result, 1270, 1348);
+    _putDontNest(result, 1240, 1378);
+    _putDontNest(result, 1160, 1200);
+    _putDontNest(result, 5364, 5364);
+    _putDontNest(result, 1102, 1150);
+    _putDontNest(result, 1222, 1270);
+    _putDontNest(result, 1242, 1250);
     _putDontNest(result, 310, 442);
-    _putDontNest(result, 1332, 1412);
-    _putDontNest(result, 5842, 5868);
-    _putDontNest(result, 1014, 1224);
-    _putDontNest(result, 1196, 1294);
-    _putDontNest(result, 1266, 1352);
-    _putDontNest(result, 1100, 1132);
-    _putDontNest(result, 1316, 1412);
-    _putDontNest(result, 1194, 1392);
-    _putDontNest(result, 1110, 1412);
-    _putDontNest(result, 1244, 1294);
-    _putDontNest(result, 1254, 1332);
-    _putDontNest(result, 1204, 1382);
-    _putDontNest(result, 1206, 1254);
-    _putDontNest(result, 1080, 1120);
+    _putDontNest(result, 1200, 1290);
+    _putDontNest(result, 1230, 1388);
+    _putDontNest(result, 1066, 1408);
+    _putDontNest(result, 1260, 1358);
+    _putDontNest(result, 1152, 1240);
+    _putDontNest(result, 1320, 1408);
+    _putDontNest(result, 4694, 4668);
+    _putDontNest(result, 1012, 1368);
+    _putDontNest(result, 1242, 1280);
+    _putDontNest(result, 1232, 1338);
+    _putDontNest(result, 1230, 1308);
+    _putDontNest(result, 1180, 1358);
+    _putDontNest(result, 1182, 1230);
+    _putDontNest(result, 1190, 1270);
+    _putDontNest(result, 1212, 1260);
+    _putDontNest(result, 1076, 1124);
+    _putDontNest(result, 1172, 1220);
+    _putDontNest(result, 1210, 1250);
     _putDontNest(result, 432, 412);
-    _putDontNest(result, 4710, 4700);
-    _putDontNest(result, 1256, 1314);
-    _putDontNest(result, 1186, 1432);
-    _putDontNest(result, 1100, 1422);
-    _putDontNest(result, 1276, 1342);
-    _putDontNest(result, 1176, 1362);
-    _putDontNest(result, 714, 1214);
-    _putDontNest(result, 1186, 1352);
-    _putDontNest(result, 1276, 1294);
-    _putDontNest(result, 1184, 1224);
-    _putDontNest(result, 1194, 1234);
-    _putDontNest(result, 1196, 1244);
-    _putDontNest(result, 1036, 1148);
-    _putDontNest(result, 5686, 5704);
-    _putDontNest(result, 1286, 1304);
-    _putDontNest(result, 1214, 1372);
-    _putDontNest(result, 1184, 1402);
-    _putDontNest(result, 1224, 1314);
-    _putDontNest(result, 1244, 1342);
-    _putDontNest(result, 1254, 1284);
-    _putDontNest(result, 1126, 1412);
-    _putDontNest(result, 1176, 1264);
-    _putDontNest(result, 1090, 1114);
-    _putDontNest(result, 1186, 1274);
-    _putDontNest(result, 1036, 1132);
-    _putDontNest(result, 5374, 5392);
-    _putDontNest(result, 1110, 1402);
-    _putDontNest(result, 1140, 1432);
-    _putDontNest(result, 1352, 1362);
-    _putDontNest(result, 1394, 1432);
-    _putDontNest(result, 1058, 1194);
-    _putDontNest(result, 1100, 1244);
-    _putDontNest(result, 1080, 1184);
-    _putDontNest(result, 1128, 1264);
-    _putDontNest(result, 5358, 5392);
-    _putDontNest(result, 1254, 1304);
-    _putDontNest(result, 1344, 1402);
-    _putDontNest(result, 1286, 1284);
-    _putDontNest(result, 1126, 1254);
-    _putDontNest(result, 1090, 1274);
-    _putDontNest(result, 1100, 1392);
-    _putDontNest(result, 1134, 1362);
-    _putDontNest(result, 1128, 1372);
-    _putDontNest(result, 1286, 1332);
-    _putDontNest(result, 1362, 1432);
-    _putDontNest(result, 1392, 1402);
+    _putDontNest(result, 1368, 1408);
+    _putDontNest(result, 4678, 4668);
+    _putDontNest(result, 690, 1270);
+    _putDontNest(result, 1232, 1290);
+    _putDontNest(result, 1250, 1368);
+    _putDontNest(result, 1252, 1318);
+    _putDontNest(result, 1192, 1378);
+    _putDontNest(result, 1086, 1150);
+    _putDontNest(result, 1034, 1090);
+    _putDontNest(result, 4688, 4694);
+    _putDontNest(result, 1012, 1210);
+    _putDontNest(result, 690, 1348);
+    _putDontNest(result, 1262, 1308);
+    _putDontNest(result, 1212, 1358);
+    _putDontNest(result, 1182, 1388);
+    _putDontNest(result, 1180, 1260);
+    _putDontNest(result, 1086, 1102);
+    _putDontNest(result, 1232, 1240);
+    _putDontNest(result, 1056, 1096);
+    _putDontNest(result, 990, 1200);
+    _putDontNest(result, 1190, 1348);
+    _putDontNest(result, 1160, 1378);
+    _putDontNest(result, 1172, 1398);
+    _putDontNest(result, 1242, 1328);
+    _putDontNest(result, 1220, 1318);
+    _putDontNest(result, 1066, 1090);
+    _putDontNest(result, 1162, 1250);
+    _putDontNest(result, 1076, 1108);
+    _putDontNest(result, 1076, 1368);
+    _putDontNest(result, 1104, 1348);
+    _putDontNest(result, 1180, 1408);
+    _putDontNest(result, 1280, 1290);
+    _putDontNest(result, 1380, 1398);
+    _putDontNest(result, 1330, 1368);
+    _putDontNest(result, 1034, 1170);
+    _putDontNest(result, 1126, 1270);
+    _putDontNest(result, 1280, 1338);
+    _putDontNest(result, 1290, 1280);
+    _putDontNest(result, 1056, 1240);
+    _putDontNest(result, 1102, 1230);
+    _putDontNest(result, 1212, 1408);
+    _putDontNest(result, 1328, 1338);
+    _putDontNest(result, 1368, 1378);
     _putDontNest(result, 398, 432);
-    _putDontNest(result, 1304, 1314);
-    _putDontNest(result, 1354, 1392);
-    _putDontNest(result, 5382, 5412);
-    _putDontNest(result, 1120, 1224);
-    _putDontNest(result, 1110, 1254);
-    _putDontNest(result, 1194, 1422);
-    _putDontNest(result, 1184, 1412);
-    _putDontNest(result, 1140, 1352);
-    _putDontNest(result, 1126, 1402);
-    _putDontNest(result, 1150, 1362);
-    _putDontNest(result, 1090, 1382);
-    _putDontNest(result, 1206, 1304);
+    _putDontNest(result, 1290, 1328);
+    _putDontNest(result, 1348, 1398);
+    _putDontNest(result, 1056, 1160);
+    _putDontNest(result, 1116, 1260);
+    _putDontNest(result, 1066, 1170);
+    _putDontNest(result, 1102, 1378);
+    _putDontNest(result, 1096, 1388);
+    _putDontNest(result, 1282, 1368);
+    _putDontNest(result, 1358, 1388);
+    _putDontNest(result, 1110, 1270);
+    _putDontNest(result, 1012, 1114);
+    _putDontNest(result, 990, 1408);
+    _putDontNest(result, 1086, 1378);
+    _putDontNest(result, 1110, 1338);
+    _putDontNest(result, 1116, 1280);
     _putDontNest(result, 254, 422);
-    _putDontNest(result, 1120, 1332);
-    _putDontNest(result, 1150, 1314);
-    _putDontNest(result, 1296, 1402);
-    _putDontNest(result, 1332, 1382);
-    _putDontNest(result, 1294, 1372);
-    _putDontNest(result, 1134, 1214);
-    _putDontNest(result, 1036, 1244);
-    _putDontNest(result, 1134, 1314);
-    _putDontNest(result, 1216, 1412);
+    _putDontNest(result, 1096, 1308);
+    _putDontNest(result, 1308, 1358);
+    _putDontNest(result, 1034, 1358);
     _putDontNest(result, 248, 432);
-    _putDontNest(result, 1226, 1422);
-    _putDontNest(result, 1058, 1382);
-    _putDontNest(result, 1304, 1362);
-    _putDontNest(result, 1314, 1432);
-    _putDontNest(result, 1316, 1382);
-    _putDontNest(result, 1080, 1264);
-    _putDontNest(result, 1140, 1204);
-    _putDontNest(result, 1150, 1214);
-    _putDontNest(result, 1110, 1174);
-    _putDontNest(result, 1128, 1184);
-    _putDontNest(result, 1036, 1392);
-    _putDontNest(result, 1274, 1422);
-    _putDontNest(result, 1264, 1412);
+    _putDontNest(result, 1110, 1290);
+    _putDontNest(result, 1320, 1378);
+    _putDontNest(result, 1292, 1358);
+    _putDontNest(result, 1116, 1180);
+    _putDontNest(result, 1066, 1250);
+    _putDontNest(result, 1126, 1190);
+    _putDontNest(result, 1104, 1160);
+    _putDontNest(result, 4688, 4946);
+    _putDontNest(result, 1126, 1290);
+    _putDontNest(result, 1310, 1388);
     _putDontNest(result, 442, 452);
-    _putDontNest(result, 1314, 1352);
-    _putDontNest(result, 1090, 1194);
-    _putDontNest(result, 1126, 1174);
-    _putDontNest(result, 1080, 1372);
-    _putDontNest(result, 1120, 1284);
-    _putDontNest(result, 1306, 1392);
-    _putDontNest(result, 1342, 1372);
-    _putDontNest(result, 1284, 1382);
-    _putDontNest(result, 1058, 1274);
-    _putDontNest(result, 714, 1244);
-    _putDontNest(result, 1014, 1432);
-    _putDontNest(result, 1266, 1382);
-    _putDontNest(result, 1184, 1332);
-    _putDontNest(result, 1224, 1372);
-    _putDontNest(result, 1194, 1342);
-    _putDontNest(result, 1214, 1314);
-    _putDontNest(result, 1184, 1194);
-    _putDontNest(result, 1134, 1148);
-    _putDontNest(result, 1196, 1214);
-    _putDontNest(result, 1224, 1234);
-    _putDontNest(result, 714, 1402);
-    _putDontNest(result, 1126, 1304);
-    _putDontNest(result, 1246, 1362);
-    _putDontNest(result, 1236, 1352);
-    _putDontNest(result, 1276, 1392);
-    _putDontNest(result, 1216, 1274);
-    _putDontNest(result, 1274, 1264);
-    _putDontNest(result, 1286, 1412);
-    _putDontNest(result, 1110, 1304);
-    _putDontNest(result, 1236, 1432);
-    _putDontNest(result, 1256, 1372);
-    _putDontNest(result, 1234, 1382);
-    _putDontNest(result, 1264, 1274);
-    _putDontNest(result, 1226, 1264);
-    _putDontNest(result, 1334, 1412);
-    _putDontNest(result, 4690, 4710);
-    _putDontNest(result, 1014, 1352);
-    _putDontNest(result, 1254, 1402);
-    _putDontNest(result, 1184, 1284);
-    _putDontNest(result, 1194, 1294);
-    _putDontNest(result, 1244, 1392);
-    _putDontNest(result, 1196, 1392);
-    _putDontNest(result, 1204, 1432);
-    _putDontNest(result, 1204, 1254);
-    _putDontNest(result, 1194, 1264);
-    _putDontNest(result, 1372, 1422);
-    _putDontNest(result, 4710, 4690);
-    _putDontNest(result, 1014, 1214);
-    _putDontNest(result, 1176, 1372);
-    _putDontNest(result, 1274, 1342);
-    _putDontNest(result, 1264, 1332);
-    _putDontNest(result, 1226, 1294);
-    _putDontNest(result, 1186, 1382);
-    _putDontNest(result, 1216, 1284);
-    _putDontNest(result, 1080, 1138);
-    _putDontNest(result, 1176, 1234);
-    _putDontNest(result, 1304, 1304);
-    _putDontNest(result, 5392, 5392);
-    _putDontNest(result, 1274, 1294);
-    _putDontNest(result, 1246, 1314);
-    _putDontNest(result, 1206, 1402);
-    _putDontNest(result, 1226, 1342);
-    _putDontNest(result, 1264, 1284);
-    _putDontNest(result, 1216, 1332);
-    _putDontNest(result, 1186, 1224);
-    _putDontNest(result, 1404, 1422);
-    _putDontNest(result, 1204, 1352);
-    _putDontNest(result, 1120, 1412);
-    _putDontNest(result, 1214, 1362);
-    _putDontNest(result, 1184, 1274);
-    _putDontNest(result, 1214, 1244);
+    _putDontNest(result, 1076, 1220);
+    _putDontNest(result, 1096, 1200);
+    _putDontNest(result, 1110, 1190);
+    _putDontNest(result, 1086, 1230);
+    _putDontNest(result, 1104, 1240);
+    _putDontNest(result, 1260, 1408);
+    _putDontNest(result, 1056, 1348);
+    _putDontNest(result, 1116, 1328);
+    _putDontNest(result, 1126, 1338);
+    _putDontNest(result, 1066, 1358);
+    _putDontNest(result, 1318, 1348);
+    _putDontNest(result, 1034, 1250);
+    _putDontNest(result, 4784, 4946);
+    _putDontNest(result, 5814, 5854);
+    _putDontNest(result, 5666, 5666);
+    _putDontNest(result, 1012, 1260);
+    _putDontNest(result, 1242, 1358);
+    _putDontNest(result, 1160, 1308);
+    _putDontNest(result, 1250, 1398);
+    _putDontNest(result, 1202, 1318);
+    _putDontNest(result, 1272, 1388);
+    _putDontNest(result, 1180, 1280);
+    _putDontNest(result, 1232, 1348);
+    _putDontNest(result, 1202, 1240);
+    _putDontNest(result, 1252, 1270);
+    _putDontNest(result, 1160, 1170);
+    _putDontNest(result, 1212, 1328);
+    _putDontNest(result, 1262, 1378);
+    _putDontNest(result, 1056, 1114);
+    _putDontNest(result, 1262, 1260);
+    _putDontNest(result, 1152, 1210);
+    _putDontNest(result, 1290, 1408);
+    _putDontNest(result, 1172, 1368);
+    _putDontNest(result, 1212, 1280);
+    _putDontNest(result, 1170, 1318);
+    _putDontNest(result, 1190, 1290);
+    _putDontNest(result, 1240, 1388);
+    _putDontNest(result, 1192, 1308);
+    _putDontNest(result, 1200, 1210);
+    _putDontNest(result, 1162, 1200);
+    _putDontNest(result, 1220, 1270);
+    _putDontNest(result, 1172, 1190);
+    _putDontNest(result, 1240, 1250);
+    _putDontNest(result, 1110, 1124);
+    _putDontNest(result, 1170, 1240);
+    _putDontNest(result, 1338, 1408);
+    _putDontNest(result, 990, 1270);
+    _putDontNest(result, 1230, 1378);
+    _putDontNest(result, 1180, 1328);
+    _putDontNest(result, 1190, 1338);
+    _putDontNest(result, 5356, 5374);
+    _putDontNest(result, 1230, 1260);
+    _putDontNest(result, 690, 1378);
+    _putDontNest(result, 990, 1280);
+    _putDontNest(result, 1222, 1290);
+    _putDontNest(result, 1116, 1408);
+    _putDontNest(result, 1260, 1328);
+    _putDontNest(result, 1180, 1230);
+    _putDontNest(result, 1370, 1408);
+    _putDontNest(result, 1222, 1338);
+    _putDontNest(result, 1250, 1318);
+    _putDontNest(result, 1152, 1348);
+    _putDontNest(result, 1252, 1368);
+    _putDontNest(result, 1202, 1398);
+    _putDontNest(result, 1192, 1388);
+    _putDontNest(result, 1240, 1308);
+    _putDontNest(result, 1162, 1358);
+    _putDontNest(result, 1192, 1250);
+    _putDontNest(result, 1250, 1240);
+    _putDontNest(result, 4688, 4688);
+    _putDontNest(result, 990, 1190);
+    _putDontNest(result, 690, 1220);
+    _putDontNest(result, 1012, 1338);
+    _putDontNest(result, 1182, 1378);
+    _putDontNest(result, 1200, 1348);
+    _putDontNest(result, 1270, 1338);
+    _putDontNest(result, 1210, 1358);
+    _putDontNest(result, 1182, 1260);
+    _putDontNest(result, 1012, 1180);
+    _putDontNest(result, 5384, 5384);
+    _putDontNest(result, 990, 1328);
+    _putDontNest(result, 1012, 1290);
+    _putDontNest(result, 1260, 1280);
+    _putDontNest(result, 1160, 1388);
+    _putDontNest(result, 1270, 1290);
+    _putDontNest(result, 1170, 1398);
+    _putDontNest(result, 1220, 1368);
+    _putDontNest(result, 1272, 1308);
+    _putDontNest(result, 1172, 1270);
+    _putDontNest(result, 1160, 1250);
+    _putDontNest(result, 1190, 1220);
     _putDontNest(result, 328, 422);
-    _putDontNest(result, 1382, 1412);
-    _putDontNest(result, 4700, 4968);
-    _putDontNest(result, 4960, 4962);
-    _putDontNest(result, 1100, 1362);
-    _putDontNest(result, 1176, 1422);
-    _putDontNest(result, 1058, 1332);
-    _putDontNest(result, 1134, 1392);
-    _putDontNest(result, 1014, 1304);
-    _putDontNest(result, 1306, 1294);
-    _putDontNest(result, 1352, 1372);
+    _putDontNest(result, 1034, 1308);
+    _putDontNest(result, 1182, 1408);
+    _putDontNest(result, 1378, 1398);
     _putDontNest(result, 424, 432);
-    _putDontNest(result, 1296, 1284);
-    _putDontNest(result, 1140, 1254);
-    _putDontNest(result, 1090, 1224);
-    _putDontNest(result, 1256, 1304);
-    _putDontNest(result, 1120, 1382);
-    _putDontNest(result, 1080, 1342);
-    _putDontNest(result, 1150, 1392);
-    _putDontNest(result, 1126, 1432);
-    _putDontNest(result, 1110, 1352);
-    _putDontNest(result, 714, 1148);
+    _putDontNest(result, 1116, 1230);
+    _putDontNest(result, 1110, 1220);
+    _putDontNest(result, 1066, 1200);
+    _putDontNest(result, 1076, 1190);
+    _putDontNest(result, 4688, 4940);
+    _putDontNest(result, 1096, 1358);
+    _putDontNest(result, 1056, 1318);
+    _putDontNest(result, 1086, 1328);
+    _putDontNest(result, 690, 1408);
     _putDontNest(result, 254, 452);
-    _putDontNest(result, 1140, 1402);
-    _putDontNest(result, 1126, 1352);
-    _putDontNest(result, 1110, 1432);
-    _putDontNest(result, 1080, 1294);
-    _putDontNest(result, 1362, 1382);
+    _putDontNest(result, 1116, 1378);
+    _putDontNest(result, 1076, 1338);
+    _putDontNest(result, 1086, 1280);
+    _putDontNest(result, 1066, 1308);
+    _putDontNest(result, 1368, 1388);
     _putDontNest(result, 434, 442);
-    _putDontNest(result, 1036, 1214);
-    _putDontNest(result, 1128, 1234);
-    _putDontNest(result, 1134, 1244);
-    _putDontNest(result, 4716, 4968);
-    _putDontNest(result, 4690, 4962);
-    _putDontNest(result, 1224, 1304);
-    _putDontNest(result, 714, 1132);
-    _putDontNest(result, 1036, 1314);
-    _putDontNest(result, 1058, 1284);
-    _putDontNest(result, 1186, 1412);
-    _putDontNest(result, 1372, 1392);
-    _putDontNest(result, 1294, 1314);
-    _putDontNest(result, 1382, 1402);
-    _putDontNest(result, 1306, 1342);
-    _putDontNest(result, 5392, 5412);
-    _putDontNest(result, 1296, 1332);
+    _putDontNest(result, 1292, 1328);
+    _putDontNest(result, 1034, 1200);
+    _putDontNest(result, 1104, 1398);
+    _putDontNest(result, 1076, 1290);
+    _putDontNest(result, 1308, 1328);
+    _putDontNest(result, 1358, 1378);
+    _putDontNest(result, 1318, 1338);
+    _putDontNest(result, 1282, 1318);
     _putDontNest(result, 398, 422);
-    _putDontNest(result, 1120, 1274);
-    _putDontNest(result, 1150, 1244);
-    _putDontNest(result, 1036, 1362);
-    _putDontNest(result, 1234, 1412);
-    _putDontNest(result, 1128, 1342);
-    _putDontNest(result, 1332, 1432);
+    _putDontNest(result, 1102, 1260);
+    _putDontNest(result, 1096, 1250);
+    _putDontNest(result, 1126, 1220);
+    _putDontNest(result, 1056, 1210);
+    _putDontNest(result, 1086, 1180);
+    _putDontNest(result, 690, 1124);
+    _putDontNest(result, 1056, 1398);
     _putDontNest(result, 412, 452);
-    _putDontNest(result, 1294, 1362);
-    _putDontNest(result, 1284, 1352);
-    _putDontNest(result, 1126, 1204);
-    _putDontNest(result, 1120, 1194);
-    _putDontNest(result, 1090, 1284);
-    _putDontNest(result, 1224, 1422);
+    _putDontNest(result, 1102, 1180);
+    _putDontNest(result, 1104, 1210);
+    _putDontNest(result, 1096, 1170);
+    _putDontNest(result, 1086, 1260);
+    _putDontNest(result, 690, 1010);
+    _putDontNest(result, 1102, 1280);
+    _putDontNest(result, 1126, 1368);
+    _putDontNest(result, 1066, 1388);
+    _putDontNest(result, 1230, 1408);
     _putDontNest(result, 396, 452);
-    _putDontNest(result, 1314, 1382);
-    _putDontNest(result, 1316, 1432);
-    _putDontNest(result, 1304, 1372);
-    _putDontNest(result, 1286, 1402);
-    _putDontNest(result, 1176, 1304);
-    _putDontNest(result, 1014, 1422);
-    _putDontNest(result, 1266, 1412);
-    _putDontNest(result, 1090, 1332);
-    _putDontNest(result, 1334, 1402);
-    _putDontNest(result, 1316, 1352);
-    _putDontNest(result, 1058, 1224);
-    _putDontNest(result, 1100, 1214);
-    _putDontNest(result, 1128, 1294);
-    _putDontNest(result, 1256, 1422);
-    _putDontNest(result, 1100, 1314);
-    _putDontNest(result, 1284, 1432);
-    _putDontNest(result, 1332, 1352);
-    _putDontNest(result, 1342, 1362);
-    _putDontNest(result, 1080, 1234);
-    _putDontNest(result, 1110, 1204);
-    _putDontNest(result, 714, 1352);
-    _putDontNest(result, 1236, 1402);
-    _putDontNest(result, 1176, 1294);
-    _putDontNest(result, 1264, 1382);
-    _putDontNest(result, 1226, 1372);
-    _putDontNest(result, 1186, 1332);
-    _putDontNest(result, 1224, 1244);
-    _putDontNest(result, 1184, 1204);
-    _putDontNest(result, 1194, 1214);
-    _putDontNest(result, 1128, 1148);
-    _putDontNest(result, 1296, 1412);
-    _putDontNest(result, 1306, 1422);
-    _putDontNest(result, 714, 1274);
-    _putDontNest(result, 1128, 1304);
-    _putDontNest(result, 1254, 1432);
-    _putDontNest(result, 1196, 1314);
-    _putDontNest(result, 1244, 1362);
-    _putDontNest(result, 1080, 1422);
-    _putDontNest(result, 1254, 1352);
-    _putDontNest(result, 1234, 1254);
-    _putDontNest(result, 4690, 4716);
-    _putDontNest(result, 1014, 1244);
-    _putDontNest(result, 714, 1432);
-    _putDontNest(result, 1246, 1392);
-    _putDontNest(result, 1176, 1342);
-    _putDontNest(result, 1274, 1372);
-    _putDontNest(result, 1276, 1362);
-    _putDontNest(result, 1216, 1382);
-    _putDontNest(result, 1058, 1412);
-    _putDontNest(result, 1186, 1284);
-    _putDontNest(result, 1254, 1274);
-    _putDontNest(result, 1090, 1126);
-    _putDontNest(result, 1100, 1120);
-    _putDontNest(result, 1244, 1264);
-    _putDontNest(result, 1080, 1304);
-    _putDontNest(result, 1276, 1314);
-    _putDontNest(result, 1234, 1284);
-    _putDontNest(result, 1256, 1342);
-    _putDontNest(result, 1206, 1432);
-    _putDontNest(result, 1080, 1132);
-    _putDontNest(result, 1196, 1264);
-    _putDontNest(result, 5842, 5902);
-    _putDontNest(result, 1014, 1342);
-    _putDontNest(result, 1266, 1332);
-    _putDontNest(result, 1090, 1412);
-    _putDontNest(result, 1184, 1382);
-    _putDontNest(result, 1214, 1392);
-    _putDontNest(result, 1224, 1294);
-    _putDontNest(result, 1058, 1126);
-    _putDontNest(result, 1080, 1148);
-    _putDontNest(result, 1176, 1244);
-    _putDontNest(result, 1186, 1254);
-    _putDontNest(result, 1354, 1422);
-    _putDontNest(result, 1344, 1412);
-    _putDontNest(result, 4690, 4700);
-    _putDontNest(result, 5384, 5402);
-    _putDontNest(result, 1306, 1304);
-    _putDontNest(result, 714, 1194);
-    _putDontNest(result, 1014, 1294);
-    _putDontNest(result, 1194, 1372);
-    _putDontNest(result, 1244, 1314);
-    _putDontNest(result, 1224, 1342);
-    _putDontNest(result, 1196, 1362);
-    _putDontNest(result, 1266, 1284);
-    _putDontNest(result, 1204, 1402);
-    _putDontNest(result, 1206, 1274);
-    _putDontNest(result, 1402, 1422);
-    _putDontNest(result, 1392, 1412);
+    _putDontNest(result, 1290, 1358);
+    _putDontNest(result, 1330, 1398);
+    _putDontNest(result, 1320, 1388);
+    _putDontNest(result, 1280, 1348);
+    _putDontNest(result, 1076, 1270);
+    _putDontNest(result, 1102, 1328);
+    _putDontNest(result, 1110, 1368);
+    _putDontNest(result, 1104, 1318);
+    _putDontNest(result, 1282, 1270);
+    _putDontNest(result, 1338, 1358);
+    _putDontNest(result, 1328, 1348);
+    _putDontNest(result, 1282, 1398);
+    _putDontNest(result, 1310, 1378);
+    _putDontNest(result, 690, 1108);
+    _putDontNest(result, 1262, 1408);
+    _putDontNest(result, 1034, 1388);
+    _putDontNest(result, 1348, 1368);
+    _putDontNest(result, 990, 1220);
+    _putDontNest(result, 1012, 1388);
+    _putDontNest(result, 4550, 4940);
+    _putDontNest(result, 1172, 1338);
+    _putDontNest(result, 1200, 1318);
+    _putDontNest(result, 1182, 1280);
+    _putDontNest(result, 1240, 1358);
+    _putDontNest(result, 1162, 1308);
+    _putDontNest(result, 1250, 1270);
+    _putDontNest(result, 1160, 1180);
+    _putDontNest(result, 1272, 1260);
+    _putDontNest(result, 1308, 1408);
+    _putDontNest(result, 690, 1328);
+    _putDontNest(result, 1260, 1378);
+    _putDontNest(result, 1172, 1290);
+    _putDontNest(result, 1190, 1368);
+    _putDontNest(result, 1292, 1408);
+    _putDontNest(result, 1012, 1230);
+    _putDontNest(result, 690, 1280);
+    _putDontNest(result, 1086, 1408);
+    _putDontNest(result, 1242, 1388);
+    _putDontNest(result, 1272, 1358);
+    _putDontNest(result, 1170, 1190);
+    _putDontNest(result, 1172, 1240);
+    _putDontNest(result, 1240, 1260);
+    _putDontNest(result, 1104, 1124);
+    _putDontNest(result, 690, 1170);
+    _putDontNest(result, 990, 1398);
+    _putDontNest(result, 1182, 1328);
+    _putDontNest(result, 1210, 1308);
+    _putDontNest(result, 1152, 1318);
+    _putDontNest(result, 1250, 1348);
+    _putDontNest(result, 1232, 1398);
+    _putDontNest(result, 1180, 1200);
+    _putDontNest(result, 1190, 1210);
+    _putDontNest(result, 5354, 5374);
+    _putDontNest(result, 1230, 1250);
+    _putDontNest(result, 690, 1250);
+    _putDontNest(result, 1170, 1348);
+    _putDontNest(result, 1220, 1290);
+    _putDontNest(result, 1262, 1328);
+    _putDontNest(result, 1212, 1378);
+    _putDontNest(result, 1210, 1388);
+    _putDontNest(result, 1270, 1368);
+    _putDontNest(result, 1066, 1150);
+    _putDontNest(result, 1242, 1308);
+    _putDontNest(result, 1230, 1280);
+    _putDontNest(result, 1160, 1358);
+    _putDontNest(result, 1102, 1408);
+    _putDontNest(result, 1220, 1338);
+    _putDontNest(result, 1200, 1398);
+    _putDontNest(result, 1034, 1102);
+    _putDontNest(result, 1056, 1124);
+    _putDontNest(result, 1152, 1220);
+    _putDontNest(result, 1202, 1270);
+    _putDontNest(result, 1192, 1260);
+    _putDontNest(result, 1162, 1230);
+    _putDontNest(result, 5814, 5884);
+    _putDontNest(result, 4694, 4688);
+    _putDontNest(result, 990, 1318);
+    _putDontNest(result, 1152, 1398);
+    _putDontNest(result, 1252, 1290);
+    _putDontNest(result, 1202, 1348);
+    _putDontNest(result, 1232, 1318);
+    _putDontNest(result, 1180, 1378);
+    _putDontNest(result, 1230, 1328);
+    _putDontNest(result, 1200, 1220);
+    _putDontNest(result, 1210, 1230);
+    _putDontNest(result, 1056, 1108);
+    _putDontNest(result, 1182, 1250);
+    _putDontNest(result, 1034, 1150);
     _putDontNest(result, 316, 452);
     _putDontNest(result, 328, 432);
-    _putDontNest(result, 1206, 1352);
-    _putDontNest(result, 1234, 1332);
-    _putDontNest(result, 1128, 1422);
-    _putDontNest(result, 1256, 1294);
-    _putDontNest(result, 1204, 1224);
-    _putDontNest(result, 1214, 1234);
-    _putDontNest(result, 1036, 1120);
-    _putDontNest(result, 1412, 1432);
-    _putDontNest(result, 1014, 1132);
-    _putDontNest(result, 1274, 1304);
-    _putDontNest(result, 714, 1098);
-    _putDontNest(result, 1090, 1362);
-    _putDontNest(result, 1150, 1382);
-    _putDontNest(result, 1120, 1392);
-    _putDontNest(result, 1392, 1382);
-    _putDontNest(result, 1354, 1372);
-    _putDontNest(result, 1314, 1332);
-    _putDontNest(result, 1304, 1294);
-    _putDontNest(result, 1110, 1274);
-    _putDontNest(result, 4690, 4968);
-    _putDontNest(result, 4716, 4962);
-    _putDontNest(result, 1014, 1148);
-    _putDontNest(result, 1128, 1432);
-    _putDontNest(result, 1058, 1314);
-    _putDontNest(result, 1036, 1284);
-    _putDontNest(result, 1134, 1382);
-    _putDontNest(result, 1382, 1432);
-    _putDontNest(result, 1036, 1332);
-    _putDontNest(result, 1206, 1422);
-    _putDontNest(result, 1128, 1352);
+    _putDontNest(result, 4784, 4940);
+    _putDontNest(result, 4678, 4688);
+    _putDontNest(result, 1012, 1308);
+    _putDontNest(result, 1262, 1280);
+    _putDontNest(result, 1222, 1368);
+    _putDontNest(result, 1252, 1338);
+    _putDontNest(result, 1192, 1358);
+    _putDontNest(result, 1162, 1388);
+    _putDontNest(result, 1220, 1240);
+    _putDontNest(result, 1160, 1260);
+    _putDontNest(result, 1170, 1270);
+    _putDontNest(result, 1076, 1096);
+    _putDontNest(result, 1066, 1102);
+    _putDontNest(result, 1388, 1408);
+    _putDontNest(result, 1086, 1318);
+    _putDontNest(result, 1034, 1290);
+    _putDontNest(result, 1116, 1348);
+    _putDontNest(result, 1110, 1358);
+    _putDontNest(result, 1056, 1328);
+    _putDontNest(result, 1368, 1358);
+    _putDontNest(result, 1328, 1318);
+    _putDontNest(result, 1290, 1308);
+    _putDontNest(result, 1104, 1220);
+    _putDontNest(result, 1076, 1240);
+    _putDontNest(result, 4668, 4946);
+    _putDontNest(result, 1012, 1150);
+    _putDontNest(result, 990, 1108);
+    _putDontNest(result, 5354, 5384);
+    _putDontNest(result, 690, 1074);
+    _putDontNest(result, 1152, 1408);
+    _putDontNest(result, 1034, 1338);
+    _putDontNest(result, 1388, 1378);
+    _putDontNest(result, 1318, 1368);
+    _putDontNest(result, 990, 1124);
+    _putDontNest(result, 1012, 1102);
+    _putDontNest(result, 1102, 1398);
+    _putDontNest(result, 1200, 1408);
+    _putDontNest(result, 1066, 1290);
     _putDontNest(result, 412, 422);
-    _putDontNest(result, 1128, 1244);
-    _putDontNest(result, 1134, 1234);
-    _putDontNest(result, 1100, 1264);
-    _putDontNest(result, 1058, 1174);
-    _putDontNest(result, 1226, 1304);
-    _putDontNest(result, 1196, 1412);
-    _putDontNest(result, 1140, 1372);
-    _putDontNest(result, 1344, 1382);
+    _putDontNest(result, 1370, 1388);
+    _putDontNest(result, 1066, 1338);
+    _putDontNest(result, 1056, 1280);
+    _putDontNest(result, 1126, 1358);
+    _putDontNest(result, 1076, 1308);
     _putDontNest(result, 396, 422);
-    _putDontNest(result, 1304, 1342);
-    _putDontNest(result, 1314, 1284);
-    _putDontNest(result, 1150, 1234);
-    _putDontNest(result, 1036, 1184);
-    _putDontNest(result, 1140, 1224);
-    _putDontNest(result, 1126, 1274);
-    _putDontNest(result, 1090, 1254);
-    _putDontNest(result, 4700, 4962);
-    _putDontNest(result, 714, 1034);
-    _putDontNest(result, 1110, 1294);
-    _putDontNest(result, 1080, 1432);
-    _putDontNest(result, 1126, 1342);
-    _putDontNest(result, 1244, 1412);
+    _putDontNest(result, 1280, 1318);
+    _putDontNest(result, 1310, 1328);
+    _putDontNest(result, 1086, 1170);
+    _putDontNest(result, 1102, 1250);
+    _putDontNest(result, 1076, 1160);
+    _putDontNest(result, 1096, 1260);
+    _putDontNest(result, 1232, 1408);
+    _putDontNest(result, 1076, 1388);
+    _putDontNest(result, 1104, 1280);
+    _putDontNest(result, 1338, 1388);
     _putDontNest(result, 414, 452);
-    _putDontNest(result, 1334, 1432);
-    _putDontNest(result, 1286, 1352);
     _putDontNest(result, 310, 412);
-    _putDontNest(result, 1120, 1204);
-    _putDontNest(result, 1126, 1194);
-    _putDontNest(result, 1090, 1174);
-    _putDontNest(result, 1194, 1304);
-    _putDontNest(result, 1100, 1284);
-    _putDontNest(result, 1306, 1372);
-    _putDontNest(result, 1284, 1402);
+    _putDontNest(result, 1096, 1180);
+    _putDontNest(result, 1102, 1170);
+    _putDontNest(result, 1086, 1250);
+    _putDontNest(result, 1110, 1210);
+    _putDontNest(result, 4622, 4940);
+    _putDontNest(result, 1086, 1398);
+    _putDontNest(result, 1328, 1398);
+    _putDontNest(result, 1282, 1348);
     _putDontNest(result, 398, 452);
-    _putDontNest(result, 1342, 1392);
-    _putDontNest(result, 1058, 1254);
+    _putDontNest(result, 1034, 1230);
+    _putDontNest(result, 690, 1090);
     _putDontNest(result, 254, 442);
-    _putDontNest(result, 1058, 1362);
-    _putDontNest(result, 1100, 1332);
-    _putDontNest(result, 1276, 1412);
-    _putDontNest(result, 1332, 1402);
-    _putDontNest(result, 1352, 1342);
-    _putDontNest(result, 1296, 1382);
-    _putDontNest(result, 1294, 1392);
-    _putDontNest(result, 1036, 1264);
-    _putDontNest(result, 714, 1114);
-    _putDontNest(result, 1254, 1422);
-    _putDontNest(result, 1110, 1342);
-    _putDontNest(result, 1090, 1314);
-    _putDontNest(result, 1080, 1352);
-    _putDontNest(result, 1126, 1294);
-    _putDontNest(result, 1316, 1402);
-    _putDontNest(result, 1286, 1432);
-    _putDontNest(result, 1334, 1352);
-    _putDontNest(result, 1110, 1194);
-    _putDontNest(result, 1080, 1244);
-    _putDontNest(result, 1100, 1184);
-    _putDontNest(result, 4710, 4710);
-    _putDontNest(result, 714, 1224);
-    _putDontNest(result, 1224, 1352);
+    _putDontNest(result, 1280, 1270);
+    _putDontNest(result, 1330, 1348);
+    _putDontNest(result, 1308, 1378);
+    _putDontNest(result, 1280, 1398);
+    _putDontNest(result, 1096, 1368);
+    _putDontNest(result, 1104, 1328);
+    _putDontNest(result, 1102, 1318);
+    _putDontNest(result, 1290, 1260);
+    _putDontNest(result, 1292, 1378);
+    _putDontNest(result, 1290, 1388);
+    _putDontNest(result, 1320, 1358);
+    _putDontNest(result, 1126, 1210);
+    _putDontNest(result, 1056, 1220);
+    _putDontNest(result, 1116, 1200);
+    _putDontNest(result, 1066, 1230);
+    _putDontNest(result, 4678, 4678);
+    _putDontNest(result, 990, 1348);
+    _putDontNest(result, 1262, 1398);
     _putDontNest(result, 248, 412);
-    _putDontNest(result, 1196, 1332);
-    _putDontNest(result, 1226, 1244);
-    _putDontNest(result, 1236, 1274);
+    _putDontNest(result, 1162, 1290);
+    _putDontNest(result, 5330, 5364);
+    _putDontNest(result, 1172, 1210);
+    _putDontNest(result, 1076, 1114);
+    _putDontNest(result, 1200, 1190);
+    _putDontNest(result, 1310, 1408);
     _putDontNest(result, 316, 422);
-    _putDontNest(result, 1304, 1422);
-    _putDontNest(result, 1234, 1362);
-    _putDontNest(result, 1264, 1392);
-    _putDontNest(result, 1236, 1372);
-    _putDontNest(result, 1186, 1314);
-    _putDontNest(result, 1256, 1432);
-    _putDontNest(result, 1036, 1412);
-    _putDontNest(result, 1206, 1342);
-    _putDontNest(result, 1226, 1402);
-    _putDontNest(result, 1204, 1194);
-    _putDontNest(result, 1216, 1392);
-    _putDontNest(result, 1206, 1294);
-    _putDontNest(result, 1274, 1402);
-    _putDontNest(result, 1246, 1382);
-    _putDontNest(result, 1256, 1352);
-    _putDontNest(result, 1100, 1138);
-    _putDontNest(result, 1014, 1234);
-    _putDontNest(result, 714, 1382);
-    _putDontNest(result, 1014, 1372);
-    _putDontNest(result, 1224, 1432);
-    _putDontNest(result, 1266, 1362);
-    _putDontNest(result, 1196, 1284);
-    _putDontNest(result, 1176, 1214);
-    _putDontNest(result, 1216, 1254);
-    _putDontNest(result, 1246, 1264);
-    _putDontNest(result, 1314, 1412);
-    _putDontNest(result, 1244, 1284);
-    _putDontNest(result, 1254, 1342);
-    _putDontNest(result, 1266, 1314);
-    _putDontNest(result, 1184, 1392);
-    _putDontNest(result, 1110, 1422);
-    _putDontNest(result, 1214, 1382);
-    _putDontNest(result, 1362, 1412);
-    _putDontNest(result, 1176, 1352);
-    _putDontNest(result, 1276, 1332);
-    _putDontNest(result, 1100, 1412);
-    _putDontNest(result, 1214, 1264);
-    _putDontNest(result, 1184, 1254);
+    _putDontNest(result, 4694, 4678);
+    _putDontNest(result, 690, 1200);
+    _putDontNest(result, 1192, 1368);
+    _putDontNest(result, 1162, 1338);
+    _putDontNest(result, 1200, 1328);
+    _putDontNest(result, 1152, 1280);
+    _putDontNest(result, 1250, 1378);
+    _putDontNest(result, 1222, 1358);
+    _putDontNest(result, 1252, 1388);
+    _putDontNest(result, 1172, 1308);
+    _putDontNest(result, 1190, 1240);
+    _putDontNest(result, 1180, 1170);
+    _putDontNest(result, 1012, 1358);
+    _putDontNest(result, 1152, 1328);
+    _putDontNest(result, 1230, 1398);
+    _putDontNest(result, 1270, 1358);
+    _putDontNest(result, 1210, 1338);
+    _putDontNest(result, 1200, 1280);
+    _putDontNest(result, 1182, 1318);
+    _putDontNest(result, 1242, 1260);
+    _putDontNest(result, 1096, 1150);
+    _putDontNest(result, 1260, 1348);
+    _putDontNest(result, 1056, 1408);
+    _putDontNest(result, 1210, 1290);
+    _putDontNest(result, 1160, 1368);
+    _putDontNest(result, 1220, 1388);
+    _putDontNest(result, 1232, 1270);
+    _putDontNest(result, 1152, 1190);
+    _putDontNest(result, 5346, 5364);
+    _putDontNest(result, 4688, 4668);
+    _putDontNest(result, 990, 1210);
+    _putDontNest(result, 1272, 1368);
+    _putDontNest(result, 1104, 1408);
+    _putDontNest(result, 1242, 1338);
+    _putDontNest(result, 1180, 1348);
+    _putDontNest(result, 1220, 1308);
+    _putDontNest(result, 1232, 1280);
+    _putDontNest(result, 1202, 1378);
+    _putDontNest(result, 1210, 1260);
+    _putDontNest(result, 1170, 1220);
+    _putDontNest(result, 1212, 1250);
+    _putDontNest(result, 1012, 1200);
+    _putDontNest(result, 1262, 1318);
+    _putDontNest(result, 1242, 1290);
+    _putDontNest(result, 1160, 1230);
+    _putDontNest(result, 1200, 1270);
     _putDontNest(result, 422, 412);
-    _putDontNest(result, 1352, 1422);
-    _putDontNest(result, 1412, 1402);
-    _putDontNest(result, 4690, 4690);
-    _putDontNest(result, 1186, 1362);
-    _putDontNest(result, 1176, 1432);
-    _putDontNest(result, 5358, 5382);
-    _putDontNest(result, 1234, 1314);
-    _putDontNest(result, 1276, 1284);
-    _putDontNest(result, 1196, 1234);
-    _putDontNest(result, 1204, 1274);
-    _putDontNest(result, 1194, 1244);
-    _putDontNest(result, 1036, 1138);
-    _putDontNest(result, 1224, 1214);
-    _putDontNest(result, 1394, 1412);
-    _putDontNest(result, 1126, 1422);
-    _putDontNest(result, 1254, 1294);
-    _putDontNest(result, 1204, 1372);
-    _putDontNest(result, 1244, 1332);
-    _putDontNest(result, 1194, 1402);
-    _putDontNest(result, 1414, 1432);
-    _putDontNest(result, 1276, 1304);
-    _putDontNest(result, 5358, 5402);
-    _putDontNest(result, 1352, 1352);
-    _putDontNest(result, 1100, 1234);
-    _putDontNest(result, 1134, 1264);
-    _putDontNest(result, 1058, 1204);
-    _putDontNest(result, 1014, 1138);
-    _putDontNest(result, 5374, 5402);
-    _putDontNest(result, 1110, 1372);
-    _putDontNest(result, 1392, 1392);
-    _putDontNest(result, 1286, 1294);
-    _putDontNest(result, 1362, 1362);
-    _putDontNest(result, 1334, 1342);
-    _putDontNest(result, 1314, 1314);
+    _putDontNest(result, 1358, 1408);
+    _putDontNest(result, 5814, 5874);
+    _putDontNest(result, 4694, 4694);
+    _putDontNest(result, 690, 1358);
+    _putDontNest(result, 1252, 1308);
+    _putDontNest(result, 1240, 1368);
+    _putDontNest(result, 1172, 1388);
+    _putDontNest(result, 1212, 1348);
+    _putDontNest(result, 1170, 1378);
+    _putDontNest(result, 1152, 1270);
+    _putDontNest(result, 1180, 1250);
+    _putDontNest(result, 1202, 1220);
+    _putDontNest(result, 4678, 4694);
+    _putDontNest(result, 4550, 4946);
+    _putDontNest(result, 1230, 1318);
+    _putDontNest(result, 1182, 1398);
+    _putDontNest(result, 1190, 1358);
+    _putDontNest(result, 1232, 1328);
+    _putDontNest(result, 1192, 1230);
+    _putDontNest(result, 1222, 1240);
+    _putDontNest(result, 1162, 1260);
+    _putDontNest(result, 1390, 1408);
+    _putDontNest(result, 1170, 1408);
+    _putDontNest(result, 1290, 1290);
+    _putDontNest(result, 1034, 1180);
+    _putDontNest(result, 5356, 5384);
+    _putDontNest(result, 1102, 1348);
+    _putDontNest(result, 1126, 1388);
+    _putDontNest(result, 1066, 1368);
+    _putDontNest(result, 1380, 1388);
+    _putDontNest(result, 1378, 1378);
+    _putDontNest(result, 1280, 1280);
+    _putDontNest(result, 1328, 1328);
     _putDontNest(result, 398, 442);
-    _putDontNest(result, 1354, 1402);
-    _putDontNest(result, 1120, 1254);
-    _putDontNest(result, 1110, 1224);
-    _putDontNest(result, 1080, 1214);
-    _putDontNest(result, 1150, 1264);
-    _putDontNest(result, 1244, 1304);
-    _putDontNest(result, 5842, 5912);
-    _putDontNest(result, 1126, 1372);
-    _putDontNest(result, 1214, 1412);
-    _putDontNest(result, 1204, 1422);
-    _putDontNest(result, 1120, 1362);
-    _putDontNest(result, 1090, 1392);
-    _putDontNest(result, 1286, 1342);
-    _putDontNest(result, 1402, 1402);
-    _putDontNest(result, 1344, 1392);
-    _putDontNest(result, 1126, 1224);
-    _putDontNest(result, 1140, 1274);
-    _putDontNest(result, 1128, 1402);
-    _putDontNest(result, 1100, 1382);
+    _putDontNest(result, 1408, 1408);
+    _putDontNest(result, 1290, 1338);
+    _putDontNest(result, 1320, 1368);
+    _putDontNest(result, 1096, 1230);
+    _putDontNest(result, 1086, 1200);
+    _putDontNest(result, 1056, 1190);
+    _putDontNest(result, 1202, 1408);
+    _putDontNest(result, 1104, 1378);
+    _putDontNest(result, 1110, 1388);
+    _putDontNest(result, 1338, 1338);
+    _putDontNest(result, 1358, 1398);
+    _putDontNest(result, 1310, 1318);
+    _putDontNest(result, 1280, 1328);
+    _putDontNest(result, 1076, 1210);
+    _putDontNest(result, 1066, 1180);
+    _putDontNest(result, 1116, 1250);
+    _putDontNest(result, 1116, 1398);
+    _putDontNest(result, 1034, 1368);
+    _putDontNest(result, 1348, 1388);
     _putDontNest(result, 328, 412);
-    _putDontNest(result, 1352, 1432);
-    _putDontNest(result, 1236, 1422);
-    _putDontNest(result, 1058, 1392);
-    _putDontNest(result, 1246, 1412);
-    _putDontNest(result, 1134, 1332);
-    _putDontNest(result, 1342, 1382);
-    _putDontNest(result, 1306, 1402);
-    _putDontNest(result, 1284, 1372);
-    _putDontNest(result, 1036, 1234);
-    _putDontNest(result, 1150, 1184);
-    _putDontNest(result, 1128, 1214);
-    _putDontNest(result, 714, 1412);
-    _putDontNest(result, 1196, 1304);
-    _putDontNest(result, 1120, 1314);
-    _putDontNest(result, 1150, 1332);
-    _putDontNest(result, 1140, 1342);
-    _putDontNest(result, 1304, 1352);
-    _putDontNest(result, 1140, 1194);
-    _putDontNest(result, 1134, 1184);
-    _putDontNest(result, 1150, 1284);
-    _putDontNest(result, 1140, 1294);
-    _putDontNest(result, 1080, 1402);
-    _putDontNest(result, 1304, 1432);
-    _putDontNest(result, 1316, 1372);
+    _putDontNest(result, 1104, 1270);
+    _putDontNest(result, 4622, 4946);
+    _putDontNest(result, 1096, 1290);
+    _putDontNest(result, 1308, 1348);
+    _putDontNest(result, 1330, 1378);
+    _putDontNest(result, 1056, 1270);
+    _putDontNest(result, 1096, 1338);
+    _putDontNest(result, 1110, 1308);
+    _putDontNest(result, 1056, 1378);
+    _putDontNest(result, 1292, 1348);
+    _putDontNest(result, 1116, 1170);
+    _putDontNest(result, 1110, 1160);
+    _putDontNest(result, 1126, 1240);
+    _putDontNest(result, 1066, 1260);
+    _putDontNest(result, 990, 1114);
+    _putDontNest(result, 1012, 1408);
+    _putDontNest(result, 1116, 1318);
+    _putDontNest(result, 1126, 1308);
+    _putDontNest(result, 1086, 1348);
+    _putDontNest(result, 1076, 1358);
+    _putDontNest(result, 1368, 1368);
     _putDontNest(result, 432, 452);
-    _putDontNest(result, 1314, 1362);
-    _putDontNest(result, 1090, 1204);
-    _putDontNest(result, 1120, 1174);
-    _putDontNest(result, 1036, 1382);
-    _putDontNest(result, 1134, 1284);
-    _putDontNest(result, 1296, 1392);
-    _putDontNest(result, 1294, 1382);
-    _putDontNest(result, 1332, 1372);
-    _putDontNest(result, 1274, 1432);
-    _putDontNest(result, 1276, 1382);
-    _putDontNest(result, 1226, 1352);
-    _putDontNest(result, 1216, 1362);
-    _putDontNest(result, 1224, 1224);
-    _putDontNest(result, 1194, 1194);
-    _putDontNest(result, 1014, 1264);
-    _putDontNest(result, 1184, 1314);
-    _putDontNest(result, 1266, 1392);
-    _putDontNest(result, 1204, 1342);
-    _putDontNest(result, 1224, 1402);
-    _putDontNest(result, 1214, 1332);
-    _putDontNest(result, 1264, 1264);
-    _putDontNest(result, 1184, 1184);
-    _putDontNest(result, 1226, 1274);
-    _putDontNest(result, 1234, 1234);
-    _putDontNest(result, 1286, 1422);
-    _putDontNest(result, 1244, 1382);
-    _putDontNest(result, 1254, 1372);
-    _putDontNest(result, 1204, 1294);
-    _putDontNest(result, 1214, 1284);
-    _putDontNest(result, 1090, 1138);
-    _putDontNest(result, 1216, 1264);
-    _putDontNest(result, 1274, 1274);
-    _putDontNest(result, 1334, 1422);
-    _putDontNest(result, 714, 1254);
-    _putDontNest(result, 1014, 1362);
-    _putDontNest(result, 1100, 1304);
-    _putDontNest(result, 1256, 1402);
-    _putDontNest(result, 1226, 1432);
-    _putDontNest(result, 1274, 1352);
-    _putDontNest(result, 1264, 1362);
-    _putDontNest(result, 1234, 1392);
-    _putDontNest(result, 1014, 1184);
-    _putDontNest(result, 714, 1174);
-    _putDontNest(result, 1014, 1314);
-    _putDontNest(result, 5358, 5412);
-    _putDontNest(result, 1186, 1392);
-    _putDontNest(result, 1264, 1314);
-    _putDontNest(result, 1236, 1294);
-    _putDontNest(result, 1246, 1284);
-    _putDontNest(result, 1176, 1402);
-    _putDontNest(result, 1214, 1254);
-    _putDontNest(result, 1058, 1138);
-    _putDontNest(result, 1184, 1264);
-    _putDontNest(result, 1372, 1412);
-    _putDontNest(result, 714, 1284);
-    _putDontNest(result, 5374, 5412);
-    _putDontNest(result, 1194, 1432);
-    _putDontNest(result, 1196, 1382);
-    _putDontNest(result, 1176, 1224);
-    _putDontNest(result, 4716, 4690);
-    _putDontNest(result, 714, 1332);
-    _putDontNest(result, 1184, 1362);
-    _putDontNest(result, 1140, 1422);
-    _putDontNest(result, 1150, 1412);
-    _putDontNest(result, 1194, 1352);
-    _putDontNest(result, 1186, 1234);
-    _putDontNest(result, 1404, 1412);
-    _putDontNest(result, 1432, 1432);
-    _putDontNest(result, 4700, 4690);
-    _putDontNest(result, 1294, 1304);
-    _putDontNest(result, 5382, 5392);
-    _putDontNest(result, 1036, 1304);
-    _putDontNest(result, 1246, 1332);
-    _putDontNest(result, 1216, 1314);
-    _putDontNest(result, 1134, 1412);
-    _putDontNest(result, 1206, 1372);
-    _putDontNest(result, 1236, 1342);
-    _putDontNest(result, 1194, 1274);
-    _putDontNest(result, 1204, 1244);
-    _putDontNest(result, 1382, 1422);
-    _putDontNest(result, 5694, 5704);
-    _putDontNest(result, 1014, 1120);
-    _putDontNest(result, 1058, 1342);
-    _putDontNest(result, 1176, 1412);
-    _putDontNest(result, 1100, 1352);
+    _putDontNest(result, 1110, 1240);
+    _putDontNest(result, 1102, 1200);
+    _putDontNest(result, 1126, 1160);
+    _putDontNest(result, 1104, 1190);
+    _putDontNest(result, 1250, 1408);
+    _putDontNest(result, 1318, 1358);
+    _putDontNest(result, 1282, 1378);
+    _putDontNest(result, 1310, 1398);
+    _putDontNest(result, 1034, 1260);
+    _putDontNest(result, 4668, 4940);
+    _putDontNest(result, 1012, 1250);
+    _putDontNest(result, 1170, 1280);
+    _putDontNest(result, 1270, 1388);
+    _putDontNest(result, 1160, 1290);
+    _putDontNest(result, 1260, 1398);
+    _putDontNest(result, 1210, 1368);
+    _putDontNest(result, 1212, 1318);
+    _putDontNest(result, 1262, 1270);
+    _putDontNest(result, 1160, 1160);
+    _putDontNest(result, 5814, 5840);
+    _putDontNest(result, 1202, 1328);
+    _putDontNest(result, 1160, 1338);
+    _putDontNest(result, 1230, 1348);
+    _putDontNest(result, 1220, 1358);
+    _putDontNest(result, 1200, 1200);
+    _putDontNest(result, 1170, 1170);
+    _putDontNest(result, 1066, 1114);
+    _putDontNest(result, 1192, 1240);
+    _putDontNest(result, 1252, 1260);
+    _putDontNest(result, 1162, 1210);
+    _putDontNest(result, 1250, 1250);
+    _putDontNest(result, 1280, 1408);
+    _putDontNest(result, 1232, 1378);
+    _putDontNest(result, 1202, 1280);
+    _putDontNest(result, 1180, 1318);
+    _putDontNest(result, 1192, 1290);
+    _putDontNest(result, 1190, 1308);
+    _putDontNest(result, 1230, 1270);
+    _putDontNest(result, 1210, 1210);
+    _putDontNest(result, 1152, 1200);
+    _putDontNest(result, 1328, 1408);
+    _putDontNest(result, 690, 1308);
+    _putDontNest(result, 1252, 1358);
+    _putDontNest(result, 1192, 1338);
+    _putDontNest(result, 1262, 1348);
+    _putDontNest(result, 1162, 1368);
+    _putDontNest(result, 1222, 1388);
+    _putDontNest(result, 1170, 1328);
+    _putDontNest(result, 1220, 1260);
+    _putDontNest(result, 5354, 5354);
+    _putDontNest(result, 1034, 1114);
+    _putDontNest(result, 1160, 1240);
+    _putDontNest(result, 1110, 1150);
+    _putDontNest(result, 5658, 5676);
+    _putDontNest(result, 690, 1388);
+    _putDontNest(result, 990, 1338);
+    _putDontNest(result, 4592, 4946);
+    _putDontNest(result, 1222, 1308);
+    _putDontNest(result, 1200, 1378);
+    _putDontNest(result, 1172, 1358);
+    _putDontNest(result, 1240, 1338);
+    _putDontNest(result, 1250, 1328);
+    _putDontNest(result, 1182, 1348);
+    _putDontNest(result, 1180, 1220);
+    _putDontNest(result, 1202, 1250);
+    _putDontNest(result, 990, 1160);
+    _putDontNest(result, 990, 1290);
+    _putDontNest(result, 1012, 1328);
+    _putDontNest(result, 1212, 1398);
+    _putDontNest(result, 1260, 1318);
+    _putDontNest(result, 1190, 1388);
+    _putDontNest(result, 1240, 1290);
+    _putDontNest(result, 990, 1240);
+    _putDontNest(result, 690, 1230);
+    _putDontNest(result, 1012, 1280);
+    _putDontNest(result, 1272, 1338);
+    _putDontNest(result, 1242, 1368);
+    _putDontNest(result, 1170, 1250);
+    _putDontNest(result, 1240, 1240);
+    _putDontNest(result, 1172, 1260);
+    _putDontNest(result, 1012, 1170);
+    _putDontNest(result, 1270, 1308);
+    _putDontNest(result, 1250, 1280);
+    _putDontNest(result, 1180, 1398);
+    _putDontNest(result, 1272, 1290);
+    _putDontNest(result, 1152, 1378);
+    _putDontNest(result, 1182, 1270);
+    _putDontNest(result, 1190, 1230);
+    _putDontNest(result, 1172, 1408);
+    _putDontNest(result, 1388, 1398);
     _putDontNest(result, 432, 422);
-    _putDontNest(result, 1316, 1342);
-    _putDontNest(result, 1402, 1432);
-    _putDontNest(result, 1344, 1362);
-    _putDontNest(result, 1090, 1234);
-    _putDontNest(result, 1150, 1254);
-    _putDontNest(result, 1120, 1264);
-    _putDontNest(result, 1140, 1392);
-    _putDontNest(result, 1110, 1362);
-    _putDontNest(result, 1080, 1332);
+    _putDontNest(result, 1338, 1368);
+    _putDontNest(result, 1056, 1200);
+    _putDontNest(result, 1116, 1220);
+    _putDontNest(result, 1086, 1190);
+    _putDontNest(result, 1110, 1230);
+    _putDontNest(result, 990, 1096);
+    _putDontNest(result, 1126, 1378);
+    _putDontNest(result, 1066, 1318);
+    _putDontNest(result, 1096, 1348);
+    _putDontNest(result, 1076, 1328);
+    _putDontNest(result, 1358, 1348);
     _putDontNest(result, 396, 442);
-    _putDontNest(result, 1284, 1294);
-    _putDontNest(result, 1332, 1342);
-    _putDontNest(result, 1412, 1422);
-    _putDontNest(result, 1352, 1402);
-    _putDontNest(result, 1294, 1284);
-    _putDontNest(result, 1134, 1254);
-    _putDontNest(result, 1246, 1304);
-    _putDontNest(result, 1150, 1402);
-    _putDontNest(result, 1126, 1362);
-    _putDontNest(result, 1120, 1372);
-    _putDontNest(result, 1080, 1284);
-    _putDontNest(result, 1382, 1372);
-    _putDontNest(result, 1284, 1342);
-    _putDontNest(result, 1294, 1332);
-    _putDontNest(result, 1372, 1382);
-    _putDontNest(result, 1296, 1314);
-    _putDontNest(result, 1036, 1204);
-    _putDontNest(result, 1128, 1224);
-    _putDontNest(result, 714, 1126);
-    _putDontNest(result, 1100, 1432);
-    _putDontNest(result, 1134, 1402);
-    _putDontNest(result, 1058, 1294);
-    _putDontNest(result, 1186, 1422);
-    _putDontNest(result, 1354, 1432);
-    _putDontNest(result, 714, 1304);
-    _putDontNest(result, 1362, 1392);
-    _putDontNest(result, 1140, 1244);
-    _putDontNest(result, 4710, 4968);
-    _putDontNest(result, 4960, 4968);
-    _putDontNest(result, 1214, 1304);
-    _putDontNest(result, 1234, 1422);
-    _putDontNest(result, 1036, 1352);
-    _putDontNest(result, 1128, 1332);
-    _putDontNest(result, 1314, 1392);
-    _putDontNest(result, 1286, 1372);
-    _putDontNest(result, 1304, 1402);
-    _putDontNest(result, 1126, 1214);
-    _putDontNest(result, 1090, 1294);
-    _putDontNest(result, 1224, 1412);
-    _putDontNest(result, 1126, 1314);
-    _putDontNest(result, 1296, 1362);
-    _putDontNest(result, 1306, 1352);
-    _putDontNest(result, 1120, 1184);
-    _putDontNest(result, 4614, 4968);
-    _putDontNest(result, 714, 1078);
-    _putDontNest(result, 1090, 1342);
-    _putDontNest(result, 1266, 1422);
-    _putDontNest(result, 1110, 1314);
+    _putDontNest(result, 1348, 1358);
+    _putDontNest(result, 1282, 1280);
+    _putDontNest(result, 1034, 1210);
+    _putDontNest(result, 1012, 1090);
+    _putDontNest(result, 1104, 1388);
+    _putDontNest(result, 1086, 1338);
+    _putDontNest(result, 1056, 1308);
+    _putDontNest(result, 1076, 1280);
+    _putDontNest(result, 1110, 1378);
+    _putDontNest(result, 1308, 1318);
+    _putDontNest(result, 1282, 1328);
+    _putDontNest(result, 1102, 1270);
+    _putDontNest(result, 690, 1054);
+    _putDontNest(result, 1034, 1318);
+    _putDontNest(result, 1086, 1290);
+    _putDontNest(result, 1290, 1368);
+    _putDontNest(result, 1292, 1318);
+    _putDontNest(result, 1320, 1338);
+    _putDontNest(result, 1066, 1210);
+    _putDontNest(result, 1126, 1230);
+    _putDontNest(result, 1076, 1180);
+    _putDontNest(result, 1102, 1290);
+    _putDontNest(result, 1066, 1398);
+    _putDontNest(result, 1328, 1378);
+    _putDontNest(result, 1310, 1348);
+    _putDontNest(result, 1096, 1160);
+    _putDontNest(result, 1076, 1260);
+    _putDontNest(result, 690, 1150);
+    _putDontNest(result, 1056, 1388);
+    _putDontNest(result, 1220, 1408);
+    _putDontNest(result, 1102, 1338);
+    _putDontNest(result, 1104, 1308);
+    _putDontNest(result, 1318, 1388);
+    _putDontNest(result, 1086, 1270);
+    _putDontNest(result, 690, 1102);
+    _putDontNest(result, 1034, 1398);
+    _putDontNest(result, 1116, 1368);
     _putDontNest(result, 434, 452);
-    _putDontNest(result, 1306, 1432);
-    _putDontNest(result, 1058, 1234);
-    _putDontNest(result, 1100, 1204);
-    _putDontNest(result, 1134, 1174);
-    _putDontNest(result, 1036, 1432);
-    _putDontNest(result, 1128, 1284);
-    _putDontNest(result, 1256, 1412);
-    _putDontNest(result, 1334, 1372);
-    _putDontNest(result, 1080, 1224);
-    _putDontNest(result, 1110, 1214);
-    _putDontNest(result, 1150, 1304);
-    _putDontNest(result, 4572, 4968);
-    _putDontNest(result, 1216, 1372);
-    _putDontNest(result, 1176, 1284);
-    _putDontNest(result, 1186, 1342);
-    _putDontNest(result, 1246, 1402);
-    _putDontNest(result, 1276, 1432);
-    _putDontNest(result, 1274, 1382);
-    _putDontNest(result, 1206, 1314);
-    _putDontNest(result, 1126, 1148);
-    _putDontNest(result, 1120, 1138);
-    _putDontNest(result, 1080, 1114);
-    _putDontNest(result, 1216, 1234);
-    _putDontNest(result, 4716, 4716);
-    _putDontNest(result, 1014, 1254);
-    _putDontNest(result, 714, 1362);
-    _putDontNest(result, 1134, 1304);
-    _putDontNest(result, 1014, 1392);
-    _putDontNest(result, 1244, 1352);
-    _putDontNest(result, 1224, 1274);
-    _putDontNest(result, 1126, 1132);
-    _putDontNest(result, 1204, 1214);
-    _putDontNest(result, 1266, 1264);
-    _putDontNest(result, 1294, 1412);
-    _putDontNest(result, 1284, 1422);
+    _putDontNest(result, 1292, 1398);
+    _putDontNest(result, 1252, 1408);
+    _putDontNest(result, 1280, 1378);
+    _putDontNest(result, 1308, 1398);
+    _putDontNest(result, 1096, 1240);
+    _putDontNest(result, 1102, 1190);
+    _putDontNest(result, 1104, 1200);
+    _putDontNest(result, 1012, 1378);
+    _putDontNest(result, 1182, 1338);
+    _putDontNest(result, 1152, 1308);
+    _putDontNest(result, 1212, 1368);
+    _putDontNest(result, 1270, 1378);
+    _putDontNest(result, 1240, 1348);
+    _putDontNest(result, 1210, 1318);
+    _putDontNest(result, 1172, 1280);
+    _putDontNest(result, 1270, 1260);
+    _putDontNest(result, 1210, 1240);
+    _putDontNest(result, 1260, 1270);
+    _putDontNest(result, 1102, 1108);
+    _putDontNest(result, 1152, 1170);
+    _putDontNest(result, 990, 1230);
+    _putDontNest(result, 1182, 1290);
+    _putDontNest(result, 1230, 1220);
+    _putDontNest(result, 1160, 1210);
+    _putDontNest(result, 1220, 1230);
     _putDontNest(result, 310, 432);
-    _putDontNest(result, 4806, 4968);
-    _putDontNest(result, 5842, 5882);
-    _putDontNest(result, 1080, 1412);
-    _putDontNest(result, 1244, 1432);
-    _putDontNest(result, 1254, 1362);
-    _putDontNest(result, 1254, 1244);
-    _putDontNest(result, 1110, 1132);
-    _putDontNest(result, 1244, 1254);
+    _putDontNest(result, 1282, 1408);
+    _putDontNest(result, 1272, 1348);
+    _putDontNest(result, 1180, 1368);
+    _putDontNest(result, 1076, 1408);
+    _putDontNest(result, 1232, 1388);
+    _putDontNest(result, 1232, 1250);
+    _putDontNest(result, 1180, 1190);
+    _putDontNest(result, 5364, 5374);
     _putDontNest(result, 316, 442);
-    _putDontNest(result, 1342, 1412);
-    _putDontNest(result, 1332, 1422);
-    _putDontNest(result, 5694, 5694);
-    _putDontNest(result, 1058, 1422);
-    _putDontNest(result, 1264, 1372);
-    _putDontNest(result, 1186, 1294);
-    _putDontNest(result, 1226, 1382);
-    _putDontNest(result, 1236, 1392);
-    _putDontNest(result, 1176, 1332);
-    _putDontNest(result, 1276, 1352);
-    _putDontNest(result, 1234, 1264);
-    _putDontNest(result, 1256, 1274);
-    _putDontNest(result, 1090, 1120);
-    _putDontNest(result, 1110, 1148);
-    _putDontNest(result, 1100, 1126);
-    _putDontNest(result, 1176, 1194);
-    _putDontNest(result, 1316, 1422);
-    _putDontNest(result, 4700, 4716);
-    _putDontNest(result, 1234, 1294);
-    _putDontNest(result, 1256, 1332);
-    _putDontNest(result, 1186, 1264);
-    _putDontNest(result, 1176, 1274);
+    _putDontNest(result, 1330, 1408);
+    _putDontNest(result, 4668, 4668);
+    _putDontNest(result, 1012, 1220);
+    _putDontNest(result, 690, 1338);
+    _putDontNest(result, 690, 1180);
+    _putDontNest(result, 4592, 4940);
+    _putDontNest(result, 1200, 1308);
+    _putDontNest(result, 1162, 1318);
+    _putDontNest(result, 1222, 1378);
+    _putDontNest(result, 1242, 1398);
+    _putDontNest(result, 1172, 1328);
+    _putDontNest(result, 1250, 1358);
+    _putDontNest(result, 1162, 1240);
+    _putDontNest(result, 1102, 1124);
+    _putDontNest(result, 1170, 1200);
+    _putDontNest(result, 1222, 1260);
+    _putDontNest(result, 1192, 1210);
+    _putDontNest(result, 690, 1290);
+    _putDontNest(result, 690, 1260);
+    _putDontNest(result, 1200, 1388);
+    _putDontNest(result, 1170, 1358);
+    _putDontNest(result, 1252, 1328);
+    _putDontNest(result, 1230, 1290);
+    _putDontNest(result, 1200, 1250);
+    _putDontNest(result, 1086, 1124);
+    _putDontNest(result, 1182, 1220);
+    _putDontNest(result, 1172, 1230);
+    _putDontNest(result, 1034, 1096);
     _putDontNest(result, 442, 412);
-    _putDontNest(result, 1204, 1392);
-    _putDontNest(result, 1090, 1422);
-    _putDontNest(result, 1194, 1382);
-    _putDontNest(result, 1224, 1284);
-    _putDontNest(result, 1196, 1432);
-    _putDontNest(result, 1266, 1342);
-    _putDontNest(result, 1254, 1314);
-    _putDontNest(result, 1196, 1254);
-    _putDontNest(result, 1058, 1120);
-    _putDontNest(result, 5842, 5888);
-    _putDontNest(result, 4716, 4700);
-    _putDontNest(result, 714, 1204);
-    _putDontNest(result, 1224, 1332);
-    _putDontNest(result, 1214, 1402);
-    _putDontNest(result, 1196, 1352);
-    _putDontNest(result, 1184, 1372);
-    _putDontNest(result, 1266, 1294);
-    _putDontNest(result, 1194, 1224);
-    _putDontNest(result, 1184, 1234);
-    _putDontNest(result, 4700, 4700);
-    _putDontNest(result, 1296, 1304);
-    _putDontNest(result, 1206, 1362);
-    _putDontNest(result, 1128, 1412);
-    _putDontNest(result, 1234, 1342);
-    _putDontNest(result, 1256, 1284);
-    _putDontNest(result, 1036, 1126);
-    _putDontNest(result, 1206, 1244);
-    _putDontNest(result, 1014, 1174);
-    _putDontNest(result, 714, 1314);
-    _putDontNest(result, 714, 1108);
-    _putDontNest(result, 1126, 1392);
-    _putDontNest(result, 1090, 1372);
-    _putDontNest(result, 1150, 1432);
-    _putDontNest(result, 1314, 1342);
-    _putDontNest(result, 1344, 1372);
-    _putDontNest(result, 1304, 1284);
-    _putDontNest(result, 1404, 1432);
-    _putDontNest(result, 1036, 1174);
-    _putDontNest(result, 1014, 1126);
-    _putDontNest(result, 1264, 1304);
-    _putDontNest(result, 1100, 1402);
-    _putDontNest(result, 1134, 1432);
-    _putDontNest(result, 1128, 1382);
+    _putDontNest(result, 1190, 1378);
+    _putDontNest(result, 1220, 1280);
+    _putDontNest(result, 1260, 1368);
+    _putDontNest(result, 1210, 1398);
+    _putDontNest(result, 1232, 1308);
+    _putDontNest(result, 1230, 1338);
+    _putDontNest(result, 1160, 1348);
+    _putDontNest(result, 1076, 1150);
+    _putDontNest(result, 1212, 1270);
+    _putDontNest(result, 1190, 1260);
+    _putDontNest(result, 990, 1368);
+    _putDontNest(result, 1202, 1358);
+    _putDontNest(result, 1262, 1290);
+    _putDontNest(result, 1162, 1398);
+    _putDontNest(result, 1242, 1318);
+    _putDontNest(result, 1220, 1328);
+    _putDontNest(result, 1066, 1096);
+    _putDontNest(result, 1076, 1102);
+    _putDontNest(result, 1242, 1240);
+    _putDontNest(result, 1252, 1280);
+    _putDontNest(result, 1192, 1348);
+    _putDontNest(result, 1152, 1388);
+    _putDontNest(result, 1262, 1338);
+    _putDontNest(result, 1096, 1114);
+    _putDontNest(result, 1086, 1108);
+    _putDontNest(result, 1152, 1250);
+    _putDontNest(result, 1180, 1270);
+    _putDontNest(result, 1056, 1090);
+    _putDontNest(result, 1378, 1408);
+    _putDontNest(result, 1104, 1358);
+    _putDontNest(result, 1086, 1368);
+    _putDontNest(result, 1280, 1308);
+    _putDontNest(result, 1310, 1338);
+    _putDontNest(result, 1368, 1348);
+    _putDontNest(result, 1034, 1160);
+    _putDontNest(result, 4938, 4940);
+    _putDontNest(result, 1012, 1124);
+    _putDontNest(result, 990, 1102);
+    _putDontNest(result, 690, 1084);
     _putDontNest(result, 452, 452);
     _putDontNest(result, 422, 422);
-    _putDontNest(result, 1110, 1244);
-    _putDontNest(result, 1058, 1184);
-    _putDontNest(result, 1080, 1194);
-    _putDontNest(result, 1134, 1352);
-    _putDontNest(result, 1372, 1432);
-    _putDontNest(result, 5384, 5412);
-    _putDontNest(result, 1126, 1244);
-    _putDontNest(result, 1090, 1264);
-    _putDontNest(result, 1120, 1234);
-    _putDontNest(result, 1194, 1412);
-    _putDontNest(result, 1150, 1352);
-    _putDontNest(result, 1110, 1392);
-    _putDontNest(result, 1140, 1362);
-    _putDontNest(result, 1184, 1422);
-    _putDontNest(result, 1314, 1294);
-    _putDontNest(result, 1304, 1332);
-    _putDontNest(result, 1286, 1314);
-    _putDontNest(result, 1392, 1372);
-    _putDontNest(result, 1354, 1382);
-    _putDontNest(result, 1128, 1274);
-    _putDontNest(result, 1100, 1254);
-    _putDontNest(result, 1216, 1304);
-    _putDontNest(result, 1140, 1314);
-    _putDontNest(result, 1120, 1342);
-    _putDontNest(result, 1080, 1382);
-    _putDontNest(result, 1316, 1392);
+    _putDontNest(result, 1126, 1260);
+    _putDontNest(result, 1102, 1220);
+    _putDontNest(result, 1066, 1240);
+    _putDontNest(result, 1096, 1398);
+    _putDontNest(result, 1308, 1368);
+    _putDontNest(result, 1104, 1250);
+    _putDontNest(result, 1056, 1170);
+    _putDontNest(result, 1066, 1160);
+    _putDontNest(result, 1110, 1260);
+    _putDontNest(result, 1190, 1408);
+    _putDontNest(result, 1292, 1368);
+    _putDontNest(result, 1290, 1318);
+    _putDontNest(result, 1370, 1398);
+    _putDontNest(result, 1034, 1240);
+    _putDontNest(result, 1116, 1270);
+    _putDontNest(result, 1012, 1108);
+    _putDontNest(result, 990, 1150);
+    _putDontNest(result, 1076, 1378);
+    _putDontNest(result, 1126, 1328);
+    _putDontNest(result, 1110, 1280);
+    _putDontNest(result, 1116, 1338);
     _putDontNest(result, 316, 412);
-    _putDontNest(result, 1286, 1362);
+    _putDontNest(result, 1328, 1388);
     _putDontNest(result, 404, 452);
-    _putDontNest(result, 1058, 1264);
-    _putDontNest(result, 1100, 1174);
-    _putDontNest(result, 1134, 1204);
-    _putDontNest(result, 1128, 1194);
-    _putDontNest(result, 1216, 1422);
-    _putDontNest(result, 1226, 1412);
-    _putDontNest(result, 1036, 1402);
-    _putDontNest(result, 1296, 1372);
-    _putDontNest(result, 1294, 1402);
-    _putDontNest(result, 1332, 1392);
-    _putDontNest(result, 1140, 1214);
-    _putDontNest(result, 1150, 1204);
-    _putDontNest(result, 1184, 1304);
-    _putDontNest(result, 1274, 1412);
-    _putDontNest(result, 1264, 1422);
+    _putDontNest(result, 1222, 1408);
+    _putDontNest(result, 1116, 1290);
+    _putDontNest(result, 1034, 1348);
+    _putDontNest(result, 1338, 1398);
+    _putDontNest(result, 1282, 1358);
+    _putDontNest(result, 1318, 1378);
+    _putDontNest(result, 1056, 1250);
+    _putDontNest(result, 1096, 1210);
+    _putDontNest(result, 1110, 1180);
+    _putDontNest(result, 1104, 1170);
     _putDontNest(result, 248, 442);
-    _putDontNest(result, 1058, 1372);
-    _putDontNest(result, 1284, 1392);
-    _putDontNest(result, 1306, 1382);
-    _putDontNest(result, 1342, 1402);
-    _putDontNest(result, 1080, 1274);
-    _putDontNest(result, 1120, 1294);
-    _putDontNest(result, 1334, 1362);
-    _putDontNest(result, 1036, 1254);
-    _putDontNest(result, 1090, 1184);
-    _putDontNest(result, 4644, 4968);
-    _putDontNest(result, 1244, 1402);
-    _putDontNest(result, 1204, 1314);
-    _putDontNest(result, 1254, 1392);
+    _putDontNest(result, 1270, 1408);
+    _putDontNest(result, 1290, 1270);
+    _putDontNest(result, 1290, 1398);
+    _putDontNest(result, 1330, 1358);
+    _putDontNest(result, 1086, 1220);
+    _putDontNest(result, 1116, 1190);
+    _putDontNest(result, 1126, 1180);
+    _putDontNest(result, 1076, 1230);
+    _putDontNest(result, 1102, 1368);
+    _putDontNest(result, 1096, 1318);
+    _putDontNest(result, 1126, 1280);
+    _putDontNest(result, 1066, 1348);
+    _putDontNest(result, 1056, 1358);
+    _putDontNest(result, 1110, 1328);
+    _putDontNest(result, 1280, 1260);
+    _putDontNest(result, 1280, 1388);
+    _putDontNest(result, 1320, 1348);
+    _putDontNest(result, 1180, 1338);
     _putDontNest(result, 254, 412);
-    _putDontNest(result, 1184, 1342);
-    _putDontNest(result, 1194, 1332);
-    _putDontNest(result, 1216, 1244);
-    _putDontNest(result, 1246, 1274);
-    _putDontNest(result, 1186, 1214);
-    _putDontNest(result, 1126, 1138);
-    _putDontNest(result, 1120, 1148);
-    _putDontNest(result, 1304, 1412);
+    _putDontNest(result, 1232, 1358);
+    _putDontNest(result, 1242, 1348);
+    _putDontNest(result, 1190, 1328);
+    _putDontNest(result, 1212, 1240);
+    _putDontNest(result, 1086, 1114);
+    _putDontNest(result, 1182, 1210);
+    _putDontNest(result, 1152, 1180);
+    _putDontNest(result, 1096, 1108);
+    _putDontNest(result, 5330, 5374);
     _putDontNest(result, 310, 422);
-    _putDontNest(result, 4716, 4710);
-    _putDontNest(result, 714, 1234);
-    _putDontNest(result, 1014, 1382);
-    _putDontNest(result, 1246, 1352);
-    _putDontNest(result, 1234, 1372);
-    _putDontNest(result, 1256, 1382);
-    _putDontNest(result, 1236, 1362);
-    _putDontNest(result, 1120, 1132);
-    _putDontNest(result, 1120, 1304);
-    _putDontNest(result, 1276, 1402);
-    _putDontNest(result, 1246, 1432);
-    _putDontNest(result, 714, 1392);
-    _putDontNest(result, 1194, 1284);
-    _putDontNest(result, 1266, 1372);
-    _putDontNest(result, 1184, 1294);
-    _putDontNest(result, 1224, 1382);
-    _putDontNest(result, 1236, 1264);
-    _putDontNest(result, 1176, 1204);
-    _putDontNest(result, 1110, 1138);
-    _putDontNest(result, 1226, 1254);
-    _putDontNest(result, 1314, 1422);
-    _putDontNest(result, 4700, 4710);
-    _putDontNest(result, 4572, 4962);
-    _putDontNest(result, 1214, 1432);
-    _putDontNest(result, 1362, 1422);
-    _putDontNest(result, 1264, 1342);
-    _putDontNest(result, 1206, 1392);
-    _putDontNest(result, 1226, 1284);
-    _putDontNest(result, 1216, 1294);
-    _putDontNest(result, 1274, 1332);
-    _putDontNest(result, 1194, 1254);
-    _putDontNest(result, 1204, 1264);
-    _putDontNest(result, 1352, 1412);
-    _putDontNest(result, 1014, 1204);
-    _putDontNest(result, 1314, 1304);
-    _putDontNest(result, 1264, 1294);
-    _putDontNest(result, 1186, 1372);
-    _putDontNest(result, 1236, 1314);
-    _putDontNest(result, 1226, 1332);
-    _putDontNest(result, 1216, 1342);
-    _putDontNest(result, 1176, 1382);
-    _putDontNest(result, 1274, 1284);
-    _putDontNest(result, 1196, 1224);
-    _putDontNest(result, 1214, 1274);
-    _putDontNest(result, 1184, 1244);
+    _putDontNest(result, 4668, 4694);
+    _putDontNest(result, 690, 1368);
+    _putDontNest(result, 990, 1358);
+    _putDontNest(result, 1250, 1388);
+    _putDontNest(result, 1252, 1378);
+    _putDontNest(result, 1180, 1290);
+    _putDontNest(result, 1272, 1398);
+    _putDontNest(result, 1192, 1318);
+    _putDontNest(result, 1170, 1308);
+    _putDontNest(result, 1012, 1270);
+    _putDontNest(result, 1182, 1368);
+    _putDontNest(result, 1212, 1338);
+    _putDontNest(result, 1180, 1240);
+    _putDontNest(result, 1232, 1260);
+    _putDontNest(result, 990, 1260);
+    _putDontNest(result, 690, 1210);
+    _putDontNest(result, 1012, 1348);
+    _putDontNest(result, 1240, 1398);
+    _putDontNest(result, 1220, 1378);
+    _putDontNest(result, 1212, 1290);
+    _putDontNest(result, 1190, 1280);
+    _putDontNest(result, 1202, 1308);
+    _putDontNest(result, 1160, 1318);
+    _putDontNest(result, 1222, 1250);
+    _putDontNest(result, 1162, 1190);
+    _putDontNest(result, 1172, 1200);
+    _putDontNest(result, 1096, 1124);
+    _putDontNest(result, 5346, 5374);
+    _putDontNest(result, 1242, 1270);
+    _putDontNest(result, 1110, 1408);
+    _putDontNest(result, 1192, 1398);
+    _putDontNest(result, 1272, 1318);
+    _putDontNest(result, 1202, 1388);
+    _putDontNest(result, 1170, 1230);
+    _putDontNest(result, 1200, 1260);
+    _putDontNest(result, 1012, 1190);
+    _putDontNest(result, 1270, 1328);
+    _putDontNest(result, 1162, 1348);
+    _putDontNest(result, 1222, 1280);
+    _putDontNest(result, 1152, 1358);
+    _putDontNest(result, 1262, 1368);
+    _putDontNest(result, 1210, 1270);
+    _putDontNest(result, 1190, 1250);
+    _putDontNest(result, 1160, 1220);
+    _putDontNest(result, 1348, 1408);
+    _putDontNest(result, 5814, 5860);
+    _putDontNest(result, 990, 1180);
+    _putDontNest(result, 1172, 1378);
+    _putDontNest(result, 1222, 1328);
+    _putDontNest(result, 1170, 1388);
+    _putDontNest(result, 1210, 1348);
+    _putDontNest(result, 1240, 1318);
+    _putDontNest(result, 1260, 1290);
+    _putDontNest(result, 1200, 1358);
+    _putDontNest(result, 1270, 1280);
+    _putDontNest(result, 1250, 1308);
+    _putDontNest(result, 1160, 1398);
+    _putDontNest(result, 1202, 1230);
+    _putDontNest(result, 1162, 1270);
     _putDontNest(result, 412, 412);
-    _putDontNest(result, 1394, 1422);
-    _putDontNest(result, 4746, 4962);
-    _putDontNest(result, 1204, 1362);
-    _putDontNest(result, 1196, 1402);
-    _putDontNest(result, 1120, 1422);
-    _putDontNest(result, 1214, 1352);
-    _putDontNest(result, 1206, 1234);
+    _putDontNest(result, 1230, 1368);
+    _putDontNest(result, 1260, 1338);
+    _putDontNest(result, 1126, 1408);
+    _putDontNest(result, 1152, 1260);
+    _putDontNest(result, 1102, 1114);
+    _putDontNest(result, 1192, 1220);
     _putDontNest(result, 396, 412);
-    _putDontNest(result, 5392, 5402);
+    _putDontNest(result, 1380, 1408);
+    _putDontNest(result, 4668, 4678);
       
     return result;
   }
@@ -1234,87 +1234,56 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     
     ++resultStoreId;
     
-    result.putUnsafe(1372, resultStoreId);
-    result.putUnsafe(1382, resultStoreId);
-    result.putUnsafe(1392, resultStoreId);
+    result.putUnsafe(1358, resultStoreId);
+    result.putUnsafe(1368, resultStoreId);
+    result.putUnsafe(1348, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(5358, resultStoreId);
-    result.putUnsafe(5382, resultStoreId);
+    result.putUnsafe(1308, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1206, resultStoreId);
-    result.putUnsafe(1234, resultStoreId);
-    result.putUnsafe(1216, resultStoreId);
+    result.putUnsafe(1102, resultStoreId);
+    result.putUnsafe(1096, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1134, resultStoreId);
-    result.putUnsafe(1128, resultStoreId);
+    result.putUnsafe(5666, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1294, resultStoreId);
-    result.putUnsafe(1276, resultStoreId);
-    result.putUnsafe(1306, resultStoreId);
-    result.putUnsafe(1304, resultStoreId);
-    result.putUnsafe(1286, resultStoreId);
-    result.putUnsafe(1284, resultStoreId);
-    result.putUnsafe(1314, resultStoreId);
-    result.putUnsafe(1296, resultStoreId);
+    result.putUnsafe(1182, resultStoreId);
+    result.putUnsafe(1210, resultStoreId);
+    result.putUnsafe(1192, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1332, resultStoreId);
+    result.putUnsafe(1110, resultStoreId);
+    result.putUnsafe(1104, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1432, resultStoreId);
-    result.putUnsafe(1414, resultStoreId);
+    result.putUnsafe(1388, resultStoreId);
+    result.putUnsafe(1370, resultStoreId);
+    result.putUnsafe(1380, resultStoreId);
+    result.putUnsafe(1378, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1036, resultStoreId);
-    result.putUnsafe(1100, resultStoreId);
-    result.putUnsafe(1080, resultStoreId);
-    result.putUnsafe(1014, resultStoreId);
-    result.putUnsafe(1058, resultStoreId);
-    result.putUnsafe(1090, resultStoreId);
+    result.putUnsafe(1262, resultStoreId);
+    result.putUnsafe(1260, resultStoreId);
+    result.putUnsafe(1290, resultStoreId);
+    result.putUnsafe(1272, resultStoreId);
+    result.putUnsafe(1270, resultStoreId);
+    result.putUnsafe(1252, resultStoreId);
+    result.putUnsafe(1282, resultStoreId);
+    result.putUnsafe(1280, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(5374, resultStoreId);
-    result.putUnsafe(5392, resultStoreId);
+    result.putUnsafe(1390, resultStoreId);
+    result.putUnsafe(1408, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1342, resultStoreId);
-    result.putUnsafe(1352, resultStoreId);
-    result.putUnsafe(1334, resultStoreId);
-    result.putUnsafe(1316, resultStoreId);
-    result.putUnsafe(1344, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(714, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(4572, resultStoreId);
-    result.putUnsafe(4746, resultStoreId);
-    result.putUnsafe(4614, resultStoreId);
-    result.putUnsafe(4806, resultStoreId);
-    result.putUnsafe(4644, resultStoreId);
-    result.putUnsafe(4960, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1354, resultStoreId);
-    result.putUnsafe(1362, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(5384, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1150, resultStoreId);
-    result.putUnsafe(1140, resultStoreId);
-    result.putUnsafe(1184, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(4716, resultStoreId);
-    result.putUnsafe(4700, resultStoreId);
-    result.putUnsafe(4710, resultStoreId);
-    result.putUnsafe(4690, resultStoreId);
+    result.putUnsafe(4622, resultStoreId);
+    result.putUnsafe(4938, resultStoreId);
+    result.putUnsafe(4550, resultStoreId);
+    result.putUnsafe(4724, resultStoreId);
+    result.putUnsafe(4592, resultStoreId);
+    result.putUnsafe(4784, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(414, resultStoreId);
@@ -1322,10 +1291,22 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     result.putUnsafe(404, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1214, resultStoreId);
-    result.putUnsafe(1196, resultStoreId);
-    result.putUnsafe(1224, resultStoreId);
-    result.putUnsafe(1186, resultStoreId);
+    result.putUnsafe(1310, resultStoreId);
+    result.putUnsafe(1292, resultStoreId);
+    result.putUnsafe(1320, resultStoreId);
+    result.putUnsafe(1318, resultStoreId);
+    result.putUnsafe(1328, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(690, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(5356, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1230, resultStoreId);
+    result.putUnsafe(1220, resultStoreId);
+    result.putUnsafe(1202, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(412, resultStoreId);
@@ -1334,20 +1315,15 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     result.putUnsafe(432, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1422, resultStoreId);
+    result.putUnsafe(5364, resultStoreId);
+    result.putUnsafe(5346, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(5704, resultStoreId);
-    result.putUnsafe(5686, resultStoreId);
+    result.putUnsafe(5354, resultStoreId);
+    result.putUnsafe(5330, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(5694, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(5412, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(1110, resultStoreId);
+    result.putUnsafe(1086, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(254, resultStoreId);
@@ -1359,39 +1335,63 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     result.putUnsafe(310, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1194, resultStoreId);
-    result.putUnsafe(1176, resultStoreId);
-    result.putUnsafe(1204, resultStoreId);
+    result.putUnsafe(1212, resultStoreId);
+    result.putUnsafe(1242, resultStoreId);
+    result.putUnsafe(1240, resultStoreId);
+    result.putUnsafe(1222, resultStoreId);
+    result.putUnsafe(1250, resultStoreId);
+    result.putUnsafe(1232, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(5842, resultStoreId);
+    result.putUnsafe(1398, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1404, resultStoreId);
-    result.putUnsafe(1402, resultStoreId);
-    result.putUnsafe(1412, resultStoreId);
-    result.putUnsafe(1394, resultStoreId);
+    result.putUnsafe(5814, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1338, resultStoreId);
+    result.putUnsafe(1330, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(424, resultStoreId);
     result.putUnsafe(434, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1246, resultStoreId);
-    result.putUnsafe(1274, resultStoreId);
-    result.putUnsafe(1256, resultStoreId);
-    result.putUnsafe(1236, resultStoreId);
-    result.putUnsafe(1266, resultStoreId);
-    result.putUnsafe(1264, resultStoreId);
+    result.putUnsafe(990, resultStoreId);
+    result.putUnsafe(1066, resultStoreId);
+    result.putUnsafe(1034, resultStoreId);
+    result.putUnsafe(1076, resultStoreId);
+    result.putUnsafe(1012, resultStoreId);
+    result.putUnsafe(1056, resultStoreId);
     ++resultStoreId;
     
+    result.putUnsafe(1116, resultStoreId);
+    result.putUnsafe(1160, resultStoreId);
     result.putUnsafe(1126, resultStoreId);
-    result.putUnsafe(1120, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(1244, resultStoreId);
-    result.putUnsafe(1226, resultStoreId);
-    result.putUnsafe(1254, resultStoreId);
+    result.putUnsafe(5384, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(4668, resultStoreId);
+    result.putUnsafe(4694, resultStoreId);
+    result.putUnsafe(4678, resultStoreId);
+    result.putUnsafe(4688, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1180, resultStoreId);
+    result.putUnsafe(1170, resultStoreId);
+    result.putUnsafe(1152, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(1162, resultStoreId);
+    result.putUnsafe(1190, resultStoreId);
+    result.putUnsafe(1172, resultStoreId);
+    result.putUnsafe(1200, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(5676, resultStoreId);
+    result.putUnsafe(5658, resultStoreId);
       
     return result;
   }
@@ -1569,8 +1569,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__Conditional_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable = (IConstructor) _read("prod(label(\"Conditional\",sort(\"FunctionDeclaration\")),[label(\"tags\",sort(\"Tags\")),layouts(\"LAYOUTLIST\"),label(\"visibility\",sort(\"Visibility\")),layouts(\"LAYOUTLIST\"),label(\"signature\",sort(\"Signature\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"when\"),layouts(\"LAYOUTLIST\"),label(\"conditions\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\";\")],{tag(Foldable())})", Factory.Production);
   private static final IConstructor prod__lit___40__char_class___range__40_40_ = (IConstructor) _read("prod(lit(\"(\"),[\\char-class([range(40,40)])],{})", Factory.Production);
   private static final IConstructor prod__lit___43__char_class___range__43_43_ = (IConstructor) _read("prod(lit(\"+\"),[\\char-class([range(43,43)])],{})", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_try_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"try\")],{})", Factory.Production);
   private static final IConstructor prod__lit___42__char_class___range__42_42_ = (IConstructor) _read("prod(lit(\"*\"),[\\char-class([range(42,42)])],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_try_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"try\")],{})", Factory.Production);
   private static final IConstructor prod__lit____char_class___range__45_45_ = (IConstructor) _read("prod(lit(\"-\"),[\\char-class([range(45,45)])],{})", Factory.Production);
   private static final IConstructor prod__OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"OctalIntegerLiteral\"),[\\char-class([range(48,48)]),conditional(iter(\\char-class([range(48,55)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
   private static final IConstructor prod__lit___44__char_class___range__44_44_ = (IConstructor) _read("prod(lit(\",\"),[\\char-class([range(44,44)])],{})", Factory.Production);
@@ -1580,8 +1580,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__StartOfLine_Sym__lit___94_layouts_LAYOUTLIST_symbol_Sym_ = (IConstructor) _read("prod(label(\"StartOfLine\",sort(\"Sym\")),[lit(\"^\"),layouts(\"LAYOUTLIST\"),label(\"symbol\",sort(\"Sym\"))],{})", Factory.Production);
   private static final IConstructor prod__lit_if__char_class___range__105_105_char_class___range__102_102_ = (IConstructor) _read("prod(lit(\"if\"),[\\char-class([range(105,105)]),\\char-class([range(102,102)])],{})", Factory.Production);
   private static final IConstructor prod__lit___46__char_class___range__46_46_ = (IConstructor) _read("prod(lit(\".\"),[\\char-class([range(46,46)])],{})", Factory.Production);
-  private static final IConstructor prod__lit___33__char_class___range__33_33_ = (IConstructor) _read("prod(lit(\"!\"),[\\char-class([range(33,33)])],{})", Factory.Production);
   private static final IConstructor prod__Expression_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59__tag__Foldable = (IConstructor) _read("prod(label(\"Expression\",sort(\"FunctionDeclaration\")),[label(\"tags\",sort(\"Tags\")),layouts(\"LAYOUTLIST\"),label(\"visibility\",sort(\"Visibility\")),layouts(\"LAYOUTLIST\"),label(\"signature\",sort(\"Signature\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{tag(Foldable())})", Factory.Production);
+  private static final IConstructor prod__lit___33__char_class___range__33_33_ = (IConstructor) _read("prod(lit(\"!\"),[\\char-class([range(33,33)])],{})", Factory.Production);
   private static final IConstructor prod__lit___35__char_class___range__35_35_ = (IConstructor) _read("prod(lit(\"#\"),[\\char-class([range(35,35)])],{})", Factory.Production);
   private static final IConstructor prod__Default_QualifiedName__conditional__names_iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST__not_follow__lit___58_58_ = (IConstructor) _read("prod(label(\"Default\",sort(\"QualifiedName\")),[conditional(label(\"names\",\\iter-seps(lex(\"Name\"),[layouts(\"LAYOUTLIST\"),lit(\"::\"),layouts(\"LAYOUTLIST\")])),{\\not-follow(lit(\"::\"))})],{})", Factory.Production);
   private static final IConstructor prod__lit___34__char_class___range__34_34_ = (IConstructor) _read("prod(lit(\"\\\"\"),[\\char-class([range(34,34)])],{})", Factory.Production);
@@ -1683,7 +1683,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__CallOrTree_Pattern__expression_Pattern_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = (IConstructor) _read("prod(label(\"CallOrTree\",sort(\"Pattern\")),[label(\"expression\",sort(\"Pattern\")),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"arguments\",\\iter-star-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\")\")],{})", Factory.Production);
   private static final IConstructor prod__IfThen_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = (IConstructor) _read("prod(label(\"IfThen\",sort(\"StringTemplate\")),[lit(\"if\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"conditions\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\")\"),layouts(\"LAYOUTLIST\"),lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"preStats\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),label(\"body\",sort(\"StringMiddle\")),layouts(\"LAYOUTLIST\"),label(\"postStats\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{})", Factory.Production);
   private static final IConstructor prod__Complement_Class__lit___33_layouts_LAYOUTLIST_charClass_Class_ = (IConstructor) _read("prod(label(\"Complement\",sort(\"Class\")),[lit(\"!\"),layouts(\"LAYOUTLIST\"),label(\"charClass\",sort(\"Class\"))],{})", Factory.Production);
-  private static final IConstructor prod__Test_Declaration__test_Test_layouts_LAYOUTLIST_lit___59__tag__Foldable = (IConstructor) _read("prod(label(\"Test\",sort(\"Declaration\")),[label(\"test\",sort(\"Test\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{tag(Foldable())})", Factory.Production);
   private static final IConstructor prod__lit_quit__char_class___range__113_113_char_class___range__117_117_char_class___range__105_105_char_class___range__116_116_ = (IConstructor) _read("prod(lit(\"quit\"),[\\char-class([range(113,113)]),\\char-class([range(117,117)]),\\char-class([range(105,105)]),\\char-class([range(116,116)])],{})", Factory.Production);
   private static final IConstructor prod__Tag_ProdModifier__tag_Tag_ = (IConstructor) _read("prod(label(\"Tag\",sort(\"ProdModifier\")),[label(\"tag\",sort(\"Tag\"))],{})", Factory.Production);
   private static final IConstructor prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_ = (IConstructor) _read("prod(lit(\"tuple\"),[\\char-class([range(116,116)]),\\char-class([range(117,117)]),\\char-class([range(112,112)]),\\char-class([range(108,108)]),\\char-class([range(101,101)])],{})", Factory.Production);
@@ -1703,8 +1702,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__Right_Assoc__lit_right_ = (IConstructor) _read("prod(label(\"Right\",sort(\"Assoc\")),[lit(\"right\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_bag_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"bag\")],{})", Factory.Production);
   private static final IConstructor prod__NamedRegExp__lit___60_Name_lit___62_ = (IConstructor) _read("prod(lex(\"NamedRegExp\"),[lit(\"\\<\"),lex(\"Name\"),lit(\"\\>\")],{})", Factory.Production);
-  private static final IConstructor regular__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("regular(seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})]))", Factory.Production);
   private static final IConstructor prod__Empty_Sym__lit___40_layouts_LAYOUTLIST_lit___41_ = (IConstructor) _read("prod(label(\"Empty\",sort(\"Sym\")),[lit(\"(\"),layouts(\"LAYOUTLIST\"),lit(\")\")],{})", Factory.Production);
+  private static final IConstructor regular__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("regular(seq([conditional(\\char-class([range(65,90),range(95,95),range(97,122)]),{\\not-precede(\\char-class([range(65,90),range(95,95),range(97,122)]))}),conditional(\\iter-star(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})]))", Factory.Production);
   private static final IConstructor prod__lit_outermost__char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_ = (IConstructor) _read("prod(lit(\"outermost\"),[\\char-class([range(111,111)]),\\char-class([range(117,117)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(109,109)]),\\char-class([range(111,111)]),\\char-class([range(115,115)]),\\char-class([range(116,116)])],{})", Factory.Production);
   private static final IConstructor prod__Negation_Expression__lit___33_layouts_LAYOUTLIST_argument_Expression_ = (IConstructor) _read("prod(label(\"Negation\",sort(\"Expression\")),[lit(\"!\"),layouts(\"LAYOUTLIST\"),label(\"argument\",sort(\"Expression\"))],{})", Factory.Production);
   private static final IConstructor prod__Interpolated_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringMiddle_ = (IConstructor) _read("prod(label(\"Interpolated\",sort(\"StringMiddle\")),[label(\"mid\",lex(\"MidStringChars\")),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),label(\"tail\",sort(\"StringMiddle\"))],{})", Factory.Production);
@@ -1755,8 +1754,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_ = (IConstructor) _read("prod(lit(\"while\"),[\\char-class([range(119,119)]),\\char-class([range(104,104)]),\\char-class([range(105,105)]),\\char-class([range(108,108)]),\\char-class([range(101,101)])],{})", Factory.Production);
   private static final IConstructor regular__iter_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"TypeArg\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
   private static final IConstructor prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_ = (IConstructor) _read("prod(lit(\"notin\"),[\\char-class([range(110,110)]),\\char-class([range(111,111)]),\\char-class([range(116,116)]),\\char-class([range(105,105)]),\\char-class([range(110,110)])],{})", Factory.Production);
-  private static final IConstructor regular__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535 = (IConstructor) _read("regular(alt({seq([\\char-class([range(92,92)]),\\char-class([range(125,125)])]),\\char-class([range(0,124),range(126,65535)])}))", Factory.Production);
   private static final IConstructor regular__iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"Renaming\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
+  private static final IConstructor regular__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535 = (IConstructor) _read("regular(alt({seq([\\char-class([range(92,92)]),\\char-class([range(125,125)])]),\\char-class([range(0,124),range(126,65535)])}))", Factory.Production);
   private static final IConstructor prod__Unimport_ShellCommand__lit_unimport_layouts_LAYOUTLIST_name_QualifiedName_ = (IConstructor) _read("prod(label(\"Unimport\",sort(\"ShellCommand\")),[lit(\"unimport\"),layouts(\"LAYOUTLIST\"),label(\"name\",sort(\"QualifiedName\"))],{})", Factory.Production);
   private static final IConstructor prod__Default_Renamings__lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"Default\",sort(\"Renamings\")),[lit(\"renaming\"),layouts(\"LAYOUTLIST\"),label(\"renamings\",\\iter-seps(sort(\"Renaming\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_dynamic_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"dynamic\")],{})", Factory.Production);
@@ -1767,6 +1766,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("regular(opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))])))", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_catch_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"catch\")],{})", Factory.Production);
   private static final IConstructor prod__GlobalDirective_Statement__lit_global_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_names_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_ = (IConstructor) _read("prod(label(\"GlobalDirective\",sort(\"Statement\")),[lit(\"global\"),layouts(\"LAYOUTLIST\"),label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"names\",\\iter-seps(sort(\"QualifiedName\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\";\")],{})", Factory.Production);
+  private static final IConstructor prod__Test_FunctionModifier__lit_test_ = (IConstructor) _read("prod(label(\"Test\",sort(\"FunctionModifier\")),[lit(\"test\")],{})", Factory.Production);
   private static final IConstructor prod__Default_Tag__lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_contents_TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116 = (IConstructor) _read("prod(label(\"Default\",sort(\"Tag\")),[lit(\"@\"),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),label(\"contents\",lex(\"TagString\"))],{tag(Foldable()),tag(category(\"Comment\"))})", Factory.Production);
   private static final IConstructor prod__Language_SyntaxDefinition__start_Start_layouts_LAYOUTLIST_lit_syntax_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable = (IConstructor) _read("prod(label(\"Language\",sort(\"SyntaxDefinition\")),[label(\"start\",sort(\"Start\")),layouts(\"LAYOUTLIST\"),lit(\"syntax\"),layouts(\"LAYOUTLIST\"),label(\"defined\",sort(\"Sym\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"production\",sort(\"Prod\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{tag(Foldable())})", Factory.Production);
   private static final IConstructor prod__Default_Import__lit_import_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_ = (IConstructor) _read("prod(label(\"Default\",sort(\"Import\")),[lit(\"import\"),layouts(\"LAYOUTLIST\"),label(\"module\",sort(\"ImportedModule\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{})", Factory.Production);
@@ -1788,7 +1788,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__EmptyStatement_Statement__lit___59_ = (IConstructor) _read("prod(label(\"EmptyStatement\",sort(\"Statement\")),[lit(\";\")],{})", Factory.Production);
   private static final IConstructor prod__NAryConstructor_Variant__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = (IConstructor) _read("prod(label(\"NAryConstructor\",sort(\"Variant\")),[label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"arguments\",\\iter-star-seps(sort(\"TypeArg\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\")\")],{})", Factory.Production);
   private static final IConstructor prod__ReifiedType_BasicType__lit_type_ = (IConstructor) _read("prod(label(\"ReifiedType\",sort(\"BasicType\")),[lit(\"type\")],{})", Factory.Production);
-  private static final IConstructor prod__WithThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"WithThrows\",sort(\"Signature\")),[label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"modifiers\",sort(\"FunctionModifiers\")),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),label(\"parameters\",sort(\"Parameters\")),layouts(\"LAYOUTLIST\"),lit(\"throws\"),layouts(\"LAYOUTLIST\"),label(\"exceptions\",\\iter-seps(sort(\"Type\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102 = (IConstructor) _read("regular(opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)])))", Factory.Production);
   private static final IConstructor prod__Equivalence_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = (IConstructor) _read("prod(label(\"Equivalence\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"\\<==\\>\"),layouts(\"LAYOUTLIST\"),label(\"rhs\",sort(\"Expression\"))],{assoc(\\non-assoc())})", Factory.Production);
   private static final IConstructor prod__TransitiveReflexiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_ = (IConstructor) _read("prod(label(\"TransitiveReflexiveClosure\",sort(\"Expression\")),[label(\"argument\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),conditional(lit(\"*\"),{\\not-follow(lit(\"=\"))})],{})", Factory.Production);
@@ -1845,6 +1844,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__PostProtocolChars__lit___62_URLChars_lit___58_47_47_ = (IConstructor) _read("prod(lex(\"PostProtocolChars\"),[lit(\"\\>\"),lex(\"URLChars\"),lit(\"://\")],{})", Factory.Production);
   private static final IConstructor prod__lit___60_60__char_class___range__60_60_char_class___range__60_60_ = (IConstructor) _read("prod(lit(\"\\<\\<\"),[\\char-class([range(60,60)]),\\char-class([range(60,60)])],{})", Factory.Production);
   private static final IConstructor prod__HeaderKeyword__lit_extend_ = (IConstructor) _read("prod(keywords(\"HeaderKeyword\"),[lit(\"extend\")],{})", Factory.Production);
+  private static final IConstructor prod__WithThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"WithThrows\",sort(\"Signature\")),[label(\"modifiers\",sort(\"FunctionModifiers\")),layouts(\"LAYOUTLIST\"),label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),label(\"parameters\",sort(\"Parameters\")),layouts(\"LAYOUTLIST\"),lit(\"throws\"),layouts(\"LAYOUTLIST\"),label(\"exceptions\",\\iter-seps(sort(\"Type\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor prod__Bool_BasicType__lit_bool_ = (IConstructor) _read("prod(label(\"Bool\",sort(\"BasicType\")),[lit(\"bool\")],{})", Factory.Production);
   private static final IConstructor prod__Alias_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_alias_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_base_Type_layouts_LAYOUTLIST_lit___59_ = (IConstructor) _read("prod(label(\"Alias\",sort(\"Declaration\")),[label(\"tags\",sort(\"Tags\")),layouts(\"LAYOUTLIST\"),label(\"visibility\",sort(\"Visibility\")),layouts(\"LAYOUTLIST\"),lit(\"alias\"),layouts(\"LAYOUTLIST\"),label(\"user\",sort(\"UserType\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"base\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_value_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"value\")],{})", Factory.Production);
@@ -1868,10 +1868,10 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__In_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_in_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = (IConstructor) _read("prod(label(\"In\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"in\"),layouts(\"LAYOUTLIST\"),label(\"rhs\",sort(\"Expression\"))],{assoc(\\non-assoc())})", Factory.Production);
   private static final IConstructor regular__iter_seps__Statement__layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")]))", Factory.Production);
   private static final IConstructor prod__Default_Label__name_Name_layouts_LAYOUTLIST_lit___58_ = (IConstructor) _read("prod(label(\"Default\",sort(\"Label\")),[label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),lit(\":\")],{})", Factory.Production);
-  private static final IConstructor prod__NoThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_ = (IConstructor) _read("prod(label(\"NoThrows\",sort(\"Signature\")),[label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"modifiers\",sort(\"FunctionModifiers\")),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),label(\"parameters\",sort(\"Parameters\"))],{})", Factory.Production);
   private static final IConstructor prod__All_Kind__lit_all_ = (IConstructor) _read("prod(label(\"All\",sort(\"Kind\")),[lit(\"all\")],{})", Factory.Production);
   private static final IConstructor prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_ = (IConstructor) _read("prod(lit(\"keyword\"),[\\char-class([range(107,107)]),\\char-class([range(101,101)]),\\char-class([range(121,121)]),\\char-class([range(119,119)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(100,100)])],{})", Factory.Production);
   private static final IConstructor prod__NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_ = (IConstructor) _read("prod(lex(\"NamedBackslash\"),[conditional(\\char-class([range(92,92)]),{\\not-follow(\\char-class([range(60,60),range(62,62),range(92,92)]))})],{})", Factory.Production);
+  private static final IConstructor prod__NoThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_ = (IConstructor) _read("prod(label(\"NoThrows\",sort(\"Signature\")),[label(\"modifiers\",sort(\"FunctionModifiers\")),layouts(\"LAYOUTLIST\"),label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),label(\"parameters\",sort(\"Parameters\"))],{})", Factory.Production);
   private static final IConstructor prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_ = (IConstructor) _read("prod(lit(\"syntax\"),[\\char-class([range(115,115)]),\\char-class([range(121,121)]),\\char-class([range(110,110)]),\\char-class([range(116,116)]),\\char-class([range(97,97)]),\\char-class([range(120,120)])],{})", Factory.Production);
   private static final IConstructor prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_ = (IConstructor) _read("prod(lit(\"all\"),[\\char-class([range(97,97)]),\\char-class([range(108,108)]),\\char-class([range(108,108)])],{})", Factory.Production);
   private static final IConstructor prod__DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = (IConstructor) _read("prod(lex(\"DecimalIntegerLiteral\"),[\\char-class([range(49,57)]),conditional(\\iter-star(\\char-class([range(48,57)])),{\\not-follow(\\char-class([range(48,57),range(65,90),range(95,95),range(97,122)]))})],{})", Factory.Production);
@@ -1907,8 +1907,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__Tag_Kind__lit_tag_ = (IConstructor) _read("prod(label(\"Tag\",sort(\"Kind\")),[lit(\"tag\")],{})", Factory.Production);
   private static final IConstructor prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_ = (IConstructor) _read("prod(lit(\"map\"),[\\char-class([range(109,109)]),\\char-class([range(97,97)]),\\char-class([range(112,112)])],{})", Factory.Production);
   private static final IConstructor prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_ = (IConstructor) _read("prod(lit(\"real\"),[\\char-class([range(114,114)]),\\char-class([range(101,101)]),\\char-class([range(97,97)]),\\char-class([range(108,108)])],{})", Factory.Production);
-  private static final IConstructor regular__iter_star_seps__Mapping__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-star-seps(\\parameterized-sort(\"Mapping\",[sort(\"Pattern\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
   private static final IConstructor regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122 = (IConstructor) _read("regular(\\iter-star(\\char-class([range(45,45),range(48,57),range(65,90),range(95,95),range(97,122)])))", Factory.Production);
+  private static final IConstructor regular__iter_star_seps__Mapping__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-star-seps(\\parameterized-sort(\"Mapping\",[sort(\"Pattern\")]),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
   private static final IConstructor prod__ReifiedFunction_BasicType__lit_fun_ = (IConstructor) _read("prod(label(\"ReifiedFunction\",sort(\"BasicType\")),[lit(\"fun\")],{})", Factory.Production);
   private static final IConstructor prod__Division_Assignment__lit___47_61_ = (IConstructor) _read("prod(label(\"Division\",sort(\"Assignment\")),[lit(\"/=\")],{})", Factory.Production);
   private static final IConstructor prod__Product_Assignment__lit___42_61_ = (IConstructor) _read("prod(label(\"Product\",sort(\"Assignment\")),[lit(\"*=\")],{})", Factory.Production);
@@ -1932,7 +1932,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__Lexical_SyntaxDefinition__lit_lexical_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable = (IConstructor) _read("prod(label(\"Lexical\",sort(\"SyntaxDefinition\")),[lit(\"lexical\"),layouts(\"LAYOUTLIST\"),label(\"defined\",sort(\"Sym\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"production\",sort(\"Prod\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{tag(Foldable())})", Factory.Production);
   private static final IConstructor prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_ = (IConstructor) _read("prod(lit(\"layout\"),[\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(121,121)]),\\char-class([range(111,111)]),\\char-class([range(117,117)]),\\char-class([range(116,116)])],{})", Factory.Production);
   private static final IConstructor regular__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("regular(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))", Factory.Production);
-  private static final IConstructor prod__Parameterized_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_expression_Expression_ = (IConstructor) _read("prod(label(\"Parameterized\",sort(\"Test\")),[label(\"tags\",sort(\"Tags\")),layouts(\"LAYOUTLIST\"),lit(\"test\"),layouts(\"LAYOUTLIST\"),label(\"parameters\",sort(\"Parameters\")),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\"))],{})", Factory.Production);
   private static final IConstructor prod__List_FunctionModifiers__modifiers_iter_star_seps__FunctionModifier__layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"List\",sort(\"FunctionModifiers\")),[label(\"modifiers\",\\iter-star-seps(sort(\"FunctionModifier\"),[layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor prod__NonInterpolated_StringLiteral__constant_StringConstant_ = (IConstructor) _read("prod(label(\"NonInterpolated\",sort(\"StringLiteral\")),[label(\"constant\",lex(\"StringConstant\"))],{})", Factory.Production);
   private static final IConstructor prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_ = (IConstructor) _read("prod(lit(\"non-terminal\"),[\\char-class([range(110,110)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(45,45)]),\\char-class([range(116,116)]),\\char-class([range(101,101)]),\\char-class([range(114,114)]),\\char-class([range(109,109)]),\\char-class([range(105,105)]),\\char-class([range(110,110)]),\\char-class([range(97,97)]),\\char-class([range(108,108)])],{})", Factory.Production);
@@ -2022,8 +2021,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__HeaderKeyword__lit_keyword_ = (IConstructor) _read("prod(keywords(\"HeaderKeyword\"),[lit(\"keyword\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_list_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"list\")],{})", Factory.Production);
   private static final IConstructor prod__lit_undeclare__char_class___range__117_117_char_class___range__110_110_char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__101_101_ = (IConstructor) _read("prod(lit(\"undeclare\"),[\\char-class([range(117,117)]),\\char-class([range(110,110)]),\\char-class([range(100,100)]),\\char-class([range(101,101)]),\\char-class([range(99,99)]),\\char-class([range(108,108)]),\\char-class([range(97,97)]),\\char-class([range(114,114)]),\\char-class([range(101,101)])],{})", Factory.Production);
-  private static final IConstructor regular__iter_star__StringCharacter = (IConstructor) _read("regular(\\iter-star(lex(\"StringCharacter\")))", Factory.Production);
   private static final IConstructor regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57 = (IConstructor) _read("regular(opt(seq([\\char-class([range(44,44),range(46,46)]),\\char-class([range(48,57)]),opt(seq([\\char-class([range(48,57)]),opt(\\char-class([range(48,57)]))]))])))", Factory.Production);
+  private static final IConstructor regular__iter_star__StringCharacter = (IConstructor) _read("regular(\\iter-star(lex(\"StringCharacter\")))", Factory.Production);
   private static final IConstructor prod__Union_Class__lhs_Class_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Class__assoc__left = (IConstructor) _read("prod(label(\"Union\",sort(\"Class\")),[label(\"lhs\",sort(\"Class\")),layouts(\"LAYOUTLIST\"),lit(\"||\"),layouts(\"LAYOUTLIST\"),label(\"rhs\",sort(\"Class\"))],{assoc(left())})", Factory.Production);
   private static final IConstructor prod__StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[\\char-class([range(10,10)]),\\iter-star(\\char-class([range(9,9),range(32,32)])),\\char-class([range(39,39)])],{})", Factory.Production);
   private static final IConstructor prod__Default_FunctionBody__lit___123_layouts_LAYOUTLIST_statements_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = (IConstructor) _read("prod(label(\"Default\",sort(\"FunctionBody\")),[lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"statements\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{})", Factory.Production);
@@ -2105,7 +2104,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__Module_Kind__lit_module_ = (IConstructor) _read("prod(label(\"Module\",sort(\"Kind\")),[lit(\"module\")],{})", Factory.Production);
   private static final IConstructor prod__lit_bottom_up_break__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_ = (IConstructor) _read("prod(lit(\"bottom-up-break\"),[\\char-class([range(98,98)]),\\char-class([range(111,111)]),\\char-class([range(116,116)]),\\char-class([range(116,116)]),\\char-class([range(111,111)]),\\char-class([range(109,109)]),\\char-class([range(45,45)]),\\char-class([range(117,117)]),\\char-class([range(112,112)]),\\char-class([range(45,45)]),\\char-class([range(98,98)]),\\char-class([range(114,114)]),\\char-class([range(101,101)]),\\char-class([range(97,97)]),\\char-class([range(107,107)])],{})", Factory.Production);
   private static final IConstructor prod__Integer_Literal__integerLiteral_IntegerLiteral_ = (IConstructor) _read("prod(label(\"Integer\",sort(\"Literal\")),[label(\"integerLiteral\",sort(\"IntegerLiteral\"))],{})", Factory.Production);
-  private static final IConstructor prod__Unlabeled_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_expression_Expression_ = (IConstructor) _read("prod(label(\"Unlabeled\",sort(\"Test\")),[label(\"tags\",sort(\"Tags\")),layouts(\"LAYOUTLIST\"),lit(\"test\"),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\"))],{})", Factory.Production);
   private static final IConstructor prod__PatternWithAction_Case__lit_case_layouts_LAYOUTLIST_patternWithAction_PatternWithAction__tag__Foldable = (IConstructor) _read("prod(label(\"PatternWithAction\",sort(\"Case\")),[lit(\"case\"),layouts(\"LAYOUTLIST\"),label(\"patternWithAction\",sort(\"PatternWithAction\"))],{tag(Foldable())})", Factory.Production);
   private static final IConstructor prod__Rule_Kind__lit_rule_ = (IConstructor) _read("prod(label(\"Rule\",sort(\"Kind\")),[lit(\"rule\")],{})", Factory.Production);
   private static final IConstructor regular__iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"Variable\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
@@ -2123,9 +2121,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   private static final IConstructor prod__Default_FunctionModifier__lit_default_ = (IConstructor) _read("prod(label(\"Default\",sort(\"FunctionModifier\")),[lit(\"default\")],{})", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_one_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"one\")],{})", Factory.Production);
   private static final IConstructor regular__iter_star__RegExp = (IConstructor) _read("regular(\\iter-star(lex(\"RegExp\")))", Factory.Production);
-  private static final IConstructor prod__RascalKeywords__lit_node_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"node\")],{})", Factory.Production);
-  private static final IConstructor prod__Default_Formals__formals_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"Default\",sort(\"Formals\")),[label(\"formals\",\\iter-star-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor regular__iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"Assignable\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
+  private static final IConstructor prod__Default_Formals__formals_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"Default\",sort(\"Formals\")),[label(\"formals\",\\iter-star-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
+  private static final IConstructor prod__RascalKeywords__lit_node_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"node\")],{})", Factory.Production);
   private static final IConstructor regular__iter_star_seps__Tag__layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-star-seps(sort(\"Tag\"),[layouts(\"LAYOUTLIST\")]))", Factory.Production);
   private static final IConstructor prod__RascalKeywords__lit_repeat_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"repeat\")],{})", Factory.Production);
   private static final IConstructor prod__Void_BasicType__lit_void_ = (IConstructor) _read("prod(label(\"Void\",sort(\"BasicType\")),[lit(\"void\")],{})", Factory.Production);
@@ -2315,8 +2313,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   }
 	
   private static class Signature {
-    public final static AbstractStackNode[] prod__WithThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = _init_prod__WithThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__WithThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode[] prod__WithThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = _init_prod__WithThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_();
+    private static final AbstractStackNode[] _init_prod__WithThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new SeparatedListStackNode(184, 10, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(186, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(188, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(190, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(192, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
@@ -2327,22 +2325,22 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
       tmp[5] = new NonTerminalStackNode(174, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4] = new NonTerminalStackNode(172, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[3] = new NonTerminalStackNode(170, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(168, 2, "FunctionModifiers", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(168, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[1] = new NonTerminalStackNode(166, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(164, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(164, 0, "FunctionModifiers", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
-    public final static AbstractStackNode[] prod__NoThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_ = _init_prod__NoThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_();
-    private static final AbstractStackNode[] _init_prod__NoThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_() {
+    public final static AbstractStackNode[] prod__NoThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_ = _init_prod__NoThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_();
+    private static final AbstractStackNode[] _init_prod__NoThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(206, 6, "Parameters", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(204, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(202, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(200, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(198, 2, "FunctionModifiers", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(194, 0, "FunctionModifiers", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[1] = new NonTerminalStackNode(196, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(194, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(198, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(200, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(202, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(204, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -2652,68 +2650,41 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
 	}
   }
 	
-  private static class Test {
-    public final static AbstractStackNode[] prod__Unlabeled_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_expression_Expression_ = _init_prod__Unlabeled_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_expression_Expression_();
-    private static final AbstractStackNode[] _init_prod__Unlabeled_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_expression_Expression_() {
-      AbstractStackNode[] tmp = new AbstractStackNode[5];
-      
-      tmp[4] = new NonTerminalStackNode(616, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(614, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(612, 2, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(610, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(608, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      return tmp;
-	}
-    public final static AbstractStackNode[] prod__Parameterized_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_expression_Expression_ = _init_prod__Parameterized_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_expression_Expression_();
-    private static final AbstractStackNode[] _init_prod__Parameterized_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_expression_Expression_() {
-      AbstractStackNode[] tmp = new AbstractStackNode[7];
-      
-      tmp[6] = new NonTerminalStackNode(630, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(628, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(626, 4, "Parameters", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(624, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(622, 2, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(620, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(618, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      return tmp;
-	}
-  }
-	
   private static class ImportedModule {
     public final static AbstractStackNode[] prod__Renamings_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_renamings_Renamings_ = _init_prod__Renamings_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_renamings_Renamings_();
     private static final AbstractStackNode[] _init_prod__Renamings_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_renamings_Renamings_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(636, 2, "Renamings", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(634, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(632, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(612, 2, "Renamings", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(610, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(608, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ActualsRenaming_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_actuals_ModuleActuals_layouts_LAYOUTLIST_renamings_Renamings_ = _init_prod__ActualsRenaming_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_actuals_ModuleActuals_layouts_LAYOUTLIST_renamings_Renamings_();
     private static final AbstractStackNode[] _init_prod__ActualsRenaming_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_actuals_ModuleActuals_layouts_LAYOUTLIST_renamings_Renamings_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(646, 4, "Renamings", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(644, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(642, 2, "ModuleActuals", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(640, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(638, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(622, 4, "Renamings", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(620, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(618, 2, "ModuleActuals", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(616, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(614, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_ImportedModule__name_QualifiedName_ = _init_prod__Default_ImportedModule__name_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__Default_ImportedModule__name_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(648, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(624, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Actuals_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_actuals_ModuleActuals_ = _init_prod__Actuals_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_actuals_ModuleActuals_();
     private static final AbstractStackNode[] _init_prod__Actuals_ImportedModule__name_QualifiedName_layouts_LAYOUTLIST_actuals_ModuleActuals_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(654, 2, "ModuleActuals", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(652, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(650, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(630, 2, "ModuleActuals", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(628, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(626, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -2723,675 +2694,675 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__FieldUpdate_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_key_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_replacement_Expression_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode(1034, 10, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1014, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1016, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1018, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1020, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(1022, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1024, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(1026, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(1028, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(1030, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(1032, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(1010, 10, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(990, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(992, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(994, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(996, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(998, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1000, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1002, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(1004, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(1006, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(1008, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Range_Expression__lit___91_layouts_LAYOUTLIST_first_Expression_layouts_LAYOUTLIST_lit___46_46_layouts_LAYOUTLIST_last_Expression_layouts_LAYOUTLIST_lit___93_ = _init_prod__Range_Expression__lit___91_layouts_LAYOUTLIST_first_Expression_layouts_LAYOUTLIST_lit___46_46_layouts_LAYOUTLIST_last_Expression_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__Range_Expression__lit___91_layouts_LAYOUTLIST_first_Expression_layouts_LAYOUTLIST_lit___46_46_layouts_LAYOUTLIST_last_Expression_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[0] = new LiteralStackNode(736, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(738, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(740, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(742, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(744, 4, prod__lit___46_46__char_class___range__46_46_char_class___range__46_46_, new char[] {46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(746, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(748, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(750, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(752, 8, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(712, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(714, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(716, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(718, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(720, 4, prod__lit___46_46__char_class___range__46_46_char_class___range__46_46_, new char[] {46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(722, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(724, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(726, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(728, 8, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__LessThanOrEq_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__LessThanOrEq_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__LessThanOrEq_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1284, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1282, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1280, 2, prod__lit___60_61__char_class___range__60_60_char_class___range__61_61_, new char[] {60,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1278, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1276, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1260, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1258, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1256, 2, prod__lit___60_61__char_class___range__60_60_char_class___range__61_61_, new char[] {60,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1254, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1252, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Or_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Or_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Or_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1432, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1430, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1428, 2, prod__lit___124_124__char_class___range__124_124_char_class___range__124_124_, new char[] {124,124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1426, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1424, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1408, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1406, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1404, 2, prod__lit___124_124__char_class___range__124_124_char_class___range__124_124_, new char[] {124,124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1402, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1400, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Bracket_Expression__lit___40_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_Expression__lit___40_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___41__bracket();
     private static final AbstractStackNode[] _init_prod__Bracket_Expression__lit___40_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(798, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(796, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(794, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(792, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(790, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(774, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(772, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(770, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(768, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(766, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Any_Expression__lit_any_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__Any_Expression__lit_any_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__Any_Expression__lit_any_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[0] = new LiteralStackNode(800, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new char[] {97,110,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(802, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(804, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(806, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(808, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(810, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(812, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(814, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(816, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(818, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(820, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(776, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new char[] {97,110,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(778, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(780, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(782, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(784, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(786, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(788, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(790, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(792, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(794, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(796, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Is_Expression__expression_Expression_layouts_LAYOUTLIST_lit_is_layouts_LAYOUTLIST_name_Name_ = _init_prod__Is_Expression__expression_Expression_layouts_LAYOUTLIST_lit_is_layouts_LAYOUTLIST_name_Name_();
     private static final AbstractStackNode[] _init_prod__Is_Expression__expression_Expression_layouts_LAYOUTLIST_lit_is_layouts_LAYOUTLIST_name_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1088, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1086, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1084, 2, prod__lit_is__char_class___range__105_105_char_class___range__115_115_, new char[] {105,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1082, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1080, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1064, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1062, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1060, 2, prod__lit_is__char_class___range__105_105_char_class___range__115_115_, new char[] {105,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1058, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1056, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TransitiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_ = _init_prod__TransitiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_();
     private static final AbstractStackNode[] _init_prod__TransitiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1132, 2, prod__lit___43__char_class___range__43_43_, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {61})});
-      tmp[1] = new NonTerminalStackNode(1130, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1128, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1108, 2, prod__lit___43__char_class___range__43_43_, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {61})});
+      tmp[1] = new NonTerminalStackNode(1106, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1104, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Map_Expression__lit___40_layouts_LAYOUTLIST_mappings_iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_Expression__lit___40_layouts_LAYOUTLIST_mappings_iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__Map_Expression__lit___40_layouts_LAYOUTLIST_mappings_iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(838, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(836, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(826, 2, regular__iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(828, 0, "Mapping__Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(830, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(832, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(834, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(824, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(822, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(814, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(812, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(802, 2, regular__iter_star_seps__Mapping__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(804, 0, "Mapping__Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(806, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(808, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(810, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(800, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(798, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Has_Expression__expression_Expression_layouts_LAYOUTLIST_lit_has_layouts_LAYOUTLIST_name_Name_ = _init_prod__Has_Expression__expression_Expression_layouts_LAYOUTLIST_lit_has_layouts_LAYOUTLIST_name_Name_();
     private static final AbstractStackNode[] _init_prod__Has_Expression__expression_Expression_layouts_LAYOUTLIST_lit_has_layouts_LAYOUTLIST_name_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1098, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1096, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1094, 2, prod__lit_has__char_class___range__104_104_char_class___range__97_97_char_class___range__115_115_, new char[] {104,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1092, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1090, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1074, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1072, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1070, 2, prod__lit_has__char_class___range__104_104_char_class___range__97_97_char_class___range__115_115_, new char[] {104,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1068, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1066, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Set_Expression__lit___123_layouts_LAYOUTLIST_elements_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_Expression__lit___123_layouts_LAYOUTLIST_elements_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__Set_Expression__lit___123_layouts_LAYOUTLIST_elements_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(858, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(856, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(846, 2, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(848, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(850, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(852, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(854, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(844, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(842, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(834, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(832, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(822, 2, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(824, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(826, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(828, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(830, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(820, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(818, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__All_Expression__lit_all_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__All_Expression__lit_all_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__All_Expression__lit_all_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(880, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(878, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(868, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(870, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(872, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(874, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(876, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(866, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(864, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(862, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(860, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(856, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(854, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(844, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(846, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(848, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(850, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(852, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(842, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(840, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(838, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(836, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Equals_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___61_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__Equals_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___61_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Equals_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___61_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1352, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1350, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1348, 2, prod__lit___61_61__char_class___range__61_61_char_class___range__61_61_, new char[] {61,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1346, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1344, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1328, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1326, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1324, 2, prod__lit___61_61__char_class___range__61_61_char_class___range__61_61_, new char[] {61,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1322, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1320, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifyType_Expression__lit___35_layouts_LAYOUTLIST_type_Type_ = _init_prod__ReifyType_Expression__lit___35_layouts_LAYOUTLIST_type_Type_();
     private static final AbstractStackNode[] _init_prod__ReifyType_Expression__lit___35_layouts_LAYOUTLIST_type_Type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(886, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(884, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(882, 0, prod__lit___35__char_class___range__35_35_, new char[] {35}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(862, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(860, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(858, 0, prod__lit___35__char_class___range__35_35_, new char[] {35}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Reducer_Expression__lit___40_layouts_LAYOUTLIST_init_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_result_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__Reducer_Expression__lit___40_layouts_LAYOUTLIST_init_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_result_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__Reducer_Expression__lit___40_layouts_LAYOUTLIST_init_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_result_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(934, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(932, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(922, 10, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(924, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(926, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(928, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(930, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(920, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(918, 8, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(916, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(914, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(912, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(910, 4, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(908, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(906, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(904, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(902, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(910, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(908, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(898, 10, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(900, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(902, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(904, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(906, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(896, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(894, 8, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(892, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(890, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(888, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(886, 4, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(884, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(882, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(880, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(878, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Closure_Expression__type_Type_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__Closure_Expression__type_Type_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__Closure_Expression__type_Type_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(956, 8, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(954, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(948, 6, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(950, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(952, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(946, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(944, 4, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(942, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(940, 2, "Parameters", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(938, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(936, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(932, 8, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(930, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(924, 6, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(926, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(928, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(922, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(920, 4, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(918, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(916, 2, "Parameters", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(914, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(912, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Intersection_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___38_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Intersection_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___38_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Intersection_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___38_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1234, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1232, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1230, 2, prod__lit___38__char_class___range__38_38_, new char[] {38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1228, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1226, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1210, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1208, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1206, 2, prod__lit___38__char_class___range__38_38_, new char[] {38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1204, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1202, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Visit_Expression__label_Label_layouts_LAYOUTLIST_visit_Visit_ = _init_prod__Visit_Expression__label_Label_layouts_LAYOUTLIST_visit_Visit_();
     private static final AbstractStackNode[] _init_prod__Visit_Expression__label_Label_layouts_LAYOUTLIST_visit_Visit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(964, 2, "Visit", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(962, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(960, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(940, 2, "Visit", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(938, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(936, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__And_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___38_38_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__And_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___38_38_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__And_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___38_38_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1422, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1420, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1418, 2, prod__lit___38_38__char_class___range__38_38_char_class___range__38_38_, new char[] {38,38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1416, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1414, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1398, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1396, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1394, 2, prod__lit___38_38__char_class___range__38_38_char_class___range__38_38_, new char[] {38,38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1392, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1390, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Join_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_join_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Join_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_join_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Join_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_join_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1194, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1192, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1190, 2, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new char[] {106,111,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1188, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1186, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1170, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1168, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1166, 2, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new char[] {106,111,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1164, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1162, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tuple_Expression__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_Expression__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_();
     private static final AbstractStackNode[] _init_prod__Tuple_Expression__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(984, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(982, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(972, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(974, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(976, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(978, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(980, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(970, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(968, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(960, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(958, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(948, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(950, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(952, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(954, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(956, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(946, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(944, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__In_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_in_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__In_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_in_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__In_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_in_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1274, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1272, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1270, 2, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new char[] {105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1268, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1266, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1250, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1248, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1246, 2, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new char[] {105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1244, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1242, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__StepRange_Expression__lit___91_layouts_LAYOUTLIST_first_Expression_layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_second_Expression_layouts_LAYOUTLIST_lit___46_46_layouts_LAYOUTLIST_last_Expression_layouts_LAYOUTLIST_lit___93_ = _init_prod__StepRange_Expression__lit___91_layouts_LAYOUTLIST_first_Expression_layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_second_Expression_layouts_LAYOUTLIST_lit___46_46_layouts_LAYOUTLIST_last_Expression_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__StepRange_Expression__lit___91_layouts_LAYOUTLIST_first_Expression_layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_second_Expression_layouts_LAYOUTLIST_lit___46_46_layouts_LAYOUTLIST_last_Expression_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(1010, 12, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(1008, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(1006, 10, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(1004, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(1002, 8, prod__lit___46_46__char_class___range__46_46_char_class___range__46_46_, new char[] {46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(1000, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(998, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(996, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(994, 4, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(992, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(990, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(988, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(986, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(986, 12, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(984, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(982, 10, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(980, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(978, 8, prod__lit___46_46__char_class___range__46_46_char_class___range__46_46_, new char[] {46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(976, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(974, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(972, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(970, 4, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(968, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(966, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(964, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(962, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Match_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___58_61_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc = _init_prod__Match_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___58_61_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Match_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___58_61_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1372, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1370, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1368, 2, prod__lit___58_61__char_class___range__58_58_char_class___range__61_61_, new char[] {58,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1366, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1364, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1348, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1346, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1344, 2, prod__lit___58_61__char_class___range__58_58_char_class___range__61_61_, new char[] {58,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1342, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1340, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedType_Expression__basicType_BasicType_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__ReifiedType_Expression__basicType_BasicType_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__ReifiedType_Expression__basicType_BasicType_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(712, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(710, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(700, 4, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(702, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(704, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(706, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(708, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(698, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(696, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(694, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(692, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(688, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(686, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(676, 4, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(678, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(680, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(682, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(684, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(674, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(672, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(670, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(668, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__CallOrTree_Expression__expression_Expression_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__CallOrTree_Expression__expression_Expression_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__CallOrTree_Expression__expression_Expression_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(734, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(732, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(722, 4, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(724, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(726, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(728, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(730, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(720, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(718, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(716, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(714, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(710, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(708, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(698, 4, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(700, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(702, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(704, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(706, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(696, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(694, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(692, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(690, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Negation_Expression__lit___33_layouts_LAYOUTLIST_argument_Expression_ = _init_prod__Negation_Expression__lit___33_layouts_LAYOUTLIST_argument_Expression_();
     private static final AbstractStackNode[] _init_prod__Negation_Expression__lit___33_layouts_LAYOUTLIST_argument_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(1120, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1118, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1116, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(1096, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1094, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1092, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__List_Expression__lit___91_layouts_LAYOUTLIST_elements_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_ = _init_prod__List_Expression__lit___91_layouts_LAYOUTLIST_elements_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__List_Expression__lit___91_layouts_LAYOUTLIST_elements_iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(770, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(768, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(758, 2, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(760, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(762, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(764, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(766, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(756, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(754, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(746, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(744, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(734, 2, regular__iter_star_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(736, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(738, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(740, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(742, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(732, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(730, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__VoidClosure_Expression__parameters_Parameters_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__VoidClosure_Expression__parameters_Parameters_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__VoidClosure_Expression__parameters_Parameters_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(788, 6, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(786, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(780, 4, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(782, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(784, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(778, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(776, 2, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(774, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(772, 0, "Parameters", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(764, 6, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(762, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(756, 4, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(758, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(760, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(754, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(752, 2, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(750, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(748, 0, "Parameters", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Subscript_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_subscripts_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_ = _init_prod__Subscript_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_subscripts_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__Subscript_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_subscripts_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(1056, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1054, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(1044, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1046, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1048, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1050, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1052, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1042, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1040, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1038, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1036, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1032, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1030, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(1020, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1022, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1024, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1026, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1028, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1018, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1016, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1014, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1012, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Subtraction_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Subtraction_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Subtraction_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1244, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1242, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1240, 2, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1238, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1236, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1220, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1218, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1216, 2, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1214, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1212, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NotIn_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_notin_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__NotIn_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_notin_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__NotIn_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_notin_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1264, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1262, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1260, 2, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new char[] {110,111,116,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1258, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1256, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1240, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1238, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1236, 2, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new char[] {110,111,116,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1234, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1232, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__GreaterThan_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__GreaterThan_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__GreaterThan_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1304, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1302, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1300, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1298, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1296, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1280, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1278, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1276, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1274, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1272, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Enumerator_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___60_45_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc = _init_prod__Enumerator_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___60_45_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Enumerator_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___60_45_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1382, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1380, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1378, 2, prod__lit___60_45__char_class___range__60_60_char_class___range__45_45_, new char[] {60,45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1376, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1374, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1358, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1356, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1354, 2, prod__lit___60_45__char_class___range__60_60_char_class___range__45_45_, new char[] {60,45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1352, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1350, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__GreaterThanOrEq_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___62_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__GreaterThanOrEq_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___62_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__GreaterThanOrEq_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___62_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1314, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1312, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1310, 2, prod__lit___62_61__char_class___range__62_62_char_class___range__61_61_, new char[] {62,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1308, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1306, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1290, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1288, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1286, 2, prod__lit___62_61__char_class___range__62_62_char_class___range__61_61_, new char[] {62,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1284, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1282, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Modulo_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___37_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Modulo_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___37_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Modulo_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___37_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1214, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1212, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1210, 2, prod__lit___37__char_class___range__37_37_, new char[] {37}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1208, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1206, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1190, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1188, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1186, 2, prod__lit___37__char_class___range__37_37_, new char[] {37}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1184, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1182, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Equivalence_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__Equivalence_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Equivalence_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___60_61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1412, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1410, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1408, 2, prod__lit___60_61_61_62__char_class___range__60_60_char_class___range__61_61_char_class___range__61_61_char_class___range__62_62_, new char[] {60,61,61,62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1406, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1404, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1388, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1386, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1384, 2, prod__lit___60_61_61_62__char_class___range__60_60_char_class___range__61_61_char_class___range__61_61_char_class___range__62_62_, new char[] {60,61,61,62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1382, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1380, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__GetAnnotation_Expression__expression_Expression_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_ = _init_prod__GetAnnotation_Expression__expression_Expression_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_();
     private static final AbstractStackNode[] _init_prod__GetAnnotation_Expression__expression_Expression_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1148, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1146, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1144, 2, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1142, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1140, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1124, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1122, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1120, 2, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1118, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1116, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TransitiveReflexiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_ = _init_prod__TransitiveReflexiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_();
     private static final AbstractStackNode[] _init_prod__TransitiveReflexiveClosure_Expression__argument_Expression_layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[0] = new NonTerminalStackNode(1134, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1136, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1138, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {61})});
+      tmp[0] = new NonTerminalStackNode(1110, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1112, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1114, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {61})});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__QualifiedName_Expression__qualifiedName_QualifiedName_ = _init_prod__QualifiedName_Expression__qualifiedName_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__QualifiedName_Expression__qualifiedName_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(840, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(816, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Addition_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___43_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Addition_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___43_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Addition_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___43_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1254, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1252, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1250, 2, prod__lit___43__char_class___range__43_43_, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1248, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1246, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1230, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1228, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1226, 2, prod__lit___43__char_class___range__43_43_, new char[] {43}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1224, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1222, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NoMatch_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___33_58_61_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc = _init_prod__NoMatch_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___33_58_61_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__NoMatch_Expression__pattern_Pattern_layouts_LAYOUTLIST_lit___33_58_61_layouts_LAYOUTLIST_expression_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1392, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1390, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1388, 2, prod__lit___33_58_61__char_class___range__33_33_char_class___range__58_58_char_class___range__61_61_, new char[] {33,58,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1386, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1384, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1368, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1366, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1364, 2, prod__lit___33_58_61__char_class___range__33_33_char_class___range__58_58_char_class___range__61_61_, new char[] {33,58,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1362, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1360, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfThenElse_Expression__condition_Expression_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_thenExp_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_elseExp_Expression__assoc__left = _init_prod__IfThenElse_Expression__condition_Expression_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_thenExp_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_elseExp_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__IfThenElse_Expression__condition_Expression_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_thenExp_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_elseExp_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new NonTerminalStackNode(1332, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(1330, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(1328, 6, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1326, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(1324, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1322, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1320, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1318, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1316, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(1308, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(1306, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1304, 6, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1302, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1300, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1298, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1296, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1294, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1292, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__SetAnnotation_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_value_Expression_layouts_LAYOUTLIST_lit___93_ = _init_prod__SetAnnotation_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_value_Expression_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__SetAnnotation_Expression__expression_Expression_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_value_Expression_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(1174, 12, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(1172, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(1170, 10, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(1168, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(1166, 8, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(1164, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(1162, 6, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1160, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(1158, 4, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1156, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1154, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1152, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1150, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(1150, 12, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(1148, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(1146, 10, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(1144, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(1142, 8, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(1140, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(1138, 6, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1136, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(1134, 4, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1132, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1130, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1128, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1126, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__FieldAccess_Expression__expression_Expression_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_field_Name_ = _init_prod__FieldAccess_Expression__expression_Expression_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_field_Name_();
     private static final AbstractStackNode[] _init_prod__FieldAccess_Expression__expression_Expression_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_field_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1108, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1106, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1104, 2, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1102, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1100, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1084, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1082, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1080, 2, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1078, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1076, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NonEquals_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___33_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__NonEquals_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___33_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__NonEquals_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___33_61_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1342, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1340, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1338, 2, prod__lit___33_61__char_class___range__33_33_char_class___range__61_61_, new char[] {33,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1336, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1334, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1318, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1316, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1314, 2, prod__lit___33_61__char_class___range__33_33_char_class___range__61_61_, new char[] {33,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1312, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1310, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Composition_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_o_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Composition_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_o_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Composition_Expression__lhs_Expression_layouts_LAYOUTLIST_lit_o_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1184, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1182, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1180, 2, prod__lit_o__char_class___range__111_111_, new char[] {111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1178, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1176, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1160, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1158, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1156, 2, prod__lit_o__char_class___range__111_111_, new char[] {111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1154, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1152, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Implication_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__Implication_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Implication_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___61_61_62_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1402, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1400, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1398, 2, prod__lit___61_61_62__char_class___range__61_61_char_class___range__61_61_char_class___range__62_62_, new char[] {61,61,62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1396, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1394, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1378, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1376, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1374, 2, prod__lit___61_61_62__char_class___range__61_61_char_class___range__61_61_char_class___range__62_62_, new char[] {61,61,62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1372, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1370, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Negative_Expression__lit___layouts_LAYOUTLIST_argument_Expression_ = _init_prod__Negative_Expression__lit___layouts_LAYOUTLIST_argument_Expression_();
     private static final AbstractStackNode[] _init_prod__Negative_Expression__lit___layouts_LAYOUTLIST_argument_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(1126, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1124, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1122, 0, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(1102, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1100, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1098, 0, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__LessThan_Expression__lhs_Expression_layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__LessThan_Expression__lhs_Expression_layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__LessThan_Expression__lhs_Expression_layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1294, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1292, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1290, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {45})});
-      tmp[1] = new NonTerminalStackNode(1288, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1286, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1270, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1268, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1266, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {45})});
+      tmp[1] = new NonTerminalStackNode(1264, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1262, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NonEmptyBlock_Expression__lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__NonEmptyBlock_Expression__lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__NonEmptyBlock_Expression__lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(900, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(898, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(892, 2, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(894, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(896, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(890, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(888, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(876, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(874, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(868, 2, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(870, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(872, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(866, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(864, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfDefinedOtherwise_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc = _init_prod__IfDefinedOtherwise_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__IfDefinedOtherwise_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_rhs_Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1362, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1360, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1358, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1356, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1354, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1338, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1336, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1334, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1332, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1330, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__FieldProject_Expression__expression_Expression_layouts_LAYOUTLIST_lit___60_layouts_LAYOUTLIST_fields_iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_ = _init_prod__FieldProject_Expression__expression_Expression_layouts_LAYOUTLIST_lit___60_layouts_LAYOUTLIST_fields_iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_();
     private static final AbstractStackNode[] _init_prod__FieldProject_Expression__expression_Expression_layouts_LAYOUTLIST_lit___60_layouts_LAYOUTLIST_fields_iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(1078, 6, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1076, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(1066, 4, regular__iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1068, 0, "Field", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1070, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1072, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1074, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1064, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1062, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1060, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1058, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1054, 6, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1052, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(1042, 4, regular__iter_seps__Field__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1044, 0, "Field", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1046, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1048, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1050, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1040, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1038, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1036, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1034, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__It_Expression__lit_it_ = _init_prod__It_Expression__lit_it_();
     private static final AbstractStackNode[] _init_prod__It_Expression__lit_it_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(958, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new char[] {105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(934, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new char[] {105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Literal_Expression__literal_Literal_ = _init_prod__Literal_Expression__literal_Literal_();
     private static final AbstractStackNode[] _init_prod__Literal_Expression__literal_Literal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(966, 0, "Literal", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(942, 0, "Literal", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IsDefined_Expression__argument_Expression_layouts_LAYOUTLIST_lit___63_ = _init_prod__IsDefined_Expression__argument_Expression_layouts_LAYOUTLIST_lit___63_();
     private static final AbstractStackNode[] _init_prod__IsDefined_Expression__argument_Expression_layouts_LAYOUTLIST_lit___63_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1114, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1112, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1110, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1090, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1088, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1086, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Division_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___47_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Division_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___47_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Division_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___47_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1224, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1222, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1220, 2, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1218, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1216, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1200, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1198, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1196, 2, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1194, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1192, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Comprehension_Expression__comprehension_Comprehension_ = _init_prod__Comprehension_Expression__comprehension_Comprehension_();
     private static final AbstractStackNode[] _init_prod__Comprehension_Expression__comprehension_Comprehension_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(1012, 0, "Comprehension", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(988, 0, "Comprehension", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Product_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___42_layouts_LAYOUTLIST_rhs_Expression__assoc__left = _init_prod__Product_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___42_layouts_LAYOUTLIST_rhs_Expression__assoc__left();
     private static final AbstractStackNode[] _init_prod__Product_Expression__lhs_Expression_layouts_LAYOUTLIST_lit___42_layouts_LAYOUTLIST_rhs_Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1204, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1202, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1200, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1198, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1196, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1180, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1178, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1176, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1174, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1172, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3401,9 +3372,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1448, 2, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(1436, 1, regular__iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535, new AlternativeStackNode(1438, 0, regular__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535, new AbstractStackNode[]{new SequenceStackNode(1440, 0, regular__seq___char_class___range__92_92_char_class___range__125_125, new AbstractStackNode[]{new CharStackNode(1442, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(1444, 1, new char[][]{{125,125}}, new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(1446, 0, new char[][]{{0,124},{126,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1434, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1424, 2, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(1412, 1, regular__iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535, new AlternativeStackNode(1414, 0, regular__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535, new AbstractStackNode[]{new SequenceStackNode(1416, 0, regular__seq___char_class___range__92_92_char_class___range__125_125, new AbstractStackNode[]{new CharStackNode(1418, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(1420, 1, new char[][]{{125,125}}, new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(1422, 0, new char[][]{{0,124},{126,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1410, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3413,8 +3384,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_delete__RascalReservedKeywords_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new ListStackNode(1462, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(1464, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
-      tmp[0] = new CharStackNode(1460, 0, new char[][]{{65,90}}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{65,90}})}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(1438, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(1440, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new CharStackNode(1436, 0, new char[][]{{65,90}}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{65,90}})}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3424,11 +3395,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_PreModule__header_Header_layouts_LAYOUTLIST_conditional__empty__not_follow__HeaderKeyword_layouts_LAYOUTLIST_rest_iter_star_seps__Word__layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new SeparatedListStackNode(1490, 4, regular__iter_star_seps__Word__layouts_LAYOUTLIST, new NonTerminalStackNode(1492, 0, "Word", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1494, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1488, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new EmptyStackNode(1486, 2, regular__empty, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {108,101,120,105,99,97,108}), new StringFollowRestriction(new char[] {105,109,112,111,114,116}), new StringFollowRestriction(new char[] {115,116,97,114,116}), new StringFollowRestriction(new char[] {115,121,110,116,97,120}), new StringFollowRestriction(new char[] {108,97,121,111,117,116}), new StringFollowRestriction(new char[] {101,120,116,101,110,100}), new StringFollowRestriction(new char[] {107,101,121,119,111,114,100})});
-      tmp[1] = new NonTerminalStackNode(1484, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1482, 0, "Header", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(1466, 4, regular__iter_star_seps__Word__layouts_LAYOUTLIST, new NonTerminalStackNode(1468, 0, "Word", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1470, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1464, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new EmptyStackNode(1462, 2, regular__empty, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {108,101,120,105,99,97,108}), new StringFollowRestriction(new char[] {105,109,112,111,114,116}), new StringFollowRestriction(new char[] {115,116,97,114,116}), new StringFollowRestriction(new char[] {115,121,110,116,97,120}), new StringFollowRestriction(new char[] {108,97,121,111,117,116}), new StringFollowRestriction(new char[] {101,120,116,101,110,100}), new StringFollowRestriction(new char[] {107,101,121,119,111,114,100})});
+      tmp[1] = new NonTerminalStackNode(1460, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1458, 0, "Header", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3438,18 +3409,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__NonInterpolated_ProtocolPart__protocolChars_ProtocolChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(1498, 0, "ProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1474, 0, "ProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Interpolated_ProtocolPart__pre_PreProtocolChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_ProtocolTail_ = _init_prod__Interpolated_ProtocolPart__pre_PreProtocolChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_ProtocolTail_();
     private static final AbstractStackNode[] _init_prod__Interpolated_ProtocolPart__pre_PreProtocolChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_ProtocolTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1508, 4, "ProtocolTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1506, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(1504, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1502, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1500, 0, "PreProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1484, 4, "ProtocolTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1482, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(1480, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1478, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1476, 0, "PreProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3459,18 +3430,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1554, 2, prod__lit___42_47__char_class___range__42_42_char_class___range__47_47_, new char[] {42,47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(1546, 1, regular__iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535, new AlternativeStackNode(1548, 0, regular__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535, new AbstractStackNode[]{new CharStackNode(1550, 0, new char[][]{{42,42}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{47,47}})}), new CharStackNode(1552, 0, new char[][]{{0,41},{43,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1544, 0, prod__lit___47_42__char_class___range__47_47_char_class___range__42_42_, new char[] {47,42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1530, 2, prod__lit___42_47__char_class___range__42_42_char_class___range__47_47_, new char[] {42,47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(1522, 1, regular__iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535, new AlternativeStackNode(1524, 0, regular__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535, new AbstractStackNode[]{new CharStackNode(1526, 0, new char[][]{{42,42}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{47,47}})}), new CharStackNode(1528, 0, new char[][]{{0,41},{43,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1520, 0, prod__lit___47_42__char_class___range__47_47_char_class___range__42_42_, new char[] {47,42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116 = _init_prod__Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116();
     private static final AbstractStackNode[] _init_prod__Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(1562, 2, new char[][]{{10,10}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(1558, 1, regular__iter_star__char_class___range__0_9_range__11_65535, new CharStackNode(1560, 0, new char[][]{{0,9},{11,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1556, 0, prod__lit___47_47__char_class___range__47_47_char_class___range__47_47_, new char[] {47,47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(1538, 2, new char[][]{{10,10}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(1534, 1, regular__iter_star__char_class___range__0_9_range__11_65535, new CharStackNode(1536, 0, new char[][]{{0,9},{11,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1532, 0, prod__lit___47_47__char_class___range__47_47_char_class___range__47_47_, new char[] {47,47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3480,16 +3451,16 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Empty_Label__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(1564, 0);
+      tmp[0] = new EpsilonStackNode(1540, 0);
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_Label__name_Name_layouts_LAYOUTLIST_lit___58_ = _init_prod__Default_Label__name_Name_layouts_LAYOUTLIST_lit___58_();
     private static final AbstractStackNode[] _init_prod__Default_Label__name_Name_layouts_LAYOUTLIST_lit___58_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1570, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1568, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1566, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1546, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1544, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1542, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3499,14 +3470,14 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Index_Field__fieldIndex_IntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(1618, 0, "IntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1594, 0, "IntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Name_Field__fieldName_Name_ = _init_prod__Name_Field__fieldName_Name_();
     private static final AbstractStackNode[] _init_prod__Name_Field__fieldName_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(1620, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1596, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3516,14 +3487,21 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Java_FunctionModifier__lit_java_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1646, 0, prod__lit_java__char_class___range__106_106_char_class___range__97_97_char_class___range__118_118_char_class___range__97_97_, new char[] {106,97,118,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1622, 0, prod__lit_java__char_class___range__106_106_char_class___range__97_97_char_class___range__118_118_char_class___range__97_97_, new char[] {106,97,118,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_FunctionModifier__lit_default_ = _init_prod__Default_FunctionModifier__lit_default_();
     private static final AbstractStackNode[] _init_prod__Default_FunctionModifier__lit_default_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1648, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1624, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      return tmp;
+	}
+    public final static AbstractStackNode[] prod__Test_FunctionModifier__lit_test_ = _init_prod__Test_FunctionModifier__lit_test_();
+    private static final AbstractStackNode[] _init_prod__Test_FunctionModifier__lit_test_() {
+      AbstractStackNode[] tmp = new AbstractStackNode[1];
+      
+      tmp[0] = new LiteralStackNode(1626, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3533,9 +3511,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__ProtocolChars__char_class___range__124_124_URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(1706, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new char[] {58,47,47}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{9,10},{13,13},{32,32}})});
-      tmp[1] = new NonTerminalStackNode(1704, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(1702, 0, new char[][]{{124,124}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1684, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new char[] {58,47,47}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{9,10},{13,13},{32,32}})});
+      tmp[1] = new NonTerminalStackNode(1682, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(1680, 0, new char[][]{{124,124}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3545,49 +3523,49 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Subtraction_Assignment__lit___45_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1688, 0, prod__lit___45_61__char_class___range__45_45_char_class___range__61_61_, new char[] {45,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1666, 0, prod__lit___45_61__char_class___range__45_45_char_class___range__61_61_, new char[] {45,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Intersection_Assignment__lit___38_61_ = _init_prod__Intersection_Assignment__lit___38_61_();
     private static final AbstractStackNode[] _init_prod__Intersection_Assignment__lit___38_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1690, 0, prod__lit___38_61__char_class___range__38_38_char_class___range__61_61_, new char[] {38,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1668, 0, prod__lit___38_61__char_class___range__38_38_char_class___range__61_61_, new char[] {38,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_Assignment__lit___61_ = _init_prod__Default_Assignment__lit___61_();
     private static final AbstractStackNode[] _init_prod__Default_Assignment__lit___61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1692, 0, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1670, 0, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfDefined_Assignment__lit___63_61_ = _init_prod__IfDefined_Assignment__lit___63_61_();
     private static final AbstractStackNode[] _init_prod__IfDefined_Assignment__lit___63_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1694, 0, prod__lit___63_61__char_class___range__63_63_char_class___range__61_61_, new char[] {63,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1672, 0, prod__lit___63_61__char_class___range__63_63_char_class___range__61_61_, new char[] {63,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Division_Assignment__lit___47_61_ = _init_prod__Division_Assignment__lit___47_61_();
     private static final AbstractStackNode[] _init_prod__Division_Assignment__lit___47_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1696, 0, prod__lit___47_61__char_class___range__47_47_char_class___range__61_61_, new char[] {47,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1674, 0, prod__lit___47_61__char_class___range__47_47_char_class___range__61_61_, new char[] {47,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Product_Assignment__lit___42_61_ = _init_prod__Product_Assignment__lit___42_61_();
     private static final AbstractStackNode[] _init_prod__Product_Assignment__lit___42_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1698, 0, prod__lit___42_61__char_class___range__42_42_char_class___range__61_61_, new char[] {42,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1676, 0, prod__lit___42_61__char_class___range__42_42_char_class___range__61_61_, new char[] {42,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Addition_Assignment__lit___43_61_ = _init_prod__Addition_Assignment__lit___43_61_();
     private static final AbstractStackNode[] _init_prod__Addition_Assignment__lit___43_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1700, 0, prod__lit___43_61__char_class___range__43_43_char_class___range__61_61_, new char[] {43,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1678, 0, prod__lit___43_61__char_class___range__43_43_char_class___range__61_61_, new char[] {43,61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3597,88 +3575,88 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Bracket_Assignable__lit___40_layouts_LAYOUTLIST_arg_Assignable_layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(1760, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1758, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(1756, 2, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1754, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1752, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(1738, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1736, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(1734, 2, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1732, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1730, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Variable_Assignable__qualifiedName_QualifiedName_ = _init_prod__Variable_Assignable__qualifiedName_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__Variable_Assignable__qualifiedName_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(1762, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1740, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tuple_Assignable__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_Assignable__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_();
     private static final AbstractStackNode[] _init_prod__Tuple_Assignable__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(1780, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1778, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(1768, 2, regular__iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1770, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1772, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1774, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1776, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1766, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1764, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(1758, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1756, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(1746, 2, regular__iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1748, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1750, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1752, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1754, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1744, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1742, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfDefinedOrDefault_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_defaultExpression_Expression_ = _init_prod__IfDefinedOrDefault_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_defaultExpression_Expression_();
     private static final AbstractStackNode[] _init_prod__IfDefinedOrDefault_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___63_layouts_LAYOUTLIST_defaultExpression_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[0] = new NonTerminalStackNode(1782, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1784, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1786, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1788, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(1790, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1760, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1762, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1764, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1766, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1768, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Annotation_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_annotation_Name_ = _init_prod__Annotation_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_annotation_Name_();
     private static final AbstractStackNode[] _init_prod__Annotation_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_annotation_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1800, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1798, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1796, 2, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1794, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1792, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1778, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1776, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1774, 2, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1772, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1770, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__FieldAccess_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_field_Name_ = _init_prod__FieldAccess_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_field_Name_();
     private static final AbstractStackNode[] _init_prod__FieldAccess_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_field_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(1810, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1808, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1806, 2, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1804, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1802, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1788, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1786, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1784, 2, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1782, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1780, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Subscript_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_subscript_Expression_layouts_LAYOUTLIST_lit___93_ = _init_prod__Subscript_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_subscript_Expression_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__Subscript_Assignable__receiver_Assignable_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_subscript_Expression_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(1824, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1822, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(1820, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1818, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1816, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1814, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1812, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1802, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1800, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1798, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1796, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1794, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1792, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1790, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Constructor_Assignable__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__Constructor_Assignable__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__Constructor_Assignable__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(1846, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1844, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(1834, 4, regular__iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1836, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1838, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1840, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1842, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1832, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(1830, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1828, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(1826, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1824, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1822, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(1812, 4, regular__iter_seps__Assignable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(1814, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(1816, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(1818, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(1820, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1810, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1808, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1806, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1804, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3688,49 +3666,49 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_start_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1884, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1862, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HeaderKeyword__lit_keyword_ = _init_prod__HeaderKeyword__lit_keyword_();
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_keyword_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1886, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new char[] {107,101,121,119,111,114,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1864, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new char[] {107,101,121,119,111,114,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HeaderKeyword__lit_syntax_ = _init_prod__HeaderKeyword__lit_syntax_();
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_syntax_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1888, 0, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new char[] {115,121,110,116,97,120}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1866, 0, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new char[] {115,121,110,116,97,120}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HeaderKeyword__lit_import_ = _init_prod__HeaderKeyword__lit_import_();
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_import_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1890, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1868, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HeaderKeyword__lit_lexical_ = _init_prod__HeaderKeyword__lit_lexical_();
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_lexical_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1892, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new char[] {108,101,120,105,99,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1870, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new char[] {108,101,120,105,99,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HeaderKeyword__lit_extend_ = _init_prod__HeaderKeyword__lit_extend_();
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_extend_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1894, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1872, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HeaderKeyword__lit_layout_ = _init_prod__HeaderKeyword__lit_layout_();
     private static final AbstractStackNode[] _init_prod__HeaderKeyword__lit_layout_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(1896, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1874, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3740,24 +3718,24 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Parameters__lit___40_layouts_LAYOUTLIST_formals_Formals_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(1954, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1952, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(1950, 2, "Formals", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1948, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1946, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(1932, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1930, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(1928, 2, "Formals", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1926, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1924, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__VarArgs_Parameters__lit___40_layouts_LAYOUTLIST_formals_Formals_layouts_LAYOUTLIST_lit___46_46_46_layouts_LAYOUTLIST_lit___41_ = _init_prod__VarArgs_Parameters__lit___40_layouts_LAYOUTLIST_formals_Formals_layouts_LAYOUTLIST_lit___46_46_46_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__VarArgs_Parameters__lit___40_layouts_LAYOUTLIST_formals_Formals_layouts_LAYOUTLIST_lit___46_46_46_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(1968, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(1966, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(1964, 4, prod__lit___46_46_46__char_class___range__46_46_char_class___range__46_46_char_class___range__46_46_, new char[] {46,46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(1962, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(1960, 2, "Formals", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(1958, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(1956, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(1946, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(1944, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(1942, 4, prod__lit___46_46_46__char_class___range__46_46_char_class___range__46_46_char_class___range__46_46_, new char[] {46,46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1940, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(1938, 2, "Formals", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1936, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1934, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3767,30 +3745,30 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[10];
       
-      tmp[9] = new CharStackNode(1988, 9, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new CharStackNode(1986, 8, new char[][]{{48,51}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new LiteralStackNode(1984, 7, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new CharStackNode(1982, 6, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new CharStackNode(1980, 5, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(1978, 4, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(1976, 3, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(1974, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(1972, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(1970, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new CharStackNode(1966, 9, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new CharStackNode(1964, 8, new char[][]{{48,51}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new LiteralStackNode(1962, 7, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new CharStackNode(1960, 6, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new CharStackNode(1958, 5, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(1956, 4, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(1954, 3, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(1952, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(1950, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(1948, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_ = _init_prod__DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_();
     private static final AbstractStackNode[] _init_prod__DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[8];
       
-      tmp[7] = new CharStackNode(2004, 7, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new CharStackNode(2002, 6, new char[][]{{48,51}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new CharStackNode(2000, 5, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new CharStackNode(1998, 4, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(1996, 3, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(1994, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(1992, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(1990, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new CharStackNode(1982, 7, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new CharStackNode(1980, 6, new char[][]{{48,51}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new CharStackNode(1978, 5, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new CharStackNode(1976, 4, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(1974, 3, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(1972, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(1970, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(1968, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3800,11 +3778,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Mapping__Pattern__from_Pattern_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2014, 4, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2012, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2010, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2008, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2006, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(1992, 4, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(1990, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(1988, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(1986, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(1984, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3814,16 +3792,16 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Dynamic_LocalVariableDeclaration__lit_dynamic_layouts_LAYOUTLIST_declarator_Declarator_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(2024, 2, "Declarator", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2022, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2020, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new char[] {100,121,110,97,109,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2002, 2, "Declarator", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2000, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(1998, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new char[] {100,121,110,97,109,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_LocalVariableDeclaration__declarator_Declarator_ = _init_prod__Default_LocalVariableDeclaration__declarator_Declarator_();
     private static final AbstractStackNode[] _init_prod__Default_LocalVariableDeclaration__declarator_Declarator_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2026, 0, "Declarator", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2004, 0, "Declarator", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3833,9 +3811,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__StringConstant__lit___34_iter_star__StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(2040, 2, prod__lit___34__char_class___range__34_34_, new char[] {34}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(2036, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(2038, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2034, 0, prod__lit___34__char_class___range__34_34_, new char[] {34}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2018, 2, prod__lit___34__char_class___range__34_34_, new char[] {34}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(2014, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(2016, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2012, 0, prod__lit___34__char_class___range__34_34_, new char[] {34}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3845,9 +3823,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__start__Module__layouts_LAYOUTLIST_top_Module_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(2046, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2044, 1, "Module", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2042, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2024, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2022, 1, "Module", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2020, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3857,11 +3835,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Selector_DataTypeSelector__sort_QualifiedName_layouts_LAYOUTLIST_lit___46_layouts_LAYOUTLIST_production_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2056, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2054, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2052, 2, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2050, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2048, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2034, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2032, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2030, 2, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2028, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2026, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3871,29 +3849,29 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__MidInterpolated_StringTail__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2066, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2064, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2062, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2060, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2058, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2044, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2042, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2040, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2038, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2036, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__MidTemplate_StringTail__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringTail_ = _init_prod__MidTemplate_StringTail__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringTail_();
     private static final AbstractStackNode[] _init_prod__MidTemplate_StringTail__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2076, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2074, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2072, 2, "StringTemplate", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2070, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2068, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2054, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2052, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2050, 2, "StringTemplate", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2048, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2046, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Post_StringTail__post_PostStringChars_ = _init_prod__Post_StringTail__post_PostStringChars_();
     private static final AbstractStackNode[] _init_prod__Post_StringTail__post_PostStringChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2078, 0, "PostStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2056, 0, "PostStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3903,22 +3881,22 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Replacing_PatternWithAction__pattern_Pattern_layouts_LAYOUTLIST_lit___61_62_layouts_LAYOUTLIST_replacement_Replacement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2088, 4, "Replacement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2086, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2084, 2, prod__lit___61_62__char_class___range__61_61_char_class___range__62_62_, new char[] {61,62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2082, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2080, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2066, 4, "Replacement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2064, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2062, 2, prod__lit___61_62__char_class___range__61_61_char_class___range__62_62_, new char[] {61,62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2060, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2058, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Arbitrary_PatternWithAction__pattern_Pattern_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_statement_Statement_ = _init_prod__Arbitrary_PatternWithAction__pattern_Pattern_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_statement_Statement_();
     private static final AbstractStackNode[] _init_prod__Arbitrary_PatternWithAction__pattern_Pattern_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_statement_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2098, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2096, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2094, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2092, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2090, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2076, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2074, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2072, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2070, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2068, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3928,9 +3906,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__MidProtocolChars__lit___62_URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(2150, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2148, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2146, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2128, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2126, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2124, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3940,18 +3918,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Mid_PathTail__mid_MidPathChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_PathTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(2142, 4, "PathTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2140, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2138, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2136, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2134, 0, "MidPathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2120, 4, "PathTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2118, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2116, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2114, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2112, 0, "MidPathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Post_PathTail__post_PostPathChars_ = _init_prod__Post_PathTail__post_PostPathChars_();
     private static final AbstractStackNode[] _init_prod__Post_PathTail__post_PostPathChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2144, 0, "PostPathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2122, 0, "PostPathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3961,8 +3939,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__JustDate__lit___36_DatePart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new NonTerminalStackNode(2164, 1, "DatePart", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2162, 0, prod__lit___36__char_class___range__36_36_, new char[] {36}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2142, 1, "DatePart", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2140, 0, prod__lit___36__char_class___range__36_36_, new char[] {36}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3972,7 +3950,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(2188, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{47,47},{60,60},{62,62},{92,92}})});
+      tmp[0] = new CharStackNode(2166, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{47,47},{60,60},{62,62},{92,92}})});
       return tmp;
 	}
   }
@@ -3982,9 +3960,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__start__Commands__layouts_LAYOUTLIST_top_Commands_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(2186, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2184, 1, "Commands", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2182, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2164, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2162, 1, "Commands", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2160, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -3994,9 +3972,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__CaseInsensitiveStringConstant__lit___39_iter_star__StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(2180, 2, prod__lit___39__char_class___range__39_39_, new char[] {39}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(2176, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(2178, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2174, 0, prod__lit___39__char_class___range__39_39_, new char[] {39}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2158, 2, prod__lit___39__char_class___range__39_39_, new char[] {39}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(2154, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(2156, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2152, 0, prod__lit___39__char_class___range__39_39_, new char[] {39}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4006,7 +3984,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Tags__tags_iter_star_seps__Tag__layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode(2194, 0, regular__iter_star_seps__Tag__layouts_LAYOUTLIST, new NonTerminalStackNode(2196, 0, "Tag", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2198, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new SeparatedListStackNode(2172, 0, regular__iter_star_seps__Tag__layouts_LAYOUTLIST, new NonTerminalStackNode(2174, 0, "Tag", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2176, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4016,7 +3994,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Formals__formals_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode(2208, 0, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2210, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2212, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2214, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2216, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new SeparatedListStackNode(2186, 0, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2188, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2190, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2192, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2194, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4026,14 +4004,14 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Present_Start__lit_start_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2218, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2196, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Absent_Start__ = _init_prod__Absent_Start__();
     private static final AbstractStackNode[] _init_prod__Absent_Start__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(2220, 0);
+      tmp[0] = new EpsilonStackNode(2198, 0);
       return tmp;
 	}
   }
@@ -4043,16 +4021,16 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new ListStackNode(2226, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(2228, 0, new char[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
-      tmp[1] = new CharStackNode(2224, 1, new char[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(2222, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new ListStackNode(2204, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(2206, 0, new char[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
+      tmp[1] = new CharStackNode(2202, 1, new char[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2200, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__RascalKeywords_ = _init_prod__Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__RascalKeywords_();
     private static final AbstractStackNode[] _init_prod__Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__RascalKeywords_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new SequenceStackNode(2230, 0, regular__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new AbstractStackNode[]{new CharStackNode(2232, 0, new char[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{65,90},{95,95},{97,122}})}, new ICompletionFilter[] {}), new ListStackNode(2234, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(2236, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})})}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringMatchRestriction(new char[] {105,110}), new StringMatchRestriction(new char[] {105,109,112,111,114,116}), new StringMatchRestriction(new char[] {97,108,108}), new StringMatchRestriction(new char[] {102,97,108,115,101}), new StringMatchRestriction(new char[] {97,110,110,111}), new StringMatchRestriction(new char[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new char[] {108,97,121,111,117,116}), new StringMatchRestriction(new char[] {106,111,105,110}), new StringMatchRestriction(new char[] {100,97,116,97}), new StringMatchRestriction(new char[] {105,116}), new StringMatchRestriction(new char[] {115,119,105,116,99,104}), new StringMatchRestriction(new char[] {99,97,115,101}), new StringMatchRestriction(new char[] {114,101,116,117,114,110}), new StringMatchRestriction(new char[] {115,116,114}), new StringMatchRestriction(new char[] {119,104,105,108,101}), new StringMatchRestriction(new char[] {115,111,108,118,101}), new StringMatchRestriction(new char[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new char[] {110,111,116,105,110}), new StringMatchRestriction(new char[] {101,108,115,101}), new StringMatchRestriction(new char[] {105,110,115,101,114,116}), new StringMatchRestriction(new char[] {116,121,112,101}), new StringMatchRestriction(new char[] {99,97,116,99,104}), new StringMatchRestriction(new char[] {116,114,121}), new StringMatchRestriction(new char[] {110,117,109}), new StringMatchRestriction(new char[] {110,111,100,101}), new StringMatchRestriction(new char[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new char[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new char[] {116,114,117,101}), new StringMatchRestriction(new char[] {98,97,103}), new StringMatchRestriction(new char[] {118,111,105,100}), new StringMatchRestriction(new char[] {97,115,115,111,99}), new StringMatchRestriction(new char[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new char[] {116,101,115,116}), new StringMatchRestriction(new char[] {105,102}), new StringMatchRestriction(new char[] {114,101,97,108}), new StringMatchRestriction(new char[] {108,105,115,116}), new StringMatchRestriction(new char[] {102,97,105,108}), new StringMatchRestriction(new char[] {114,101,108}), new StringMatchRestriction(new char[] {116,97,103}), new StringMatchRestriction(new char[] {97,112,112,101,110,100}), new StringMatchRestriction(new char[] {101,120,116,101,110,100}), new StringMatchRestriction(new char[] {114,101,112,101,97,116}), new StringMatchRestriction(new char[] {111,110,101}), new StringMatchRestriction(new char[] {116,104,114,111,119}), new StringMatchRestriction(new char[] {115,101,116}), new StringMatchRestriction(new char[] {115,116,97,114,116}), new StringMatchRestriction(new char[] {97,110,121}), new StringMatchRestriction(new char[] {109,111,100,117,108,101}), new StringMatchRestriction(new char[] {105,110,116}), new StringMatchRestriction(new char[] {112,117,98,108,105,99}), new StringMatchRestriction(new char[] {98,111,111,108}), new StringMatchRestriction(new char[] {118,97,108,117,101}), new StringMatchRestriction(new char[] {110,111,110,45,116,101,114,109,105,110,97,108}), new StringMatchRestriction(new char[] {114,117,108,101}), new StringMatchRestriction(new char[] {102,117,110}), new StringMatchRestriction(new char[] {99,111,110,115,116,114,117,99,116,111,114}), new StringMatchRestriction(new char[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new char[] {97,115,115,101,114,116}), new StringMatchRestriction(new char[] {108,111,99}), new StringMatchRestriction(new char[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new char[] {116,104,114,111,119,115}), new StringMatchRestriction(new char[] {116,117,112,108,101}), new StringMatchRestriction(new char[] {102,111,114}), new StringMatchRestriction(new char[] {118,105,115,105,116}), new StringMatchRestriction(new char[] {97,108,105,97,115}), new StringMatchRestriction(new char[] {109,97,112})});
+      tmp[0] = new SequenceStackNode(2208, 0, regular__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new AbstractStackNode[]{new CharStackNode(2210, 0, new char[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{65,90},{95,95},{97,122}})}, new ICompletionFilter[] {}), new ListStackNode(2212, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(2214, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})})}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringMatchRestriction(new char[] {105,110}), new StringMatchRestriction(new char[] {105,109,112,111,114,116}), new StringMatchRestriction(new char[] {97,108,108}), new StringMatchRestriction(new char[] {102,97,108,115,101}), new StringMatchRestriction(new char[] {97,110,110,111}), new StringMatchRestriction(new char[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new char[] {108,97,121,111,117,116}), new StringMatchRestriction(new char[] {106,111,105,110}), new StringMatchRestriction(new char[] {100,97,116,97}), new StringMatchRestriction(new char[] {105,116}), new StringMatchRestriction(new char[] {115,119,105,116,99,104}), new StringMatchRestriction(new char[] {99,97,115,101}), new StringMatchRestriction(new char[] {114,101,116,117,114,110}), new StringMatchRestriction(new char[] {115,116,114}), new StringMatchRestriction(new char[] {119,104,105,108,101}), new StringMatchRestriction(new char[] {115,111,108,118,101}), new StringMatchRestriction(new char[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new char[] {110,111,116,105,110}), new StringMatchRestriction(new char[] {101,108,115,101}), new StringMatchRestriction(new char[] {105,110,115,101,114,116}), new StringMatchRestriction(new char[] {116,121,112,101}), new StringMatchRestriction(new char[] {99,97,116,99,104}), new StringMatchRestriction(new char[] {116,114,121}), new StringMatchRestriction(new char[] {110,117,109}), new StringMatchRestriction(new char[] {110,111,100,101}), new StringMatchRestriction(new char[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new char[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new char[] {116,114,117,101}), new StringMatchRestriction(new char[] {98,97,103}), new StringMatchRestriction(new char[] {118,111,105,100}), new StringMatchRestriction(new char[] {97,115,115,111,99}), new StringMatchRestriction(new char[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new char[] {116,101,115,116}), new StringMatchRestriction(new char[] {105,102}), new StringMatchRestriction(new char[] {114,101,97,108}), new StringMatchRestriction(new char[] {108,105,115,116}), new StringMatchRestriction(new char[] {102,97,105,108}), new StringMatchRestriction(new char[] {114,101,108}), new StringMatchRestriction(new char[] {116,97,103}), new StringMatchRestriction(new char[] {97,112,112,101,110,100}), new StringMatchRestriction(new char[] {101,120,116,101,110,100}), new StringMatchRestriction(new char[] {114,101,112,101,97,116}), new StringMatchRestriction(new char[] {111,110,101}), new StringMatchRestriction(new char[] {116,104,114,111,119}), new StringMatchRestriction(new char[] {115,101,116}), new StringMatchRestriction(new char[] {115,116,97,114,116}), new StringMatchRestriction(new char[] {97,110,121}), new StringMatchRestriction(new char[] {109,111,100,117,108,101}), new StringMatchRestriction(new char[] {105,110,116}), new StringMatchRestriction(new char[] {112,117,98,108,105,99}), new StringMatchRestriction(new char[] {98,111,111,108}), new StringMatchRestriction(new char[] {118,97,108,117,101}), new StringMatchRestriction(new char[] {110,111,110,45,116,101,114,109,105,110,97,108}), new StringMatchRestriction(new char[] {114,117,108,101}), new StringMatchRestriction(new char[] {102,117,110}), new StringMatchRestriction(new char[] {99,111,110,115,116,114,117,99,116,111,114}), new StringMatchRestriction(new char[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new char[] {97,115,115,101,114,116}), new StringMatchRestriction(new char[] {108,111,99}), new StringMatchRestriction(new char[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new char[] {116,104,114,111,119,115}), new StringMatchRestriction(new char[] {116,117,112,108,101}), new StringMatchRestriction(new char[] {102,111,114}), new StringMatchRestriction(new char[] {118,105,115,105,116}), new StringMatchRestriction(new char[] {97,108,105,97,115}), new StringMatchRestriction(new char[] {109,97,112})});
       return tmp;
 	}
   }
@@ -4062,28 +4040,28 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new OptionalStackNode(2270, 6, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2272, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2274, 0, new char[][]{{44,44},{46,46}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(2276, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2278, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2280, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2282, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2284, 1, regular__opt__char_class___range__48_57, new CharStackNode(2286, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new CharStackNode(2268, 5, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new CharStackNode(2266, 4, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(2264, 3, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(2262, 2, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(2260, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(2258, 0, new char[][]{{48,50}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new OptionalStackNode(2248, 6, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2250, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2252, 0, new char[][]{{44,44},{46,46}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(2254, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2256, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2258, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2260, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2262, 1, regular__opt__char_class___range__48_57, new CharStackNode(2264, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new CharStackNode(2246, 5, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new CharStackNode(2244, 4, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(2242, 3, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(2240, 2, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(2238, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2236, 0, new char[][]{{48,50}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = _init_prod__TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_();
     private static final AbstractStackNode[] _init_prod__TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new OptionalStackNode(2304, 8, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2306, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2308, 0, new char[][]{{44,44},{46,46}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(2310, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2312, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2314, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2316, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2318, 1, regular__opt__char_class___range__48_57, new CharStackNode(2320, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new CharStackNode(2302, 7, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new CharStackNode(2300, 6, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new LiteralStackNode(2298, 5, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new CharStackNode(2296, 4, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(2294, 3, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2292, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(2290, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(2288, 0, new char[][]{{48,50}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new OptionalStackNode(2282, 8, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2284, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2286, 0, new char[][]{{44,44},{46,46}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new CharStackNode(2288, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2290, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(2292, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(2294, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new OptionalStackNode(2296, 1, regular__opt__char_class___range__48_57, new CharStackNode(2298, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {})}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new CharStackNode(2280, 7, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new CharStackNode(2278, 6, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new LiteralStackNode(2276, 5, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new CharStackNode(2274, 4, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(2272, 3, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2270, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(2268, 1, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2266, 0, new char[][]{{48,50}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4093,13 +4071,13 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_StructuredType__basicType_BasicType_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_arguments_iter_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(2362, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(2360, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(2350, 4, regular__iter_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2352, 0, "TypeArg", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2354, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2356, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2358, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2348, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2346, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2344, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2342, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(2340, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(2338, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(2328, 4, regular__iter_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2330, 0, "TypeArg", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2332, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2334, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2336, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2326, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2324, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2322, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2320, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4109,9 +4087,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Declarator__type_Type_layouts_LAYOUTLIST_variables_iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new SeparatedListStackNode(2386, 2, regular__iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2388, 0, "Variable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2390, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2392, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2394, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2384, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2382, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(2364, 2, regular__iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2366, 0, "Variable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2368, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2370, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2372, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2362, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2360, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4121,9 +4099,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__start__PreModule__layouts_LAYOUTLIST_top_PreModule_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(2406, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2404, 1, "PreModule", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2402, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2384, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2382, 1, "PreModule", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2380, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4133,13 +4111,13 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__NAryConstructor_Variant__name_Name_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(2456, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(2454, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(2444, 4, regular__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2446, 0, "TypeArg", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2448, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2450, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2452, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2442, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2440, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2438, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2436, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(2434, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(2432, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(2422, 4, regular__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2424, 0, "TypeArg", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2426, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2428, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2430, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2420, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2418, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2416, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2414, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4149,64 +4127,64 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Conditional_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode(2494, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(2492, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new SeparatedListStackNode(2482, 12, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2484, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2486, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2488, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2490, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(2480, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new LiteralStackNode(2478, 10, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new char[] {119,104,101,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(2476, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(2474, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(2472, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(2470, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(2468, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(2466, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2464, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2462, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2460, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2458, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(2472, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(2470, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new SeparatedListStackNode(2460, 12, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2462, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2464, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2466, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2468, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(2458, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(2456, 10, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new char[] {119,104,101,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(2454, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(2452, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(2450, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(2448, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(2446, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2444, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2442, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2440, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2438, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2436, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_body_FunctionBody__tag__Foldable = _init_prod__Default_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_body_FunctionBody__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Default_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_body_FunctionBody__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new NonTerminalStackNode(2508, 6, "FunctionBody", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(2506, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(2504, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2502, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2500, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2498, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2496, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(2486, 6, "FunctionBody", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(2484, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2482, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2480, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2478, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2476, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2474, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Abstract_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___59_ = _init_prod__Abstract_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Abstract_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(2522, 6, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(2520, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(2518, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2516, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2514, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2512, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2510, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(2500, 6, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(2498, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2496, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2494, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2492, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2490, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2488, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Expression_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Expression_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Expression_FunctionDeclaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_signature_Signature_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode(2544, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(2542, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(2540, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(2538, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(2536, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(2534, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(2532, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2530, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(2528, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2526, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2524, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(2522, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(2520, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(2518, 8, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(2516, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(2514, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(2512, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(2510, 4, "Signature", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2508, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(2506, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2504, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2502, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4216,161 +4194,161 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Bag_BasicType__lit_bag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2572, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new char[] {98,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2550, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new char[] {98,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedTypeParameter_BasicType__lit_parameter_ = _init_prod__ReifiedTypeParameter_BasicType__lit_parameter_();
     private static final AbstractStackNode[] _init_prod__ReifiedTypeParameter_BasicType__lit_parameter_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2574, 0, prod__lit_parameter__char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_, new char[] {112,97,114,97,109,101,116,101,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2552, 0, prod__lit_parameter__char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_, new char[] {112,97,114,97,109,101,116,101,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedType_BasicType__lit_type_ = _init_prod__ReifiedType_BasicType__lit_type_();
     private static final AbstractStackNode[] _init_prod__ReifiedType_BasicType__lit_type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2576, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new char[] {116,121,112,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2554, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new char[] {116,121,112,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedReifiedType_BasicType__lit_reified_ = _init_prod__ReifiedReifiedType_BasicType__lit_reified_();
     private static final AbstractStackNode[] _init_prod__ReifiedReifiedType_BasicType__lit_reified_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2578, 0, prod__lit_reified__char_class___range__114_114_char_class___range__101_101_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_, new char[] {114,101,105,102,105,101,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2556, 0, prod__lit_reified__char_class___range__114_114_char_class___range__101_101_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_, new char[] {114,101,105,102,105,101,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__String_BasicType__lit_str_ = _init_prod__String_BasicType__lit_str_();
     private static final AbstractStackNode[] _init_prod__String_BasicType__lit_str_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2580, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new char[] {115,116,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2558, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new char[] {115,116,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DateTime_BasicType__lit_datetime_ = _init_prod__DateTime_BasicType__lit_datetime_();
     private static final AbstractStackNode[] _init_prod__DateTime_BasicType__lit_datetime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2582, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new char[] {100,97,116,101,116,105,109,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2560, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new char[] {100,97,116,101,116,105,109,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Set_BasicType__lit_set_ = _init_prod__Set_BasicType__lit_set_();
     private static final AbstractStackNode[] _init_prod__Set_BasicType__lit_set_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2584, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2562, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedAdt_BasicType__lit_adt_ = _init_prod__ReifiedAdt_BasicType__lit_adt_();
     private static final AbstractStackNode[] _init_prod__ReifiedAdt_BasicType__lit_adt_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2586, 0, prod__lit_adt__char_class___range__97_97_char_class___range__100_100_char_class___range__116_116_, new char[] {97,100,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2564, 0, prod__lit_adt__char_class___range__97_97_char_class___range__100_100_char_class___range__116_116_, new char[] {97,100,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Bool_BasicType__lit_bool_ = _init_prod__Bool_BasicType__lit_bool_();
     private static final AbstractStackNode[] _init_prod__Bool_BasicType__lit_bool_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2588, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new char[] {98,111,111,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2566, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new char[] {98,111,111,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedConstructor_BasicType__lit_constructor_ = _init_prod__ReifiedConstructor_BasicType__lit_constructor_();
     private static final AbstractStackNode[] _init_prod__ReifiedConstructor_BasicType__lit_constructor_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2590, 0, prod__lit_constructor__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__99_99_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_, new char[] {99,111,110,115,116,114,117,99,116,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2568, 0, prod__lit_constructor__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__99_99_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_, new char[] {99,111,110,115,116,114,117,99,116,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Relation_BasicType__lit_rel_ = _init_prod__Relation_BasicType__lit_rel_();
     private static final AbstractStackNode[] _init_prod__Relation_BasicType__lit_rel_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2592, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new char[] {114,101,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2570, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new char[] {114,101,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Void_BasicType__lit_void_ = _init_prod__Void_BasicType__lit_void_();
     private static final AbstractStackNode[] _init_prod__Void_BasicType__lit_void_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2594, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new char[] {118,111,105,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2572, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new char[] {118,111,105,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__List_BasicType__lit_list_ = _init_prod__List_BasicType__lit_list_();
     private static final AbstractStackNode[] _init_prod__List_BasicType__lit_list_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2596, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new char[] {108,105,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2574, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new char[] {108,105,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedNonTerminal_BasicType__lit_non_terminal_ = _init_prod__ReifiedNonTerminal_BasicType__lit_non_terminal_();
     private static final AbstractStackNode[] _init_prod__ReifiedNonTerminal_BasicType__lit_non_terminal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2598, 0, prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_, new char[] {110,111,110,45,116,101,114,109,105,110,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2576, 0, prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_, new char[] {110,111,110,45,116,101,114,109,105,110,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Num_BasicType__lit_num_ = _init_prod__Num_BasicType__lit_num_();
     private static final AbstractStackNode[] _init_prod__Num_BasicType__lit_num_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2600, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new char[] {110,117,109}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2578, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new char[] {110,117,109}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Loc_BasicType__lit_loc_ = _init_prod__Loc_BasicType__lit_loc_();
     private static final AbstractStackNode[] _init_prod__Loc_BasicType__lit_loc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2602, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new char[] {108,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2580, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new char[] {108,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Value_BasicType__lit_value_ = _init_prod__Value_BasicType__lit_value_();
     private static final AbstractStackNode[] _init_prod__Value_BasicType__lit_value_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2604, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new char[] {118,97,108,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2582, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new char[] {118,97,108,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedFunction_BasicType__lit_fun_ = _init_prod__ReifiedFunction_BasicType__lit_fun_();
     private static final AbstractStackNode[] _init_prod__ReifiedFunction_BasicType__lit_fun_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2606, 0, prod__lit_fun__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_, new char[] {102,117,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2584, 0, prod__lit_fun__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_, new char[] {102,117,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tuple_BasicType__lit_tuple_ = _init_prod__Tuple_BasicType__lit_tuple_();
     private static final AbstractStackNode[] _init_prod__Tuple_BasicType__lit_tuple_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2608, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new char[] {116,117,112,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2586, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new char[] {116,117,112,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Map_BasicType__lit_map_ = _init_prod__Map_BasicType__lit_map_();
     private static final AbstractStackNode[] _init_prod__Map_BasicType__lit_map_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2610, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new char[] {109,97,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2588, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new char[] {109,97,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Int_BasicType__lit_int_ = _init_prod__Int_BasicType__lit_int_();
     private static final AbstractStackNode[] _init_prod__Int_BasicType__lit_int_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2612, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new char[] {105,110,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2590, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new char[] {105,110,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Node_BasicType__lit_node_ = _init_prod__Node_BasicType__lit_node_();
     private static final AbstractStackNode[] _init_prod__Node_BasicType__lit_node_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2614, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new char[] {110,111,100,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2592, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new char[] {110,111,100,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Real_BasicType__lit_real_ = _init_prod__Real_BasicType__lit_real_();
     private static final AbstractStackNode[] _init_prod__Real_BasicType__lit_real_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2616, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new char[] {114,101,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2594, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new char[] {114,101,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4380,21 +4358,21 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__DateAndTimeLiteral_DateTimeLiteral__dateAndTime_DateAndTime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2620, 0, "DateAndTime", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2598, 0, "DateAndTime", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TimeLiteral_DateTimeLiteral__time_JustTime_ = _init_prod__TimeLiteral_DateTimeLiteral__time_JustTime_();
     private static final AbstractStackNode[] _init_prod__TimeLiteral_DateTimeLiteral__time_JustTime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2622, 0, "JustTime", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2600, 0, "JustTime", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DateLiteral_DateTimeLiteral__date_JustDate_ = _init_prod__DateLiteral_DateTimeLiteral__date_JustDate_();
     private static final AbstractStackNode[] _init_prod__DateLiteral_DateTimeLiteral__date_JustDate_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2624, 0, "JustDate", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2602, 0, "JustDate", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4404,8 +4382,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PathChars__URLChars_char_class___range__124_124_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(2644, 1, new char[][]{{124,124}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(2642, 0, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(2622, 1, new char[][]{{124,124}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2620, 0, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4415,11 +4393,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_ModuleActuals__lit___91_layouts_LAYOUTLIST_types_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(2738, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2736, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(2726, 2, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2728, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2730, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2732, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2734, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2724, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2722, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(2716, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2714, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(2704, 2, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2706, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2708, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2710, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2712, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2702, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2700, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4429,9 +4407,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PostStringChars__char_class___range__62_62_iter_star__StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(2750, 2, new char[][]{{34,34}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(2746, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(2748, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(2744, 0, new char[][]{{62,62}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(2728, 2, new char[][]{{34,34}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(2724, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(2726, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2722, 0, new char[][]{{62,62}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4441,9 +4419,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new ListStackNode(2756, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode(2758, 0, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
-      tmp[1] = new CharStackNode(2754, 1, new char[][]{{88,88},{120,120}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(2752, 0, new char[][]{{48,48}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new ListStackNode(2734, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode(2736, 0, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[1] = new CharStackNode(2732, 1, new char[][]{{88,88},{120,120}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2730, 0, new char[][]{{48,48}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4453,27 +4431,27 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(2762, 1, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,55}})});
-      tmp[0] = new LiteralStackNode(2760, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(2740, 1, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,55}})});
+      tmp[0] = new LiteralStackNode(2738, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_ = _init_prod__OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_();
     private static final AbstractStackNode[] _init_prod__OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(2768, 2, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,55}})});
-      tmp[1] = new CharStackNode(2766, 1, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2764, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(2746, 2, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,55}})});
+      tmp[1] = new CharStackNode(2744, 1, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2742, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_ = _init_prod__OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_();
     private static final AbstractStackNode[] _init_prod__OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_() {
       AbstractStackNode[] tmp = new AbstractStackNode[4];
       
-      tmp[3] = new CharStackNode(2776, 3, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(2774, 2, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(2772, 1, new char[][]{{48,51}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2770, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(2754, 3, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(2752, 2, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(2750, 1, new char[][]{{48,51}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2748, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4483,10 +4461,10 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__RegExpLiteral__lit___47_iter_star__RegExp_lit___47_RegExpModifier_() {
       AbstractStackNode[] tmp = new AbstractStackNode[4];
       
-      tmp[3] = new NonTerminalStackNode(2786, 3, "RegExpModifier", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(2784, 2, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(2780, 1, regular__iter_star__RegExp, new NonTerminalStackNode(2782, 0, "RegExp", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2778, 0, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2764, 3, "RegExpModifier", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2762, 2, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(2758, 1, regular__iter_star__RegExp, new NonTerminalStackNode(2760, 0, "RegExp", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2756, 0, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4496,31 +4474,31 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__NamedRegExp__lit___60_Name_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(2792, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2790, 1, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2788, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(2770, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2768, 1, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2766, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_();
     private static final AbstractStackNode[] _init_prod__NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(2794, 0, new char[][]{{0,46},{48,59},{61,61},{63,91},{93,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2772, 0, new char[][]{{0,46},{48,59},{61,61},{63,91},{93,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
     private static final AbstractStackNode[] _init_prod__NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(2798, 1, new char[][]{{47,47},{60,60},{62,62},{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(2796, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(2776, 1, new char[][]{{47,47},{60,60},{62,62},{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(2774, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NamedRegExp__NamedBackslash_ = _init_prod__NamedRegExp__NamedBackslash_();
     private static final AbstractStackNode[] _init_prod__NamedRegExp__NamedBackslash_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2800, 0, "NamedBackslash", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2778, 0, "NamedBackslash", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4530,11 +4508,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_ModuleParameters__lit___91_layouts_LAYOUTLIST_parameters_iter_seps__TypeVar__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(2824, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(2822, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(2812, 2, regular__iter_seps__TypeVar__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2814, 0, "TypeVar", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2816, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2818, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2820, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(2810, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(2808, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(2802, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(2800, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(2790, 2, regular__iter_seps__TypeVar__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(2792, 0, "TypeVar", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(2794, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(2796, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(2798, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(2788, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2786, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -4544,469 +4522,469 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_tuple_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2840, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new char[] {116,117,112,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2818, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new char[] {116,117,112,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_constructor_ = _init_prod__RascalKeywords__lit_constructor_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_constructor_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2842, 0, prod__lit_constructor__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__99_99_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_, new char[] {99,111,110,115,116,114,117,99,116,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2820, 0, prod__lit_constructor__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__99_99_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_, new char[] {99,111,110,115,116,114,117,99,116,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_int_ = _init_prod__RascalKeywords__lit_int_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_int_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2844, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new char[] {105,110,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2822, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new char[] {105,110,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_fail_ = _init_prod__RascalKeywords__lit_fail_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_fail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2846, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new char[] {102,97,105,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2824, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new char[] {102,97,105,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_switch_ = _init_prod__RascalKeywords__lit_switch_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_switch_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2848, 0, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {115,119,105,116,99,104}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2826, 0, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {115,119,105,116,99,104}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_rule_ = _init_prod__RascalKeywords__lit_rule_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_rule_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2850, 0, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2828, 0, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_throw_ = _init_prod__RascalKeywords__lit_throw_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_throw_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2852, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new char[] {116,104,114,111,119}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2830, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new char[] {116,104,114,111,119}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_alias_ = _init_prod__RascalKeywords__lit_alias_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_alias_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2854, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2832, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_default_ = _init_prod__RascalKeywords__lit_default_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_default_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2856, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2834, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_throws_ = _init_prod__RascalKeywords__lit_throws_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_throws_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2858, 0, prod__lit_throws__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_char_class___range__115_115_, new char[] {116,104,114,111,119,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2836, 0, prod__lit_throws__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_char_class___range__115_115_, new char[] {116,104,114,111,119,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_module_ = _init_prod__RascalKeywords__lit_module_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_module_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2860, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {109,111,100,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2838, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {109,111,100,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_true_ = _init_prod__RascalKeywords__lit_true_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_true_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2864, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new char[] {116,114,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2842, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new char[] {116,114,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_private_ = _init_prod__RascalKeywords__lit_private_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_private_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2862, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new char[] {112,114,105,118,97,116,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2840, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new char[] {112,114,105,118,97,116,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_map_ = _init_prod__RascalKeywords__lit_map_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_map_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2866, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new char[] {109,97,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2844, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new char[] {109,97,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_test_ = _init_prod__RascalKeywords__lit_test_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_test_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2868, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2846, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_start_ = _init_prod__RascalKeywords__lit_start_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_start_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2870, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2848, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_import_ = _init_prod__RascalKeywords__lit_import_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_import_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2872, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2850, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_loc_ = _init_prod__RascalKeywords__lit_loc_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_loc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2874, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new char[] {108,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2852, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new char[] {108,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_assert_ = _init_prod__RascalKeywords__lit_assert_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_assert_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2876, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2854, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_insert_ = _init_prod__RascalKeywords__lit_insert_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_insert_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2878, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {105,110,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2856, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {105,110,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_anno_ = _init_prod__RascalKeywords__lit_anno_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_anno_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2880, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2858, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_public_ = _init_prod__RascalKeywords__lit_public_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_public_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2882, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new char[] {112,117,98,108,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2860, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new char[] {112,117,98,108,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_void_ = _init_prod__RascalKeywords__lit_void_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_void_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2884, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new char[] {118,111,105,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2862, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new char[] {118,111,105,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_try_ = _init_prod__RascalKeywords__lit_try_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_try_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2886, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2864, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_value_ = _init_prod__RascalKeywords__lit_value_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_value_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2888, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new char[] {118,97,108,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2866, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new char[] {118,97,108,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_non_terminal_ = _init_prod__RascalKeywords__lit_non_terminal_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_non_terminal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2890, 0, prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_, new char[] {110,111,110,45,116,101,114,109,105,110,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2868, 0, prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_, new char[] {110,111,110,45,116,101,114,109,105,110,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_list_ = _init_prod__RascalKeywords__lit_list_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_list_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2892, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new char[] {108,105,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2870, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new char[] {108,105,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_dynamic_ = _init_prod__RascalKeywords__lit_dynamic_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_dynamic_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2894, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new char[] {100,121,110,97,109,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2872, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new char[] {100,121,110,97,109,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_tag_ = _init_prod__RascalKeywords__lit_tag_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_tag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2896, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2874, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_data_ = _init_prod__RascalKeywords__lit_data_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_data_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2898, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2876, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_extend_ = _init_prod__RascalKeywords__lit_extend_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_extend_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2902, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2880, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_append_ = _init_prod__RascalKeywords__lit_append_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_append_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2900, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {97,112,112,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2878, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {97,112,112,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_type_ = _init_prod__RascalKeywords__lit_type_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2906, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new char[] {116,121,112,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2884, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new char[] {116,121,112,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_notin_ = _init_prod__RascalKeywords__lit_notin_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_notin_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2904, 0, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new char[] {110,111,116,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2882, 0, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new char[] {110,111,116,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_catch_ = _init_prod__RascalKeywords__lit_catch_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_catch_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2908, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {99,97,116,99,104}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2886, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {99,97,116,99,104}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_one_ = _init_prod__RascalKeywords__lit_one_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_one_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2910, 0, prod__lit_one__char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_, new char[] {111,110,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2888, 0, prod__lit_one__char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_, new char[] {111,110,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_node_ = _init_prod__RascalKeywords__lit_node_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_node_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2912, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new char[] {110,111,100,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2890, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new char[] {110,111,100,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_str_ = _init_prod__RascalKeywords__lit_str_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_str_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2914, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new char[] {115,116,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2892, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new char[] {115,116,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_repeat_ = _init_prod__RascalKeywords__lit_repeat_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_repeat_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2916, 0, prod__lit_repeat__char_class___range__114_114_char_class___range__101_101_char_class___range__112_112_char_class___range__101_101_char_class___range__97_97_char_class___range__116_116_, new char[] {114,101,112,101,97,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2894, 0, prod__lit_repeat__char_class___range__114_114_char_class___range__101_101_char_class___range__112_112_char_class___range__101_101_char_class___range__97_97_char_class___range__116_116_, new char[] {114,101,112,101,97,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_visit_ = _init_prod__RascalKeywords__lit_visit_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_visit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2918, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2896, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_fun_ = _init_prod__RascalKeywords__lit_fun_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_fun_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2920, 0, prod__lit_fun__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_, new char[] {102,117,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2898, 0, prod__lit_fun__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_, new char[] {102,117,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_if_ = _init_prod__RascalKeywords__lit_if_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_if_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2924, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2902, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_non_assoc_ = _init_prod__RascalKeywords__lit_non_assoc_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_non_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2922, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {110,111,110,45,97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2900, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {110,111,110,45,97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_return_ = _init_prod__RascalKeywords__lit_return_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_return_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2926, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new char[] {114,101,116,117,114,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2904, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new char[] {114,101,116,117,114,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_else_ = _init_prod__RascalKeywords__lit_else_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_else_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2928, 0, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2906, 0, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_in_ = _init_prod__RascalKeywords__lit_in_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_in_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2930, 0, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new char[] {105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2908, 0, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new char[] {105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_join_ = _init_prod__RascalKeywords__lit_join_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_join_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2934, 0, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new char[] {106,111,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2912, 0, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new char[] {106,111,105,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_it_ = _init_prod__RascalKeywords__lit_it_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_it_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2932, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new char[] {105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2910, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new char[] {105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_for_ = _init_prod__RascalKeywords__lit_for_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_for_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2936, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2914, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_bracket_ = _init_prod__RascalKeywords__lit_bracket_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_bracket_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2938, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new char[] {98,114,97,99,107,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2916, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new char[] {98,114,97,99,107,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_set_ = _init_prod__RascalKeywords__lit_set_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_set_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2940, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2918, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_assoc_ = _init_prod__RascalKeywords__lit_assoc_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2942, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2920, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_bag_ = _init_prod__RascalKeywords__lit_bag_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_bag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2944, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new char[] {98,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2922, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new char[] {98,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_num_ = _init_prod__RascalKeywords__lit_num_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_num_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2946, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new char[] {110,117,109}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2924, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new char[] {110,117,109}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_datetime_ = _init_prod__RascalKeywords__lit_datetime_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_datetime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2948, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new char[] {100,97,116,101,116,105,109,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2926, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new char[] {100,97,116,101,116,105,109,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_layout_ = _init_prod__RascalKeywords__lit_layout_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_layout_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2954, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2932, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_case_ = _init_prod__RascalKeywords__lit_case_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_case_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2952, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new char[] {99,97,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2930, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new char[] {99,97,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_while_ = _init_prod__RascalKeywords__lit_while_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_while_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2950, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2928, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_bool_ = _init_prod__RascalKeywords__lit_bool_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_bool_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2956, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new char[] {98,111,111,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2934, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new char[] {98,111,111,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_any_ = _init_prod__RascalKeywords__lit_any_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_any_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2958, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new char[] {97,110,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2936, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new char[] {97,110,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_real_ = _init_prod__RascalKeywords__lit_real_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_real_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2962, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new char[] {114,101,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2940, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new char[] {114,101,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_finally_ = _init_prod__RascalKeywords__lit_finally_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_finally_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2960, 0, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new char[] {102,105,110,97,108,108,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2938, 0, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new char[] {102,105,110,97,108,108,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_all_ = _init_prod__RascalKeywords__lit_all_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_all_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2964, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2942, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_false_ = _init_prod__RascalKeywords__lit_false_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_false_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2966, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {102,97,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2944, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {102,97,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_rel_ = _init_prod__RascalKeywords__lit_rel_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_rel_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2968, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new char[] {114,101,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2946, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new char[] {114,101,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__BasicType_ = _init_prod__RascalKeywords__BasicType_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__BasicType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(2970, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(2948, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RascalKeywords__lit_solve_ = _init_prod__RascalKeywords__lit_solve_();
     private static final AbstractStackNode[] _init_prod__RascalKeywords__lit_solve_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2972, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new char[] {115,111,108,118,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2950, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new char[] {115,111,108,118,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5016,42 +4994,42 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__TopDown_Strategy__lit_top_down_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2994, 0, prod__lit_top_down__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_, new char[] {116,111,112,45,100,111,119,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2972, 0, prod__lit_top_down__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_, new char[] {116,111,112,45,100,111,119,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TopDownBreak_Strategy__lit_top_down_break_ = _init_prod__TopDownBreak_Strategy__lit_top_down_break_();
     private static final AbstractStackNode[] _init_prod__TopDownBreak_Strategy__lit_top_down_break_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2996, 0, prod__lit_top_down_break__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {116,111,112,45,100,111,119,110,45,98,114,101,97,107}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2974, 0, prod__lit_top_down_break__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {116,111,112,45,100,111,119,110,45,98,114,101,97,107}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Innermost_Strategy__lit_innermost_ = _init_prod__Innermost_Strategy__lit_innermost_();
     private static final AbstractStackNode[] _init_prod__Innermost_Strategy__lit_innermost_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(2998, 0, prod__lit_innermost__char_class___range__105_105_char_class___range__110_110_char_class___range__110_110_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new char[] {105,110,110,101,114,109,111,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2976, 0, prod__lit_innermost__char_class___range__105_105_char_class___range__110_110_char_class___range__110_110_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new char[] {105,110,110,101,114,109,111,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__BottomUp_Strategy__lit_bottom_up_ = _init_prod__BottomUp_Strategy__lit_bottom_up_();
     private static final AbstractStackNode[] _init_prod__BottomUp_Strategy__lit_bottom_up_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3000, 0, prod__lit_bottom_up__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_, new char[] {98,111,116,116,111,109,45,117,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2978, 0, prod__lit_bottom_up__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_, new char[] {98,111,116,116,111,109,45,117,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Outermost_Strategy__lit_outermost_ = _init_prod__Outermost_Strategy__lit_outermost_();
     private static final AbstractStackNode[] _init_prod__Outermost_Strategy__lit_outermost_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3002, 0, prod__lit_outermost__char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new char[] {111,117,116,101,114,109,111,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2980, 0, prod__lit_outermost__char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new char[] {111,117,116,101,114,109,111,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__BottomUpBreak_Strategy__lit_bottom_up_break_ = _init_prod__BottomUpBreak_Strategy__lit_bottom_up_break_();
     private static final AbstractStackNode[] _init_prod__BottomUpBreak_Strategy__lit_bottom_up_break_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3004, 0, prod__lit_bottom_up_break__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {98,111,116,116,111,109,45,117,112,45,98,114,101,97,107}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2982, 0, prod__lit_bottom_up_break__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {98,111,116,116,111,109,45,117,112,45,98,114,101,97,107}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5061,29 +5039,29 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(3022, 1, new char[][]{{32,32},{34,34},{39,39},{45,45},{60,60},{62,62},{91,93},{98,98},{102,102},{110,110},{114,114},{116,116}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3020, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(3000, 1, new char[][]{{32,32},{34,34},{39,39},{45,45},{60,60},{62,62},{91,93},{98,98},{102,102},{110,110},{114,114},{116,116}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(2998, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116 = _init_prod__Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116();
     private static final AbstractStackNode[] _init_prod__Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(3024, 0, new char[][]{{0,31},{33,33},{35,38},{40,44},{46,59},{61,61},{63,90},{94,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(3002, 0, new char[][]{{0,31},{33,33},{35,38},{40,44},{46,59},{61,61},{63,90},{94,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Char__OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116 = _init_prod__Char__OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116();
     private static final AbstractStackNode[] _init_prod__Char__OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3026, 0, "OctalEscapeSequence", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3004, 0, "OctalEscapeSequence", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Char__UnicodeEscape__tag__category___67_111_110_115_116_97_110_116 = _init_prod__Char__UnicodeEscape__tag__category___67_111_110_115_116_97_110_116();
     private static final AbstractStackNode[] _init_prod__Char__UnicodeEscape__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3028, 0, "UnicodeEscape", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3006, 0, "UnicodeEscape", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5093,8 +5071,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PrePathChars__URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new LiteralStackNode(3042, 1, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3040, 0, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new LiteralStackNode(3020, 1, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3018, 0, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5104,9 +5082,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__MidPathChars__lit___62_URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(3048, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3046, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3044, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3026, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3024, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3022, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5116,9 +5094,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PostProtocolChars__lit___62_URLChars_lit___58_47_47_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(3088, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new char[] {58,47,47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3086, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3084, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3066, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new char[] {58,47,47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3064, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3062, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5128,64 +5106,64 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Keyword_SyntaxDefinition__lit_keyword_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(3174, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3172, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(3170, 6, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3168, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(3166, 4, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3164, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(3162, 2, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3160, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3158, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new char[] {107,101,121,119,111,114,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(3152, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3150, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(3148, 6, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3146, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(3144, 4, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3142, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(3140, 2, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3138, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3136, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new char[] {107,101,121,119,111,114,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Language_SyntaxDefinition__start_Start_layouts_LAYOUTLIST_lit_syntax_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Language_SyntaxDefinition__start_Start_layouts_LAYOUTLIST_lit_syntax_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Language_SyntaxDefinition__start_Start_layouts_LAYOUTLIST_lit_syntax_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode(3196, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3194, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(3192, 8, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3190, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(3188, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3186, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(3184, 4, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3182, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3180, 2, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new char[] {115,121,110,116,97,120}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3178, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3176, 0, "Start", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(3174, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3172, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(3170, 8, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3168, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3166, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3164, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(3162, 4, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3160, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3158, 2, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new char[] {115,121,110,116,97,120}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3156, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3154, 0, "Start", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Lexical_SyntaxDefinition__lit_lexical_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Lexical_SyntaxDefinition__lit_lexical_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Lexical_SyntaxDefinition__lit_lexical_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(3214, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3212, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(3210, 6, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3208, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(3206, 4, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3204, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(3202, 2, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3200, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3198, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new char[] {108,101,120,105,99,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(3192, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3190, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(3188, 6, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3186, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(3184, 4, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3182, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(3180, 2, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3178, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3176, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new char[] {108,101,120,105,99,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Layout_SyntaxDefinition__vis_Visibility_layouts_LAYOUTLIST_lit_layout_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Layout_SyntaxDefinition__vis_Visibility_layouts_LAYOUTLIST_lit_layout_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Layout_SyntaxDefinition__vis_Visibility_layouts_LAYOUTLIST_lit_layout_layouts_LAYOUTLIST_defined_Sym_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_production_Prod_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode(3236, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3234, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(3232, 8, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3230, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(3228, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3226, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(3224, 4, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3222, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3220, 2, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3218, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3216, 0, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(3214, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3212, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(3210, 8, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3208, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3206, 6, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3204, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(3202, 4, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3200, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3198, 2, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3196, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3194, 0, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5195,70 +5173,70 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Alias_Kind__lit_alias_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3238, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3216, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__View_Kind__lit_view_ = _init_prod__View_Kind__lit_view_();
     private static final AbstractStackNode[] _init_prod__View_Kind__lit_view_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3240, 0, prod__lit_view__char_class___range__118_118_char_class___range__105_105_char_class___range__101_101_char_class___range__119_119_, new char[] {118,105,101,119}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3218, 0, prod__lit_view__char_class___range__118_118_char_class___range__105_105_char_class___range__101_101_char_class___range__119_119_, new char[] {118,105,101,119}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Function_Kind__lit_function_ = _init_prod__Function_Kind__lit_function_();
     private static final AbstractStackNode[] _init_prod__Function_Kind__lit_function_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3242, 0, prod__lit_function__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_, new char[] {102,117,110,99,116,105,111,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3220, 0, prod__lit_function__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_, new char[] {102,117,110,99,116,105,111,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tag_Kind__lit_tag_ = _init_prod__Tag_Kind__lit_tag_();
     private static final AbstractStackNode[] _init_prod__Tag_Kind__lit_tag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3244, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3222, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Data_Kind__lit_data_ = _init_prod__Data_Kind__lit_data_();
     private static final AbstractStackNode[] _init_prod__Data_Kind__lit_data_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3246, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3224, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Anno_Kind__lit_anno_ = _init_prod__Anno_Kind__lit_anno_();
     private static final AbstractStackNode[] _init_prod__Anno_Kind__lit_anno_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3248, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3226, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Rule_Kind__lit_rule_ = _init_prod__Rule_Kind__lit_rule_();
     private static final AbstractStackNode[] _init_prod__Rule_Kind__lit_rule_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3250, 0, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3228, 0, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Variable_Kind__lit_variable_ = _init_prod__Variable_Kind__lit_variable_();
     private static final AbstractStackNode[] _init_prod__Variable_Kind__lit_variable_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3252, 0, prod__lit_variable__char_class___range__118_118_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__98_98_char_class___range__108_108_char_class___range__101_101_, new char[] {118,97,114,105,97,98,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3230, 0, prod__lit_variable__char_class___range__118_118_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__98_98_char_class___range__108_108_char_class___range__101_101_, new char[] {118,97,114,105,97,98,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Module_Kind__lit_module_ = _init_prod__Module_Kind__lit_module_();
     private static final AbstractStackNode[] _init_prod__Module_Kind__lit_module_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3254, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {109,111,100,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3232, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {109,111,100,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__All_Kind__lit_all_ = _init_prod__All_Kind__lit_all_();
     private static final AbstractStackNode[] _init_prod__All_Kind__lit_all_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3256, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3234, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5268,21 +5246,21 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__OctalIntegerLiteral_IntegerLiteral__octal_OctalIntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3282, 0, "OctalIntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3260, 0, "OctalIntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__HexIntegerLiteral_IntegerLiteral__hex_HexIntegerLiteral_ = _init_prod__HexIntegerLiteral_IntegerLiteral__hex_HexIntegerLiteral_();
     private static final AbstractStackNode[] _init_prod__HexIntegerLiteral_IntegerLiteral__hex_HexIntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3284, 0, "HexIntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3262, 0, "HexIntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DecimalIntegerLiteral_IntegerLiteral__decimal_DecimalIntegerLiteral_ = _init_prod__DecimalIntegerLiteral_IntegerLiteral__decimal_DecimalIntegerLiteral_();
     private static final AbstractStackNode[] _init_prod__DecimalIntegerLiteral_IntegerLiteral__decimal_DecimalIntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3286, 0, "DecimalIntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3264, 0, "DecimalIntegerLiteral", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5292,14 +5270,14 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Empty_Target__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(3278, 0);
+      tmp[0] = new EpsilonStackNode(3256, 0);
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Labeled_Target__name_Name_ = _init_prod__Labeled_Target__name_Name_();
     private static final AbstractStackNode[] _init_prod__Labeled_Target__name_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3280, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3258, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5309,9 +5287,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__start__Command__layouts_LAYOUTLIST_top_Command_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(3294, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3292, 1, "Command", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3290, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(3272, 2, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3270, 1, "Command", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3268, 0, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5321,11 +5299,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_FunctionBody__lit___123_layouts_LAYOUTLIST_statements_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(3308, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3306, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(3300, 2, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3302, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3304, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3298, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3296, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(3286, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3284, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(3278, 2, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3280, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3282, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3276, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3274, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5335,29 +5313,29 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Extend_Import__lit_extend_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(3342, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3340, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(3338, 2, "ImportedModule", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3336, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3334, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(3320, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3318, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(3316, 2, "ImportedModule", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3314, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3312, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_Import__lit_import_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_ = _init_prod__Default_Import__lit_import_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Default_Import__lit_import_layouts_LAYOUTLIST_module_ImportedModule_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(3352, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3350, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(3348, 2, "ImportedModule", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3346, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3344, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(3330, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3328, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(3326, 2, "ImportedModule", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3324, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3322, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Syntax_Import__syntax_SyntaxDefinition_ = _init_prod__Syntax_Import__syntax_SyntaxDefinition_();
     private static final AbstractStackNode[] _init_prod__Syntax_Import__syntax_SyntaxDefinition_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3354, 0, "SyntaxDefinition", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3332, 0, "SyntaxDefinition", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5367,20 +5345,20 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Name_UserType__name_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3310, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3288, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Parametric_UserType__name_QualifiedName_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_ = _init_prod__Parametric_UserType__name_QualifiedName_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__Parametric_UserType__name_QualifiedName_layouts_LAYOUTLIST_lit___91_layouts_LAYOUTLIST_parameters_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(3332, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3330, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(3320, 4, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3322, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3324, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3326, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3328, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3318, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3316, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3314, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3312, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3310, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3308, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(3298, 4, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3300, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3302, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3304, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3306, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3296, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3294, 2, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3292, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3290, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5390,7 +5368,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Toplevels_Body__toplevels_iter_star_seps__Toplevel__layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode(3364, 0, regular__iter_star_seps__Toplevel__layouts_LAYOUTLIST, new NonTerminalStackNode(3366, 0, "Toplevel", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3368, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new SeparatedListStackNode(3342, 0, regular__iter_star_seps__Toplevel__layouts_LAYOUTLIST, new NonTerminalStackNode(3344, 0, "Toplevel", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3346, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5400,7 +5378,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode(3360, 0, regular__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535, new CharStackNode(3362, 0, new char[][]{{0,8},{11,12},{14,31},{33,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{0,8},{11,12},{14,31},{33,65535}})});
+      tmp[0] = new ListStackNode(3338, 0, regular__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535, new CharStackNode(3340, 0, new char[][]{{0,8},{11,12},{14,31},{33,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{0,8},{11,12},{14,31},{33,65535}})});
       return tmp;
 	}
   }
@@ -5410,14 +5388,14 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__LAYOUT__char_class___range__9_10_range__13_13_range__32_32_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(3356, 0, new char[][]{{9,10},{13,13},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(3334, 0, new char[][]{{9,10},{13,13},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__LAYOUT__Comment_ = _init_prod__LAYOUT__Comment_();
     private static final AbstractStackNode[] _init_prod__LAYOUT__Comment_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3358, 0, "Comment", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3336, 0, "Comment", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5427,15 +5405,15 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3422, 0, prod__lit_0__char_class___range__48_48_, new char[] {48}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new LiteralStackNode(3400, 0, prod__lit_0__char_class___range__48_48_, new char[] {48}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
     private static final AbstractStackNode[] _init_prod__DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new ListStackNode(3426, 1, regular__iter_star__char_class___range__48_57, new CharStackNode(3428, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
-      tmp[0] = new CharStackNode(3424, 0, new char[][]{{49,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(3404, 1, regular__iter_star__char_class___range__48_57, new CharStackNode(3406, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new CharStackNode(3402, 0, new char[][]{{49,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5445,129 +5423,129 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__While_StringTemplate__lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[17];
       
-      tmp[16] = new LiteralStackNode(3470, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[15] = new NonTerminalStackNode(3468, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[14] = new SeparatedListStackNode(3462, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3464, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3466, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(3460, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new NonTerminalStackNode(3458, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(3456, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(3450, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3452, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3454, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3448, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(3446, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3444, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(3442, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3440, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(3438, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3436, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3434, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3432, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3430, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[16] = new LiteralStackNode(3448, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[15] = new NonTerminalStackNode(3446, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new SeparatedListStackNode(3440, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3442, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3444, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(3438, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new NonTerminalStackNode(3436, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(3434, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(3428, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3430, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3432, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3426, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(3424, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3422, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3420, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3418, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(3416, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3414, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3412, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3410, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3408, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfThenElse_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStatsThen_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_thenString_StringMiddle_layouts_LAYOUTLIST_postStatsThen_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStatsElse_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_elseString_StringMiddle_layouts_LAYOUTLIST_postStatsElse_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__IfThenElse_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStatsThen_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_thenString_StringMiddle_layouts_LAYOUTLIST_postStatsThen_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStatsElse_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_elseString_StringMiddle_layouts_LAYOUTLIST_postStatsElse_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__IfThenElse_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStatsThen_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_thenString_StringMiddle_layouts_LAYOUTLIST_postStatsThen_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStatsElse_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_elseString_StringMiddle_layouts_LAYOUTLIST_postStatsElse_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[29];
       
-      tmp[28] = new LiteralStackNode(3552, 28, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[27] = new NonTerminalStackNode(3550, 27, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[26] = new SeparatedListStackNode(3544, 26, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3546, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3548, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[25] = new NonTerminalStackNode(3542, 25, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[24] = new NonTerminalStackNode(3540, 24, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[23] = new NonTerminalStackNode(3538, 23, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[22] = new SeparatedListStackNode(3532, 22, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3534, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3536, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[21] = new NonTerminalStackNode(3530, 21, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[20] = new LiteralStackNode(3528, 20, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[19] = new NonTerminalStackNode(3526, 19, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[18] = new LiteralStackNode(3524, 18, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[17] = new NonTerminalStackNode(3522, 17, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[16] = new LiteralStackNode(3520, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[15] = new NonTerminalStackNode(3518, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[14] = new SeparatedListStackNode(3512, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3514, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3516, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(3510, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new NonTerminalStackNode(3508, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(3506, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(3500, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3502, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3504, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3498, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(3496, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3494, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(3492, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3490, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(3480, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3482, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3484, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3486, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3488, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3478, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3476, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3474, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3472, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[28] = new LiteralStackNode(3530, 28, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[27] = new NonTerminalStackNode(3528, 27, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[26] = new SeparatedListStackNode(3522, 26, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3524, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3526, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[25] = new NonTerminalStackNode(3520, 25, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[24] = new NonTerminalStackNode(3518, 24, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[23] = new NonTerminalStackNode(3516, 23, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[22] = new SeparatedListStackNode(3510, 22, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3512, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3514, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[21] = new NonTerminalStackNode(3508, 21, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[20] = new LiteralStackNode(3506, 20, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[19] = new NonTerminalStackNode(3504, 19, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[18] = new LiteralStackNode(3502, 18, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[17] = new NonTerminalStackNode(3500, 17, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[16] = new LiteralStackNode(3498, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[15] = new NonTerminalStackNode(3496, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new SeparatedListStackNode(3490, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3492, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3494, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(3488, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new NonTerminalStackNode(3486, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(3484, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(3478, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3480, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3482, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3476, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(3474, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3472, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3470, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3468, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(3458, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3460, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3462, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3464, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3466, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3456, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3454, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3452, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3450, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DoWhile_StringTemplate__lit_do_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_ = _init_prod__DoWhile_StringTemplate__lit_do_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__DoWhile_StringTemplate__lit_do_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[19];
       
-      tmp[18] = new LiteralStackNode(3648, 18, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[17] = new NonTerminalStackNode(3646, 17, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[16] = new NonTerminalStackNode(3644, 16, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[15] = new NonTerminalStackNode(3642, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[14] = new LiteralStackNode(3640, 14, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(3638, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new LiteralStackNode(3636, 12, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(3634, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new LiteralStackNode(3632, 10, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3630, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new SeparatedListStackNode(3624, 8, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3626, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3628, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3622, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(3620, 6, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3618, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(3612, 4, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3614, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3616, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3610, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3608, 2, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3606, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3604, 0, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new char[] {100,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[18] = new LiteralStackNode(3626, 18, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[17] = new NonTerminalStackNode(3624, 17, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[16] = new NonTerminalStackNode(3622, 16, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[15] = new NonTerminalStackNode(3620, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(3618, 14, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(3616, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(3614, 12, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(3612, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(3610, 10, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3608, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new SeparatedListStackNode(3602, 8, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3604, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3606, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3600, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(3598, 6, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3596, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(3590, 4, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3592, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3594, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3588, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3586, 2, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3584, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3582, 0, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new char[] {100,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__For_StringTemplate__lit_for_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__For_StringTemplate__lit_for_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__For_StringTemplate__lit_for_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[17];
       
-      tmp[16] = new LiteralStackNode(3602, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[15] = new NonTerminalStackNode(3600, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[14] = new SeparatedListStackNode(3594, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3596, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3598, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(3592, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new NonTerminalStackNode(3590, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(3588, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(3582, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3584, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3586, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3580, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(3578, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3576, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(3574, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3572, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(3562, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3564, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3566, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3568, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3570, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3560, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3558, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3556, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3554, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[16] = new LiteralStackNode(3580, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[15] = new NonTerminalStackNode(3578, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new SeparatedListStackNode(3572, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3574, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3576, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(3570, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new NonTerminalStackNode(3568, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(3566, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(3560, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3562, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3564, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3558, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(3556, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3554, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3552, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3550, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(3540, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3542, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3544, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3546, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3548, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3538, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3536, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3534, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3532, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfThen_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__IfThen_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__IfThen_StringTemplate__lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_preStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_body_StringMiddle_layouts_LAYOUTLIST_postStats_iter_star_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[17];
       
-      tmp[16] = new LiteralStackNode(3698, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[15] = new NonTerminalStackNode(3696, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[14] = new SeparatedListStackNode(3690, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3692, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3694, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(3688, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new NonTerminalStackNode(3686, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(3684, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(3678, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3680, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3682, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(3676, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(3674, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(3672, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(3670, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(3668, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(3658, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3660, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3662, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3664, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3666, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3656, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3654, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3652, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3650, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[16] = new LiteralStackNode(3676, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[15] = new NonTerminalStackNode(3674, 15, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new SeparatedListStackNode(3668, 14, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3670, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3672, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(3666, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new NonTerminalStackNode(3664, 12, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(3662, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(3656, 10, regular__iter_star_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(3658, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3660, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(3654, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(3652, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(3650, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(3648, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(3646, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(3636, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3638, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3640, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3642, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3644, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3634, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3632, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3630, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3628, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5577,18 +5555,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__NonInterpolated_PathPart__pathChars_PathChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3710, 0, "PathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3688, 0, "PathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Interpolated_PathPart__pre_PrePathChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_PathTail_ = _init_prod__Interpolated_PathPart__pre_PrePathChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_PathTail_();
     private static final AbstractStackNode[] _init_prod__Interpolated_PathPart__pre_PrePathChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_PathTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(3720, 4, "PathTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3718, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(3716, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3714, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3712, 0, "PrePathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(3698, 4, "PathTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3696, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(3694, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3692, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3690, 0, "PrePathChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5598,51 +5576,51 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(3766, 1, new char[][]{{47,47},{60,60},{62,62},{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(3764, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(3744, 1, new char[][]{{47,47},{60,60},{62,62},{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(3742, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RegExp__lit___60_Name_lit___58_iter_star__NamedRegExp_lit___62_ = _init_prod__RegExp__lit___60_Name_lit___58_iter_star__NamedRegExp_lit___62_();
     private static final AbstractStackNode[] _init_prod__RegExp__lit___60_Name_lit___58_iter_star__NamedRegExp_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(3778, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new ListStackNode(3774, 3, regular__iter_star__NamedRegExp, new NonTerminalStackNode(3776, 0, "NamedRegExp", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3772, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3770, 1, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3768, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(3756, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new ListStackNode(3752, 3, regular__iter_star__NamedRegExp, new NonTerminalStackNode(3754, 0, "NamedRegExp", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3750, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3748, 1, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3746, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RegExp__char_class___range__60_60_expression_Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101 = _init_prod__RegExp__char_class___range__60_60_expression_Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101();
     private static final AbstractStackNode[] _init_prod__RegExp__char_class___range__60_60_expression_Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(3784, 2, new char[][]{{62,62}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3782, 1, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(3780, 0, new char[][]{{60,60}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(3762, 2, new char[][]{{62,62}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3760, 1, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(3758, 0, new char[][]{{60,60}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_();
     private static final AbstractStackNode[] _init_prod__RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(3786, 0, new char[][]{{0,46},{48,59},{61,61},{63,91},{93,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(3764, 0, new char[][]{{0,46},{48,59},{61,61},{63,91},{93,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RegExp__lit___60_Name_lit___62_ = _init_prod__RegExp__lit___60_Name_lit___62_();
     private static final AbstractStackNode[] _init_prod__RegExp__lit___60_Name_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(3792, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3790, 1, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3788, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3770, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3768, 1, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3766, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RegExp__Backslash_ = _init_prod__RegExp__Backslash_();
     private static final AbstractStackNode[] _init_prod__RegExp__Backslash_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3794, 0, "Backslash", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3772, 0, "Backslash", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5652,9 +5630,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__MidStringChars__char_class___range__62_62_iter_star__StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(3828, 2, new char[][]{{60,60}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(3824, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(3826, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(3822, 0, new char[][]{{62,62}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(3806, 2, new char[][]{{60,60}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(3802, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(3804, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(3800, 0, new char[][]{{62,62}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5664,7 +5642,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode(3838, 0, regular__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115, new CharStackNode(3840, 0, new char[][]{{100,100},{105,105},{109,109},{115,115}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(3816, 0, regular__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115, new CharStackNode(3818, 0, new char[][]{{100,100},{105,105},{109,109},{115,115}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5674,28 +5652,28 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Associative_Assoc__lit_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3852, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3830, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Left_Assoc__lit_left_ = _init_prod__Left_Assoc__lit_left_();
     private static final AbstractStackNode[] _init_prod__Left_Assoc__lit_left_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3854, 0, prod__lit_left__char_class___range__108_108_char_class___range__101_101_char_class___range__102_102_char_class___range__116_116_, new char[] {108,101,102,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3832, 0, prod__lit_left__char_class___range__108_108_char_class___range__101_101_char_class___range__102_102_char_class___range__116_116_, new char[] {108,101,102,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NonAssociative_Assoc__lit_non_assoc_ = _init_prod__NonAssociative_Assoc__lit_non_assoc_();
     private static final AbstractStackNode[] _init_prod__NonAssociative_Assoc__lit_non_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3856, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {110,111,110,45,97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3834, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {110,111,110,45,97,115,115,111,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Right_Assoc__lit_right_ = _init_prod__Right_Assoc__lit_right_();
     private static final AbstractStackNode[] _init_prod__Right_Assoc__lit_right_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(3858, 0, prod__lit_right__char_class___range__114_114_char_class___range__105_105_char_class___range__103_103_char_class___range__104_104_char_class___range__116_116_, new char[] {114,105,103,104,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3836, 0, prod__lit_right__char_class___range__114_114_char_class___range__105_105_char_class___range__103_103_char_class___range__104_104_char_class___range__116_116_, new char[] {114,105,103,104,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5705,18 +5683,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Unconditional_Replacement__replacementExpression_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(3860, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3838, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Conditional_Replacement__replacementExpression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_ = _init_prod__Conditional_Replacement__replacementExpression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_();
     private static final AbstractStackNode[] _init_prod__Conditional_Replacement__replacementExpression_Expression_layouts_LAYOUTLIST_lit_when_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new SeparatedListStackNode(3870, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3872, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3874, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3876, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3878, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(3868, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(3866, 2, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new char[] {119,104,101,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3864, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3862, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(3848, 4, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(3850, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(3852, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(3854, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(3856, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(3846, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3844, 2, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new char[] {119,104,101,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3842, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3840, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5726,16 +5704,16 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Empty_DataTarget__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(3928, 0);
+      tmp[0] = new EpsilonStackNode(3906, 0);
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Labeled_DataTarget__label_Name_layouts_LAYOUTLIST_lit___58_ = _init_prod__Labeled_DataTarget__label_Name_layouts_LAYOUTLIST_lit___58_();
     private static final AbstractStackNode[] _init_prod__Labeled_DataTarget__label_Name_layouts_LAYOUTLIST_lit___58_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(3934, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(3932, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(3930, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(3912, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(3910, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(3908, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5745,7 +5723,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__layouts_$default$__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(3936, 0);
+      tmp[0] = new EpsilonStackNode(3914, 0);
       return tmp;
 	}
   }
@@ -5755,63 +5733,63 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new OptionalStackNode(3944, 2, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3946, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(3940, 1, regular__iter__char_class___range__48_57, new CharStackNode(3942, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3938, 0, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{46,46}})}, new ICompletionFilter[] {});
+      tmp[2] = new OptionalStackNode(3922, 2, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3924, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(3918, 1, regular__iter__char_class___range__48_57, new CharStackNode(3920, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3916, 0, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{46,46}})}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
     private static final AbstractStackNode[] _init_prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[4];
       
-      tmp[0] = new ListStackNode(3972, 0, regular__iter__char_class___range__48_57, new CharStackNode(3974, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new LiteralStackNode(3976, 1, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new ListStackNode(3978, 2, regular__iter_star__char_class___range__48_57, new CharStackNode(3980, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new OptionalStackNode(3982, 3, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3984, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(3950, 0, regular__iter__char_class___range__48_57, new CharStackNode(3952, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new LiteralStackNode(3954, 1, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new ListStackNode(3956, 2, regular__iter_star__char_class___range__48_57, new CharStackNode(3958, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new OptionalStackNode(3960, 3, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3962, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
     private static final AbstractStackNode[] _init_prod__RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[0] = new ListStackNode(3948, 0, regular__iter__char_class___range__48_57, new CharStackNode(3950, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new LiteralStackNode(3952, 1, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new ListStackNode(3954, 2, regular__iter_star__char_class___range__48_57, new CharStackNode(3956, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(3958, 3, new char[][]{{69,69},{101,101}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new OptionalStackNode(3960, 4, regular__opt__char_class___range__43_43_range__45_45, new CharStackNode(3962, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new ListStackNode(3964, 5, regular__iter__char_class___range__48_57, new CharStackNode(3966, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new OptionalStackNode(3968, 6, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3970, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(3926, 0, regular__iter__char_class___range__48_57, new CharStackNode(3928, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new LiteralStackNode(3930, 1, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new ListStackNode(3932, 2, regular__iter_star__char_class___range__48_57, new CharStackNode(3934, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(3936, 3, new char[][]{{69,69},{101,101}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new OptionalStackNode(3938, 4, regular__opt__char_class___range__43_43_range__45_45, new CharStackNode(3940, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new ListStackNode(3942, 5, regular__iter__char_class___range__48_57, new CharStackNode(3944, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new OptionalStackNode(3946, 6, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3948, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
     private static final AbstractStackNode[] _init_prod__RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[6];
       
-      tmp[5] = new OptionalStackNode(4002, 5, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(4004, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new ListStackNode(3998, 4, regular__iter__char_class___range__48_57, new CharStackNode(4000, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new OptionalStackNode(3994, 3, regular__opt__char_class___range__43_43_range__45_45, new CharStackNode(3996, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(3992, 2, new char[][]{{69,69},{101,101}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(3988, 1, regular__iter__char_class___range__48_57, new CharStackNode(3990, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(3986, 0, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{46,46}})}, new ICompletionFilter[] {});
+      tmp[5] = new OptionalStackNode(3980, 5, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(3982, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new ListStackNode(3976, 4, regular__iter__char_class___range__48_57, new CharStackNode(3978, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new OptionalStackNode(3972, 3, regular__opt__char_class___range__43_43_range__45_45, new CharStackNode(3974, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(3970, 2, new char[][]{{69,69},{101,101}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(3966, 1, regular__iter__char_class___range__48_57, new CharStackNode(3968, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(3964, 0, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{46,46}})}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
     private static final AbstractStackNode[] _init_prod__RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new OptionalStackNode(4020, 4, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(4022, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new ListStackNode(4016, 3, regular__iter__char_class___range__48_57, new CharStackNode(4018, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new OptionalStackNode(4012, 2, regular__opt__char_class___range__43_43_range__45_45, new CharStackNode(4014, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(4010, 1, new char[][]{{69,69},{101,101}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new ListStackNode(4006, 0, regular__iter__char_class___range__48_57, new CharStackNode(4008, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new OptionalStackNode(3998, 4, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(4000, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new ListStackNode(3994, 3, regular__iter__char_class___range__48_57, new CharStackNode(3996, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new OptionalStackNode(3990, 2, regular__opt__char_class___range__43_43_range__45_45, new CharStackNode(3992, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(3988, 1, new char[][]{{69,69},{101,101}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(3984, 0, regular__iter__char_class___range__48_57, new CharStackNode(3986, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
     private static final AbstractStackNode[] _init_prod__RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(4028, 1, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new ListStackNode(4024, 0, regular__iter__char_class___range__48_57, new CharStackNode(4026, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(4006, 1, new char[][]{{68,68},{70,70},{100,100},{102,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(4002, 0, regular__iter__char_class___range__48_57, new CharStackNode(4004, 0, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5821,7 +5799,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__layouts_LAYOUTLIST__conditional__iter_star__LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode(4068, 0, regular__iter_star__LAYOUT, new NonTerminalStackNode(4070, 0, "LAYOUT", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{9,10},{13,13},{32,32}}), new StringFollowRestriction(new char[] {47,47}), new StringFollowRestriction(new char[] {47,42})});
+      tmp[0] = new ListStackNode(4046, 0, regular__iter_star__LAYOUT, new NonTerminalStackNode(4048, 0, "LAYOUT", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{9,10},{13,13},{32,32}}), new StringFollowRestriction(new char[] {47,47}), new StringFollowRestriction(new char[] {47,42})});
       return tmp;
 	}
   }
@@ -5831,38 +5809,38 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__StringCharacter__OctalEscapeSequence_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4080, 0, "OctalEscapeSequence", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4058, 0, "OctalEscapeSequence", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_ = _init_prod__StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_();
     private static final AbstractStackNode[] _init_prod__StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode(4084, 1, new char[][]{{34,34},{39,39},{60,60},{62,62},{92,92},{98,98},{102,102},{110,110},{114,114},{116,116}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4082, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(4062, 1, new char[][]{{34,34},{39,39},{60,60},{62,62},{92,92},{98,98},{102,102},{110,110},{114,114},{116,116}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4060, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__StringCharacter__UnicodeEscape_ = _init_prod__StringCharacter__UnicodeEscape_();
     private static final AbstractStackNode[] _init_prod__StringCharacter__UnicodeEscape_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4086, 0, "UnicodeEscape", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4064, 0, "UnicodeEscape", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_();
     private static final AbstractStackNode[] _init_prod__StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(4088, 0, new char[][]{{0,33},{35,38},{40,59},{61,61},{63,91},{93,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(4066, 0, new char[][]{{0,33},{35,38},{40,59},{61,61},{63,91},{93,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_ = _init_prod__StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_();
     private static final AbstractStackNode[] _init_prod__StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(4096, 2, new char[][]{{39,39}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(4092, 1, regular__iter_star__char_class___range__9_9_range__32_32, new CharStackNode(4094, 0, new char[][]{{9,9},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(4090, 0, new char[][]{{10,10}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(4074, 2, new char[][]{{39,39}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(4070, 1, regular__iter_star__char_class___range__9_9_range__32_32, new CharStackNode(4072, 0, new char[][]{{9,9},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(4068, 0, new char[][]{{10,10}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5872,9 +5850,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__JustTime__lit___36_84_TimePartNoTZ_opt__TimeZonePart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new OptionalStackNode(4102, 2, regular__opt__TimeZonePart, new NonTerminalStackNode(4104, 0, "TimeZonePart", new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4100, 1, "TimePartNoTZ", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4098, 0, prod__lit___36_84__char_class___range__36_36_char_class___range__84_84_, new char[] {36,84}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new OptionalStackNode(4080, 2, regular__opt__TimeZonePart, new NonTerminalStackNode(4082, 0, "TimeZonePart", new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4078, 1, "TimePartNoTZ", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4076, 0, prod__lit___36_84__char_class___range__36_36_char_class___range__84_84_, new char[] {36,84}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5884,18 +5862,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__FromTo_Range__start_Char_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_end_Char_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4124, 4, "Char", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4122, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4120, 2, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4118, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4116, 0, "Char", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4102, 4, "Char", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4100, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4098, 2, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4096, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4094, 0, "Char", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Character_Range__character_Char_ = _init_prod__Character_Range__character_Char_();
     private static final AbstractStackNode[] _init_prod__Character_Range__character_Char_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4126, 0, "Char", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4104, 0, "Char", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5905,9 +5883,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_LocationLiteral__protocolPart_ProtocolPart_layouts_LAYOUTLIST_pathPart_PathPart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4132, 2, "PathPart", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4130, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4128, 0, "ProtocolPart", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4110, 2, "PathPart", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4108, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4106, 0, "ProtocolPart", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -5917,80 +5895,80 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__ListDeclarations_ShellCommand__lit_declarations_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4134, 0, prod__lit_declarations__char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_, new char[] {100,101,99,108,97,114,97,116,105,111,110,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4112, 0, prod__lit_declarations__char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_, new char[] {100,101,99,108,97,114,97,116,105,111,110,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Test_ShellCommand__lit_test_ = _init_prod__Test_ShellCommand__lit_test_();
     private static final AbstractStackNode[] _init_prod__Test_ShellCommand__lit_test_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4136, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4114, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ListModules_ShellCommand__lit_modules_ = _init_prod__ListModules_ShellCommand__lit_modules_();
     private static final AbstractStackNode[] _init_prod__ListModules_ShellCommand__lit_modules_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4138, 0, prod__lit_modules__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_char_class___range__115_115_, new char[] {109,111,100,117,108,101,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4116, 0, prod__lit_modules__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_char_class___range__115_115_, new char[] {109,111,100,117,108,101,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__SetOption_ShellCommand__lit_set_layouts_LAYOUTLIST_name_QualifiedName_layouts_LAYOUTLIST_expression_Expression_ = _init_prod__SetOption_ShellCommand__lit_set_layouts_LAYOUTLIST_name_QualifiedName_layouts_LAYOUTLIST_expression_Expression_();
     private static final AbstractStackNode[] _init_prod__SetOption_ShellCommand__lit_set_layouts_LAYOUTLIST_name_QualifiedName_layouts_LAYOUTLIST_expression_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4148, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4146, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4144, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4142, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4140, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4126, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4124, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4122, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4120, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4118, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Edit_ShellCommand__lit_edit_layouts_LAYOUTLIST_name_QualifiedName_ = _init_prod__Edit_ShellCommand__lit_edit_layouts_LAYOUTLIST_name_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__Edit_ShellCommand__lit_edit_layouts_LAYOUTLIST_name_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4154, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4152, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4150, 0, prod__lit_edit__char_class___range__101_101_char_class___range__100_100_char_class___range__105_105_char_class___range__116_116_, new char[] {101,100,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4132, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4130, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4128, 0, prod__lit_edit__char_class___range__101_101_char_class___range__100_100_char_class___range__105_105_char_class___range__116_116_, new char[] {101,100,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__History_ShellCommand__lit_history_ = _init_prod__History_ShellCommand__lit_history_();
     private static final AbstractStackNode[] _init_prod__History_ShellCommand__lit_history_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4156, 0, prod__lit_history__char_class___range__104_104_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_char_class___range__121_121_, new char[] {104,105,115,116,111,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4134, 0, prod__lit_history__char_class___range__104_104_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_char_class___range__121_121_, new char[] {104,105,115,116,111,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Quit_ShellCommand__lit_quit_ = _init_prod__Quit_ShellCommand__lit_quit_();
     private static final AbstractStackNode[] _init_prod__Quit_ShellCommand__lit_quit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4158, 0, prod__lit_quit__char_class___range__113_113_char_class___range__117_117_char_class___range__105_105_char_class___range__116_116_, new char[] {113,117,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4136, 0, prod__lit_quit__char_class___range__113_113_char_class___range__117_117_char_class___range__105_105_char_class___range__116_116_, new char[] {113,117,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Undeclare_ShellCommand__lit_undeclare_layouts_LAYOUTLIST_name_QualifiedName_ = _init_prod__Undeclare_ShellCommand__lit_undeclare_layouts_LAYOUTLIST_name_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__Undeclare_ShellCommand__lit_undeclare_layouts_LAYOUTLIST_name_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4164, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4162, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4160, 0, prod__lit_undeclare__char_class___range__117_117_char_class___range__110_110_char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__101_101_, new char[] {117,110,100,101,99,108,97,114,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4142, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4140, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4138, 0, prod__lit_undeclare__char_class___range__117_117_char_class___range__110_110_char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__101_101_, new char[] {117,110,100,101,99,108,97,114,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Help_ShellCommand__lit_help_ = _init_prod__Help_ShellCommand__lit_help_();
     private static final AbstractStackNode[] _init_prod__Help_ShellCommand__lit_help_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4166, 0, prod__lit_help__char_class___range__104_104_char_class___range__101_101_char_class___range__108_108_char_class___range__112_112_, new char[] {104,101,108,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4144, 0, prod__lit_help__char_class___range__104_104_char_class___range__101_101_char_class___range__108_108_char_class___range__112_112_, new char[] {104,101,108,112}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Unimport_ShellCommand__lit_unimport_layouts_LAYOUTLIST_name_QualifiedName_ = _init_prod__Unimport_ShellCommand__lit_unimport_layouts_LAYOUTLIST_name_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__Unimport_ShellCommand__lit_unimport_layouts_LAYOUTLIST_name_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4172, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4170, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4168, 0, prod__lit_unimport__char_class___range__117_117_char_class___range__110_110_char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {117,110,105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4150, 2, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4148, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4146, 0, prod__lit_unimport__char_class___range__117_117_char_class___range__110_110_char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {117,110,105,109,112,111,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6000,29 +5978,29 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Mid_StringMiddle__mid_MidStringChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4178, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4156, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Interpolated_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringMiddle_ = _init_prod__Interpolated_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringMiddle_();
     private static final AbstractStackNode[] _init_prod__Interpolated_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringMiddle_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4188, 4, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4186, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4184, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4182, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4180, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4166, 4, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4164, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4162, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4160, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4158, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Template_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringMiddle_ = _init_prod__Template_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringMiddle_();
     private static final AbstractStackNode[] _init_prod__Template_StringMiddle__mid_MidStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringMiddle_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4198, 4, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4196, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4194, 2, "StringTemplate", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4192, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4190, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4176, 4, "StringMiddle", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4174, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4172, 2, "StringTemplate", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4170, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4168, 0, "MidStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6032,7 +6010,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode(4174, 0, regular__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535, new CharStackNode(4176, 0, new char[][]{{0,8},{11,12},{14,31},{33,59},{61,123},{125,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(4152, 0, regular__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535, new CharStackNode(4154, 0, new char[][]{{0,8},{11,12},{14,31},{33,59},{61,123},{125,65535}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6042,7 +6020,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_QualifiedName__conditional__names_iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST__not_follow__lit___58_58_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode(4200, 0, regular__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST, new NonTerminalStackNode(4202, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4204, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4206, 2, prod__lit___58_58__char_class___range__58_58_char_class___range__58_58_, new char[] {58,58}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4208, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {58,58})});
+      tmp[0] = new SeparatedListStackNode(4178, 0, regular__iter_seps__Name__layouts_LAYOUTLIST_lit___58_58_layouts_LAYOUTLIST, new NonTerminalStackNode(4180, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4182, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4184, 2, prod__lit___58_58__char_class___range__58_58_char_class___range__58_58_, new char[] {58,58}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4186, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {58,58})});
       return tmp;
 	}
   }
@@ -6052,39 +6030,39 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[6];
       
-      tmp[5] = new CharStackNode(4220, 5, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new CharStackNode(4218, 4, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new LiteralStackNode(4216, 3, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(4214, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(4212, 1, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(4210, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new CharStackNode(4198, 5, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new CharStackNode(4196, 4, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new LiteralStackNode(4194, 3, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(4192, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(4190, 1, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(4188, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_ = _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_();
     private static final AbstractStackNode[] _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new CharStackNode(4230, 4, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(4228, 3, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(4226, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(4224, 1, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(4222, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new CharStackNode(4208, 4, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(4206, 3, new char[][]{{48,53}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(4204, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(4202, 1, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(4200, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_ = _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_();
     private static final AbstractStackNode[] _init_prod__TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(4236, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new CharStackNode(4234, 1, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(4232, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(4214, 2, new char[][]{{48,57}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new CharStackNode(4212, 1, new char[][]{{48,49}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(4210, 0, new char[][]{{43,43},{45,45}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TimeZonePart__lit_Z_ = _init_prod__TimeZonePart__lit_Z_();
     private static final AbstractStackNode[] _init_prod__TimeZonePart__lit_Z_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4238, 0, prod__lit_Z__char_class___range__90_90_, new char[] {90}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4216, 0, prod__lit_Z__char_class___range__90_90_, new char[] {90}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6094,9 +6072,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PreStringChars__char_class___range__34_34_iter_star__StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode(4254, 2, new char[][]{{60,60}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(4250, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(4252, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new CharStackNode(4248, 0, new char[][]{{34,34}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(4232, 2, new char[][]{{60,60}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(4228, 1, regular__iter_star__StringCharacter, new NonTerminalStackNode(4230, 0, "StringCharacter", new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new CharStackNode(4226, 0, new char[][]{{34,34}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6106,40 +6084,40 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__GivenStrategy_Visit__strategy_Strategy_layouts_LAYOUTLIST_lit_visit_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_subject_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode(4328, 14, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(4326, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new SeparatedListStackNode(4320, 12, regular__iter_seps__Case__layouts_LAYOUTLIST, new NonTerminalStackNode(4322, 0, "Case", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4324, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(4318, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new LiteralStackNode(4316, 10, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4314, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4312, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4310, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(4308, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4306, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4304, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4302, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4300, 2, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4298, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4296, 0, "Strategy", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(4306, 14, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(4304, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new SeparatedListStackNode(4298, 12, regular__iter_seps__Case__layouts_LAYOUTLIST, new NonTerminalStackNode(4300, 0, "Case", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4302, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(4296, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(4294, 10, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4292, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4290, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4288, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(4286, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4284, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4282, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4280, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4278, 2, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4276, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4274, 0, "Strategy", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DefaultStrategy_Visit__lit_visit_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_subject_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__DefaultStrategy_Visit__lit_visit_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_subject_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__DefaultStrategy_Visit__lit_visit_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_subject_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(4358, 12, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(4356, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(4350, 10, regular__iter_seps__Case__layouts_LAYOUTLIST, new NonTerminalStackNode(4352, 0, "Case", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4354, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4348, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4346, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4344, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(4342, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4340, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(4338, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4336, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4334, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4332, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4330, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(4336, 12, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(4334, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(4328, 10, regular__iter_seps__Case__layouts_LAYOUTLIST, new NonTerminalStackNode(4330, 0, "Case", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4332, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4326, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4324, 8, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4322, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(4320, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4318, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4316, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4314, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4312, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4310, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4308, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6149,37 +6127,37 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Declaration_Command__declaration_Declaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4282, 0, "Declaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4260, 0, "Declaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Statement_Command__statement_Statement_ = _init_prod__Statement_Command__statement_Statement_();
     private static final AbstractStackNode[] _init_prod__Statement_Command__statement_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4284, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4262, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Expression_Command__expression_Expression_ = _init_prod__Expression_Command__expression_Expression_();
     private static final AbstractStackNode[] _init_prod__Expression_Command__expression_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4286, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4264, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Import_Command__imported_Import_ = _init_prod__Import_Command__imported_Import_();
     private static final AbstractStackNode[] _init_prod__Import_Command__imported_Import_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4288, 0, "Import", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4266, 0, "Import", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Shell_Command__lit___58_layouts_LAYOUTLIST_command_ShellCommand_ = _init_prod__Shell_Command__lit___58_layouts_LAYOUTLIST_command_ShellCommand_();
     private static final AbstractStackNode[] _init_prod__Shell_Command__lit___58_layouts_LAYOUTLIST_command_ShellCommand_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4294, 2, "ShellCommand", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4292, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4290, 0, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4272, 2, "ShellCommand", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4270, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4268, 0, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6189,18 +6167,18 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Post_ProtocolTail__post_PostProtocolChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4370, 0, "PostProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4348, 0, "PostProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Mid_ProtocolTail__mid_MidProtocolChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_ProtocolTail_ = _init_prod__Mid_ProtocolTail__mid_MidProtocolChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_ProtocolTail_();
     private static final AbstractStackNode[] _init_prod__Mid_ProtocolTail__mid_MidProtocolChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_ProtocolTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4380, 4, "ProtocolTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4378, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4376, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4374, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4372, 0, "MidProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4358, 4, "ProtocolTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4356, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4354, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4352, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4350, 0, "MidProtocolChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6210,7 +6188,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode(4416, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{60,60},{62,62},{92,92}})});
+      tmp[0] = new CharStackNode(4394, 0, new char[][]{{92,92}}, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{60,60},{62,62},{92,92}})});
       return tmp;
 	}
   }
@@ -6220,21 +6198,21 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Private_Visibility__lit_private_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4418, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new char[] {112,114,105,118,97,116,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4396, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new char[] {112,114,105,118,97,116,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_Visibility__ = _init_prod__Default_Visibility__();
     private static final AbstractStackNode[] _init_prod__Default_Visibility__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(4420, 0);
+      tmp[0] = new EpsilonStackNode(4398, 0);
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Public_Visibility__lit_public_ = _init_prod__Public_Visibility__lit_public_();
     private static final AbstractStackNode[] _init_prod__Public_Visibility__lit_public_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4422, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new char[] {112,117,98,108,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4400, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new char[] {112,117,98,108,105,99}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6244,9 +6222,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PostPathChars__lit___62_URLChars_lit___124_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(4428, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4426, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4424, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4406, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4404, 1, "URLChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4402, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6256,29 +6234,29 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Interpolated_StringLiteral__pre_PreStringChars_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_tail_StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4438, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4436, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4434, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4432, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4430, 0, "PreStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4416, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4414, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4412, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4410, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4408, 0, "PreStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Template_StringLiteral__pre_PreStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringTail_ = _init_prod__Template_StringLiteral__pre_PreStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringTail_();
     private static final AbstractStackNode[] _init_prod__Template_StringLiteral__pre_PreStringChars_layouts_LAYOUTLIST_template_StringTemplate_layouts_LAYOUTLIST_tail_StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4448, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4446, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4444, 2, "StringTemplate", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4442, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4440, 0, "PreStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4426, 4, "StringTail", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4424, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4422, 2, "StringTemplate", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4420, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4418, 0, "PreStringChars", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NonInterpolated_StringLiteral__constant_StringConstant_ = _init_prod__NonInterpolated_StringLiteral__constant_StringConstant_();
     private static final AbstractStackNode[] _init_prod__NonInterpolated_StringLiteral__constant_StringConstant_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4450, 0, "StringConstant", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4428, 0, "StringConstant", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6288,9 +6266,9 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Renamings__lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new SeparatedListStackNode(4494, 2, regular__iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4496, 0, "Renaming", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4498, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4500, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4502, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4492, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4490, 0, prod__lit_renaming__char_class___range__114_114_char_class___range__101_101_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_, new char[] {114,101,110,97,109,105,110,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(4472, 2, regular__iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4474, 0, "Renaming", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4476, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4478, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4480, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4470, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4468, 0, prod__lit_renaming__char_class___range__114_114_char_class___range__101_101_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_, new char[] {114,101,110,97,109,105,110,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6300,7 +6278,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__layouts_$QUOTES__iter_star__char_class___range__9_10_range__13_13_range__32_32_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode(4508, 0, regular__iter_star__char_class___range__9_10_range__13_13_range__32_32, new CharStackNode(4510, 0, new char[][]{{9,10},{13,13},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new ListStackNode(4486, 0, regular__iter_star__char_class___range__9_10_range__13_13_range__32_32, new CharStackNode(4488, 0, new char[][]{{9,10},{13,13},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6310,19 +6288,41 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Expression_Statement__expression_Expression_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(4550, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4548, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4546, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4528, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4526, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4524, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TryFinally_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit_finally_layouts_LAYOUTLIST_finallyBody_Statement_ = _init_prod__TryFinally_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit_finally_layouts_LAYOUTLIST_finallyBody_Statement_();
     private static final AbstractStackNode[] _init_prod__TryFinally_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit_finally_layouts_LAYOUTLIST_finallyBody_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new NonTerminalStackNode(4572, 8, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4570, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(4568, 6, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new char[] {102,105,110,97,108,108,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4566, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(4550, 8, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4548, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(4546, 6, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new char[] {102,105,110,97,108,108,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4544, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(4538, 4, regular__iter_seps__Catch__layouts_LAYOUTLIST, new NonTerminalStackNode(4540, 0, "Catch", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4542, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4536, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4534, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4532, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4530, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      return tmp;
+	}
+    public final static AbstractStackNode[] prod__Insert_Statement__lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc = _init_prod__Insert_Statement__lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc();
+    private static final AbstractStackNode[] _init_prod__Insert_Statement__lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc() {
+      AbstractStackNode[] tmp = new AbstractStackNode[5];
+      
+      tmp[4] = new NonTerminalStackNode(4678, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4676, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4674, 2, "DataTarget", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4672, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4670, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {105,110,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      return tmp;
+	}
+    public final static AbstractStackNode[] prod__Try_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST__assoc__non_assoc = _init_prod__Try_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST__assoc__non_assoc();
+    private static final AbstractStackNode[] _init_prod__Try_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST__assoc__non_assoc() {
+      AbstractStackNode[] tmp = new AbstractStackNode[5];
+      
       tmp[4] = new SeparatedListStackNode(4560, 4, regular__iter_seps__Catch__layouts_LAYOUTLIST, new NonTerminalStackNode(4562, 0, "Catch", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4564, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[3] = new NonTerminalStackNode(4558, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[2] = new NonTerminalStackNode(4556, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
@@ -6330,316 +6330,294 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
       tmp[0] = new LiteralStackNode(4552, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
-    public final static AbstractStackNode[] prod__Insert_Statement__lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc = _init_prod__Insert_Statement__lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Insert_Statement__lit_insert_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc() {
-      AbstractStackNode[] tmp = new AbstractStackNode[5];
-      
-      tmp[4] = new NonTerminalStackNode(4700, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4698, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4696, 2, "DataTarget", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4694, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4692, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {105,110,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      return tmp;
-	}
-    public final static AbstractStackNode[] prod__Try_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST__assoc__non_assoc = _init_prod__Try_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Try_Statement__lit_try_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_handlers_iter_seps__Catch__layouts_LAYOUTLIST__assoc__non_assoc() {
-      AbstractStackNode[] tmp = new AbstractStackNode[5];
-      
-      tmp[4] = new SeparatedListStackNode(4582, 4, regular__iter_seps__Catch__layouts_LAYOUTLIST, new NonTerminalStackNode(4584, 0, "Catch", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4586, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4580, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4578, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4576, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4574, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      return tmp;
-	}
     public final static AbstractStackNode[] prod__Visit_Statement__label_Label_layouts_LAYOUTLIST_visit_Visit_ = _init_prod__Visit_Statement__label_Label_layouts_LAYOUTLIST_visit_Visit_();
     private static final AbstractStackNode[] _init_prod__Visit_Statement__label_Label_layouts_LAYOUTLIST_visit_Visit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[0] = new NonTerminalStackNode(4590, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4592, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4594, 2, "Visit", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4568, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4570, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4572, 2, "Visit", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__EmptyStatement_Statement__lit___59_ = _init_prod__EmptyStatement_Statement__lit___59_();
     private static final AbstractStackNode[] _init_prod__EmptyStatement_Statement__lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(4588, 0, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4566, 0, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Break_Statement__lit_break_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_ = _init_prod__Break_Statement__lit_break_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Break_Statement__lit_break_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(4604, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4602, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4600, 2, "Target", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4598, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4596, 0, prod__lit_break__char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {98,114,101,97,107}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4582, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4580, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4578, 2, "Target", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4576, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4574, 0, prod__lit_break__char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {98,114,101,97,107}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Assignment_Statement__assignable_Assignable_layouts_LAYOUTLIST_operator_Assignment_layouts_LAYOUTLIST_statement_Statement_ = _init_prod__Assignment_Statement__assignable_Assignable_layouts_LAYOUTLIST_operator_Assignment_layouts_LAYOUTLIST_statement_Statement_();
     private static final AbstractStackNode[] _init_prod__Assignment_Statement__assignable_Assignable_layouts_LAYOUTLIST_operator_Assignment_layouts_LAYOUTLIST_statement_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4614, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4612, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4610, 2, "Assignment", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4608, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4606, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4592, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4590, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4588, 2, "Assignment", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4586, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4584, 0, "Assignable", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__For_Statement__label_Label_layouts_LAYOUTLIST_lit_for_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_ = _init_prod__For_Statement__label_Label_layouts_LAYOUTLIST_lit_for_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_();
     private static final AbstractStackNode[] _init_prod__For_Statement__label_Label_layouts_LAYOUTLIST_lit_for_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[10] = new NonTerminalStackNode(4644, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4642, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4640, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4638, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(4628, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4630, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4632, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4634, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4636, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4626, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4624, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4622, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4620, 2, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4618, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4616, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(4622, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4620, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4618, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4616, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(4606, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4608, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4610, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4612, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4614, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4604, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4602, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4600, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4598, 2, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4596, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4594, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__GlobalDirective_Statement__lit_global_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_names_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_ = _init_prod__GlobalDirective_Statement__lit_global_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_names_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__GlobalDirective_Statement__lit_global_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_names_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(4666, 6, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4664, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(4654, 4, regular__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4656, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4658, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4660, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4662, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4652, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4650, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4648, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4646, 0, prod__lit_global__char_class___range__103_103_char_class___range__108_108_char_class___range__111_111_char_class___range__98_98_char_class___range__97_97_char_class___range__108_108_, new char[] {103,108,111,98,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(4644, 6, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4642, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(4632, 4, regular__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4634, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4636, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4638, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4640, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4630, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4628, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4626, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4624, 0, prod__lit_global__char_class___range__103_103_char_class___range__108_108_char_class___range__111_111_char_class___range__98_98_char_class___range__97_97_char_class___range__108_108_, new char[] {103,108,111,98,97,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__AssertWithMessage_Statement__lit_assert_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_message_Expression_layouts_LAYOUTLIST_lit___59_ = _init_prod__AssertWithMessage_Statement__lit_assert_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_message_Expression_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__AssertWithMessage_Statement__lit_assert_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_message_Expression_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(4684, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4682, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(4680, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4678, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4676, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4674, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4672, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4670, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4668, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4662, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4660, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(4658, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4656, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4654, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4652, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4650, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4648, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4646, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__While_Statement__label_Label_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_ = _init_prod__While_Statement__label_Label_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_();
     private static final AbstractStackNode[] _init_prod__While_Statement__label_Label_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[10] = new NonTerminalStackNode(4746, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4744, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4742, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4740, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(4730, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4732, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4734, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4736, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4738, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4728, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4726, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4724, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4722, 2, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4720, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4718, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(4724, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4722, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4720, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4718, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(4708, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4710, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4712, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4714, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4716, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4706, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4704, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4702, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4700, 2, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4698, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4696, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Assert_Statement__lit_assert_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59_ = _init_prod__Assert_Statement__lit_assert_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Assert_Statement__lit_assert_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(4756, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4754, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4752, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4750, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4748, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4734, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4732, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4730, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4728, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4726, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__FunctionDeclaration_Statement__functionDeclaration_FunctionDeclaration_ = _init_prod__FunctionDeclaration_Statement__functionDeclaration_FunctionDeclaration_();
     private static final AbstractStackNode[] _init_prod__FunctionDeclaration_Statement__functionDeclaration_FunctionDeclaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(4962, 0, "FunctionDeclaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4940, 0, "FunctionDeclaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Return_Statement__lit_return_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc = _init_prod__Return_Statement__lit_return_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Return_Statement__lit_return_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4690, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4688, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4686, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new char[] {114,101,116,117,114,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4668, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4666, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4664, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new char[] {114,101,116,117,114,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Continue_Statement__lit_continue_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_ = _init_prod__Continue_Statement__lit_continue_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Continue_Statement__lit_continue_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(4766, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4764, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4762, 2, "Target", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4760, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4758, 0, prod__lit_continue__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_char_class___range__117_117_char_class___range__101_101_, new char[] {99,111,110,116,105,110,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4744, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4742, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4740, 2, "Target", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4738, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4736, 0, prod__lit_continue__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_char_class___range__117_117_char_class___range__101_101_, new char[] {99,111,110,116,105,110,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Fail_Statement__lit_fail_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_ = _init_prod__Fail_Statement__lit_fail_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Fail_Statement__lit_fail_layouts_LAYOUTLIST_target_Target_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(4776, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4774, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4772, 2, "Target", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4770, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4768, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new char[] {102,97,105,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4754, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4752, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4750, 2, "Target", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4748, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4746, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new char[] {102,97,105,108}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Append_Statement__lit_append_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc = _init_prod__Append_Statement__lit_append_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Append_Statement__lit_append_layouts_LAYOUTLIST_dataTarget_DataTarget_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(4710, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4708, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(4706, 2, "DataTarget", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4704, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4702, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {97,112,112,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4688, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4686, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4684, 2, "DataTarget", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4682, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4680, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {97,112,112,101,110,100}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfThen_Statement__label_Label_layouts_LAYOUTLIST_lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenStatement_Statement_layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_ = _init_prod__IfThen_Statement__label_Label_layouts_LAYOUTLIST_lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenStatement_Statement_layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_();
     private static final AbstractStackNode[] _init_prod__IfThen_Statement__label_Label_layouts_LAYOUTLIST_lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenStatement_Statement_layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new EmptyStackNode(4874, 12, regular__empty, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {101,108,115,101})});
-      tmp[11] = new NonTerminalStackNode(4872, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(4870, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4868, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4866, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4864, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(4854, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4856, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4858, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4860, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4862, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4852, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4850, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4848, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4846, 2, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4844, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4842, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new EmptyStackNode(4852, 12, regular__empty, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {101,108,115,101})});
+      tmp[11] = new NonTerminalStackNode(4850, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(4848, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4846, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4844, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4842, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(4832, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4834, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4836, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4838, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4840, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4830, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4828, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4826, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4824, 2, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4822, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4820, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Switch_Statement__label_Label_layouts_LAYOUTLIST_lit_switch_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__Switch_Statement__label_Label_layouts_LAYOUTLIST_lit_switch_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__Switch_Statement__label_Label_layouts_LAYOUTLIST_lit_switch_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_expression_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_cases_iter_seps__Case__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode(4840, 14, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(4838, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new SeparatedListStackNode(4832, 12, regular__iter_seps__Case__layouts_LAYOUTLIST, new NonTerminalStackNode(4834, 0, "Case", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4836, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(4830, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new LiteralStackNode(4828, 10, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4826, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4824, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4822, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(4820, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4818, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4816, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4814, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4812, 2, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {115,119,105,116,99,104}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4810, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4808, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(4818, 14, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(4816, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new SeparatedListStackNode(4810, 12, regular__iter_seps__Case__layouts_LAYOUTLIST, new NonTerminalStackNode(4812, 0, "Case", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4814, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(4808, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(4806, 10, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4804, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4802, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4800, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(4798, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4796, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4794, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4792, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4790, 2, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {115,119,105,116,99,104}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4788, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4786, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Solve_Statement__lit_solve_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_variables_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_bound_Bound_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_ = _init_prod__Solve_Statement__lit_solve_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_variables_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_bound_Bound_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_();
     private static final AbstractStackNode[] _init_prod__Solve_Statement__lit_solve_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_variables_iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_bound_Bound_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_body_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
-      tmp[0] = new LiteralStackNode(4778, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new char[] {115,111,108,118,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4780, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4782, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4784, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(4786, 4, regular__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4788, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4790, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4792, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4794, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4796, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(4798, 6, "Bound", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4800, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4802, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4804, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(4806, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4756, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new char[] {115,111,108,118,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4758, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4760, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4762, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(4764, 4, regular__iter_seps__QualifiedName__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4766, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4768, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4770, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4772, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4774, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(4776, 6, "Bound", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4778, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4780, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4782, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(4784, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__VariableDeclaration_Statement__declaration_LocalVariableDeclaration_layouts_LAYOUTLIST_lit___59_ = _init_prod__VariableDeclaration_Statement__declaration_LocalVariableDeclaration_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__VariableDeclaration_Statement__declaration_LocalVariableDeclaration_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(4968, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4966, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4964, 0, "LocalVariableDeclaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4946, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4944, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4942, 0, "LocalVariableDeclaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__NonEmptyBlock_Statement__label_Label_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__NonEmptyBlock_Statement__label_Label_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__NonEmptyBlock_Statement__label_Label_layouts_LAYOUTLIST_lit___123_layouts_LAYOUTLIST_statements_iter_seps__Statement__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(4892, 6, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4890, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(4884, 4, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(4886, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4888, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4882, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4880, 2, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4878, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4876, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(4870, 6, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4868, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(4862, 4, regular__iter_seps__Statement__layouts_LAYOUTLIST, new NonTerminalStackNode(4864, 0, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4866, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4860, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4858, 2, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4856, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4854, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DoWhile_Statement__label_Label_layouts_LAYOUTLIST_lit_do_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___59_ = _init_prod__DoWhile_Statement__label_Label_layouts_LAYOUTLIST_lit_do_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__DoWhile_Statement__label_Label_layouts_LAYOUTLIST_lit_do_layouts_LAYOUTLIST_body_Statement_layouts_LAYOUTLIST_lit_while_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_condition_Expression_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode(4922, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(4920, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new LiteralStackNode(4918, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(4916, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(4914, 10, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4912, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4910, 8, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4908, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new LiteralStackNode(4906, 6, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4904, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(4902, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4900, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4898, 2, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new char[] {100,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4896, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4894, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(4900, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(4898, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(4896, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(4894, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(4892, 10, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4890, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4888, 8, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4886, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(4884, 6, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4882, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(4880, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4878, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4876, 2, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new char[] {100,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4874, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4872, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__IfThenElse_Statement__label_Label_layouts_LAYOUTLIST_lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenStatement_Statement_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_elseStatement_Statement_ = _init_prod__IfThenElse_Statement__label_Label_layouts_LAYOUTLIST_lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenStatement_Statement_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_elseStatement_Statement_();
     private static final AbstractStackNode[] _init_prod__IfThenElse_Statement__label_Label_layouts_LAYOUTLIST_lit_if_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_conditions_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_layouts_LAYOUTLIST_thenStatement_Statement_layouts_LAYOUTLIST_lit_else_layouts_LAYOUTLIST_elseStatement_Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new NonTerminalStackNode(4960, 14, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(4958, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new LiteralStackNode(4956, 12, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(4954, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(4952, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(4950, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(4948, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(4946, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(4936, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4938, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4940, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4942, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4944, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(4934, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(4932, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(4930, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(4928, 2, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4926, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(4924, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new NonTerminalStackNode(4938, 14, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(4936, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(4934, 12, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(4932, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(4930, 10, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(4928, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(4926, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(4924, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(4914, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(4916, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(4918, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(4920, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(4922, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(4912, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(4910, 4, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(4908, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(4906, 2, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4904, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(4902, 0, "Label", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Throw_Statement__lit_throw_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc = _init_prod__Throw_Statement__lit_throw_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc();
     private static final AbstractStackNode[] _init_prod__Throw_Statement__lit_throw_layouts_LAYOUTLIST_statement_Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(4716, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(4714, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(4712, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new char[] {116,104,114,111,119}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(4694, 2, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(4692, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(4690, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new char[] {116,104,114,111,119}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6649,13 +6627,13 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__TypeArguments_FunctionType__type_Type_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(5052, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5050, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(5040, 4, regular__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5042, 0, "TypeArg", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5044, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5046, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5048, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5038, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5036, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5034, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5032, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(5030, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5028, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(5018, 4, regular__iter_star_seps__TypeArg__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5020, 0, "TypeArg", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5022, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5024, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5026, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5016, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5014, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5012, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5010, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6665,20 +6643,20 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__PatternWithAction_Case__lit_case_layouts_LAYOUTLIST_patternWithAction_PatternWithAction__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5076, 2, "PatternWithAction", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5074, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5072, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new char[] {99,97,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5054, 2, "PatternWithAction", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5052, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5050, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new char[] {99,97,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_Case__lit_default_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_statement_Statement__tag__Foldable = _init_prod__Default_Case__lit_default_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_statement_Statement__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Default_Case__lit_default_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_statement_Statement__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5086, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5084, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5082, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5080, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5078, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5064, 4, "Statement", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5062, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5060, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5058, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5056, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6688,160 +6666,151 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Empty_Bound__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode(5088, 0);
+      tmp[0] = new EpsilonStackNode(5066, 0);
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Default_Bound__lit___59_layouts_LAYOUTLIST_expression_Expression_ = _init_prod__Default_Bound__lit___59_layouts_LAYOUTLIST_expression_Expression_();
     private static final AbstractStackNode[] _init_prod__Default_Bound__lit___59_layouts_LAYOUTLIST_expression_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5094, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5092, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5090, 0, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5072, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5070, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5068, 0, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
 	
   private static class Declaration {
-    public final static AbstractStackNode[] prod__Test_Declaration__test_Test_layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Test_Declaration__test_Test_layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Test_Declaration__test_Test_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
-      AbstractStackNode[] tmp = new AbstractStackNode[3];
-      
-      tmp[2] = new LiteralStackNode(5132, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5130, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5128, 0, "Test", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      return tmp;
-	}
     public final static AbstractStackNode[] prod__Rule_Declaration__tags_Tags_layouts_LAYOUTLIST_lit_rule_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_patternAction_PatternWithAction_layouts_LAYOUTLIST_lit___59_ = _init_prod__Rule_Declaration__tags_Tags_layouts_LAYOUTLIST_lit_rule_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_patternAction_PatternWithAction_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Rule_Declaration__tags_Tags_layouts_LAYOUTLIST_lit_rule_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_patternAction_PatternWithAction_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(5150, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5148, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5146, 6, "PatternWithAction", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5144, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(5142, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5140, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5138, 2, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5136, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5134, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5122, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5120, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5118, 6, "PatternWithAction", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5116, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5114, 4, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5112, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5110, 2, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5108, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5106, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Alias_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_alias_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_base_Type_layouts_LAYOUTLIST_lit___59_ = _init_prod__Alias_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_alias_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_base_Type_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Alias_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_alias_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_base_Type_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(5176, 12, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(5174, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new NonTerminalStackNode(5172, 10, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(5170, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(5168, 8, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5166, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5164, 6, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5162, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5160, 4, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5158, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5156, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5154, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5152, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(5148, 12, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(5146, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new NonTerminalStackNode(5144, 10, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(5142, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5140, 8, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5138, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5136, 6, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5134, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5132, 4, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5130, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5128, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5126, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5124, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__DataAbstract_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_data_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___59_ = _init_prod__DataAbstract_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_data_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__DataAbstract_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_data_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(5194, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5192, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5190, 6, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5188, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5186, 4, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5184, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5182, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5180, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5178, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5166, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5164, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5162, 6, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5160, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5158, 4, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5156, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5154, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5152, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5150, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Variable_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_variables_iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_ = _init_prod__Variable_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_variables_iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Variable_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_variables_iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(5220, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5218, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(5208, 6, regular__iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5210, 0, "Variable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5212, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5214, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5216, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5206, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(5204, 4, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5202, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5200, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5198, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5196, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5192, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5190, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(5180, 6, regular__iter_seps__Variable__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5182, 0, "Variable", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5184, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5186, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5188, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5178, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5176, 4, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5174, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5172, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5170, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5168, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Annotation_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_anno_layouts_LAYOUTLIST_annoType_Type_layouts_LAYOUTLIST_onType_Type_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___59_ = _init_prod__Annotation_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_anno_layouts_LAYOUTLIST_annoType_Type_layouts_LAYOUTLIST_onType_Type_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Annotation_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_anno_layouts_LAYOUTLIST_annoType_Type_layouts_LAYOUTLIST_onType_Type_layouts_LAYOUTLIST_lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode(5250, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(5248, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new NonTerminalStackNode(5246, 12, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(5244, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new LiteralStackNode(5242, 10, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(5240, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(5238, 8, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5236, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5234, 6, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5232, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5230, 4, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5228, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5226, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5224, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5222, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(5222, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(5220, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new NonTerminalStackNode(5218, 12, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(5216, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(5214, 10, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(5212, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(5210, 8, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5208, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5206, 6, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5204, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5202, 4, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5200, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5198, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5196, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5194, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Function_Declaration__functionDeclaration_FunctionDeclaration_ = _init_prod__Function_Declaration__functionDeclaration_FunctionDeclaration_();
     private static final AbstractStackNode[] _init_prod__Function_Declaration__functionDeclaration_FunctionDeclaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5252, 0, "FunctionDeclaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5224, 0, "FunctionDeclaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Data_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_data_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_variants_iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Data_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_data_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_variants_iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable();
     private static final AbstractStackNode[] _init_prod__Data_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_data_layouts_LAYOUTLIST_user_UserType_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_variants_iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(5286, 12, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(5284, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(5274, 10, regular__iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST, new NonTerminalStackNode(5276, 0, "Variant", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5278, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5280, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5282, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(5272, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(5270, 8, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5268, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5266, 6, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5264, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5262, 4, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5260, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5258, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5256, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5254, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(5258, 12, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(5256, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(5246, 10, regular__iter_seps__Variant__layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST, new NonTerminalStackNode(5248, 0, "Variant", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5250, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5252, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5254, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(5244, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5242, 8, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5240, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5238, 6, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5236, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5234, 4, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5232, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5230, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5228, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5226, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tag_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_tag_layouts_LAYOUTLIST_kind_Kind_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit_on_layouts_LAYOUTLIST_types_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_ = _init_prod__Tag_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_tag_layouts_LAYOUTLIST_kind_Kind_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit_on_layouts_LAYOUTLIST_types_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_();
     private static final AbstractStackNode[] _init_prod__Tag_Declaration__tags_Tags_layouts_LAYOUTLIST_visibility_Visibility_layouts_LAYOUTLIST_lit_tag_layouts_LAYOUTLIST_kind_Kind_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit_on_layouts_LAYOUTLIST_types_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode(5324, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[13] = new NonTerminalStackNode(5322, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[12] = new SeparatedListStackNode(5312, 12, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5314, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5316, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5318, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5320, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(5310, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new LiteralStackNode(5308, 10, prod__lit_on__char_class___range__111_111_char_class___range__110_110_, new char[] {111,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(5306, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new NonTerminalStackNode(5304, 8, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5302, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5300, 6, "Kind", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5298, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5296, 4, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5294, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5292, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5290, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5288, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[14] = new LiteralStackNode(5296, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[13] = new NonTerminalStackNode(5294, 13, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new SeparatedListStackNode(5284, 12, regular__iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5286, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5288, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5290, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5292, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(5282, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new LiteralStackNode(5280, 10, prod__lit_on__char_class___range__111_111_char_class___range__110_110_, new char[] {111,110}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(5278, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new NonTerminalStackNode(5276, 8, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5274, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5272, 6, "Kind", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5270, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5268, 4, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5266, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5264, 2, "Visibility", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5262, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5260, 0, "Tags", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6851,60 +6820,60 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Function_Type__function_FunctionType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5104, 0, "FunctionType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5082, 0, "FunctionType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Bracket_Type__lit___40_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_Type__lit___40_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_lit___41__bracket();
     private static final AbstractStackNode[] _init_prod__Bracket_Type__lit___40_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5114, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5112, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5110, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5108, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5106, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5092, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5090, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5088, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5086, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5084, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Basic_Type__basic_BasicType_ = _init_prod__Basic_Type__basic_BasicType_();
     private static final AbstractStackNode[] _init_prod__Basic_Type__basic_BasicType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5116, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5094, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Symbol_Type__symbol_Sym_ = _init_prod__Symbol_Type__symbol_Sym_();
     private static final AbstractStackNode[] _init_prod__Symbol_Type__symbol_Sym_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5118, 0, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5096, 0, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Variable_Type__typeVar_TypeVar_ = _init_prod__Variable_Type__typeVar_TypeVar_();
     private static final AbstractStackNode[] _init_prod__Variable_Type__typeVar_TypeVar_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5120, 0, "TypeVar", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5098, 0, "TypeVar", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__User_Type__conditional__user_UserType__delete__HeaderKeyword_ = _init_prod__User_Type__conditional__user_UserType__delete__HeaderKeyword_();
     private static final AbstractStackNode[] _init_prod__User_Type__conditional__user_UserType__delete__HeaderKeyword_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5122, 0, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {new StringMatchRestriction(new char[] {108,101,120,105,99,97,108}), new StringMatchRestriction(new char[] {105,109,112,111,114,116}), new StringMatchRestriction(new char[] {115,116,97,114,116}), new StringMatchRestriction(new char[] {115,121,110,116,97,120}), new StringMatchRestriction(new char[] {107,101,121,119,111,114,100}), new StringMatchRestriction(new char[] {108,97,121,111,117,116}), new StringMatchRestriction(new char[] {101,120,116,101,110,100})});
+      tmp[0] = new NonTerminalStackNode(5100, 0, "UserType", new IEnterFilter[] {}, new ICompletionFilter[] {new StringMatchRestriction(new char[] {108,101,120,105,99,97,108}), new StringMatchRestriction(new char[] {105,109,112,111,114,116}), new StringMatchRestriction(new char[] {115,116,97,114,116}), new StringMatchRestriction(new char[] {115,121,110,116,97,120}), new StringMatchRestriction(new char[] {107,101,121,119,111,114,100}), new StringMatchRestriction(new char[] {108,97,121,111,117,116}), new StringMatchRestriction(new char[] {101,120,116,101,110,100})});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Selector_Type__selector_DataTypeSelector_ = _init_prod__Selector_Type__selector_DataTypeSelector_();
     private static final AbstractStackNode[] _init_prod__Selector_Type__selector_DataTypeSelector_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5124, 0, "DataTypeSelector", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5102, 0, "DataTypeSelector", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Structured_Type__structured_StructuredType_ = _init_prod__Structured_Type__structured_StructuredType_();
     private static final AbstractStackNode[] _init_prod__Structured_Type__structured_StructuredType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5126, 0, "StructuredType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5104, 0, "StructuredType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6914,64 +6883,64 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Complement_Class__lit___33_layouts_LAYOUTLIST_charClass_Class_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5358, 2, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5356, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5354, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5330, 2, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5328, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5326, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Bracket_Class__lit___40_layouts_LAYOUTLIST_charclass_Class_layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_Class__lit___40_layouts_LAYOUTLIST_charclass_Class_layouts_LAYOUTLIST_lit___41__bracket();
     private static final AbstractStackNode[] _init_prod__Bracket_Class__lit___40_layouts_LAYOUTLIST_charclass_Class_layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5402, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5400, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5398, 2, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5396, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5394, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5374, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5372, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5370, 2, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5368, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5366, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Intersection_Class__lhs_Class_layouts_LAYOUTLIST_lit___38_38_layouts_LAYOUTLIST_rhs_Class__assoc__left = _init_prod__Intersection_Class__lhs_Class_layouts_LAYOUTLIST_lit___38_38_layouts_LAYOUTLIST_rhs_Class__assoc__left();
     private static final AbstractStackNode[] _init_prod__Intersection_Class__lhs_Class_layouts_LAYOUTLIST_lit___38_38_layouts_LAYOUTLIST_rhs_Class__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5392, 4, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5390, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5388, 2, prod__lit___38_38__char_class___range__38_38_char_class___range__38_38_, new char[] {38,38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5386, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5384, 0, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5364, 4, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5362, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5360, 2, prod__lit___38_38__char_class___range__38_38_char_class___range__38_38_, new char[] {38,38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5358, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5356, 0, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Difference_Class__lhs_Class_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_rhs_Class__assoc__left = _init_prod__Difference_Class__lhs_Class_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_rhs_Class__assoc__left();
     private static final AbstractStackNode[] _init_prod__Difference_Class__lhs_Class_layouts_LAYOUTLIST_lit___layouts_LAYOUTLIST_rhs_Class__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5382, 4, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5380, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5378, 2, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5376, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5374, 0, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5354, 4, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5352, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5350, 2, prod__lit____char_class___range__45_45_, new char[] {45}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5348, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5346, 0, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__SimpleCharclass_Class__lit___91_layouts_LAYOUTLIST_ranges_iter_star_seps__Range__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_ = _init_prod__SimpleCharclass_Class__lit___91_layouts_LAYOUTLIST_ranges_iter_star_seps__Range__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__SimpleCharclass_Class__lit___91_layouts_LAYOUTLIST_ranges_iter_star_seps__Range__layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5372, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5370, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5364, 2, regular__iter_star_seps__Range__layouts_LAYOUTLIST, new NonTerminalStackNode(5366, 0, "Range", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5368, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5362, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5360, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5344, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5342, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5336, 2, regular__iter_star_seps__Range__layouts_LAYOUTLIST, new NonTerminalStackNode(5338, 0, "Range", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5340, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5334, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5332, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Union_Class__lhs_Class_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Class__assoc__left = _init_prod__Union_Class__lhs_Class_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Class__assoc__left();
     private static final AbstractStackNode[] _init_prod__Union_Class__lhs_Class_layouts_LAYOUTLIST_lit___124_124_layouts_LAYOUTLIST_rhs_Class__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5412, 4, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5410, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5408, 2, prod__lit___124_124__char_class___range__124_124_char_class___range__124_124_, new char[] {124,124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5406, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5404, 0, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5384, 4, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5382, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5380, 2, prod__lit___124_124__char_class___range__124_124_char_class___range__124_124_, new char[] {124,124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5378, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5376, 0, "Class", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6981,11 +6950,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Mapping__Expression__from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5426, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5424, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5422, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5420, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5418, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5398, 4, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5396, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5394, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5392, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5390, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -6995,49 +6964,49 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__List_Comprehension__lit___91_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(5470, 8, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5468, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(5458, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5460, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5462, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5464, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5466, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5456, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5454, 4, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5452, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5442, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5444, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5446, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5448, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5450, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5440, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5438, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5442, 8, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5440, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(5430, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5432, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5434, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5436, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5438, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5428, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5426, 4, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5424, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5414, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5416, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5418, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5420, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5422, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5412, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5410, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Map_Comprehension__lit___40_layouts_LAYOUTLIST_from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_Comprehension__lit___40_layouts_LAYOUTLIST_from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__Map_Comprehension__lit___40_layouts_LAYOUTLIST_from_Expression_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_to_Expression_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
-      tmp[12] = new LiteralStackNode(5504, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[11] = new NonTerminalStackNode(5502, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[10] = new SeparatedListStackNode(5492, 10, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5494, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5496, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5498, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5500, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[9] = new NonTerminalStackNode(5490, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[8] = new LiteralStackNode(5488, 8, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5486, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new NonTerminalStackNode(5484, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5482, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5480, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5478, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5476, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5474, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5472, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[12] = new LiteralStackNode(5476, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[11] = new NonTerminalStackNode(5474, 11, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[10] = new SeparatedListStackNode(5464, 10, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5466, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5468, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5470, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5472, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[9] = new NonTerminalStackNode(5462, 9, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5460, 8, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5458, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5456, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5454, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5452, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5450, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5448, 2, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5446, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5444, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Set_Comprehension__lit___123_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_Comprehension__lit___123_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__Set_Comprehension__lit___123_layouts_LAYOUTLIST_results_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_generators_iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode(5538, 8, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[7] = new NonTerminalStackNode(5536, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[6] = new SeparatedListStackNode(5526, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5528, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5530, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5532, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5534, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5524, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5522, 4, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5520, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5510, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5512, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5514, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5516, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5518, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5508, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5506, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[8] = new LiteralStackNode(5510, 8, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[7] = new NonTerminalStackNode(5508, 7, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(5498, 6, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5500, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5502, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5504, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5506, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5496, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5494, 4, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5492, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5482, 2, regular__iter_seps__Expression__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5484, 0, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5486, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5488, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5490, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5480, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5478, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7047,7 +7016,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__List_FunctionModifiers__modifiers_iter_star_seps__FunctionModifier__layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode(5432, 0, regular__iter_star_seps__FunctionModifier__layouts_LAYOUTLIST, new NonTerminalStackNode(5434, 0, "FunctionModifier", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5436, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new SeparatedListStackNode(5404, 0, regular__iter_star_seps__FunctionModifier__layouts_LAYOUTLIST, new NonTerminalStackNode(5406, 0, "FunctionModifier", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5408, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7057,21 +7026,21 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Associativity_ProdModifier__associativity_Assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5540, 0, "Assoc", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5512, 0, "Assoc", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tag_ProdModifier__tag_Tag_ = _init_prod__Tag_ProdModifier__tag_Tag_();
     private static final AbstractStackNode[] _init_prod__Tag_ProdModifier__tag_Tag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5542, 0, "Tag", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5514, 0, "Tag", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Bracket_ProdModifier__lit_bracket_ = _init_prod__Bracket_ProdModifier__lit_bracket_();
     private static final AbstractStackNode[] _init_prod__Bracket_ProdModifier__lit_bracket_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(5544, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new char[] {98,114,97,99,107,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5516, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new char[] {98,114,97,99,107,101,116}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7081,14 +7050,14 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__BooleanLiteral__lit_true_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(5554, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new char[] {116,114,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5526, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new char[] {116,114,117,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__BooleanLiteral__lit_false_ = _init_prod__BooleanLiteral__lit_false_();
     private static final AbstractStackNode[] _init_prod__BooleanLiteral__lit_false_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(5556, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {102,97,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5528, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {102,97,108,115,101}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7098,7 +7067,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__GivenVisibility_Toplevel__declaration_Declaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5552, 0, "Declaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5524, 0, "Declaration", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7108,22 +7077,22 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Free_TypeVar__lit___38_layouts_LAYOUTLIST_name_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5564, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5562, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5560, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5536, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5534, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5532, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Bounded_TypeVar__lit___38_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___60_58_layouts_LAYOUTLIST_bound_Type_ = _init_prod__Bounded_TypeVar__lit___38_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___60_58_layouts_LAYOUTLIST_bound_Type_();
     private static final AbstractStackNode[] _init_prod__Bounded_TypeVar__lit___38_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___60_58_layouts_LAYOUTLIST_bound_Type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new NonTerminalStackNode(5578, 6, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5576, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5574, 4, prod__lit___60_58__char_class___range__60_60_char_class___range__58_58_, new char[] {60,58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5572, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5570, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5568, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5566, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5550, 6, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5548, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5546, 4, prod__lit___60_58__char_class___range__60_60_char_class___range__58_58_, new char[] {60,58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5544, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5542, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5540, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5538, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7133,12 +7102,12 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[6];
       
-      tmp[5] = new CharStackNode(5612, 5, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new CharStackNode(5610, 4, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new CharStackNode(5608, 3, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new CharStackNode(5606, 2, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new ListStackNode(5602, 1, regular__iter__char_class___range__117_117, new CharStackNode(5604, 0, new char[][]{{117,117}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5600, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new CharStackNode(5584, 5, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new CharStackNode(5582, 4, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new CharStackNode(5580, 3, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new CharStackNode(5578, 2, new char[][]{{48,57},{65,70},{97,102}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(5574, 1, regular__iter__char_class___range__117_117, new CharStackNode(5576, 0, new char[][]{{117,117}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5572, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7148,73 +7117,73 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__AssociativityGroup_Prod__associativity_Assoc_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_group_Prod_layouts_LAYOUTLIST_lit___41__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(5640, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5638, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new NonTerminalStackNode(5636, 4, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5634, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5632, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5630, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5628, 0, "Assoc", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(5612, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5610, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5608, 4, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5606, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5604, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5602, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5600, 0, "Assoc", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Reference_Prod__lit___58_layouts_LAYOUTLIST_referenced_Name_ = _init_prod__Reference_Prod__lit___58_layouts_LAYOUTLIST_referenced_Name_();
     private static final AbstractStackNode[] _init_prod__Reference_Prod__lit___58_layouts_LAYOUTLIST_referenced_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5646, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5644, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5642, 0, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5618, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5616, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5614, 0, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Labeled_Prod__modifiers_iter_star_seps__ProdModifier__layouts_LAYOUTLIST_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_args_iter_star_seps__Sym__layouts_LAYOUTLIST_ = _init_prod__Labeled_Prod__modifiers_iter_star_seps__ProdModifier__layouts_LAYOUTLIST_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_args_iter_star_seps__Sym__layouts_LAYOUTLIST_();
     private static final AbstractStackNode[] _init_prod__Labeled_Prod__modifiers_iter_star_seps__ProdModifier__layouts_LAYOUTLIST_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_args_iter_star_seps__Sym__layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new SeparatedListStackNode(5664, 6, regular__iter_star_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode(5666, 0, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5668, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5662, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5660, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5658, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5656, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5654, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new SeparatedListStackNode(5648, 0, regular__iter_star_seps__ProdModifier__layouts_LAYOUTLIST, new NonTerminalStackNode(5650, 0, "ProdModifier", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5652, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new SeparatedListStackNode(5636, 6, regular__iter_star_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode(5638, 0, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5640, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5634, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5632, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5630, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5628, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5626, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new SeparatedListStackNode(5620, 0, regular__iter_star_seps__ProdModifier__layouts_LAYOUTLIST, new NonTerminalStackNode(5622, 0, "ProdModifier", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5624, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Others_Prod__lit___46_46_46_ = _init_prod__Others_Prod__lit___46_46_46_();
     private static final AbstractStackNode[] _init_prod__Others_Prod__lit___46_46_46_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode(5670, 0, prod__lit___46_46_46__char_class___range__46_46_char_class___range__46_46_char_class___range__46_46_, new char[] {46,46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5642, 0, prod__lit___46_46_46__char_class___range__46_46_char_class___range__46_46_char_class___range__46_46_, new char[] {46,46,46}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__First_Prod__lhs_Prod_layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_layouts_LAYOUTLIST_rhs_Prod__assoc__left = _init_prod__First_Prod__lhs_Prod_layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_layouts_LAYOUTLIST_rhs_Prod__assoc__left();
     private static final AbstractStackNode[] _init_prod__First_Prod__lhs_Prod_layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_layouts_LAYOUTLIST_rhs_Prod__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5704, 4, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5702, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5700, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {62})});
-      tmp[1] = new NonTerminalStackNode(5698, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5696, 0, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5676, 4, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5674, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5672, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {new StringFollowRestriction(new char[] {62})});
+      tmp[1] = new NonTerminalStackNode(5670, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5668, 0, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Unlabeled_Prod__modifiers_iter_star_seps__ProdModifier__layouts_LAYOUTLIST_layouts_LAYOUTLIST_args_iter_star_seps__Sym__layouts_LAYOUTLIST_ = _init_prod__Unlabeled_Prod__modifiers_iter_star_seps__ProdModifier__layouts_LAYOUTLIST_layouts_LAYOUTLIST_args_iter_star_seps__Sym__layouts_LAYOUTLIST_();
     private static final AbstractStackNode[] _init_prod__Unlabeled_Prod__modifiers_iter_star_seps__ProdModifier__layouts_LAYOUTLIST_layouts_LAYOUTLIST_args_iter_star_seps__Sym__layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new SeparatedListStackNode(5680, 2, regular__iter_star_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode(5682, 0, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5684, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5678, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new SeparatedListStackNode(5672, 0, regular__iter_star_seps__ProdModifier__layouts_LAYOUTLIST, new NonTerminalStackNode(5674, 0, "ProdModifier", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5676, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5652, 2, regular__iter_star_seps__Sym__layouts_LAYOUTLIST, new NonTerminalStackNode(5654, 0, "Sym", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5656, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5650, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new SeparatedListStackNode(5644, 0, regular__iter_star_seps__ProdModifier__layouts_LAYOUTLIST, new NonTerminalStackNode(5646, 0, "ProdModifier", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5648, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__All_Prod__lhs_Prod_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_rhs_Prod__assoc__left = _init_prod__All_Prod__lhs_Prod_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_rhs_Prod__assoc__left();
     private static final AbstractStackNode[] _init_prod__All_Prod__lhs_Prod_layouts_LAYOUTLIST_lit___124_layouts_LAYOUTLIST_rhs_Prod__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5694, 4, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5692, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5690, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5688, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5686, 0, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5666, 4, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5664, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5662, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5660, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5658, 0, "Prod", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7224,8 +7193,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
-      tmp[1] = new ListStackNode(5712, 1, regular__iter__char_class___range__48_55, new CharStackNode(5714, 0, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
-      tmp[0] = new CharStackNode(5710, 0, new char[][]{{48,48}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new ListStackNode(5684, 1, regular__iter__char_class___range__48_55, new CharStackNode(5686, 0, new char[][]{{48,55}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), true, new IEnterFilter[] {}, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new CharStackNode(5682, 0, new char[][]{{48,48}}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7235,157 +7204,157 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Map_Pattern__lit___40_layouts_LAYOUTLIST_mappings_iter_star_seps__Mapping__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5748, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5746, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5736, 2, regular__iter_star_seps__Mapping__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5738, 0, "Mapping__Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5740, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5742, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5744, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5734, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5732, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5720, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5718, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5708, 2, regular__iter_star_seps__Mapping__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5710, 0, "Mapping__Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5712, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5714, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5716, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5706, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5704, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__List_Pattern__lit___91_layouts_LAYOUTLIST_elements_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_ = _init_prod__List_Pattern__lit___91_layouts_LAYOUTLIST_elements_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_();
     private static final AbstractStackNode[] _init_prod__List_Pattern__lit___91_layouts_LAYOUTLIST_elements_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5766, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5764, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5754, 2, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5756, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5758, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5760, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5762, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5752, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5750, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5738, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5736, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5726, 2, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5728, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5730, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5732, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5734, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5724, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5722, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__ReifiedType_Pattern__basicType_BasicType_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__ReifiedType_Pattern__basicType_BasicType_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__ReifiedType_Pattern__basicType_BasicType_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(5788, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5786, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(5776, 4, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5778, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5780, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5782, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5784, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5774, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5772, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5770, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5768, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(5760, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5758, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(5748, 4, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5750, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5752, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5754, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5756, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5746, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5744, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5742, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5740, 0, "BasicType", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Literal_Pattern__literal_Literal_ = _init_prod__Literal_Pattern__literal_Literal_();
     private static final AbstractStackNode[] _init_prod__Literal_Pattern__literal_Literal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5790, 0, "Literal", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5762, 0, "Literal", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__QualifiedName_Pattern__qualifiedName_QualifiedName_ = _init_prod__QualifiedName_Pattern__qualifiedName_QualifiedName_();
     private static final AbstractStackNode[] _init_prod__QualifiedName_Pattern__qualifiedName_QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode(5792, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5764, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Descendant_Pattern__lit___47_layouts_LAYOUTLIST_pattern_Pattern_ = _init_prod__Descendant_Pattern__lit___47_layouts_LAYOUTLIST_pattern_Pattern_();
     private static final AbstractStackNode[] _init_prod__Descendant_Pattern__lit___47_layouts_LAYOUTLIST_pattern_Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5868, 2, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5866, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5864, 0, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5840, 2, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5838, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5836, 0, prod__lit___47__char_class___range__47_47_, new char[] {47}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Guarded_Pattern__lit___91_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_pattern_Pattern_ = _init_prod__Guarded_Pattern__lit___91_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_pattern_Pattern_();
     private static final AbstractStackNode[] _init_prod__Guarded_Pattern__lit___91_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_lit___93_layouts_LAYOUTLIST_pattern_Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new NonTerminalStackNode(5882, 6, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5880, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5878, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5876, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5874, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5872, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5870, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5854, 6, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5852, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5850, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5848, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5846, 2, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5844, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5842, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__MultiVariable_Pattern__qualifiedName_QualifiedName_layouts_LAYOUTLIST_lit___42_ = _init_prod__MultiVariable_Pattern__qualifiedName_QualifiedName_layouts_LAYOUTLIST_lit___42_();
     private static final AbstractStackNode[] _init_prod__MultiVariable_Pattern__qualifiedName_QualifiedName_layouts_LAYOUTLIST_lit___42_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode(5798, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5796, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5794, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5770, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5768, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5766, 0, "QualifiedName", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Tuple_Pattern__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_Pattern__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_();
     private static final AbstractStackNode[] _init_prod__Tuple_Pattern__lit___60_layouts_LAYOUTLIST_elements_iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5816, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5814, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5804, 2, regular__iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5806, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5808, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5810, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5812, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5802, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5800, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5788, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5786, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5776, 2, regular__iter_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5778, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5780, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5782, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5784, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, true, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5774, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5772, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Anti_Pattern__lit___33_layouts_LAYOUTLIST_pattern_Pattern_ = _init_prod__Anti_Pattern__lit___33_layouts_LAYOUTLIST_pattern_Pattern_();
     private static final AbstractStackNode[] _init_prod__Anti_Pattern__lit___33_layouts_LAYOUTLIST_pattern_Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5888, 2, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5886, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5884, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5860, 2, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5858, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5856, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TypedVariableBecomes_Pattern__type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_pattern_Pattern_ = _init_prod__TypedVariableBecomes_Pattern__type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_pattern_Pattern_();
     private static final AbstractStackNode[] _init_prod__TypedVariableBecomes_Pattern__type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_pattern_Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new NonTerminalStackNode(5902, 6, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5900, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5898, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5896, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5894, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5892, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5890, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5874, 6, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5872, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5870, 4, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5868, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5866, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5864, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5862, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__VariableBecomes_Pattern__name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_pattern_Pattern_ = _init_prod__VariableBecomes_Pattern__name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_pattern_Pattern_();
     private static final AbstractStackNode[] _init_prod__VariableBecomes_Pattern__name_Name_layouts_LAYOUTLIST_lit___58_layouts_LAYOUTLIST_pattern_Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5912, 4, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5910, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5904, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5906, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5908, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5884, 4, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5882, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5876, 0, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5878, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5880, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__TypedVariable_Pattern__type_Type_layouts_LAYOUTLIST_name_Name_ = _init_prod__TypedVariable_Pattern__type_Type_layouts_LAYOUTLIST_name_Name_();
     private static final AbstractStackNode[] _init_prod__TypedVariable_Pattern__type_Type_layouts_LAYOUTLIST_name_Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5822, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5820, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5818, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5794, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5792, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5790, 0, "Type", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Set_Pattern__lit___123_layouts_LAYOUTLIST_elements_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_Pattern__lit___123_layouts_LAYOUTLIST_elements_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_();
     private static final AbstractStackNode[] _init_prod__Set_Pattern__lit___123_layouts_LAYOUTLIST_elements_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode(5840, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5838, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new SeparatedListStackNode(5828, 2, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5830, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5832, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5834, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5836, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5826, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5824, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5812, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5810, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new SeparatedListStackNode(5800, 2, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5802, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5804, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5806, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5808, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5798, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5796, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__CallOrTree_Pattern__expression_Pattern_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_ = _init_prod__CallOrTree_Pattern__expression_Pattern_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_();
     private static final AbstractStackNode[] _init_prod__CallOrTree_Pattern__expression_Pattern_layouts_LAYOUTLIST_lit___40_layouts_LAYOUTLIST_arguments_iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode(5862, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5860, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new SeparatedListStackNode(5850, 4, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5852, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5854, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5856, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5858, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5848, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5846, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5844, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new NonTerminalStackNode(5842, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new LiteralStackNode(5834, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5832, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new SeparatedListStackNode(5822, 4, regular__iter_star_seps__Pattern__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST, new NonTerminalStackNode(5824, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {}), new AbstractStackNode[]{new NonTerminalStackNode(5826, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {}), new LiteralStackNode(5828, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, new IEnterFilter[] {}, new ICompletionFilter[] {}), new NonTerminalStackNode(5830, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {})}, false, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5820, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5818, 2, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5816, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new NonTerminalStackNode(5814, 0, "Pattern", new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7395,11 +7364,11 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__DateAndTime__lit___36_DatePart_lit_T_TimePartNoTZ_opt__TimeZonePart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new OptionalStackNode(5944, 4, regular__opt__TimeZonePart, new NonTerminalStackNode(5946, 0, "TimeZonePart", new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5942, 3, "TimePartNoTZ", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new LiteralStackNode(5940, 2, prod__lit_T__char_class___range__84_84_, new char[] {84}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5938, 1, "DatePart", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5936, 0, prod__lit___36__char_class___range__36_36_, new char[] {36}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new OptionalStackNode(5916, 4, regular__opt__TimeZonePart, new NonTerminalStackNode(5918, 0, "TimeZonePart", new IEnterFilter[] {}, new ICompletionFilter[] {}), new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5914, 3, "TimePartNoTZ", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new LiteralStackNode(5912, 2, prod__lit_T__char_class___range__84_84_, new char[] {84}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5910, 1, "DatePart", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5908, 0, prod__lit___36__char_class___range__36_36_, new char[] {36}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7409,33 +7378,33 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     private static final AbstractStackNode[] _init_prod__Default_Tag__lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_contents_TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode(5974, 4, "TagString", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5972, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5970, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5968, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5966, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new NonTerminalStackNode(5946, 4, "TagString", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5944, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5942, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5940, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5938, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Expression_Tag__lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Expression_Tag__lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116();
     private static final AbstractStackNode[] _init_prod__Expression_Tag__lit___64_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_lit___61_layouts_LAYOUTLIST_expression_Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
-      tmp[6] = new NonTerminalStackNode(5988, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[5] = new NonTerminalStackNode(5986, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[4] = new LiteralStackNode(5984, 4, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[3] = new NonTerminalStackNode(5982, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[2] = new NonTerminalStackNode(5980, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5978, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5976, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[6] = new NonTerminalStackNode(5960, 6, "Expression", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[5] = new NonTerminalStackNode(5958, 5, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[4] = new LiteralStackNode(5956, 4, prod__lit___61__char_class___range__61_61_, new char[] {61}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[3] = new NonTerminalStackNode(5954, 3, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5952, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5950, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5948, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
     public final static AbstractStackNode[] prod__Empty_Tag__lit___64_layouts_LAYOUTLIST_name_Name__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Empty_Tag__lit___64_layouts_LAYOUTLIST_name_Name__tag__Foldable_tag__category___67_111_109_109_101_110_116();
     private static final AbstractStackNode[] _init_prod__Empty_Tag__lit___64_layouts_LAYOUTLIST_name_Name__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode(5994, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[1] = new NonTerminalStackNode(5992, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
-      tmp[0] = new LiteralStackNode(5990, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[2] = new NonTerminalStackNode(5966, 2, "Name", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[1] = new NonTerminalStackNode(5964, 1, "layouts_LAYOUTLIST", new IEnterFilter[] {}, new ICompletionFilter[] {});
+      tmp[0] = new LiteralStackNode(5962, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       return tmp;
 	}
   }
@@ -7509,10 +7478,10 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   public void Signature() {
     
     
-    // prod(label("WithThrows",sort("Signature")),[label("type",sort("Type")),layouts("LAYOUTLIST"),label("modifiers",sort("FunctionModifiers")),layouts("LAYOUTLIST"),label("name",lex("Name")),layouts("LAYOUTLIST"),label("parameters",sort("Parameters")),layouts("LAYOUTLIST"),lit("throws"),layouts("LAYOUTLIST"),label("exceptions",\iter-seps(sort("Type"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]))],{})
-    expect(prod__WithThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_, Signature.prod__WithThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_);
-    // prod(label("NoThrows",sort("Signature")),[label("type",sort("Type")),layouts("LAYOUTLIST"),label("modifiers",sort("FunctionModifiers")),layouts("LAYOUTLIST"),label("name",lex("Name")),layouts("LAYOUTLIST"),label("parameters",sort("Parameters"))],{})
-    expect(prod__NoThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_, Signature.prod__NoThrows_Signature__type_Type_layouts_LAYOUTLIST_modifiers_FunctionModifiers_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_);
+    // prod(label("WithThrows",sort("Signature")),[label("modifiers",sort("FunctionModifiers")),layouts("LAYOUTLIST"),label("type",sort("Type")),layouts("LAYOUTLIST"),label("name",lex("Name")),layouts("LAYOUTLIST"),label("parameters",sort("Parameters")),layouts("LAYOUTLIST"),lit("throws"),layouts("LAYOUTLIST"),label("exceptions",\iter-seps(sort("Type"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]))],{})
+    expect(prod__WithThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_, Signature.prod__WithThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_lit_throws_layouts_LAYOUTLIST_exceptions_iter_seps__Type__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_);
+    // prod(label("NoThrows",sort("Signature")),[label("modifiers",sort("FunctionModifiers")),layouts("LAYOUTLIST"),label("type",sort("Type")),layouts("LAYOUTLIST"),label("name",lex("Name")),layouts("LAYOUTLIST"),label("parameters",sort("Parameters"))],{})
+    expect(prod__NoThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_, Signature.prod__NoThrows_Signature__modifiers_FunctionModifiers_layouts_LAYOUTLIST_type_Type_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_parameters_Parameters_);
   }
   public void Sym() {
     
@@ -7588,14 +7557,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     
     // prod(label("List",sort("Commands")),[label("commands",\iter-seps(sort("Command"),[layouts("LAYOUTLIST")]))],{})
     expect(prod__List_Commands__commands_iter_seps__Command__layouts_LAYOUTLIST_, Commands.prod__List_Commands__commands_iter_seps__Command__layouts_LAYOUTLIST_);
-  }
-  public void Test() {
-    
-    
-    // prod(label("Unlabeled",sort("Test")),[label("tags",sort("Tags")),layouts("LAYOUTLIST"),lit("test"),layouts("LAYOUTLIST"),label("expression",sort("Expression"))],{})
-    expect(prod__Unlabeled_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_expression_Expression_, Test.prod__Unlabeled_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_expression_Expression_);
-    // prod(label("Parameterized",sort("Test")),[label("tags",sort("Tags")),layouts("LAYOUTLIST"),lit("test"),layouts("LAYOUTLIST"),label("parameters",sort("Parameters")),layouts("LAYOUTLIST"),label("expression",sort("Expression"))],{})
-    expect(prod__Parameterized_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_expression_Expression_, Test.prod__Parameterized_Test__tags_Tags_layouts_LAYOUTLIST_lit_test_layouts_LAYOUTLIST_parameters_Parameters_layouts_LAYOUTLIST_expression_Expression_);
   }
   public void ImportedModule() {
     
@@ -7797,6 +7758,8 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     expect(prod__Java_FunctionModifier__lit_java_, FunctionModifier.prod__Java_FunctionModifier__lit_java_);
     // prod(label("Default",sort("FunctionModifier")),[lit("default")],{})
     expect(prod__Default_FunctionModifier__lit_default_, FunctionModifier.prod__Default_FunctionModifier__lit_default_);
+    // prod(label("Test",sort("FunctionModifier")),[lit("test")],{})
+    expect(prod__Test_FunctionModifier__lit_test_, FunctionModifier.prod__Test_FunctionModifier__lit_test_);
   }
   public void Assignment() {
     
@@ -8831,8 +8794,6 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
   public void Declaration() {
     
     
-    // prod(label("Test",sort("Declaration")),[label("test",sort("Test")),layouts("LAYOUTLIST"),lit(";")],{tag(Foldable())})
-    expect(prod__Test_Declaration__test_Test_layouts_LAYOUTLIST_lit___59__tag__Foldable, Declaration.prod__Test_Declaration__test_Test_layouts_LAYOUTLIST_lit___59__tag__Foldable);
     // prod(label("Rule",sort("Declaration")),[label("tags",sort("Tags")),layouts("LAYOUTLIST"),lit("rule"),layouts("LAYOUTLIST"),label("name",lex("Name")),layouts("LAYOUTLIST"),label("patternAction",sort("PatternWithAction")),layouts("LAYOUTLIST"),lit(";")],{})
     expect(prod__Rule_Declaration__tags_Tags_layouts_LAYOUTLIST_lit_rule_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_patternAction_PatternWithAction_layouts_LAYOUTLIST_lit___59_, Declaration.prod__Rule_Declaration__tags_Tags_layouts_LAYOUTLIST_lit_rule_layouts_LAYOUTLIST_name_Name_layouts_LAYOUTLIST_patternAction_PatternWithAction_layouts_LAYOUTLIST_lit___59_);
     // prod(label("Alias",sort("Declaration")),[label("tags",sort("Tags")),layouts("LAYOUTLIST"),label("visibility",sort("Visibility")),layouts("LAYOUTLIST"),lit("alias"),layouts("LAYOUTLIST"),label("user",sort("UserType")),layouts("LAYOUTLIST"),lit("="),layouts("LAYOUTLIST"),label("base",sort("Type")),layouts("LAYOUTLIST"),lit(";")],{})

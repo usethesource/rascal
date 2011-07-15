@@ -189,12 +189,10 @@ public str makeStringChar(int ch) {
   return "\\u<hex[d4]><hex[d3]><hex[d2]><hex[d1]>";
 }
 
-/*
-test makeStringChar(97) 	== "a";
-test makeStringChar(10) 	== "\\n";
-test makeStringChar(34) 	== "\\\"";
-test makeStringChar(255) == "\\377";
-*/
+test bool testA() = makeStringChar(97) 	== "a";
+test bool testNl() = makeStringChar(10) 	== "\\n";
+test bool testQuote() = makeStringChar(34) 	== "\\\"";
+test bool testEOF() = makeStringChar(255) == "\\377";
 
 @doc{
   Escapes the characters of the given string using the Rascal escaping conventions.

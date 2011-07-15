@@ -21,15 +21,15 @@ public &T <: num abs(&T <: num N)
 
 @doc{Return an arbitrary integer value.}
 @javaClass{org.rascalmpl.library.Number}
-public int java arbInt();
+public java int arbInt();
 
 @doc{Return an arbitrary integer value in the interval [0, limit).}
 @javaClass{org.rascalmpl.library.Integer}
-public int java arbInt(int limit);
+public java int arbInt(int limit);
 
 @doc{Returns an arbitrary real value in the interval [0.0,1.0).}
 @javaClass{org.rascalmpl.library.Real}
-public real java arbReal();
+public java real arbReal();
 
 @doc{Round to the nearest integer}
 public num round(num d) {
@@ -50,23 +50,23 @@ public &T <: num min(&T <: num N, &T <: num M)
 
 @doc{Convert a number to an integer.}
 @javaClass{org.rascalmpl.library.Number}
-public int java toInt(num N);
+public java int toInt(num N);
 
 @doc{Convert a number value to a real value.}
 @javaClass{org.rascalmpl.library.Number}
-public real java toReal(num N);
+public java real toReal(num N);
 
 @doc{Convert a number value to a string.}
 @javaClass{org.rascalmpl.library.Number}
-public str java toString(num N);
+public java str toString(num N);
 
 @doc{pi -- returns the constant PI}
 @javaClass{org.rascalmpl.library.Real}
-public real java PI();
+public java real PI();
 
 @doc{e -- returns the constant E}
 @javaClass{org.rascalmpl.library.Real}
-public real java E();
+public java real E();
 
 @doc{computes the power of x by y}
 public real pow(num x, num y) {

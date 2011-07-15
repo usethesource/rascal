@@ -11,51 +11,51 @@ module util::tasks::Manager
 alias Task = bool (Transaction tr, type[&T] key, &N name);
 @reflect{Needs access to context in order to reify types when calling producer.}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public void java registerProducer(Task producer, set[value] keys);
+public java void registerProducer(Task producer, set[value] keys);
 
 //public void registerProducer(&T (Transaction tr, type[&T] key, &N name) producer, set[value] keys) {
 //	registerProducer(bool(Transaction t,type[&T] k, value n){v = producer(t,k,n); setFact(t,k,n,v);});
 //}
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public void java unregisterProducer(Task producer);
+public java void unregisterProducer(Task producer);
 
 alias Transaction = value;
 alias Fact = value;
 
 @reflect{Access to evaluator's error stream}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public Transaction java startTransaction();
+public java Transaction startTransaction();
 
 @reflect{Access to evaluator's error stream}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public Transaction java startTransaction(Transaction parent);
+public java Transaction startTransaction(Transaction parent);
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public void java endTransaction(Transaction tr);
+public java void endTransaction(Transaction tr);
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public void java abandonTransaction(Transaction tr);
+public java void abandonTransaction(Transaction tr);
 
 
 @reflect{For producing exceptions with stack traces}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public &T java getFact(Transaction tr, type[&T] key, value name);
+public java &T getFact(Transaction tr, type[&T] key, value name);
 
 @reflect{For producing exceptions with stack traces}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public &T java queryFact(Transaction tr, type[&T] key, value name);
+public java &T queryFact(Transaction tr, type[&T] key, value name);
 
 public bool hasFact(Transaction tr, type[&T] key, value name) {
 	return queryFact(tr, key, name)?;
 }
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public void java removeFact(Transaction tr, type[&T] key, value name);
+public java void removeFact(Transaction tr, type[&T] key, value name);
 
 @reflect{For producing exceptions with stack traces}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public Fact java setFact(Transaction tr, type[&T] key, value name, &T val);
+public java Fact setFact(Transaction tr, type[&T] key, value name, &T val);
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public tuple[rel[str,str,str,int],rel[str,str,str]] java getDependencyGraph(Transaction tr);
+public java tuple[rel[str,str,str,int],rel[str,str,str]] getDependencyGraph(Transaction tr);

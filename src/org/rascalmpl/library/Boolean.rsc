@@ -11,7 +11,7 @@ module Boolean
 
 @doc{Get an arbitrary boolean value.}
 @javaClass{org.rascalmpl.library.Boolean}
-public bool java arbBool();
+public java bool arbBool();
 
 @deprecated{Useless function that will be removed}
 @doc{Convert an integer to a bool}

@@ -12,7 +12,7 @@ module Real
 
 @doc{Returns an arbitrary real value in the interval [0.0,1.0).}
 @javaClass{org.rascalmpl.library.Real}
-public real java arbReal();
+public java real arbReal();
 
 @doc{Largest of two reals}
 public real max(real n, real m)
@@ -28,44 +28,44 @@ public real min(real n, real m)
 
 @doc{Convert a real to integer.}
 @javaClass{org.rascalmpl.library.Real}
-public int java toInt(real d);
+public java int toInt(real d);
 
 @doc{Convert a real to a string.}
 @javaClass{org.rascalmpl.library.Real}
-public str java toString(real d);
+public java str toString(real d);
 
 @doc{Round to the nearest integer}
 @javaClass{org.rascalmpl.library.Real}
-public real java round(real d);
+public java real round(real d);
 
 @doc{Returns the constant PI}
 @javaClass{org.rascalmpl.library.Real}
-public real java PI();
+public java real PI();
 
 @doc{Returns the constant E}
 @javaClass{org.rascalmpl.library.Real}
-public real java E();
+public java real E();
 
 @doc{Computes the power of x by y}
 @javaClass{org.rascalmpl.library.Real}
-public real java pow(real x, real y);
+public java real pow(real x, real y);
 
 @doc{Computes exp(x)}
 @javaClass{org.rascalmpl.library.Real}
-public real java exp(real x);
+public java real exp(real x);
 
 @doc{Computes sin(x)}
 @javaClass{org.rascalmpl.library.Real}
-public real java sin(real x);
+public java real sin(real x);
 
 @doc{Computes cos(x)}
 @javaClass{org.rascalmpl.library.Real}
-public real java cos(real x);
+public java real cos(real x);
 
 @doc{Computes tan(x)}
 @javaClass{org.rascalmpl.library.Real}
-public real java tan(real x);
+public java real tan(real x);
 
 @doc{Computes sqrt(x)}
 @javaClass{org.rascalmpl.library.Real}
-public real java sqrt(real x);
+public java real sqrt(real x);

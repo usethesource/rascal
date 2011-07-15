@@ -67,7 +67,7 @@ public set[&T] reachX(Graph[&T] G, set[&T] Start, set[&T] Excl)
 
 @doc{ Shortest path between pair of nodes.}
 @javaClass{org.rascalmpl.library.Graph}
-public list[&T] java shortestPathPair(Graph[&T] G, &T From, &T To);
+public java list[&T] shortestPathPair(Graph[&T] G, &T From, &T To);
 
 /* TODO: replace upper builtin by lower code, but refactor it to not
    use global variables.

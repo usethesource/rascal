@@ -103,34 +103,23 @@ public str prod2rascal(Production p) {
   }
 }
 
-/*
-test prod2rascal(prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs()))
+test bool noAttrs() = prod2rascal(prod(sort("ID-TYPE"), [sort("PICO-ID"),lit(":"),sort("TYPE")],{}))
      == "PICO_ID \":\" TYPE ";
 
-test prod2rascal(
-     prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
-               sort("ID-TYPE"),
-              attrs([term(cons("decl")),\assoc(left())]))) ==
+test bool AttrsAndCons() = prod2rascal(
+     prod(label("decl",sort("ID-TYPE")), [sort("PICO-ID"), lit(":"), sort("TYPE")],
+              {\assoc(left())})) ==
                "left decl: PICO_ID \":\" TYPE ";
                
-test prod2rascal(
-	 prod([\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],sort("LAYOUT"),attrs([term(cons("whitespace"))]))) ==
+test bool CC() = prod2rascal(
+	 prod(label("whitespace",sort("LAYOUT")),[\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],{})) ==
 	 "whitespace: [\\t\\n\\r\\ ] ";
 
-test prod2rascal(
-	first(sort("EXP"),[prod([sort("EXP"),lit("||"),sort("EXP")],sort("EXP"),\no-attrs()),
-	                   prod([sort("EXP"),lit("-"),sort("EXP")],sort("EXP"),\no-attrs()),
-	                   prod([sort("EXP"),lit("+"),sort("EXP")],sort("EXP"),\no-attrs())])) ==
+test bool Prio() = prod2rascal(
+	priority(sort("EXP"),[prod(sort("EXP"),[sort("EXP"),lit("||"),sort("EXP")],{}),
+	                   prod(sort("EXP"),[sort("EXP"),lit("-"),sort("EXP")],{}),
+	                   prod(sort("EXP"),[sort("EXP"),lit("+"),sort("EXP")],{})])) ==
 	"EXP \"||\" EXP \n\t\> EXP \"-\" EXP \n\t\> EXP \"+\" EXP ";	
-*/
-
-/*
-test attrs2mods(\attrs([\assoc(\left())])) == "left ";
-test attrs2mods(\attrs([\assoc(\left()), \assoc(\right())])) == "left right ";
-test attrs2mods(\attrs([\assoc(\left()), term(cons("C")), \assoc(\right())])) == "left right C: ";
-test attrs2mods(\attrs([term(cons("C"))])) == "C: ";
-test attrs2mods(\attrs([term(cons("C")), term("lexical")])) == "lex C: ";
-*/
 
 public str attr2mod(Attr a) {
   switch(a) {
@@ -145,10 +134,6 @@ public str attr2mod(Attr a) {
     default : return "/*<a>*/";
   }
 }
-
-/*
-test attr2mod(\assoc(\left())) == "left";
-*/
 
 public str symbol2rascal(Symbol sym) {
   switch (sym) {

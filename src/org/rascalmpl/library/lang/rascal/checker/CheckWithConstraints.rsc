@@ -1436,7 +1436,7 @@ public Constraint solveConstraint(STBuilder st, ConstraintBase cb, CallOrTree(st
 // Default version of the solve function -- this does nothing beyond return the current
 // constraint, making no changes.
 //
-public Constraint default solveConstraint(STBuilder st, ConstraintBase cb, Constraint c) = c;
+public default Constraint solveConstraint(STBuilder st, ConstraintBase cb, Constraint c) = c;
 
 //
 // Driver function to reduce as far as we can -- this starts with the top of the graph,

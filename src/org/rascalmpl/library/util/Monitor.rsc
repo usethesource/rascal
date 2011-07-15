@@ -14,7 +14,7 @@ module util::Monitor
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect
-public void java startJob(str name);
+public java void startJob(str name);
 
 @doc{
   Register a job with a name and a total amount of steps to do (this will also be the amount
@@ -22,7 +22,7 @@ public void java startJob(str name);
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public void java startJob(str name, int totalWork);
+public java void startJob(str name, int totalWork);
 
 @doc{
   Register a job with a name, the amount this will contribute to the overall task,
@@ -30,14 +30,14 @@ public void java startJob(str name, int totalWork);
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public void java startJob(str name, int workShare, int totalWork);
+public java void startJob(str name, int workShare, int totalWork);
 
 @doc{
  Log the <bold>start</bold> of an event. 
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public void java event(str name);
+public java void event(str name);
 
 @doc{
   Log the start of an event with the amount of work that will be done when it's finished.
@@ -45,7 +45,7 @@ public void java event(str name);
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public void java event(str name, int inc);
+public java void event(str name, int inc);
 
 @doc{
   Log the start of an event with the amount of work that will be done when it's finished.
@@ -53,7 +53,7 @@ public void java event(str name, int inc);
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public void java event(int inc);
+public java void event(int inc);
 
 @doc{
   This should always be called once for every startJob, unless an exception is thrown.
@@ -61,7 +61,7 @@ public void java event(int inc);
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public int java endJob(bool succeeded);
+public java int endJob(bool succeeded);
 
 @doc{
   Set the estimated remaining work for the current (sub)job. 
@@ -69,4 +69,4 @@ public int java endJob(bool succeeded);
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
 @reflect 
-public void java todo(int work); 
+public java void todo(int work); 

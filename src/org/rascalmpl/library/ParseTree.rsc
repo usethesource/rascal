@@ -116,36 +116,36 @@ anno loc Tree@\loc;
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] \begin, loc input);
+public java &T<:Tree parse(type[&T<:Tree] \begin, loc input);
 
 @doc{Parse the contents of a resource pointed to by the input parameter and return a parse tree which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, loc input);
+public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, loc input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] begin, str input);
+public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 
 @doc{Parse a string and return a parse tree, which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, str input);
+public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, str input);
 
 @doc{Parse a string and return a parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parse(type[&T<:Tree] begin, str input, loc origin);
+public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 
 @doc{Parse a string and return a parse tree, which can contain error nodes.}
 @javaClass{org.rascalmpl.library.ParseTree}
 @reflect{uses information about syntax definitions at call site}
-public &T<:Tree java parseWithErrorTree(type[&T<:Tree] begin, str input, loc origin);
+public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, str input, loc origin);
 
 @doc{Yields the string of characters that form the leafs of the given parse tree.}
 @javaClass{org.rascalmpl.library.ParseTree}
-public str java unparse(Tree tree);
+public java str unparse(Tree tree);
 
 @doc{
 Parsetree Implosion
@@ -240,7 +240,7 @@ anno loc T@location;
 
 }
 @javaClass{org.rascalmpl.library.ParseTree}
-public &T<:node java implode(type[&T<:node] t, Tree tree);
+public java &T<:node implode(type[&T<:node] t, Tree tree);
 
 @doc{introduces a (error) message related to a certain sub-tree}
 public anno Message Tree@message;
@@ -277,6 +277,6 @@ public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) 
 	return treeNotFound();
 }
 
-public TreeSearchResult[&T<:Tree] default treeAt(type[&T<:Tree] t, loc l, Tree root) {
+public default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) {
 	return treeNotFound();
 }

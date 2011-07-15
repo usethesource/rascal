@@ -78,7 +78,7 @@ public Attributes fuse(Attributes a1, Attributes a2) {
   throw "unexpected attrs <a1> or <a2>";
 }
 
-test sdf2grammar(
+test bool test1() = sdf2grammar(
         `definition 
          module X
          exports
@@ -86,7 +86,7 @@ test sdf2grammar(
               "abc" -> ABC`).rules[sort("ABC")] ==
          {prod([lit("abc")],sort("ABC"),\no-attrs())};
 
-test rs := sdf2grammar(
+test bool test2() = rs := sdf2grammar(
 		`definition
 		 module PICOID
          exports
@@ -98,7 +98,7 @@ test rs := sdf2grammar(
      && restrict(sort("PICO-ID"),others(sort("PICO-ID")),{prod([\char-class([range(97,122),range(48,57)])],restricted(sort("PICO-ID")),\no-attrs())}) in rs[sort("PICO-ID")]              
      ;
      
-test rs := sdf2grammar(
+test bool test3() = rs := sdf2grammar(
 		`definition
 		 module StrChar
          exports
@@ -140,22 +140,22 @@ public set[Production] getProductions(SDF definition) {
   return res;
 }
 
-test getProductions((SDF) `definition module A exports syntax A -> B`) ==
+test bool test4() = getProductions((SDF) `definition module A exports syntax A -> B`) ==
      {prod([sort("A")],sort("B"),attrs([\lex()]))};
      
-test getProductions((SDF) `definition module A exports lexical syntax A -> B`) ==
+test bool test5() = getProductions((SDF) `definition module A exports lexical syntax A -> B`) ==
      {prod([sort("A")],sort("B"),attrs([\lex()]))};
      
-test getProductions((SDF) `definition module A exports lexical syntax A -> B B -> C`) ==
+test bool test6() = getProductions((SDF) `definition module A exports lexical syntax A -> B B -> C`) ==
      {prod([sort("B")],sort("C"),attrs([\lex()])),prod([sort("A")],sort("B"),attrs([\lex()]))};
      
-test getProductions((SDF) `definition module A exports context-free syntax A -> B`) ==
+test bool test7() = getProductions((SDF) `definition module A exports context-free syntax A -> B`) ==
      {prod([sort("A")],sort("B"),\no-attrs())};
      
-test getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
+test bool test8() = getProductions((SDF) `definition module A exports restrictions ID -/- [a-z]`) ==
      {restrict(sort("ID"),others(sort("ID")),{prod([\char-class([range(97,122)])],restricted(sort("ID")),\no-attrs())})};
     
-test getProductions((SDF) `definition module A exports priorities A -> B > C -> D`) ==
+test bool test9() = getProductions((SDF) `definition module A exports priorities A -> B > C -> D`) ==
      {first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())])};
 
 
@@ -209,21 +209,21 @@ public Production getProduction(Prod P, bool isLex) {
   }
 }
 
-test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, false) == 
+test bool test10() = getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, false) == 
      prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),\no-attrs());
      
-test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
+test bool test11() = getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE`, true) == 
      prod([sort("PICO-ID"),lit(":"),sort("TYPE")],sort("ID-TYPE"),attrs([\lex()]));
 
-test getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, false) ==
+test bool test12() = getProduction((Prod) `PICO-ID ":" TYPE -> ID-TYPE {cons("decl"), left}`, false) ==
      prod([sort("PICO-ID"), lit(":"), sort("TYPE")],
                sort("ID-TYPE"),
                attrs([term("cons"("decl")),\assoc(left())]));
                
-test getProduction((Prod) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
+test bool test13() = getProduction((Prod) `[\ \t\n\r]	-> LAYOUT {cons("whitespace")}`, true) == 
 	 prod([\char-class([range(32,32),range(9,9),range(10,10),range(13,13)])],sort("LAYOUT"),attrs([term("cons"("whitespace")),\lex()]));
 
-test getProduction((Prod) `{~[\n]* [\n]}* -> Rest`, true) ==
+test bool test14() = getProduction((Prod) `{~[\n]* [\n]}* -> Rest`, true) ==
      prod([\iter-star-seps(\iter-star(\char-class([range(0,9),range(11,65535)])),[\char-class([range(10,10)])])],sort("Rest"),attrs([\lex()]));
 
 
@@ -251,9 +251,9 @@ public set[Production] getRestriction(Restriction restriction, bool isLex) {
   }
 }
 
-test getRestriction((Restriction) `-/- [a-z]`, true) == {};
+test bool test18() = getRestriction((Restriction) `-/- [a-z]`, true) == {};
 
-test getRestriction((Restriction) `ID -/- [a-z]`, true) == 
+test bool test19() = getRestriction((Restriction) `ID -/- [a-z]`, true) == 
      {restrict(sort("ID"),others(sort("ID")),{prod([\char-class([range(97,122)])],restricted(sort("ID")),\no-attrs())})};
    
 
@@ -279,13 +279,13 @@ public set[Production] getLookaheads(Symbol sym, Lookaheads ls) {
    }
 }
  
-test getLookaheads(sort("X"), (Lookaheads) `[a-z]`) == 
+test bool test21() = getLookaheads(sort("X"), (Lookaheads) `[a-z]`) == 
      {prod([\char-class([range(97,122)])],restricted(sort("X")),\no-attrs())};
      
-test getLookaheads(sort("X"), (Lookaheads) `[a-z] . [0-9]`) ==
+test bool test22() = getLookaheads(sort("X"), (Lookaheads) `[a-z] . [0-9]`) ==
      {prod([\char-class([range(97,122)]),\char-class([range(48,57)])],restricted(sort("X")),\no-attrs())};
        
-test getLookaheads(sort("X"), (Lookaheads) `([a-z] . [0-9]) | [\"]`) ==
+test bool test23() = getLookaheads(sort("X"), (Lookaheads) `([a-z] . [0-9]) | [\"]`) ==
      {prod([\char-class([range(97,122)]),\char-class([range(48,57)])], restricted(sort("X")),\no-attrs()),
       prod([\char-class([range(34,34)])],restricted(sort("X")),\no-attrs())};
      
@@ -316,23 +316,23 @@ public Production getPriority(Group group, bool isLex) {
     	throw "missing case <group>";}
 }
      	
-test getPriority((Group) `A -> B`, false) == 
+test bool test24() = getPriority((Group) `A -> B`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Group) `A -> B .`, false) == 
+test bool test25() = getPriority((Group) `A -> B .`, false) == 
      prod([sort("A")],sort("B"),\no-attrs());
      
 //@ignore
-//test getPriority((Group) `A -> B <1>`, false) == 
+//test bool test26() = getPriority((Group) `A -> B <1>`, false) == 
 //     prod([sort("A")],sort("B"),\no-attrs());
       
-test getPriority((Group) `{A -> B C -> D}`, false) == 
+test bool test27() = getPriority((Group) `{A -> B C -> D}`, false) == 
 	 choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});  
 	  
-test getPriority((Group) `{left: A -> B}`, false) == 
+test bool test28() = getPriority((Group) `{left: A -> B}`, false) == 
      \assoc(sort("B"),\left(),{prod([sort("A")],sort("B"),\no-attrs())});
      
-test getPriority((Group) `{left: A -> B B -> C}`, false) ==
+test bool test29() = getPriority((Group) `{left: A -> B B -> C}`, false) ==
      \assoc(sort("B"),\left(),{prod([sort("B")],sort("C"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())});
 
 public Production getPriority(Priority priority, bool isLex) {
@@ -348,23 +348,23 @@ public Production getPriority(Priority priority, bool isLex) {
    }
 }
 
-test getPriority((Priority) `A -> B`, false) == 
+test bool test30() = getPriority((Priority) `A -> B`, false) == 
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs())]);
      
-test getPriority((Priority) `A -> B .`, false) == 
+test bool test31() = getPriority((Priority) `A -> B .`, false) == 
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs())]);
 
 //@ignore   
-//test getPriority((Priority) `A -> B <1>`, false) == 
+//test bool test32) = getPriority((Priority) `A -> B <1>`, false) == 
 //     prod([sort("A")],sort("B"),\no-attrs());
      
-test getPriority((Priority) `{A -> B C -> D}`, false) == 
+test bool test33() = getPriority((Priority) `{A -> B C -> D}`, false) == 
      first(sort("B"),[choice(sort("B"),{prod([sort("C")],sort("D"),\no-attrs()),prod([sort("A")],sort("B"),\no-attrs())})]);
      
-test getPriority((Priority) `A -> B > C -> D`, false) ==
+test bool test34() = getPriority((Priority) `A -> B > C -> D`, false) ==
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs())]);
      
-test getPriority((Priority) `A -> B > C -> D > E -> F`, false) ==
+test bool test35() = getPriority((Priority) `A -> B > C -> D > E -> F`, false) ==
      first(sort("B"),[prod([sort("A")],sort("B"),\no-attrs()),prod([sort("C")],sort("D"),\no-attrs()),prod([sort("E")],sort("F"),\no-attrs())]);
 
 // ----- definedSymbol -----
@@ -395,13 +395,13 @@ public set[Symbol] getStartSymbols(SDF definition) {
   return result;
 }
 
-test getStartSymbols((SDF) `definition module M exports context-free start-symbols A B C`) == 
+test bool test36() = getStartSymbols((SDF) `definition module M exports context-free start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
      
-test getStartSymbols((SDF) `definition module M exports lexical start-symbols A B C`) == 
+test bool test37() = getStartSymbols((SDF) `definition module M exports lexical start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
      
-test getStartSymbols((SDF) `definition module M exports start-symbols A B C`) == 
+test bool test38() = getStartSymbols((SDF) `definition module M exports start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
 
 // ----- getSymsols, getSymbol -----
@@ -413,7 +413,7 @@ public list[Symbol] getSymbols(Syms syms, bool isLex){
   return [];
 }
 
-test getSymbols((Syms) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
+test bool test39() = getSymbols((Syms) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
      
 
 public Symbol getSymbol(Sym sym, bool isLex) {
@@ -516,32 +516,32 @@ public Symbol getSymbol(Sym sym, bool isLex) {
   }
 }
 
-test getSymbol((Sym) `"abc"`, false) 		== lit("abc");
-test getSymbol((Sym) `"a\\c"`, false) 		== lit("a\\c");
-test getSymbol((Sym) `"a>c"`, false) 		== lit("a\>c");
-test getSymbol((Sym) `ABC`, false) 			== sort("ABC");
-test getSymbol((Sym) `'abc'`, false) 		== cilit("abc");
-test getSymbol((Sym) `abc : ABC`, false) 	== label("abc",sort("ABC"));
-test getSymbol((Sym) `"abc" : ABC`, false) 	== label("abc",sort("ABC"));
-test getSymbol((Sym) `A[[B]]`, false) 		== \parameterized-sort("A", [sort("B")]);
-test getSymbol((Sym) `A?`, false) 			== opt(sort("A"));
-test getSymbol((Sym) `[a]`, false) 			== \char-class([range(97,97)]);
-test getSymbol((Sym) `A*`, false) 			== \iter-star-seps(sort("A"),[\layouts("LAYOUTLIST")]);
-test getSymbol((Sym) `A+`, false) 			== \iter-seps(sort("A"),[\layouts("LAYOUTLIST")]);
-test getSymbol((Sym) `A*?`, false) 			== opt(\iter-star-seps(sort("A"),[\layouts("LAYOUTLIST")]));
-test getSymbol((Sym) `A+?`, false) 			== opt(\iter-seps(sort("A"),[\layouts("LAYOUTLIST")]));
-test getSymbol((Sym) `{A "x"}*`, false) 		== \iter-star-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]);
-test getSymbol((Sym) `{A "x"}+`, false) 		== \iter-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]);
-test getSymbol((Sym) `{A "x"}*?`, false) 	== opt(\iter-star-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]));
-test getSymbol((Sym) `{A "x"}+?`, false) 	== opt(\iter-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]));
-test getSymbol((Sym) `A*`, true) 			== \iter-star(sort("A"));
-test getSymbol((Sym) `A+`, true) 			== \iter(sort("A"));
-test getSymbol((Sym) `A*?`, true) 			== opt(\iter-star(sort("A")));
-test getSymbol((Sym) `A+?`, true) 			== opt(\iter(sort("A")));
-test getSymbol((Sym) `{A "x"}*`, true) 		== \iter-star-seps(sort("A"),[lit("x")]);
-test getSymbol((Sym) `{A "x"}+`, true) 		== \iter-seps(sort("A"),[lit("x")]);
-test getSymbol((Sym) `{A "x"}*?`, true) 		== opt(\iter-star-seps(sort("A"),[lit("x")]));
-test getSymbol((Sym) `{A "x"}+?`, true) 		== opt(\iter-seps(sort("A"),[lit("x")]));
+test bool test40() = getSymbol((Sym) `"abc"`, false) 		== lit("abc");
+test bool test41() = getSymbol((Sym) `"a\\c"`, false) 		== lit("a\\c");
+test bool test42() = getSymbol((Sym) `"a>c"`, false) 		== lit("a\>c");
+test bool test43() = getSymbol((Sym) `ABC`, false) 			== sort("ABC");
+test bool test44() = getSymbol((Sym) `'abc'`, false) 		== cilit("abc");
+test bool test45() = getSymbol((Sym) `abc : ABC`, false) 	== label("abc",sort("ABC"));
+test bool test46() = getSymbol((Sym) `"abc" : ABC`, false) 	== label("abc",sort("ABC"));
+test bool test47() = getSymbol((Sym) `A[[B]]`, false) 		== \parameterized-sort("A", [sort("B")]);
+test bool test48() = getSymbol((Sym) `A?`, false) 			== opt(sort("A"));
+test bool test49() = getSymbol((Sym) `[a]`, false) 			== \char-class([range(97,97)]);
+test bool test50() = getSymbol((Sym) `A*`, false) 			== \iter-star-seps(sort("A"),[\layouts("LAYOUTLIST")]);
+test bool test51() = getSymbol((Sym) `A+`, false) 			== \iter-seps(sort("A"),[\layouts("LAYOUTLIST")]);
+test bool test52() = getSymbol((Sym) `A*?`, false) 			== opt(\iter-star-seps(sort("A"),[\layouts("LAYOUTLIST")]));
+test bool test53() = getSymbol((Sym) `A+?`, false) 			== opt(\iter-seps(sort("A"),[\layouts("LAYOUTLIST")]));
+test bool test54() = getSymbol((Sym) `{A "x"}*`, false) 		== \iter-star-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]);
+test bool test55() = getSymbol((Sym) `{A "x"}+`, false) 		== \iter-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]);
+test bool test56() = getSymbol((Sym) `{A "x"}*?`, false) 	== opt(\iter-star-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]));
+test bool test57() = getSymbol((Sym) `{A "x"}+?`, false) 	== opt(\iter-seps(sort("A"),[\layouts("LAYOUTLIST"),lit("x"),\layouts("LAYOUTLIST")]));
+test bool test58() = getSymbol((Sym) `A*`, true) 			== \iter-star(sort("A"));
+test bool test59() = getSymbol((Sym) `A+`, true) 			== \iter(sort("A"));
+test bool test60() = getSymbol((Sym) `A*?`, true) 			== opt(\iter-star(sort("A")));
+test bool test61() = getSymbol((Sym) `A+?`, true) 			== opt(\iter(sort("A")));
+test bool test62() = getSymbol((Sym) `{A "x"}*`, true) 		== \iter-star-seps(sort("A"),[lit("x")]);
+test bool test63() = getSymbol((Sym) `{A "x"}+`, true) 		== \iter-seps(sort("A"),[lit("x")]);
+test bool test64() = getSymbol((Sym) `{A "x"}*?`, true) 		== opt(\iter-star-seps(sort("A"),[lit("x")]));
+test bool test65() = getSymbol((Sym) `{A "x"}+?`, true) 		== opt(\iter-seps(sort("A"),[lit("x")]));
 
 //test getSymbol((Sym) `<LAYOUT? -CF>`, true) ==
 //test getSymbol((Sym) `<RegExp -LEX>`, true) ==
@@ -575,16 +575,16 @@ private str unescape(SingleQuotedStrCon s) {
    throw "unexpected string format: <s>";
 }
 
-test unescape((StrCon) `"abc"`)  	== "abc";
-test unescape((StrCon) `"a\nc"`) 	== "a\nc";
-test unescape((StrCon) `"a\"c"`) 	== "a\"c";
-test unescape((StrCon) `"a\\c"`) 	== "a\\c";
-test unescape((StrCon) `"a\\\"c"`)	== "a\\\"c";
+test bool testUn1() = unescape((StrCon) `"abc"`)  	== "abc";
+test bool testUn2() = unescape((StrCon) `"a\nc"`) 	== "a\nc";
+test bool testUn3() = unescape((StrCon) `"a\"c"`) 	== "a\"c";
+test bool testUn4() = unescape((StrCon) `"a\\c"`) 	== "a\\c";
+test bool testUn5() = unescape((StrCon) `"a\\\"c"`)	== "a\\\"c";
 
-test unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
-test unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
-test unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
-test unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
+test bool testUn6() = unescape((SingleQuotedStrCon) `'abc'`)  == "abc";
+test bool testUn7() = unescape((SingleQuotedStrCon) `'a\nc'`) == "a\nc";
+test bool testUn8() = unescape((SingleQuotedStrCon) `'a\'c'`) == "a\'c";
+test bool testUn9() = unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
 
 // unescapeStr: do the actual unescaping on a string
 // Also takes care of escaping of < and > characters as required for Rascal strings (TO DO/CHECK)
@@ -608,15 +608,15 @@ public str unescapeStr(str chars){
      };      
 }
 
-test unescapeStr("abc") 	== "abc";
-test unescapeStr("a\nbc") 	== "a\nbc";
-test unescapeStr("a\\\nbc") == "a\\\nbc";
-test unescapeStr("a\"bc") 	== "a\"bc";
-test unescapeStr("a\\\"bc") == "a\"bc";
-test unescapeStr("a\\bc") 	== "a\bc";
-test unescapeStr("a\\\\tc") == "a\\tc";
-test unescapeStr("a\>b")    == "a\>b";
-test unescapeStr("a\<b")    == "a\<b";
+test bool un20() =Str("abc") 	== "abc";
+test bool un21() =Str("a\nbc") 	== "a\nbc";
+test bool un22() =Str("a\\\nbc") == "a\\\nbc";
+test bool un23() =Str("a\"bc") 	== "a\"bc";
+test bool un24() =Str("a\\\"bc") == "a\"bc";
+test bool un25() =Str("a\\bc") 	== "a\bc";
+test bool un26() =Str("a\\\\tc") == "a\\tc";
+test bool un27() =Str("a\>b")    == "a\>b";
+test bool un28() =Str("a\<b")    == "a\<b";
 
 public Symbol getCharClass(Class cc) {
    switch(cc) {
@@ -645,20 +645,20 @@ public Symbol getCharClass(Class cc) {
    }
 }
 
-test getCharClass((Class) `[]`)         == \char-class([]);
-test getCharClass((Class) `[a]`)        == \char-class([range(97,97)]);
-test getCharClass((Class) `[a-z]`)      == \char-class([range(97,122)]);
-test getCharClass((Class) `[a-z0-9]`)   == \char-class([range(97,122), range(48,57)]);
-test getCharClass((Class) `([a])`)      == \char-class([range(97,97)]);
-test getCharClass((Class) `~[a]`)       == complement(\char-class([range(97,97)]));
-test getCharClass((Class) `[a] /\ [b]`) == intersection(\char-class([range(97,97)]), \char-class([range(98,98)]));
-test getCharClass((Class) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
-test getCharClass((Class) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
-test getCharClass((Class) `[\n]`)       == \char-class([range(10,10)]);
-test getCharClass((Class) `[\t\n]`)     == \char-class([range(9,9), range(10,10)]);
-test getCharClass((Class) `~[\0-\31\n\t\"\\]`) ==
+test bool testCC1() = ((Class) `[]`)         == \char-class([]);
+test bool testCC2() = ((Class) `[a]`)        == \char-class([range(97,97)]);
+test bool testCC3() = ((Class) `[a-z]`)      == \char-class([range(97,122)]);
+test bool testCC4() = ((Class) `[a-z0-9]`)   == \char-class([range(97,122), range(48,57)]);
+test bool testCC5() = ((Class) `([a])`)      == \char-class([range(97,97)]);
+test bool testCC6() = ((Class) `~[a]`)       == complement(\char-class([range(97,97)]));
+test bool testCC7() = ((Class) `[a] /\ [b]`) == intersection(\char-class([range(97,97)]), \char-class([range(98,98)]));
+test bool testCC8() = ((Class) `[a] \/ [b]`) == union(\char-class([range(97,97)]), \char-class([range(98,98)]));
+test bool testCC9() = ((Class) `[a] / [b]`)  == difference(\char-class([range(97,97)]), \char-class([range(98,98)]));
+test bool testCC10() = ((Class) `[\n]`)       == \char-class([range(10,10)]);
+test bool testCC11() = ((Class) `[\t\n]`)     == \char-class([range(9,9), range(10,10)]);
+test bool testCC12() = ((Class) `~[\0-\31\n\t\"\\]`) ==
      complement(\char-class([range(0,25),range(10,10),range(9,9),range(34,34),range(92,92)]));
-test getCharClass((Class) `[\"]`)       == \char-class([range(34,34)]);
+test bool testCC13() = ((Class) `[\"]`)       == \char-class([range(34,34)]);
 
 // ----- getCharRange -----
       
@@ -670,10 +670,10 @@ public CharRange getCharRange(Range r) {
   }
 }
 
-test getCharRange((Range) `a`)   	== range(97,97);
-test getCharRange((Range) `a-z`) 	== range(97,122);
-test getCharRange((Range) `\n`)  	==  range(10,10);
-test getCharRange((Range) `\1-\31`)	==  range(1,25);
+test bool testCR1() = getCharRange((Range) `a`)   	== range(97,97);
+test bool testCR2() = getCharRange((Range) `a-z`) 	== range(97,122);
+test bool testCR3() = getCharRange((Range) `\n`)  	==  range(10,10);
+test bool testCR4() = getCharRange((Range) `\1-\31`)	==  range(1,25);
 
 public int getCharacter(Character c) {
   switch (c) {
@@ -691,13 +691,13 @@ public int getCharacter(Character c) {
   }
 }
  
-test getCharacter((Character) `a`)    == charAt("a", 0);
-test getCharacter((Character) `\\`)   == charAt("\\", 0);
-test getCharacter((Character) `\'`)   == charAt("\'", 0);
-test getCharacter((Character) `\1`)   == toInt("01");
-test getCharacter((Character) `\12`)  == toInt("012");
-test getCharacter((Character) `\123`) == toInt("0123");
-test getCharacter((Character) `\n`)   == 10; 
+test bool testCCX1() = ((Character) `a`)    == charAt("a", 0);
+test bool testCCX2() = ((Character) `\\`)   == charAt("\\", 0);
+test bool testCCX3() = ((Character) `\'`)   == charAt("\'", 0);
+test bool testCCX4() = ((Character) `\1`)   == toInt("01");
+test bool testCCX5() = ((Character) `\12`)  == toInt("012");
+test bool testCCX6() = ((Character) `\123`) == toInt("0123");
+test bool testCCX7() = ((Character) `\n`)   == 10; 
 
 // ----- getAttributes, getAttribute, getAssociativity -----
 
@@ -708,7 +708,7 @@ public Attributes getAttributes(Attrs as) {
   return \no-attrs();
 }
    
-test getAttributes((Attrs) `{left, cons("decl")}`) == attrs([\assoc(\left()),term("cons"("decl"))]);
+test bool testAs() = getAttributes((Attrs) `{left, cons("decl")}`) == attrs([\assoc(\left()),term("cons"("decl"))]);
 
 public Attr getAttribute(Attribute m) {
   switch (m) {
@@ -743,8 +743,8 @@ public Attr getAttribute(Attribute m) {
   }
 }
 
-test getAttribute((Attribute) `left`)        == \assoc(\left());
-test getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
+test bool testAs2() = getAttribute((Attribute) `left`)        == \assoc(\left());
+test bool testAs3() = getAttribute((Attribute) `cons("abc")`) == term("cons"("abc"));
  
 private Associativity getAssociativity(Assoc as){
   switch (as) {
@@ -761,7 +761,7 @@ private Associativity getAssociativity(Assoc as){
   }
 }
  
-test getAssociativity((Assoc) `left`) == \left();
+test bool testAssoc() = getAssociativity((Assoc) `left`) == \left();
 
 private list[Symbol] separgs2symbols({Sym ","}+ args, bool isLex) {
   return [ getSymbol(s, isLex) | Sym s <- args ];
