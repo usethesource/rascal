@@ -49,7 +49,7 @@ public GrammarDefinition sdf2grammar(SDF def) {
 }
 
 public GrammarModule getModule(Module m) {
-  if (/<ModuleId id> := m) {
+  if (/`<ModuleId id>` := m) {
     name = visit("<id>") { case /\// => "::" };
     prods = getProductions(m);
     imps = getImports(m); 
@@ -57,7 +57,7 @@ public GrammarModule getModule(Module m) {
     return \module(name, {}, imps, dup(grammar({}, prods)));
   }
   
-  throw "can not found module name in <m>";
+  throw "can not find module name in <m>";
 }
 
 public set[str] getImports(Module m) {
@@ -94,11 +94,7 @@ public Grammar dup(Grammar g) {
 }
 
 test bool test1() = sdf2grammar(
-        `definition 
-         module X
-         exports
-           context-free syntax
-              "abc" -> ABC`).rules[sort("ABC")] ==
+        `definition  module X exports context-free syntax    "abc" -> ABC`).rules[sort("ABC")] ==
          {prod(sort("ABC"),[lit("abc")],{})};
 
 // \char-class([range(97,122),range(48,57)])
