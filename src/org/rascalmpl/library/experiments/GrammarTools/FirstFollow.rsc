@@ -81,7 +81,7 @@ public map[Symbol, set[Symbol]] follow(Grammar G, map[Symbol, set[Symbol]] FIRST
 	    if(isNonTermSymbol(sym))
 	       FOLLOW[sym] = {};
 	       
-	FOLLOW[G.start] = {t("$")};   /* start symbol has eof marker in follow set */     
+	FOLLOW[G.startSym] = {t("$")};   /* start symbol has eof marker in follow set */     
 	
 	solve (FOLLOW) {
 	    for(/<Symbol A, list[Symbol] symbols> <- G){  /* A ::= alpha B beta; */
