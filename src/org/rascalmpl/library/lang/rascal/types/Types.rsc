@@ -613,6 +613,11 @@ public set[RType] collectTypeVars(RType t) {
     return { rt | / RType rt : RTypeVar(_,_) <- t };
 }
 
+public map[RName,RType] initializeTypeVarMap(RType t) {
+    set[RType] rt = collectTypeVars(t);
+    return ( getTypeVarName(tv) : makeVoidType() | tv <- rt );
+}
+
 public bool typeContainsTypeVars(RType t) {
     return size(collectTypeVars(t)) > 0;
 }
@@ -1055,7 +1060,7 @@ public RType makeConstructorTypeFromTuple(RName consName, RType adtType, RType c
 public list[RType] getConstructorArgumentTypes(RType ct) {
     if (RAliasType(_,_,at) := ct) return getConstructorArgumentTypes(at);
     if (RTypeVar(_,tvb) := ct) return getConstructorArgumentTypes(tvb);
-    if (RConstructorType(_,_,cts) := ct) return cts; 
+    if (RConstructorType(_,_,cts) := ct) return [ getElementType(cti) | cti <- cts ]; 
     throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
 }
 

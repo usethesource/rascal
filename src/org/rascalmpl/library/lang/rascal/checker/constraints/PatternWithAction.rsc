@@ -18,38 +18,43 @@ import lang::rascal::checker::constraints::Constraints;
 import lang::rascal::syntax::RascalRascal;
 
 //
-// Build the constraints 
-// 
+// TODO: For consistency, factor the cases out into functions.
+//
 public ConstraintBase gatherPatternWithActionConstraints(STBuilder st, ConstraintBase cb, PatternWithAction pat) {
     switch(pat) {
         //
-        // Given that e has type t1, constrain it to be something that can be bound to pattern p.
-        // The type of the PWA is then a replacement type, from pat to t1.
+        //    p : tp        e : te      te <: tp
+        // ------------------------------------------
+        //               p => e : tp
         //
-        case `<Pattern p> => <Expression e>` : {
+        case (PatternWithAction) `<Pattern p> => <Expression e>` : {
             te = typeForLoc(cb, e@\loc);
-            cb.constraints = cb.constraints + Bindable(p, te, U(), pat@\loc);
-            cb = addConstraintForLoc(cb, pat@\loc, ReplacementType(p, te));
+            tp = typeForLoc(cb, p@\loc);
+            cb.constraints = cb.constraints + SubtypeOf(te, tp, U(), pat@\loc);
+            cb = addConstraintForLoc(cb, pat@\loc, tp);
         }
         
         //
-        // Given that e has type t1, constrain it to be something that can be bound to pattern p.
-        // The type of the PWA is then a replacement type, from pat to t1. All when expressions
-        // are of type bool.
+        //    p : tp        e : te      esi : bool | esi <- es         te <: tp
+        // --------------------------------------------------------------------------
+        //               p => e when es : tp
         //
-        case `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
-            te = typeForLoc(cb, er@\loc);
-            cb.constraints = cb.constraints + Bindable(p, te, U(), pat@\loc);
-            cb = addConstraintForLoc(cb, pat@\loc, ReplacementType(p, te));
-            for (e <- es) cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, e@\loc), makeBoolType(), e@\loc); 
+        case (PatternWithAction) `<Pattern p> => <Expression er> when <{Expression ","}+ es>` : {
+            te = typeForLoc(cb, e@\loc);
+            tp = typeForLoc(cb, p@\loc);
+            cb.constraints += SubtypeOf(te, tp, U(), pat@\loc);
+            for (esi <- es) cb.constraints += ConstrainType(typeForLoc(cb, esi@\loc), makeBoolType(), pat@\loc); 
+            cb = addConstraintForLoc(cb, pat@\loc, tp);            
         }
         
         //
-        // No constraints are issued on p or s for types. The type of the PWA is a replacement
-        // type with just pat, no t1. Inserts inside the statement block are handled elsewhere. 
+        //    p : tp        
+        // ----------------
+        //   p : s : void
         //
-        case `<Pattern p> : <Statement s>` :
-            cb = addConstraintForLoc(cb, pat@\loc, NoReplacementType(p));
+        case (PatternWithAction) `<Pattern p> : <Statement s>` : {
+            cb = addConstraintForLoc(cb, pat@\loc, makeVoidType());
+        }    
         
         default : throw "Unhandled case in checkPatternWithAction, <pat>";
     }

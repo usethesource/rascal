@@ -25,6 +25,10 @@ alias UnaryTypingFun = RType (RType, loc);
 
 alias BinaryTypingFun = RType (RType, RType, loc);
 
+private map[RBuiltInOp,str] opStr = ( Negative() : "-", Plus() : "+", Minus() : "-", NotIn() : "notin", In() : "in",
+                                      Lt() : "\<", LtEq() : "\<=", Gt() : "\>", GtEq() : "\>=", Eq() : "==", NEq() : "!=",
+                                      Intersect() : "&", Product() : "*", Join() : "join", Div() : "/", Mod() : "%" ); 
+
 public str prettyPrintBuiltInOp(RBuiltInOp bop) {
     if (bop in opStr) return opStr[bop];
     throw "Operator <bop> is not in the operator/string map";

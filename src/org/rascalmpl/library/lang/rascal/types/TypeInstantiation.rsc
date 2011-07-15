@@ -17,6 +17,7 @@ import Node;
 import lang::rascal::types::Types;
 import lang::rascal::types::TypeExceptions;
 import lang::rascal::types::SubTypes;
+import lang::rascal::types::Lubs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //

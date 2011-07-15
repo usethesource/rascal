@@ -156,7 +156,7 @@ private bool subtypeOfTupleType(RType t1, RType t2) {
         
         if (size(te1) == size(te2)) {
             if (size(te1) > 0) {
-                for (n <- [0..size(te1)]) {
+                for (n <- [0..size(te1)-1]) {
                     if (! subtypeOf(te1[n],te2[n])) return false;
                 }
             }

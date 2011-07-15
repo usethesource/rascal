@@ -49,7 +49,8 @@ private tuple[rel[RType, RType], bool] unifyFunctionTypes(RType left, RType righ
 private tuple[rel[RType, RType], bool] unifyTupleTypes(RType left, RType right, rel[RType, RType] bindings) {
     list[RType] leftFields = getTupleFields(left);
     list[RType] rightFields = getTupleFields(right);
-    if (size(leftFields) == 0) return bindings;
+    if (size(leftFields) != size(rightFields)) return < bindings, false >;
+    if (size(leftFields) == 0) return < bindings, true >;
     bool res = true;
     for (n <- [0..size(leftFields)-1], res) 
         < bindings, res > = unifyTypes(leftFields[n],rightFields[n],bindings);
@@ -71,11 +72,11 @@ private tuple[rel[RType, RType], bool] unifyConstructorTypes(RType left, RType r
 }
 
 private tuple[rel[RType, RType], bool] unifyListTypes(RType left, RType right, rel[RType, RType] bindings) {
-    return unifyTypes(getListElementType(left),getListElementType(right), bindings, l);
+    return unifyTypes(getListElementType(left),getListElementType(right), bindings);
 }
 
 private tuple[rel[RType, RType], bool] unifyADTTypes(RType left, RType right, rel[RType, RType] bindings) {
-    return unifyTypes(makeTupleType(getADTTypeParameters(left)), makeTupleType(getADTTypeParameters(right)), bindings, l);
+    return unifyTypes(makeTupleType(getADTTypeParameters(left)), makeTupleType(getADTTypeParameters(right)), bindings);
 }
 
 //

@@ -16,6 +16,7 @@ import Graph;
 import Node;
 import Set;
 import List;
+import IO;
 
 import constraints::Constraint;
 import lang::rascal::types::Types;
@@ -142,11 +143,6 @@ data RBuiltInOp =
     | Div()
     | Mod()
     ;
-
-private map[RBuiltInOp,str] opStr = ( Negative() : "-", Plus() : "+", Minus() : "-", NotIn() : "notin", In() : "in",
-                                      Lt() : "\<", LtEq() : "\<=", Gt() : "\>", GtEq() : "\>=", Eq() : "==", NEq() : "!=",
-                                      Intersect() : "&", Product() : "*", Join() : "join", Div() : "/", Mod() : "%" ); 
-
 
 data RAssignmentOp = 
       RADefault() 
@@ -303,8 +299,8 @@ data Constraint =
     | LubOfList(list[RType] typesToLub, RType lubResult, loc at)
     | LubOfSet(list[RType] typesToLub, RType lubResult, loc at)
     | BindableToCase(RType subject, RType caseType, SolveResult sr, loc at)
-    | Assignable(RType rvalue, RType lvalue, RType result, SolveResult sr, loc at)
-    | Assignable(RType rvalue, RType lvalue, SolveResult sr, loc at)
+    | Assignable(RType lvalue, RType rvalue, RType result, loc at)
+    | ComboAssignable(RType lvalue, RType rvalue, RType result, loc at)
     | Returnable(RType given, RType expected, SolveResult sr, loc at)
     | IsRuntimeException(RType expType, SolveResult sr, loc at)
     | BindsRuntimeException(Tree pat, SolveResult sr, loc at)
@@ -323,14 +319,16 @@ data Constraint =
 	| AnnotationOf(Tree t, RType inType, RType annType, loc at)
 	| Composable(RType left, RType right, RType result, loc at)
     | BuiltInAppliable(RBuiltInOp op, RType domain, RType range, loc at)
-    | Bindable(Tree pattern, RType subject, SolveResult sr, loc at)
+    | Bindable(Pattern pat, RType subjectType, RType result, loc at)
     | Enumerable(Tree pattern, RType subject, SolveResult sr, loc at)
 	| StepItType(Tree reducer, RType inType, RType outType, RType result, loc at)
     | DefinedBy(RType lvalue, set[ItemId] definingIds, loc at)
     | ConstrainType(RType constrainedType, RType typeConstraint, loc at)
+    | PatternReachable(RType patType, RType descType, loc at)
+    | BindIfInferred(RType nameType, RType patType, loc at)
     ;
 
-set[RType] getInferredTypes(RType rt) {
+public set[RType] getInferredTypes(RType rt) {
     set[RType] res = { };
     visit(rt) {
         case t:InferenceVar(_) : res = res + t;
@@ -349,8 +347,8 @@ public set[RType] dependsOn(LubOf(ttl,_,_)) = { getInferredTypes(t) | t <- ttl }
 public set[RType] dependsOn(LubOfList(ttl,_,_)) = { getInferredTypes(t) | t <- ttl };
 public set[RType] dependsOn(LubOfSet(ttl,_,_)) = { getInferredTypes(t) | t <- ttl };
 public set[RType] dependsOn(BindableToCase(ts,tc,_,_)) = getInferredTypes(ts) + getInferredTypes(tc);
-public set[RType] dependsOn(Assignable(r,l,_,_,_)) = getInferredTypes(r) + getInferredTypes(l);
-public set[RType] dependsOn(Assignable(r,l,_,_)) = getInferredTypes(r) + getInferredTypes(l);
+public set[RType] dependsOn(Assignable(l,r,_,_)) = getInferredTypes(l) + getInferredTypes(r);
+public set[RType] dependsOn(ComboAssignable(l,r,_,_)) = getInferredTypes(l) + getInferredTypes(r);
 public set[RType] dependsOn(Returnable(g,e,_,_)) = getInferredTypes(g) + getInferredTypes(e);
 public set[RType] dependsOn(IsRuntimeException(e,_,_)) = getInferredTypes(e);
 public set[RType] dependsOn(BindsRuntimeException(_,_,_)) = { };
@@ -369,7 +367,7 @@ public set[RType] dependsOn(AnnotationAssignable(rv,lv,at,_,_)) = getInferredTyp
 public set[RType] dependsOn(AnnotationOf(_,t,_,_)) = getInferredTypes(t);
 public set[RType] dependsOn(Composable(lt,rt,_,_)) = getInferredTypes(lt) + getInferredTypes(rt);
 public set[RType] dependsOn(BuiltInAppliable(_,d,_,_)) = getInferredTypes(d);
-public set[RType] dependsOn(Bindable(_,t,_,_)) = getInferredTypes(t);
+public set[RType] dependsOn(Bindable(_,st,_,_)) = getInferredTypes(st);
 public set[RType] dependsOn(Enumerable(_,t,_,_)) = getInferredTypes(t);
 public set[RType] dependsOn(StepItType(_,inT,outT,_,_)) = getInferredTypes(inT) + getInferredTypes(outT);
 public set[RType] dependsOn(DefinedBy(_,_,_)) = { };
@@ -384,8 +382,8 @@ public set[RType] provides(LubOf(_,lr,_)) = getInferredTypes(lr);
 public set[RType] provides(LubOfList(_,lr,_)) = getInferredTypes(lr);
 public set[RType] provides(LubOfSet(_,lr,_)) = getInferredTypes(lr);
 public set[RType] provides(BindableToCase(_,_,_,_)) = { };
-public set[RType] provides(Assignable(_,_,rt,_,_)) = getInferredTypes(rt);
-public set[RType] provides(Assignable(_,_,_,_)) = { };
+public set[RType] provides(Assignable(lt,_,rt,_)) = getInferredTypes(lt) + getInferredTypes(rt);
+public set[RType] provides(ComboAssignable(_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(Returnable(_,_,_,_)) = { };
 public set[RType] provides(IsRuntimeException(_,_,_)) = { };
 public set[RType] provides(BindsRuntimeException(_,_,_)) = { };
@@ -404,7 +402,7 @@ public set[RType] provides(AnnotationAssignable(_,_,_,rt,_)) = getInferredTypes(
 public set[RType] provides(AnnotationOf(_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(Composable(_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(BuiltInAppliable(_,_,r,_)) = getInferredTypes(r);
-public set[RType] provides(Bindable(_,_,_,_)) = { };
+public set[RType] provides(Bindable(_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(Enumerable(_,_,_,_)) = { };
 public set[RType] provides(StepItType(_,_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(DefinedBy(l,_,_)) = getInferredTypes(l);
@@ -416,14 +414,33 @@ public default set[RType]  provides(Constraint c) { throw "Unimplemented: <c>"; 
 // using dependsOn, which gives us the inference types this constraint depends
 // on. If it depends on no inference types, we can solve it.
 //
-public bool solvable(Constraint c) = size(dependsOn(c)) == 0;
+public bool hasFailures(Constraint c) {
+    return size({ ft | /ft:RFailType(_) <- c }) > 0;
+}
+
+public set[RType] getFailures(Constraint c) {
+    return { ft | /ft:RFailType(_) <- c };
+}
+
+public bool hasFailures(RType rt) {
+    return isFailType(rt) || (size({ ft | /ft:RFailType(_) <- rt }) > 0);
+}
+
+public set[RType] getFailures(RType rt) {
+    return { ft | /ft:RFailType(_) <- rt } + (isFailType(rt) ? { rt } : { });
+}
+
+public bool solvable(ConstrainType(tl,tr,_)) = !hasFailures(tl) && !hasFailures(tr) && unifyTypes(tl,tr)[1];
+public bool solvable(Assignable(tl,tr,_,_)) = !hasFailures(tl) && !hasFailures(tr) && size(getInferredTypes(tr)) == 0;
+public bool solvable(Bindable(_,st,_,_)) = size(getInferredTypes(st)) == 0; 
+public bool default solvable(Constraint c) = size(dependsOn(c)) == 0 && !hasFailures(c);
+
+
 
 //
 // Is this constraint solved? i.e., are all inference types now resolved?
 //
 public bool solved(BindableToCase(_,_,SolveResult sr,_)) = sr := T() || sr := F();
-public bool solved(Assignable(_,_,_,SolveResult sr,_)) = sr := T() || sr := F();
-public bool solved(Assignable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Returnable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(IsRuntimeException(_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(BindsRuntimeException(_,SolveResult sr,_)) = sr := T() || sr := F();
@@ -431,9 +448,12 @@ public bool solved(CaseIsReachable(_,_,SolveResult sr,_)) = sr := T() || sr := F
 public bool solved(SubtypeOf(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(FieldAssignable(_,_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Comparable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
-public bool solved(Bindable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Enumerable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
-public default bool  solved(Constraint c) = size(provides(c) + dependsOn(c)) == 0;
+public bool solved(DefinedBy(RType t,_,_)) = InferenceVar(_) !:= t;
+public bool solved(Assignable(_,_,RFailType(_),_)) = true;
+public bool solved(ConstrainType(_,RFailType(_),_)) = true;
+public bool solved(ConstrainType(RType rt, rt, _)) = true;
+public default bool solved(Constraint c) = size(provides(c) + dependsOn(c)) == 0;
 
 //
 // Given two constraints, return a mapping of type variables from the original
@@ -442,62 +462,78 @@ public default bool  solved(Constraint c) = size(provides(c) + dependsOn(c)) == 
 public tuple[rel[RType,RType],bool] mappings(LubOf(_,lt,_), LubOf(_,rt,_)) = unifyTypes(lt,rt); 
 public tuple[rel[RType,RType],bool] mappings(LubOfList(_,lt,_), LubOfList(_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(LubOfSet(_,lt,_), LubOfSet(_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(BindableToCase(_,_,_,_),BindableToCase(_,_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(Assignable(_,_,lt,_,_),Assignable(_,_,rt,_,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(Assignable(_,_,_,_),Assignable(_,_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(Returnable(_,_,_,_),Returnable(_,_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(IsRuntimeException(_,_,_),IsRuntimeException(_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(BindsRuntimeException(_,_,_),BindsRuntimeException(_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(CaseIsReachable(_,_,_,_),CaseIsReachable(_,_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(SubtypeOf(_,_,_,_),SubtypeOf(_,_,_,_)) = { };
+public tuple[rel[RType,RType],bool] mappings(BindableToCase(_,_,_,_),BindableToCase(_,_,_,_)) = < { }, true >;
+public tuple[rel[RType,RType],bool] mappings(ComboAssignable(_,_,lt,_),ComboAssignable(_,_,rt,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(Returnable(_,_,_,_),Returnable(_,_,_,_)) = < { }, true >;
+public tuple[rel[RType,RType],bool] mappings(IsRuntimeException(_,_,_),IsRuntimeException(_,_,_)) = < { }, true >;
+public tuple[rel[RType,RType],bool] mappings(BindsRuntimeException(_,_,_),BindsRuntimeException(_,_,_)) = < { }, true >;
+public tuple[rel[RType,RType],bool] mappings(CaseIsReachable(_,_,_,_),CaseIsReachable(_,_,_,_)) = < { }, true >;
+public tuple[rel[RType,RType],bool] mappings(SubtypeOf(_,_,_,_),SubtypeOf(_,_,_,_)) = < { }, true >;
 public tuple[rel[RType,RType],bool] mappings(IsReifiedType(_,_,lt,_),IsReifiedType(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(CallOrTree(_,_,lt,_),CallOrTree(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(FieldOf(_,_,lt,_),FieldOf(_,_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(FieldAssignable(_,_,_,_,_),FieldAssignable(_,_,_,_,_)) = { };
+public tuple[rel[RType,RType],bool] mappings(FieldAssignable(_,_,_,_,_),FieldAssignable(_,_,_,_,_)) = < { }, true >;
 public tuple[rel[RType,RType],bool] mappings(NamedFieldOf(_,_,lt,_),NamedFieldOf(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(IndexedFieldOf(_,_,lt,_),IndexedFieldOf(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(FieldProjection(_,_,lt,_),FieldProjection(_,_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(Subscript(_,_,_,lt,_),Subscript(_,_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(Comparable(_,_,_,_),Comparable(_,_,_,_)) = { };
+public tuple[rel[RType,RType],bool] mappings(Subscript(_,_,_,lt,_),Subscript(_,_,_,rt,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(Comparable(_,_,_,_),Comparable(_,_,_,_)) = < { }, true >;
 public tuple[rel[RType,RType],bool] mappings(AnnotationAssignable(_,_,_,lt,_),AnnotationAssignable(_,_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(AnnotationOf(_,_,lt,_),AnnotationOf(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(Composable(_,_,lt,_),Composable(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(BuiltInAppliable(_,_,lt,_),BuiltInAppliable(_,_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(Bindable(_,_,_,_),Bindable(_,_,_,_)) = { };
-public tuple[rel[RType,RType],bool] mappings(Enumerable(_,_,_,_),Enumerable(_,_,_,_)) = { };
+public tuple[rel[RType,RType],bool] mappings(Bindable(_,_,lt,_),Bindable(_,_,rt,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(Enumerable(_,_,_,_),Enumerable(_,_,_,_)) = < { }, true >;
 public tuple[rel[RType,RType],bool] mappings(StepItType(_,_,_,lt,_),StepItType(_,_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(DefinedBy(lo,_,_), DefinedBy(ln,_,_)) = unifyTypes(lo,ln);
 public tuple[rel[RType,RType],bool] mappings(ConstrainType(lt,_,_),ConstrainType(rt,_,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(Constraint cl, Constraint cr) { throw "mappings unimplemented for constraint pair: <cl>, <cr>"; }
 
+public tuple[rel[RType,RType],bool] mappings(Assignable(lt1,_,rt1,_),Assignable(lt2,_,rt2,_)) {
+     < r1, b1 > = unifyTypes(lt1,lt2);
+     < r2, b2 > = unifyTypes(rt1,rt2);
+     return < r1 + r2, b1 && b2 > ;
+ }
 
-
-
-public default tuple[rel[RType,RType],bool]  mappings(RType t1, RType t2) = < { }, false >;
+public default tuple[rel[RType,RType],bool] mappings(Constraint cl, Constraint cr) { throw "mappings unimplemented for constraint pair: <cl>, <cr>"; }
 
 //
 // Given a set of bindings, instantiate all the type variables in the constraint
 //
-public Constraint instantiate(Constraint c, RType from, RType to) = instantiateInferenceVar(c, from, to);
-
-//
-// This currently only takes non-inference types into account. This means we should only call it
-// when we don't still have inference types involved, or we will be discarding information.
-// Adding a throw here if we hit an inference type so we know and can fix it...
-//
 public Constraint instantiate(Constraint c, rel[RType from, RType to] fromTo) {
-    if ( size({ tt | tt <- fromTo<1>, isInferenceType(tt) }) > 0) throw "Should not pass inference types to instantiate!";
     for ( tf <- fromTo<0> ) {
-        set[RType] toLub = { tt | tt <- fromTo[tf] } + makeVoidType();
-        set[RType] failures = { tt | tt <- toLub, isFailType(tt) };
-        if (size(failures) > 0) {
-            c = instantiate(c, tf, collapseFailTypes(failures));
+        if (size(fromTo[tf]) > 1) {
+            if (size({ tt | tt <- fromTo[tf], isInferenceType(tt)}) > 0) throw "Should not instantiate types with inference types.";
+            set[RType] toLub = fromTo[tf];
+            set[RType] failures = { tt | tt <- toLub, isFailType(tt) };
+            if (size(failures) > 0)
+                c = instantiate(c, tf, collapseFailTypes(failures));
+            else
+                c = instantiate(c, tf, lubSet(toLub));
         } else {
-            c = instantiate(c, tf, lubSet(toLub));
+            c = instantiate(c, tf, getOneFrom(fromTo[tf]));
         }
     }
     return c;
 }
+
+public RType instantiate(RType rt, rel[RType from, RType to] fromTo) {
+    for ( tf <- fromTo<0> ) {
+        if (size(fromTo[tf]) > 1) {
+            if (size({ tt | tt <- fromTo[tf], isInferenceType(tt)}) > 0) throw "Should not instantiate types with inference types.";
+            set[RType] toLub = fromTo[tf];
+            set[RType] failures = { tt | tt <- toLub, isFailType(tt) };
+            if (size(failures) > 0)
+                rt = instantiateInferenceVar(rt, tf, collapseFailTypes(failures));
+            else
+                rt = instantiateInferenceVar(rt, tf, lubSet(toLub));
+        } else {
+            rt = instantiateInferenceVar(rt, tf, getOneFrom(fromTo[tf]));
+        }
+    }
+    return rt;
+}
+
+public Constraint instantiate(Constraint c, RType from, RType to) = instantiateInferenceVar(c, from, to);
 
 data RType =
       InferenceVar(int tnum)
@@ -536,10 +572,16 @@ public Constraint instantiateInferenceVar(Constraint c, RType infv, RType conc) 
     if (arity(c) == 0) return c;
     for (idx <- [0..arity(c)-1]) {
         if (RType rt := c[idx]) c[idx] = instantiateInferenceVar(rt,infv,conc);
-        if (list[RType] rtl := c[idx])
+        // TODO: Thie following is a workaround for bug 1153. Once that is fixed
+        // we no longer need to break the test up in this manner.
+        if (list[node] rtl := c[idx], size(rtl) > 0, RType _ := rtl[0])
             c[idx] = [ instantiateInferenceVar(rt,infv,conc) | rt <- rtl ]; 
     }
     return c;        
+}
+
+public Constraint instantiateInferenceVar(Tree t, RType t1, RType t2) {
+    throw "Unexpected call, passed tree <t>, type <t1>, and type <t2>";
 }
 
 //
@@ -547,12 +589,13 @@ public Constraint instantiateInferenceVar(Constraint c, RType infv, RType conc) 
 // over a type, which may contain the inference var inside (the element of a list
 // type, the return type of a function type, etc).
 //
+// NOTE: We always bubble failures up to the top of the type, so we never
+// return something like list[fail].
+//
 public RType instantiateInferenceVar(RType rt, RType infv, RType conc) {
-    if (isFailType(conc) && isFailType(infv)) return collapseFailTypes({infv, conc});
-    if (isFailType(conc)) return conc;
-    return visit(rt) { 
-        case infv => conc
-    }
+    rt2 =  visit(rt) { case infv => conc };
+    if (hasFailures(rt2)) return collapseFailTypes(getFailures(rt2));
+    return rt2; 
 }
 
 //

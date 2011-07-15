@@ -28,10 +28,7 @@ public ConstraintBase gatherVisitConstraints(STBuilder stBuilder, ConstraintBase
         // Step 2: The result of the visit is of the same type as the visited expression
         cb = addConstraintForLoc(cb, v@\loc, te);
         
-        // Step 3: Each case should be a case type, like in a switch, and the case pattern
-        // should indicate a pattern which can be bound to something reachable from e.
-        // TODO: This check may not be complete! We need to verify that this actually
-        // always works.
+        // Step 3: Each case should be a type bindable to something reachable in the visited expression.
         for (c <- cs) cb.constraints = cb.constraints + CaseIsReachable(typeForLoc(cb, c@\loc), te, U(), c@\loc);
     }
     

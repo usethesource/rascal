@@ -42,7 +42,7 @@ public ConstraintBase gatherStatementConstraints(STBuilder st, ConstraintBase cs
         case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt> else <Statement bf>` :
             return gatherIfThenElseStatementConstraints(st,cs,stmt,l,es,bt,bf);
         
-        case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt> <NoElseMayFollow _>` :
+        case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt>` :
             return gatherIfThenStatementConstraints(st,cs,stmt,l,es,bt);
         
         case (Statement)`<Label l> switch (<Expression e>) { <Case+ css> }` :
@@ -279,7 +279,7 @@ public ConstraintBase gatherSwitchStatementConstraints(STBuilder st, ConstraintB
 
     // Step 2: Look up the location type bound to e1, which is used below. It is of
     // an arbitrary type.
-    te  = typeForLoc(cb, e@\loc);
+    te  = typeForLoc(cb, e1@\loc);
     
     // Step 3: For the type of each case, constrain it to say that it
     // is bindable to the type of the switch expression.
@@ -352,7 +352,6 @@ public ConstraintBase gatherAssignmentStatementConstraints(STBuilder st, Constra
     // Get back the types of both the assignable and the statement, which computes the value being assigned
     ta = typeForLoc(cb, a@\loc);
     ts = typeForLoc(cb, s@\loc);
-        
 
     // aOpHasOp returns true if this is a combo assignment, e.g., +=, *=    
     if (aOpHasOp(convertAssignmentOp(op))) {
@@ -360,7 +359,6 @@ public ConstraintBase gatherAssignmentStatementConstraints(STBuilder st, Constra
         // <a,b,c> += d, for instance, but we can say a.f += 3.
         // TODO: Do check here, don't push this off to a type constraint that doesn't actually constrain
         // a type. Move this to name resolution, where we can treat it as a syntactic check (which it is).
-        //Constraint c1 = ComboAssignable(a, sp@\loc);
         
         // Constrain the result type of the operation used in the combo
         < cb, tr > = makeFreshType(cb);
@@ -369,7 +367,7 @@ public ConstraintBase gatherAssignmentStatementConstraints(STBuilder st, Constra
         // Constrain the result to be something assignable into a, with the result of the assignment then
         // tar. The type could change if it is moved up the lattice towards value (or if it is a failure).
         < cb, tar > = makeFreshType(cb);        
-        Constraint c3 = Assignable(tr, ta, tar, U(), sp@\loc);
+        Constraint c3 = ComboAssignable(ta, tr, tar, sp@\loc);
         
         // Constrain the overall type of the statement to be the type of the assignment result
         cb = addConstraintForLoc(cb, sp@\loc, tar);
@@ -381,7 +379,7 @@ public ConstraintBase gatherAssignmentStatementConstraints(STBuilder st, Constra
         // Constrain the result to be something assignable into a, with the result of the assignment then
         // tar. The type could change if it is moved up the lattice towards value (or if it is a failure).
         < cb, tar > = makeFreshType(cb);        
-        Constraint c1 = Assignable(ts, ta, tar, U(), sp@\loc);
+        Constraint c1 = Assignable(ta, ts, tar, sp@\loc);
         
         // Constrain the overall type of the statement to be the type of the assignment result
         cb = addConstraintForLoc(cb, sp@\loc, tar);
