@@ -82,8 +82,8 @@ lexical PathChars
 	= URLChars [|] ;
 
 syntax Signature
-	= WithThrows: Type type FunctionModifiers modifiers Name name Parameters parameters "throws" {Type ","}+ exceptions 
-	| NoThrows: Type type FunctionModifiers modifiers Name name Parameters parameters ;
+	= WithThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions 
+	| NoThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters ;
 
 syntax Sym
 // named non-terminals
@@ -159,11 +159,6 @@ syntax Kind
 	| Alias: "alias" 
 	| Module: "module" 
 	| Tag: "tag" ;
-
-syntax Test
-	= Unlabeled: Tags tags "test" Expression expression
-	| Parameterized: Tags tags "test" Parameters parameters Expression expression
-	;
 
 syntax ImportedModule
 	= Default: QualifiedName name 
@@ -326,7 +321,7 @@ lexical DatePart
 
 syntax FunctionModifier
 	= Java: "java" 
-//	| Test: "test" TODO
+	| Test: "test" 
 	| Default: "default";
 
 syntax Assignment
@@ -666,7 +661,6 @@ syntax Declaration
 	| @Foldable Data : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
 	| Rule           : Tags tags "rule" Name name PatternWithAction patternAction ";" 
 	| Function       : FunctionDeclaration functionDeclaration 
-	| @Foldable Test : Test test ";" 
 	;
 
 syntax Class
