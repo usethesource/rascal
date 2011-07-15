@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module demo::ConcretePico::Typecheck
 
-import zoo::pico::syntax::Main;  // Pico concrete syntax
+import lang::pico::\syntax::Main;  // Pico concrete syntax
 import demo::ConcretePico::Programs;   // Example programs
 
 import IO;
