@@ -90,7 +90,6 @@ import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.Declaration.Function;
 import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
-import org.rascalmpl.ast.Declaration.Test;
 import org.rascalmpl.ast.Expression.All;
 import org.rascalmpl.ast.Expression.And;
 import org.rascalmpl.ast.Expression.Anti;
@@ -147,6 +146,7 @@ import org.rascalmpl.ast.Field.Index;
 import org.rascalmpl.ast.Field.Name;
 import org.rascalmpl.ast.FunctionDeclaration.Abstract;
 import org.rascalmpl.ast.FunctionModifier.Java;
+import org.rascalmpl.ast.FunctionModifier.Test;
 import org.rascalmpl.ast.FunctionType.TypeArguments;
 import org.rascalmpl.ast.Header.Parameters;
 import org.rascalmpl.ast.Import.Extend;
@@ -236,8 +236,6 @@ import org.rascalmpl.ast.Sym.Unequal;
 import org.rascalmpl.ast.SyntaxDefinition.Keyword;
 import org.rascalmpl.ast.SyntaxDefinition.Language;
 import org.rascalmpl.ast.SyntaxDefinition.Layout;
-import org.rascalmpl.ast.Test.Parameterized;
-import org.rascalmpl.ast.Test.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Type.Basic;
 import org.rascalmpl.ast.Type.Structured;
@@ -722,11 +720,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitDeclarationTag(Tag x) {
 		return L(x.getClass().toString());
-	}
-
-	public IValue visitDeclarationTest(Test x) {
-		/* test:Test ";" */
-		return HV(0, eX(x.getTest()), BoxADT.SEMICOLON);
 	}
 
 	public IValue visitDeclarationVariable(
@@ -2218,26 +2211,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return eX(x.getName());
 	}
 
-	public IValue visitTestAmbiguity(org.rascalmpl.ast.Test.Ambiguity x) {
-		return L(x.getClass().toString());
-	}
-
-//	public IValue visitTestLabeled(org.rascalmpl.ast.Test.Labeled x) {
-//		/** tags:Tags "test" expression:Expression ":" labeled:StringLiteral */
-//		return list(
-//				eX(x.getTags()),
-//				H(1,
-//						BoxADT.KW("test"),
-//						HOV(0, eX(x.getExpression()), BoxADT.COLON,
-//								eX(x.getLabel()))));
-//	}
-
-	public IValue visitTestUnlabeled(Unlabeled x) {
-		/* tags:Tags "test" expression:Expression */
-		return list(eX(x.getTags()),
-				H(1, BoxADT.KW("test"), HOV(0, eX(x.getExpression()))));
-	}
-
 	public IValue visitTimePartNoTZAmbiguity(
 			org.rascalmpl.ast.TimePartNoTZ.Ambiguity x) {
 		return L(x.getClass().toString());
@@ -3603,20 +3576,9 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
-//	public IValue visitFunctionModifierTest(
-//			org.rascalmpl.ast.FunctionModifier.Test x) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
-//	public IValue visitTestLabeledParameterized(LabeledParameterized x) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
-	public IValue visitTestParameterized(Parameterized x) {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public IValue visitFunctionModifierTest(Test x) {
+		return L("test");
 	}
 
 }

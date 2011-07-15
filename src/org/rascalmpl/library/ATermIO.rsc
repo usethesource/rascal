@@ -13,7 +13,7 @@ module ATermIO
 @doc{read an ATerm from a text file}
 @javaClass{org.rascalmpl.library.ATermIO}
 @reflect{Uses URI Resolver Registry}
-public &T java readTextATermFile(type[&T] begin, loc location);
+public java &T readTextATermFile(type[&T] begin, loc location);
 
 public value readTextATermFile(loc location) {
   return readTextATermFile(#value, location);
@@ -22,4 +22,4 @@ public value readTextATermFile(loc location) {
 @doc{write an ATerm to a text file}
 @javaClass{org.rascalmpl.library.ATermIO}
 @reflect{Uses URI Resolver Registry}
-public void java writeTextATermFile(loc location, value v);
+public java void writeTextATermFile(loc location, value v);

@@ -194,7 +194,7 @@ private PriorityQueue mergeQueue(PriorityQueue p, PriorityQueue q){
     return priorityQueue(heapTrees, min);
 }
     
-test bool() {
+test bool prioTest() {
    
    Q = mkPriorityQueue();
    
@@ -214,6 +214,6 @@ test bool() {
    println("sorted=<sorted>");  
    
    return true;
- }() == true;
+}
 		
         

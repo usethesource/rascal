@@ -36,21 +36,21 @@ public void renderSave(Figure fig,loc file){
 @doc{Render a figure, in named tab}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
-public void java renderActual(str name, Figure fig);
+public java void renderActual(str name, Figure fig);
 
 @doc{Render a figure and write it to file}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
-public void java renderSaveActual(Figure fig, loc file);
+public java void renderSaveActual(Figure fig, loc file);
 
 
 @doc{Set custom colors for errors}
 @javaClass{org.rascalmpl.library.vis.FigureColorUtils}
-public void java setErrorColors(list[Color] colors);
+public java void setErrorColors(list[Color] colors);
 
 @doc{Set custom colors for editor highlights}
 @javaClass{org.rascalmpl.library.vis.FigureColorUtils}
-public void java setHighlightColors(list[Color] colors);
+public java void setHighlightColors(list[Color] colors);
 
 /* for Testing
 public void r() {

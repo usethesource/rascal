@@ -16,24 +16,24 @@ import IO;
 @doc{Current time in nanoseconds since the start of the thread that runs the code that calls this function.}
 @javaImport{import java.lang.System;}
 @javaClass{org.rascalmpl.library.Benchmark}
-public int java userTime();
+public java int userTime();
 
 @doc{Current time in nanoseconds since the start of the thread that runs the code that calls this function.}
 @javaImport{import java.lang.System;}
 @javaClass{org.rascalmpl.library.Benchmark}
-public int java systemTime();
+public java int systemTime();
 
 @doc{Current time in nanoseconds since the start of the thread that runs the code that calls this function.}
 @javaImport{import java.lang.System;}
 @javaClass{org.rascalmpl.library.Benchmark}
-public int java cpuTime();
+public java int cpuTime();
 
 
 @deprecated{This function can disappear}
 @doc{Current time in milliseconds since the start of the thread that runs the code that calls this function.}
 @javaImport{import java.lang.System;}
 @javaClass{org.rascalmpl.library.Benchmark}
-public int java realTime();
+public java int realTime();
 
 @doc{Measure and report the execution time of name:void-closure pairs}
 public void benchmark(map[str, void()] Cases) {

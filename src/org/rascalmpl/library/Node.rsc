@@ -11,27 +11,27 @@ module Node
 
 @doc{Number of children of a node}
 @javaClass{org.rascalmpl.library.Node}
-public int java arity(node T);
+public java int arity(node T);
 
 @doc{retrieve the annnotations of a node value as a map}
 @javaClass{org.rascalmpl.library.Node}
-public map[str,value] java getAnnotations(node x);
+public java map[str,value] getAnnotations(node x);
 
 @doc{Get the children of a node}
 @javaClass{org.rascalmpl.library.Node}
-public list[value] java getChildren(node T);
+public java list[value] getChildren(node T);
 
 @doc{Get the function name of a node}
 @javaClass{org.rascalmpl.library.Node}
-public str java getName(node T);
+public java str getName(node T);
 
 @doc{Create a node given its function name and arguments}
 @javaClass{org.rascalmpl.library.Node}
-public node java makeNode(str N, value V...);
+public java node makeNode(str N, value V...);
 
 @doc{Read an ATerm from a named file}
 @javaClass{org.rascalmpl.library.Node}
-public value java readATermFromFile(str fileName);
+public java value readATermFromFile(str fileName);
 
 @doc{
   Set a whole map of annotations on a value.
@@ -59,7 +59,7 @@ public &T <: node java delAnnotations(&T <: node x);
 
 @doc{Convert a node to a string}
 @javaClass{org.rascalmpl.library.Node}
-public str java toString(node T);
+public java str toString(node T);
 
 
 

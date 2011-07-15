@@ -374,7 +374,7 @@ public set[RType] dependsOn(Enumerable(_,t,_,_)) = getInferredTypes(t);
 public set[RType] dependsOn(StepItType(_,inT,outT,_,_)) = getInferredTypes(inT) + getInferredTypes(outT);
 public set[RType] dependsOn(DefinedBy(_,_,_)) = { };
 public set[RType] dependsOn(ConstrainType(_,tc,_)) = getInferredTypes(tc);
-public set[RType] default dependsOn(Constraint c) { throw "Unimplemented: <c>"; }
+public default set[RType] dependsOn(Constraint c) { throw "Unimplemented: <c>"; }
 
 //
 // Extracts the type variables that this constraint provides the
@@ -409,7 +409,7 @@ public set[RType] provides(Enumerable(_,_,_,_)) = { };
 public set[RType] provides(StepItType(_,_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(DefinedBy(l,_,_)) = getInferredTypes(l);
 public set[RType] provides(ConstrainType(ct,_,_)) = getInferredTypes(ct);
-public set[RType] default provides(Constraint c) { throw "Unimplemented: <c>"; }
+public default set[RType]  provides(Constraint c) { throw "Unimplemented: <c>"; }
 
 //
 // Do we have enough information to solve this constraint? We can figure this
@@ -433,7 +433,7 @@ public bool solved(FieldAssignable(_,_,_,SolveResult sr,_)) = sr := T() || sr :=
 public bool solved(Comparable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Bindable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Enumerable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
-public bool default solved(Constraint c) = size(provides(c) + dependsOn(c)) == 0;
+public default bool  solved(Constraint c) = size(provides(c) + dependsOn(c)) == 0;
 
 //
 // Given two constraints, return a mapping of type variables from the original
@@ -473,7 +473,7 @@ public tuple[rel[RType,RType],bool] mappings(Constraint cl, Constraint cr) { thr
 
 
 
-public tuple[rel[RType,RType],bool] default mappings(RType t1, RType t2) = < { }, false >;
+public default tuple[rel[RType,RType],bool]  mappings(RType t1, RType t2) = < { }, false >;
 
 //
 // Given a set of bindings, instantiate all the type variables in the constraint

@@ -17,4 +17,4 @@ in the following format:
 where each field is separated by a tabulation character (\t). One file may contain tuples for more than one relation. readRSF takes an RSF file nameRSFFile and generates a map[str,rel[str,str]] that maps each relation name to the actual relation.
 }
 @javaClass{org.rascalmpl.library.RSF}
-public map[str, rel[str,str]] java readRSF(str nameRSFFile);
+public java map[str, rel[str,str]] readRSF(str nameRSFFile);

@@ -96,25 +96,95 @@ public abstract class Signature extends AbstractAST {
   
 
   
+  public boolean isNoThrows() {
+    return false;
+  }
+
+  static public class NoThrows extends Signature {
+    // Production: sig("NoThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")])
+  
+    
+    private final org.rascalmpl.ast.FunctionModifiers modifiers;
+    private final org.rascalmpl.ast.Type type;
+    private final org.rascalmpl.ast.Name name;
+    private final org.rascalmpl.ast.Parameters parameters;
+  
+    public NoThrows(IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
+      super(node);
+      
+      this.modifiers = modifiers;
+      this.type = type;
+      this.name = name;
+      this.parameters = parameters;
+    }
+  
+    @Override
+    public boolean isNoThrows() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSignatureNoThrows(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.FunctionModifiers getModifiers() {
+      return this.modifiers;
+    }
+  
+    @Override
+    public boolean hasModifiers() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Name getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Parameters getParameters() {
+      return this.parameters;
+    }
+  
+    @Override
+    public boolean hasParameters() {
+      return true;
+    }	
+  }
   public boolean isWithThrows() {
     return false;
   }
 
   static public class WithThrows extends Signature {
-    // Production: sig("WithThrows",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Type\>","exceptions")])
+    // Production: sig("WithThrows",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Type\>","exceptions")])
   
     
-    private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.FunctionModifiers modifiers;
+    private final org.rascalmpl.ast.Type type;
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Parameters parameters;
     private final java.util.List<org.rascalmpl.ast.Type> exceptions;
   
-    public WithThrows(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
+    public WithThrows(IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Type> exceptions) {
       super(node);
       
-      this.type = type;
       this.modifiers = modifiers;
+      this.type = type;
       this.name = name;
       this.parameters = parameters;
       this.exceptions = exceptions;
@@ -132,21 +202,21 @@ public abstract class Signature extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
-    }
-  
-    @Override
-    public boolean hasType() {
-      return true;
-    }
-    @Override
     public org.rascalmpl.ast.FunctionModifiers getModifiers() {
       return this.modifiers;
     }
   
     @Override
     public boolean hasModifiers() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
       return true;
     }
     @Override
@@ -174,76 +244,6 @@ public abstract class Signature extends AbstractAST {
   
     @Override
     public boolean hasExceptions() {
-      return true;
-    }	
-  }
-  public boolean isNoThrows() {
-    return false;
-  }
-
-  static public class NoThrows extends Signature {
-    // Production: sig("NoThrows",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")])
-  
-    
-    private final org.rascalmpl.ast.Type type;
-    private final org.rascalmpl.ast.FunctionModifiers modifiers;
-    private final org.rascalmpl.ast.Name name;
-    private final org.rascalmpl.ast.Parameters parameters;
-  
-    public NoThrows(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
-      super(node);
-      
-      this.type = type;
-      this.modifiers = modifiers;
-      this.name = name;
-      this.parameters = parameters;
-    }
-  
-    @Override
-    public boolean isNoThrows() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitSignatureNoThrows(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
-    }
-  
-    @Override
-    public boolean hasType() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.FunctionModifiers getModifiers() {
-      return this.modifiers;
-    }
-  
-    @Override
-    public boolean hasModifiers() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Name getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Parameters getParameters() {
-      return this.parameters;
-    }
-  
-    @Override
-    public boolean hasParameters() {
       return true;
     }	
   }

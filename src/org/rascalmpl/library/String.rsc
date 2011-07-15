@@ -15,23 +15,23 @@ import Origins;
 
 @doc{Convert a character code into a string}
 @javaClass{org.rascalmpl.library.String}
-public str java stringChar(int char);
+public java str stringChar(int char);
 
 @doc{Convert a list of character codes into a string}
 @javaClass{org.rascalmpl.library.String}
-public str java stringChars(list[int] chars);
+public java str stringChars(list[int] chars);
 
 @doc{Return the character at position i in string s.}
 @javaClass{org.rascalmpl.library.String}
-public int java charAt(str s, int i) throws out_of_range(str msg);
+public java int charAt(str s, int i) throws out_of_range(str msg);
 
 @doc{Returns true if string s ends with given string suffix.}
 @javaClass{org.rascalmpl.library.String}
-public bool java endsWith(str s, str suffix);
+public java bool endsWith(str s, str suffix);
 
 @doc{Returns string with leading and trailing whitespace removed.}
 @javaClass{org.rascalmpl.library.String}
-public str java trim(str s);
+public java str trim(str s);
 
 @doc{Return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 @javaClass{org.rascalmpl.library.String}
@@ -51,7 +51,7 @@ public str center(str s, int n, str pad)
 
 @doc{Is string empty?}
 @javaClass{org.rascalmpl.library.String}
-public bool java isEmpty(str s);
+public java bool isEmpty(str s);
 
 @doc{Left align s in string of length n using spaces}
 public str left(str s, int n)
@@ -99,7 +99,7 @@ public str right(str s, int n)
 
 @doc{Return string with all characters in reverse order.}
 @javaClass{org.rascalmpl.library.String}
-public str java reverse(str s);
+public java str reverse(str s);
 
 @doc{Right align s in string of length n using pad}
 public str right(str s, int n, str pad)
@@ -109,43 +109,43 @@ public str right(str s, int n, str pad)
 
 @doc{Return the length of string s.}
 @javaClass{org.rascalmpl.library.String}
-public int java size(str s);
+public java int size(str s);
 
 @doc{Return true if string s starts with the string prefix.}
 @javaClass{org.rascalmpl.library.String}
-public bool java startsWith(str s, str prefix);
+public java bool startsWith(str s, str prefix);
 
 @doc{Extract a substring from string s from begin to the end of s}
 @javaClass{org.rascalmpl.library.String}
-public str java substring(str s, int begin);
+public java str substring(str s, int begin);
 
 @doc{Extract a substring from string s from begin to end}
 @javaClass{org.rascalmpl.library.String}
-public str java substring(str s, int begin, int end);
+public java str substring(str s, int begin, int end);
 
 @doc{Convert a string s to integer}
 @javaClass{org.rascalmpl.library.String}
-public int java toInt(str s);
+public java int toInt(str s);
 
 @doc{Convert a string s to integer using radix r}
 @javaClass{org.rascalmpl.library.String}
-public int java toInt(str s, int r);
+public java int toInt(str s, int r);
 
 @doc{Convert all characters in string s to lowercase.}
 @javaClass{org.rascalmpl.library.String}
-public str java toLowerCase(str s);
+public java str toLowerCase(str s);
 
 @doc{Convert a string s to a real}
 @javaClass{org.rascalmpl.library.String}
-public real java toReal(str s);
+public java real toReal(str s);
 
 @doc{Convert all characters in string s to uppercase.}
 @javaClass{org.rascalmpl.library.String}
-public str java toUpperCase(str s);
+public java str toUpperCase(str s);
 
 @doc{Convert all characters in string s to uppercase.}
 @javaClass{org.rascalmpl.library.String}
-public str java escape(str s, map[str,str] mapping);
+public java str escape(str s, map[str,str] mapping);
 
 @javaClass{org.rascalmpl.library.String}
-public list[tuple[str string, node origin]] java origins(str s);
+public java list[tuple[str string, node origin]] origins(str s);

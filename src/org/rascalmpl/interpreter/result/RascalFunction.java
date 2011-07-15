@@ -31,9 +31,11 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Parameters;
+import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.VoidClosure;
+import org.rascalmpl.ast.FunctionDeclaration.Default;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
@@ -58,6 +60,7 @@ public class RascalFunction extends NamedFunction {
 	private final Stack<Accumulator> accumulators;
 	private final IMatchingResult[] matchers;
 	private final boolean isDefault;
+	private boolean isTest;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -66,18 +69,35 @@ public class RascalFunction extends NamedFunction {
 				varargs, isDefault(func),
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
+		this.isTest = hasTestMod(func.getSignature());
 	}
 	
+	@Override
+	public boolean isTest() {
+		return isTest;
+	}
+	
+	private boolean hasTestMod(Signature sig) {
+		for (FunctionModifier m : sig.getModifiers().getModifiers()) {
+			if (m.isTest()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
 			Stack<Accumulator> accumulators) {
-	this(func, eval,
-			(FunctionType) func.getSignature().typeOf(env),
-			varargs, isDefault(func),
-			Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getTree(), ASTBuilder.makeStat("Expression", func.getTree(), func.getExpression()))}),
-			env, accumulators);
-	this.name = Names.name(func.getSignature().getName());
-   }
-	
+		this(func, eval,
+				(FunctionType) func.getSignature().typeOf(env),
+				varargs, isDefault(func),
+				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getTree(), ASTBuilder.makeStat("Expression", func.getTree(), func.getExpression()))}),
+				env, accumulators);
+		this.name = Names.name(func.getSignature().getName());
+		this.isTest = hasTestMod(func.getSignature());
+	}
+
 	
 
 	@SuppressWarnings("unchecked")

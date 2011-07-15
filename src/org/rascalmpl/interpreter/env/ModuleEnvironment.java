@@ -16,7 +16,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -39,7 +38,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
-import org.rascalmpl.ast.Test;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
@@ -68,7 +66,6 @@ public class ModuleEnvironment extends Environment {
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
-	protected List<Test> tests;
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
@@ -84,7 +81,6 @@ public class ModuleEnvironment extends Environment {
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
-		this.tests = new LinkedList<Test>();
 		this.initialized = false;
 		this.syntaxDefined = false;
 		this.bootstrap = false;
@@ -96,7 +92,6 @@ public class ModuleEnvironment extends Environment {
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
-		this.tests = new LinkedList<Test>();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
 		this.syntaxDefined = false;
@@ -190,12 +185,16 @@ public class ModuleEnvironment extends Environment {
 		typeStore.importStore(env.typeStore);
 	}
 	
-	public void addTest(Test test) {
-		tests.add(0, test);
-	}
-	
-	public List<Test> getTests() {
-		return Collections.unmodifiableList(tests);
+	public List<AbstractFunction> getTests() {
+		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+		
+		if (functionEnvironment != null) {
+			for (OverloadedFunctionResult f : functionEnvironment.values()) {
+				result.addAll(f.getTests());
+			}
+		}
+		
+		return result;
 	}
 	
 	@Override
@@ -484,7 +483,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public String toString() {
-		return "Environment [ " + getName() + ":" + importedModules + "]"; 
+		return "Environment [ " + getName() + ":" + ((importedModules != null) ? importedModules : "") + "]"; 
 	}
 
 	@Override

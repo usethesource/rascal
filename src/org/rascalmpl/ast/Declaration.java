@@ -114,13 +114,6 @@ public abstract class Declaration extends AbstractAST {
   public org.rascalmpl.ast.Type getType() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasTest() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Test getTest() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasTypes() {
     return false;
   }
@@ -609,43 +602,6 @@ public abstract class Declaration extends AbstractAST {
   
     @Override
     public boolean hasPatternAction() {
-      return true;
-    }	
-  }
-  public boolean isTest() {
-    return false;
-  }
-
-  static public class Test extends Declaration {
-    // Production: sig("Test",[arg("org.rascalmpl.ast.Test","test")])
-  
-    
-    private final org.rascalmpl.ast.Test test;
-  
-    public Test(IConstructor node , org.rascalmpl.ast.Test test) {
-      super(node);
-      
-      this.test = test;
-    }
-  
-    @Override
-    public boolean isTest() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitDeclarationTest(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Test getTest() {
-      return this.test;
-    }
-  
-    @Override
-    public boolean hasTest() {
       return true;
     }	
   }

@@ -2,8 +2,8 @@ module Time
 
 @doc{Return current time in nanoseconds since the epoch.}
 @javaClass{org.rascalmpl.library.Time}
-public int java getNanoTime();
+public java int getNanoTime();
 
 @doc{Return current time in milliseconds since the epoch.}
 @javaClass{org.rascalmpl.library.Time}
-public int java getMilliTime();
+public java int getMilliTime();

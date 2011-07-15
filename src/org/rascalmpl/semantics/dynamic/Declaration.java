@@ -147,19 +147,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	}
 
-	static public class Test extends org.rascalmpl.ast.Declaration.Test {
-
-		public Test(IConstructor __param1, org.rascalmpl.ast.Test __param2) {
-			super(__param1, __param2);
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-			return this.getTest().interpret(__eval);
-		}
-
-	}
-
 	static public class Variable extends org.rascalmpl.ast.Declaration.Variable {
 
 		public Variable(IConstructor __param1, Tags __param2, Visibility __param3,

@@ -58,6 +58,22 @@ public interface IASTVisitor<T> {
 
   public T visitTypeVarBounded(TypeVar.Bounded x);
 
+  public T visitDeclarationAlias(Declaration.Alias x);
+
+  public T visitDeclarationData(Declaration.Data x);
+
+  public T visitDeclarationFunction(Declaration.Function x);
+
+  public T visitDeclarationAnnotation(Declaration.Annotation x);
+
+  public T visitDeclarationVariable(Declaration.Variable x);
+
+  public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
+
+  public T visitDeclarationRule(Declaration.Rule x);
+
+  public T visitDeclarationTag(Declaration.Tag x);
+
   public T visitUserTypeParametric(UserType.Parametric x);
 
   public T visitUserTypeName(UserType.Name x);
@@ -580,6 +596,8 @@ public interface IASTVisitor<T> {
 
   public T visitRenamingsDefault(Renamings.Default x);
 
+  public T visitDeclaratorDefault(Declarator.Default x);
+
   public T visitClassUnion(Class.Union x);
 
   public T visitClassDifference(Class.Difference x);
@@ -592,19 +610,19 @@ public interface IASTVisitor<T> {
 
   public T visitClassBracket(Class.Bracket x);
 
-  public T visitDeclaratorDefault(Declarator.Default x);
-
   public T visitVariableInitialized(Variable.Initialized x);
 
   public T visitVariableUnInitialized(Variable.UnInitialized x);
 
+  public T visitFunctionModifierDefault(FunctionModifier.Default x);
+
+  public T visitFunctionModifierTest(FunctionModifier.Test x);
+
+  public T visitFunctionModifierJava(FunctionModifier.Java x);
+
   public T visitBoundEmpty(Bound.Empty x);
 
   public T visitBoundDefault(Bound.Default x);
-
-  public T visitFunctionModifierDefault(FunctionModifier.Default x);
-
-  public T visitFunctionModifierJava(FunctionModifier.Java x);
 
   public T visitComprehensionSet(Comprehension.Set x);
 
@@ -617,10 +635,6 @@ public interface IASTVisitor<T> {
   public T visitStringMiddleMid(StringMiddle.Mid x);
 
   public T visitStringMiddleInterpolated(StringMiddle.Interpolated x);
-
-  public T visitSignatureWithThrows(Signature.WithThrows x);
-
-  public T visitSignatureNoThrows(Signature.NoThrows x);
 
   public T visitTypeArgNamed(TypeArg.Named x);
 
@@ -670,27 +684,9 @@ public interface IASTVisitor<T> {
 
   public T visitStrategyTopDown(Strategy.TopDown x);
 
-  public T visitDeclarationAlias(Declaration.Alias x);
+  public T visitSignatureNoThrows(Signature.NoThrows x);
 
-  public T visitDeclarationData(Declaration.Data x);
-
-  public T visitDeclarationFunction(Declaration.Function x);
-
-  public T visitDeclarationAnnotation(Declaration.Annotation x);
-
-  public T visitDeclarationVariable(Declaration.Variable x);
-
-  public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
-
-  public T visitDeclarationRule(Declaration.Rule x);
-
-  public T visitDeclarationTest(Declaration.Test x);
-
-  public T visitDeclarationTag(Declaration.Tag x);
-
-  public T visitTestUnlabeled(Test.Unlabeled x);
-
-  public T visitTestParameterized(Test.Parameterized x);
+  public T visitSignatureWithThrows(Signature.WithThrows x);
 
   public T visitAssignableTuple(Assignable.Tuple x);
 
@@ -711,9 +707,9 @@ public interface IASTVisitor<T> {
 
   public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x);
 
-  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
-
   public T visitNamedRegExpLexical(NamedRegExp.Lexical x);
+
+  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
 
   public T visitDatePartLexical(DatePart.Lexical x);
 
@@ -823,16 +819,16 @@ public interface IASTVisitor<T> {
   public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
   public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x);
   public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
-  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
   public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x);
+  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
   public T visitDatePartAmbiguity(DatePart.Ambiguity x);
   public T visitBoundAmbiguity(Bound.Ambiguity x);
   public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
   public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
+  public T visitJustDateAmbiguity(JustDate.Ambiguity x);
   public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
   public T visitFieldAmbiguity(Field.Ambiguity x);
   public T visitTypeAmbiguity(Type.Ambiguity x);
-  public T visitJustDateAmbiguity(JustDate.Ambiguity x);
   public T visitPathPartAmbiguity(PathPart.Ambiguity x);
   public T visitClassAmbiguity(Class.Ambiguity x);
   public T visitPostPathCharsAmbiguity(PostPathChars.Ambiguity x);
@@ -866,7 +862,6 @@ public interface IASTVisitor<T> {
   public T visitSyntaxDefinitionAmbiguity(SyntaxDefinition.Ambiguity x);
   public T visitPathTailAmbiguity(PathTail.Ambiguity x);
   public T visitKindAmbiguity(Kind.Ambiguity x);
-  public T visitTestAmbiguity(Test.Ambiguity x);
   public T visitVisibilityAmbiguity(Visibility.Ambiguity x);
   public T visitIntegerLiteralAmbiguity(IntegerLiteral.Ambiguity x);
   public T visitTargetAmbiguity(Target.Ambiguity x);

@@ -22,7 +22,7 @@ public &T(&T) java makeTopologicalOne(&T(&T) strategy);
 
 @javaClass{org.rascalmpl.library.Strategy}
 @reflect{use the current strategy context}
-public value java getCurrentStratCtx();
+public java value getCurrentStratCtx();
 
 public &T1(&T1) topological_top_down(&T2(&T2) strategy) { 
 	return &T3(&T3 subject) {

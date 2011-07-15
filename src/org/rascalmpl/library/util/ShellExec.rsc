@@ -10,23 +10,23 @@ module util::ShellExec
 
 @doc{Start a new external process.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public PID java createProcess(str processCommand);
+public java PID createProcess(str processCommand);
 
 @doc{Start a new external process with the given arguments.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public PID java createProcessWithArgs(str processCommand, list[str] args);
+public java PID createProcessWithArgs(str processCommand, list[str] args);
 
 @doc{Kill a runnning process.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public void java killProcess(PID processId);
+public java void killProcess(PID processId);
 
 @doc{Read from an existing process's output stream.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public str java readFrom(PID processId);
+public java str readFrom(PID processId);
 
 @doc{Write to an existing process's input stream.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public void java writeTo(PID processId, str msg);
+public java void writeTo(PID processId, str msg);
 
 @doc{Process Identifiers}
 public alias PID = int;

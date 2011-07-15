@@ -408,25 +408,25 @@ public RType lubSet(set[RType] tl) {
 //
 
 // Tests to make sure a lub a == a.
-test lub(makeIntType(), makeIntType()) == makeIntType();
-test lub(makeRealType(), makeRealType()) == makeRealType();
-test lub(makeNumType(), makeNumType()) == makeNumType();
-test lub(makeDateTimeType(), makeDateTimeType()) == makeDateTimeType();
-test lub(makeStrType(), makeStrType()) == makeStrType();
+test bool tl1() = lub(makeIntType(), makeIntType()) == makeIntType();
+test bool tl2() = lub(makeRealType(), makeRealType()) == makeRealType();
+test bool tl3() = lub(makeNumType(), makeNumType()) == makeNumType();
+test bool tl4() = lub(makeDateTimeType(), makeDateTimeType()) == makeDateTimeType();
+test bool tl5() = lub(makeStrType(), makeStrType()) == makeStrType();
 
 // Num tests
-test lub(makeRealType(), makeIntType()) == makeNumType();
-test lub(makeIntType(), makeRealType()) == makeNumType();
-test lub(makeIntType(), makeNumType()) == makeNumType();
-test lub(makeNumType(), makeIntType()) == makeNumType();
-test lub(makeRealType(), makeNumType()) == makeNumType();
-test lub(makeNumType(), makeRealType()) == makeNumType();
+test bool tl6() = lub(makeRealType(), makeIntType()) == makeNumType();
+test bool tl7() = lub(makeIntType(), makeRealType()) == makeNumType();
+test bool tl8() = lub(makeIntType(), makeNumType()) == makeNumType();
+test bool tl9() = lub(makeNumType(), makeIntType()) == makeNumType();
+test bool tl10() = lub(makeRealType(), makeNumType()) == makeNumType();
+test bool tl11() = lub(makeNumType(), makeRealType()) == makeNumType();
 
 // Value tests
-test lub(makeNumType(), makeStrType()) == makeValueType();
+test bool tl12() = lub(makeNumType(), makeStrType()) == makeValueType();
 
 // Check aliases
-test lub(makeAliasType(RSimpleName("A"),makeIntType()), makeIntType()) == makeIntType();
-test lub(makeIntType(), makeAliasType(RSimpleName("A"),makeIntType())) == makeIntType();
-test lub(makeAliasType(RSimpleName("A"),makeIntType()), makeAliasType(RSimpleName("B"),makeIntType())) == makeIntType();
+test bool tl13() = lub(makeAliasType(RSimpleName("A"),makeIntType()), makeIntType()) == makeIntType();
+test bool tl14() = lub(makeIntType(), makeAliasType(RSimpleName("A"),makeIntType())) == makeIntType();
+test bool tl15() = lub(makeAliasType(RSimpleName("A"),makeIntType()), makeAliasType(RSimpleName("B"),makeIntType())) == makeIntType();
 

@@ -25,29 +25,29 @@ module experiments::Subversion
 
 @doc{Set the credentials to use when accessing Subversion repositories}
 @javaClass{org.rascalmpl.library.experiments.Subversion}
-public void java setCredentials(str name, str password);
+public java void setCredentials(str name, str password);
 
 @doc{Return all versions of a file that exists in a specified repository}
 @javaClass{org.rascalmpl.library.experiments.Subversion}
-public list[int] java getRevisions(loc file)
+public java list[int] getRevisions(loc file)
 throws Subversion;
 
 @doc{Return the contents of a provided location as a string}
 @javaClass{org.rascalmpl.library.experiments.Subversion}
-public str java readRepositoryFile(loc file, int revision)
+public java str readRepositoryFile(loc file, int revision)
 throws Subversion;
 
 @doc{Return the contents of a provided location as a list of strings (one for each line)}
 @javaClass{org.rascalmpl.library.experiments.Subversion}
-public list[str] java readRepositoryFileLines(loc file, int revision)
+public java list[str] readRepositoryFileLines(loc file, int revision)
 throws Subversion;
 
 @doc{Return all files in the provided directory location as a list of locations}
 @javaClass{org.rascalmpl.library.experiments.Subversion}
-public list[loc] java getRepositoryFileList(loc directory, int revision)
+public java list[loc] getRepositoryFileList(loc directory, int revision)
 throws Subversion;
 
 @doc{Return all directories in the provided directory location as a list of locations}
 @javaClass{org.rascalmpl.library.experiments.Subversion}
-public list[loc] java getRepositoryDirectoryList(loc directory, int revision)
+public java list[loc] getRepositoryDirectoryList(loc directory, int revision)
 throws Subversion;

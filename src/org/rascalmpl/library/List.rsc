@@ -14,15 +14,15 @@ import Exception;
 
 @doc{Delete nth element from list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java delete(list[&T] lst, int n);
+public java list[&T] delete(list[&T] lst, int n);
 
 @doc{A list of all legal index values for a list}
 @javaClass{org.rascalmpl.library.List}
-public set[int] java domain(list[&T] lst);
+public java set[int] domain(list[&T] lst);
 
 @doc{Get the first element of a list}
 @javaClass{org.rascalmpl.library.List}
-public &T java head(list[&T] lst) throws EmptyList;
+public java &T head(list[&T] lst) throws EmptyList;
 
 @doc{Return the last element of a list, if any}
 public &T last(list[&T] lst) throws EmptyList {
@@ -50,11 +50,11 @@ public list[&T] prefix(list[&T] lst) {
 
 @doc{Get the first n elements of a list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java head(list[&T] lst, int n) throws IndexOutOfBounds;
+public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 
 @doc{Get an arbitrary element from a list}
 @javaClass{org.rascalmpl.library.List}
-public &T java getOneFrom(list[&T] lst);
+public java &T getOneFrom(list[&T] lst);
 
 @doc{Get the indices of a list}
 public list[int] index(list[&T] lst){
@@ -66,11 +66,11 @@ public list[int] index(list[&T] lst){
 
 @doc{Add an element at a specific position in a list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
+public java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
  
 @doc{Is list empty?}
 @javaClass{org.rascalmpl.library.List}
-public bool java isEmpty(list[&T] lst);
+public java bool isEmpty(list[&T] lst);
 
 @doc{Apply a function to each element of a list}
 public list[&U] mapper(list[&T] lst, &U (&T) fn)
@@ -134,15 +134,15 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 
 @doc{Elements of a list in reverse order}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java reverse(list[&T] lst);
+public java list[&T] reverse(list[&T] lst);
 
 @doc{Number of elements in a list}
 @javaClass{org.rascalmpl.library.List}
-public int java size(list[&T] lst);
+public java int size(list[&T] lst);
 
 @doc{Sublist from start of length len}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java slice(list[&T] lst, int begin, int len);
+public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{Sort the elements of a list}
 public list[&T] sort(list[&T] lst)
@@ -202,15 +202,15 @@ public str intercalate(str sep, list[value] l) {
 
 @doc{All but the first element of a list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java tail(list[&T] lst);
+public java list[&T] tail(list[&T] lst);
  
 @doc{Last n elements of a list}
 @javaClass{org.rascalmpl.library.List}
-public list[&T] java tail(list[&T] lst, int len) throws IndexOutOfBoundsError;
+public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBoundsError;
  
 @doc{Remove an arbitrary element from a list, returns the element and the modified list}
 @javaClass{org.rascalmpl.library.List}
-public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst);
+public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
 
 public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
   if ([&T h, list[&T] t] := lst)
@@ -232,15 +232,15 @@ public list[&T] push(&T elem, list[&T] lst) {
 
 @doc{Convert a list of tuples to a map; first elements are associated with a set of second elements}
 @javaClass{org.rascalmpl.library.List}
-public map[&A,set[&B]] java toMap(list[tuple[&A, &B]] lst) throws DuplicateKey;
+public java map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws DuplicateKey;
 
 @doc{Convert a list of tuples to a map; result must be a map}
 @javaClass{org.rascalmpl.library.List}
-public map[&A,&B] java toMapUnique(list[tuple[&A, &B]] lst) throws DuplicateKey;
+public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws DuplicateKey;
 
 @doc{Convert a list to a set}
 @javaClass{org.rascalmpl.library.List}
-public set[&T] java toSet(list[&T] lst);
+public java set[&T] toSet(list[&T] lst);
 
 @doc{
   Convert a list to relation, where each tuple encodes which elements are followed by each other.
@@ -252,4 +252,4 @@ public rel[&T,&T] toRel(list[&T] lst) {
 
 @doc{Convert a list to a string}
 @javaClass{org.rascalmpl.library.List}
-public str java toString(list[&T] lst);
+public java str toString(list[&T] lst);

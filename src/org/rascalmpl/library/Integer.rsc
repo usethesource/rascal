@@ -17,11 +17,11 @@ public int abs(int N)
 
 @doc{Return an arbitrary integer value.}
 @javaClass{org.rascalmpl.library.Integer}
-public int java arbInt();
+public java int arbInt();
 
 @doc{Return an arbitrary integer value in the interval [0, limit).}
 @javaClass{org.rascalmpl.library.Integer}
-public int java arbInt(int limit);
+public java int arbInt(int limit);
 
 @doc{Largest of two integers.}
 public int max(int n, int m)
@@ -37,8 +37,8 @@ public int min(int n, int m)
 
 @doc{Convert an integer value to a real value.}
 @javaClass{org.rascalmpl.library.Integer}
-public real java toReal(int n);
+public java real toReal(int n);
 
 @doc{Convert an integer value to a string.}
 @javaClass{org.rascalmpl.library.Integer}
-public str java toString(int n);
+public java str toString(int n);
