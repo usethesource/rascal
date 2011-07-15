@@ -11,15 +11,15 @@ module Strategy
 
 @doc{Apply the function if the argument is of the same type and returns identity otherwise.}
 @javaClass{org.rascalmpl.library.Strategy}
-public &T(&T) java functionToStrategy(value function);
+public java &T(&T) functionToStrategy(value function);
 
 @doc{Apply the strategy given in argument to all the children of the subject.}
 @javaClass{org.rascalmpl.library.Strategy}
-public &T(&T) java makeAll(&T(&T) strategy);
+public java &T(&T) makeAll(&T(&T) strategy);
 
 @doc{Apply the strategy given in argument to one of the children of the subject.}
 @javaClass{org.rascalmpl.library.Strategy}
-public &T(&T) java makeOne(&T(&T) strategy);
+public java &T(&T) makeOne(&T(&T) strategy);
 
 
 public &T1(&T1) top_down(&T2(&T2) strategy) { 

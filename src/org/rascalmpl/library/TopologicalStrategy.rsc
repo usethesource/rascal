@@ -14,11 +14,11 @@ module TopologicalStrategy
 
 @doc{Apply the strategy in argument to all the children of the subject using a topological order for binary relations.}
 @javaClass{org.rascalmpl.library.Strategy}
-public &T(&T) java makeTopologicalAll(&T(&T) strategy);
+public java &T(&T) makeTopologicalAll(&T(&T) strategy);
 
 @doc{Apply the strategy in argument to one of the children of the subject using a topological order for binary relations.}
 @javaClass{org.rascalmpl.library.Strategy}
-public &T(&T) java makeTopologicalOne(&T(&T) strategy);
+public java &T(&T) makeTopologicalOne(&T(&T) strategy);
 
 @javaClass{org.rascalmpl.library.Strategy}
 @reflect{use the current strategy context}
