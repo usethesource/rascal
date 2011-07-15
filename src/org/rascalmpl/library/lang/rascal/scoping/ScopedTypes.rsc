@@ -23,6 +23,7 @@ import lang::rascal::types::Types;
 import lang::rascal::types::TypeSignatures;
 import lang::rascal::types::SubTypes;
 import lang::rascal::types::TypeEquivalence;
+import lang::rascal::types::TypeExceptions;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::syntax::RascalRascal;
 
@@ -131,11 +132,12 @@ public RType expandADTType(RType rt, STBuilder stBuilder, ItemId currentScope) {
 }
 
 public RType expandLexType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(t1);
+    throw UnexpectedRType(rt);
 }
 
 public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) {
     RName tn = getUserTypeName(rt);
+
     list[RType] params = [ expandUserTypes(tp,stBuilder,currentScope) | tp <- getUserTypeParameters(rt)];
     
     set[ItemId] userTypes = getItems(stBuilder,currentScope,tn,Types());
@@ -152,7 +154,9 @@ public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) 
     if (size(aliasItems) == 0 && size(adtItems) == 0)
         return rt; // Could not expand, may be an unknown type...
         
-    // TODO: It should be fine to have more than 1 here, but verify (they should all be the same).        
+    // TODO: It should be fine to have more than 1 here, but verify (they should all be the same).
+    // TODO: Instantiate here? Any use of a user type with params that is not the declaration
+    // site should probably be instantiated to get back the proper type.        
     if (size(adtItems) > 0) {
         RType resultType = getTypeForItem(stBuilder, getOneFrom(adtItems));
         list[RType] adtParameters = getADTTypeParameters(resultType);
@@ -191,23 +195,23 @@ public RType expandAliasType(RType rt, STBuilder stBuilder, ItemId currentScope)
 }
 
 public RType expandDataTypeSelectorType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(t1);
+    throw UnexpectedRType(rt);
 }
 
 public RType expandFailType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(t1);
+    throw UnexpectedRType(rt);
 }
 
 public RType expandInferredType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(t1);
+    return rt;
 }
 
 public RType expandOverloadedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(t1);
+    return rt;
 }
 
 public RType expandStatementType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(t1);
+    throw UnexpectedRType(rt);
 }
 
 public RType expandUnknownType(RType rt, STBuilder stBuilder, ItemId currentScope) {
@@ -445,16 +449,16 @@ public STBuilder consolidateADTDefinitions(STBuilder stBuilder, RName moduleName
 public STBuilder consolidateADTDefinitionsForLayer(STBuilder stBuilder, ItemId layerId, bool includeTopScope) {
     // Step 1: Pick out all ADT definitions in the loaded scope information (i.e., all ADTs defined
     // in either the loaded module or its direct imports)
-    set[ItemId] adtIDs = { sid | sid <- stBuilder.scopeRel[layerId], ADT(_,_,_) := stBuilder.scopeItemMap[sid] };
+    set[ItemId] adtIDs = { sid | sid <- stBuilder.scopeRel[layerId], ADT(_,_,_,_) := stBuilder.scopeItemMap[sid] };
     if (includeTopScope) {
-        adtIDs = adtIDs + { sid | sid <- stBuilder.scopeRel[last(stBuilder.scopeStack)], ADT(_,_,_) := stBuilder.scopeItemMap[sid] };
+        adtIDs = adtIDs + { sid | sid <- stBuilder.scopeRel[last(stBuilder.scopeStack)], ADT(_,_,_,_) := stBuilder.scopeItemMap[sid] };
     }
                               
     // Step 2: Group these based on the name of the ADT
-    rel[RName adtName, ItemId adtItemId] nameXADTItem = { < getADTName(n), sid > | sid <- adtIDs, ADT(n,_,_) := stBuilder.scopeItemMap[sid] };
+    rel[RName adtName, ItemId adtItemId] nameXADTItem = { < getADTName(n), sid > | sid <- adtIDs, ADT(n,_,_,_) := stBuilder.scopeItemMap[sid] };
     
     // Step 3: Gather together all the constructors for the ADTs
-    rel[ItemId adtItemId, ItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(stBuilder.scopeItemMap), Constructor(_,_,sid,_) := stBuilder.scopeItemMap[cid] };
+    rel[ItemId adtItemId, ItemId consItemId] adtItemXConsItem = { < sid, cid > | sid <- range(nameXADTItem), cid <- domain(stBuilder.scopeItemMap), Constructor(_,_,sid,_,_) := stBuilder.scopeItemMap[cid] };
      
     // Step 4: Now, directly relate the ADT names to the available constructors
     rel[RName adtName, ItemId consItemId] nameXConsItem = nameXADTItem o adtItemXConsItem;

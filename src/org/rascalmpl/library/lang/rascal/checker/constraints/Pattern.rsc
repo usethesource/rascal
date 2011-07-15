@@ -13,393 +13,317 @@ module lang::rascal::checker::constraints::Pattern
 import List;
 import ParseTree;
 import IO;
-import lang::rascal::types::Types;
-import lang::rascal::scoping::SymbolTable;
-import lang::rascal::checker::constraints::Constraints;
-import lang::rascal::checker::Annotations;
+
+import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
+import lang::rascal::types::Types;
+import lang::rascal::types::SubTypes;
+import lang::rascal::types::TypeSignatures;
+import lang::rascal::checker::Annotations;
+import lang::rascal::scoping::SymbolTable;
+import lang::rascal::scoping::ScopedTypes;
+import lang::rascal::checker::constraints::Constraints;
+
 import lang::rascal::syntax::RascalRascal;
 
-//
-// Given a pattern and a subject type, attempt to bind the subject type to
-// the pattern, including creating constraints to represent type assignments
-// to pattern variables.
-//
-public ConstraintBase bindInferredTypesToPattern(ConstraintBase cb, STBuilder st, RType rt, Pattern pat) {
-    //
-    // Literals in patterns: we should have a bool type and a bool pattern, int type and int pattern,
-    // etc. If so, add a constraint saying the tree is of that pattern type.
-    //    
-    if ((Pattern)`<BooleanLiteral _>` := pat)
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeBoolType());
-
-    if ((Pattern)`<DecimalIntegerLiteral _>` := pat || (Pattern)`<OctalIntegerLiteral _>` := pat || (Pattern)`<HexIntegerLiteral _>` := pat)
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeIntType());
-    
-    if ((Pattern)`<RealLiteral _>` := pat)
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeRealType());
-
-    if (isStrType(rt), (Pattern)`<StringLiteral _>` := pat)
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeStrType());
-
-    if (isLocType(rt), (Pattern)`<LocationLiteral _>` := pat)
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeLocType());
-        
-    if (isDateTimeType(rt), (Pattern)`<DateTimeLiteral _>` := pat)
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeDateTimeType());
-
-    //
-    // For regular expression patterns, we need to pull the names inside the pattern out
-    // and check them against a subject type of str.
-    //
-    if (isStrType(rt), (Pattern)`<RegExpLiteral rl>` := pat) {
-        list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(_,lex(sort("Name")),_) := prd; });
-        for (ntree <- names) {
-            cb = bindInferredTypesToPattern(cb,st,makeStrType(),ntree);
-        }
-        cb.constraints = cb.constraints + TreeIsType(pat,pat@\loc,makeStrType());
-    }
-    
-    //
-    // Various name patterns (anonymous, qualified, etc)
-    //
-    if ((Pattern)`_` := pat) {
-        <cs, t1> = makeFreshType(cs);
-        cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t1);
-        if (pat@\loc in st.itemUses<0>) {
-            cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[pat@\loc],pat@\loc);
-        }
-        cs.constraints = cs.constraints + SubtypeOf(rt,t1,U(),pat@\loc);   
-    }
-    
-    if ((Pattern)`<Name n>` := pat) {
-        <cs, t1> = makeFreshType(cs);
-        cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t1);
-        if (n@\loc in st.itemUses<0>) {
-            cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[n@\loc],n@\loc);
-        }
-        cs.constraints = cs.constraints + SubtypeOf(rt,t1,U(),n@\loc);   
-    }
-        
-    if ((Pattern)`<QualifiedName qn>` := pat) {
-        <cs, t1> = makeFreshType(cs);
-        cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t1);
-        if (qn@\loc in st.itemUses<0>) {
-            cs.constraints = cs.constraints + DefinedBy(t1,st.itemUses[qn@\loc],qn@\loc);
-        }
-        cs.constraints = cs.constraints + SubtypeOf(rt,t1,U(),qn@\loc);   
-    }
-
-    //    
-    // List, set, map, and tuple patterns
-    //
-    if (isListType(rt), (Pattern) `[<{Pattern ","}* pl>]` := pat) {
-        list[RType] lubTypes = [ ];
-        for (p <- pl) {
-            <cb, t1> = makeFreshType(cb);
-            if ((Pattern)`[<{Pattern ","}* pl2>]` !:= p)
-                t1 = SpliceableElement(t1);
-            lubTypes += t1;
-            cb.constraints = cb.constraints + TreeIsType(p,p@\loc,t1);
-            cb = bindInferredTypesToPattern(cb,st,element,p);
-        }
-        <cb, t2> = makeFreshType(cb);
-        cb.constraints = cb.constraints + LubOfList(lubTypes,t2,pat@\loc);
-        cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t2);
-    }
-
-    if (isSetType(rt), (Pattern) `{<{Pattern ","}* pl>}` := pat) {
-        Set[RType] lubTypes = [ ];
-        for (p <- pl) {
-            <cb, t1> = makeFreshType(cb);
-            if ((Pattern)`{<{Pattern ","}* pl2>}` !:= p)
-                t1 = SpliceableElement(t1);
-            lubTypes += t1;
-            cb.constraints = cb.constraints + TreeIsType(p,p@\loc,t1);
-            cb = bindInferredTypesToPattern(cb,st,element,p);
-        }
-        <cb, t2> = makeFreshType(cb);
-        cb.constraints = cb.constraints + LubOfSet(lubTypes,t2,pat@\loc);
-        cs.constraints = cs.constraints + TreeIsType(pat,pat@\loc,t2);
-    }
-    
-       // Tuple with just one element
-        // TODO: Ensure fields persist in the match, they don't right now
-        case (Pattern) `<<Pattern pi>>` : {
-            if (isTupleType(rt) && isTupleType(pt)) {
-                list[RType] tupleFields = getTupleFields(rt);
-                if (size(tupleFields) == 1) {
-                    RType resultType = bindInferredTypesToPattern(head(tupleFields),pi);
-                    if (isFailType(resultType))
-                        return resultType;
-                    else
-                        return makeTupleType([resultType]);
-                } else {
-                    return makeFailType("Tuple type in subject <prettyPrintType(rt)> has more fields than tuple type in pattern <pat>, <prettyPrintType(pat@rtype)>",pat@\loc);
-                }
-            } else {
-                return makeFailType("tuple pattern has unexpected pattern and subject types: <prettyPrintType(pt)>, <prettyPrintType(rt)>", pat@\loc);
-            }
-        }
-
-        // Tuple with more than one element
-        // TODO: Ensure fields persist in the match, they don't right now
-        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
-            if (isTupleType(rt) && isTupleType(pt)) {
-                list[RType] tupleFields = getTupleFields(rt);
-                list[Pattern] patternFields = [pi] + [p | p <- pl];
-                
-                if (size(tupleFields) == size(patternFields)) {
-                    list[RType] elementTypes = [ ];
-                    for (n <- [0..size(tupleFields)-1])
-                        elementTypes += bindInferredTypesToPattern(tupleFields[n],patternFields[n]);
-                    if (checkForFail(toSet(elementTypes))) return collapseFailTypes(toSet(elementTypes));
-                    return makeTupleType(elementTypes);
-                } else {
-                    return makeFailType("Tuple type in subject <prettyPrintType(rt)> has a different number of fields than tuple type in pattern <pat>, <prettyPrintType(pat@rtype)>",pat@\loc);
-                }
-            } else {
-                return makeFailType("tuple pattern has unexpected pattern and subject types: <prettyPrintType(pt)>, <prettyPrintType(rt)>", pat@\loc);
-            }
-        }
-    
-    
+public ConstraintBase gatherPatternConstraints(STBuilder st, ConstraintBase cb, Pattern pat) {
     switch(pat) {
-        // TODO: ReifiedType, see if we need to expand matching for this
-        case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` : {
-            if (RReifiedType(bt) := rt) {
-                return rt; // TODO: Will need to change to really get this working, just return the binder type for now
-            } else {
-                return makeFailType("Type of pattern, <prettyPrintType(pt)>, is not compatible with the type of the binding expression, <prettyPrintType(rt)>",pat@\loc);
-            }
-        }
+        case (Pattern)`<BooleanLiteral _>` :
+            return addConstraintForLoc(cb, pat@\loc, makeBoolType());
+        
+        case (Pattern)`<DecimalIntegerLiteral il>` :
+            return addConstraintForLoc(cb, pat@\loc, makeIntType());
 
-        // CallOrTree
-        // This handles two different cases. In the first, the binding code is invoked when we handle
-        // a constructor pattern to assign types to the variables. In that case, we actually have the
-        // full signature of the constructor, so we have the information for each field in the
-        // pattern. In the second, the binding code is invoked during a match or enumeration, so
-        // we don't actually have explicit constructor types, just the ADT type. In that case, we
-        // can't descend into the pattern, we just have to compare the ADT types of the constructor
-        // and the type of the binding type (rt).
-        case (Pattern) `<Pattern p1> ( <{Pattern ","}* pl> )` : {
-            list[Pattern] patternFields = [p | p <- pl];
-            RType patternType = pat@fctype; // Get back the constructor type used, not the ADT types
-            if (isConstructorType(patternType) && isConstructorType(rt) && size(getConstructorArgumentTypes(patternType)) == size(patternFields)) {
-                set[RType] potentialFailures = { };
-                list[RType] rtArgTypes = getConstructorArgumentTypes(rt); 
-                for (n <- domain(rtArgTypes))
-                    potentialFailures += bindInferredTypesToPattern(rtArgTypes[n],patternFields[n]);
-                if (checkForFail(potentialFailures)) return collapseFailTypes(potentialFailures);
-                return getConstructorResultType(patternType);
-            } else if (isADTType(pt) && isADTType(rt) && subtypeOf(rt,pt)) {
-                return pt; // TODO: Firm this up
-            } else {
-                return makeFailType("Actual type, <prettyPrintType(rt)>, is incompatible with the pattern type, <prettyPrintType(pt)>",pat@\loc);
-            }
-        }
+        case (Pattern)`<OctalIntegerLiteral il>` :
+            return addConstraintForLoc(cb, pat@\loc, makeIntType());
 
- 
-        // Typed Variable: a variable of type t can match a subject of type rt when rt <: t
-        // TODO: Special rules for scalars vs nodes/ADTs? May make sense to say they can match
-        // when, with allSubtypes being the set of all possible subtypes of t,
-        // size(allSubtypes(pt) inter allSubtypes(rt)) > 0, i.e., when the actual type of each,
-        // which is a subtype of the static type, could be shared...
-        case (Pattern) `<Type t> <Name n>` : {
-            if (subtypeOf(rt,pt))
-                return pt;
+        case (Pattern)`<HexIntegerLiteral il>` :
+            return addConstraintForLoc(cb, pat@\loc, makeIntType());
+
+        case (Pattern)`<RealLiteral rl>` :
+            return addConstraintForLoc(cb, pat@\loc, makeRealType());
+
+        case (Pattern)`<StringLiteral sl>` :
+            return addConstraintForLoc(cb, pat@\loc, makeStrType());
+
+        case (Pattern)`<LocationLiteral ll>` :
+            return addConstraintForLoc(cb, pat@\loc, makeLocType());
+
+        case (Pattern)`<DateTimeLiteral dtl>` :
+            return addConstraintForLoc(cb, pat@\loc, makeDateTimeType());
+        
+        case (Pattern)`<RegExpLiteral rl>` : {
+            list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(_,lex(sort("Name")),_) := prd; });
+            for (ntree <- names) {
+                < cb, tn > = makeFreshType(cb);
+                cb = addConstraintForLoc(cb, ntree@\loc, tn);
+                cb.constraints = cb.constraints + ConstrainType(tn, makeStrType(), ntree@\loc); 
+                if (ntree@\loc in st.itemUses<0>) {
+                    cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[ntree@\loc], ntree@\loc);
+                } else {
+                    cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", ntree@\loc));
+                }
+            }
+            return addConstraintForLoc(cb, pat@\loc, makeStrType());
+        }
+        
+        case (Pattern)`_` : {
+            < cb, tn > = makeFreshType(cb);
+            if (pat@\loc in st.itemUses<0>)
+                cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[pat@\loc], pat@\loc);
             else
-                return makeFailType("not possible to bind actual type <prettyPrintType(rt)> to pattern type <prettyPrintType(pt)>", pat@\loc);
+                cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", pat@\loc), pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, tn);
         }
         
-        // Multi Variable patterns, _* and QualifiedName*
-        case (Pattern)`_ *` : {
-            return bindInferredTypesToMV(rt, getTypeForNameLI(globalSTBuilder,RSimpleName("_"),pat@\loc), pat);
+        case (Pattern)`<Name n>` : {
+            < cb, tn > = makeFreshType(cb);
+            if (n@\loc in st.itemUses<0>)
+                cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[n@\loc], pat@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", n@\loc), pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, tn);
         }
         
-        case (Pattern) `<QualifiedName qn> *` : {
-            return bindInferredTypesToMV(rt, getTypeForNameLI(globalSTBuilder,convertName(qn),qn@\loc), pat);
+        case (Pattern)`<QualifiedName qn>` : {
+            < cb, tn > = makeFreshType(cb);
+            if (qn@\loc in st.itemUses<0>)
+                cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[qn@\loc], pat@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", qn@\loc), pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, tn);
+        }
+        
+        case (Pattern) `<Type t> <Name n>` : {
+            // NOTE: We don't additionally constrain the name here to be of type t since
+            // it was defined to be of type t during the name resolution phase.
+            < cb, tn > = makeFreshType(cb);
+            if (n@\loc in st.itemUses<0>)
+                cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[n@\loc], pat@\loc);
+            else
+                cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", n@\loc), pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, tn);
+        }
+        
+        case (Pattern) `[<{Pattern ","}* pl>]` : {
+            < cb, tlub > = makeFreshType(cb);
+            list[RType] lubs = [ makeVoidType() ];
+            for (pli <- pl) {
+                RType elementType = makeVoidType();
+                
+                if ((Pattern)`_*` := pli) {
+                    < cb, tn > = makeFreshType(cb);
+                    elementType = tn;
+                    cb = addConstraintForLoc(cb, pli@\loc, makeListType(elementType));
+                    if (pli@\loc in st.itemUses<0>)
+                        cb.constraints = cb.constraints + DefinedBy(makeListType(elementType), st.itemUses[pli@\loc], pat@\loc);
+                    else
+                        cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", pli@\loc), pat@\loc);
+                } else if ((Pattern)`<QualifiedName qn> *` := pli) {
+                    < cb, tn > = makeFreshType(cb);
+                    elementType = tn;
+                    cb = addConstraintForLoc(cb, pli@\loc, makeListType(elementType));
+                    if (qn@\loc in st.itemUses<0>)
+                        cb.constraints = cb.constraints + DefinedBy(makeListType(elementType), st.itemUses[qn@\loc], pat@\loc);
+                    else
+                        cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", qn@\loc), pat@\loc);
+                } else {
+                    cb = gatherPatternConstraints(st, cb, pli);
+                    elementType = typeForLoc(cb, pli@\loc);
+
+                    if ((Pattern)`[<{Pattern ","}* _>]` !:= pli)
+                        elementType = SpliceableElement(elementType);
+                }
+
+                lubs += elementType;
+            }
+
+            cb.constraints = cb.constraints + LubOfList(lubs, tlub, pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, makeListType(tlub));
         }
 
-        // Descendant
-        // Since this pattern is inside something, we use the subject type (rt) to determine what it is
-        // inside. If p is itself just an inferred type (e.g., p = / x) then we use rt to figure
-        // out what x can hold, which is: the lub of all the types reachable through rt. If p has
-        // a type of some sort at the top level, we check to see if that can be used inside rt.
-        // If so, and if it contains inferred or deferred types, we push down a lub of the matching
-        // types in rt. If so, and if it has no deferred types, we just use that type, if it can
-        // occur inside rt.
-        // 
-        // NOTE: We actually return rt as the type of / x, not lub(reachable(rt)). This is because
-        // pattern / x essentially stands in for rt in this case, if we have [_*,/ x,_*] for instance,
-        // and we use this to indicate that the second position actually has an rt which we are
-        // picking apart.
+        
+        case (Pattern) `{<{Pattern ","}* pl>}` : {
+            < cb, tlub > = makeFreshType(cb);
+            list[RType] lubs = [ makeVoidType() ];
+            for (pli <- pl) {
+                RType elementType = makeVoidType();
+                
+                if ((Pattern)`_*` := pli) {
+                    < cb, tn > = makeFreshType(cb);
+                    elementType = tn;;
+                    cb = addConstraintForLoc(cb, pli@\loc, makeSetType(elementType));
+                    if (pli@\loc in st.itemUses<0>)
+                        cb.constraints = cb.constraints + DefinedBy(makeSetType(elementType), st.itemUses[pli@\loc], pat@\loc);
+                    else
+                        cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", pli@\loc), pat@\loc);
+                } else if ((Pattern)`<QualifiedName qn> *` := pli) {
+                    < cb, tn > = makeFreshType(cb);
+                    elementType = tn;
+                    cb = addConstraintForLoc(cb, pli@\loc, makeSetType(elementType));
+                    if (qn@\loc in st.itemUses<0>)
+                        cb.constraints = cb.constraints + DefinedBy(makeSetType(elementType), st.itemUses[qn@\loc], pat@\loc);
+                    else
+                        cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", qn@\loc), pat@\loc);
+                } else {
+                    cb = gatherPatternConstraints(st, cb, pli);
+                    elementType = typeForLoc(cb, pli@\loc);
+
+                    if ((Pattern)`{<{Pattern ","}* _>}` !:= pli)
+                        elementType = SpliceableElement(elementType);
+                }
+
+                lubs += elementType;
+            }
+
+            cb.constraints = cb.constraints + LubOfSet(lubs, tlub, pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, makeSetType(tlub));
+        }
+        
+        case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` : {
+            // TODO: Should throw unimplemented for now, need to implement
+            // the reified types as part of the "prelude"...
+            list[RType] reifierTypes = [ ];
+            for (pli <- pl) {
+                cb = gatherPatternConstraints(st, cb, pli);
+                reifierTypes += typeForLoc(cb, pli@\loc);            
+            }
+            if (size(reifierTypes) > 1)
+                cb = addConstraintForLoc(cb, pat@\loc, makeFailType("Reified types have an arity of at most 1",pat@\loc));
+            return cb; // TODO: Add rest of logic for reified type constructors
+        }
+
+        case (Pattern) `<Pattern p1> ( <{Pattern ","}* pl> )` : {
+            < cb, tr > = makeFreshType(cb);
+            < cb, tt > = gatherPatternConstraints(st, cb, p1);
+            
+            list[RType] paramTypes = [ ];
+            for (pli <- pl) {
+                cb = gatherPatternConstraints(st, cb, pli);
+                paramTypes += typeForLoc(cb, pli@\loc);            
+            }
+
+            cb.constraints = cb.constraints + CallOrTree(tt, paramTypes, tr, pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, tr);
+        }
+        
+//        case (Pattern) `<<Pattern pi>>` : {
+//            < cb, ti > = gatherPatternConstraints(st, cb, pi);
+//            return addConstraintForLoc(cb, pat@\loc, makeTupleType([ti]));
+//        }
+        
+//        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+//            < cb, ti > = gatherPatternConstraints(st, cb, pi);
+//            list[RType] tupleTypes = [ ti ];
+//            for (pli <- pl) {
+//                < cb, ti > = gatherPatternConstraints(st, cb, pli);
+//                tupleTypes += ti;            
+//            }
+//            return addConstraintForLoc(cb, pat@\loc, makeTupleType(tupleTypes));
+//        }
+
         case (Pattern) `/ <Pattern p>` : {
-            if ( isInferredType(p@rtype) ) {
-                    set[RType] rts = reachableTypes(globalSTBuilder, rt);
-                RType bt = bindInferredTypesToPattern(lubSet(rts), p);
-                return isFailType(bt) ? bt : rt;
-            } else if ( (! isInferredType(p@rtype)) && (hasDeferredTypes(p@rtype))) {
-                    set[RType] rts = reachableTypes(globalSTBuilder, rt);
-                rts = { rtsi | rtsi <- rts, subtypeOf(rtsi, p@rtype)};
-                RType bt = bindInferredTypesToPattern(lubSet(rts), p);
-                return isFailType(bt) ? bt : rt;
-            } else {
-                    set[RType] rts = reachableTypes(globalSTBuilder, rt);
-                if (p@rtype in rts) return rt;
-                return makeFailType("Pattern type <prettyPrintType(p@rtype)> cannot appear in type <prettyPrintType(rt)>", pat@\loc);
-            }
+            cb = gatherPatternConstraints(st, cb, p);
+            
+            // Need to decide -- reachable from where? Don't want to have to check
+            // for this in every other pattern... For now, put in Value, because everything
+            // is reachable from Value
+            cb.constraints = cb.constraints + PatternReachable(makeValueType(), typeForLoc(cb,p@\loc), pat@\loc);
+            
+            return addConstraintForLoc(cb, pat@\loc, makeValueType());
         }
 
-        // Variable Becomes
         case (Pattern) `<Name n> : <Pattern p>` : {
-            RType boundType = bindInferredTypesToPattern(rt, p);
-            if (! isFailType(boundType)) {
-                    RType nType = getTypeForNameLI(globalSTBuilder,convertName(n),n@\loc);
-                    RType t = (isInferredType(nType)) ? globalSTBuilder.inferredTypeMap[getInferredTypeIndex(nType)] : nType;
-                    if (isInferredType(t)) {
-                        updateInferredTypeMappings(t,boundType);
-                        return boundType;
-                    } else if (! equivalent(t,boundType)) {
-                        return makeFailType("Attempt to bind multiple types to the same implicitly typed name <n>: already bound type <prettyPrintType(t)>, attempting to bind type <prettyPrintType(boundType)>", n@\loc);
-                    } else {
-                        return t; // or boundType, types are equal
-                    }
+            cb = gatherPatternConstraints(st, cb, p);
+            < cb, tn > = makeFreshType(cb);
+                 
+            if (n@\loc in st.itemUses<0>) {
+                cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[n@\loc], pat@\loc);
+                cb.constraints = cb.constraints + Comparable(tn, typeForLoc(cb,p@\loc), U(), pat@\loc);
+            } else {
+                cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", n@\loc), pat@\loc);
             }
-            return boundType;
+            return cb = addConstraintForLoc(cb, pat@\loc, tn);
         }
         
-        // Typed Variable Becomes
         case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
-            if (subtypeOf(rt,pt)) {
-                RType resultType = bindInferredTypesToPattern(rt, p);
-                if (isFailType(resultType)) return resultType;
-                return pt;
+            cb = gatherPatternConstraints(st, cb, p);
+            < cb, tn > = makeFreshType(cb);
+                 
+            if (n@\loc in st.itemUses<0>) {
+                cb.constraints = cb.constraints + DefinedBy(tn, st.itemUses[n@\loc], pat@\loc);
+                cb.constraints = cb.constraints + Comparable(tn, typeForLoc(cb,p@\loc), U(), pat@\loc);
             } else {
-                return makeFailType("Not possible to bind actual type <prettyPrintType(rt)> to pattern type <prettyPrintType(pt)>", pat@\loc);
+                cb.constraints = cb.constraints + ConstrainType(tn, makeFailType("No definition for this name found", n@\loc), pat@\loc);
             }
+            return addConstraintForLoc(cb, pat@\loc, tn);
         }
-        
-        // Guarded
+
         case (Pattern) `[ <Type t> ] <Pattern p>` : {
-            if (subtypeOf(rt,pt)) {
-                RType resultType = bindInferredTypesToPattern(rt, p);
-                if (isFailType(resultType)) return resultType;
-                return pt;
-            } else {
-                return makeFailType("Not possible to bind actual type <prettyPrintType(rt)> to pattern type <prettyPrintType(pt)>", pat@\loc);
-            }
+            // TODO: My read on this is that p can be anything, but will only match
+            // the subject if it can match when considered to be of type t.
+            // Look into the interpreter to get the actual interpretation.
+            // Adding a Comparable constraint anyway.
+            cb = gatherPatternConstraints(st, cb, p);
+            cb.constraints = cb.constraints + Comparable(convertType(t), typeForLoc(cb,p@\loc), U(), pat@\loc);
+            return addConstraintForLoc(cb, pat@\loc, convertType(t));
         }           
         
-        // Anti -- TODO see if this makes sense, check the interpreter
         case (Pattern) `! <Pattern p>` : {
-            return bindInferredTypesToPattern(rt, p);
+            cb = gatherPatternConstraints(st, cb, p);
+            return addConstraintForLoc(cb, pat@\loc, typeForLoc(cb,p@\loc));
         }
     }
 
-    // Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
-    // representing the map.
-        // pat[0] is the production used, pat[1] is the actual parse tree contents
-    if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := pat[0]) {
-            if (isMapType(rt) && isMapType(pt)) {
-                    RType t = bindInferredTypesToMapPattern(rt, pat);
-                        return t;
-                } else {
-                        return makeFailType("map pattern has unexpected pattern and subject types: <prettyPrintType(pt)>, <prettyPrintType(rt)>", pat@\loc);
-                }
-    }
-
-    throw "Missing case on checkPattern for pattern <pat>";
-}
-
-//
-// Bind any variables used in the map pattern to the types present in type rt.
-//
-public RType bindInferredTypesToMapPattern(RType rt, Pattern pat) {
-    RType mapDomain = getMapDomainType(rt);
-    RType mapRange = getMapRangeType(rt);
-
-    list[tuple[Pattern mapDomain, Pattern mapRange]] mapContents = getMapPatternContents(pat);
-    if (size(mapContents) == 0) return makeMapType(makeVoidType(), makeVoidType());
-
-    list[RType] domains; list[RType] ranges;
-    for (<md,mr> <- mapContents) { 
-        domains += bindInferredTypesToPattern(mapDomain, pl);
-        ranges += bindInferredTypesToPattern(mapRange, pr);
-    }
-
-    if (checkForFail(toSet(domains+ranges))) return collapseFailTypes(toSet(domains+ranges));
-    return makeMapType(lubList(domains),lubList(ranges));   
-}
-
-//
-// Bind inferred types to multivar names: _* and QualifiedName*
-//
-public RType bindInferredTypesToMV(RType rt, RType pt, Pattern pat) {
-        RType retType;
-
-    // Make sure the type we are given is actually one that can contain elements
-    if (! (isListType(rt) || isSetType(rt) || isContainerType(rt))) {
-            return makeFailType("Attempting to bind type <prettyPrintType(rt)> to a multivariable <pat>",pat@\loc);
-    }
-
-    // Make sure that the type we are given is compatible with the type of the container variable
-    if ( ! ( (isListType(rt) && (isListType(pt) || isContainerType(pt))) ||
-                 (isSetType(rt) && (isSetType(pt) || isContainerType(pt))) ||
-                 (isContainerType(rt) && isContainerType(pt)))) {
-            return makeFailType("Attempting to bind type <prettyPrintType(rt)> to an incompatible container type <prettyPrintType(pt)>",pat@\loc);
+    if (prod(label("Map",_),_,_) := pat[0]) {
+        list[tuple[Pattern mapDomain, Pattern mapRange]] mapContents = getMapPatternContents(pat);
+        list[RType] domains = [ makeVoidType() ];
+        list[RType] ranges = [ makeVoidType() ];
+        for ( < md, mr > <- mapContents ) {
+            cb = gatherPatternConstraints(st, cb, md);
+            cb = gatherPatternConstraints(st, cb, mr);
+            domains += typeForLoc(cb,md@\loc); ranges += typeForLoc(cb,mr@\loc);
         }
-
-        // This should be structured as RContainerType(RInferredType(#)) unless we have assigned a more specific
-    // type between creation and now. It should always be a container (list, set, or container) of some sort.
-    if (isContainerType(pt) || isListType(pt) || isSetType(pt)) {
-                RType elementType;
-        bool elementIsInferred = false;
-            if (isContainerType(pt)) {
-                    elementIsInferred = (isInferredType(getContainerElementType(pt))) ? true : false;
-            elementType = (isInferredType(getContainerElementType(pt))) ?
-                    globalSTBuilder.inferredTypeMap[getInferredTypeIndex(getContainerElementType(pt))] :
-                getContainerElementType(pt);
-        } else if (isListType(pt)) {
-            elementIsInferred = (isInferredType(getListElementType(pt))) ? true : false;
-            elementType = (isInferredType(getListElementType(pt))) ?
-                    globalSTBuilder.inferredTypeMap[getInferredTypeIndex(getListElementType(pt))] : 
-                    getListElementType(pt);
-        } else if (isSetType(pt)) {
-            elementIsInferred = (isInferredType(getSetElementType(pt))) ? true : false;
-            elementType = (isInferredType(getSetElementType(pt))) ?
-                    globalSTBuilder.inferredTypeMap[getInferredTypeIndex(getSetElementType(pt))] : 
-                getSetElementType(pt);
-        }
-
-        // Get the type of element inside the type being bound
-        RType relementType = isContainerType(rt) ? getContainerElementType(rt) : (isListType(rt) ? getListElementType(rt) : getSetElementType(rt));
-
-        if (elementIsInferred) {
-                // The element type is inferred. See if it still is open -- if it still points to an inferred type.
-            if (isInferredType(elementType)) {
-                        // Type still open, update mapping
-                updateInferredTypeMappings(elementType,relementType);
-                retType = rt;
-                    } else if (! equivalent(elementType, relementType)) {
-                        // Already assigned a type, issue a failure, attempting to bind multiple types to the same var
-                retType = makeFailType("Attempt to bind multiple types to the same implicitly typed name <pat>: already bound element type as <prettyPrintType(elementType)>, attempting to bind new element type <prettyPrintType(relementType)>", pat@\loc);
-            } else {
-                // Trying to assign the same type again, which is fine, just return it.
-                retType = rt;
-                }
-        } else {
-                // The element type is NOT an inferred type. The type of rt must match exactly.
-                if (! equivalent(elementType, relementType)) {
-                    retType = makeFailType("Attempt to bind multiple types to the same implicitly typed name <pat>: already bound element type as <prettyPrintType(elementType)>, attempting to bind new element type <prettyPrintType(relementType)>", pat@\loc);
-            } else {
-                retType = rt;
-            }  
-        }
-    } else {
-            throw "Unexpected type assigned to container var at location <pat@\loc>: <prettyPrintType(pt)>";
+        < cb, domainLub > = makeFreshType(cb);
+        < cb, rangeLub > = makeFreshType(cb);
+        cb.constraints = cb.constraints + LubOf(domains, domainLub, pat@\loc);
+        cb.constraints = cb.constraints + LubOf(ranges, rangeLub, pat@\loc);
+        RType mapType = makeMapType(domainLub, rangeLub);
+        return addConstraintForLoc(cb, pat@\loc, mapType);
     }
     
-        return retType;
+    if (prod(label("Tuple",_),_,_) := pat[0]) {
+        list[Pattern] tupleContents = getTuplePatternContents(pat);
+        list[RType] tupleTypes = [ ];
+        for (tc <- tupleContents) {
+            cb = gatherPatternConstraints(st, cb, tc);
+            tupleTypes += typeForLoc(cb, tc@\loc);
+        }
+        RType tupleType = makeTupleType(tupleTypes);
+        return addConstraintForLoc(cb, pat@\loc, tupleType);
+    }
+
+    throw "Missing case for <pat>";
 }
 
+public list[Pattern] getTuplePatternContents(Pattern pat) {
+    return [ p | Pattern p <- getTupleItems(pat) ];
+}
+
+public list[Tree] getTupleItems(Tree t) {
+    list[Tree] tupleParts = [ ];
+
+    // t[1] holds the parse tree contents for the tuple
+    if (list[Tree] tupleTop := t[1]) {
+        // tupleTop[0] = <, tupleTop[1] = layout, tupleTop[2] = tuple contents, tupleTop[3] = layout, tupleTop[4] = >, so we get out 2
+        if (appl(_,list[Tree] tupleItems) := tupleTop[2]) {
+            if (size(tupleItems) > 0) {
+                // The tuple items include layout and commas, so we use a mod 4 to account for this: we have
+                // item layout comma layout item layout comma layout etc
+                tupleParts = [ tupleItems[n] | n <- [0..size(tupleItems)-1], n % 4 == 0];
+            }
+        }
+    }
+
+    return tupleParts;
+}

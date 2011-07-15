@@ -782,7 +782,7 @@ public STBuilder handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc 
 // Tests don't introduce any top-level names, so we only need to handle the test tag on this first pass.
 //
 public STBuilder handleTestNamesOnly(Test t, loc l, STBuilder stBuilder) {
-    if ((Test)`<Tags tgs> test <Expression exp>` := t || (Test)`<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
+    if ((Test)`<Tags tgs> test <Expression exp>` := t) {
         return handleTagsNamesOnly(tgs, stBuilder);
     }
     throw "Unexpected syntax for test: <t>";
@@ -793,7 +793,7 @@ public STBuilder handleTestNamesOnly(Test t, loc l, STBuilder stBuilder) {
 // on the second pass.
 //
 public STBuilder handleTest(Test t, loc l, STBuilder stBuilder) {
-    if ((Test)`<Tags tgs> test <Expression exp>` := t || (Test)`<Tags tgs> test <Expression exp> : <StringLiteral sl>` := t) {
+    if ((Test)`<Tags tgs> test <Expression exp>` := t) {
         return handleExpression(exp,handleTags(tgs, stBuilder));
     }
     throw "Unexpected syntax for test: <t>";
@@ -948,7 +948,7 @@ public STBuilder handleStatement(Statement s, STBuilder stBuilder) {
         }
 
         // if statement with no else; this opens a boolean scope, ensuring bindings in the if guard expression are visible just in the body
-        case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt> <NoElseMayFollow _>` : {
+        case (Statement)`<Label l> if (<{Expression ","}+ es>) <Statement bt>` : {
             stBuilder = handleLabel(l,stBuilder);			
             stBuilder = justSTBuilder(pushNewBooleanScope(s@\loc, stBuilder));
             for (e <- es) stBuilder = handleExpression(e, stBuilder);
@@ -1870,7 +1870,7 @@ public STBuilder handleLocalVarItems(Type t, {Variable ","}+ vs, STBuilder stBui
             } else {
                 ConvertTuple ct = convertRascalType(stBuilder, t);
                 RType varType = ct.rtype; stBuilder = ct.stBuilder;
-                stBuilder = justSTBuilder(addVariableToScope(convertName(n), varType, true, vb@\loc, stBuilder));
+                stBuilder = justSTBuilder(addVariableToScope(convertName(n), varType, true, n@\loc, stBuilder));
             } 
         }
 		
@@ -1961,7 +1961,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
 			set[loc] conflictLocations = { stBuilder.scopeItemMap[si].definedAt | si <- conflictItems };		
 			stBuilder = addScopeError(stBuilder, l, "Illegal shadowing of already declared name <prettyPrintName(n)>; other declarations at <conflictLocations>");
 		} else {
-			stBuilder = justSTBuilder(addVariableToScope(n, t, false, pl, stBuilder));
+			stBuilder = justSTBuilder(addVariableToScope(n, t, false, l, stBuilder));
 		}
 		
         // Handle any type variables in the type of the parameter IF this is in a function scope
@@ -2164,7 +2164,7 @@ public STBuilder handlePatternConstructorName(Pattern pat, STBuilder stBuilder) 
             set[loc] conflictLocations = { stBuilder.scopeItemMap[si].definedAt | si <- conflictItems };      
             stBuilder = addScopeError(stBuilder, l, "Illegal shadowing of already declared name <prettyPrintName(n)>; other declarations at <conflictLocations>");
         } else {
-            stBuilder = justSTBuilder(addVariableToScope(n, t, false, pl, stBuilder));
+            stBuilder = justSTBuilder(addVariableToScope(n, t, false, l, stBuilder));
         }
         return stBuilder;
     }   
@@ -2377,7 +2377,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
     tuple[STBuilder,RType] handleTypedPatternName(RName n, RType t, loc l, loc pl, STBuilder stBuilder) {
         set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),n];
         if (size(matches) == 0) {
-            stBuilder = justSTBuilder(addVariableToScope(n, t, false, pl, stBuilder));
+            stBuilder = justSTBuilder(addVariableToScope(n, t, false, l, stBuilder));
 
             for(tvv <- collectTypeVars(t)) {
                 set[ItemId] tvItems = getItems(stBuilder, head(stBuilder.scopeStack), getTypeVarName(tvv), TypeVars());

@@ -348,8 +348,8 @@ public SignatureMap populateSignatureMap(list[Import] imports) {
             try {
                 Tree importTree = getModuleParseTree(getNameOfImportedModule(im));
                 sigMap[i] = getModuleSignature(importTree);
-            } catch : {
-                println("TypeSignatures: Failed to build signature for module <getNameOfImportedModule(im)>");
+            } catch v : {
+                println("TypeSignatures: Failed to build signature for module <getNameOfImportedModule(im)>: <v>");
             }
         } 
     }

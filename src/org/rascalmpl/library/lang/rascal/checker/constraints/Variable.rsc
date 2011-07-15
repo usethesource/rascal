@@ -39,9 +39,11 @@ public ConstraintBase gatherVariableConstraints(STBuilder st, ConstraintBase cb,
             cb.constraints = cb.constraints + ConstrainType(tv, makeFailType("No definition for this variable found",n@\loc), n@\loc);
 
         if ((Variable) `<Name _> = <Expression e>` := v) {
-            // Ensure that the type of the expression e is assignable to n
+            // Ensure that the type of the expression e is assignable to n; this should then
+            // yield result type tr, which is not necessarily the same as te or tv.
             te = typeForLoc(cb, e@\loc);
-            cb.constraints = cb.constraints + Assignable(te, tv, U(), v@\loc);
+            <cb, tr> = makeFreshType(cb);
+            cb.constraints = cb.constraints + Assignable(tv, te, tr, v@\loc);
         }
 
         return cb;        

@@ -15,9 +15,11 @@ import ParseTree;
 import IO;
 import lang::rascal::types::Types;
 import lang::rascal::scoping::SymbolTable;
+import lang::rascal::scoping::ResolveNames;
 import lang::rascal::checker::constraints::Constraints;
 import lang::rascal::checker::Annotations;
 import lang::rascal::checker::TreeUtils;
+import lang::rascal::checker::constraints::Pattern;
 import lang::rascal::syntax::RascalRascal;
 
 //
@@ -678,7 +680,7 @@ public ConstraintBase gatherIsDefinedExpressionConstraints(STBuilder st, Constra
 //   not e : bool
 //
 private ConstraintBase gatherNegationExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
-    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc),makeBoolType());
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc),makeBoolType(), ep@\loc);
     return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
@@ -723,8 +725,8 @@ public ConstraintBase gatherTransitiveReflexiveClosureExpressionConstraints(STBu
 //
 public ConstraintBase gatherTransitiveClosureExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression e) {
     < cb, ts > = makeFreshTypes(cb,2); t1 = ts[0]; t2 = ts[1];
-    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc), makeRelType([t1,t2]));
-    cb.constraints = cb.constraints + Comparable(t1,t2,U(),e@\loc);
+    cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb,e@\loc), makeRelType([t1,t2]), ep@\loc);
+    cb.constraints = cb.constraints + Comparable(t1,t2,U(),ep@\loc);
     cb = addConstraintForLoc(cb, ep@\loc, makeRelType([t1,t2]));
     return cb;
 }
@@ -1034,7 +1036,9 @@ public ConstraintBase gatherOrExpressionConstraints(STBuilder st, ConstraintBase
 //
 public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
     te = typeForLoc(cb, e@\loc);
-    cb.constraints = cb.constraints + Bindable(p,te,U(),p@\loc);
+    < cb, tp > = makeFreshType(cb);
+    cb = gatherPatternConstraints(st, cb, p);
+    cb.constraints = cb.constraints + Bindable(p,te,tp,p@\loc);
     return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
@@ -1047,7 +1051,9 @@ public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintB
 //
 public ConstraintBase gatherNoMatchExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
     te = typeForLoc(cb, e@\loc);
-    cb.constraints = cb.constraints + Bindable(p,te,U(),p@\loc);
+    < cb, tp > = makeFreshType(cb);
+    cb = gatherPatternConstraints(st, cb, p);
+    cb.constraints = cb.constraints + Bindable(p,te,tp,p@\loc);
     return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
@@ -1059,7 +1065,7 @@ public ConstraintBase gatherNoMatchExpressionConstraints(STBuilder st, Constrain
 //
 public ConstraintBase gatherEnumeratorExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
     te = typeForLoc(cb, e@\loc);
-    cb.constraints = cb.constraints + Enumerable(p,te,p@\loc);
+    cb.constraints = cb.constraints + Enumerable(p,te,U(),p@\loc);
     return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
@@ -1118,7 +1124,7 @@ public ConstraintBase gatherListComprehensionExpressionConstraints(STBuilder st,
 public ConstraintBase gatherMapComprehensionExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ef, Expression et, {Expression ","}+ ers) {
     RType eft = typeForLoc(cb, ef@\loc);
     RType ett = typeForLoc(cb, et@\loc);
-    for (e <- ers) cb.constraints = cb.constraints + ConstraintType(typeForLoc(cb, e@\loc), makeBoolType(), ep@\loc);
+    for (e <- ers) cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, e@\loc), makeBoolType(), ep@\loc);
     cb = addConstraintForLoc(cb, ep@\loc, makeMapType(eft, ett));
     return cb;
 }
@@ -1131,7 +1137,7 @@ public ConstraintBase gatherMapComprehensionExpressionConstraints(STBuilder st, 
 public ConstraintBase gatherReducerExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Expression ei, Expression er, {Expression ","}+ ers) {
     eit = typeForLoc(cb, ei@\loc);
     ert = typeForLoc(cb, er@\loc);
-    for (e <- ers) cs.constraints = cs.constraints + ConstrainType(typeForLoc(cb, e@\loc),makeBoolType(), ep@\loc);
+    for (e <- ers) cb.constraints = cb.constraints + ConstrainType(typeForLoc(cb, e@\loc),makeBoolType(), ep@\loc);
 
     < cb, rt > = makeFreshType(cb);
     cb.constraints = cb.constraints + StepItType(er, eit, rt, ert, er@\loc);
@@ -1184,6 +1190,7 @@ public ConstraintBase gatherAnyExpressionConstraints(STBuilder st, ConstraintBas
 public ConstraintBase gatherMapExpressionConstraints(STBuilder st, ConstraintBase cb, Expression exp) {
     // Each element of the domain and range of the map can be of arbitrary type.
     list[RType] domains = [ makeVoidType() ]; list[RType] ranges = [ makeVoidType() ];
+    list[tuple[Expression mapDomain, Expression mapRange]] mapContents = getMapExpressionContents(exp);
     for (<md,mr> <- mapContents) { 
         domains += typeForLoc(cb, md@\loc); 
         ranges += typeForLoc(cb, mr@\loc);
@@ -1197,7 +1204,7 @@ public ConstraintBase gatherMapExpressionConstraints(STBuilder st, ConstraintBas
     < cb, tran > = makeFreshType(cb);
     cb.constraints = cb.constraints + LubOf(ranges, tran, exp@\loc);
     
-    cb = addConstraintForLoc(cb, makeMapType(tdom,tran), exp@\loc);
+    cb = addConstraintForLoc(cb, exp@\loc, makeMapType(tdom,tran));
 
     return cb;
 }

@@ -158,8 +158,10 @@ private RType lubOfTupleType(RType t1, RType t2) {
                 return RTupleType([ RNamedType(fieldLubs[n],names1[n]) | n <- [0..size(names1)-1] ]);
             }
         } else if (tupleHasFieldNames(t1)) {
+            list[RName] names1 = getTupleFieldNames(t1);
             return RTupleType([ RNamedType(fieldLubs[n],names1[n]) | n <- [0..size(names1)-1] ]);
         } else if (tupleHasFieldNames(t2)) {
+            list[RName] names2 = getTupleFieldNames(t2);
             return RTupleType([ RNamedType(fieldLubs[n],names2[n]) | n <- [0..size(names2)-1] ]);
         } else {
             return RTupleType([ RUnnamedType(rt) | rt <- fieldLubs]);

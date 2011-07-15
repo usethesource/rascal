@@ -9,6 +9,8 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::checker::constraints::Fields
 
+import IO;
+
 import lang::rascal::types::Types;
 import lang::rascal::scoping::SymbolTable;
 
@@ -238,7 +240,10 @@ public RName getRelFieldName(RType t, int idx) {
 @doc{Check to see if an ADT defines a field.}
 public bool adtHasField(RType t, RName fn, STBuilder stBuilder) {
     if (isADTType(t)) {
-        for (ci <- stBuilder.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := stBuilder.scopeItemMap[ci]) {
+        if (getADTName(t) notin stBuilder.adtMap) {
+            println("Warning, ADT <getADTName(t)> is not in the ADT map: type <prettyPrintType(t)>, field <fn>");
+        }
+        for (getADTName(t) in stBuilder.adtMap, ci <- stBuilder.adtMap[getADTName(t)].consItems, ConstructorItem(_,cts,_,_) := stBuilder.scopeItemMap[ci]) {
             for (ta <- cts) {
                 if (RNamedType(_,fn) := ta) return true;
             }   

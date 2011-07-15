@@ -347,7 +347,7 @@ private set[ItemId] getModuleAndTopItems(STBuilder stBuilder, ItemId currentScop
     set[ItemId] foundItems = { };
     < inModule, moduleId > = getSurroundingModule(stBuilder,currentScopeId);
     if (inModule)
-        foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[currentScopeId,x], ns);
+        foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[moduleId,x], ns);
     if (size(foundItems) == 0)
         foundItems = filterNamesForNamespace(stBuilder, stBuilder.scopeNames[last(stBuilder.scopeStack),x], ns);
     return foundItems;    

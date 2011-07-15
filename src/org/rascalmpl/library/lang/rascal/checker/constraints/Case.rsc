@@ -18,19 +18,16 @@ import lang::rascal::checker::constraints::Constraints;
 import lang::rascal::syntax::RascalRascal;
 
 //
-// Gather constraints over individual cases. The type of the pattern with
-// action should be either a replacement type or a no replacement type. We
-// link this in here as the overall type of the case. This can then be used
-// to check the actual type of a switch or a visit this case is included
-// within.
+// The type of a case is either the type of the associated PatternWithAction
+// or, in the case of default, void.
 //
 public ConstraintBase gatherCaseConstraints(STBuilder st, ConstraintBase cb, Case c) {
     switch(c) {
         case `case <PatternWithAction p>` :
-            cb = addConstraintForLoc(cb, c@\loc, CaseType(typeForLoc(cb, p@\loc)));
-            
+            cb = addConstraintForLoc(cb, c@\loc, typeForLoc(cb, p@\loc));
+
         case `default : <Statement b>` :
-            cb = addConstraintForLoc(cb, c@\loc, DefaultCaseType());
+            cb = addConstraintForLoc(cb, c@\loc, makeVoidType());
         
         default :
             throw "Unexpected case syntax <c>";

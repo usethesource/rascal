@@ -54,17 +54,17 @@ public ConstraintBase gatherAssignableConstraints(STBuilder st, ConstraintBase c
         }
         
         // Subscript
-        case `<Assignable al> [ <Expression e> ]` : {
+        case (Assignable)`<Assignable al> [ <Expression e> ]` : {
             return gatherSubscriptAssignableConstraints(st,cb,a,al,e);
         }
         
         // Field Access
-        case `<Assignable al> . <Name n>` : {
+        case (Assignable)`<Assignable al> . <Name n>` : {
             return gatherFieldAccessAssignableConstraints(st,cb,a,al,n);
         }
         
         // If Defined or Default
-        case `<Assignable al> ? <Expression e>` : {
+        case (Assignable)`<Assignable al> ? <Expression e>` : {
             return gatherIfDefinedOrDefaultAssignableConstraints(st,cb,a,al,e);
         }
         
@@ -142,10 +142,13 @@ public ConstraintBase gatherIfDefinedOrDefaultAssignableConstraints(STBuilder st
     ta = typeForLoc(cb, a@\loc);
     
     // e is an expression of arbitrary type te
-    te = typeForLoc(cb, te@\loc);
+    te = typeForLoc(cb, e@\loc);
     
-    // e must be assignable to a, or it is not a valid default
-    cb.constraints = cb.constraints + Assignable(te, ta, U(), ap@\loc);
+    // we verify that e is assignable to a, and we need to take this into
+    // account for typing, since (if e is assigned into a as the default)
+    // this would set the type of an inference var
+    < cb, tr > = makeFreshType(cb);
+    cb.constraints = cb.constraints + Assignable(ta, te, tr, ap@\loc);
     
     // the overall type if the type of a
     cb = addConstraintForLoc(cb, ap@\loc, ta);
