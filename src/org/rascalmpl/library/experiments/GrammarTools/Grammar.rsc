@@ -18,7 +18,7 @@ import String;
 
 public data Symbol  = t(str text) | nt(str name) | epsilon();
 public alias Rule   = tuple[Symbol lhs, list[Symbol] symbols];
-public data Grammar = grammar(Symbol start, set[Rule] rules);
+public data Grammar = grammar(Symbol startSym, set[Rule] rules);
 
 // Utility predicates on Symbols
 
@@ -53,7 +53,7 @@ public rel[Symbol, Symbol] nonTerminalUse(Grammar G){
 // Get all non-terminals that are reachable from the start symbol
 
 public set[Symbol] reachable(Grammar G){
-   return (nonTerminalUse(G)+)[G.start];
+   return (nonTerminalUse(G)+)[G.startSym];
 }
 
 // Get all non-terminals that are not reachable from the start symbol
@@ -101,7 +101,7 @@ test nonTerminalUse(G2) == {<nt("T1"),nt("F")>,<nt("E1"),nt("E1")>,<nt("E1"),nt(
 test reachable(G2) == {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")};
 test nonReachable(G2) == {};
     
-private Grammar G2x = grammar(G2.start, G2.rules + {<nt("X"),  [t("x")]>});
+private Grammar G2x = grammar(G2.startSym, G2.rules + {<nt("X"),  [t("x")]>});
   
 test nonTerminals(G2x) =={nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1"), nt("X")};
 test reachable(G2x) == {nt("F"),nt("E"),nt("T"),nt("T1"),nt("E1")};

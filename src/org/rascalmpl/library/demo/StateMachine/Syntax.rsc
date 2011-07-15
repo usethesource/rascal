@@ -15,7 +15,7 @@ module demo::StateMachine::Syntax
 layout Whitespace = [\ \t\n]*;
 
 syntax IdCon = [A-Za-z] [A-Za-z\-0-9]*
-				# [A-Za-z\-0-9]
+				!>> [A-Za-z\-0-9]
 				;
 
 syntax State = "state" IdCon;

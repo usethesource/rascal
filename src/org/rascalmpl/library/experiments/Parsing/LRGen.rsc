@@ -19,7 +19,7 @@ import IO;
 public data Symbol      = t(str text) | nt(str name) | epsilon();
 
 public alias Rule       = tuple[str name, list[Symbol] symbols];
-public data Grammar     = grammar(str start, set[Rule] rules);  
+public data Grammar     = grammar(str startSym, set[Rule] rules);  
 
 // First and follow
 
@@ -159,7 +159,7 @@ public set[ItemSet] items(Grammar G){
 	set[Symbol] symbols = symbols(G);
 	
 	// Add a new start rule
-	Rule startRule = <"START", [nt(G.start)]>;
+	Rule startRule = <"START", [nt(G.startSym)]>;
 	G.rules = G.rules + {startRule};  // TODO += does not seem to work here
 
 	set[ItemSet] C = {{ closure(G, {makeItem(startRule)}) }};  // TODO: {{ }} horror
