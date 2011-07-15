@@ -41,7 +41,7 @@ Type stringType  = (Type) `string`;
 
 public ValueEnv evalProgram(Program P){
 
-   if( ` begin declare <{(Id ":" Type) "," }* Decls>; <{Statement ";"}* Stats> end ` := P){
+   if( `begin declare <{IdType "," }* Decls>; <{Statement ";"}* Stats> end` := P){
 
        return evalStatements(Stats, evalDecls(Decls));
    } else
@@ -50,11 +50,11 @@ public ValueEnv evalProgram(Program P){
 
 // evalDecls: evaluate all declaration and retrun a value environment with default initalizations
 
-ValueEnv evalDecls({(Id ":" Type) "," }* Decls){
+ValueEnv evalDecls({IdType "," }* Decls){
     ValueEnv Env = ();
     
-    for(`<(Id id ":" Type type)>` <- Decls){
-        Env[id] = (type == naturalType) ? intval(0) : strval(""); 
+    for(`<Id i> : <Type t>` <- Decls) {
+        Env[id] = (t == naturalType) ? intval(0) : strval(""); 
     }
     return Env;
 }
