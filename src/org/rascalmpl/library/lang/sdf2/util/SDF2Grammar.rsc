@@ -23,8 +23,6 @@ import ParseTree;
 import Grammar;
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
-import lang::rascal::syntax::Characters;
-import lang::rascal::syntax::Normalization;
        
 public GrammarDefinition sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
@@ -278,7 +276,7 @@ test bool test21() = getLookaheads((Lookaheads) `[a-z]`) ==
 test bool test22() = getLookaheads((Lookaheads) `[a-z] . [0-9]`) ==
      {};
        
-test bool test23() = getLookaheads((Lookaheads) `([a-z] ) | [\"]`) ==
+test bool test23() = getLookaheads((Lookaheads) `[a-z]  | [\"]`) ==
      {\char-class([range(97,122)]),
       \char-class([range(34,34)])};
       
@@ -474,8 +472,8 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `<Sym s>?` :
         return \opt(getSymbol(s, isLex));
         
-    case (Sym) `(<Symbol* seq>)` :
-        return seq([getSymbol(e, isLex) | e <- seq]);
+    case (Sym) `(<Sym first> <Sym+ rest>)` :
+        return seq([getSymbol(first, isLex)] + [getSymbol(e, isLex) | e <- rest]);
     	
     default: throw "missed a case <sym>";
   } 
@@ -614,7 +612,7 @@ public Symbol getCharClass(Class cc) {
      case (Class) `[]` :
      	return \char-class([]);
      	
-     case (Class) `[<OptRanges ranges>]` :
+     case (Class) `[<Range* ranges>]` :
      		return \char-class([getCharRange(r) | /Range r := ranges]);
      	
      case (Class) `(<Class c>)`: 
