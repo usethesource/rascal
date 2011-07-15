@@ -114,6 +114,25 @@ public class Symbols {
 			return Factory.Symbol_Sort.make(factory, name);
 		}
 		
+		if(symbol.isSequence()){
+			List<Sym> symbols = symbol.getSequence();
+			IValue[] symValues = new IValue[symbols.size()];
+			for(int i = symbols.size() - 1; i >= 0; --i){
+				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i));
+			}
+			IValue syms = Factory.Symbols.make(factory, symValues);
+			return Factory.Symbol_Seq.make(factory, syms);
+		}
+		if(symbol.isAlternative()){
+			List<Sym> symbols = symbol.getSequence();
+			IValue[] symValues = new IValue[symbols.size()];
+			for(int i = symbols.size() - 1; i >= 0; --i){
+				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i));
+			}
+			IValue syms = Factory.Symbols.make(factory, symValues);
+			return Factory.Symbol_Alt.make(factory, syms);
+		}
+		
 		throw new RuntimeException("Symbol has unknown type: "+symbol.getTree());
 	}
 
