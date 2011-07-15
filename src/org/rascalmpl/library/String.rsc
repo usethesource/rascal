@@ -35,7 +35,7 @@ public java str trim(str s);
 
 @doc{Return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 @javaClass{org.rascalmpl.library.String}
-private str java format(str s, str dir, int n, str pad);
+private java str format(str s, str dir, int n, str pad);
 
 @doc{Center s in string of length n using spaces}
 public str center(str s, int n)
