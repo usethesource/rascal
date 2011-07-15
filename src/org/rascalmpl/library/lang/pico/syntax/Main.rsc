@@ -17,8 +17,10 @@ start syntax Program
   = program: "begin" Declarations decls {Statement  ";"}* body "end" ;
 
 syntax Declarations 
-  = "declare" {(Id ":" Type) ","}* decls ";" ;  
+  = "declare" {IdType ","}* decls ";" ;  
  
+syntax IdType = idtype: Id id ":" Type t;
+
 syntax Statement 
   = assign: Id var ":="  Expression val 
   | cond: "if" Expression cond "then" {Statement ";"}*  thenPart "else" {Statement ";"}* elsePart "fi"
