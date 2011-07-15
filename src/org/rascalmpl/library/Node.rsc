@@ -41,11 +41,11 @@ public java value readATermFromFile(str fileName);
   declared.
 }
 @javaClass{org.rascalmpl.library.Node}
-public &T <: node java setAnnotations(&T <: node x, map[str, value] annotations);
+public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
 
 @doc{remove annotation on a node}
 @javaClass{org.rascalmpl.library.Node}
-public &T <: node java delAnnotation(&T <: node x, str label);
+public java &T <: node delAnnotation(&T <: node x, str label);
 
 @doc{removes all annotations on all nodes in a value}
 @javaClass{org.rascalmpl.library.Node}
@@ -55,7 +55,7 @@ public &T delAnnotationsRec(&T v) {
 
 @doc{remove all annotations on a node}
 @javaClass{org.rascalmpl.library.Node}
-public &T <: node java delAnnotations(&T <: node x);
+public java &T <: node  delAnnotations(&T <: node x);
 
 @doc{Convert a node to a string}
 @javaClass{org.rascalmpl.library.Node}
