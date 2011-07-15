@@ -305,4 +305,9 @@ syntax IntCon = Natural: NatCon |
 public Lookahead Seq(Class _, Lookaheads las) {
   if (las is Alt) fail;
 }
+
+public Lookahead Single(Class c) {
+  if (c is Bracket) fail;
+}
+
                 
