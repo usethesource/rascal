@@ -64,7 +64,7 @@ str layoutname(Symbol s) {
 }
 
 public str alt2rascal(Production p) {
-  return "<symbol2rascal(p.def)> = <prod2rascal(p)>";
+  return "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
 }
 
 public str prod2rascal(Production p) {

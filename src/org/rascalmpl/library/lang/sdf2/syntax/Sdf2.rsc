@@ -11,7 +11,7 @@ module lang::sdf2::syntax::Sdf2
 
 lexical Sort 
   = OneChar: [A-Z] 
-  | MoreChars: [A-Z] [A-Za-z0-9\-]* [A-Za-z0-9] \ "LAYOUT" !>> [A-Za-z0-9]
+  | MoreChars: ([A-Z] [A-Za-z0-9\-]* [A-Za-z0-9] !>> [A-Za-z0-9]) \ "LAYOUT" 
   ;
 
 syntax Syms = Sym*;
@@ -22,16 +22,17 @@ lexical NumChar = Digits: [\\] [0-9]+ !>> [0-9];
 
 start syntax SDF = Definition: "definition" Definition;
 
-syntax Character = Numeric: NumChar |
-                   short: ShortChar |
-                   top: "\\TOP" |
-                   eof: "\\EOF" |
-                   bot: "\\BOT" |
-                   label_start: "\\LABEL_START"
-                   ;
+syntax Character 
+  = Numeric: NumChar 
+  | short: ShortChar 
+  | top: "\\TOP" 
+  | eof: "\\EOF" 
+  | bot: "\\BOT" 
+  | label_start: "\\LABEL_START"
+  ;
 
 lexical ShortChar 
-  = Regular: [a-zA-Z0-9] |
+  = Regular: [a-zA-Z0-9] 
   | Escaped: [\\] ![A-Za-mo-qsu-z0-9] // -\0-\31
   ;
 
@@ -44,26 +45,19 @@ syntax Renamings = Renamings: "[" Renaming* "]"
 
 lexical IdCon = Default: [A-Za-z] [A-Za-z\-0-9]* !>> [A-Za-z\-0-9];
 
-syntax Class = SimpleCharClass: "[" OptRanges "]" |
-                   Bracket: "(" Class ")" |
-                   Comp: "~" Class >
-                   Diff: Class "/" Class >
-                   left ISect: Class "/\\" Class >
-                   left Union: Class "\\/" Class
-                   ;
+syntax Class 
+  = SimpleCharClass: "[" Range* "]" 
+  | Bracket: "(" Class ")" 
+  | Comp: "~" Class 
+  > Diff: Class "/" Class 
+  > left ISect: Class "/\\" Class 
+  > left Union: Class "\\/" Class
+  ;
 
-syntax Range = Character |
-                   Range: Character "-" Character
-                   ;
-
-syntax Ranges = Range |
-                    right Conc: Ranges Ranges |
-                    Bracket: "(" Ranges ")"
-                    ;
-
-syntax OptRanges = Absent: |
-                       Present: Ranges
-                       ;
+syntax Range 
+  = Character 
+  | Range: Character "-" Character
+  ;
 
 syntax Attribute = Id: "id" "(" ModuleName ")" |
                    Term: ATermAttribute |
@@ -85,15 +79,11 @@ syntax Attrs = Attrs: "{" {Attribute ","}* "}" |
                     NoAttrs: 
                     ;
 
-syntax Prod = Prod: Syms "-\>" Sym Attrs |
-                    PrefixFun: FunctionName "(" {Sym ","}* ")" Attrs // Avoid
-                    ;
+syntax Prod = Prod: Syms "-\>" Sym Attrs ;
 
-syntax Prods = Prod*
-                     ;
+syntax Prods = Prod*;
 
-syntax Grammar = Bracket: "(" Grammar ")" |
-                 Aliases: "aliases" Aliases |
+syntax Grammar = Aliases: "aliases" Aliases |
                  Sorts: "sorts" Syms |
                  ImpSection: ImpSection |
                  Syntax: "syntax" Prods |
@@ -109,9 +99,7 @@ syntax Grammar = Bracket: "(" Grammar ")" |
                  ContextFreeSyntax: "context-free" "syntax" Prods |
                  ContextFreeStartSyms: "context-free" "start-symbols" Syms |
                  ContextFreePriorities: "context-free" "priorities" Priorities |
-                 ContextFreeRestrictions: "context-free" "restrictions" Restrictions |
-                 EmptyGrammar: "(/)" |
-                 assoc ConcGrammars: Grammar Grammar
+                 ContextFreeRestrictions: "context-free" "restrictions" Restrictions 
                  ;
 
 syntax Label = Quoted: StrCon |
@@ -127,26 +115,20 @@ syntax Sym = Sort: Sort |
                 CILit: SingleQuotedStrCon |
                 Class: Class |
                 Layout: "LAYOUT" |
-                Lifting: "`" Sym "`" |
                 Empty: "(" ")" |
                 Bracket: "(" Sym ")" |
                 Seq: "(" Sym Sym+ ")" |
-                Strategy: "(" Sym "-\>" Sym ")" |
-                Func: "(" Syms "=\>" Sym ")" |
                 Opt: Sym "?" |
                 Iter: Sym "+" |
                 IterStar: Sym "*" |
                 IterSep: "{" Sym Sym "}" "+" |
                 IterStarSep: "{" Sym Sym "}" "*" |
-                Start: "\<START\>" |
-                FileStart: "\<Start\>" |
                 CF: "\<" Sym "-CF" "\>" |
                 Lex: "\<" Sym "-LEX" "\>" |
                 Varsym: "\<" Sym "-VAR" "\>" |
-                Tuple: "\<" Sym "," {Sym ","}+ "\>" |
                 ParameterizedSort: Sort "[[" {Sym ","}+ "]]" >
                 right Alt: Sym "|" Sym >
-                Label ":" Sym
+                Label: Label ":" Sym
                 ;
 
 layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r%]
@@ -239,8 +221,8 @@ syntax Import = Module: ModuleName |
 syntax Imports = Import*
                  ;
 
-syntax Section = Exports: "exports" Grammar |
-                 Hiddens: "hiddens" Grammar
+syntax Section = Exports: "exports" Grammar* |
+                 Hiddens: "hiddens" Grammar*
                  ;
 
 syntax Sections = Section*
