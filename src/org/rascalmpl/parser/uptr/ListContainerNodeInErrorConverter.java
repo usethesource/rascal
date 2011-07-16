@@ -92,7 +92,7 @@ public class ListContainerNodeInErrorConverter{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			
 			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment);
-			convertedCycle[0] = converter.convertWithErrors(cycleElements[0], stack, depth, cycleMark, positionStore, actionExecutor, environment);
+			convertedCycle[0] = converter.convertWithErrors(cycleElements[nrOfCycleElements - 1], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
 				newEnvironment = actionExecutor.enteringListNode(production, i + 1, newEnvironment);
 				convertedCycle[i + 1] = converter.convertWithErrors(cycleElements[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
