@@ -78,7 +78,7 @@ public class ErrorListContainerNodeConverter{
 			convertedCycle[0] = element;
 		}else{
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
-			convertedCycle[0] = converter.convertWithErrors(cycleElements[0], stack, depth, cycleMark, positionStore, actionExecutor, environment);
+			convertedCycle[0] = converter.convertWithErrors(cycleElements[nrOfCycleElements - 1], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
 				IConstructor element = converter.convertWithErrors(cycleElements[i], stack, depth, cycleMark, positionStore, actionExecutor, environment);
 				if(element == null) return null;
