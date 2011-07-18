@@ -142,6 +142,7 @@ public class ParserTest extends TestCase{
 	public void testListCycle(){
 		executeParser(new EpsilonList());
 		executeParser(new AmbiguousEpsilonList());
+		executeParser(new AmbiguousSeparatedEpsilonList());
 	}
 	
 	public void testListSharing(){
