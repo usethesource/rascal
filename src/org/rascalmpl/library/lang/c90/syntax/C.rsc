@@ -43,34 +43,18 @@ syntax Expression = Variable: Identifier |
                     Expression "-\>" Identifier |
                     Expression "++" |
                     Expression "--" >
-                    "++" Expression |
-                    "--" Expression |
+                    [+] !<< "++" Expression |
+                    [\-] !<< "--" Expression |
                     "&" Expression |
                     "*" Expression |
                     "+" Expression |
                     "-" Expression |
                     "~" Expression |
                     "!" Expression |
-                    "sizeof" Expression exp {
-                       list[Tree] children;
-                       if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
-                          Tree child = children[1];
-                          if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := child){
-                             if(unparse(child) in typeDefs){
-                                  fail;
-                               }
-                          }
-                       }
-                    } | // May be ambiguous with "sizeof(TypeName)".
+                    SizeOfExpression: "sizeof" Expression exp | // May be ambiguous with "sizeof(TypeName)".
                     "(" TypeName ")" Expression >
                     left (
-                         Expression lexp "*" Expression rexp {
-                            if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
-                               if(unparse(lexp) in typeDefs){
-                                  fail;
-                               }
-                            }
-                         } | // May be ambiguous with "TypeName *Declarator".
+                         MultiplicationExpression: Expression lexp "*" Expression rexp | // May be ambiguous with "TypeName *Declarator".
                          Expression "/" Expression |
                          Expression "%" Expression
                     ) >
@@ -114,28 +98,16 @@ syntax Expression = Variable: Identifier |
                     left CommaExpression: Expression "," Expression
                     ;
 
-syntax NonCommaExpression = Expression expr {
-                               if(appl(prod(_,_,attrs([_*,term(cons("CommaExpression")),_*])),_) := expr){
-                                  fail;
-                               }
-                            }
+syntax NonCommaExpression = NonCommaExpression: Expression expr
                             ;
 
-syntax "+" = ... # [+];
-
-syntax "-" = ... # [\-];
-
-syntax "&" = ... # [&];
-
-syntax Identifier = lex [a-zA-Z_] [a-zA-Z0-9_]*
-                    - Keyword
-                    # [a-zA-Z0-9_]
+lexical Identifier = ([a-zA-Z_] [a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Keyword
                     ;
 
 syntax AnonymousIdentifier = 
                              ;
 
-syntax Keyword = "auto" |
+keyword Keyword = "auto" |
                  "break" |
                  "case" |
                  "char" |
@@ -167,108 +139,19 @@ syntax Keyword = "auto" |
                  "void" |
                  "volatile" |
                  "while"
-                 # [a-zA-Z0-9_]
                  ;
 
-syntax Declaration = Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" {
-                        list[Tree] specChildren;
-                        if(appl(_,specChildren) := specs){
-                           TypeSpecifier theType = findType(specChildren);
-                           
-                           for(spec <- specs){
-		                      if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
-                                 if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
-                                    list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
-                                    for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
-                                       str variable = variableTuple.var;
-                                       InitDeclarator initDecl = variableTuple.initDecl;
-                                       tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
-                                       typeDefs += (variable:<theType, modifiers>); // Record the typedef.
-                                    }
-                                 }
-                              }
-                           }
-                           
-                           if(hasCustomType(specChildren)){
-                              if(unparse(theType) notin typeDefs){
-                                 fail;
-                              } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
-                           }
-                        }
-                     } |
-                     Specifier+ specs ";" {
-                        list[Tree] specChildren;
-                        if(appl(_,specChildren) := specs){
-                           TypeSpecifier theType = findType(specChildren);
-                           
-                           for(spec <- specChildren){
-                              if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                 if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                    if(identifier != theType) fail;
-                                 }
-                              }
-                           } // May be ambiguous with Spec* {InitDecl ","}*
-                           
-                           if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
-                              if(unparse(theType) notin typeDefs){
-                                 fail;
-                              } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
-                           }
-                        }
-                     } // Avoid.
+syntax Declaration = DeclarationWithInitDecls: Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" |
+                     DeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
                      ;
 
-syntax GlobalDeclaration = Specifier* specs {InitDeclarator ","}+ initDeclarators ";" {
-                           list[Tree] specChildren;
-                           if(appl(_,specChildren) := specs){
-                              TypeSpecifier theType = findType(specChildren);
-                              
-                              for(spec <- specs){
-                                 if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
-                                    if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
-                                       list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
-                                       for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
-                                          str variable = variableTuple.var;
-                                          InitDeclarator initDecl = variableTuple.initDecl;
-                                          tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
-                                          typeDefs += (variable:<theType, modifiers>); // Record the typedef.
-                                       }
-                                    }
-                                 }
-                              }
-                              
-                              if(hasCustomType(specChildren)){
-                                 if(unparse(theType) notin typeDefs){
-                                    fail;
-                                 } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
-                              }
-                           }
-                        } |
-                        Specifier+ specs ";" {
-                           list[Tree] specChildren;
-                           if(appl(_,specChildren) := specs){
-                              TypeSpecifier theType = findType(specChildren);
-                              
-                              if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
-                                 if(unparse(theType) notin typeDefs){
-                                    fail;
-                                 } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
-                              }
-                              
-                              for(spec <- specChildren){
-                                 if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                    if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                       if(identifier != theType) fail;
-                                    }
-                                 }
-                              } // May be ambiguous with Spec* {InitDecl ","}*
-                           }
-                        } // Avoid.
-                        ;
+syntax GlobalDeclaration = GlobalDeclarationWithInitDecls: Specifier* specs {InitDeclarator ","}+ initDeclarators ";" |
+                           GlobalDeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
+                           ;
 
 syntax InitDeclarator = Declarator decl |
                         Declarator decl "=" Initializer
-                       ;
+                        ;
 
 syntax Specifier = StorageClass: StorageClass |
                    TypeSpecifier: TypeSpecifier |
@@ -307,46 +190,8 @@ syntax TypeQualifier = "const" |
                        "volatile"
                        ;
 
-syntax StructDeclaration = Specifier+ specs {StructDeclarator ","}+ ";" { // TODO: Disallow store class specifiers.
-                              list[Tree] specChildren;
-                              if(appl(_,specChildren) := specs){
-                                 TypeSpecifier theType = findType(specChildren);
-                                 
-                                 for(spec <- specChildren){
-                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                          if(identifier != theType) fail;
-                                       }
-                                    }
-                                 }
-                                 
-                                 if(hasCustomType(specChildren)){
-                                    if(unparse(theType) notin typeDefs){
-                                       fail;
-                                    } // Fail if not typedefed.
-                                 }
-                              }
-                           } |
-                           Specifier+ specs ";" { // TODO: Disallow store class specifiers.
-                              list[Tree] specChildren;
-                              if(appl(_,specChildren) := specs){
-                                 TypeSpecifier theType = findType(specChildren);
-                                 
-                                 if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
-                                    if(unparse(theType) notin typeDefs){
-                                       fail;
-                                    } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
-                                 }
-                                 
-                                 for(spec <- specChildren){
-                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                          if(identifier != theType) fail;
-                                       }
-                                    }
-                                 } // May be ambiguous with Spec* {StructDecl ","}*
-                              }
-                           } // Avoid.
+syntax StructDeclaration = StructDeclWithDecl: Specifier+ specs {StructDeclarator ","}+ ";" | // TODO: Disallow store class specifiers.
+                           StructDeclWithoutDecl: Specifier+ specs ";" // TODO: Disallow store class specifiers. Avoid.
                            ;
 
 syntax StructDeclarator = Declarator |
@@ -402,100 +247,41 @@ syntax Declarator = Identifier: Identifier |
                     PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
                     ;
 
-syntax IntegerConstant = lex [0-9]+ [uUlL]*
-                         # [0-9]
+lexical IntegerConstant = [0-9]+ [uUlL]* !>> [0-9]
                          ;
 
-syntax HexadecimalConstant = lex [0] [xX] [a-fA-F0-9]+ [uUlL]*
-                             # [a-fA-F0-9]
+lexical HexadecimalConstant = [0] [xX] [a-fA-F0-9]+ [uUlL]* !>> [a-fA-F0-9]
                              ;
 
-syntax FloatingPointConstant = lex [0-9]+ Exponent [fFlL]? |
-                               lex [0-9]* [.] [0-9]+ Exponent? [fFlL]? |
-                               lex [0-9]+ [.] Exponent? [fFlL]?
-                               # [0-9]
-                               ;
+lexical FloatingPointConstant = [0-9]+ Exponent [fFlL]? |
+                                [0-9]* [.] [0-9]+ !>> [0-9] Exponent? [fFlL]? |
+                                [0-9]+ [.] Exponent? [fFlL]?
+                                ;
 
-syntax Exponent = lex [Ee] [+\-]? [0-9]+
-                  ;
+lexical Exponent = [Ee] [+\-]? [0-9]+ !>> [0-9]
+                   ;
 
-syntax CharacterConstant = lex [L]? [\'] CharacterConstantContent+ [\']
-                           ;
+lexical CharacterConstant = [L]? [\'] CharacterConstantContent+ [\']
+                            ;
 
-syntax CharacterConstantContent = lex [\\] ![] |
-                                  lex ![\\\']
-                                  ;
+lexical CharacterConstantContent = [\\] ![] |
+                                   ![\\\']
+                                   ;
 
-syntax StringConstant = lex [L]? [\"] StringConstantContent* [\"]
-                        ;
+lexical StringConstant = [L]? [\"] StringConstantContent* [\"]
+                         ;
 
-syntax StringConstantContent = lex [\\] ![] |
-                               lex ![\\\"]
-                               ;
+lexical StringConstantContent = [\\] ![] |
+                                ![\\\"]
+                                ;
 
 // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
 // TODO: Disallow storage class specifiers as specifiers.
 // TODO: Disallow ArrayDeclarators in the declarator.
-syntax FunctionDefinition = Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}" {
-                               if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl) &&
-                                     !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl)){
-                                  fail;
-                               }
-                               
-                               list[Tree] specChildren;
-                               if(appl(_,specChildren) := specs){
-                                  TypeSpecifier theType = findType(specChildren);
-                                  
-                                  if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
-                                     if(unparse(theType) notin typeDefs){
-                                        fail;
-                                     } // Fail if not typedefed.
-                                  }
-                                  
-                                  for(spec <- specChildren){
-                                     if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                        if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                           if(identifier != theType) fail;
-                                        }
-                                     }else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
-                                        if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
-                                           fail;
-                                        }
-                                     } // Certain storage parameters are not allowed.
-                                  } // May be ambiguous with the K&R style function parameter definition thing.
-                               }
-                            }
+syntax FunctionDefinition = DefaultFunctionDefinition: Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}"
                             ;
 
-syntax FunctionPrototype = Specifier* specs PrototypeDeclarator decl ";" {
-                              if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl) &&
-                                    !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl)){
-                                 fail;
-                              }
-                              
-                              list[Tree] specChildren;
-                              if(appl(_,specChildren) := specs){
-                                 TypeSpecifier theType = findType(specChildren);
-                                 
-                                 if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
-                                    if(unparse(theType) notin typeDefs){
-                                       fail;
-                                    } // Fail if not typedefed.
-                                 }
-                                 
-                                 for(spec <- specChildren){
-                                    if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
-                                       if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
-                                          if(identifier != theType) fail;
-                                       }
-                                    }else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
-                                       if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
-                                          fail;
-                                       }
-                                    } // Certain storage parameters are not allowed (also fixes ambiguity with declarations).
-                                 } // May be ambiguous with the K&R style function parameter definition thing.
-                              }
-                           }
+syntax FunctionPrototype = DefaultFunctionPrototype: Specifier* specs PrototypeDeclarator decl ";"
                            ;
 
 syntax ExternalDeclaration = FunctionDefinition |
@@ -506,26 +292,251 @@ syntax ExternalDeclaration = FunctionDefinition |
 start syntax TranslationUnit = ExternalDeclaration+
                                ;
 
-syntax Comment = lex [/][*] MultiLineCommentBodyToken* [*][/] |
-                 lex "//" ![\n]* [\n]
-                 ;
-
-syntax MultiLineCommentBodyToken = lex ![*] |
-                                   lex Asterisk
-                                   ;
-
-syntax Asterisk = lex [*]
-                  # [/]
+lexical Comment = [/][*] MultiLineCommentBodyToken* [*][/] |
+                  "//" ![\n]* [\n]
                   ;
 
-layout LAYOUTLIST = LAYOUT*
-                    # [\ \t\n\r]
+lexical MultiLineCommentBodyToken = ![*] |
+                                    Asterisk
+                                    ;
+
+lexical Asterisk = [*] !>> [/]
+                   ;
+
+layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r]
                     ;
 
-syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
-                @category="Comment" lex Comment: Comment
-                ;
+lexical LAYOUT = Whitespace: [\ \t\n\r] |
+                 @category="Comment" Comment: Comment
+                 ;
 
+//--------------------------------------------------------------------------
+
+public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(TypeName)".
+   list[Tree] children;
+   if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
+      Tree child = children[1];
+      if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := child){
+         if(unparse(child) in typeDefs){
+            fail;
+         }
+      }
+   }
+}
+
+public Tree MultiplicationExpression(Expression lexp, Tree operator, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
+   if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
+      if(unparse(lexp) in typeDefs){
+         fail;
+      }
+   }
+}
+
+public Tree NonCommaExpression(Expression expr){
+   if(appl(prod(_,_,attrs([_*,term(cons("CommaExpression")),_*])),_) := expr){
+      fail;
+   }
+}
+
+public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree semicolon){
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      for(spec <- specs){
+         if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
+            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
+               list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
+               for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
+                  str variable = variableTuple.var;
+                  InitDeclarator initDecl = variableTuple.initDecl;
+                  tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
+                  typeDefs += (variable:<theType, modifiers>); // Record the typedef.
+               }
+            }
+         }
+      }
+      
+      if(hasCustomType(specChildren)){
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+      }
+   }
+}
+
+public Tree DeclarationWithoutInitDecls(Specifier+ specs, Tree semicolon){
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      for(spec <- specChildren){
+         if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+            if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+               if(identifier != theType) fail;
+            }
+         }
+      } // May be ambiguous with Spec* {InitDecl ","}*
+      
+      if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+      }
+   }
+}
+
+public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree semicolon){
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      for(spec <- specs){
+         if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),typeSpecifier) := spec){
+            if([_*,appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_),_*] := typeSpecifier){
+               list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
+               for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
+                  str variable = variableTuple.var;
+                  InitDeclarator initDecl = variableTuple.initDecl;
+                  tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
+                  typeDefs += (variable:<theType, modifiers>); // Record the typedef.
+                }
+             }
+          }
+       }
+         
+       if(hasCustomType(specChildren)){
+          if(unparse(theType) notin typeDefs){
+             fail;
+          } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+       }
+    }
+}
+
+public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs, Tree semicolon){
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+      }
+      
+      for(spec <- specChildren){
+         if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+            if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+               if(identifier != theType) fail;
+            }
+         }
+      } // May be ambiguous with Spec* {InitDecl ","}*
+   }
+}
+
+public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declarators, Tree semicolon){
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      for(spec <- specChildren){
+         if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+            if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+               if(identifier != theType) fail;
+            }
+         }
+      }
+      
+      if(hasCustomType(specChildren)){
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed.
+      }
+   }
+}
+
+public Tree StructDeclWithoutDecl(Specifier+ specs, Tree semicolon){
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+      }
+      
+      for(spec <- specChildren){
+         if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+            if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+               if(identifier != theType) fail;
+            }
+         }
+      } // May be ambiguous with Spec* {StructDecl ","}*
+   }
+}
+
+public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* preDeclarations, Tree openBrace, Declaration* declarations, Statement* statements, Tree closeBrace){
+   if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := declarator) &&
+         !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := declarator)){
+      fail;
+   }
+   
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed.
+      }
+      
+      for(spec <- specChildren){
+         if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+            if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+               if(identifier != theType) fail;
+            }
+         }else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
+            if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
+               fail;
+            }
+         } // Certain storage parameters are not allowed.
+      } // May be ambiguous with the K&R style function parameter definition thing.
+   }
+}
+
+public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl, Tree semicolon){
+   if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl) &&
+         !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl)){
+      fail;
+   }
+   
+   list[Tree] specChildren;
+   if(appl(_,specChildren) := specs){
+      TypeSpecifier theType = findType(specChildren);
+      
+      if(appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := theType){   
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedefed.
+      }
+      
+      for(spec <- specChildren){
+         if(appl(prod(_,_,attrs([_*,term(cons("TypeSpecifier")),_*])),typeSpecifier) := spec){
+            if(identifier:appl(prod(_,_,attrs([_*,term(cons("Identifier")),_*])),_) := typeSpecifier[0]){
+               if(identifier != theType) fail;
+            }
+         }else if(appl(prod(_,_,attrs([_*,term(cons("StorageClass")),_*])),storageClass) := spec){
+            if(appl(prod(_,_,attrs([_*,term(cons("TypeDef")),_*])),_) := storageClass[0]){
+               fail;
+            }
+         } // Certain storage parameters are not allowed (also fixes ambiguity with declarations).
+      } // May be ambiguous with the K&R style function parameter definition thing.
+   }
+}
+
+//-------------------------------------------------
 
 map[str name, tuple[TypeSpecifier var, tuple[list[Specifier], Declarator] modifiers] cType] typeDefs = (); // Name to type mapping.
 
