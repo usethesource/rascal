@@ -94,8 +94,8 @@ public Grammar dup(Grammar g) {
 }
 
 test bool test1() = sdf2grammar(
-        `definition  module X exports context-free syntax    "abc" -> ABC`).rules[sort("ABC")] ==
-         {prod(sort("ABC"),[lit("abc")],{})};
+        `definition  module X exports context-free syntax    "abc" -> ABC`).modules["X"].rules[sort("ABC")] ==
+         choice(sort("ABC"), {prod(sort("ABC"),[lit("abc")],{})});
 
 // \char-class([range(97,122),range(48,57)])
 test bool test2() = rs := sdf2grammar(
@@ -105,7 +105,7 @@ test bool test2() = rs := sdf2grammar(
            lexical syntax
              [a-z] [a-z0-9]* -> PICO-ID  
            lexical restrictions
-             PICO-ID -/- [a-z0-9]`).rules 
+             PICO-ID -/- [a-z0-9]`).modules["PICOID"].rules 
      && prod(lex("PICO-ID"),[\char-class([range(97,122)]),\conditional(\iter-star(\char-class([range(97,122),range(48,57)])),{\not-follow(\char-class([range(97,122),range(48,57)]))})],{}) in rs[lex("PICO-ID")]          
      ;
      
@@ -184,17 +184,19 @@ Production fixParameters(Production input) {
 
 public Production getProduction(Prod P, bool isLex) {
   switch (P) {
-    case (Prod) `<Syms syms> -> <Sort sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
+    case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {});
       
-    case (Prod) `<Syms syms> -> <Sort sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
+    case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
         return prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `));
           
     case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` :
         return prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats));
     	
-    default:
-    	throw "missing case <P>";
+    default: {
+        println("WARNING: not importing <P>");
+    	return prod(sort("IGNORED"),[],{\tag("NotSupported"("<P>"))});
+    }
   }
 }
 
@@ -306,15 +308,15 @@ public Production getPriority(Group group, bool isLex) {
 test bool test24() = getPriority((Group) `A -> B`, false) == 
      prod([sort("A")],sort("B"),{});
      
-test bool test25() = getPriority((Group) `A -> B .`, false) == 
+test bool test25() = getPriority((Group) `A -> B .`, false) ==  
      prod([sort("A")],sort("B"),{});
-     
+         
 test bool test26() = getPriority((Group) `A -> B <1>`, false) == 
      prod(sort("B"),[sort("A")],{});
-      
+         
 test bool test27() = getPriority((Group) `{A -> B C -> D}`, false) == 
 	 choice(sort("B"),{prod([sort("C")],sort("D"),{}),prod([sort("A")],sort("B"),{})});  
-	  
+	   
 test bool test28() = getPriority((Group) `{left: A -> B}`, false) == 
      \associativity(sort("B"),\left(),{prod([sort("A")],sort("B"),{})});
      
@@ -371,7 +373,7 @@ public set[Symbol] getStartSymbols(Module mod) {
   result = {};
   visit(mod) {
     case (Grammar) `context-free start-symbols <Sym* syms>` :
-    	result += { getSymbol(sym, true) | sym <- syms };
+    	result += { getSymbol(sym, false) | sym <- syms };
     case (Grammar) `lexical start-symbols <Sym* syms>`      :
     	result += { getSymbol(sym, true) | sym <- syms };
     case (Grammar) `start-symbols <Sym* syms>`              :
@@ -707,22 +709,22 @@ public set[Attr] getAttribute(Attribute m) {
         return {};
         
     case (Attribute) `memo`:
-    	return {\tag("memo"())};
+    	return {\tag("NotSupported"("memo"))};
     	
     case (Attribute) `prefer`:
-        return {\tag("prefer"())};
+        return {\tag("NotSupported"("prefer"))};
         
     case (Attribute) `avoid` :
-        return {\tag("avoid"())};
+        return {\tag("NotSupported"("avoid"))};
     	
     case (Attribute) `reject` :
         return {};
         
     case (Attribute) `<IdCon c>(<StrCon a>)` : 
-        return {\tag("<c>"(unescape(a)))};
+        return {\tag("NotSupported"("<c>"(unescape(a))))};
         
     case (Attribute) `<ATerm t>`:
-        return {\tag("<t>")};
+        return {\tag("NotSupported"("<t>"))};
         
     default: 
         return {};
