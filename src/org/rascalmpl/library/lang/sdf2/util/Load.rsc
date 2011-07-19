@@ -26,7 +26,7 @@ public SDF loadSDF2Module(str name, list[loc] path) {
     
     if (n notin done) {
       file = find(n + ".sdf", path);
-      mod = parse(#Module, file);
+      mod = parse(#start[Module], file).top;
       modules += mod;
       newnames += getImports(mod);
       done += {n};  
@@ -42,5 +42,5 @@ public SDF loadSDF2Module(str name, list[loc] path) {
 }
 
 public set[str] getImports(Module mod) {
-  return { "<name.id>" | /Import i := mod,  /ModuleName name := i};
+  return { "<name.id>" | /Import i := mod,  /ModuleName name := i, bprintln(name.prod)};
 }
