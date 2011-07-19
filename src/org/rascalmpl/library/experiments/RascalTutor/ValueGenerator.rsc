@@ -117,6 +117,7 @@ println("parseTypeList: \'<txt>\'");
     }
 }
 
+/*
 test parseType("bool") == \bool();
 test parseType("int") == \int(minInt,maxInt);
 test parseType("real") == \real(minReal,maxReal);
@@ -140,7 +141,7 @@ test parseType("set[arb]") == \set(\arb(0,[\bool(),\int(minInt,maxInt),\real(min
 test parseType("value") == \value();
 test parseType("set[value]") == \set(\value());
 test parseType("void") == \void();
-
+*/
 
 // --- printing types
 
@@ -220,6 +221,7 @@ public RascalType generateRelType(list[RascalType] ets, VarEnv env){
    return \rel([generateType(et, env) | et <- ets ]);
 }
 
+/*
 test generateType(\bool(), ()) == \bool();
 test generateType(\int(minInt,maxInt), ()) == \int(minInt,maxInt);
 test generateType(\real(minReal,maxReal), ()) == \real(minReal,maxReal);
@@ -234,6 +236,7 @@ test generateType(\rel([\int(minInt,maxInt), \str()]), ()) == \rel([\int(minInt,
 test generateType(\same("A"), ("A" : <\int(minInt,maxInt),"">, "B" : <\str(), "">)) == \int(minInt,maxInt);
 test generateType(\same("B"), ("A" : <\int(minInt,maxInt),"">, "B" : <\str(), "">)) == \str();
 test generateType(\list(\same("B")), ("A" : <\int(minInt,maxInt),"">, "B" : <\str(), "">)) == \list(\str());
+*/
 
 public RascalType generateArbType(int n, list[RascalType] prefs, VarEnv env){
    if(n <= 0)

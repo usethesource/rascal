@@ -134,13 +134,13 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     // screen
     case /^\<screen\>\s*<codeLines:.*>$/: {
       i += 1;
-      start = i;
+      startLine = i;
       while((i < n) && /^\<\/screen\>/ !:= lines[i]){
          codeLines += lines[i] + "\n";
          i += 1;
       }
-      end = i - start;
-      return <markupScreen(slice(lines, start, end)), skipOneNL(lines, i+1, n)>;
+      end = i - startLine;
+      return <markupScreen(slice(lines, startLine, end)), skipOneNL(lines, i+1, n)>;
     }
     
     // listing from file
@@ -423,12 +423,12 @@ private str markupScreen(list[str] lines){
    continuation = "\>\>\>\>\>\>\>";
    while(i < upbi && j < upbj){
    		 if(i < upbi && startsWith(lines[i], "//")){
-           start = i;
+           startLine = i;
            while(i < upbi && startsWith(lines[i], "//")){
                lines[i] = substring(lines[i], 2);
                i += 1;
            }
-           codeLines += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
+           codeLines += "\</pre\>\n<markup(slice(lines, startLine, i - startLine))>\n<pre_open>";
          }
          if(i <upbi) {
          	codeLines += b(prompt) + limitWidth(lines[i], 80) + "\n";
@@ -443,12 +443,12 @@ private str markupScreen(list[str] lines){
          }
          
          if(i < upbi && startsWith(lines[i], "//")){
-           start = i;
+           startLine = i;
            while(i < upbi && startsWith(lines[i], "//")){
                lines[i] = substring(lines[i], 2);
                i += 1;
            }
-           codeLines += "\</pre\>\n<markup(slice(lines, start, i - start))>\n<pre_open>";
+           codeLines += "\</pre\>\n<markup(slice(lines, startLine, i - startLine))>\n<pre_open>";
          }
 
    }
