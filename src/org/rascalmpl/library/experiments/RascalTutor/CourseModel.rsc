@@ -138,7 +138,7 @@ public str basename(ConceptName cn){
   return (/^.*\/<base:[A-Za-z0-9\-\_]+>$/ := cn) ? base : cn;
 }
 
-test basename("A/B/C") == "C";
+//test basename("A/B/C") == "C";
 
 // Get all the names in a ConceptName
 
@@ -151,8 +151,8 @@ public list[str] basenames(ConceptName cn){
   return names;
 }
 
-test basenames("A") == ["A"];
-test basenames("A/B/C") == ["A", "B", "C"];
+//test basenames("A") == ["A"];
+//test basenames("A/B/C") == ["A", "B", "C"];
 
 // Compose a sublist of a list of names to a ConceptName
 public str compose(list[str] names, int from, int to){

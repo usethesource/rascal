@@ -84,7 +84,7 @@ private void reinitialize(Course c, set[str] enabled){
 // Start a new course
 // *** called from servlet Start in RascalTutor
 
-public str start(str serverName, str name){
+public str startCourse(str serverName, str name){
  server = serverName;
  if(name in courses){
    reinitialize(courses[name], {});

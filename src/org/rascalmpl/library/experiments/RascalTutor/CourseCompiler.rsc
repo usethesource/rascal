@@ -43,38 +43,38 @@ private str markup1(list[str] lines){
 
 public map[str,list[str]] getSections(list[str] script){
   sections = ();
-  start = 0;
+  StartLine = 0;
   currentSection = "";
   for(int i <- index(script)){
     if(/^<section:[A-Z][A-Za-z]*>:\s*<text:.*>/ := script[i] && section in sectionKeywords){
       if(currentSection != ""){
-      	sections[currentSection] = trimLines(script, start, i);
+      	sections[currentSection] = trimLines(script, StartLine, i);
       	//println("<currentSection> = <sections[currentSection]>");
       }
       if(/^\s*$/ := text)
-         start = i + 1;       // no info following section header
+         StartLine = i + 1;       // no info following section header
       else {
         script[i] = text;    // remove the section header
-        start = i;
+        StartLine = i;
       } 
       currentSection = section;
     }
   }
   if(currentSection != ""){
-     sections[currentSection] = trimLines(script, start, size(script));
+     sections[currentSection] = trimLines(script, StartLine, size(script));
   }
   return sections;
 }
 
-public list[str] trimLines(list[str] lines, int start, int end){
-  //println("trimlines(<size(lines)>,start=<start>,end=<end>");
-  while(start < end && /^\s*$/ := lines[start])
-    start += 1;
-  while(end > start && /^\s*$/ := lines[end - 1])
+public list[str] trimLines(list[str] lines, int StartLine, int end){
+  //println("trimlines(<size(lines)>,StartLine=<StartLine>,end=<end>");
+  while(StartLine < end && /^\s*$/ := lines[StartLine])
+    StartLine += 1;
+  while(end > StartLine && /^\s*$/ := lines[end - 1])
     end -= 1;
-  //println("slice(<start>,<end-start>)");
-  if(start != end)
-  	return slice(lines, start, end - start);
+  //println("slice(<StartLine>,<end-StartLine>)");
+  if(StartLine != end)
+  	return slice(lines, StartLine, end - StartLine);
   return [];
 }
 
