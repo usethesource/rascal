@@ -324,7 +324,7 @@ public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(T
    }
 }
 
-public Tree MultiplicationExpression(Expression lexp, Tree operator, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
+public Tree MultiplicationExpression(Expression lexp, Tree _, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
    if(appl(prod(_,_,attrs([_*,term(cons("Variable")),_*])),_) := lexp){
       if(unparse(lexp) in typeDefs){
          fail;
@@ -338,7 +338,7 @@ public Tree NonCommaExpression(Expression expr){
    }
 }
 
-public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree semicolon){
+public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree _){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -365,7 +365,7 @@ public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ ini
    }
 }
 
-public Tree DeclarationWithoutInitDecls(Specifier+ specs, Tree semicolon){
+public Tree DeclarationWithoutInitDecls(Specifier+ specs, Tree _){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -386,7 +386,7 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs, Tree semicolon){
    }
 }
 
-public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree semicolon){
+public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree _){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -413,7 +413,7 @@ public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","
     }
 }
 
-public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs, Tree semicolon){
+public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs, Tree _){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -434,7 +434,7 @@ public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs, Tree semicolon){
    }
 }
 
-public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declarators, Tree semicolon){
+public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declarators, Tree _){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -455,7 +455,7 @@ public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declara
    }
 }
 
-public Tree StructDeclWithoutDecl(Specifier+ specs, Tree semicolon){
+public Tree StructDeclWithoutDecl(Specifier+ specs, Tree _){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -476,7 +476,7 @@ public Tree StructDeclWithoutDecl(Specifier+ specs, Tree semicolon){
    }
 }
 
-public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* preDeclarations, Tree openBrace, Declaration* declarations, Statement* statements, Tree closeBrace){
+public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* _, Tree _, Declaration* _, Statement* _, Tree _){
    if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := declarator) &&
          !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := declarator)){
       fail;
@@ -506,7 +506,7 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
    }
 }
 
-public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl, Tree semicolon){
+public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl, Tree _){
    if(!(appl(prod(_,_,attrs([_*,term(cons("FunctionDeclarator")),_*])),_) := decl) &&
          !(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),_) := decl)){
       fail;
