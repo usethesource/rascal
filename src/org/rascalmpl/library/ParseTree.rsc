@@ -277,6 +277,11 @@ public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) 
 	return treeNotFound();
 }
 
-public default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) {
-	return treeNotFound();
-}
+public default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
+
+public bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);
+public bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
+public bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
+public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
+public bool sameType(Symbol s, s) = true;
+public default boolean sameType(Symbol s, Symbol t) = false;
