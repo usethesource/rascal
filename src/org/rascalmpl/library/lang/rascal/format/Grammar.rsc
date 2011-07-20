@@ -130,10 +130,8 @@ public str attr2mod(Attr a) {
     case \assoc(\right()): return "right";
     case \assoc(\non-assoc()): return "non-assoc";
     case \assoc(\assoc()): return "assoc";
-    case \lex(): return "lex";
     case \bracket(): return "bracket";
-    case \term("reject"()) : return "";
-    case \term(value x) : return "/*<x>*/";
+    case \tag(value x) : return "/*<x>*/";
     default : return "/*<a>*/";
   }
 }

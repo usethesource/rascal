@@ -42,5 +42,5 @@ public SDF loadSDF2Module(str name, list[loc] path) {
 }
 
 public set[str] getImports(Module mod) {
-  return { "<name.id>" | /Import i := mod,  /ModuleName name := i, bprintln(name.prod)};
+  return { "<name.id>" | /Import i := mod,  /ModuleName name := i};
 }
