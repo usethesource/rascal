@@ -68,7 +68,7 @@ public Grammar dup(Grammar g) {
   prods = { p | /Production p:prod(_,_,_) := g };
   
   while ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
-    prods = {prod(l,r,fuse(a1,a2)), rest};
+    prods = {prod(l,r,a1 + a2), rest};
   }
   
   g = visit(g) {
@@ -323,18 +323,19 @@ test bool test28() = getPriority((Group) `{left: A -> B}`, false) ==
 test bool test29() = getPriority((Group) `{left: A -> B B -> C}`, false) ==
      \associativity(sort("B"),\left(),{prod([sort("B")],sort("C"),{}),prod([sort("A")],sort("B"),{})});
 
-public Production getPriority(Priority priority, bool isLex) {
-   switch (priority) {
-     case (Group) `<Group g>`:
+public Production getPriority(Priority p, bool isLex) {
+   switch (p) {
+     case (Priority) `<Group g>`:
      	return getPriority(g, isLex);
          
      case (Priority) `<Group g1> <Assoc a> <Group g2>` : 
        return \associativity(definedSymbol(g1, isLex), getAssociativity(a), {getPriority((Priority) `<Group g1>`, isLex), getPriority((Priority) `<Group g2>`,isLex)});
  
      case (Priority) `<{Group "\>"}+ groups>` : 
-       return priority(definedSymbol(groups,isLex), [getPriority(group,isLex) | Group group <- groups]);
+       return priority(definedSymbol(groups,isLex), [getPriority(group ,isLex) | Group group <- groups]);
    }
 }
+
 
 test bool test30() = getPriority((Priority) `A -> B`, false) == 
      priority(sort("B"),[prod(sort("B"),[sort("A")],{})]);
@@ -346,13 +347,14 @@ test bool test32() = getPriority((Priority) `A -> B <1>`, false) ==
      prod(sort("B"),[sort("A")],{});
      
 test bool test33() = getPriority((Priority) `{A -> B C -> D}`, false) == 
-     first(sort("B"),[choice(sort("B"),{prod(sort("D"),[sort("C")],{}),prod(sort("B"),[sort("A")],{})})]);
+     priority(sort("B"),[choice(sort("B"),{prod(sort("D"),[sort("C")],{}),prod(sort("B"),[sort("A")],{})})]);
      
 test bool test34() = getPriority((Priority) `A -> B > C -> D`, false) ==
-     first(sort("B"),[prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{})]);
+     priority(sort("B"),[prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{})]);
      
 test bool test35() = getPriority((Priority) `A -> B > C -> D > E -> F`, false) ==
-     first(sort("B"),[prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{}),prod(sort("F"),[sort("E")],{})]);
+     priority(sort("B"),[prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{}),prod(sort("F"),[sort("E")],{})]);
+
 
 // ----- definedSymbol -----
 
@@ -391,18 +393,10 @@ test bool test37() = getStartSymbols((SDF) `definition module M exports lexical 
 test bool test38() = getStartSymbols((SDF) `definition module M exports start-symbols A B C`) == 
      {sort("A"), sort("B"), sort("C")};
 
-// ----- getSymsols, getSymbol -----
-     
-public list[Symbol] getSymbols(Syms syms, bool isLex){
-  if ((Syms) `<Sym* ss>` := syms) {
-    return [getSymbol(sym, isLex) | sym <- ss];
-  }
-  return [];
-}
+public list[Symbol] getSymbols((Syms) `<Sym* ss>`, bool isLex) = [getSymbol(sym, isLex) | sym <- ss];
 
 test bool test39() = getSymbols((Syms) `A B "ab"`, true) == [sort("A"), sort("B"), lit("ab")];
      
-
 public Symbol getSymbol(Sym sym, bool isLex) {
   switch (sym) {
     case (Sym) `LAYOUT ?`:
@@ -412,9 +406,6 @@ public Symbol getSymbol(Sym sym, bool isLex) {
 		
     case (Sym) `<IdCon i> : <Sym s>`:
     	return label("<i>", getSymbol(s, isLex));
-    	
-    case (Sym) `<Sort n>`:
-    	return sort("<n>");
     	
    	case (Sym) `LAYOUT`:
     	return sort("LAYOUT"); 
@@ -438,10 +429,10 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     	return \seq(getSymbols((Syms) `<sym> <syms>`, isLex));
     	
     case (Sym) `< <Sym sym> -LEX >`:
-        return getSymbol(sym, isLex);
+        return getSymbol(sym, true);
         
     case (Sym) `< <Sym sym> -CF >`:
-        return getSymbol(sym, isLex);
+        return getSymbol(sym, false);
        
     case (Sym) `< <Sym sym> -VAR >`:
         return getSymbol(sym, isLex);
@@ -449,6 +440,9 @@ public Symbol getSymbol(Sym sym, bool isLex) {
   }  
   
   if (isLex) switch (sym) {
+    case (Sym) `<Sort n>`:
+        return lex("<n>");
+        
     case (Sym) `<Sym s> *`: 
     	return \iter-star(getSymbol(s,isLex));
     	
@@ -476,6 +470,9 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     default: throw "missed a case <sym>";
   } 
   else switch (sym) {  
+    case (Sym) `<Sort n>`:
+        return sort("<n>");
+        
     case (Sym) `<Sym s> *`:
     	return \iter-star-seps(getSymbol(s,isLex),[\layouts("LAYOUTLIST")]);
     	
@@ -719,6 +716,9 @@ public set[Attr] getAttribute(Attribute m) {
     	
     case (Attribute) `reject` :
         return {};
+        
+    case (Attribute) `category(<StrCon a>)` :
+        return {\tag("category"(unescape(a)))};
         
     case (Attribute) `<IdCon c>(<StrCon a>)` : 
         return {\tag("NotSupported"("<c>"(unescape(a))))};

@@ -70,7 +70,7 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \lex(n) : return [lit(n)];
     case \keywords(n): return [lit(n)];
     case \empty() : return [lit("("), rl, lit(")")];
-    case \opt(s) : return [symbolLiterals,rl,lit("?")];
+    case \opt(s) : return [symbolLiterals(s),rl,lit("?")];
     case \START() : return [lit("START")];
     case \start(s) : return [lit("start"),rl,lit("["),rl,symbolLiterals(s),rl,lit("]")];
     case \label(n,s) : return symbolLiterals(s); 

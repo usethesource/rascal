@@ -10,6 +10,8 @@ module vis::ParseTree
 
 // Visualization of ParseTrees
 
+import lang::rascal::format::Grammar;
+import lang::rascal::format::Escape;
 import vis::Figure;
 import vis::Render;
 
@@ -49,13 +51,8 @@ private str viewTree1(Tree t){
   //println("viewTree1:"); rawPrintln(t);
   switch(t){
   
-   case appl(Production prod, list[Tree] args):
-    if(\layouts(_) := prod.rhs){
-        root = newId();
-        nodes += ellipse(size(4), vis::Figure::id(root), fillColor("grey"), popup("LAYOUTLIST"));
-        return root;
-     } else {
-	     FProperty p = popup(viewProduction(prod));
+   case appl(Production prod, list[Tree] args) : {
+	     FProperty p = popup(topProd2rascal(prod));
 	     root = newId();
 	     viewTrees(root, args);
 	     nodes += ellipse(vis::Figure::id(root), size(4), p);
@@ -63,7 +60,7 @@ private str viewTree1(Tree t){
      }
      
      case amb(set[Tree] alternatives):{
-         FProperty p = popup("Ambiguous");
+         FProperty p = popup("Ambiguous: <size(alternatives)>");
          root = newId();
          viewTrees(root, toList(alternatives));
          nodes += ellipse(vis::Figure::id(root), size(10), fillColor("red"), p);
@@ -88,21 +85,6 @@ private bool allChars(list[Tree] trees){
   return all(char(_) <- trees);
 }
 
-private str escape(str input){
-  return 
-    visit(input){
-      case /^\</ => "\\\<"
-      case /^\>/ => "\\\>"
-      case /^"/  => "\\\""
-      case /^'/  => "\\\'"
-      case /^\\/ => "\\\\"
-      case /^ /  => "\\ "
-      case /^\t/ => "\\t"
-      case /^\n/ => "\\n"
-      case /^\r/ => "\\r"
-    };
-}
-
 private str getChars(list[Tree] trees){
   chars = [ c | t <- trees, char(int c) := t];
   return stringChars(chars);
@@ -117,52 +99,6 @@ private void viewTrees(str root, list[Tree] trees){
   } else {
     for(a <- trees)
 	  edges += edge(root, viewTree1(a));
-  }
-}
-
-private str viewProduction(Production p){
-  //println("viewProduction:"); rawPrintln(p);
-  switch(p){
-    case prod(list[Symbol] lhs, Symbol rhs, Attributes attributes):
-       return "<for(s <- lhs){><viewSymbol(s)> <}> -\> <viewSymbol(rhs)>";
-    case \regular(Symbol s, Attributes attributes): return viewSymbol(s);
-  }
-  throw "viewProduction: missing case for: <p>"; 
-}
-
-private str viewSymbol(Symbol sym){
-  //println("viewSymbol(<sym>)");
-  switch(sym){
-    case \start(Symbol s): return "start(<viewSymbol(s)>)";
-    case \label(str name, Symbol s): return "<name>:<viewSymbol(s)>";
-    case \lit(str s) : return "\"<s>\"";
-    case \cilit(str s) : return "\"<s>\"";
-    case \opt(Symbol s): return viewSymbol(s) + "?";
-    case \sort(str s): return s;
-    case \layout(): return "LAYOUT";
-    case \layouts(str s): return s;
-    case \iter(Symbol s): return viewSymbol(s) + "+";
-    case \iter-star(Symbol s): return viewSymbol(s) + "*";
-    case \iter-seps(Symbol s, list[Symbol] seps): 
-		return "{<viewSymbol(s)> <for(sep <- seps){><viewSymbol(sep)><}>}+";
- 
-    case \iter-star-seps(Symbol s, list[Symbol] seps): 
-		return "{<viewSymbol(s)> <for(sep <- seps){><viewSymbol(sep)><}>}*";
- 	case \parameterized-sort(str sort, list[Symbol] parameters):
- 		return "<viewSymbol(s)>[<for(sep <- seps){><viewSymbol(sep)><}>]";
-    case \parameter(str name): return "param: <name>";
-    case \char-class(list[CharRange] ranges): return "[<for(r <- ranges){><viewCharRange(r)><}>]";
-    case \at-column(int column): return "@<column>";
-    case \start-of-line(): return "^";
-    case \end-of-line(): return "$";
-  }
-  throw "viewSymbol: missing case for: <sym>";
-}
-
-private str viewCharRange(CharRange crange){
-  switch(crange){
-    case single(int c): return escape(stringChar(c));
-    case range(int start, int end): return escape(stringChar(start)) + "-" + escape(stringChar(end));
   }
 }
 
