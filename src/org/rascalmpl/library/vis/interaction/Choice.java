@@ -79,7 +79,6 @@ public class Choice extends Figure {
 				FigureApplet.round(size.getHeight()));
 		list.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		list.setLocation(FigureApplet.round(left), FigureApplet.round(top));
-		print(list, left, top);
 	}
 
 	@Override

@@ -80,8 +80,6 @@ public class Button extends Figure {
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left),
 		         FigureApplet.round(top));
-		
-		print(button, left, top);
 	}
 
 	@Override
