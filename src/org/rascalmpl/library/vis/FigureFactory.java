@@ -45,6 +45,8 @@ import org.rascalmpl.library.vis.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
+import org.rascalmpl.library.vis.graph.leveled.LeveledGraph;
+import org.rascalmpl.library.vis.graph.leveled.LeveledGraphEdge;
 import org.rascalmpl.library.vis.interaction.Button;
 import org.rascalmpl.library.vis.interaction.Checkbox;
 import org.rascalmpl.library.vis.interaction.Choice;
@@ -255,6 +257,8 @@ public class FigureFactory {
 				return new LatticeGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			if(properties.getStringProperty(Properties.HINT).contains("layered"))
 				return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			if(properties.getStringProperty(Properties.HINT).contains("leveled"))
+				return new LeveledGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			
 
@@ -402,6 +406,15 @@ public class FigureFactory {
 //		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
 //		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
 		return new LayeredGraphEdge(G, fpa, properties, from, to, ctx);
+	}
+	
+	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureApplet fpa, IConstructor c,
+			PropertyManager properties, IEvaluatorContext ctx) {
+		IString from = (IString)c.get(0);
+		IString to = (IString)c.get(1);
+//		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
+//		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
+		return new LeveledGraphEdge(G, fpa, properties, from, to, ctx);
 	}
 	
 	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureApplet fpa, IConstructor c,
