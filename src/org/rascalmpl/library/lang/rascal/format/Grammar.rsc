@@ -18,6 +18,7 @@ import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::analyze::Dependency;
 import lang::rascal::format::Escape;
 import IO;
 import Set;
@@ -27,20 +28,48 @@ import ValueIO;
 import Graph;
 import Relation;
 
+public void definition2disk(loc prefix, GrammarDefinition def) {
+  for (m <- def.modules) {
+    writeFile(prefix + visit(m.name) { case /::/ => "/" }, module2rascal(def.modules[m]));
+  }
+}
+
+public str definition2rascal(GrammarDefinition def) {
+  return ("" | it + "\n\n<module2rascal(def.modules[m])>" | m <- def.modules);
+}
+
+public str module2rascal(GrammarModule m) {
+  return "module <m.name> 
+         '<for (i <- m.imports) {>import <i>;
+         '<}>
+         '<grammar2rascal(m.grammar)>";
+}
+
 public str grammar2rascal(Grammar g, str name) {
   return "module <name> <grammar2rascal(g)>";
 }
 
 public str grammar2rascal(Grammar g) {
+  g = cleanIdentifiers(g);
   deps = symbolDependencies(g);
-  ordered = orderBreadthFirst(deps);
+  ordered = order(deps);
   unordered = [ e | e <- (g.rules<0> - carrier(deps))];
   return "<grammar2rascal(g, ordered)>
          '<grammar2rascal(g, unordered)>"; 
 }
 
+private Grammar cleanIdentifiers(Grammar g) {
+  return visit (g) {
+    case sort(/<pre:.*>-<post:.*>/) => sort("\\<pre>-<post>")
+    case layouts(/<pre:.*>-<post:.*>/) => layouts("\\<pre>-<post>")
+    case lex(/<pre:.*>-<post:.*>/) => lex("\\<pre>-<post>")
+    case keywords(/<pre:.*>-<post:.*>/) => lex("\\<pre>-<post>")
+    case label(/<pre:.*>-<post:.*>/, s) => label("\\<pre>-<post>", s)
+  }
+} 
+
 public str grammar2rascal(Grammar g, list[Symbol] nonterminals) {
-  return "<for (nont <- nonterminals) {>
+  return "<for (nont <- nonterminals, nont in g.rules) {>
          '<topProd2rascal(g.rules[nont])>
          '<}>";
 }
@@ -131,6 +160,7 @@ public str attr2mod(Attr a) {
     case \assoc(\non-assoc()): return "non-assoc";
     case \assoc(\assoc()): return "assoc";
     case \bracket(): return "bracket";
+    case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
     case \tag(value x) : return "/*<x>*/";
     default : return "/*<a>*/";
   }

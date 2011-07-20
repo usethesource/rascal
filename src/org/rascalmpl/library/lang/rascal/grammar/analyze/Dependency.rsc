@@ -1,4 +1,4 @@
-module lang::rascal::grammar::analyze
+module lang::rascal::grammar::analyze::Dependency
 
 import Grammar;
 import ParseTree;
@@ -10,5 +10,5 @@ import Graph;
 }
 @experimental
 public Graph[Symbol] symbolDependencies(Grammar g) {
-  return { <from,to> | /prod(Symbol from:sort(_),[_*,/Symbol to:sort(_),_*],_) := g};
+  return { <from,to> | /prod(Symbol from,[_*,/Symbol to,_*],_) := g, to is sort || to is lex};
 }
