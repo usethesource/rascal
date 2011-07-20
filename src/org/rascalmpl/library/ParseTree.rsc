@@ -67,11 +67,11 @@ data Symbol = \start(Symbol symbol);
 
 @doc{These symbols are the named non-terminals} 
 data Symbol 
-  = \sort(str string)  
-  | \lex(str string) 
+  = \sort(str name)  
+  | \lex(str name) 
   | \layouts(str name) 
   | \keywords(str name)
-  | \parameterized-sort(str sort, list[Symbol] parameters)  
+  | \parameterized-sort(str name, list[Symbol] parameters)  
   | \parameter(str name)
   | \label(str name, Symbol symbol)
   ; 
