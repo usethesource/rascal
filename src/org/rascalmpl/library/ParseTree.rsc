@@ -284,4 +284,4 @@ public bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
 public bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
 public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 public bool sameType(Symbol s, s) = true;
-public default boolean sameType(Symbol s, Symbol t) = false;
+public default bool sameType(Symbol s, Symbol t) = false;
