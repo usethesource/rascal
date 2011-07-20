@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter.matching;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
@@ -27,6 +28,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 	private IMatchingResult pat;
 	private Iterator<?> iterator;
 	private Expression expression;
+	private Type elementType;
 	private boolean firstTime;    // TODO: can probably be removed.
 
 	/*
@@ -66,12 +68,13 @@ public class EnumeratorResult extends BasicBooleanResult {
 		if (firstTime) {
 			firstTime = false;
 			Result<IValue> result = expression.interpret(ctx.getEvaluator());
+			elementType = IteratorFactory.elementType(ctx, result);
 			iterator = IteratorFactory.make(ctx, pat, result, true);
 		}
 		/*
 		 * First, explore alternatives that remain to be matched by the current pattern
 		 */
-		while(pat.hasNext()){
+		while (pat.hasNext()){
 			if(pat.next()){
 				return true;
 			}
@@ -79,11 +82,10 @@ public class EnumeratorResult extends BasicBooleanResult {
 		/*
 		 * Next, fetch a new data element (if any) and create a new pattern.
 		 */
-		while(iterator.hasNext()){
+		while (iterator.hasNext()){
 			IValue v = (IValue) iterator.next();
 			
-			// TODO: extract the proper static element type that will be generated
-			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
+			pat.initMatch(ResultFactory.makeResult(elementType, v, ctx));
 			while(pat.hasNext()){
 				if(pat.next()){
 					return true;						

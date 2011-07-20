@@ -25,25 +25,59 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NotEnumerableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.TypeReachability;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class IteratorFactory {
 	
-	public static Iterator<IValue> make(IEvaluatorContext ctx, IMatchingResult matchPattern, 
-			                              Result<IValue> subject, boolean shallow){
+	public static Type elementType(IEvaluatorContext ctx, Result<IValue> subject) {
+		Type subjectType = subject.getType();
+
+		if (subjectType.isListType() || subjectType.isSetType()) {
+			return subjectType.getElementType();
+		} 
+		else if (subjectType.isMapType()){				
+			return subjectType.getKeyType();
+		} 
+		else if (subjectType.isExternalType()){
+			if (subjectType instanceof NonTerminalType){
+				NonTerminalType nt = (NonTerminalType) subjectType;
+
+				if (nt.isConcreteListType()){
+					IConstructor listSymbol = nt.getSymbol();
+					return RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.getSymbol(listSymbol));
+				}
+			}
+
+			throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+		} 
+		else if (subjectType.isNodeType() || subjectType.isAbstractDataType() || subjectType.isTupleType()) {
+			return TypeFactory.getInstance().valueType();			
+		}
 		
+		throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+	}
+
+	public static Iterator<IValue> make(IEvaluatorContext ctx, IMatchingResult matchPattern, 
+			Result<IValue> subject, boolean shallow){
+
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
-		
+
+		if (subjectType.isValueType()) {
+			System.err.println("???");
+		}
 		// TODO: this should be a visitor design as well..
-		
+
 		// List
 		if(subjectType.isListType()){
 			//TODO: we could do this more precisely				
@@ -52,55 +86,54 @@ public class IteratorFactory {
 				return ((IList) subjectValue).iterator();
 			}
 			return new DescendantReader(subjectValue, false);
-			
-		// Set
+
+			// Set
 		} else 	if(subjectType.isSetType()){				
-			if(shallow){
+			if (shallow){
 				checkMayOccur(patType, subjectType.getElementType(), ctx);
 				return ((ISet) subjectValue).iterator();
 			}
+			
 			return new DescendantReader(subjectValue, false);
-		
-		// Map
+
+			// Map
 		} else if(subjectType.isMapType()){				
-			if(shallow){
+			if (shallow) {
 				checkMayOccur(patType, subjectType.getKeyType(), ctx);
 				return ((IMap) subjectValue).iterator();
 			}
 			return new DescendantReader(subjectValue, false);
-			
-		// NonTerminal (both pattern and subject are non-terminals, so we can skip layout and stuff)
-		} else if(subjectType.isExternalType()){
-			if(subjectType instanceof NonTerminalType){
+		} else if (subjectType.isExternalType()) {
+			if (subjectType instanceof NonTerminalType) {
+				// NonTerminal (both pattern and subject are non-terminals, so we can skip layout and stuff)
 				IConstructor tree = (IConstructor) subjectValue;
 				NonTerminalType nt = (NonTerminalType) subjectType;
-				
-				if(nt.isConcreteListType()){
-					if(shallow){
+
+				if (!shallow) {
+					return new DescendantReader(tree, patType instanceof NonTerminalType);
+				}
+				else {
+					if (nt.isConcreteListType()){
 						checkMayOccur(patType, subjectType, ctx);
-						IConstructor listSymbol = nt.getSymbol();
-						int delta = SymbolAdapter.isSepList(listSymbol)? 4 : 2;
+						IConstructor ls = nt.getSymbol();
+
+						int delta = SymbolAdapter.isSepList(ls) ? 
+								(SymbolAdapter.getSeparators(ls).length() + 1) : 1;
+
 						return new CFListIterator((IList)tree.get(1), delta);
 					}
-					
 				}
-				
-				if(shallow)
-					checkMayOccur(patType, subjectType, ctx);
-				
-				return new DescendantReader(tree, patType instanceof NonTerminalType);
-				
 			}
-			return new SingleIValueIterator(subjectValue);
-			
-		// Node and ADT
+
+			throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
+			// Node and ADT
 		} else if(subjectType.isNodeType() || subjectType.isAbstractDataType()){			
-			if(shallow){
+			if (shallow){
 				checkMayOccur(patType, subjectType, ctx);
 				return new NodeChildIterator((INode) subjectValue);
 			}
 			return new DescendantReader(subjectValue, false);
-			
+
 		} else if(subjectType.isTupleType()){
 			if(shallow){
 				int nElems = subjectType.getArity();
@@ -112,27 +145,27 @@ public class IteratorFactory {
 				return new TupleElementIterator((ITuple)subjectValue);
 			}
 			return new DescendantReader(subjectValue, false);
-			
+
 		} else if(subjectType.isBoolType() ||
 				subjectType.isIntegerType() ||
 				subjectType.isRealType() ||
 				subjectType.isStringType() ||
 				subjectType.isSourceLocationType() ||
 				subjectType.isDateTimeType())
-				{
-			if(shallow && !subjectType.isSubtypeOf(patType)) {
-				throw new UnexpectedTypeError(patType, subjectType, ctx.getCurrentAST());
+		{
+			if (shallow) {
+				throw new NotEnumerableError(subjectType.toString(), ctx.getCurrentAST());
 			}
 			return new SingleIValueIterator(subjectValue);
 		} else {
 			throw new UnsupportedOperationError("makeIterator", subjectType, ctx.getCurrentAST());
 		}
 	}
-	
+
 	private static void checkMayOccur(Type patType, Type rType, IEvaluatorContext ctx){
 		if(!TypeReachability.mayOccurIn(rType, patType, ctx.getCurrentEnvt())) {
 			throw new UnexpectedTypeError(rType, patType, ctx.getCurrentAST());
 		}
 	}
-	
+
 }

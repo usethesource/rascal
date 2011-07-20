@@ -566,7 +566,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (parser == null) {
 			String parserName = env.getName(); // .replaceAll("::", ".");
 
-			System.err.println("generating " + parserName);
 			// force regeneration of object parser such that super class name aligns... (a workaround)
 			IGTD objectParser = getObjectParser(env, input, true);
 			parser = pg.getRascalParser(this, input, parserName, productions, objectParser);
@@ -1138,7 +1137,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
 			else {
-				System.err.println("parsing module " + name);
 				parser = getRascalParser(env, location);
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			}

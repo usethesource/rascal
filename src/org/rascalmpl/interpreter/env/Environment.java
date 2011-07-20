@@ -635,10 +635,6 @@ public class Environment {
 		getRoot().declareProduction(x);
 	}
 	
-	public ISet getProductions() {
-		return getRoot().getProductions();
-	}
-
 	// TODO: We should have an extensible environment model that doesn't
 	// require this type of checking, but instead stores all the info on
 	// a name in one location...

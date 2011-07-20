@@ -55,7 +55,8 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		iterator = IteratorFactory.make(ctx, pat, subject, false);
+		// note how we switch to a dynamic type here!
+		iterator = IteratorFactory.make(ctx, pat, ResultFactory.makeResult(subject.getValue().getType(), subject.getValue(), ctx), false);
 		hasNext = true;
 	}
 	

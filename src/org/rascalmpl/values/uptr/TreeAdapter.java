@@ -575,4 +575,12 @@ public class TreeAdapter {
 	public static boolean isEmpty(IConstructor kid) {
 		return isAppl(kid) && SymbolAdapter.isEmpty(ProductionAdapter.getType(getProduction(kid)));
 	}
+
+	public static int getCycleLength(IConstructor tree) {
+		return new Integer(((IInteger) tree.get("cycleLength")).getStringRepresentation()).intValue();
+	}
+
+	public static IConstructor getCycleType(IConstructor tree) {
+		return (IConstructor) tree.get("symbol");
+	}
 }

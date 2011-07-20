@@ -526,7 +526,7 @@ public class ASTBuilder {
 	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
 	 * again, like `<`...`>` are filtered.
 	 */
-	private Expression filterNestedPattern(IConstructor antiQuote, IConstructor pattern) {
+	private Expression filterNestedPattern(IConstructor antiQuote, IConstructor pattern, boolean lexicalFather, String layout) {
 		ISet alternatives = TreeAdapter.getAlternatives(pattern);
 		List<Expression> result = new ArrayList<Expression>(alternatives.size());
 		 
@@ -542,7 +542,7 @@ public class ASTBuilder {
 			
 			Expression exp = (Expression) buildValue(alt);
 		
-			if (exp != null && correctlyNestedPattern(expected, exp)) {
+			if (exp != null && correctlyNestedPattern(expected, exp, lexicalFather, layout)) {
 				result.add(exp);
 			}
 		}
@@ -573,7 +573,7 @@ public class ASTBuilder {
 		}
 		
 		IConstructor pattern = getConcretePattern(tree);
-		Expression ast = liftRec(pattern);
+		Expression ast = liftRec(pattern, false,  getPatternLayout(tree));
 		
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
@@ -589,6 +589,33 @@ public class ASTBuilder {
 		return ast;
 	}
 
+	private String getPatternLayout(IConstructor tree) {
+		IConstructor prod = TreeAdapter.getProduction(tree);
+		String cons = ProductionAdapter.getConstructorName(prod);
+		
+		IList symbols = ProductionAdapter.getSymbols(prod);
+		
+		if (cons.equals("ConcreteQuoted")) {
+			IConstructor sym = (IConstructor) symbols.get(1);
+			if (!SymbolAdapter.isLayouts(sym)) {
+				throw new ImplementationError("?? expected layout symbol but got " + sym);
+			}
+			return SymbolAdapter.getName(sym);
+		}
+		
+		if (cons.equals("ConcreteTypedQuoted")) {
+			// the type name is an arbitrary length list of literals, so we better start from the end
+			IConstructor sym = (IConstructor) symbols.get(symbols.length() - 2);
+			if (!SymbolAdapter.isLayouts(sym)) {
+				throw new ImplementationError("?? expected layout symbol but got " + sym);
+			}
+			
+			return SymbolAdapter.getName(sym);
+		}
+		
+		throw new ImplementationError("Unexpected embedding syntax:" + prod);
+	}
+
 	private Expression stats(IConstructor in, Expression out, ASTStatistics a) {
 		constructorCache.putUnsafe(in, out);
 		if (out != null) {
@@ -597,10 +624,14 @@ public class ASTBuilder {
 		return out;
 	}
 	
-	private Expression liftRec(IConstructor tree) {
+	private Expression liftRec(IConstructor tree, boolean lexicalFather, String layoutOfFather) {
 		Expression cached = constructorCache.get(tree);
 		if (cached != null) {
 			return cached;
+		}
+		
+		if (layoutOfFather == null) {
+			throw new ImplementationError("layout is null");
 		}
 		
 		ASTStatistics stats = new ASTStatistics();
@@ -610,7 +641,8 @@ public class ASTBuilder {
 			String cons = TreeAdapter.getConstructorName(tree);
 			
 			if (cons != null && (cons.equals("MetaVariable") || cons.equals("TypedMetaVariable"))) {
-				result = liftVariable(tree);
+				
+				result = liftVariable(tree, lexicalFather, layoutOfFather);
 				stats.setNestedMetaVariables(1);
 				return stats(tree, result, stats);
 			}
@@ -631,9 +663,21 @@ public class ASTBuilder {
 				
 			
 			IList args = TreeAdapter.getArgs(tree);
+			String layout = layoutOfFather;
+			
+			if (cons != null && !lex) { 
+				String newLayout = getLayoutName(TreeAdapter.getProduction(tree));
+				
+				// this approximation is possibly harmfull. Perhaps there is a chain rule defined in another module, which nevertheless
+				// switched the applicable layout. Until we have a proper type-analysis there is nothing we can do here.
+				if (newLayout != null) {
+					layout = newLayout;
+				}
+			}
+			
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.length());
 			for (IValue arg : args) {
-				Expression ast = liftRec((IConstructor) arg);
+				Expression ast = liftRec((IConstructor) arg, lex, layout);
 				if (ast == null) {
 					return null;
 				}
@@ -655,6 +699,9 @@ public class ASTBuilder {
 				return stats(tree, new Tree.Appl(tree, kids), stats);
 			}
 		}
+		else if (TreeAdapter.isCycle(tree)) {
+			return new Tree.Cycle(TreeAdapter.getCycleType(tree), TreeAdapter.getCycleLength(tree));
+		}
 		else if (TreeAdapter.isAmb(tree)) {
 			ISet args = TreeAdapter.getAlternatives(tree);
 			java.util.List<Expression> kids = new ArrayList<Expression>(args.size());
@@ -662,7 +709,7 @@ public class ASTBuilder {
 			ASTStatistics ref = null;
 			
 			for (IValue arg : args) {
-				Expression ast = liftRec((IConstructor) arg);
+				Expression ast = liftRec((IConstructor) arg, lexicalFather, layoutOfFather);
 				if (ast != null) {
 					if (ref == null) {
 						ref = ast.getStats();
@@ -694,18 +741,30 @@ public class ASTBuilder {
 		}
 	}
 
-	private Expression liftVariable(IConstructor tree) {
+	private String getLayoutName(IConstructor production) {
+		if (ProductionAdapter.isDefault(production)) {
+			for (IValue sym : ProductionAdapter.getSymbols(production)) {
+				if (SymbolAdapter.isLayouts(SymbolAdapter.delabel((IConstructor) sym))) {
+					return SymbolAdapter.getName((IConstructor) sym);
+				}
+			}
+		}
+		
+		return null;
+	}
+
+	private Expression liftVariable(IConstructor tree, boolean lexicalFather, String layout) {
 		String cons = TreeAdapter.getConstructorName(tree);
 		
 		if (cons.equals("MetaVariable")) {
 			IConstructor arg = (IConstructor) getASTArgs(tree).get(0);
 			
 			if (arg.getConstructorType() == Factory.Tree_Amb) {
-				return filterNestedPattern(tree, arg); 
+				return filterNestedPattern(tree, arg, lexicalFather, layout); 
 			}
 			Expression result = (Expression) buildValue(arg);
 		
-			if (result != null && correctlyNestedPattern(TreeAdapter.getType(tree), result)) {
+			if (result != null && correctlyNestedPattern(TreeAdapter.getType(tree), result, lexicalFather, layout)) {
 				return result;
 			}
 			return null;
@@ -714,9 +773,9 @@ public class ASTBuilder {
 	}
 
 
-	private boolean correctlyNestedPattern(IConstructor expected, Expression exp) {
+	private boolean correctlyNestedPattern(IConstructor expected, Expression exp, boolean lexicalFather, String layout) {
 		if (exp.isTypedVariable()) {
-			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
+			IConstructor expressionType = Symbols.typeToSymbol(exp.getType(), lexicalFather, layout);
 
 			
 			// the declared type inside the pattern must match the produced type outside the brackets
@@ -732,7 +791,7 @@ public class ASTBuilder {
 			
 			return false;
 		}else if (exp.isGuarded()) {
-			IConstructor expressionType = Symbols.typeToSymbol(exp.getType());
+			IConstructor expressionType = Symbols.typeToSymbol(exp.getType(), lexicalFather, layout);
 
 			// the declared type inside the pattern must match the produced type outside the brackets
 			// "<" [Type] Pattern ">" -> STAT in the grammar and "<[STAT] pattern>" in the pattern. STAT == STAT.

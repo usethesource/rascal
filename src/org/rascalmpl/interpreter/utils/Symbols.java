@@ -36,37 +36,25 @@ import org.rascalmpl.values.uptr.Factory;
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
 	
-	public static IConstructor typeToSymbol(Type type) {
+	public static IConstructor typeToSymbol(Type type, boolean lex, String layout) {
 		if (type.isUser()) {
-			return (IConstructor) Factory.Symbol_Sort.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+			if (lex) {
+				return (IConstructor) Factory.Symbol_Lex.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+			}
+			else {
+				return (IConstructor) Factory.Symbol_Sort.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+			}
 		}
 		
 		if (type.isSymbol()) {
-			return (IConstructor) symbolAST2SymbolConstructor(type.getSymbol());
+			return (IConstructor) symbolAST2SymbolConstructor(type.getSymbol(), lex, layout);
 		}
 
 		throw new RuntimeException("Can't convert type to symbol: "+type);
 	}
 	
-	// TODO: there is a lot more to do to get this right.
-	public static IValue typeToLexSymbol(Type type) {
-		if (type.isUser()) {
-			return Factory.Symbol_Lex.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
-		}
-		
-		// For nested lexicals some other solution must be designed
-		if (type.isSymbol()) {
-			return symbolAST2SymbolConstructor(type.getSymbol());
-		}
-
-		throw new RuntimeException("Can't convert type to symbol: "+type);
-	}
-
-
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
-	private static IValue symbolAST2SymbolConstructor(Sym symbol) {
-		// TODO: this has to become a parameter
-		String layout = "LAYOUTLIST";
+	private static IValue symbolAST2SymbolConstructor(Sym symbol, boolean lex, String layout) {
 		
 		if (symbol.isCaseInsensitiveLiteral()) {
 			return Factory.Symbol_CiLit.make(factory, ciliteral2Symbol(symbol.getCistring()));
@@ -76,32 +64,62 @@ public class Symbols {
 			return charclass2Symbol(cc);
 		}
 		if (symbol.isIter()) {
-			return Factory.Symbol_IterPlus.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
+			if (lex) {
+				return Factory.Symbol_IterPlus.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
+			}
+			else {
+				IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
+				IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
+				IValue seps = Factory.Symbols.make(factory, layoutSymbol);
+				return Factory.Symbol_IterSepX.make(factory, elementSym, seps);
+			}
 		}
 		if (symbol.isIterStar()) {
-			return Factory.Symbol_IterStar.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
+			if (lex) {
+				return Factory.Symbol_IterStar.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
+			}
+			else {
+				IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
+				IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
+				IValue seps = Factory.Symbols.make(factory, layoutSymbol);
+				return Factory.Symbol_IterStarSepX.make(factory, elementSym, seps);
+			}
 		}
 		if (symbol.isIterSep()) {
 			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
-			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol());
-			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
-//			IValue sepSym = literal2Symbol(symbol.getSep());
-			IValue seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
+			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
+			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
+			IValue seps;
+			
+			if (lex) {
+				seps = Factory.Symbols.make(factory, sepSym);
+			}
+			else {
+				seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
+			}
+			
 			return Factory.Symbol_IterSepX.make(factory, elementSym, seps);
 		}
+		
 		if (symbol.isIterStarSep()) {
 			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
-			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol());
-			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep());
-//			IValue sepSym = literal2Symbol(symbol.getSep());
-			IValue seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
+			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
+			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
+			IValue seps;
+			if (lex) {
+				seps = Factory.Symbols.make(factory, sepSym);
+			}
+			else {
+				seps = Factory.Symbols.make(factory, layoutSymbol, sepSym, layoutSymbol);
+			}
 			return Factory.Symbol_IterStarSepX.make(factory, elementSym, seps);
 		}
+		
 		if (symbol.isLiteral()) {
 			return literal2Symbol(symbol.getString());
 		}
 		if (symbol.isOptional()) {
-			return Factory.Symbol_Opt.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
+			return Factory.Symbol_Opt.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 		}
 		
 		if (symbol.isStart()) {
@@ -111,14 +129,23 @@ public class Symbols {
 		if (symbol.isNonterminal()) {
 			Nonterminal nonterminal = symbol.getNonterminal();
 			IString name = factory.string(((Nonterminal.Lexical) nonterminal).getString());
-			return Factory.Symbol_Sort.make(factory, name);
+			if (lex) {
+				return Factory.Symbol_Lex.make(factory, name);
+			}
+			else {
+				return Factory.Symbol_Sort.make(factory, name);
+			}
 		}
 		
 		if(symbol.isSequence()){
 			List<Sym> symbols = symbol.getSequence();
-			IValue[] symValues = new IValue[symbols.size()];
-			for(int i = symbols.size() - 1; i >= 0; --i){
-				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i));
+			IValue layoutSymbol = Factory.Symbol_LayoutX.make(factory, layout);
+			IValue[] symValues = new IValue[lex ? symbols.size() : symbols.size() * 2 - 1];
+			for(int i = symbols.size() - 1; i >= 0; i -= lex ? 1 : 2) {
+				symValues[lex ? i : i * 2] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
+				if (lex && i > 0) {
+					symValues[i - 1] = layoutSymbol;
+				}
 			}
 			IValue syms = Factory.Symbols.make(factory, symValues);
 			return Factory.Symbol_Seq.make(factory, syms);
@@ -127,7 +154,7 @@ public class Symbols {
 			List<Sym> symbols = symbol.getSequence();
 			IValue[] symValues = new IValue[symbols.size()];
 			for(int i = symbols.size() - 1; i >= 0; --i){
-				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i));
+				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
 			}
 			IValue syms = Factory.Symbols.make(factory, symValues);
 			return Factory.Symbol_Alt.make(factory, syms);

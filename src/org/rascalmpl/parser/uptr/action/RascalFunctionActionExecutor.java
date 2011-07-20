@@ -107,9 +107,15 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(ambCluster);
 			ICallableValue func = (ICallableValue) var;
 			try {
-				return (IConstructor) func.call(
+				Result<IValue> result = func.call(
 						new Type[] {TF.setType(type)}, new IValue[] {alts}
 				);
+				
+				if (result.getType().isVoidType()) {
+					return ambCluster;
+				}
+				
+				return (IConstructor) result.getValue();
 			}
 			catch (ArgumentsMismatchError e) {
 				return ambCluster;
@@ -151,7 +157,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 				
 				try{
 					// First try without layout and literal args and an actual parameter for each "field"
-					IConstructor result = call(function, TreeAdapter.getASTArgs(tree));
+					Result<IValue> result = call(function, TreeAdapter.getASTArgs(tree));
 					if(result == null){
 						result = call(function, TreeAdapter.getArgs(tree));
 					}
@@ -161,8 +167,13 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 						return tree; // TODO Handle the error properly.
 					}
 					
-					return result;
-				}catch(Failure f){
+					if (result.getType().isVoidType()) {
+						return tree;
+					}
+					else {
+						return (IConstructor) result.getValue();
+					}
+				} catch(Failure f){ // TODO: change to Filter specific failure
 					return null;
 				}
 			}
@@ -171,7 +182,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		return tree;
 	}
 
-	private IConstructor call(ICallableValue function, IList args) {
+	private Result<IValue> call(ICallableValue function, IList args) {
 		try{
 			int nrOfArgs = args.length();
 			Type[] types = new Type[nrOfArgs];
@@ -183,8 +194,8 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 				actuals[i] = arg;
 			}
 			
-			return (IConstructor) function.call(types, actuals);
-		}catch(ArgumentsMismatchError e){
+			return function.call(types, actuals);
+		} catch(ArgumentsMismatchError e){
 			return null;
 		}
 	}

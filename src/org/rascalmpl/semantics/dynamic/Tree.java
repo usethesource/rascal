@@ -13,6 +13,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.ArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,6 +34,8 @@ import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -62,6 +65,7 @@ public abstract class Tree {
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 		this.args = args;
 		this.constant = isConstant(args);
+	
 	}
 
 	@Override
@@ -144,8 +148,11 @@ public abstract class Tree {
   }
   
   static public class List extends Appl {
+	private final int delta;
+
 	public List(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 		super(node, args);
+		this.delta = getDelta(production);
 	}
 	
 	@Override
@@ -159,6 +166,67 @@ public abstract class Tree {
 			kids.add(arg.buildMatcher(eval));
 		}
 		return new ConcreteListPattern(eval, this,  kids);
+	}
+	
+	public Result<IValue> interpret(Evaluator eval) {
+		if (constant) {
+			return makeResult(type, node, eval);
+		}
+		
+		// TODO add function calling
+		IListWriter w = eval.getValueFactory().listWriter(Factory.Tree);
+		for (org.rascalmpl.ast.Expression arg : args) {
+			w.append(arg.interpret(eval).getValue());
+		}
+		
+		return makeResult(type, Factory.Tree_Appl.make(eval.getValueFactory(), production, flatten(w.done())), eval);
+	}
+
+	private void appendSeparators(IList args, IListWriter result, int delta, int i) {
+		for (int j = i - delta; j > 0 && j < i; j++) {
+			result.append(args.get(j));
+		}
+	}
+
+	private IList flatten(IList args) {
+		IListWriter result = Factory.Args.writer(VF);
+		
+		for (int i = 0; i < args.length(); i+=(delta + 1)) {
+			IConstructor tree = (IConstructor) args.get(i);
+			if (TreeAdapter.isList(tree) && TreeAdapter.isAppl(tree)) {
+				if (ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
+					IList nestedArgs = TreeAdapter.getArgs(tree);
+					if (nestedArgs.length() > 0) {
+						appendSeparators(args, result, delta, i);
+						result.appendAll(nestedArgs);
+					}
+					else {
+						// skip following separators
+						i += delta;
+					}
+				}
+				else {
+					appendSeparators(args, result, delta, i);
+					result.append(tree);
+				}
+			}
+			else {
+				appendSeparators(args, result, delta, i);
+				result.append(tree);
+			}
+		}
+		
+		return result.done();
+	}
+
+	private int getDelta(IConstructor prod) {
+		IConstructor rhs = ProductionAdapter.getType(prod);
+		
+		if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
+			return SymbolAdapter.getSeparators(rhs).length();
+		}
+		
+		return 0;
 	}
   }
   
@@ -234,6 +302,30 @@ public abstract class Tree {
 		  return new LiteralPattern(eval, this,  node);
 	  }
 	  
+	  @Override
+	  public Type typeOf(Environment env) {
+		  return Factory.Tree;
+	  }
+  }
+  
+  static public class Cycle extends  org.rascalmpl.ast.Expression {
+	  private final int length;
+
+	  public Cycle(IConstructor node, int length) {
+		  super(node);
+		  this.length = length;
+	  }
+
+	  @Override
+	  public Result<IValue> interpret(Evaluator eval) {
+		  return makeResult(Factory.Tree, Factory.Tree_Cycle.make(VF, node, VF.integer(length)), eval);
+	  }
+
+	  @Override
+	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		  return new LiteralPattern(eval, this,  Factory.Tree_Cycle.make(VF, node, VF.integer(length)));
+	  }
+
 	  @Override
 	  public Type typeOf(Environment env) {
 		  return Factory.Tree;
