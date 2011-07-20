@@ -136,7 +136,6 @@ public class TextField extends Figure {
 		textfield.setBackground(validated ? trueColor : falseColor);
 		textfield
 				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
-		print(textfield, left, top);
 	}
 
 	@Override

@@ -999,7 +999,8 @@ public class FigureSWTApplet implements IFigureApplet {
 		 * figure.minSize.getWidth(); figureHeight = figure.minSize.getHeight();
 		 * figure.draw(left, top); }
 		 */
-		this.drawFigure();
+		comp.print(gc);
+		//this.drawFigure();
 	}
 
 	public Object createFont(String fontName, double fontSize) {

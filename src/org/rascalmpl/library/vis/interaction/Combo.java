@@ -154,7 +154,6 @@ public class Combo extends Figure {
 		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		combo.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
-		print(combo, left, top);
 	}
 
 	@Override

@@ -81,7 +81,6 @@ public class Checkbox extends Figure {
 		button.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
-		this.print(button, left, top);
 	}
 
 	@Override

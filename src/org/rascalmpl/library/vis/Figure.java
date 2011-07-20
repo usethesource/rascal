@@ -1068,18 +1068,4 @@ public abstract class Figure implements Comparable<Figure> {
 		if(flip) return isHLocPropertyConverted();
 		else return isVLocPropertyConverted();
 	}
-	
-	protected void print(Control c, double left, double top) {
-		GC gc = fpa.getPrinterGC();
-		if (gc != null) {
-			Transform transform = new Transform(gc.getDevice());
-			transform.translate((float) left, (float) top);
-			gc.setTransform(transform);
-			c.print(gc);
-			transform.translate((float) -left, (float) -top);
-			gc.setTransform(transform);
-			transform.dispose();
-		}
-	}
-	
 }
