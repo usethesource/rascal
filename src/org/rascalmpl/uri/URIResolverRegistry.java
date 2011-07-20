@@ -14,11 +14,15 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class URIResolverRegistry {
@@ -76,6 +80,9 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			return false;
 		}
+		
+		mkParentDir(uri);
+		
 		return resolver.mkDirectory(uri);
 	}
 
@@ -123,7 +130,27 @@ public class URIResolverRegistry {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		
+		mkParentDir(uri);
+		
 		return resolver.getOutputStream(uri, append);
+	}
+
+	private void mkParentDir(URI uri) throws IOException {
+		File file = new File(uri.getPath());
+		File parent = file.getParentFile();
+		
+		if (parent != null && !parent.getName().isEmpty()) {
+			try {
+				URI parentURI = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent.getAbsolutePath(), uri.getQuery(), uri.getFragment());
+
+				if (!exists(parentURI)) {
+					mkDirectory(parentURI);
+				}
+			} 
+			catch (URISyntaxException e) {
+				throw new IOException("malformed uri", e);
+			}
+		}
 	}
 
 	
