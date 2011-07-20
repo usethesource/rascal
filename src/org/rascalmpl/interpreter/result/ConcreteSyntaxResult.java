@@ -70,6 +70,10 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
 				for (int i = 0; i < syms.length(); i++) {
 					IConstructor sym = (IConstructor) syms.get(i);
+					
+					while (SymbolAdapter.isConditional(sym)) {
+						sym = SymbolAdapter.getSymbol(sym);
+					}
 					if (SymbolAdapter.isLabel(sym)) {
 						if (SymbolAdapter.getLabel(sym).equals(name)) {
 							found = i;

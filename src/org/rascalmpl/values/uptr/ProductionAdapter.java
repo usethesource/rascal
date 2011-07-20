@@ -48,7 +48,10 @@ public class ProductionAdapter {
 	}
 	
 	public static IList getSymbols(IConstructor tree) {
-		return (IList) tree.get("symbols");
+		if (isDefault(tree)) {
+			return (IList) tree.get("symbols");
+		}
+		return null;
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
@@ -143,16 +146,16 @@ public class ProductionAdapter {
 			IConstructor nestedRhs = ProductionAdapter.getType(nested);
 			IConstructor surroundingRhs = ProductionAdapter.getType(surrounding);
 			
-			if (surroundingRhs.isEqual(nestedRhs)) {
+			if (SymbolAdapter.isEqual(surroundingRhs, nestedRhs)) {
 				return true;
 			}
 			
 			if ((SymbolAdapter.isIterPlus(surroundingRhs) && SymbolAdapter.isIterStar(nestedRhs)) || (SymbolAdapter.isIterStar(surroundingRhs) && SymbolAdapter.isIterPlus(nestedRhs))) {
-				return SymbolAdapter.getSymbol(surroundingRhs).isEqual(SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs), SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(surroundingRhs), SymbolAdapter.getSeparators(nestedRhs));
 			}
 			
 			if ((SymbolAdapter.isIterPlusSeps(surroundingRhs) && SymbolAdapter.isIterStarSeps(nestedRhs)) || (SymbolAdapter.isIterStarSeps(surroundingRhs) && SymbolAdapter.isIterPlusSeps(nestedRhs))) {
-				return SymbolAdapter.getSymbol(surroundingRhs).isEqual(SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.getSeparators(surroundingRhs).isEqual(SymbolAdapter.getSeparators(nestedRhs));
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(surroundingRhs), SymbolAdapter.getSymbol(nestedRhs)) && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(surroundingRhs), SymbolAdapter.getSeparators(nestedRhs));
 			}
 		}
 		return false;

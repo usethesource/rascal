@@ -165,7 +165,7 @@ public class ListContainerNodeConverter{
 			for(int i = 0; i < nrOfCycleElements; ++i){
 				newEnvironment = actionExecutor.enteringListNode(production, i + 1, newEnvironment);
 				IConstructor element = converter.convert(cycleElements[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
-				if(element == null){
+				if(element == null) {
 					actionExecutor.exitedListProduction(production, true, newEnvironment);
 					return null;
 				}

@@ -81,7 +81,7 @@ public class SymbolAdapter {
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 	
-	private static boolean isConditional(IConstructor tree) {
+	public static boolean isConditional(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Symbol_Conditional;
 	}
 
@@ -97,24 +97,7 @@ public class SymbolAdapter {
 	public static String getName(IConstructor tree) {
 		tree = delabel(tree);
 		
-		if (isSort(tree) || isLex(tree) || isKeyword(tree)) {
-			return ((IString) tree.get("string")).getValue();
-		}
-		else if (isMeta(tree)) {
-			return ((IString) getSymbol(tree).get("string")).getValue();
-		}
-		else if (isParameterizedSort(tree)) {
-			return ((IString) tree.get("sort")).getValue();
-		}
-		else if (isParameter(tree)) {
-			return ((IString) tree.get("name")).getValue();
-		}
-		else if (isLayouts(tree)) {
-			return ((IString) tree.get("name")).getValue();
-		}
-		else {
-			throw new ImplementationError("Symbol does not have a child named \"name\": " + tree);
-		}
+		return ((IString) tree.get("name")).getValue();
 	}
 	
 	public static String getLabel(IConstructor tree) {
@@ -308,6 +291,10 @@ public class SymbolAdapter {
 			r = getSymbol(r);
 		}
 		
+		if (isLayouts(l) && isLayouts(r)) {
+			return true;
+		}
+		
 		if (isSort(l) || isLex(l) || isKeyword(l) || isLayouts(l)) {
 			if (isLex(r) || isSort(r) || isKeyword(r) || isLayouts(r)) {
 				return getName(l).equals(getName(r));
@@ -391,7 +378,7 @@ public class SymbolAdapter {
 		return l.getConstructorType() == Factory.Symbol_Seq;
 	}
 	
-	private static boolean isEqual(IList l, IList r) {
+	public static boolean isEqual(IList l, IList r) {
 		if (l.length() != r.length()) {
 			return false;
 		}

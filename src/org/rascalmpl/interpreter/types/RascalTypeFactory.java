@@ -36,8 +36,8 @@ public class RascalTypeFactory {
 		return tf.externalType(new NonTerminalType(cons));
 	}
 	
-	public Type nonTerminalType(org.rascalmpl.ast.Type symbol) {
-		return tf.externalType(new NonTerminalType(symbol));
+	public Type nonTerminalType(org.rascalmpl.ast.Type symbol, boolean lex, String layout) {
+		return tf.externalType(new NonTerminalType(symbol, lex, layout));
 	}
 	
 	public Type overloadedFunctionType(Set<FunctionType> newAlternatives) {
