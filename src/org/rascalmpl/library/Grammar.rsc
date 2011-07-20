@@ -110,3 +110,24 @@ public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, l
 public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
 
+@doc{
+  Compose two grammars, by adding the rules of g2 to the rules of g1.
+  The start symbols of g1 will be the start symbols of the resulting grammar.
+}
+public Grammar compose(Grammar g1, Grammar g2) {
+  set[Production] empty = {};
+  for (s <- g2.rules)
+    if (g1.rules[s]?)
+      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
+    else
+      g1.rules[s] = g2.rules[s];
+  return g1;
+}    
+
+public rel[str, str] extends(GrammarDefinition def) {
+  return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
+}
+
+public rel[str,str] imports(GrammarDefinition def) {
+  return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
+}
