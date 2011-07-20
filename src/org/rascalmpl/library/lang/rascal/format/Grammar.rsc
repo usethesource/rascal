@@ -56,8 +56,9 @@ public str grammar2rascal(Grammar g) {
   deps = symbolDependencies(g);
   ordered = order(deps);
   unordered = [ e | e <- (g.rules<0> - carrier(deps))];
-  return "<grammar2rascal(g, ordered)>
-         '<grammar2rascal(g, unordered)>"; 
+  //return "<grammar2rascal(g, ordered)>
+  //       '<grammar2rascal(g, unordered)>";
+  return grammar2rascal(g, []); 
 }
 
 private Grammar cleanIdentifiers(Grammar g) {
@@ -71,7 +72,7 @@ private Grammar cleanIdentifiers(Grammar g) {
 } 
 
 public str grammar2rascal(Grammar g, list[Symbol] nonterminals) {
-  return "<for (nont <- nonterminals, nont in g.rules) {>
+  return "<for (nont <- g.rules) {>
          '<topProd2rascal(g.rules[nont])>
          '<}>";
 }
@@ -83,7 +84,15 @@ bool same(Production p, Production q) {
 public str topProd2rascal(Production p) {
   if (regular(_) := p) return "";
   
-  return "<(\start(_) := p.def) ? "start ":""><(\layouts(_) := p.def) ? "layout <layoutname(p.def)>" : "syntax <symbol2rascal(p.def)>">
+  kind = "syntax";
+  if (/layouts(_) := p.def)
+    kinds = "layout";
+  else if (/lex(_) := p.def)
+    kind = "lexical";
+  else if (/keywords(_) := p.def)
+    kind = "keyword";  
+   
+  return "<kind> <symbol2rascal(p.def)>
          '  = <prod2rascal(p)>
          '  ;";
 }
