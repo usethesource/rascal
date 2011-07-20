@@ -61,6 +61,7 @@ private GrammarModule getModule(Module m) {
    
     // note that imports in SDF2 have the semantics of extends in Rascal
     return \module(name, {}, imps, illegalPriorities(dup(grammar({}, prods))));
+    //return \module(name, {}, imps, grammar({}, prods));
   }
   
   throw "can not find module name in <m>";
@@ -76,7 +77,7 @@ private set[str] getImports(Module m) {
 
 public GrammarDefinition applyConditions(GrammarDefinition d,  map[Symbol from,Symbol to] conds) {
   return visit(d) {
-    case prod(Symbol d, list[Symbol] syms, set[Attr] as) : insert prod(d, [s in conds ? conds[s] : s | s <- syms ], as);
+    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [s in conds ? conds[s] : s | s <- ss], as)
   }
 }
 
@@ -179,6 +180,7 @@ public set[Production] getProductions(Module mod) {
     case (Grammar) `context-free priorities <{Priority ","}* prios>`:
     	res += getPriorities(prios,false);
   };
+  
   return res;
 }
 
@@ -207,27 +209,31 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 	return {fixParameters(getProduction(prod, isLex)) | Prod prod <- prods};
 }
 
-Production fixParameters(Production input) {
+set[Production] fixParameters(set[Production] input) {
   return innermost visit(input) {
     case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
          prod(\parameterized-sort(name,[pre,\parameter(x),post]),visit (lhs) { case sort(x) => \parameter(x) }, as)
   }
 }
 
-public Production getProduction(Prod P, bool isLex) {
+public set[Production] getProduction(Prod P, bool isLex) {
   switch (P) {
+    case (Prod) `<Syms syms> -> LAYOUT <Attrs ats>` :
+        return {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{}),
+                prod(sort("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
+                
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
-        return prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {});
+        return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
       
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
-        return prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `));
+        return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `))};
           
     case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` :
-        return prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats));
+        return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
     	
     default: {
         println("WARNING: not importing <P>");
-    	return prod(sort("IGNORED"),[],{\tag("NotSupported"("<P>"))});
+    	return {prod(sort("IGNORED"),[],{\tag("NotSupported"("<P>"))})};
     }
   }
 }
@@ -262,6 +268,10 @@ public set[Symbol] getConditions(SDF m) {
                ,conditional(getSymbol(sym, true), {\delete(keywords(getSymbol(sym, true).name + "Keywords"))})};
    }
    
+   //while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
+   //    res = rest + {conditional(s, cs1 + cs2)};
+   
+   iprintln(res);
    return res;
 }
       
@@ -338,7 +348,7 @@ public set[Production] getPriorities({Priority ","}* priorities, bool isLex) {
 public Production getPriority(Group group, bool isLex) {
 	switch (group) {
     case (Group) `<Prod p>` :   
-      	return getProduction(p, isLex);
+      	return choice(definedSymbol(p, isLex), getProduction(p, isLex));
        
     case (Group) `<Group g> .` :
      	return getPriority(g, isLex); // we ignore non-transitivity here!
