@@ -41,6 +41,6 @@ public SDF loadSDF2Module(str name, list[loc] path) {
   return parse(#SDF, def);
 }
 
-public set[str] getImports(Module mod) {
+private set[str] getImports(Module mod) {
   return { "<name.id>" | /Import i := mod,  /ModuleName name := i};
 }
