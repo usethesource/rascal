@@ -105,8 +105,8 @@ public class Factory {
 	
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
 		
-	public static final Type CharRange_Single = tf.constructor(uptr, CharRange, "single", tf.integerType(), "start");
-	public static final Type CharRange_Range = tf.constructor(uptr, CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
+	public static final Type CharRange_Single = tf.constructor(uptr, CharRange, "single", tf.integerType(), "begin");
+	public static final Type CharRange_Range = tf.constructor(uptr, CharRange, "range", tf.integerType(), "begin", tf.integerType(), "end");
 	
 	public static final String Location = "loc";
 	public static final String Length = "len";
