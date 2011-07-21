@@ -19,6 +19,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.library.vis.containers.WithInnerFig;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class ComputeFigure extends WithInnerFig {
@@ -68,11 +69,11 @@ public class ComputeFigure extends WithInnerFig {
 	}
 	
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		//System.err.println("ComputeFigure.draw: " + left + ", " + top + "\n");
 		this.setLeft(left);
 		this.setTop(top);
-		innerFig.draw(left,top);
+		innerFig.draw(left,top, gc);
 	}
 	
 

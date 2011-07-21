@@ -24,6 +24,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -197,17 +198,17 @@ public class SpringGraph extends Figure {
 
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 
-		applyProperties();
+		applyProperties(gc);
 		
 		for (SpringGraphEdge e : edges)
-			e.draw(left, top);
+			e.draw(left, top, gc);
 		
 		for (SpringGraphNode n : nodes)
-			n.draw(left, top);
+			n.draw(left, top,gc);
 	}
 	
 	

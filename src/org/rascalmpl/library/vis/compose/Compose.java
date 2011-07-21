@@ -16,6 +16,7 @@ import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -53,12 +54,12 @@ public abstract class Compose extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top){
+	void draw(double left, double top, GraphicsContext gc){
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(gc);
 		for(int i = 0; i < figures.length; i++){
-			figures[i].draw(left + pos[i].getX(), top + pos[i].getY());
+			figures[i].draw(left + pos[i].getX(), top + pos[i].getY(), gc);
 		}
 	}
 	

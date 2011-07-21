@@ -25,6 +25,8 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.containers.HAxis;
+import org.rascalmpl.library.vis.graphics.FontStyle;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
@@ -49,9 +51,8 @@ public abstract class Figure implements Comparable<Figure> {
 	public static int sequencer = 0; // to impose arbitrary ordering on figures
 	public int sequenceNr;
 	@SuppressWarnings("unused")
-	private final boolean debug = false;
+	private static final boolean debug = false;
 	public IFigureApplet fpa;
-	protected HashMap<String, Double> axisScales;
 
 
 	public PropertyManager properties;
@@ -128,26 +129,24 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	
-	public void applyProperties() {
-		fpa.fill(getColorProperty(Properties.FILL_COLOR));
-		fpa.stroke(getColorProperty(Properties.LINE_COLOR));
-		fpa.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
-		fpa.strokeStyle(getLineStyleProperty());
-		fpa.textSize(getIntegerProperty(Properties.FONT_SIZE));
+	public void applyProperties(GraphicsContext gc) {
+		gc.fill(getColorProperty(Properties.FILL_COLOR));
+		gc.stroke(getColorProperty(Properties.LINE_COLOR));
+		gc.strokeWeight(getRealProperty(Properties.LINE_WIDTH));
+		gc.strokeStyle(getLineStyleProperty());
+		gc.textSize(getIntegerProperty(Properties.FONT_SIZE));
 		
 		boolean shadow = getBooleanProperty(Properties.SHADOW);
-		fpa.setShadow(shadow);
+		gc.setShadow(shadow);
 		if (shadow) {
-			fpa.setShadowColor(getColorProperty(Properties.SHADOW_COLOR));
-			fpa.setShadowLeft(getRealProperty(Properties.SHADOWLEFT));
-			fpa.setShadowTop(getRealProperty(Properties.SHADOWTOP));
+			gc.setShadowColor(getColorProperty(Properties.SHADOW_COLOR));
+			gc.setShadowLeft(getRealProperty(Properties.SHADOWLEFT));
+			gc.setShadowTop(getRealProperty(Properties.SHADOWTOP));
 		}
 	}
 
-	public void applyFontProperties() {
-		fpa.textFont(fpa.createFont(getStringProperty(Properties.FONT),
-				getIntegerProperty(Properties.FONT_SIZE)));
-		fpa.textColor(getColorProperty(Properties.FONT_COLOR));
+	public void applyFontProperties(GraphicsContext gc) {
+		gc.setFont(getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
 	}
 
 	/*
@@ -218,9 +217,10 @@ public abstract class Figure implements Comparable<Figure> {
 	 *            x-coordinate of corner
 	 * @param top
 	 *            y-coordinate of corner
+	 * @param gc TODO
 	 */
 
-	public abstract void draw(double left, double top);
+	public abstract void draw(double left, double top, GraphicsContext gc);
 
 	/**
 	 * Draw an arrow from an external position (fromX, fromY) directed to the
@@ -244,7 +244,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 *            the figure to be used as arrow
 	 */
 	public void connectArrowFrom(double left, double top, double X, double Y,
-			double fromX, double fromY, Figure toArrow) {
+			double fromX, double fromY, Figure toArrow, GraphicsContext gc) {
 		if (fromX == X)
 			fromX += 0.00001;
 		double s = (fromY - Y) / (fromX - X);
@@ -285,11 +285,11 @@ public abstract class Figure implements Comparable<Figure> {
 		 */
 		if (toArrow != null) {
 			toArrow.bbox();
-			fpa.pushMatrix();
-			fpa.translate(left + IX, top + IY);
-			fpa.rotate(FigureApplet.radians(-90) + theta);
-			toArrow.draw(-toArrow.minSize.getWidth() / 2, 0);
-			fpa.popMatrix();
+			gc.pushMatrix();
+			gc.translate(left + IX, top + IY);
+			gc.rotate(FigureApplet.radians(-90) + theta);
+			toArrow.draw(-toArrow.minSize.getWidth() / 2, 0, gc);
+			gc.popMatrix();
 		}
 	}
 
@@ -358,11 +358,11 @@ public abstract class Figure implements Comparable<Figure> {
 	/**
 	 * Draw focus around this figure
 	 */
-	public void drawFocus() {
-		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		fpa.strokeWeight(1);
-		fpa.noFill();
-		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
+	public void drawFocus(GraphicsContext gc) {
+		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
+		gc.strokeWeight(1);
+		gc.noFill();
+		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 
 	public boolean getFiguresUnderMouse(Coordinate c, Vector<Figure> result) {
@@ -1067,5 +1067,17 @@ public abstract class Figure implements Comparable<Figure> {
 	public boolean isVLocPropertyConverted(boolean flip){
 		if(flip) return isHLocPropertyConverted();
 		else return isVLocPropertyConverted();
+	}
+	
+	public double getTextAscent(){
+		return fpa.textAscent(getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
+	}
+	
+	public double getTextDescent(){
+		return fpa.textDescent(getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
+	}
+	
+	public double getTextWidth(String s){
+		return fpa.textWidth(s,getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
 	}
 }

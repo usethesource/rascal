@@ -1,5 +1,6 @@
 package org.rascalmpl.library.vis;
 
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class EmptyFigure extends Figure{
@@ -17,7 +18,7 @@ public class EmptyFigure extends Figure{
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		
 	}
 

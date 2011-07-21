@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -87,10 +88,10 @@ public class Combo extends Figure {
 		});
 		combo.setText(text);
 		double m = getWidthProperty();
-		tLimit = FigureApplet.round(m / fpa.textWidth("m"));
+		tLimit = FigureApplet.round(m / getTextWidth("m"));
 		for (String s : choices) {
 			combo.add(s);
-			double d = fpa.textWidth(s);
+			double d = getTextWidth(s);
 			if (d > m)
 				m = d;
 			if (s.length()>tLimit) tLimit = s.length();
@@ -146,12 +147,12 @@ public class Combo extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 		combo.setForeground(validated ? trueColor : falseColor);
 		// combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
-		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		combo.setBackground(gc.getRgbColor(getFillColorProperty()));
 		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		combo.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 	}

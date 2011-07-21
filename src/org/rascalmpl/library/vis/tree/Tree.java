@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -117,13 +118,13 @@ public class Tree extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 		
 		//System.err.printf("Tree.draw(%f,%f)\n", left, top);
-		applyProperties();
-		root.draw(left, top);
+		applyProperties(gc);
+		root.draw(left, top, gc);
 	}
 	
 	@Override

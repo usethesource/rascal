@@ -16,6 +16,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
@@ -36,9 +37,9 @@ public class Ellipse extends Container {
 	}
 	
 	@Override
-	void drawContainer(){
+	void drawContainer(GraphicsContext gc){
 		if (debug) System.err.println("drawContainer:"+this.getClass()+" "+getLeft()+" "+getTop()+" "+size.getWidth()+" "+size.getHeight());
-		fpa.ellipse(getLeft(), getTop(), size.getWidth(), size.getHeight());
+		gc.ellipse(getLeft(), getTop(), size.getWidth(), size.getHeight());
 	}
 	
 	@Override
@@ -59,7 +60,7 @@ public class Ellipse extends Container {
 	 */
 	@Override
 	public void connectArrowFrom(double left, double top, double X, double Y, double fromX, double fromY,
-			Figure toArrow){
+			Figure toArrow,GraphicsContext gc){
 		
 		if(fromX == X)
 			fromX += 0.00001;
@@ -81,11 +82,11 @@ public class Ellipse extends Container {
         
         if(toArrow != null){
         	toArrow.bbox();
-        	fpa.pushMatrix();
-        	fpa.translate(left + IX, top + IY);
-        	fpa.rotate(FigureApplet.radians(-90) + theta);
-        	toArrow.draw(-toArrow.minSize.getWidth()/2, 0);
-        	fpa.popMatrix();
+        	gc.pushMatrix();
+        	gc.translate(left + IX, top + IY);
+        	gc.rotate(FigureApplet.radians(-90) + theta);
+        	toArrow.draw(-toArrow.minSize.getWidth()/2, 0, gc);
+        	gc.popMatrix();
         }
 	}
 	
@@ -93,10 +94,10 @@ public class Ellipse extends Container {
 	 * Draw focus around this figure
 	 */
 	@Override
-	public void drawFocus(){
-		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		fpa.noFill();
-		fpa.ellipse(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
+	public void drawFocus(GraphicsContext gc){
+		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
+		gc.noFill();
+		gc.ellipse(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 	
 	@Override

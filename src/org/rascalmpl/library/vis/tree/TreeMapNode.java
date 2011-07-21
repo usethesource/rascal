@@ -20,6 +20,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -115,29 +116,29 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top){
+	void draw(double left, double top, GraphicsContext gc){
 		this.setLeft(left);
 		this.setTop(top);
 		if(debug)System.err.printf("draw: %s at %f, %f \n", 
 				          rootFigure.getIdProperty(), left,  top
 				          );
 		
-		rootFigure.applyProperties();
-		fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
+		rootFigure.applyProperties(gc);
+		gc.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		
 		int n = children.size();
 		for(int i = 0; i < n; i++){
 			TreeMapNode child = children.get(i);
-			child.draw(left + childLeft[i], top + childTop[i]);
+			child.draw(left + childLeft[i], top + childTop[i], gc);
 		}
 	}
 	
 	@Override
-	public void drawFocus(){
+	public void drawFocus(GraphicsContext gc){
 		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), getLeft(), getTop());
-		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		fpa.noFill();
-		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
+		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
+		gc.noFill();
+		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 	
 

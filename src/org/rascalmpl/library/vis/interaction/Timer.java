@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -77,8 +78,8 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 	}
 	
 	@Override
-	public void draw(double left, double top) {
-		innerFig.draw(left, top);
+	public void draw(double left, double top, GraphicsContext gc) {
+		innerFig.draw(left, top, gc);
 	}
 	
 	public void executeKeyDownHandlers(IValue keySym, IMap modifiers){

@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
@@ -82,16 +83,16 @@ public abstract class Container extends WithInnerFig {
 
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
 
 		setLeft(left);
 		setTop(top);
-		applyProperties();
-		drawContainer();
+		applyProperties(gc);
+		drawContainer(gc);
 		if(innerFig!=null) {
 			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
-			innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
+			innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
 		}	
 	}
 
@@ -102,7 +103,7 @@ public abstract class Container extends WithInnerFig {
 	 * It is overridden by subclasses.
 	 */
 	
-	abstract void drawContainer();
+	abstract void drawContainer(GraphicsContext gc);
 	
 	/**
 	 * @return the actual container name, e.g. box, ellipse, ...

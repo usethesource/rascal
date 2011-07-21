@@ -106,7 +106,6 @@ public class FigureFactory {
 		PLACE,
 		PROJECTION,
 		ROTATE,
-		SCALE,
 		SCROLLABLE,
 		SPACE,
 		TEXT, 
@@ -150,7 +149,6 @@ public class FigureFactory {
     	put("_place",		Primitives.PLACE);
     	put("_projection",	Primitives.PROJECTION);
     	put("_rotate",      Primitives.ROTATE);
-    	put("_scale",		Primitives.SCALE);
     	put("_scrollable",  Primitives.SCROLLABLE);
     	put("_space",		Primitives.SPACE);
     	put("_text",		Primitives.TEXT);		
@@ -340,20 +338,7 @@ public class FigureFactory {
 			throw new Error("Rotate out of order..");
 			//return new Rotate(fpa, angle, child, properties);
 			
-		case SCALE:
-			//TODO
-			int childIndex,scaleYIndex;
-			if(c.arity() == 4){
-				childIndex = 2;
-				scaleYIndex=1;
-			} else {
-				childIndex = 1;
-				scaleYIndex = 0;
-			}
-			double scaleX = PropertyParsers.parseNum(c.get(0));
-			double scaleY = PropertyParsers.parseNum(c.get(scaleYIndex));
-			child = makeChild(childIndex,fpa,c,properties,childPropsNext,ctx);
-			return new Scale(fpa,scaleX,scaleY,child,properties);
+
 		case SCROLLABLE:
 			//throw new Error("Scrollable temporary out of order");
 			return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
@@ -407,7 +392,7 @@ public class FigureFactory {
 //		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
 		return new LayeredGraphEdge(G, fpa, properties, from, to, ctx);
 	}
-	
+
 	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureApplet fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);

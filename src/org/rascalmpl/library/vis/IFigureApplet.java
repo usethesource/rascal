@@ -24,11 +24,14 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.library.vis.graphics.FontStyle;
 
 public interface IFigureApplet {
+	
+	public double textAscent(String fontName, double fontSize, FontStyle... styles);
+	public double textDescent(String fontName, double fontSize, FontStyle... styles);
+	public double textWidth(String s,String fontName, double fontSize, FontStyle... styles);
 	public Composite getComp(); 
-	public Color getRgbColor(int rgbColor);
-	public Color getColor(int codeColor);
 	public void redraw();
 	public int getFigureWidth();
 	public int getFigureHeight();
@@ -41,47 +44,14 @@ public interface IFigureApplet {
 	public void mouseDragged();
 	public void mousePressed();
 	public void setComputedValueChanged();
-	public void line(double arg0, double arg1, double arg2, double arg3);
-	public void rect(double arg0, double arg1, double arg2, double arg3);
-	public void ellipse(double arg0, double arg1, double arg2, double arg3);
-	public void fill(int arg0);
-	public void stroke(int arg0);
-	public void strokeWeight(double arg0);
-	public void strokeStyle(int style);
-	public void textSize(double arg0);
-	public void textColor(int arg0);
-	public void textAlign(int arg0, int arg1);
-	public void textAlign(int arg0);
-	public void textFont(Object arg0);
-	public double textWidth(String txt);
-	public double textAscent();
-	public double textDescent();
-	public void text(String arg0, double arg1, double arg2);
-	public void pushMatrix();
-	public void popMatrix();
-	public void rotate(double arg0);
-	public void translate(double arg0, double arg1);
-	public void scale(double arg0, double arg1);
-	public void bezierVertex(double arg0, double arg1, double arg2, double arg3,
-			double arg4, double arg5);
-	public void vertex(double arg0, double arg1);
-	public void curveVertex(double arg0, double arg1);
-	public void noFill();
-	public void arc(double arg0, double arg1, double arg2, double arg3, double arg4,
-			double arg5);
-	public void beginShape();
-	public void beginShape(int arg0);
-	public void endShape();
-	public void endShape(int arg0 );
-	public void print(Printer printer);
+	
 	public void dispose();
-	public Object createFont(String fontName, double fontSize);
+
 	
 	public void setCursor(Cursor cursor);
 	public Cursor getCursor();
 	public Object getFont();
-	public void setBackground(Color color);
-	public void setForeground(Color color);	
+
 	public GC getPrinterGC();
 	public String getName();
 
@@ -94,14 +64,10 @@ public interface IFigureApplet {
 	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg);
 	
 	public void write(OutputStream out, int fileFormat /*SWT IMAGE_BMP, IMAGE_JPEG, IMAGE_ICO*/);
+	public Color getRgbColor(int fillColorProperty);
+	public Color getColor(int colorRed);
 	
-	public void setShadow(boolean shadow);
-	
-	public void setShadowColor(int color);
-	
-	public void setShadowLeft(double x);
-	
-	public void setShadowTop(double y);
+
 	
 	
 }

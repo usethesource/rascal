@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import org.rascalmpl.library.vis.Figure;
 
 import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
@@ -168,9 +169,9 @@ public class SpringGraphNode {
 		return figure != null ? figure.minSize.getHeight() : 0;
 	}
 
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		if(figure != null){
-			figure.draw(getX() + left - figure.minSize.getWidth()/2, getY() + top - figure.minSize.getHeight()/2);
+			figure.draw(getX() + left - figure.minSize.getWidth()/2, getY() + top - figure.minSize.getHeight()/2, gc);
 		}
 	}
 

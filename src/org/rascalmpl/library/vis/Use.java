@@ -15,6 +15,7 @@ package org.rascalmpl.library.vis;
 
 
 import org.rascalmpl.library.vis.containers.WithInnerFig;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -51,12 +52,12 @@ public class Use extends WithInnerFig {
 
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
-		applyProperties();
+		applyProperties(gc);
 		
 		innerFig.draw(left + getHAlignProperty()*(minSize.getWidth() - innerFig.minSize.getWidth()),
-					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()));
+					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()), gc);
 	}
 }

@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -52,15 +53,15 @@ public class Outline extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 		
 	    double lw = getLineWidthProperty();
-		applyProperties();
+		applyProperties(gc);
 		/* if(debug) */ System.err.println("Outline.draw => " + minSize.getWidth() + ", " + minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
-			fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
+			gc.rect(left, top, minSize.getWidth(), minSize.getHeight());
 			for(IValue v : lineInfo){
 				IConstructor lineDecor = (IConstructor) v;
 				int lino = ((IInteger) lineDecor.get(0)).intValue();
@@ -87,9 +88,9 @@ public class Outline extends Figure {
 					color = FigureColorUtils.getHighlightColor(highlightKind);
 				}
 
-				fpa.stroke(color);
+				gc.stroke(color);
 				double vpos = top + (lino * minSize.getHeight()) /maxLine ;
-				fpa.line(left + lw, vpos, left + minSize.getWidth() - lw, vpos);
+				gc.line(left + lw, vpos, left + minSize.getWidth() - lw, vpos);
 			}
 		}
 	}

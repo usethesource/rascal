@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Key;
@@ -101,8 +102,8 @@ public class IntervalKey extends WithInnerFig implements Key {
 	}
 
 	@Override
-	public void draw(double left, double top) {
-		innerFig.draw(left, top);
+	public void draw(double left, double top, GraphicsContext gc) {
+		innerFig.draw(left, top, gc);
 		
 	}
 	

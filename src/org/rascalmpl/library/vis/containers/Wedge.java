@@ -15,6 +15,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -228,7 +229,7 @@ public class Wedge extends Container {
 	 * @param fromAngle		begin angle
 	 * @param toAngle		end angle
 	 */
-	void arcVertex(double r, double fromAngle, double toAngle){
+	void arcVertex(double r, double fromAngle, double toAngle, GraphicsContext gc){
 		if(debug)System.err.printf("arcVertex: fromAngle=%f, toAngle=%f\n", fromAngle, toAngle);
 	    if(Math.abs(toAngle - fromAngle) < FigureApplet.PI/2){
 			double middleAngle = (toAngle - fromAngle)/2;		// fromAngle + middleAngle == middle of sector
@@ -251,48 +252,48 @@ public class Wedge extends Container {
 			/*
 			 * Add a bezierVertex between (Fx,Fy) and (Tx,Ty) using (Mx,My) as control point
 			 */
-			fpa.bezierVertex(Fx, Fy, Mx, My, Tx, Ty);
+			gc.bezierVertex(Fx, Fy, Mx, My, Tx, Ty);
 	    } else {
 	    	/*
 	    	 * Split when difference is larger than PI/2
 	    	 */
 	    	double medium = (toAngle - fromAngle)/2;
-	    	arcVertex(r, fromAngle, fromAngle + medium);
-	    	arcVertex(r, fromAngle + medium, toAngle);
+	    	arcVertex(r, fromAngle, fromAngle + medium,gc);
+	    	arcVertex(r, fromAngle + medium, toAngle,gc);
 	    }
 	}
 	
 	@Override
-	void drawContainer() {
+	void drawContainer(GraphicsContext gc) {
 		centerX = getLeft() + leftAnchor;
 		centerY = getTop() + topAnchor;
 		
 		if(debug)System.err.printf("wedge.drawContainer: %f, %f\n", centerX, centerY);
 		
-		applyProperties();
-		drawActualContainer();
+		applyProperties(gc);
+		drawActualContainer(gc);
 	}
 	
 	@Override
-	public void drawFocus() {
+	public void drawFocus(GraphicsContext gc) {
 		centerX = getLeft() + leftAnchor;
 		centerY = getTop() + topAnchor;
 		
-		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		fpa.strokeWeight(1);
-		fpa.noFill();
+		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
+		gc.strokeWeight(1);
+		gc.noFill();
 			
-		drawActualContainer();
+		drawActualContainer(gc);
 	}
 	
-	private void drawActualContainer(){
-		fpa.beginShape();
-		fpa.vertex(centerX + Ax, centerY + Ay);
-		arcVertex(radius, fromAngle, toAngle);
-		fpa.vertex(centerX + Cx, centerY + Cy);
-		arcVertex(innerRadius, toAngle, fromAngle);
-		fpa.vertex(centerX + Ax, centerY + Ay);
-		fpa.endShape();
+	private void drawActualContainer(GraphicsContext gc){
+		gc.beginShape();
+		gc.vertex(centerX + Ax, centerY + Ay);
+		arcVertex(radius, fromAngle, toAngle,gc);
+		gc.vertex(centerX + Cx, centerY + Cy);
+		arcVertex(innerRadius, toAngle, fromAngle,gc);
+		gc.vertex(centerX + Ax, centerY + Ay);
+		gc.endShape();
 	}
 	
 	@Override
@@ -302,19 +303,19 @@ public class Wedge extends Container {
 	
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 	
-		applyProperties();
+		applyProperties(gc);
 		//if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHAlignProperty(), getVAlignProperty());
 
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
-			drawContainer();
+			drawContainer(gc);
 			if(innerFig != null){
 				//if(debug)System.err.printf("%s.draw2:  inside.width=%f\n",  containerName(), innerFig.width);
 				if(innerFits()) {
-					innerDraw();
+					innerDraw(gc);
 				}
 			}
 		}
@@ -328,8 +329,8 @@ public class Wedge extends Container {
 	/**
 	 * If the inside  element fits or during a mouseOver, draw it.
 	 */
-	void innerDraw(){
-		innerFig.draw(centerX + IX - innerFig.minSize.getWidth()/2, centerY + IY - innerFig.minSize.getHeight()/2);
+	void innerDraw(GraphicsContext gc){
+		innerFig.draw(centerX + IX - innerFig.minSize.getWidth()/2, centerY + IY - innerFig.minSize.getHeight()/2, gc);
 	}
 	
 	@Override

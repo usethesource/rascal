@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -157,7 +158,7 @@ public class TreeNode extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top){
+	void draw(double left, double top, GraphicsContext gc){
 		
 		this.setLeft(left);
 		this.setTop(top);
@@ -165,7 +166,7 @@ public class TreeNode extends Figure {
 		String id = rootFigure.getIdProperty();
 		int nChildren = children.size();
 		
-		applyProperties();
+		applyProperties(gc);
 		
 		double positionRoot = left + rootPosition;
 		double leftRootFig = positionRoot - rootFigure.minSize.getWidth()/2;
@@ -173,7 +174,7 @@ public class TreeNode extends Figure {
 		if(debug)System.err.printf("draw %s, %f, %f, rootFig at %f, %f\n", id, left, top, leftRootFig, top);
 		
 		// Draw the root figure
-		rootFigure.draw(leftRootFig, top);
+		rootFigure.draw(leftRootFig, top, gc);
 		
 		if(nChildren == 0)
 			return;
@@ -184,11 +185,11 @@ public class TreeNode extends Figure {
 		double horLine       = bottomRootFig + vgap/2;
 		
 		// Vertical line from bottom of root figure to horizontal line
-		fpa.line(positionRoot, bottomRootFig, positionRoot, horLine);
+		gc.line(positionRoot, bottomRootFig, positionRoot, horLine);
 		
 		// Horizontal line connecting all the children
 		if(nChildren > 1)
-			fpa.line(left + childRoot[0], horLine, left + childRoot[nChildren-1], horLine);
+			gc.line(left + childRoot[0], horLine, left + childRoot[nChildren-1], horLine);
 	
 		// TODO line style!
 		
@@ -198,8 +199,8 @@ public class TreeNode extends Figure {
 			if(debug)System.err.printf("draw %s, child %d at posChild=%f, widthChild=%f, posRoot=%f\n", id, i, positionChild, child.minSize.getWidth(), child.rootPosition, childTop);
 
 			// Vertical line from horizontal line to top of this child
-			fpa.line(positionChild, horLine, positionChild, childTop);
-			child.draw(positionChild - child.leftExtent(), childTop);
+			gc.line(positionChild, horLine, positionChild, childTop);
+			child.draw(positionChild - child.leftExtent(), childTop, gc);
 		}
 		
 	}

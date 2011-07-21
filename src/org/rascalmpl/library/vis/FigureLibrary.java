@@ -68,8 +68,10 @@ public class FigureLibrary {
 					return;
 				final Printer printer = new Printer(data);
 				if (printer.startJob("Figure")) {
-					if (fpa != null)
-						fpa.print(printer);
+					if (fpa != null){
+						// TODO: fix printing
+						//fpa.print(printer);
+					}
 					printer.endJob();
 				}
 			}
