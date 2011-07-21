@@ -10,7 +10,7 @@
 module lang::sdf2::syntax::Sdf2
 
 lexical Sort 
-  = OneChar: [A-Z] 
+  = OneChar: [A-Z] !>> [A-Za-z0-9]
   | MoreChars: ([A-Z] [A-Za-z0-9\-]* [A-Za-z0-9] !>> [A-Za-z0-9]) \ "LAYOUT" 
   ;
 
@@ -20,7 +20,7 @@ lexical NatCon = Digits: [0-9]+ !>> [0-9];
 
 lexical NumChar = Digits: [\\] [0-9]+ !>> [0-9];
 
-start syntax SDF = Definition: "definition" Definition;
+start syntax SDF = Definition: "definition" Definition def;
 
 syntax Character 
   = Numeric: NumChar 
@@ -231,7 +231,7 @@ syntax Sections = Section*
 syntax ImpSection = Imports: "imports" Imports
                     ;
 
-syntax Definition = Module*
+syntax Definition = Module* modules
                     ;
 
 syntax Lookahead 
