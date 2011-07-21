@@ -19,8 +19,6 @@ public interface GraphicsContext {
 	public void strokeWeight(double arg0);
 	public void strokeStyle(int style);
 	public void textSize(double arg0);
-	public void setBackground(Color color);
-	public void setForeground(Color color);	
 	public void setShadow(boolean shadow);
 	public void setShadowColor(int color);
 	public void setShadowLeft(double x);
