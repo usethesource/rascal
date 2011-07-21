@@ -60,7 +60,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.util.KeySym;
+import org.rascalmpl.library.vis.util.KeySymTranslate;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
@@ -728,16 +728,16 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 
 		public void keyPressed(KeyEvent e) {
-			IValue keySym = KeySym.toRascalKey(e, ctx);
-			modifierMap = KeySym.toRascalModifiers(e, modifierMap, ctx);
+			IValue keySym = KeySymTranslate.toRascalKey(e, ctx);
+			modifierMap = KeySymTranslate.toRascalModifiers(e, modifierMap, ctx);
 			for (Figure fig : figuresUnderMouse) {
 				fig.executeKeyDownHandlers(keySym, modifierMap);
 			}
 		}
 
 		public void keyReleased(KeyEvent e) {
-			IValue keySym = KeySym.toRascalKey(e, ctx);
-			modifierMap = KeySym.toRascalModifiers(e, modifierMap, ctx);
+			IValue keySym = KeySymTranslate.toRascalKey(e, ctx);
+			modifierMap = KeySymTranslate.toRascalModifiers(e, modifierMap, ctx);
 			for (Figure fig : figuresUnderMouse) {
 				fig.executeKeyUpHandlers(keySym, modifierMap);
 			}
