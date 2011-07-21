@@ -27,7 +27,7 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
                                     syntax2grammar(mods[m].defs)
                                     ) 
                           | m <- mods));
-  return fuse(layouts(resolve(def))));
+  return fuse(layouts(resolve(def)));
 }
 
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
