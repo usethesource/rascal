@@ -758,13 +758,11 @@ lexical Char
 
 syntax Prod
 	= Reference: ":" Name referenced
-	// TODO: uncomment below and make Sym*->Sym+ in Labeled and Unlabeled 
-	// | LabeledEmpty: ProdModifier* modifiers Name name ":" "(" ")"
-	// | UnlabeledEmpty: ProdModifier* modifiers "(" ")"
 	| Labeled: ProdModifier* modifiers Name name ":" Sym* args 
 	| Others: "..." 
 	| Unlabeled: ProdModifier* modifiers Sym* args
 	| @Foldable AssociativityGroup: Assoc associativity "(" Prod group ")" 
+	// | TODO add bracket rule for easy readability
 	> left All   : Prod lhs "|" Prod rhs 
 	> left First : Prod lhs "\>" !>> "\>" Prod rhs
 	;
