@@ -13,13 +13,19 @@ module List
 import Exception;
 import Integer;
 
-@doc{Get n elements from the head of the list, size(l) if size(l) < n}
+@doc{Get n elements from the head of the list, or size(l) if size(l) < n}
 public list[&T] take(int n, list[&T] l){
 	return [ l[i] | i <- [0 .. (min(size(l),n) - 1)]];
 }
-
+@doc{Drop n elements from the head of the list, or size(l) if size(l) < n}
+public list[&T] drop(int n, list[&T] l){
+	if(n >= size(l)) return [];
+	return [ l[i] | i <- [n .. size(l)-1]];
+}
+	
+@doc{Get n elements from the head of the list, size(l) if size(l) < n}
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [l[i],r[i]| i <- [0 .. (min(size(l),size(r)) - 1)]];
+	return [l[i],r[i]| i <- [0 .. (min(size(l),size(r)) - 1)]] + drop(size(r),l) + drop(size(l),r);
 }
 
 @doc{Delete nth element from list}
