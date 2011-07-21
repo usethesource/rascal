@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -148,7 +149,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private final URIResolverRegistry resolverRegistry;
 
-	private HashSet<IConstructorDeclared> constructorDeclaredListeners;
+	private HashSet<WeakReference<IConstructorDeclared>> constructorDeclaredListeners;
 
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
@@ -170,7 +171,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.resolverRegistry = rascalPathResolver.getRegistry();
 		this.stderr = stderr;
 		this.stdout = stdout;
-		this.constructorDeclaredListeners = new HashSet<IConstructorDeclared>();
+		this.constructorDeclaredListeners = new HashSet<WeakReference<IConstructorDeclared>>();
 
 		updateProperties();
 
@@ -283,11 +284,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
-		constructorDeclaredListeners.add(iml);
+		constructorDeclaredListeners.add(new WeakReference<IConstructorDeclared>(iml));
 	}
 	
 	public void notifyConstructorDeclaredListeners() {
-		for (IConstructorDeclared iml : constructorDeclaredListeners) iml.handleConstructorDeclaredEvent();
+		for (WeakReference<IConstructorDeclared> iml : constructorDeclaredListeners){
+			IConstructorDeclared list = iml.get();
+			if(list != null){
+				list.handleConstructorDeclaredEvent();
+			}
+		}
 		constructorDeclaredListeners.clear();
 	}
 	
