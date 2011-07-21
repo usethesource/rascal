@@ -134,7 +134,7 @@ public str prod2rascal(Production p) {
         return "...";
  
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
-        return "<for (a <- as) {><attr2mod(a)><}> <n>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+        return "<for (a <- as) {><attr2mod(a)><}> <reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case prod(Symbol rhs,list[Symbol] lhs,set[Attr] as) :
       	return "<for (a <- as) {><attr2mod(a)><}><for(s <- lhs){><symbol2rascal(s)> <}>";
@@ -144,6 +144,11 @@ public str prod2rascal(Production p) {
     
     default: throw "missed a case <p>";
   }
+}
+
+private set[str] rascalKeywords = {"fun","rule","non-terminal","datetime","constructor","value","int","module","any","bool","public","throw","one","start","set","map","alias","throws","visit","for","tuple","assert","default","loc","dynamic","solve","try","catch","type","insert","else","notin","reified","switch","str","adt","while","case","return","anno","it","layout","data","join","parameter","bracket","import","in","false","all","real","list","fail","if","repeat","extend","append","tag","rel","assoc","non-assoc","void","test","true","bag","num","private","finally","node"};
+public str reserved(str name) {
+  return name in rascalKeywords ? "\\<name>" : name;   
 }
 
 test bool noAttrs() = prod2rascal(prod(sort("ID-TYPE"), [sort("PICO-ID"),lit(":"),sort("TYPE")],{}))
