@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
@@ -516,10 +517,10 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		return figure != null ? figure.getLayerProperty() : "";
 	}
 
-	void draw(double left, double top) {
+	void draw(double left, double top,GraphicsContext gc) {
 		if(figure != null){
 			figure.bbox();
-			figure.draw(x + left - figure.minSize.getWidth()/2, y + top - figure.minSize.getHeight()/2);
+			figure.draw(x + left - figure.minSize.getWidth()/2, y + top - figure.minSize.getHeight()/2, gc);
 		}
 	}
 	

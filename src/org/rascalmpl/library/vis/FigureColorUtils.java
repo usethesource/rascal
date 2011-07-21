@@ -28,6 +28,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureColorUtils {
 
+	public static final int OPAQUE = 255;
+	
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public FigureColorUtils(IValueFactory factory) {

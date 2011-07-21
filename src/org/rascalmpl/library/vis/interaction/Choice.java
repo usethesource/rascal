@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -70,14 +71,14 @@ public class Choice extends Figure {
 
 	
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 //		list.setSize(FigureApplet.round(getWidthProperty()),
 //				FigureApplet.round(getHeightProperty()));
 		list.setSize(FigureApplet.round(size.getWidth()),
 				FigureApplet.round(size.getHeight()));
-		list.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		list.setBackground(gc.getRgbColor(getFillColorProperty()));
 		list.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 

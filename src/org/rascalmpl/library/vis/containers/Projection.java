@@ -4,6 +4,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -90,8 +91,8 @@ public class Projection extends WithInnerFig {
 	}
 
 	@Override
-	public void draw(double left, double top) {
-		innerFig.draw(left, top);
+	public void draw(double left, double top, GraphicsContext gc) {
+		innerFig.draw(left, top, gc);
 		
 	}
 }

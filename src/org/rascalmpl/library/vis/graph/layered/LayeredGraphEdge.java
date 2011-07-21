@@ -19,6 +19,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -141,17 +142,17 @@ public class LayeredGraphEdge extends Figure {
 	double x1;
 	double y1;
 	
-	private void beginCurve(double x, double y){
+	private void beginCurve(double x, double y,GraphicsContext gc){
 		if(useSplines){
 			points = new double[20];
 			cp = 0;
-			addPointToCurve(x, y);
+			addPointToCurve(x, y,gc);
 		} else {
 			x1 = x; y1 = y;
 		}
 	}
 	
-	private void addPointToCurve(double x, double y){
+	private void addPointToCurve(double x, double y,GraphicsContext gc){
 		if(useSplines){
 			if(cp == points.length){
 				double points1[] = new double[2*points.length];
@@ -162,42 +163,42 @@ public class LayeredGraphEdge extends Figure {
 			points[cp++] = getLeft() + x;
 			points[cp++] = getTop() + y;
 		} else {
-			fpa.line(getLeft()+ x1, getTop() + y1, getLeft() + x, getTop() + y);
+			gc.line(getLeft()+ x1, getTop() + y1, getLeft() + x, getTop() + y);
 			x1 = x; y1 = y;
 		}
 	}
 	
-	private void endCurve(double x, double y){
+	private void endCurve(double x, double y,GraphicsContext gc){
 		if(useSplines){
-			addPointToCurve(x, y);
-			drawCurve();
+			addPointToCurve(x, y,gc);
+			drawCurve(gc);
 		} else
-			fpa.line(getLeft()+ x1, getTop() + y1, getLeft() + x, getTop() + y);	
+			gc.line(getLeft()+ x1, getTop() + y1, getLeft() + x, getTop() + y);	
 	}
 	/**
 	 * Draw a bezier curve through a list of points. Inspired by a blog post "interpolating curves" by rj, which is in turn inspired by
 	 * Keith Peter's "Foundations of Actionscript 3.0 Animation".
 	 */
 	
-	private void drawCurve() {
+	private void drawCurve(GraphicsContext gc) {
 		if (cp == 0)
 			return;
 		
-		fpa.noFill();
-		fpa.beginShape();
+		gc.noFill();
+		gc.beginShape();
 		double x1 = points[0];
 		double y1 = points[1];
 		double xc = 0.0f;
 		double yc = 0.0f;
 		double x2 = 0.0f;
 		double y2 = 0.0f;
-		fpa.vertex(x1, y1);
+		gc.vertex(x1, y1);
 		for (int i = 2; i < cp - 4; i += 2) {
 			xc = points[i];
 			yc = points[i + 1];
 			x2 = (xc + points[i + 2]) * 0.5f;
 			y2 = (yc + points[i + 3]) * 0.5f;
-			fpa.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
+			gc.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
 					         (2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
 			x1 = x2;
 			y1 = y2;
@@ -206,18 +207,18 @@ public class LayeredGraphEdge extends Figure {
 		yc = points[cp - 3];
 		x2 = points[cp - 2];
 		y2 = points[cp - 1];
-		fpa.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
+		gc.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
 				         (2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
-		fpa.endShape();
+		gc.endShape();
 		points = null;
 	}
 	
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(gc);
 		
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
 								                 getTo().name + ": " + getTo().x + "," + getTo().y + ")");
@@ -237,12 +238,12 @@ public class LayeredGraphEdge extends Figure {
 			
 			if(debug)System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",	getFrom().figX(), getFrom().figY(),	currentNode.figX(), currentNode.figY(), imX, imY);
 			
-			beginCurve(getFrom().figX(), getFrom().figY());
-			addPointToCurve(imX, imY);
+			beginCurve(getFrom().figX(), getFrom().figY(),gc);
+			addPointToCurve(imX, imY,gc);
 
 			LayeredGraphNode nextNode = currentNode.out.get(0);
 			
-			addPointToCurve(currentNode.figX(), currentNode.figY());
+			addPointToCurve(currentNode.figX(), currentNode.figY(),gc);
 		
 			LayeredGraphNode prevNode = currentNode;
 			currentNode =  nextNode;
@@ -250,12 +251,12 @@ public class LayeredGraphEdge extends Figure {
 			while(currentNode.isVirtual()){
 				if(debug)System.err.println("Add vertex for " + currentNode.name);
 				nextNode = currentNode.out.get(0);
-				addPointToCurve(currentNode.figX(), currentNode.figY());
+				addPointToCurve(currentNode.figX(), currentNode.figY(),gc);
 				prevNode = currentNode;
 				currentNode = nextNode;
 			}
 		
-			drawLastSegment(left, top, imX, imY, prevNode, currentNode);
+			drawLastSegment(left, top, imX, imY, prevNode, currentNode,gc);
 			
 		} else {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
@@ -275,25 +276,25 @@ public class LayeredGraphEdge extends Figure {
 //				addPointToCurve(left + node.figX() + w/2,        top + node.figY());
 //				endCurve(left + node.figX() + w/2,        		 top + node.figY());
 				
-				beginCurve(left + node.figX(),                   top + node.figY()-h/2);
-				addPointToCurve(left + node.figX()+w/4,          top + node.figY()-(h/2+vgap/4));
-				addPointToCurve(left + node.figX()+w/2,          top + node.figY()-(h/2+vgap/2));
-				addPointToCurve(left + node.figX(),              top + node.figY()-(h+vgap));
-				addPointToCurve(left + node.figX(),              top + node.figY()-(h/2+vgap/4));
-				endCurve(left + node.figX(),                     top + node.figY()-h/2);
+				beginCurve(left + node.figX(),                   top + node.figY()-h/2,gc);
+				addPointToCurve(left + node.figX()+w/4,          top + node.figY()-(h/2+vgap/4),gc);
+				addPointToCurve(left + node.figX()+w/2,          top + node.figY()-(h/2+vgap/2),gc);
+				addPointToCurve(left + node.figX(),              top + node.figY()-(h+vgap),gc);
+				addPointToCurve(left + node.figX(),              top + node.figY()-(h/2+vgap/4),gc);
+				endCurve(left + node.figX(),                     top + node.figY()-h/2,gc);
 				
 				if(toArrow != null){
 					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
 					getTo().figure.connectArrowFrom(left, top, 
 							getTo().figX(), getTo().figY(),
 							node.figX(),  node.figY()-(h/2+vgap/4),
-							toArrow
+							toArrow,gc
 					);
 					return;
 				}
 			} else {
 			
-				fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
+				gc.line(left + getFrom().figX(), top + getFrom().figY(), 
 					 left + getTo().figX(), top + getTo().figY());
 			}
 			
@@ -305,7 +306,7 @@ public class LayeredGraphEdge extends Figure {
 						getFrom().figure.connectArrowFrom(left, top, 
 								getFrom().figX(), getFrom().figY(),
 								getTo().figX(), getTo().figY(), 
-								toArrow
+								toArrow,gc
 						);
 					}
 						
@@ -314,7 +315,7 @@ public class LayeredGraphEdge extends Figure {
 						getTo().figure.connectArrowFrom(left, top, 
 								getTo().figX(), getTo().figY(),
 								getFrom().figX(), getFrom().figY(), 
-								fromArrow
+								fromArrow,gc
 						);
 					}
 				} else {
@@ -323,7 +324,7 @@ public class LayeredGraphEdge extends Figure {
 						getTo().figure.connectArrowFrom(left, top, 
 							getTo().figX(), getTo().figY(), 
 							getFrom().figX(), getFrom().figY(),
-							toArrow
+							toArrow,gc
 						);
 					}
 					if(fromArrow != null){
@@ -331,19 +332,18 @@ public class LayeredGraphEdge extends Figure {
 					    getFrom().figure.connectArrowFrom(left, top, 
 							getFrom().figX(), getFrom().figY(), 
 							getTo().figX(), getTo().figY(),
-							fromArrow
+							fromArrow,gc
 					    );
 					}
 				}
 			}
 			if(label != null){
-				label.draw(left + labelX - label.minSize.getWidth()/2, top + labelY - label.minSize.getHeight()/2);
+				label.draw(left + labelX - label.minSize.getWidth()/2, top + labelY - label.minSize.getHeight()/2, gc);
 			}
 		}
 	}
 	
-	private void drawLastSegment(double left, double top, double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
-		double dx = currentNode.figX() - prevNode.figX();
+	private void drawLastSegment(double left, double top, double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode,GraphicsContext gc){		double dx = currentNode.figX() - prevNode.figX();
 		double dy = (currentNode.figY() - prevNode.figY());
 		double imScale = 0.6f;
 		double imX = prevNode.figX() + dx / 2;
@@ -354,17 +354,17 @@ public class LayeredGraphEdge extends Figure {
 					prevNode.figX(), prevNode.figY(),
 					currentNode.figX(), currentNode.figY(), imX, imY);
 		
-		addPointToCurve(imX, imY);
-		endCurve(currentNode.figX(), currentNode.figY());
+		addPointToCurve(imX, imY,gc);
+		endCurve(currentNode.figX(), currentNode.figY(),gc);
 		
 		// Finally draw the arrows on both sides of the edge
 		
 		if(getFromArrow() != null){
-			getFrom().figure.connectArrowFrom(left, top, getFrom().figX(), getFrom().figY(), startImX, startImY, getFromArrow());
+			getFrom().figure.connectArrowFrom(left, top, getFrom().figX(), getFrom().figY(), startImX, startImY, getFromArrow(),gc);
 		}
 		if(getToArrow() != null){
 			if(debug)System.err.println("Has a to arrow");
-			currentNode.figure.connectArrowFrom(left, top, currentNode.figX(), currentNode.figY(), imX, imY, getToArrow());
+			currentNode.figure.connectArrowFrom(left, top, currentNode.figX(), currentNode.figY(), imX, imY, getToArrow(),gc);
 		}
 	}
 	

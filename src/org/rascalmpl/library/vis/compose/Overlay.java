@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
@@ -112,32 +113,32 @@ public class Overlay extends Compose{
 		}
 	}
 	
-	public void draw(double left, double top){
+	public void draw(double left, double top, GraphicsContext gc){
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(gc);
         boolean closed = getClosedProperty();
         boolean curved = getCurvedProperty();
         boolean connected = getConnectedProperty() || closed || curved;
         // TODO: this curved stuff is unclear to me...
         if(connected){
-            fpa.beginShape();
+            gc.beginShape();
         }
         if(!closed){
-        	fpa.noFill();
+        	gc.noFill();
         }
         
         if(closed && connected && figures.length >= 0){
-        	fpa.vertex(left + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
+        	gc.vertex(left + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
     				top + pos[0].getY()  + figures[0].getVConnectProperty() * figures[0].size.getHeight()  );
         }
         if(connected){
 	        for(int i = 0 ; i < figures.length ; i++){
 	        	if(curved ){
-	        		fpa.curveVertex(left + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
+	        		gc.curveVertex(left + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
 	        				top + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
 	        	} else {
-	        		fpa.vertex(left + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
+	        		gc.vertex(left + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
 	        				top + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
 	        	} 
 	        }
@@ -145,15 +146,15 @@ public class Overlay extends Compose{
         
         if(connected){
 			if(closed){
-				fpa.vertex(left + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
+				gc.vertex(left + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
         				top + pos[figures.length-1].getY()  + figures[figures.length-1].getVConnectProperty() * figures[figures.length-1].size.getHeight()  );
-				fpa.endShape(FigureApplet.CLOSE);
+				gc.endShape(FigureApplet.CLOSE);
 			} else 
-				fpa.endShape();
+				gc.endShape();
 		}
 
 		for(int i = 0; i < figures.length; i++){
-			figures[i].draw(left + pos[i].getX(), top + pos[i].getY());
+			figures[i].draw(left + pos[i].getX(), top + pos[i].getY(), gc);
 		}
 	}
 		
@@ -232,7 +233,7 @@ public class Overlay extends Compose{
 		}
 
 		@Override
-		public void draw(double left, double top) {
+		public void draw(double left, double top, GraphicsContext gc) {
 			
 		}
 		

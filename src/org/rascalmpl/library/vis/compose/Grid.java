@@ -5,6 +5,7 @@ import java.util.Vector;
 import org.rascalmpl.library.vis.EmptyFigure;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
@@ -287,10 +288,10 @@ public class Grid extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top){
+	void draw(double left, double top, GraphicsContext gc){
 		setLeft(left);
 		setTop(top);
-		applyProperties();
+		applyProperties(gc);
 		for(int row = 0 ; row < nrRows; row++){
 			//fpa.line(left , top + rowCenters[row], left + 5000, top + rowCenters[row]);
 		}
@@ -300,7 +301,7 @@ public class Grid extends Figure {
 		for(int row = 0 ; row < nrRows ; row++){
 			for(int collumn = 0 ; collumn < nrColumns ; collumn++){
 				//System.out.printf("Drawing %d %d at %f %f of width %f height %f\n", row, collumn,left + xPos[row][collumn], top + yPos[row][collumn],desiredWidths[row][collumn],desiredHeights[row][collumn]);
-				figureMatrix[row][collumn].draw(left + pos[row][collumn].getX(),top + pos[row][collumn].getY());
+				figureMatrix[row][collumn].draw(left + pos[row][collumn].getX(),top + pos[row][collumn].getY(), gc);
 			}
 		}
 	}

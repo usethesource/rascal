@@ -3,6 +3,7 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -14,14 +15,12 @@ public class VAxis extends HAxis {
 	}
 
 	double minimumMajorTicksInterval(){
-		applyFontProperties();
-		return (fpa.textAscent() + fpa.textDescent()) * 3.0;
+		return (getTextAscent() + getTextDescent()) * 3.0;
 	}
 	
 	double axisHeight(){
-		applyFontProperties();
 		return majorTickHeight + textTickSpacing 
-		+ borderSpacing +  labelWidth() * 1.2 + (label.equals("") ? 0 : labelSpacing + fpa.textAscent() + fpa.textDescent()); 
+		+ borderSpacing +  labelWidth() * 1.2 + (label.equals("") ? 0 : labelSpacing + getTextAscent() + getTextDescent()); 
 	}
 	
 	public Properties alignProp(){
@@ -30,7 +29,7 @@ public class VAxis extends HAxis {
 	
 
 	
-	public void draw(double left, double top){
+	public void draw(double left, double top, GraphicsContext gc){
 		setLeft(left);
 		setTop(top);
 		double axisLeft ;
@@ -54,14 +53,13 @@ public class VAxis extends HAxis {
 				,minVal,maxVal
 				);
 
-		applyProperties();
-		applyFontProperties();
+		applyProperties(gc);
+		applyFontProperties(gc);
 		
 		double direction = bottom ? 1.0f : -1.0f;
-		fpa.fill(255);
+		gc.fill(255);
 		//fpa.rect(left,top, size.getWidth(),size.getHeight());
 		
-		fpa.textAlign(FigureApplet.LEFT, FigureApplet.CENTER);
 		String format =formatString();
 		//System.out.print("format : " + format + "\n");
 		for(Tick tick : ticks){
@@ -69,34 +67,34 @@ public class VAxis extends HAxis {
 			String label = String.format(format,tick.measurePos);
 			if(tick.major){
 				if(tick.measurePos == 0.0){
-					fpa.stroke(getColorProperty(Properties.LINE_COLOR));
+					gc.stroke(getColorProperty(Properties.LINE_COLOR));
 				} else {
-					fpa.stroke(getColorProperty(Properties.GUIDE_COLOR));
+					gc.stroke(getColorProperty(Properties.GUIDE_COLOR));
 				}
-				fpa.line( left + axisLeft , 
+				gc.line( left + axisLeft , 
 						top + topOffset + outerSpace - tick.pixelPos,
 						left +axisLeft  + innerFig.size.getWidth(),
 						top + topOffset +outerSpace- tick.pixelPos);
 				
 		
-				fpa.stroke(0);
-				fpa.text(label,  left + axisLeft + tickHeight + (bottom ? textTickSpacing : -(textTickSpacing + fpa.textWidth(label)) ), top + topOffset +outerSpace- tick.pixelPos );
+				gc.stroke(0);
+				gc.text(label,  left + axisLeft + tickHeight + (bottom ? textTickSpacing : -(textTickSpacing + getTextWidth(label)) ), top + topOffset +outerSpace- tick.pixelPos , properties.getColorProperty(Properties.FONT_COLOR));
 			}
-			fpa.line(left + axisLeft + tickHeight , 
+			gc.line(left + axisLeft + tickHeight , 
 					top + topOffset +outerSpace- tick.pixelPos,
 					left + axisLeft,
 					top + topOffset +outerSpace- tick.pixelPos);
 		}
 		if(!this.label.equals("")){
-			fpa.pushMatrix();
-			fpa.translate(left + axisLeft + direction * (majorTickHeight + textTickSpacing + labelSpacing + fpa.textDescent() + labelWidth()), top + topOffset + 0.5 * (outerSpace - fpa.textWidth(this.label)));
-			fpa.rotate(0.5  * Math.PI);
-			fpa.text(this.label, 0,0);
-			fpa.popMatrix();
+			gc.pushMatrix();
+			gc.translate(left + axisLeft + direction * (majorTickHeight + textTickSpacing + labelSpacing + getTextDescent() + labelWidth()), top + topOffset + 0.5 * (outerSpace - getTextWidth(this.label)));
+			gc.rotate(0.5  * Math.PI);
+			gc.text(this.label, 0,0, properties.getColorProperty(Properties.FONT_COLOR));
+			gc.popMatrix();
 			
 		}
 		//System.out.printf("Innerfig %s\n",innerFig.size);
-		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
+		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
 		/*
 		fpa.line(left + axisLeft,
 				top + innerFigLocation.getY(),

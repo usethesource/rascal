@@ -9,7 +9,7 @@
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.graphics;
 
 class TypedPoint {
 	

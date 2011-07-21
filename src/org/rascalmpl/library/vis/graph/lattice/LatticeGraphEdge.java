@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -62,8 +63,8 @@ public class LatticeGraphEdge extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top) {
-		applyProperties();
+	public void draw(double left, double top, GraphicsContext gc) {
+		applyProperties(gc);
 		if (debug)
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
 					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x
@@ -71,16 +72,16 @@ public class LatticeGraphEdge extends Figure {
 		if (getCurvedProperty()) {
 			double mx = (left + getFrom().figX() + left + getTo().figX()) / 2 + 20, my = (top
 					+ getFrom().figY() + top + getTo().figY()) / 2;
-			fpa.noFill();
-			fpa.beginShape();
-			fpa.curveVertex(left + getFrom().figX(), top + getFrom().figY());
-			fpa.curveVertex(left + getFrom().figX(), top + getFrom().figY());
-			fpa.curveVertex(mx, my);
-			fpa.curveVertex(left + getTo().figX(), top + getTo().figY());
-			fpa.curveVertex(left + getTo().figX(), top + getTo().figY());
-			fpa.endShape();
+			gc.noFill();
+			gc.beginShape();
+			gc.curveVertex(left + getFrom().figX(), top + getFrom().figY());
+			gc.curveVertex(left + getFrom().figX(), top + getFrom().figY());
+			gc.curveVertex(mx, my);
+			gc.curveVertex(left + getTo().figX(), top + getTo().figY());
+			gc.curveVertex(left + getTo().figX(), top + getTo().figY());
+			gc.endShape();
 		} else
-			fpa.line(left + getFrom().figX(), top + getFrom().figY(), left
+			gc.line(left + getFrom().figX(), top + getFrom().figY(), left
 					+ getTo().figX(), top + getTo().figY());
 	}
 

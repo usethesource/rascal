@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 
@@ -49,19 +51,18 @@ public class Text extends Figure {
 	void bbox(){
 		double halign = getHAlignProperty();
 		textAlignH = (halign < 0.5f) ? FigureApplet.LEFT : (halign > 0.5f) ? FigureApplet.RIGHT : FigureApplet.CENTER;
-		applyFontProperties();
-		topAnchor = fpa.textAscent() ;
-		bottomAnchor = fpa.textDescent();
+		topAnchor = getTextAscent();
+		bottomAnchor = getTextDescent();
 		
 		String [] lines = txt.getValue().split("\n");
 		int nlines = lines.length;
 		minSize.setWidth(0);
 		for(int i = 0; i < nlines; i++)
-			minSize.setWidth(Math.max(minSize.getWidth(), fpa.textWidth(lines[i])));
+			minSize.setWidth(Math.max(minSize.getWidth(), getTextWidth(lines[i])));
 		
 		if(nlines > 1){
 			minSize.setHeight(nlines * (topAnchor + bottomAnchor) + bottomAnchor);
-			topAnchor = bottomAnchor = getVAlignProperty() * minSize.getHeight();
+			topAnchor = bottomAnchor =  minSize.getHeight();
 		} else {
 			minSize.setHeight(topAnchor + bottomAnchor);
 		}
@@ -104,26 +105,25 @@ public class Text extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 		
-		applyProperties();
-		applyFontProperties();
+		applyProperties(gc);
+		applyFontProperties(gc);
 	
 		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
 			double angle = getTextAngleProperty();
 
-			fpa.textAlign(textAlignH,FigureApplet.CENTER);
 			if(angle != 0){
-				fpa.pushMatrix();
-				fpa.translate(left + hfill, top + vfill);
-				fpa.rotate((FigureApplet.radians(angle)));
-				fpa.text(txt.getValue(), 0, 0);
-				fpa.popMatrix();
+				gc.pushMatrix();
+				gc.translate(left + hfill, top + vfill);
+				gc.rotate((FigureApplet.radians(angle)));
+				gc.text(txt.getValue(), 0, 0,properties.getColorProperty(Properties.FONT_COLOR));
+				gc.popMatrix();
 			} else {
-				fpa.text(txt.getValue(), left + hfill, top + minSize.getHeight()/2);
+				gc.text(txt.getValue(), left, top,properties.getColorProperty(Properties.FONT_COLOR));
 //				vlp.rectMode(FigureApplet.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}

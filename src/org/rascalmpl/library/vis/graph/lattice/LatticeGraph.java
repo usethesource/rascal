@@ -35,6 +35,7 @@ import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -320,26 +321,26 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
-		applyProperties();
+		applyProperties(gc);
 		for (LatticeGraphEdge e : edges)
-			e.draw(left, top);
+			e.draw(left, top, gc);
 		for (LatticeGraphNode n : nodes) {
-			n.draw(left, top);
+			n.draw(left, top,gc);
 		}
 	}
 
 	/**
 	 * Draw focus around this figure
 	 */
-	public void drawFocus() {
+	public void drawFocus(GraphicsContext gc) {
 		// System.err.println("drawFocus: " + this.left);
-		fpa.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		fpa.strokeWeight(1);
-		fpa.noFill();
-		fpa.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
+		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
+		gc.strokeWeight(1);
+		gc.noFill();
+		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 
 	private void evolution() {

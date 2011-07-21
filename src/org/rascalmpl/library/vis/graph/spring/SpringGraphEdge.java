@@ -18,6 +18,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -101,25 +102,25 @@ public class SpringGraphEdge extends Figure {
 
 	@Override
 	public
-	void draw(double left, double top) {
-		applyProperties();
+	void draw(double left, double top, GraphicsContext gc) {
+		applyProperties(gc);
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
 				to.name + ": " + to.getX() + "," + to.getY() + ")");
 
-		fpa.line(left + getFrom().figX(), top + getFrom().figY(), 
+		gc.line(left + getFrom().figX(), top + getFrom().figY(), 
 				left + getTo().figX(), top + getTo().figY());
 		if(toArrow != null){
 			getTo().figure.connectArrowFrom(left, top, 
 					getTo().figX(), getTo().figY(), 
 					getFrom().figX(), getFrom().figY(),
-					toArrow
+					toArrow,gc
 			);
 
 			if(fromArrow != null)
 				getFrom().figure.connectArrowFrom(left, top, 
 						getFrom().figX(), getFrom().figY(), 
 						getTo().figX(), getTo().figY(),
-						fromArrow
+						fromArrow,gc
 				);
 		}	
 	}

@@ -62,6 +62,9 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.util.KeySym;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.vis.graphics.FontStyle;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -69,28 +72,11 @@ import org.rascalmpl.library.vis.util.NameResolver;
 
 public class FigureSWTApplet implements IFigureApplet {
 
-	enum SHAPE {
-		ELLIPSE, RECTANGLE
-	};
+
 
 	String name;
 
-	int halign = FigureApplet.LEFT, valign = FigureApplet.TOP;
 
-	private Device device;
-
-	private int alphaStroke = 255, alphaFill = 255, alphaFont = 255;
-
-	public Color getColor(final int which) {
-		return device.getSystemColor(which);
-	}
-
-	public Color getRgbColor(final int c) {
-		return new Color(device, FigureColorUtils.getRed(c),
-				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
-	}
-
-	private boolean shadow;
 	private boolean mouseExited = true;
 	private final int defaultWidth = 5000; // Default dimensions of canvas
 	private final int defaultHeight = 5000;
@@ -126,19 +112,11 @@ public class FigureSWTApplet implements IFigureApplet {
 	private boolean mouseOverTop;
 	volatile GC gc;
 	private BoundingBox viewPort;
+	private Device device;
 
-	@SuppressWarnings("serial")
-	class Route extends ArrayList<TypedPoint> {
 
-		void add(double x, double y, TypedPoint.kind curved) {
-			super.add(new TypedPoint(x, y, curved));
-		}
-	}
 
-	private Stack<Transform> stackMatrix = new Stack<Transform>();
-	private Stack<Route> stackPath = new Stack<Route>();
 
-	private boolean fill = false, stroke = true;
 
 	final private Composite comp;
 	final private boolean renderDisplay;
@@ -157,11 +135,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	private int lastMouseY = 0;
 	private int mouseX = 0, mouseY = 0;
 
-	private int shadowColor;
 
-	private double shadowLeft;
-
-	private double shadowTop;
 
 	public FigureSWTApplet(Composite comp, IConstructor fig,
 			IEvaluatorContext ctx) {
@@ -171,7 +145,6 @@ public class FigureSWTApplet implements IFigureApplet {
 	public FigureSWTApplet(Composite comp, String name, Figure fig,
 			IEvaluatorContext ctx) {
 		this.comp = comp;
-		this.device = comp.getDisplay();
 		this.renderDisplay = !comp.getShell().equals(comp);
 		this.ctx = ctx;
 		initialize(comp, name, fig);
@@ -264,7 +237,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			this.gc = new GC(printer);
 			this.gc.setAntialias(SWT.ON);
 			this.gc.setTextAntialias(SWT.ON);
-			this.gc.setBackground(getColor(SWT.COLOR_WHITE));
+			//this.gc.setBackground(getColor(SWT.COLOR_WHITE));
 			this.device = printer;
 			return gc0;
 		}
@@ -283,7 +256,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		GC g = new GC(comp);
 		g.setAntialias(SWT.ON);
 		g.setTextAntialias(SWT.ON);
-		g.setBackground(getColor(SWT.COLOR_WHITE));
+		//g.setBackground(getColor(SWT.COLOR_WHITE));
 		return g;
 	}
 
@@ -291,7 +264,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		comp.redraw();
 	}
 
-	private synchronized void drawFigure() {
+	private synchronized void drawFigure(GC swtGC) {
 		// System.err.println("draw:" + this.getClass() + " "
 		// + computedValueChanged+" "+mouseOver);
 		if (layingOut) {
@@ -301,12 +274,14 @@ public class FigureSWTApplet implements IFigureApplet {
 		layoutFigures();
 
 		// System.out.printf("Compcomp!!!!!!!!!!!! %s %s\n",comp,this.comp);
-		gc.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
+		swtGC.fillRectangle(0, 0, (int) figureWidth, (int) figureHeight);
 
 		// figure.draw(left, top);
 		/*
 		 * System.out.printf("Mouseover stack:");
 		 */
+		
+		GraphicsContext gc = new SWTGraphicsContext(swtGC);
 		for (PlacedFigure fig : mouseOverStack) {
 
 			// System.out.printf("draw %s %s %s\n", fig.figure,fig.coordinate
@@ -325,7 +300,7 @@ public class FigureSWTApplet implements IFigureApplet {
 			place.setX(Math.max(0, place.getX()));
 			place.setY(Math.max(0, place.getY()));
 
-			fig.figure.draw(place.getX(), place.getY());
+			fig.figure.draw(place.getX(), place.getY(), gc);
 		}
 		// System.out.printf("\n");
 		// System.out.printf("Done drawing!\n");
@@ -706,294 +681,8 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-	public void line(double arg0, double arg1, double arg2, double arg3) {
-		gc.drawLine((int) arg0, (int) arg1, (int) arg2, (int) arg3);
-	}
 
-	public void rect(double x, double y, double width, double height) {
-		int alpha0 = gc.getAlpha();
-		int arg0 = FigureApplet.round(x), arg1 = FigureApplet.round(y), arg2 = FigureApplet
-				.round(width), arg3 = FigureApplet.round(height);
-		if (fill) {
-			gc.setAlpha(alphaFill);
-			if (shadow) {
-				drawShadowFigure(SHAPE.RECTANGLE, arg0, arg1, arg2, arg3);
-			}
-			gc.fillRectangle(arg0, arg1, arg2, arg3);
-			gc.setAlpha(alpha0);
-		}
-		if (stroke) {
-			gc.setAlpha(alphaStroke);
-			gc.drawRectangle(arg0, arg1, arg2, arg3);
-			gc.setAlpha(alpha0);
-		}
-
-	}
-
-	public void ellipse(double x1, double y1, double width, double height) {
-		int arg0 = FigureApplet.round(x1), arg1 = FigureApplet.round(y1), arg2 = FigureApplet
-				.round(width), arg3 = FigureApplet.round(height);
-		int alpha0 = gc.getAlpha();
-		if (fill) {
-			gc.setAlpha(alphaFill);
-			if (shadow) {
-				drawShadowFigure(SHAPE.ELLIPSE, arg0, arg1, arg2, arg3);
-			}
-			gc.fillOval(arg0, arg1, arg2, arg3);
-			gc.setAlpha(alpha0);
-		}
-		if (stroke) {
-			gc.setAlpha(alphaStroke);
-			gc.drawOval(arg0, arg1, arg2, arg3);
-			gc.setAlpha(alpha0);
-		}
-	}
-
-	public void fill(int arg0) {
-		alphaFill = FigureColorUtils.getAlpha(arg0);
-		Color color = new Color(device, FigureColorUtils.getRed(arg0),
-				FigureColorUtils.getGreen(arg0), FigureColorUtils.getBlue(arg0));
-		gc.setBackground(color);
-		fill = true;
-	}
-
-	public void stroke(int arg0) {
-		alphaStroke = FigureColorUtils.getAlpha(arg0);
-		gc.setForeground(new Color(device, FigureColorUtils.getRed(arg0),
-				FigureColorUtils.getGreen(arg0), FigureColorUtils.getBlue(arg0)));
-		stroke = true;
-	}
-
-	public void strokeWeight(double arg0) {
-		int d = (int) arg0;
-		stroke = (d != 0);
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		gc.setLineWidth(d);
-	}
-
-	public void strokeStyle(int style) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		gc.setLineStyle(style);
-	}
-
-	public void textSize(double arg0) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		if (gc.getFont().getFontData().length < 1)
-			return;
-		gc.getFont().getFontData()[0].setHeight((int) arg0);
-
-	}
-
-	public void textAlign(int arg0, int arg1) {
-		halign = arg0;
-		valign = arg1;
-	}
-
-	public void textAlign(int arg0) {
-		halign = arg0;
-	}
-
-	public void textFont(Object arg0) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		gc.setFont((Font) arg0);
-	}
-
-	public void textColor(int arg0) {
-		alphaFont = FigureColorUtils.getAlpha(arg0);
-		gc.setForeground(new Color(device, FigureColorUtils.getRed(arg0),
-				FigureColorUtils.getGreen(arg0), FigureColorUtils.getBlue(arg0)));
-	}
-
-	public double textWidth(String txt) {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		return gc.textExtent(txt).x;
-	}
-
-	public double textAscent() {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		return gc.getFontMetrics().getAscent();
-	}
-
-	public double textDescent() {
-		if (gc == null || gc.isDisposed())
-			gc = createGC(comp);
-		return gc.getFontMetrics().getDescent();
-	}
-
-	public void text(String arg0, double x, double y) {
-		double width = textWidth(arg0);
-		String[] lines = arg0.split("\n");
-		int nlines = lines.length;
-		double topAnchor = textAscent(), bottomAnchor = textDescent();
-		double height = nlines > 1 ? (nlines * (topAnchor + bottomAnchor) + bottomAnchor)
-				: (topAnchor + bottomAnchor);
-		if (halign == FigureApplet.CENTER)
-			x -= width / 2;
-		else if (halign == FigureApplet.RIGHT)
-			x -= width;
-		if (valign == FigureApplet.CENTER)
-			y -= height / 2;
-		else if (valign == FigureApplet.BOTTOM)
-			y -= height;
-		int alpha0 = gc.getAlpha();
-		gc.setAlpha(alphaFont);
-		gc.drawText(arg0, (int) x, (int) y, true);
-		gc.setAlpha(alpha0);
-	}
-
-	public void pushMatrix() {
-		Transform transform = new Transform(gc.getDevice());
-		gc.getTransform(transform);
-		stackMatrix.push(transform);
-	}
-
-	public void popMatrix() {
-		Transform transform = stackMatrix.pop();
-		gc.setTransform(transform);
-	}
-
-	public void rotate(double angle) {
-		Transform transform = new Transform(gc.getDevice());
-		gc.getTransform(transform);
-		transform.rotate((float) FigureApplet.degrees(angle));
-		gc.setTransform(transform);
-	}
-
-	public void translate(double x, double y) {
-		Transform transform = new Transform(gc.getDevice());
-		gc.getTransform(transform);
-		transform.translate((float) x, (float) y);
-		gc.setTransform(transform);
-	}
-
-	public void scale(double scaleX, double scaleY) {
-		Transform transform = new Transform(gc.getDevice());
-		gc.getTransform(transform);
-		transform.scale((float) scaleX, (float) scaleY);
-		gc.setTransform(transform);
-	}
-
-	public void bezierVertex(double cx1, double cy1, double cx2, double cy2,
-			double x, double y) {
-		Route r = stackPath.peek();
-		r.add(cx1, cy1, TypedPoint.kind.BEZIER);
-		r.add(cx2, cy2, TypedPoint.kind.BEZIER);
-		r.add(x, y, TypedPoint.kind.BEZIER);
-	}
-
-	public void vertex(double x, double y) {
-		Route r = stackPath.peek();
-		r.add(x, y, TypedPoint.kind.NORMAL);
-	}
-
-	public void curveVertex(double x, double y) {
-		Route r = stackPath.peek();
-		r.add(x, y, TypedPoint.kind.CURVED);
-	}
-
-	public void noFill() {
-		fill = false;
-	}
-
-	public void arc(double x, double y, double width, double height,
-			double startAngle, double stopAngle) {
-		gc.drawArc((int) x, (int) y, (int) width, (int) height,
-				(int) FigureApplet.degrees(startAngle),
-				(int) FigureApplet.degrees(stopAngle));
-
-	}
-
-	public void beginShape() {
-		Route p = new Route();
-		stackPath.push(p);
-	}
-
-	public void beginShape(int arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void drawNotCurved(Route r, Path p) {
-		// System.err.println("drawNotCurved:" + r.size());
-		while (!r.isEmpty()) {
-			TypedPoint z = r.get(0);
-			// System.err.println("Curved:" + z.curved);
-			if (z.curved == TypedPoint.kind.NORMAL) {
-				p.lineTo((float) z.x, (float) z.y);
-				r.remove(0);
-			} else if (z.curved == TypedPoint.kind.BEZIER) {
-				double c1x = z.x, c1y = z.y;
-				r.remove(0);
-				z = r.remove(0);
-				double c2x = z.x, c2y = z.y;
-				z = r.remove(0);
-				double x = z.x, y = z.y;
-				p.cubicTo((float) c1x, (float) c1y, (float) c2x, (float) c2y,
-						(float) x, (float) y);
-			} else {
-				break;
-			}
-		}
-	}
-
-	private void drawCurved(Route r, Path p, boolean closed) {
-		// System.err.println("drawCurved:" + r.size());
-		if (r.size() < 3)
-			return;
-		Interpolation.solve(r, closed);
-		int n = Interpolation.P0.length;
-		for (int i = 0; i < n; i++)
-			p.cubicTo((float) Interpolation.P1[i].x,
-					(float) Interpolation.P1[i].y,
-					(float) Interpolation.P2[i].x,
-					(float) Interpolation.P2[i].y,
-					(float) Interpolation.P3[i].x,
-					(float) Interpolation.P3[i].y);
-	}
-
-	public void endShape() {
-		endShape(FigureApplet.OPEN);
-	}
-
-	public void endShape(int arg0) {
-		Route r = stackPath.pop();
-		Path p = new Path(gc.getDevice());
-		if (debug)
-			System.err.println("endShape1:" + r.size());
-		TypedPoint q = r.get(0);
-		if (q.curved != TypedPoint.kind.CURVED)
-			r.remove(0);
-		p.moveTo((float) q.x, (float) q.y);
-		if (debug)
-			System.err.println("q=(" + q.x + "," + q.y + " " + q.curved + ")");
-		if (arg0 == FigureApplet.CLOSE) {
-			r.add(new TypedPoint(q.x, q.y, TypedPoint.kind.NORMAL));
-		}
-		while (!r.isEmpty()) {
-			drawNotCurved(r, p);
-			drawCurved(r, p, arg0 == FigureApplet.CLOSE);
-		}
-		int alpha0 = gc.getAlpha();
-		if (fill /* arg0 == FigureApplet.CLOSE */) {
-			gc.setAlpha(alphaFill);
-			gc.fillPath(p);
-			gc.setAlpha(alpha0);
-		}
-		if (stroke) {
-			gc.setAlpha(alphaStroke);
-			gc.drawPath(p);
-			gc.setAlpha(alpha0);
-		}
-		p.dispose();
-	}
-
-	private void print() {
+	public void print() {
 		/*
 		 * if (figure != null) { figure.bbox(); figureWidth =
 		 * figure.minSize.getWidth(); figureHeight = figure.minSize.getHeight();
@@ -1003,10 +692,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		//this.drawFigure();
 	}
 
-	public Object createFont(String fontName, double fontSize) {
-		FontData fd = new FontData(fontName, (int) fontSize, SWT.NORMAL);
-		return new Font(device, fd);
-	}
 
 	public Cursor getCursor() {
 		return comp.getCursor();
@@ -1021,17 +706,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		return null;
 	}
 
-	public void setBackground(Color color) {
-		// TODO Auto-generated method stub
-		gc.setBackground(color);
-
-	}
-
-	public void setForeground(Color color) {
-		// TODO Auto-generated method stub
-		gc.setForeground(color);
-
-	}
 
 	public String getName() {
 		return name;
@@ -1146,13 +820,13 @@ public class FigureSWTApplet implements IFigureApplet {
 		public void paintControl(PaintEvent e) {
 			if (e.count > 0)
 				return;
-			gc = e.gc;
+			GC gc = e.gc;
 			gc.setAntialias(SWT.ON);
 			gc.setTextAntialias(SWT.ON);
 			gc.setAdvanced(true);
 			// if (figure != null) {
 			changeRes();
-			FigureSWTApplet.this.drawFigure();
+			FigureSWTApplet.this.drawFigure(gc);
 			/*
 			 * } else if (primitives != null) {
 			 * FigureSWTApplet.this.drawPrimitives(); }
@@ -1161,29 +835,6 @@ public class FigureSWTApplet implements IFigureApplet {
 		}
 	}
 
-	private void drawShadowFigure(SHAPE shape, int x, int y, int width,
-			int height) {
-		translate(shadowLeft, shadowTop);
-		int arg0 = shadowColor;
-		int alpha0 = gc.getAlpha();
-		Color color0 = gc.getBackground();
-		int alpha = FigureColorUtils.getAlpha(arg0);
-		gc.setAlpha(alpha);
-		Color color = new Color(device, FigureColorUtils.getRed(arg0),
-				FigureColorUtils.getGreen(arg0), FigureColorUtils.getBlue(arg0));
-		gc.setBackground(color);
-		switch (shape) {
-		case RECTANGLE:
-			gc.fillRectangle(x, y, width, height);
-			break;
-		case ELLIPSE:
-			gc.fillOval(x, y, width, height);
-			break;
-		}
-		translate(-shadowLeft, -shadowTop);
-		gc.setAlpha(alpha0);
-		gc.setBackground(color0);
-	}
 
 	public void checkIfIsCallBack(IValue fun, IEvaluatorContext ctx) {
 		if (!(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult)))) {
@@ -1254,89 +905,92 @@ public class FigureSWTApplet implements IFigureApplet {
 	public void write(OutputStream out, int mode) {
 		Image image = new Image(comp.getDisplay(), getFigureWidth(),
 				getFigureHeight());
-		gc = new GC(image);
-		drawFigure();
+		GC gc = new GC(image);
+		drawFigure(gc);
 		ImageLoader loader = new ImageLoader();
 		loader.data = new ImageData[] { image.getImageData() };
 		loader.save(out, mode);
 		gc.dispose();
 		image.dispose();
 	}
-
-	public void setShadow(boolean shadow) {
-		this.shadow = shadow;
-
-	}
-
-	public void setShadowColor(int color) {
-		this.shadowColor = color;
-	}
-
-	public void setShadowLeft(double x) {
-		this.shadowLeft = x;
-
-	}
-
-	public void setShadowTop(double y) {
-		this.shadowTop = y;
-	}
-
-	enum PRIMITIVE {
-		rect, ellipse, line, fill, stroke, strokeWeight, text, textColor, textFont, textSize;
-		void draw(FigureSWTApplet p, IConstructor c) {
-			double[] d = new double[4];
-			int[] n = new int[4];
-			String[] s = new String[4];
-			int z = c.arity();
-			for (int i = 0; i < z; i++) {
-				if (c.get(i) instanceof INumber)
-					d[i] = ((INumber) c.get(i)).toReal().doubleValue();
-				if (c.get(i) instanceof IInteger)
-					n[i] = ((IInteger) c.get(i)).intValue();
-				if (c.get(i) instanceof IString)
-					s[i] = ((IString) c.get(i)).getValue();
-			}
-			switch (this) {
-			case line:
-				p.line(d[0], d[1], d[2], d[3]);
-				return;
-			case rect:
-				p.rect(d[0], d[1], d[2], d[3]);
-				return;
-			case ellipse:
-				p.ellipse(d[0], d[1], d[2], d[3]);
-				return;
-			case stroke:
-				p.stroke(n[0]);
-				return;
-			case strokeWeight:
-				p.strokeWeight(d[0]);
-				return;
-			case fill:
-				p.fill(n[0]);
-				return;
-			case text:
-				p.text(s[0], d[1], d[2]);
-				return;
-			case textFont:
-				p.textFont(p.createFont(s[0], d[1]));
-				return;
-			case textSize:
-				p.textSize(d[0]);
-				return;
-			case textColor:
-				p.textColor(n[0]);
-				return;
-			}
+	
+	
+	GC getGC(){
+		if(gc == null || gc.isDisposed()){
+			gc = new GC(comp);
 		}
+		return gc;
 	}
 
+	public double textWidth(String txt) {
+		return getGC().textExtent(txt).x;
+	}
+
+	public double textAscent() {
+		return gc.getFontMetrics().getAscent();
+	}
+
+	public double textDescent() {
+		return gc.getFontMetrics().getDescent();
+	}
+
+	@Override
+	public double textAscent(String fontName, double fontSize,
+			FontStyle... styles) {
+		// TODO: optimize this
+		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
+		Font f = new Font(device, fd);
+		GC gc = getGC();
+		gc.setFont(f);
+		double result = gc.getFontMetrics().getAscent();
+		f.dispose();
+		return result;
+	}
+
+	@Override
+	public double textDescent(String fontName, double fontSize,
+			FontStyle... styles) {
+		// TODO: optimize this
+		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
+		Font f = new Font(device, fd);
+		GC gc = getGC();
+		gc.setFont(f);
+		double result = gc.getFontMetrics().getDescent();
+		f.dispose();
+		return result;
+	}
+
+	@Override
+	public double textWidth(String s, String fontName, double fontSize,
+			FontStyle... styles) {
+		// TODO: optimize this
+		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
+		Font f = new Font(device, fd);
+		GC gc = getGC();
+		gc.setFont(f);
+		double result = gc.textExtent(s).x;
+		f.dispose();
+		return result;
+	}
+
+	@Override
+	public Color getRgbColor(int c) {
+		return new Color(device, FigureColorUtils.getRed(c),
+				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
+	}
+
+	@Override
+	public Color getColor(int which) {
+		return device.getSystemColor(which);
+	}
+
+	/*
 	private void drawPrimitives() {
 		IList elems = this.primitives;
 		for (int i = 0; i < elems.length(); i++) {
 			IConstructor c = (IConstructor) elems.get(i);
 			PRIMITIVE.valueOf(c.getName()).draw(this, c);
 		}
-	}
+	}*/
 
 }

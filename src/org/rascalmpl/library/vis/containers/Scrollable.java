@@ -9,6 +9,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class Scrollable extends Figure {
@@ -64,7 +65,7 @@ public class Scrollable extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		// drawing is handled by swt, a new paintevent should 
 		// be handled by the nested figureswtapplet...
 		window.setLocation((int)Math.round(left), (int)Math.round(top));

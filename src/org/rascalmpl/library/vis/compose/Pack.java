@@ -17,6 +17,8 @@ import java.util.Comparator;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
 
@@ -131,7 +133,7 @@ public class Pack extends Compose {
 
 	@Override
 	public
-	void draw(double left, double top) {
+	void draw(double left, double top, GraphicsContext gc) {
 		//if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
 		setLeft(left);
 		setTop(top);
@@ -140,15 +142,15 @@ public class Pack extends Compose {
 
 		if(fits){
 			if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
-			root.draw(left, top);
+			root.draw(left, top,gc);
 		} else {
 			String message = "Pack: cannot fit!";
 			System.err.printf("Pack: cannot fit\n");
-			applyProperties();
-			fpa.fill(FigureColorUtils.figureColor(180, 180, 180));
-			fpa.rect(left, top, size.getWidth(), size.getHeight());
-			applyFontProperties();
-			fpa.text(message, left + size.getWidth()/2.0 - fpa.textWidth(message)/2.0, top + size.getHeight()/2.0 - fpa.textAscent() );
+			applyProperties(gc);
+			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
+			gc.rect(left, top, size.getWidth(), size.getHeight());
+			applyFontProperties(gc);
+			gc.text(message, left + size.getWidth()/2.0 - getTextWidth(message)/2.0, top + size.getHeight()/2.0 - getTextAscent() , properties.getColorProperty(Properties.FONT_COLOR));
 			
 		}
 	}
@@ -241,11 +243,11 @@ class Node {
         return lnode.insert(fig);
 	}
 	
-	void draw(double left, double top){
-		if(lnode != null) lnode.draw(left, top);
-		if(rnode != null) rnode.draw(left, top);
+	void draw(double left, double top, GraphicsContext gc){
+		if(lnode != null) lnode.draw(left, top,gc);
+		if(rnode != null) rnode.draw(left, top,gc);
 		if(figure != null){
-			figure.draw(left + this.left, top + this.top);
+			figure.draw(left + this.left, top + this.top, gc);
 		}
 	}
 }

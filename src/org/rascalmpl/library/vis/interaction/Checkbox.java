@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -73,13 +74,13 @@ public class Checkbox extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 		// button.setSize(FigureApplet.round(getWidthProperty()),
 		// FigureApplet.round(getHeightProperty()));
 		button.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
-		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		button.setBackground(gc.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 

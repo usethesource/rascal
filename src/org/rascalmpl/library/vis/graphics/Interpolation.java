@@ -22,9 +22,10 @@
  * 
  */
 
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.graphics;
 
 import java.util.ArrayList;
+
 
 public class Interpolation {
 	final static boolean debug = false;

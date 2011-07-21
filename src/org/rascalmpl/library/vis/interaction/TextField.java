@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
 // TODO: something is weird here, when resizing!!
@@ -80,7 +81,7 @@ public class TextField extends Figure {
 		});
 		textfield.setText(text);
 		minSize.setWidth(getWidthProperty());
-		tLimit = FigureApplet.round(minSize.getWidth() / fpa.textWidth("b"));
+		tLimit = FigureApplet.round(minSize.getWidth() / getTextWidth("b"));
 		doValidate();
 		/*if (text.length()>tLimit) {
 			  tLimit = text.length();	
@@ -127,10 +128,10 @@ public class TextField extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
-		textfield.setForeground(fpa.getRgbColor(getFontColorProperty()));
+		textfield.setForeground(gc.getRgbColor(getFontColorProperty()));
 		textfield
 				.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 		textfield.setBackground(validated ? trueColor : falseColor);

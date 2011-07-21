@@ -13,6 +13,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -28,7 +29,7 @@ public class Space extends Container {
 	}
 
 	@Override
-	void drawContainer() {
+	void drawContainer(GraphicsContext gc) {
 		return;
 	}
 	

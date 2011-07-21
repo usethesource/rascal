@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
@@ -144,14 +145,12 @@ public class HAxis extends WithInnerFig implements Key {
 	}
 	
 	double minimumMajorTicksInterval(){
-		applyFontProperties();
 		return labelWidth() * 7.0 ;
 	}
 	
 	double axisHeight(){
-		applyFontProperties();
 		return majorTickHeight + textTickSpacing 
-		+ borderSpacing + (label.equals("") ? fpa.textAscent() + fpa.textDescent() : labelSpacing + 2 *  (fpa.textAscent() + fpa.textDescent()) )  ; 
+		+ borderSpacing + (label.equals("") ? getTextAscent() + getTextDescent() : labelSpacing + 2 *  (getTextAscent() + getTextDescent()) )  ; 
 	}
 	
 	int standardExtraPrecision(){
@@ -168,7 +167,7 @@ public class HAxis extends WithInnerFig implements Key {
 	
 	double labelWidth(){
 		int length = highestPrecision() + Math.max(0,-lowestPrecision()) + 1;
-		return fpa.textWidth(String.format("%0" + length + "d", 0));
+		return getTextWidth(String.format("%0" + length + "d", 0));
 	}
 	
 	String formatString(){
@@ -178,7 +177,7 @@ public class HAxis extends WithInnerFig implements Key {
 	
 	
 	
-	public void draw(double left, double top){
+	public void draw(double left, double top, GraphicsContext gc){
 		setLeft(left);
 		setTop(top);
 		//System.out.printf("innersize %s\n",innerFig.size);
@@ -208,13 +207,12 @@ public class HAxis extends WithInnerFig implements Key {
 				,minVal,maxVal
 				);
 
-		applyProperties();
-		applyFontProperties();
+		applyProperties(gc);
+		applyFontProperties(gc);
 		
 		double direction = bottom ? 1.0f : -1.0f;
-		fpa.fill(255);
+		gc.fill(255);
 		//fpa.rect(left,top, size.getWidth(),size.getHeight());
-		fpa.textAlign(FigureApplet.CENTER, FigureApplet.CENTER);
 		String format = formatString();
 		for(Tick tick : ticks){
 			double tickHeight = direction * (tick.major ? majorTickHeight : minorTickHeight);
@@ -223,32 +221,32 @@ public class HAxis extends WithInnerFig implements Key {
 			//System.out.printf("tick %f",tick.measurePos);
 			if(tick.major){
 				if(tick.measurePos == 0.0){
-					fpa.stroke(getColorProperty(Properties.LINE_COLOR));
+					gc.stroke(getColorProperty(Properties.LINE_COLOR));
 				} else {
-					fpa.stroke(getColorProperty(Properties.GUIDE_COLOR));
+					gc.stroke(getColorProperty(Properties.GUIDE_COLOR));
 				}
-				fpa.line( tick.pixelPos ,
+				gc.line( tick.pixelPos ,
 						top + axisTop,
 						 tick.pixelPos,
 						top + axisTop + -direction * innerFig.size.getHeight());
 			
 		
-				applyProperties();
-				fpa.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? fpa.textAscent() : -fpa.textDescent()) );
+				applyProperties(gc);
+				gc.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? getTextAscent() : -getTextDescent()) ,properties.getColorProperty(Properties.FONT_COLOR));
 			}
-			fpa.line(tick.pixelPos ,
+			gc.line(tick.pixelPos ,
 					top + axisTop + tickHeight,
 					tick.pixelPos,
 					top + axisTop );
 		}
-		applyFontProperties();
+		applyFontProperties(gc);
 		if(!this.label.equals("")){
-			fpa.text(this.label, left + leftOffset + (0.5 * (innerFig.size.getWidth() - fpa.textWidth(this.label))), top + axisTop + direction* (majorTickHeight +  textTickSpacing 
-					+ borderSpacing + fpa.textAscent() + fpa.textDescent()) + (bottom ? fpa.textAscent() : fpa.textDescent()));
+			gc.text(this.label, left + leftOffset + (0.5 * (innerFig.size.getWidth() - getTextWidth(this.label))), top + axisTop + direction* (majorTickHeight +  textTickSpacing 
+					+ borderSpacing + getTextAscent() + getTextDescent()) + (bottom ? getTextAscent() : getTextDescent()),properties.getColorProperty(Properties.FONT_COLOR));
 		}
 		//System.out.printf("Innerfig %s %s\n",this,innerFigLocation);
 		
-		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
+		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
 		/*fpa.line(left + innerFigLocation.getX(),
 				top + axisTop,
 				left + innerFigLocation.getX() + innerFig.size.getWidth(),

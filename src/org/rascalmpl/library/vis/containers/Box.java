@@ -13,6 +13,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 /**
@@ -28,9 +29,9 @@ public class Box extends Container {
 	}
 
 	@Override
-	void drawContainer(){
+	void drawContainer(GraphicsContext gc){
 		double lw = getLineWidthProperty();
-		fpa.rect(getLeft()-lw, getTop()-lw, size.getWidth() + lw, size.getHeight() + lw);
+		gc.rect(getLeft()-lw, getTop()-lw, size.getWidth() + lw, size.getHeight() + lw);
 	}
 	
 	@Override

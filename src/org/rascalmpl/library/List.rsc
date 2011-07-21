@@ -11,6 +11,16 @@
 module List
 
 import Exception;
+import Integer;
+
+@doc{Get n elements from the head of the list, size(l) if size(l) < n}
+public list[&T] take(int n, list[&T] l){
+	return [ l[i] | i <- [0 .. (min(size(l),n) - 1)]];
+}
+
+public list[&T] mix(list[&T] l, list[&T] r){
+	return [l[i],r[i]| i <- [0 .. (min(size(l),size(r)) - 1)]];
+}
 
 @doc{Delete nth element from list}
 @javaClass{org.rascalmpl.library.List}

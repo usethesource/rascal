@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 
@@ -106,23 +107,23 @@ public class HScreen extends WithInnerFig {
 	}
 
 	@Override
-	public void draw(double left, double top) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		setLeft(left);
 		setTop(top);
-		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY());
+		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
 		for(ProjectionPlacement p : projections){
-			p.projection.projection.draw(left + p.location.getX(), top +  p.location.getY() );
+			p.projection.projection.draw(left + p.location.getX(), top +  p.location.getY(), gc );
 		}
 		//drawScreen(left, top);
 	}
 
-	void drawScreen(double left, double top) {
+	void drawScreen(double left, double top,GraphicsContext gc) {
 		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );
 			if(bottom){
-				fpa.line(left + innerFigLocation.getX() , top + innerFigLocation.getY() + innerFig.size.getHeight(flip),
+				gc.line(left + innerFigLocation.getX() , top + innerFigLocation.getY() + innerFig.size.getHeight(flip),
 						 left + innerFigLocation.getX() + innerFig.size.getWidth() , top + innerFigLocation.getY() + innerFig.size.getHeight(flip));
 			} else {
-				fpa.line(left + innerFigLocation.getX() , top + innerFigLocation.getY(),
+				gc.line(left + innerFigLocation.getX() , top + innerFigLocation.getY(),
 					 left + innerFigLocation.getX() + innerFig.size.getWidth() , top + innerFigLocation.getY());
 			}
 	}
