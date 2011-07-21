@@ -85,8 +85,8 @@ public str topProd2rascal(Production p) {
   if (regular(_) := p) return "";
   
   kind = "syntax";
-  if (/layouts(_) := p.def)
-    kinds = "layout";
+  if (/layouts(n) := p.def)
+    kind = "layout <n>";
   else if (/lex(_) := p.def)
     kind = "lexical";
   else if (/keywords(_) := p.def)
