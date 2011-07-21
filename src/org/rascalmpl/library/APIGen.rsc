@@ -28,6 +28,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			'import org.eclipse.imp.pdb.facts.type.Type;
 			'import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			'import org.eclipse.imp.pdb.facts.type.TypeStore;
+			'import org.eclipse.imp.pdb.facts.*;
 			'
 			'class <apiName> {
 			'	public static TypeStore typestore = new TypeStore(
@@ -45,12 +46,10 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			'		public final static KeySymFactory factory = new KeySymFactory();
 			'	}
 			'	  
-			'	public static KeySymFactory getInstance() {
+			'	public static <apiName> getInstance() {
 			'		return InstanceHolder.factory;
 			'	}
 			'	
-			'	private KeySymFactory() {
-			'	}
 			'	
 			'	public static TypeStore getStore() {
 			'		return typestore;
@@ -168,14 +167,36 @@ public str declareGetters(type[&T] t){
 public str declareConstructorGetters(value t,str typeName){
 	switch(t){
 		case constructor(str cname,list[tuple[type[value],str]] args) : {
-			return 	"<for(<\type,name> <- args) {>public static <typeToJavaType(\type)> <typeName>_<cname>_<name>(IConstructor c){
-					'	return (<typeToJavaType(\type)>)c.get(<name>);
+			if(size(args) == 0) return "";
+			return 	"<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i][0])> <typeName>_<cname>_<args[i][1]>(IConstructor c){
+					'	return <javaResult(args[i][0],"c.get(<i>)")>;
 					'}
 					'<}>";
 		}
 	}
 }
 
+public str typeToSimpleJavaType(type[value] t){
+	switch(t){
+		case int() : return "int";
+		case real() : return "double";
+		case num() : return "double";
+		case bool() : return "boolean";
+		case str() :  return "String";
+		default : return typeToJavaType(t);
+	}
+}
+
+public str javaResult(type[value] t,str access){
+	switch(t){
+		case int() : return "((IInteger)<access>).intValue()";
+		case real() : return "((IReal)<access>).doubleValue()";
+		case num() : return "<access> instanceof IInteger ? (double)((IInteger)<access>).intValue() : ((IReal)<access>).doubleValue()";
+		case bool() : return "((IBool)<access>).getValue()";
+		case str() :  return "((IString)<access>).getValue()";
+		default : return "(<typeToJavaType(t)>)<access>";
+	}
+}
 
 public str typeToJavaType(type[value] t){
 	switch(t){
