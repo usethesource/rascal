@@ -314,7 +314,7 @@ lexical LAYOUT = Whitespace: [\ \t\n\r] |
 
 public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(TypeName)".
    list[Tree] children;
-   if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
+   if(appl(prod(label("Bracket",_),_,_),children) := exp){
       Tree child = children[1];
       if(appl(prod(label("Variable",_),_,_),_) := child){
          if(unparse(child) in typeDefs){
