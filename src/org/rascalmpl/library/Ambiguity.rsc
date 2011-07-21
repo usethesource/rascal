@@ -30,7 +30,7 @@ public list[Message] diagnose(str amb) {
 }
 
 public list[Message] findCauses(Tree a) {
-  return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc?|stdin:///|)]
+  return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc?|dunno:///|)]
        + [findCauses(x, y) | [_*,Tree x,_*,Tree y, _*] := toList(a.alternatives), true /* workaround alert*/];
 }
     
@@ -43,15 +43,15 @@ public list[Message] findCauses(Tree x, Tree y) {
     result += [info("The alternatives use the same productions", x@\loc)];
   }
   else {
-      result += [info("Production unique to the one: <alt2rascal(p)>;", x@\loc) | p <- pX - pY];
-      result += [info("Production unique to the other: <alt2rascal(p)>;", x@\loc) | p <- pY - pX];
+      result += [info("Production unique to the one: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pX - pY];
+      result += [info("Production unique to the other: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pY - pX];
   }  
   
   result += deeperCauses(x, y);
   result += reorderingCauses(x, y); 
   vert = verticalCauses(x, y);
   if (vert == []) {
-    result += [info("The ambiguity is horizontal (same productions at the top)", x@\loc)];
+    result += [info("The ambiguity is horizontal (same productions at the top)", x@\loc?|dunno:///|)];
   }
   result += vert;
   
@@ -80,17 +80,21 @@ public list[Message] deeperCauses(Tree x, Tree y) {
   result = [];
   
   if (rX<0> != rY<0> || lX<1> != lY<1>) {
-    result += info("The alternatives have different lexicals/literals/layout", x@\loc);
-    result += [info("Unique lexical to the one: <alt2rascal(p)>;", t[0]@\loc) | t <- (rX - rY), p := t[0].prod];
-    result += [info("Unique lexical to the other: <alt2rascal(p)>;", t[0]@\loc) | t <- (rY - rX), p := t[0].prod];
-    result += [info("Unique literal to the one: <symbol2rascal(t[1].prod.def)>", x@\loc) | t <- lX - lY];
-    result += [info("Unique literal to the other: <symbol2rascal(t[1].prod.def)>", x@\loc) | t <- lY - lX];
-    result += [info("Unique layout to the one: <symbol2rascal(t[0].prod.def)>", x@\loc) | t <- laX - laY];
-    result += [info("Unique layout to the other: <symbol2rascal(t[0].prod.def)>", x@\loc) | t <- laY - laX];
+    result += [info("The alternatives have different lexicals/literals/layout", x@\loc?|dunno:///| )];
+    result += [info("Unique lexical to the one: <alt2rascal(p)>;", t[0]@\loc?|dunno:///|) | t <- (rX - rY), p := t[0].prod];
+    result += [info("Unique lexical to the other: <alt2rascal(p)>;", t[0]@\loc?|dunno:///|) | t <- (rY - rX), p := t[0].prod];
+    result += [info("Unique literal to the one: <symbol2rascal(t[1].prod.def)>", x@\loc?|dunno:///|) | t <- lX - lY];
+    result += [info("Unique literal to the other: <symbol2rascal(t[1].prod.def)>", x@\loc?|dunno:///|) | t <- lY - lX];
+    result += [info("Unique layout to the one: <symbol2rascal(t[0].prod.def)>", x@\loc?|dunno:///|) | t <- laX - laY];
+    result += [info("Unique layout to the other: <symbol2rascal(t[0].prod.def)>", x@\loc?|dunno:///|) | t <- laY - laX];
     
+     iprintln(result);
+     
     // literals that became lexicals and vice versa
-    result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc) | <r,l> <- rX o lY];
-    result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc) | <r,l> <- rY o lX];
+    result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rX o lY];
+    result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rY o lX];
+    
+   
     
     // lexicals that overlap position, but are shorter (longest match issue)
     for (<tX,yX> <- rX, <tY,yY> <- rY, tX != tY) {
@@ -122,6 +126,7 @@ public list[Message] deeperCauses(Tree x, Tree y) {
       }
     }   
   }
+ 
  
   // find parents of literals, and transfer location
   polX = {<p,l[@\loc=t@\loc]> | /t:appl(p,[_*,b,_,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
@@ -171,14 +176,14 @@ list[Message] priorityCauses(Tree x, Tree y) {
       return [error("You might add this priority rule (or vice versa):
                     '  <alt2rascal(priority(p.def,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
-                    '  <alt2rascal(associativity(p.def, \left(), {p,q}))>", t@\loc)];
+                    '  <alt2rascal(associativity(p.def, \left(), {p,q}))>", t@\loc?|dunno:///|)];
   }
   
   if (/appl(p,[appl(q,_),_*]) := y, /Tree t:appl(q,[_*,appl(p,_)]) := x, p != q) {
       return [error("You might add this priority rule (or vice versa):
                     '  <alt2rascal(priority(p.def,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
-                    '  <alt2rascal(associativity(p.def, \left(), {p,q}))>", t@\loc)];
+                    '  <alt2rascal(associativity(p.def, \left(), {p,q}))>", t@\loc?|dunno:///|)];
   }
   
   return [];
@@ -196,12 +201,12 @@ list[Message] danglingCauses(Tree x, Tree y) {
 list[Message] danglingFollowSolutions(Tree x, Tree y) {
   if (prod(_, lhs, _) := x.prod, prod(_, [prefix*, _, l:lit(_), more*], _) := y.prod, lhs == prefix) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
-                    ' <alt2rascal(x.prod)>", x@\loc)]; 
+                    ' <alt2rascal(x.prod)>", x@\loc?|dunno:///|)]; 
   }
   
   if (prod(_, lhs, _) := y.prod, prod(_, [prefix*, _, l:lit(_), more*], _) := x.prod, lhs == prefix) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
-                  '  <alt2rascal(y.prod)>", x@\loc)]; 
+                  '  <alt2rascal(y.prod)>", x@\loc?|dunno:///|)]; 
   }
   
   return []; 
