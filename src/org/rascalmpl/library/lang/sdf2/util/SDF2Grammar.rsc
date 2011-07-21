@@ -21,6 +21,7 @@ import String;
 import Integer;
 import ParseTree;
 import Grammar;
+import lang::rascal::grammar::definition::Names;
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
 
@@ -28,16 +29,26 @@ public Symbol label(str s, conditional(Symbol t, set[Condition] cs)) = condition
 public Symbol conditional(conditional(Symbol s, set[Condition] c1), set[Condition] c2) = conditional(s, c1 + c2);
 
 public GrammarDefinition sdf2grammar(loc input) {
+  return sdf2grammar("Main", parse(#SDF, input)); 
+}
+
+public GrammarDefinition sdf2grammar(str main, loc input) {
+  return sdf2grammar(main, parse(#SDF, input)); 
+}
+
+public GrammarDefinition sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
 
 public GrammarDefinition sdf2module2grammar(str name, list[loc] path) {
-  return sdf2grammar(loadSDF2Module(name, path));
+  return sdf2grammar(name, loadSDF2Module(name, path));
 }
 
-// {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{})}
-
 public GrammarDefinition sdf2grammar(SDF def) {
+  return sdf2grammar("Main", def);
+}
+
+public GrammarDefinition sdf2grammar(str main, SDF def) {
   if ((SDF) `definition <Module* mods>` := def) {
     ms = ();
     for (Module m <- mods) {
@@ -45,9 +56,16 @@ public GrammarDefinition sdf2grammar(SDF def) {
       ms[gm.name] = gm;
     } 
     
-    conditions = getConditions(def);
+    main = moduleName(main);
     
-    return applyConditions(definition("Main", ms), (s:c | c:conditional(s,_) <- conditions));
+    if (main notin ms) 
+      throw "Main module <main> not found";
+    
+    res = definition(main, ms);
+    res = resolve(res);
+    res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
+    
+    return res;
   }
   
   throw "Unknown format for SDF2";
@@ -78,7 +96,7 @@ private set[str] getImports(Module m) {
 
 public GrammarDefinition applyConditions(GrammarDefinition d,  map[Symbol from,Symbol to] conds) {
   return visit(d) {
-    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [s in conds ? conds[s] : s | s <- ss], as)
+    case prod(Symbol d, list[Symbol] ss, set[Attr] as) => prod(d, [(s in conds || (s is label && s.symbol in conds))? conds[s] : s | s <- ss], as)
   }
 }
 
@@ -87,12 +105,14 @@ public Grammar illegalPriorities(Grammar g) {
   g = innermost visit (g) {
     case \priority(Symbol def, list[Production] ps) : 
       if ([pre*,prod(Symbol other, _, _),post*] := ps, !sameType(def, other)) {
+        println("WARNING: extracting production from non-recursive priority chain");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("priority with <pre> <post>"))];
         insert priority(def, pre + post);
       }
       else fail;
     case \associativity(Symbol def, Associativity a, set[Production] q) :
       if ({rest*, prod(Symbol other, _, _)} := q, !sameType(def, other)) {
+        println("WARNING: extracting production from non-recursive associativity group");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("<a> associativity with <other>"))];
         insert associativity(def, a, other);
       }
@@ -163,30 +183,18 @@ test bool test3() = rs := sdf2grammar(
 public set[Production] getProductions(Module mod) {
  res = {};
  visit (mod) {
-    case (Grammar) `syntax <Prod* prods>`: {
-        println("****************** kernel syntax?? <prods>");
+    case (Grammar) `syntax <Prod* prods>`: 
     	res += getProductions(prods, true);
-    }
-    case (Grammar) `lexical syntax <Prod* prods>`: {
-         println("LEX extracting from <prods>");
+    case (Grammar) `lexical syntax <Prod* prods>`: 
     	res += getProductions(prods, true); 
-    }	
-    case (Grammar) `context-free syntax <Prod* prods>`: {
-    println("CF !!");
+    case (Grammar) `context-free syntax <Prod* prods>`: 
     	res += getProductions(prods, false);
-    	}
     case (Grammar) `priorities <{Priority ","}* prios>`:
     	res += getPriorities(prios,false);
-    	
-    case (Grammar) `lexical priorities <{Priority ","}* prios>`: {
-        println("PRIO!");
+    case (Grammar) `lexical priorities <{Priority ","}* prios>`: 
     	res += getPriorities(prios,true);
-    	}
-    case (Grammar) `context-free priorities <{Priority ","}* prios>`: {
-    println("NOG MEER PRIOS");
+    case (Grammar) `context-free priorities <{Priority ","}* prios>`: 
     	res += getPriorities(prios,false);
-    	}
-    	
   }; 
   
   return res;
@@ -225,23 +233,16 @@ set[Production] fixParameters(set[Production] input) {
 }
 
 public set[Production] getProduction(Prod P, bool isLex) {
-println("matching <P>");
   switch (P) {
     case (Prod) `<Syms syms> -> LAYOUT <Attrs ats>` :
         return {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{}),
                 prod(sort("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
-                
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
-      
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
         return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `))};
-          
-    case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` : {
-    println("no cons <P>");
+    case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` : 
         return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
-    	
-    	}
     default: {
         println("WARNING: not importing <P>");
     	return {prod(sort("IGNORED"),[],{\tag("NotSupported"("<P>"))})};
@@ -275,12 +276,12 @@ public set[Symbol] getConditions(SDF m) {
     case (Grammar) `context-free restrictions <Restriction* rests>` :
       res += getRestrictions(rests, false);
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
-        return {conditional(getSymbol(sym, false), {\delete(keywords(getSymbol(sym, false).name + "Keywords"))})
+      res += {conditional(getSymbol(sym, false), {\delete(keywords(getSymbol(sym, false).name + "Keywords"))})
                ,conditional(getSymbol(sym, true), {\delete(keywords(getSymbol(sym, true).name + "Keywords"))})};
    }
    
-   //while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
-   //    res = rest + {conditional(s, cs1 + cs2)};
+   while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
+       res = rest + {conditional(s, cs1 + cs2)};
    
    iprintln(res);
    return res;
@@ -288,27 +289,31 @@ public set[Symbol] getConditions(SDF m) {
       
     
 public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
-  return { getRestriction(r, isLex) | Restriction r <- restrictions };
+println("looping over < restrictions>");
+  res = { getRestriction(r, isLex) | Restriction r <- restrictions };
+  println("collected: <res>");
+  return res;
 }
 
 public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
+  println("getting rest: <restriction>");
   switch (restriction) {
     case (Restriction) `-/- <Lookaheads ls>` :
     	return {};
-    	
-    case (Restriction) `<Sym s1> <Sym s2> <Sym+ rest> -/- <Lookaheads ls>` : 
-      return getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
-           + getRestriction((Restriction) `<Sym s2> -/- <Lookaheads ls>`, isLex) 
+    
+    case (Restriction) `<Sym s1> -/- <Lookaheads ls>` : 
+      return {conditional(getSymbol(s1, isLex), {\not-follow(l) | l <- getLookaheads(ls) })};
+  	
+    case (Restriction) `<Sym s1> <Sym+ rest> -/- <Lookaheads ls>` : 
+      return  getRestriction((Restriction) `<Sym s1> -/- <Lookaheads ls>`, isLex)
            + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
       return {conditional(layouts("LAYOUTLIST"), {\not-follow(l) | l <- getLookaheads(ls) })};
              
-    case (Restriction) `<Sym s1> -/- <Lookaheads ls>` :
-      return {conditional(getSymbol(s1, isLex), {\not-follow(l) | l <- getLookaheads(ls) })};
-      
+       
     default: {
-       println("Warning: ignored <restriction>");
+       println("WARNING: ignored <restriction>");
        return {};
     }
   }
@@ -641,7 +646,7 @@ test bool testUn9() = unescape((SingleQuotedStrCon) `'a\\c'`) == "a\\c";
 // Also takes care of escaping of < and > characters as required for Rascal strings (TO DO/CHECK)
 
 public str unescapeStr(str chars){
-    return visit (chars) {
+   return visit (chars) {
        case /^\\b/           => "\b"
        case /^\\t/           => "\t"
        case /^\\n/           => "\n"
@@ -656,7 +661,7 @@ public str unescapeStr(str chars){
        case /^\\LABEL_START/ => "\257"
        case /^\</			 => "\<"
        case /^\>/			 => "\>"
-     };      
+     };  
 }
 
 test bool un20() =Str("abc") 	== "abc";
