@@ -1241,6 +1241,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				}
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
+				if (__getInterrupt()) {
+					throw new InterruptException("while extending " + name);
+				}
 				((org.rascalmpl.semantics.dynamic.Module.Default)module).interpretInCurrentEnv(this);
 				return module;
 			}
