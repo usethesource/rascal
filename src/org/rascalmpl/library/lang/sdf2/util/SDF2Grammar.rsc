@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::sdf2::util::SDF2Grammar
-      
+       
 // Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
    
 // Todo List:
@@ -56,6 +56,7 @@ public GrammarDefinition sdf2grammar(SDF def) {
 private GrammarModule getModule(Module m) {
   if (/(Module) `module <ModuleName mn> <ImpSection* _> <Sections _>` := m) {
     name = moduleName("<mn.id>");
+    println("processing <name>");
     prods = getProductions(m);
     imps = getImports(m); 
    
@@ -162,24 +163,31 @@ test bool test3() = rs := sdf2grammar(
 public set[Production] getProductions(Module mod) {
  res = {};
  visit (mod) {
-    case (Grammar) `syntax <Prod* prods>`:
+    case (Grammar) `syntax <Prod* prods>`: {
+        println("****************** kernel syntax?? <prods>");
     	res += getProductions(prods, true);
-    	
-    case (Grammar) `lexical syntax <Prod* prods>`:
+    }
+    case (Grammar) `lexical syntax <Prod* prods>`: {
+         println("LEX extracting from <prods>");
     	res += getProductions(prods, true); 
-    	
-    case (Grammar) `context-free syntax <Prod* prods>`:
+    }	
+    case (Grammar) `context-free syntax <Prod* prods>`: {
+    println("CF !!");
     	res += getProductions(prods, false);
-    	
+    	}
     case (Grammar) `priorities <{Priority ","}* prios>`:
     	res += getPriorities(prios,false);
     	
-    case (Grammar) `lexical priorities <{Priority ","}* prios>`:
+    case (Grammar) `lexical priorities <{Priority ","}* prios>`: {
+        println("PRIO!");
     	res += getPriorities(prios,true);
-    	
-    case (Grammar) `context-free priorities <{Priority ","}* prios>`:
+    	}
+    case (Grammar) `context-free priorities <{Priority ","}* prios>`: {
+    println("NOG MEER PRIOS");
     	res += getPriorities(prios,false);
-  };
+    	}
+    	
+  }; 
   
   return res;
 }
@@ -217,6 +225,7 @@ set[Production] fixParameters(set[Production] input) {
 }
 
 public set[Production] getProduction(Prod P, bool isLex) {
+println("matching <P>");
   switch (P) {
     case (Prod) `<Syms syms> -> LAYOUT <Attrs ats>` :
         return {prod(layouts("LAYOUTLIST"),[\iter-star(sort("LAYOUT"))],{}),
@@ -228,9 +237,11 @@ public set[Production] getProduction(Prod P, bool isLex) {
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
         return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `))};
           
-    case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` :
+    case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` : {
+    println("no cons <P>");
         return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
     	
+    	}
     default: {
         println("WARNING: not importing <P>");
     	return {prod(sort("IGNORED"),[],{\tag("NotSupported"("<P>"))})};
@@ -360,7 +371,7 @@ public Production getPriority(Group group, bool isLex) {
        return choice(definedSymbol(ps,isLex), {getProduction(p,isLex) | Prod p <- ps});
        
     case (Group) `{<Assoc a> : <Prod* ps>}` : 
-       return \assoc(definedSymbol(ps, isLex), getAssociativity(a), {getProduction(p,isLex) | Prod p <- ps});
+       return \associativity(definedSymbol(ps, isLex), getAssociativity(a), {getProduction(p,isLex) | Prod p <- ps});
     
     default:
     	throw "missing case <group>";}
