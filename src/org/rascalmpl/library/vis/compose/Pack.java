@@ -149,8 +149,7 @@ public class Pack extends Compose {
 			applyProperties(gc);
 			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
 			gc.rect(left, top, size.getWidth(), size.getHeight());
-			applyFontProperties(gc);
-			gc.text(message, left + size.getWidth()/2.0 - getTextWidth(message)/2.0, top + size.getHeight()/2.0 - getTextAscent() , properties.getColorProperty(Properties.FONT_COLOR));
+			gc.text(message, left + size.getWidth()/2.0 - getTextWidth(message)/2.0, top + size.getHeight()/2.0 - getTextAscent());
 			
 		}
 	}

@@ -54,7 +54,6 @@ public class VAxis extends HAxis {
 				);
 
 		applyProperties(gc);
-		applyFontProperties(gc);
 		
 		double direction = bottom ? 1.0f : -1.0f;
 		gc.fill(255);
@@ -78,7 +77,7 @@ public class VAxis extends HAxis {
 				
 		
 				gc.stroke(0);
-				gc.text(label,  left + axisLeft + tickHeight + (bottom ? textTickSpacing : -(textTickSpacing + getTextWidth(label)) ), top + topOffset +outerSpace- tick.pixelPos , properties.getColorProperty(Properties.FONT_COLOR));
+				gc.text(label,  left + axisLeft + tickHeight + (bottom ? textTickSpacing : -(textTickSpacing + getTextWidth(label)) ), top + topOffset +outerSpace- tick.pixelPos );
 			}
 			gc.line(left + axisLeft + tickHeight , 
 					top + topOffset +outerSpace- tick.pixelPos,
@@ -89,7 +88,7 @@ public class VAxis extends HAxis {
 			gc.pushMatrix();
 			gc.translate(left + axisLeft + direction * (majorTickHeight + textTickSpacing + labelSpacing + getTextDescent() + labelWidth()), top + topOffset + 0.5 * (outerSpace - getTextWidth(this.label)));
 			gc.rotate(0.5  * Math.PI);
-			gc.text(this.label, 0,0, properties.getColorProperty(Properties.FONT_COLOR));
+			gc.text(this.label, 0,0);
 			gc.popMatrix();
 			
 		}
