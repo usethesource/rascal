@@ -62,7 +62,7 @@ private Production prod2prod(Symbol nt, Prod p) {
     case (Prod) `<ProdModifier* ms> ()` :
       return prod(nt, [], mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> <Name n> : <Sym* args>` :
-      return prod(label(unescape(n),nt),args2symbols(args),mods2attrs(ms));
+      return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
     case (Prod) `<ProdModifier* ms> <Sym* args>` :
       return prod(nt, args2symbols(args), mods2attrs(ms));
     case (Prod) `<Prod l> | <Prod r>` :
