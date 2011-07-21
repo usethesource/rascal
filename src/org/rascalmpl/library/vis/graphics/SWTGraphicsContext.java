@@ -120,7 +120,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void fill(int arg0) {
 		alphaFill = FigureColorUtils.getAlpha(arg0);
 		int backgroundCI = FigureColorUtils.withoutAlpha(arg0);
-		if(this.backgroundCI == backgroundCI) return;
+		if(this.backgroundCI == backgroundCI  && backgroundColor != null) return;
 		this.backgroundCI = backgroundCI;
 		disposeIfNessary(backgroundColor);
 		backgroundColor = getRgbColor(arg0);
@@ -131,7 +131,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void stroke(int arg0) {
 		alphaStroke = FigureColorUtils.getAlpha(arg0);
 		int foreGroundCI = FigureColorUtils.withoutAlpha(arg0);
-		if(this.foreGroundCI == foreGroundCI) return;
+		if(this.foreGroundCI == foreGroundCI && foregroundColor != null) return;
 		this.foreGroundCI = foreGroundCI;
 		disposeIfNessary(foregroundColor);
 		foregroundColor = getRgbColor(arg0);
@@ -142,12 +142,10 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void font(int color){
 		alphaFont = FigureColorUtils.getAlpha(color);
 		int fontCI = FigureColorUtils.withoutAlpha(color);
-		if(this.fontCI == fontCI) return;
+		if(this.fontCI == fontCI && fontColor != null) return;
 		this.fontCI = fontCI;
 		disposeIfNessary(fontColor);
-		foregroundColor = getRgbColor(color);
-		gc.setForeground(foregroundColor);
-		stroke = true;
+		fontColor = getRgbColor(color);
 	}
 
 	public void strokeWeight(double arg0) {
@@ -180,12 +178,11 @@ public class SWTGraphicsContext implements GraphicsContext {
 	}
 
 	public void text(String arg0, double x, double y) {
-		int alpha0 = gc.getAlpha();
 		gc.setAlpha(alphaFont);
 		gc.setForeground(fontColor);
 		gc.drawText(arg0, (int) x, (int) y, true);
 		gc.setForeground(foregroundColor);
-		gc.setAlpha(alpha0);
+		gc.setAlpha(alphaStroke);
 	}
 
 	public void pushMatrix() {
@@ -428,24 +425,17 @@ public class SWTGraphicsContext implements GraphicsContext {
 		gc.setAlpha(alpha0);
 		gc.setBackground(color0);
 	}
-	
-	public void setBackground(Color color) {
-		gc.setBackground(color);
 
-	}
-
-	public void setForeground(Color color) {
-		gc.setForeground(color);
-	}
 	
 	
 	public void setFont(String fontName, double fontSize, FontStyle... styles) {
+		
 		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
 		if(fd.equals(this.fontData)) return;
 		this.fontData = fd;
 		disposeIfNessary(currentFont);
 		currentFont = new Font(device, fd);
-		gc.setFont((Font) currentFont);
+		gc.setFont(currentFont);
 	}
 
 	
