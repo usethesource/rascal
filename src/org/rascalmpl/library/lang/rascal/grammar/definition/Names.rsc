@@ -30,7 +30,7 @@ public GrammarDefinition resolve(GrammarDefinition d) {
   }
 }
 
-public str unescape(Name name) {
-  if (/\\<rest:.*>/ := "<name>") return rest; 
-  return "<name>";
+public str unescape(str name) {
+  if (/\\<rest:.*>/ := name) return rest; 
+  return name;
 }
