@@ -9,6 +9,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
+import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.graphics.Transform;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
@@ -28,10 +29,14 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private boolean fill = false, stroke = true;
 	private boolean debug;
 	private Font currentFont;
-
 	private Device device;
 	private Color foregroundColor;
 	private Color backgroundColor;
+	private Color fontColor;
+	
+	
+	FontData fontData;
+	int foreGroundCI, backgroundCI, fontCI;
 	
 	
 	public SWTGraphicsContext(GC gc) {
@@ -56,6 +61,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		return device.getSystemColor(which);
 	}
 
+	
 	public Color getRgbColor(final int c) {
 		return new Color(device, FigureColorUtils.getRed(c),
 				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
@@ -104,19 +110,43 @@ public class SWTGraphicsContext implements GraphicsContext {
 			gc.setAlpha(alpha0);
 		}
 	}
+	
+	private void disposeIfNessary(Resource r){
+		if(!(r == null || r.isDisposed())){
+			r.dispose();
+		}
+	}
 
 	public void fill(int arg0) {
 		alphaFill = FigureColorUtils.getAlpha(arg0);
-		Color color = new Color(device, FigureColorUtils.getRed(arg0),
-				FigureColorUtils.getGreen(arg0), FigureColorUtils.getBlue(arg0));
-		gc.setBackground(color);
+		int backgroundCI = FigureColorUtils.withoutAlpha(arg0);
+		if(this.backgroundCI == backgroundCI) return;
+		this.backgroundCI = backgroundCI;
+		disposeIfNessary(backgroundColor);
+		backgroundColor = getRgbColor(arg0);
+		gc.setBackground(backgroundColor);
 		fill = true;
 	}
 
 	public void stroke(int arg0) {
 		alphaStroke = FigureColorUtils.getAlpha(arg0);
-		gc.setForeground(new Color(device, FigureColorUtils.getRed(arg0),
-				FigureColorUtils.getGreen(arg0), FigureColorUtils.getBlue(arg0)));
+		int foreGroundCI = FigureColorUtils.withoutAlpha(arg0);
+		if(this.foreGroundCI == foreGroundCI) return;
+		this.foreGroundCI = foreGroundCI;
+		disposeIfNessary(foregroundColor);
+		foregroundColor = getRgbColor(arg0);
+		gc.setForeground(foregroundColor);
+		stroke = true;
+	}
+	
+	public void font(int color){
+		alphaFont = FigureColorUtils.getAlpha(color);
+		int fontCI = FigureColorUtils.withoutAlpha(color);
+		if(this.fontCI == fontCI) return;
+		this.fontCI = fontCI;
+		disposeIfNessary(fontColor);
+		foregroundColor = getRgbColor(color);
+		gc.setForeground(foregroundColor);
 		stroke = true;
 	}
 
@@ -149,15 +179,12 @@ public class SWTGraphicsContext implements GraphicsContext {
 		return gc.getFontMetrics().getDescent();
 	}
 
-	public void text(String arg0, double x, double y, int fontColor) {
+	public void text(String arg0, double x, double y) {
 		int alpha0 = gc.getAlpha();
-		gc.setAlpha(FigureColorUtils.getAlpha(fontColor));
-		Color c = getRgbColor(fontColor);
-		Color old = gc.getForeground();
-		gc.setForeground(c);
+		gc.setAlpha(alphaFont);
+		gc.setForeground(fontColor);
 		gc.drawText(arg0, (int) x, (int) y, true);
-		gc.setForeground(old);
-		c.dispose();
+		gc.setForeground(foregroundColor);
 		gc.setAlpha(alpha0);
 	}
 
@@ -410,14 +437,13 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void setForeground(Color color) {
 		gc.setForeground(color);
 	}
-
+	
+	
 	public void setFont(String fontName, double fontSize, FontStyle... styles) {
-		
-		
 		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
-		if(currentFont != null){
-			currentFont.dispose();
-		}
+		if(fd.equals(this.fontData)) return;
+		this.fontData = fd;
+		disposeIfNessary(currentFont);
 		currentFont = new Font(device, fd);
 		gc.setFont((Font) currentFont);
 	}

@@ -143,10 +143,8 @@ public abstract class Figure implements Comparable<Figure> {
 			gc.setShadowLeft(getRealProperty(Properties.SHADOWLEFT));
 			gc.setShadowTop(getRealProperty(Properties.SHADOWTOP));
 		}
-	}
-
-	public void applyFontProperties(GraphicsContext gc) {
 		gc.setFont(getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
+		gc.font(properties.getColorProperty(Properties.FONT_COLOR));
 	}
 
 	/*

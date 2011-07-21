@@ -208,7 +208,6 @@ public class HAxis extends WithInnerFig implements Key {
 				);
 
 		applyProperties(gc);
-		applyFontProperties(gc);
 		
 		double direction = bottom ? 1.0f : -1.0f;
 		gc.fill(255);
@@ -232,17 +231,16 @@ public class HAxis extends WithInnerFig implements Key {
 			
 		
 				applyProperties(gc);
-				gc.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? getTextAscent() : -getTextDescent()) ,properties.getColorProperty(Properties.FONT_COLOR));
+				gc.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? getTextAscent() : -getTextDescent()));
 			}
 			gc.line(tick.pixelPos ,
 					top + axisTop + tickHeight,
 					tick.pixelPos,
 					top + axisTop );
 		}
-		applyFontProperties(gc);
 		if(!this.label.equals("")){
 			gc.text(this.label, left + leftOffset + (0.5 * (innerFig.size.getWidth() - getTextWidth(this.label))), top + axisTop + direction* (majorTickHeight +  textTickSpacing 
-					+ borderSpacing + getTextAscent() + getTextDescent()) + (bottom ? getTextAscent() : getTextDescent()),properties.getColorProperty(Properties.FONT_COLOR));
+					+ borderSpacing + getTextAscent() + getTextDescent()) + (bottom ? getTextAscent() : getTextDescent()));
 		}
 		//System.out.printf("Innerfig %s %s\n",this,innerFigLocation);
 		

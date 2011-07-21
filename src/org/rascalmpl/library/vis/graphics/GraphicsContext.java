@@ -9,12 +9,13 @@ public interface GraphicsContext {
 	public void line(double arg0, double arg1, double arg2, double arg3);
 	public void rect(double arg0, double arg1, double arg2, double arg3);
 	public void ellipse(double arg0, double arg1, double arg2, double arg3);
-	public void text(String arg0, double arg1, double arg2, int fontColor);
+	public void text(String arg0, double arg1, double arg2);
 	public void arc(double arg0, double arg1, double arg2, double arg3, double arg4,
 			double arg5);
 	
 	public void fill(int arg0);
 	public void stroke(int arg0);
+	public void font(int arg0);
 	public void strokeWeight(double arg0);
 	public void strokeStyle(int style);
 	public void textSize(double arg0);

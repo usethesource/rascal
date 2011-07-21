@@ -333,7 +333,7 @@ public class FigureSWTApplet implements IFigureApplet {
 				}
 
 			}
-			// TODO: fix this hack;
+			// TODO: fix this creative nonpermanent sollution;
 			if (mouseOverStack.elementAt(0).computedValueChanged
 					&& mouseOverStack.size() == 2) {
 				mouseOverStack.pop();

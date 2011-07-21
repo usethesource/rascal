@@ -270,6 +270,10 @@ public class FigureColorUtils {
 	public static int getAlpha(int c) {
 		return (c >> 24) & 0xff;
 	}
+	
+	public static int withoutAlpha(int c){
+		return c & 0xffffff; 
+	}
 
 	public static RGB toRGB(int c) {
 		return new RGB(getRed(c), getGreen(c), getBlue(c));

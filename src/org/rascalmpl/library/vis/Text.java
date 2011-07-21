@@ -110,7 +110,6 @@ public class Text extends Figure {
 		this.setTop(top);
 		
 		applyProperties(gc);
-		applyFontProperties(gc);
 	
 		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
@@ -120,10 +119,10 @@ public class Text extends Figure {
 				gc.pushMatrix();
 				gc.translate(left + hfill, top + vfill);
 				gc.rotate((FigureApplet.radians(angle)));
-				gc.text(txt.getValue(), 0, 0,properties.getColorProperty(Properties.FONT_COLOR));
+				gc.text(txt.getValue(), 0, 0);
 				gc.popMatrix();
 			} else {
-				gc.text(txt.getValue(), left, top,properties.getColorProperty(Properties.FONT_COLOR));
+				gc.text(txt.getValue(), left, top);
 //				vlp.rectMode(FigureApplet.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}
