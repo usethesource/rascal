@@ -163,7 +163,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 					}
 					
 					if(result == null){
-						System.err.println("ERROR: action failed: " + cons + " " + function.getType());
+						System.err.println("ERROR: action failed: " + cons + ": " + function.getType());
 						return tree; // TODO Handle the error properly.
 					}
 					
@@ -195,6 +195,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			
 			return function.call(types, actuals);
 		} catch(ArgumentsMismatchError e){
+			e.printStackTrace();
 			return null;
 		}
 	}
