@@ -163,16 +163,15 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 					}
 					
 					if(result == null){
-						System.err.println("ERROR: action failed: " + function.getType());
+						System.err.println("ERROR: action failed: " + cons + " " + function.getType());
 						return tree; // TODO Handle the error properly.
 					}
 					
 					if (result.getType().isVoidType()) {
 						return tree;
 					}
-					else {
-						return (IConstructor) result.getValue();
-					}
+					
+					return (IConstructor) result.getValue();
 				} catch(Failure f){ // TODO: change to Filter specific failure
 					return null;
 				}
