@@ -1,7 +1,5 @@
 package org.rascalmpl.library.vis.graphics;
 
-import org.eclipse.swt.graphics.Color;
-
 public interface GraphicsContext {
 	
 	public void line(double arg0, double arg1, double arg2, double arg3);

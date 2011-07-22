@@ -91,16 +91,6 @@ public class Ellipse extends Container {
         }
 	}
 	
-	/**
-	 * Draw focus around this figure
-	 */
-	@Override
-	public void drawFocus(GraphicsContext gc){
-		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		gc.noFill();
-		gc.ellipse(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
-	}
-	
 	@Override
 	public boolean mouseInside(double mousex, double mousey){
 		double w2 = size.getWidth()/2;

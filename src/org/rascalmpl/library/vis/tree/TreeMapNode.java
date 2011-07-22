@@ -132,15 +132,6 @@ public class TreeMapNode extends Figure {
 			child.draw(left + childLeft[i], top + childTop[i], gc);
 		}
 	}
-	
-	@Override
-	public void drawFocus(GraphicsContext gc){
-		if(debug)System.err.printf("TreeMapNode.drawFocus: %s, %f, %f\n", rootFigure.getIdProperty(), getLeft(), getTop());
-		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		gc.noFill();
-		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
-	}
-	
 
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
 		boolean ret = false;
