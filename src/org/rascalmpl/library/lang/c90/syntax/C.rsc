@@ -314,7 +314,7 @@ lexical LAYOUT = Whitespace: [\ \t\n\r] |
 
 public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(TypeName)".
    list[Tree] children;
-   if(appl(prod(label("Bracket",_),_,_),children) := exp){
+   if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
       Tree child = children[1];
       if(appl(prod(label("Variable",_),_,_),_) := child){
          if(unparse(child) in typeDefs){
@@ -322,6 +322,8 @@ public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(T
          }
       }
    }
+   
+   return it;
 }
 
 public Tree MultiplicationExpression(Expression lexp, Tree _, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
@@ -330,12 +332,16 @@ public Tree MultiplicationExpression(Expression lexp, Tree _, Expression rexp){ 
          fail;
       }
    }
+   
+   return it;
 }
 
 public Tree NonCommaExpression(Expression expr){
    if(appl(prod(label("CommaExpression",_),_,_),_) := expr){
       fail;
    }
+   
+   return it;
 }
 
 public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree _){
@@ -363,6 +369,8 @@ public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ ini
          } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
       }
    }
+   
+   return it;
 }
 
 public Tree DeclarationWithoutInitDecls(Specifier+ specs, Tree _){
@@ -384,6 +392,8 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs, Tree _){
          } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
       }
    }
+   
+   return it;
 }
 
 public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators, Tree _){
@@ -411,6 +421,8 @@ public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","
           } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
        }
     }
+   
+   return it;
 }
 
 public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs, Tree _){
@@ -432,6 +444,8 @@ public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs, Tree _){
          }
       } // May be ambiguous with Spec* {InitDecl ","}*
    }
+   
+   return it;
 }
 
 public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declarators, Tree _){
@@ -453,6 +467,8 @@ public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declara
          } // Fail if not typedefed.
       }
    }
+   
+   return it;
 }
 
 public Tree StructDeclWithoutDecl(Specifier+ specs, Tree _){
@@ -474,6 +490,8 @@ public Tree StructDeclWithoutDecl(Specifier+ specs, Tree _){
          }
       } // May be ambiguous with Spec* {StructDecl ","}*
    }
+   
+   return it;
 }
 
 public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* _, Tree _, Declaration* _, Statement* _, Tree _){
@@ -504,6 +522,8 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
          } // Certain storage parameters are not allowed.
       } // May be ambiguous with the K&R style function parameter definition thing.
    }
+   
+   return it;
 }
 
 public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl, Tree _){
@@ -534,6 +554,8 @@ public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl,
          } // Certain storage parameters are not allowed (also fixes ambiguity with declarations).
       } // May be ambiguous with the K&R style function parameter definition thing.
    }
+   
+   return it;
 }
 
 //-------------------------------------------------
