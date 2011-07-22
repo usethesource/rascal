@@ -5,6 +5,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
@@ -19,7 +20,7 @@ public class HStack extends Compose implements Key{
 	Key actualKey;
 	double stackState;
 	
-	public HStack(boolean flip,IFigureApplet fpa, Figure[] figures,
+	public HStack(boolean flip,IFigureExecutionEnvironment fpa, Figure[] figures,
 			PropertyManager properties,IEvaluatorContext ctx) {
 		super(fpa, figures, properties);
 		this.flip = flip;

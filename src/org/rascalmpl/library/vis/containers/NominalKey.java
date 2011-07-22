@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -27,7 +28,7 @@ public class NominalKey extends WithInnerFig implements Key{
 	IValue[] tmpArray ;
 	String id;
 	
-	public NominalKey(IFigureApplet fpa, IList possibilties, IValue whole, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
+	public NominalKey(IFigureExecutionEnvironment fpa, IList possibilties, IValue whole, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
 		super(fpa,null,properties);
 		this.ctx = ctx;
 		this.childProps = childProps;

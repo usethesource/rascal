@@ -25,18 +25,18 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 
 public class ComputedProperties {
 
 	public static abstract class ComputedProperty<PropType> extends PropertyValue<PropType> {
 
-		IFigureApplet fpa;
+		IFigureExecutionEnvironment fpa;
 		
 		IValue fun;
 		PropType value;
 
-		public ComputedProperty(Properties property,IValue fun, IFigureApplet fpa){
+		public ComputedProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa){
 			super(property);
 			this.fun = fun;
 			this.fpa = fpa;
@@ -58,7 +58,7 @@ public class ComputedProperties {
 
 	public static class ComputedRealProperty extends ComputedProperty<Double>{
 
-		public ComputedRealProperty(Properties property,IValue fun, IFigureApplet fpa) {
+		public ComputedRealProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
 			super(property,fun, fpa);
 		}
 
@@ -78,7 +78,7 @@ public class ComputedProperties {
 	
 	public static class ComputedStringProperty extends ComputedProperty<String>{
 
-		public ComputedStringProperty(Properties property,IValue fun, IFigureApplet fpa) {
+		public ComputedStringProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
 			super(property,fun, fpa);
 		}
 
@@ -95,7 +95,7 @@ public class ComputedProperties {
 	
 	public static class ComputedBooleanProperty extends ComputedProperty<Boolean>{
 
-		public ComputedBooleanProperty(Properties property,IValue fun, IFigureApplet fpa) {
+		public ComputedBooleanProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
 			super(property,fun, fpa);
 		}
 
@@ -112,7 +112,7 @@ public class ComputedProperties {
 	
 	public static class ComputedIntegerProperty extends ComputedProperty<Integer>{
 
-		public ComputedIntegerProperty(Properties property,IValue fun, IFigureApplet fpa) {
+		public ComputedIntegerProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
 			super(property,fun, fpa);
 		}
 
@@ -128,7 +128,7 @@ public class ComputedProperties {
 	}
 	
 	public static class ComputedColorProperty extends ComputedIntegerProperty{
-		public ComputedColorProperty(Properties property,IValue fun, IFigureApplet fpa) {
+		public ComputedColorProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
 			super(property,fun, fpa);
 		}
 		
@@ -157,17 +157,17 @@ public class ComputedProperties {
 	
 	public static class ComputedFigureProperty extends ComputedProperty<Figure>{
 		PropertyManager parentPm;
-		IFigureApplet fpa;
+		IFigureExecutionEnvironment fpa;
 		IEvaluatorContext ctx;
 		
-		public ComputedFigureProperty(Properties property,IValue fun, IFigureApplet fpa,PropertyManager parentPm, IEvaluatorContext ctx) {
+		public ComputedFigureProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa,PropertyManager parentPm, IEvaluatorContext ctx) {
 			super(property,fun, fpa);
 			this.fpa = fpa;
 			this.parentPm = parentPm;
 			this.ctx = ctx;
 		}
 		
-		static Figure convertValueS(IFigureApplet fpa,IValue res,PropertyManager parentPm, IEvaluatorContext ctx) {
+		static Figure convertValueS(IFigureExecutionEnvironment fpa,IValue res,PropertyManager parentPm, IEvaluatorContext ctx) {
 			Figure fig = FigureFactory.make(fpa, ((IConstructor) res), parentPm, null, ctx);
 			fig.bbox();
 			return fig;
@@ -190,7 +190,7 @@ public class ComputedProperties {
 	
 	public static class HandlerProperty extends ComputedProperty<Void>{
 
-		public HandlerProperty(Properties property,IValue fun, IFigureApplet fpa) {
+		public HandlerProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
 			super(property,fun, fpa);
 		}
 

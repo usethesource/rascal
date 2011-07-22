@@ -15,9 +15,9 @@ package org.rascalmpl.library.vis.interaction;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -27,15 +27,13 @@ public class ComputeFigure extends WithInnerFig {
 	final private IValue callback;
 	
 	
-	final private IEvaluatorContext ctx;
 	private IList childProps;
 
-	public ComputeFigure(IFigureApplet fpa, PropertyManager properties,  IValue fun, IList childProps,IEvaluatorContext ctx) {
+	public ComputeFigure(IFigureExecutionEnvironment fpa, PropertyManager properties,  IValue fun, IList childProps) {
 		super(fpa, null,properties);
 	
-		this.ctx = ctx;
 		this.childProps = childProps;
-		fpa.checkIfIsCallBack(fun, ctx);
+		fpa.checkIfIsCallBack(fun);
 		this.callback = fun;
 	}
 	
@@ -45,7 +43,7 @@ public class ComputeFigure extends WithInnerFig {
 			innerFig.destroy();
 		}
 		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
+		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, fpa.getRascalContext());
 		innerFig.init();
 		innerFig.computeFiguresAndProperties();
 		properties = innerFig.properties;

@@ -41,7 +41,7 @@ public class FigureLibrary {
 
 	IValueFactory values;
 	private ScrolledComposite sc;
-	private IFigureApplet fpa;
+	private FigureSWTApplet fpa;
 
 	public FigureLibrary(IValueFactory values) {
 		super();

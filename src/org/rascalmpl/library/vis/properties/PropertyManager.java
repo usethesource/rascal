@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -43,7 +43,7 @@ public class PropertyManager {
 	PropertyManager parent;
 
 	
-	public static PropertyManager extendProperties(IFigureApplet fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){
+	public static PropertyManager extendProperties(IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){
 		IList props = (IList) c.get(c.arity()-1);
 			 return new PropertyManager(fpa, pm, props, ctx);                         
 	}
@@ -63,7 +63,7 @@ public class PropertyManager {
 		return result;
 	}
 	
-	public PropertyManager(IFigureApplet fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
+	public PropertyManager(IFigureExecutionEnvironment fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
 		parent = inherited;
 		allocateArrays(props);
 		setProperties(fpa,props,ctx);
@@ -102,7 +102,7 @@ public class PropertyManager {
 		return s.substring(stdLength,stdLength+1).toLowerCase() + s.substring(stdLength+1);
 	}
 
-	private void setProperties(IFigureApplet fpa, IList props,
+	private void setProperties(IFigureExecutionEnvironment fpa, IList props,
 			IEvaluatorContext ctx) {
 		int stdPropsIndex = 0;
 		int explicitPropsIndex = 0;

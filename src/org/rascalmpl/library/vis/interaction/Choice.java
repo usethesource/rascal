@@ -20,7 +20,7 @@ import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -29,9 +29,9 @@ public class Choice extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.List list;
 
-	public Choice(IFigureApplet fpa, String[] choices, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
+	public Choice(IFigureExecutionEnvironment fpa, String[] choices, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
-		fpa.checkIfIsCallBack(fun, ctx);
+		fpa.checkIfIsCallBack(fun);
 		this.callback = fun;
 		this.list = new org.eclipse.swt.widgets.List(fpa.getComp(), SWT.SINGLE|SWT.BORDER);
 		for(String val : choices){
@@ -78,7 +78,7 @@ public class Choice extends Figure {
 //				FigureApplet.round(getHeightProperty()));
 		list.setSize(FigureApplet.round(size.getWidth()),
 				FigureApplet.round(size.getHeight()));
-		list.setBackground(gc.getRgbColor(getFillColorProperty()));
+		list.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		list.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 	}
 

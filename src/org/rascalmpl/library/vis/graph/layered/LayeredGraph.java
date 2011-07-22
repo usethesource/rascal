@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -66,7 +66,7 @@ public class LayeredGraph extends Figure {
 	private static final boolean debug = true;
 	private static final boolean printGraph = false;
 	
-	public LayeredGraph(IFigureApplet fpa, PropertyManager properties, IList nodes,
+	public LayeredGraph(IFigureExecutionEnvironment fpa, PropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		

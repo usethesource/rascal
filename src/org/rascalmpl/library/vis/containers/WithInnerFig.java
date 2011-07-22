@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -16,7 +17,7 @@ public abstract class WithInnerFig extends Figure {
 	final static boolean debug = false;
 	Coordinate innerFigLocation;
 
-	public WithInnerFig(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+	public WithInnerFig(IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
 		super(fpa, properties);
 		this.innerFig = inner;
 		innerFigLocation = new Coordinate();

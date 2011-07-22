@@ -25,39 +25,40 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  * 
  * @author paulk
  *
- */
-public class Use extends WithInnerFig {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static boolean debug = false;
-
-	public Use(IFigureApplet fpa, Figure inner, PropertyManager properties) {
-		super(fpa, inner, properties);
-		if(debug)System.err.println("use.init: width=" + minSize.getWidth() + ", height=" + minSize.getHeight());
-	}
-
-	@Override
-	public 
-	void bbox(){
-		innerFig.bbox();
-		minSize.setWidth(innerFig.minSize.getWidth());
-		minSize.setHeight(innerFig.minSize.getHeight());
-		if(debug)System.err.println("use.bbox: width=" + minSize.getWidth() + ", height=" + minSize.getHeight());
-		setNonResizable();
-		super.bbox();
-	}
-
-	@Override
-	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		applyProperties(gc);
-		
-		innerFig.draw(left + getHAlignProperty()*(minSize.getWidth() - innerFig.minSize.getWidth()),
-					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()), gc);
-	}
-}
+// */
+//
+//public class Use extends WithInnerFig {
+//
+//	/**
+//	 * 
+//	 */
+//	private static final long serialVersionUID = 1L;
+//	private static boolean debug = false;
+//
+//	public Use(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+//		super(fpa, inner, properties);
+//		if(debug)System.err.println("use.init: width=" + minSize.getWidth() + ", height=" + minSize.getHeight());
+//	}
+//
+//	@Override
+//	public 
+//	void bbox(){
+//		innerFig.bbox();
+//		minSize.setWidth(innerFig.minSize.getWidth());
+//		minSize.setHeight(innerFig.minSize.getHeight());
+//		if(debug)System.err.println("use.bbox: width=" + minSize.getWidth() + ", height=" + minSize.getHeight());
+//		setNonResizable();
+//		super.bbox();
+//	}
+//
+//	@Override
+//	public
+//	void draw(double left, double top, GraphicsContext gc) {
+//		this.setLeft(left);
+//		this.setTop(top);
+//		applyProperties(gc);
+//		
+//		innerFig.draw(left + getHAlignProperty()*(minSize.getWidth() - innerFig.minSize.getWidth()),
+//					top  + getVAlignProperty()*(minSize.getHeight() - innerFig.minSize.getHeight()), gc);
+//	}
+//}

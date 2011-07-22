@@ -4,8 +4,6 @@ import org.eclipse.swt.graphics.Color;
 
 public interface GraphicsContext {
 	
-	public Color getRgbColor(int rgbColor);
-	public Color getColor(int codeColor);
 	public void line(double arg0, double arg1, double arg2, double arg3);
 	public void rect(double arg0, double arg1, double arg2, double arg3);
 	public void ellipse(double arg0, double arg1, double arg2, double arg3);
@@ -24,11 +22,6 @@ public interface GraphicsContext {
 	public void setShadowLeft(double x);
 	public void setShadowTop(double y);
 	public void setFont(String fontName, double fontSize, FontStyle... styles);
-	
-	
-	public double textWidth(String txt);
-	public double textAscent();
-	public double textDescent();
 
 	public void pushMatrix();
 	public void popMatrix();

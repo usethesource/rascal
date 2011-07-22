@@ -9,6 +9,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -21,7 +22,7 @@ public class Scrollable extends Figure {
 	Canvas canvas;
 	IFigureApplet fpaNest;
 	
-	public Scrollable(IFigureApplet fpa, IConstructor inner, IEvaluatorContext ctx,
+	public Scrollable(IFigureExecutionEnvironment fpa, IConstructor inner, IEvaluatorContext ctx,
 			PropertyManager properties) {
 		super(fpa,  properties);
 		//parent = new Composite(fpa.getComp(), SWT.NONE);

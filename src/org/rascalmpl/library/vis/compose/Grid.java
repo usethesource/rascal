@@ -5,6 +5,7 @@ import java.util.Vector;
 import org.rascalmpl.library.vis.EmptyFigure;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -48,7 +49,7 @@ public class Grid extends Figure {
 		}
 	}
 	
-	public Grid(IFigureApplet fpa, Figure[][] figureMatrix,
+	public Grid(IFigureExecutionEnvironment fpa, Figure[][] figureMatrix,
 			PropertyManager properties) {
 		super(fpa, properties);
 		this.figureMatrix = figureMatrix;

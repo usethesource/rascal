@@ -80,7 +80,7 @@ public class LatticeGraphNode {
 					/ 2, gc);
 			// if (mousePressed) {
 			// // System.err.println("Pressed");
-			// IFigureApplet fpa = figure.fpa;
+			// IFigureExecutionEnvironment fpa = figure.fpa;
 			// fpa.stroke(255, 0, 0);
 			// fpa.strokeWeight(1);
 			// // fpa.noFill();

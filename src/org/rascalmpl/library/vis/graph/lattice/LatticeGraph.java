@@ -34,7 +34,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -217,7 +217,7 @@ public class LatticeGraph extends Figure implements
 
 	// Organism[][] islands;
 
-	public LatticeGraph(IFigureApplet fpa, PropertyManager properties,
+	public LatticeGraph(IFigureExecutionEnvironment fpa, PropertyManager properties,
 			IList nodes, IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.nodes = new ArrayList<LatticeGraphNode>();

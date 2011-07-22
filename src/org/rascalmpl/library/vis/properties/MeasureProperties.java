@@ -8,7 +8,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -17,7 +17,7 @@ public class MeasureProperties {
 	
 	public static abstract class MeasureProperty<PropType> extends PropertyValue<PropType> {
 
-		IFigureApplet fpa;
+		IFigureExecutionEnvironment fpa;
 		IEvaluatorContext ctx;
 		
 		IValue idVal;
@@ -29,7 +29,7 @@ public class MeasureProperties {
 
 		Key key;
 
-		public MeasureProperty(Properties property,IValue idVal, IValue valVal, IFigureApplet fpa,IEvaluatorContext ctx){
+		public MeasureProperty(Properties property,IValue idVal, IValue valVal, IFigureExecutionEnvironment fpa,IEvaluatorContext ctx){
 			super(property);
 			this.ctx = ctx;
 			
@@ -102,7 +102,7 @@ public class MeasureProperties {
 	
 	public static class MeasureRealProperty extends MeasureProperty<Double>{
 		public MeasureRealProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
+				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
 
@@ -114,7 +114,7 @@ public class MeasureProperties {
 	
 	public static class MeasureStringProperty extends MeasureProperty<String>{
 		public MeasureStringProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
+				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
 
@@ -126,7 +126,7 @@ public class MeasureProperties {
 	
 	public static class MeasureBooleanProperty extends MeasureProperty<Boolean>{
 		public MeasureBooleanProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
+				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
 
@@ -138,7 +138,7 @@ public class MeasureProperties {
 	
 	public static class MeasureIntegerProperty extends MeasureProperty<Integer>{
 		public MeasureIntegerProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
+				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
 
@@ -150,7 +150,7 @@ public class MeasureProperties {
 	
 	public static class MeasureColorProperty extends MeasureProperty<Integer>{
 		public MeasureColorProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx) {
+				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			super(property, idVal, valVal, fpa, ctx);
 		}
 
@@ -164,7 +164,7 @@ public class MeasureProperties {
 		PropertyManager parentPm;
 		
 		public MeasureFigureProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureApplet fpa, IEvaluatorContext ctx,PropertyManager parentPm) {
+				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx,PropertyManager parentPm) {
 			super(property, idVal, valVal, fpa, ctx);
 			this.parentPm = parentPm;
 		}

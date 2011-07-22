@@ -16,6 +16,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -32,7 +33,7 @@ public class Ellipse extends Container {
 	
 	final static boolean debug = false;
 
-	public Ellipse(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+	public Ellipse(IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
 		super(fpa, inner, properties);
 	}
 	

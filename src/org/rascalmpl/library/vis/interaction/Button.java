@@ -20,6 +20,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -28,10 +29,10 @@ public class Button extends Figure {
 	final org.eclipse.swt.widgets.Button button;
 	boolean first;
 
-	public Button(IFigureApplet fpa, String caption, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
+	public Button(IFigureExecutionEnvironment fpa, String caption, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		first = true;
-		fpa.checkIfIsCallBack(fun, ctx);
+		fpa.checkIfIsCallBack(fun);
 		this.callback = fun;
 		this.button = new org.eclipse.swt.widgets.Button(fpa.getComp(),
 				SWT.PUSH);
@@ -78,7 +79,7 @@ public class Button extends Figure {
 		//		FigureApplet.round(getHeightProperty()));
 		button.setSize(FigureApplet.round(size.getWidth()),
 				FigureApplet.round(size.getHeight()));
-		button.setBackground(gc.getRgbColor(getFillColorProperty()));
+		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		button.setLocation(FigureApplet.round(left),
 		         FigureApplet.round(top));
 	}

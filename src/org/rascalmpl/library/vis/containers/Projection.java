@@ -4,6 +4,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -15,7 +16,7 @@ public class Projection extends WithInnerFig {
 	IEvaluatorContext ctx;
 	boolean vertical;
 	
-	public Projection(IFigureApplet fpa, String projectOn, Figure projection,Figure innerFigure,PropertyManager properties, IEvaluatorContext ctx) {
+	public Projection(IFigureExecutionEnvironment fpa, String projectOn, Figure projection,Figure innerFigure,PropertyManager properties, IEvaluatorContext ctx) {
 		super(fpa,innerFigure,properties);
 		this.projectOn = projectOn;
 		this.projection = projection;

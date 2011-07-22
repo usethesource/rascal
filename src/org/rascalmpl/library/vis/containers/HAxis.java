@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -31,14 +32,14 @@ public class HAxis extends WithInnerFig implements Key {
 	double inheritedSpacing;
 	String label;
 	
-	public HAxis(String label,boolean flip, boolean bottom,IFigureApplet fpa, Figure inner,PropertyManager properties) {
+	public HAxis(String label,boolean flip, boolean bottom,IFigureExecutionEnvironment fpa, Figure inner,PropertyManager properties) {
 		super(fpa,inner , properties);
 		this.flip = flip;
 		this.bottom = bottom;
 		this.label = label;
 	}
 	
-	public HAxis(String label,boolean bottom,IFigureApplet fpa, Figure inner,PropertyManager properties) {
+	public HAxis(String label,boolean bottom,IFigureExecutionEnvironment fpa, Figure inner,PropertyManager properties) {
 		this(label,false,bottom,fpa,inner,properties);
 	}
 	

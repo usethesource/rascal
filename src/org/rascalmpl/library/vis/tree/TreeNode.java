@@ -18,7 +18,7 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -40,7 +40,7 @@ public class TreeNode extends Figure {
 	private double rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(IFigureApplet fpa, PropertyManager properties, Figure fig) {
+	public TreeNode(IFigureExecutionEnvironment fpa, PropertyManager properties, Figure fig) {
 		super(fpa, properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();

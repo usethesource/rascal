@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -15,7 +16,7 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 
 	ExecuteTimer t;
 	
-	public Timer(IFigureApplet fpa, int delay, IValue callback, Figure inner, PropertyManager properties){
+	public Timer(IFigureExecutionEnvironment fpa, int delay, IValue callback, Figure inner, PropertyManager properties){
 		super(fpa,inner,properties);
 		t = new ExecuteTimer(fpa,callback);
 		fpa.getComp().getDisplay().timerExec(delay, t);
@@ -53,10 +54,10 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 	
 	static class ExecuteTimer implements Runnable{
 
-		IFigureApplet fpa;
+		IFigureExecutionEnvironment fpa;
 		IValue callback;
 		boolean cancel;
-		ExecuteTimer(IFigureApplet fpa, IValue callback){
+		ExecuteTimer(IFigureExecutionEnvironment fpa, IValue callback){
 			this.fpa = fpa;
 			this.callback = callback;
 			cancel = false;

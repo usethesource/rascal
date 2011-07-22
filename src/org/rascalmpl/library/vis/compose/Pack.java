@@ -17,6 +17,7 @@ import java.util.Comparator;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -39,7 +40,7 @@ public class Pack extends Compose {
 	static protected boolean debug =false;
 	boolean initialized = false;
 
-	public Pack(IFigureApplet fpa, Figure[] figures, PropertyManager properties) {
+	public Pack(IFigureExecutionEnvironment fpa, Figure[] figures, PropertyManager properties) {
 		super(fpa, figures, properties);
 	}
 	
