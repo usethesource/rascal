@@ -17,7 +17,6 @@ public interface IFigureExecutionEnvironment {
 	public Color getColor(final int which);
 	public Color getRgbColor(final int c) ;
 
-	
 	// font layout stuff
 	public double textAscent(String fontName, double fontSize, FontStyle... styles);
 	public double textDescent(String fontName, double fontSize, FontStyle... styles);

@@ -275,18 +275,6 @@ public class Wedge extends Container {
 		drawActualContainer(gc);
 	}
 	
-	@Override
-	public void drawFocus(GraphicsContext gc) {
-		centerX = getLeft() + leftAnchor;
-		centerY = getTop() + topAnchor;
-		
-		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		gc.strokeWeight(1);
-		gc.noFill();
-			
-		drawActualContainer(gc);
-	}
-	
 	private void drawActualContainer(GraphicsContext gc){
 		gc.beginShape();
 		gc.vertex(centerX + Ax, centerY + Ay);

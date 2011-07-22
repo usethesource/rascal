@@ -151,22 +151,6 @@ public abstract class Figure implements Comparable<Figure> {
 	public int compareTo(Figure o) {
 		return sequenceNr - o.sequenceNr;
 	}
-
-	/*
-	 * Compare two Figures according to their surface and aspect ratio
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	/*
-	 * public int compareTo(Figure o) { double r = (height > width) ? height /
-	 * width : width / height; double or = (o.height > o.width) ? o.height /
-	 * o.width : o.width / o.height;
-	 * 
-	 * if (r < 2f && or < 2f) { double s = height * width; double os = o.height
-	 * * o.width; return s < os ? 1 : (s == os ? 0 : -1); } return r < or ? 1 :
-	 * (r == or ? 0 : -1); }
-	 */
-
 	/**
 	 * Drawing proceeds in two stages: - determine the bounding box of the
 	 * element (using bbox) - draw it (using draw) with left and top argument
@@ -347,16 +331,6 @@ public abstract class Figure implements Comparable<Figure> {
 		if (bx > X - w2 && tx < X + w2)
 			return true;
 		return false;
-	}
-
-	/**
-	 * Draw focus around this figure
-	 */
-	public void drawFocus(GraphicsContext gc) {
-		gc.stroke(FigureColorUtils.colorNames.get("red").intValue());
-		gc.strokeWeight(1);
-		gc.noFill();
-		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 	}
 
 	public boolean getFiguresUnderMouse(Coordinate c, Vector<Figure> result) {
