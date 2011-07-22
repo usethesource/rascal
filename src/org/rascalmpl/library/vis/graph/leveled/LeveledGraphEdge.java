@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -66,7 +66,7 @@ public class LeveledGraphEdge extends Figure {
 	private static boolean debug = false;
 	private static boolean useSplines = true;
 
-	public LeveledGraphEdge(LeveledGraph G, IFigureApplet fpa,
+	public LeveledGraphEdge(LeveledGraph G, IFigureExecutionEnvironment fpa,
 			PropertyManager properties, IString fromName, IString toName,
 			IEvaluatorContext ctx) {
 		super(fpa, properties);
@@ -97,7 +97,7 @@ public class LeveledGraphEdge extends Figure {
 					+ " " + fromArrow + " " + label);
 	}
 
-	public LeveledGraphEdge(LeveledGraph G, IFigureApplet fpa,
+	public LeveledGraphEdge(LeveledGraph G, IFigureExecutionEnvironment fpa,
 			PropertyManager properties, IString fromName, IString toName,
 			Figure toArrow, Figure fromArrow, IEvaluatorContext ctx) {
 

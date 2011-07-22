@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -50,16 +51,16 @@ public class TextField extends Figure {
 
 	final Text textfield;
 
-	public TextField(IFigureApplet fpa, String text, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
+	public TextField(IFigureExecutionEnvironment fpa, String text, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		trueColor = fpa.getRgbColor(getFillColorProperty());
 		
 		falseColor = new Color(fpa.getComp().getDisplay(), 255, 0, 0);
 		textfield = new Text(fpa.getComp(), SWT.SINGLE | SWT.BORDER);
-		fpa.checkIfIsCallBack(cb, ctx);
+		fpa.checkIfIsCallBack(cb);
 		this.callback = cb;
 		if (validate != null) {
-			fpa.checkIfIsCallBack(validate, ctx);
+			fpa.checkIfIsCallBack(validate);
 		}
 		this.validate = validate;
 
@@ -131,7 +132,7 @@ public class TextField extends Figure {
 	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
-		textfield.setForeground(gc.getRgbColor(getFontColorProperty()));
+		textfield.setForeground(fpa.getRgbColor(getFontColorProperty()));
 		textfield
 				.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 		textfield.setBackground(validated ? trueColor : falseColor);

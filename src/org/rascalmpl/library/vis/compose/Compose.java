@@ -16,6 +16,7 @@ import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -33,7 +34,7 @@ public abstract class Compose extends Figure {
 	protected Coordinate[] pos;
 	final private static boolean debug = false;
 
-	protected Compose(IFigureApplet fpa, Figure[] figures,PropertyManager properties) {
+	protected Compose(IFigureExecutionEnvironment fpa, Figure[] figures,PropertyManager properties) {
 		super(fpa, properties);
 		this.figures = figures;
 		pos = new Coordinate[figures.length];

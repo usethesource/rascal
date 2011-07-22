@@ -13,6 +13,8 @@ import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.graphics.Transform;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
+import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 
 public class SWTGraphicsContext implements GraphicsContext {
 	
@@ -33,15 +35,17 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private Color fontColor;
+	private IFigureExecutionEnvironment fpa;
 	
 	
 	FontData fontData;
 	int foreGroundCI, backgroundCI, fontCI;
 	
 	
-	public SWTGraphicsContext(GC gc) {
+	public SWTGraphicsContext(GC gc, IFigureExecutionEnvironment fpa) {
 		this.gc = gc;
 		this.device = gc.getDevice();
+		this.fpa = fpa;
 	}
 
 	@SuppressWarnings("serial")
@@ -55,17 +59,6 @@ public class SWTGraphicsContext implements GraphicsContext {
 	enum SHAPE {
 		ELLIPSE, RECTANGLE
 	};
-
-
-	public Color getColor(final int which) {
-		return device.getSystemColor(which);
-	}
-
-	
-	public Color getRgbColor(final int c) {
-		return new Color(device, FigureColorUtils.getRed(c),
-				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
-	}
 
 
 	public void line(double arg0, double arg1, double arg2, double arg3) {
@@ -123,7 +116,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		if(this.backgroundCI == backgroundCI  && backgroundColor != null) return;
 		this.backgroundCI = backgroundCI;
 		disposeIfNessary(backgroundColor);
-		backgroundColor = getRgbColor(arg0);
+		backgroundColor = fpa.getRgbColor(arg0);
 		gc.setBackground(backgroundColor);
 		fill = true;
 	}
@@ -134,7 +127,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		if(this.foreGroundCI == foreGroundCI && foregroundColor != null) return;
 		this.foreGroundCI = foreGroundCI;
 		disposeIfNessary(foregroundColor);
-		foregroundColor = getRgbColor(arg0);
+		foregroundColor = fpa.getRgbColor(arg0);
 		gc.setForeground(foregroundColor);
 		stroke = true;
 	}
@@ -145,7 +138,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		if(this.fontCI == fontCI && fontColor != null) return;
 		this.fontCI = fontCI;
 		disposeIfNessary(fontColor);
-		fontColor = getRgbColor(color);
+		fontColor = fpa.getRgbColor(color);
 	}
 
 	public void strokeWeight(double arg0) {
@@ -164,19 +157,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		gc.getFont().getFontData()[0].setHeight((int) arg0);
 
 	}
-
-	public double textWidth(String txt) {
-		return gc.textExtent(txt).x;
-	}
-
-	public double textAscent() {
-		return gc.getFontMetrics().getAscent();
-	}
-
-	public double textDescent() {
-		return gc.getFontMetrics().getDescent();
-	}
-
+	
 	public void text(String arg0, double x, double y) {
 		gc.setAlpha(alphaFont);
 		gc.setForeground(fontColor);

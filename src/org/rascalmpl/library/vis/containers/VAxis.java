@@ -3,13 +3,14 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 public class VAxis extends HAxis {
 
-	public VAxis(String label,boolean bottom, IFigureApplet fpa, Figure inner,
+	public VAxis(String label,boolean bottom, IFigureExecutionEnvironment fpa, Figure inner,
 			PropertyManager properties) {
 		super(label,true, bottom, fpa, inner, properties);
 	}

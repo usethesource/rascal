@@ -34,7 +34,7 @@ public class Text extends Figure {
 	private int textAlignH = FigureApplet.CENTER;	
 
 
-	public Text(IFigureApplet fpa, PropertyManager properties,PropertyValue<String> txt) {
+	public Text(IFigureExecutionEnvironment fpa, PropertyManager properties,PropertyValue<String> txt) {
 		super(fpa, properties);
 		this.txt = txt;
 		//if(debug)System.err.printf("Text: %s\n", txt.getValue());
@@ -111,7 +111,7 @@ public class Text extends Figure {
 		
 		applyProperties(gc);
 	
-		if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());
+		//if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
 			double angle = getTextAngleProperty();
 

@@ -14,6 +14,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -36,7 +37,7 @@ public abstract class Container extends WithInnerFig {
 
 	final private static boolean debug = false;
 
-	public Container(IFigureApplet fpa, Figure inner, PropertyManager properties) {
+	public Container(IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
 		
 	}

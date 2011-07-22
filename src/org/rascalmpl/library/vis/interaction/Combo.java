@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -46,17 +47,17 @@ public class Combo extends Figure {
 
 	private int tLimit;
 
-	public Combo(IFigureApplet fpa, String text, String[] choices, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
+	public Combo(IFigureExecutionEnvironment fpa, String text, String[] choices, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
 		// trueColor = fpa.getColor(SWT.COLOR_GREEN);
 		trueColor = fpa.getRgbColor(getFontColorProperty());
 		falseColor = fpa.getColor(SWT.COLOR_RED);
 		combo = new org.eclipse.swt.widgets.Combo(fpa.getComp(), SWT.DROP_DOWN
 				| SWT.BORDER);
-		fpa.checkIfIsCallBack(cb, ctx);
+		fpa.checkIfIsCallBack(cb);
 		this.callback = cb;
 		if (validate != null) {
-			fpa.checkIfIsCallBack(validate, ctx);
+			fpa.checkIfIsCallBack(validate);
 		}
 		this.validate = validate;
 		// System.err.println("callback = " + callback);
@@ -152,7 +153,7 @@ public class Combo extends Figure {
 		this.setTop(top);
 		combo.setForeground(validated ? trueColor : falseColor);
 		// combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
-		combo.setBackground(gc.getRgbColor(getFillColorProperty()));
+		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
 		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
 		combo.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
 	}

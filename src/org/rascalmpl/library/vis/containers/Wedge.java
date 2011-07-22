@@ -15,6 +15,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -67,7 +68,7 @@ public class Wedge extends Container {
 	
 	private static boolean debug = false;
 
-	public Wedge(IFigureApplet fpa, Figure inside, PropertyManager properties) {
+	public Wedge(IFigureExecutionEnvironment fpa, Figure inside, PropertyManager properties) {
 		super(fpa, inside, properties);
 	}
 	

@@ -23,7 +23,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -57,7 +57,7 @@ public class SpringGraph extends Figure {
 	private static boolean debug = false;
 
 	
-	public SpringGraph(IFigureApplet fpa, PropertyManager properties, IList nodes,
+	public SpringGraph(IFigureExecutionEnvironment fpa, PropertyManager properties, IList nodes,
 			IList edges, IEvaluatorContext ctx) {
 		super(fpa, properties);
 		this.nodes = new ArrayList<SpringGraphNode>();

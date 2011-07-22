@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -28,7 +29,7 @@ public class IntervalKey extends WithInnerFig implements Key {
 	private IList childProps;
 	String id;
 	
-	public IntervalKey(IFigureApplet fpa, IValue interpolate, IValue explain, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
+	public IntervalKey(IFigureExecutionEnvironment fpa, IValue interpolate, IValue explain, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
 		super(fpa,null,properties);
 		this.ctx = ctx;
 		this.childProps = childProps;

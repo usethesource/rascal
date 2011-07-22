@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -15,7 +16,7 @@ public class HScreen extends WithInnerFig {
 	double projectionsHeight;
 	boolean bottom;
 	
-	public HScreen(boolean flip, boolean bottom, IFigureApplet fpa, Figure inner, PropertyManager properties) {
+	public HScreen(boolean flip, boolean bottom, IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
 		super(fpa,inner,properties);
 		projections = new Vector<HScreen.ProjectionPlacement>();
 		this.flip = flip;

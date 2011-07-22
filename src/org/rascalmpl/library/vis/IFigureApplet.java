@@ -28,11 +28,6 @@ import org.rascalmpl.library.vis.graphics.FontStyle;
 
 public interface IFigureApplet {
 	
-	public double textAscent(String fontName, double fontSize, FontStyle... styles);
-	public double textDescent(String fontName, double fontSize, FontStyle... styles);
-	public double textWidth(String s,String fontName, double fontSize, FontStyle... styles);
-	public Composite getComp(); 
-	public void redraw();
 	public int getFigureWidth();
 	public int getFigureHeight();
 	public void registerFocus(Figure f);
@@ -55,14 +50,6 @@ public interface IFigureApplet {
 	public GC getPrinterGC();
 	public String getName();
 
-	void checkIfIsCallBack(IValue fun,IEvaluatorContext ctx);
-	
-	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals);
-	
-	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback);
-	
-	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,Type type, IValue arg);
-	
 	public void write(OutputStream out, int fileFormat /*SWT IMAGE_BMP, IMAGE_JPEG, IMAGE_ICO*/);
 	public Color getRgbColor(int fillColorProperty);
 	public Color getColor(int colorRed);

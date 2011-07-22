@@ -70,7 +70,7 @@ import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
-public class FigureSWTApplet implements IFigureApplet {
+public class FigureSWTApplet implements IFigureApplet,IFigureExecutionEnvironment {
 
 
 
@@ -281,7 +281,7 @@ public class FigureSWTApplet implements IFigureApplet {
 		 * System.out.printf("Mouseover stack:");
 		 */
 		
-		GraphicsContext gc = new SWTGraphicsContext(swtGC);
+		GraphicsContext gc = new SWTGraphicsContext(swtGC,this);
 		for (PlacedFigure fig : mouseOverStack) {
 
 			// System.out.printf("draw %s %s %s\n", fig.figure,fig.coordinate
@@ -836,7 +836,7 @@ public class FigureSWTApplet implements IFigureApplet {
 	}
 
 
-	public void checkIfIsCallBack(IValue fun, IEvaluatorContext ctx) {
+	public void checkIfIsCallBack(IValue fun) {
 		if (!(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunctionResult)))) {
 			throw RuntimeExceptionFactory.illegalArgument(fun,
 					ctx.getCurrentAST(), ctx.getStackTrace());
@@ -983,6 +983,12 @@ public class FigureSWTApplet implements IFigureApplet {
 	public Color getColor(int which) {
 		return device.getSystemColor(which);
 	}
+
+	@Override
+	public IEvaluatorContext getRascalContext() {
+		return ctx;
+	}
+
 
 	/*
 	private void drawPrimitives() {

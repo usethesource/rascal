@@ -15,12 +15,12 @@ package org.rascalmpl.library.vis.properties;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 
 public class PropertySetters {
 
 	public interface PropertySetter<PropValue>{
-		int execute(PropertyValue[] array,int startIndex,IConstructor c, IFigureApplet fpa,IEvaluatorContext ctx, PropertyManager pm);
+		int execute(PropertyValue[] array,int startIndex,IConstructor c, IFigureExecutionEnvironment fpa,IEvaluatorContext ctx, PropertyManager pm);
 		int nrOfPropertiesProduced();
 		int minNrOfArguments();
 		int maxNrOfArguments();
@@ -36,7 +36,7 @@ public class PropertySetters {
 		}
 		
 		@SuppressWarnings("rawtypes")
-		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureApplet fpa,
+		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureExecutionEnvironment fpa,
 				IEvaluatorContext ctx, PropertyManager pm){
 			array[startIndex] = parser.parseProperty(c, pm, 0, fpa, ctx);
 			return startIndex+1;
@@ -70,7 +70,7 @@ public class PropertySetters {
 		}
 		
 		@SuppressWarnings("rawtypes")
-		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureApplet fpa,
+		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureExecutionEnvironment fpa,
 				IEvaluatorContext ctx, PropertyManager pm){
 			int secondIndex;
 			if(c.arity() == 1){

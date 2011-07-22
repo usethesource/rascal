@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -43,7 +44,7 @@ public class Overlay extends Compose{
 
 	int where; 
 	
-	public Overlay(IFigureApplet fpa, Figure[] figures, PropertyManager properties,IEvaluatorContext ctx) {
+	public Overlay(IFigureExecutionEnvironment fpa, Figure[] figures, PropertyManager properties,IEvaluatorContext ctx) {
 		super(fpa, figures, properties);
 		this.ctx = ctx;
 	}

@@ -13,16 +13,12 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis;
 
-import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Transform;
-import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.containers.HAxis;
 import org.rascalmpl.library.vis.graphics.FontStyle;
@@ -52,7 +48,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public int sequenceNr;
 	@SuppressWarnings("unused")
 	private static final boolean debug = false;
-	public IFigureApplet fpa;
+	public IFigureExecutionEnvironment fpa;
 
 
 	public PropertyManager properties;
@@ -68,7 +64,7 @@ public abstract class Figure implements Comparable<Figure> {
 		// TODO: needed for overlay.. remove this
 	}
 	
-	protected Figure(IFigureApplet fpa, PropertyManager properties) {
+	protected Figure(IFigureExecutionEnvironment fpa, PropertyManager properties) {
 		this.fpa = fpa;
 		this.properties = properties;
 		properties.computeProperties();

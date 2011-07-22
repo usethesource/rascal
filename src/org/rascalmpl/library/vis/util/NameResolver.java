@@ -6,22 +6,24 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 
 public class NameResolver {
 	
 	NameResolver parent;
 	HashMap<String, Figure> localFigures;
 	HashMap<String,NameResolver> children;
-	IFigureApplet fpa;
+	IFigureExecutionEnvironment fpa;
 	IEvaluatorContext ctx;
 	
-	public NameResolver(NameResolver parent,IFigureApplet fpa, IEvaluatorContext ctx){
+	public NameResolver(NameResolver parent,IFigureExecutionEnvironment fpa, IEvaluatorContext ctx){
 		this.parent = parent;
 		localFigures = new HashMap<String, Figure>();
 		children = new HashMap<String, NameResolver>();
+		this.fpa = fpa;
 	}
 	
-	public NameResolver(IFigureApplet fpa,IEvaluatorContext ctx){
+	public NameResolver(IFigureExecutionEnvironment fpa,IEvaluatorContext ctx){
 		this(null,fpa,ctx);
 	}
 	

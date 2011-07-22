@@ -21,20 +21,20 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.VisMath;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Checkbox extends Figure {
 	final private IValue callback;
 	final org.eclipse.swt.widgets.Button button;
 
-	public Checkbox(IFigureApplet fpa, String caption, boolean checked, IValue fun,
+	public Checkbox(IFigureExecutionEnvironment fpa, String caption, boolean checked, IValue fun,
 			IEvaluatorContext ctx, PropertyManager properties) {
 		super(fpa, properties);
-		fpa.checkIfIsCallBack(fun, ctx);
+		fpa.checkIfIsCallBack(fun);
 		this.callback = fun;
 		this.button = new org.eclipse.swt.widgets.Button(fpa.getComp(),
 				SWT.CHECK);
@@ -79,9 +79,9 @@ public class Checkbox extends Figure {
 		this.setTop(top);
 		// button.setSize(FigureApplet.round(getWidthProperty()),
 		// FigureApplet.round(getHeightProperty()));
-		button.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
-		button.setBackground(gc.getRgbColor(getFillColorProperty()));
-		button.setLocation(FigureApplet.round(left), FigureApplet.round(top));
+		button.setSize(VisMath.round(size.getWidth()), VisMath.round(size.getHeight()));
+		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
+		button.setLocation(VisMath.round(left), VisMath.round(top));
 	}
 
 	@Override

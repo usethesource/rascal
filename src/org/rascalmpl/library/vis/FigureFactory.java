@@ -162,7 +162,7 @@ public class FigureFactory {
     }};
 	
     
-    public static Figure[] makeList(IFigureApplet fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+    public static Figure[] makeList(IFigureExecutionEnvironment fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
     	IList elems = (IList)list;
     	Figure[] result = new Figure[elems.length()];
     	for (int i = 0; i < elems.length(); i++) {
@@ -172,7 +172,7 @@ public class FigureFactory {
     	return result;
     }
     
-    public static Figure[][] make2DList(IFigureApplet fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+    public static Figure[][] make2DList(IFigureExecutionEnvironment fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
     	IList elems = (IList)list;
     	Figure[][] result = new Figure[elems.length()][];
     	for (int i = 0; i < elems.length(); i++) {
@@ -182,7 +182,7 @@ public class FigureFactory {
     	return result;
     }
     
-    public static Figure makeChild(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
+    public static Figure makeChild(IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
     	if(c.arity() == 2 ){
     		return makeChild(0,fpa,c,properties,childProps,ctx);
     	} else {
@@ -190,7 +190,7 @@ public class FigureFactory {
     	}
     }
     
-    public static Figure makeChild(int index,IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
+    public static Figure makeChild(int index,IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
     		return FigureFactory.make(fpa, (IConstructor)c.get(index), properties, childProps, ctx);
     }
     
@@ -205,7 +205,7 @@ public class FigureFactory {
     
     
 	
-	public static Figure make(IFigureApplet fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+	public static Figure make(IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
 		String ename = c.getName();
 		//System.out.printf("Creating %s\n",ename);
 		properties = PropertyManager.extendProperties(fpa, c, properties, childProps, ctx);
@@ -244,7 +244,7 @@ public class FigureFactory {
 			return new Combo(fpa,((IString) c.get(0)).getValue(), makeStringList((IList)c.get(1)), c.get(2), validate, ctx, properties);					
 			
 		case COMPUTEFIGURE:
-			return new ComputeFigure(fpa, properties,  c.get(0), childPropsNext, ctx);
+			return new ComputeFigure(fpa, properties,  c.get(0), childPropsNext);
 			
 	
 		case ELLIPSE:
@@ -375,7 +375,7 @@ public class FigureFactory {
 		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
-	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureApplet fpa, IConstructor c,
+	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
@@ -384,7 +384,7 @@ public class FigureFactory {
 		return new SpringGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow,ctx);
 	}
 	
-	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureApplet fpa, IConstructor c,
+	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
@@ -393,7 +393,7 @@ public class FigureFactory {
 		return new LayeredGraphEdge(G, fpa, properties, from, to, ctx);
 	}
 
-	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureApplet fpa, IConstructor c,
+	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
@@ -402,7 +402,7 @@ public class FigureFactory {
 		return new LeveledGraphEdge(G, fpa, properties, from, to, ctx);
 	}
 	
-	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureApplet fpa, IConstructor c,
+	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
 			PropertyManager properties, IEvaluatorContext ctx) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);

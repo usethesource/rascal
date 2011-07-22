@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 
 /**
  * Utilities for fetching arguments from property values. Arguments come in three flavours:
@@ -41,7 +41,7 @@ import org.rascalmpl.library.vis.IFigureApplet;
 public class PropertyParsers {
 	interface PropertyParser<PropValue>{
 		PropertyValue<PropValue> parseProperty(IConstructor c, PropertyManager pm, int propIndex,
-				IFigureApplet fpa, IEvaluatorContext ctx);
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx);
 		 Properties getProperty();
 	}
 	
@@ -59,16 +59,16 @@ public class PropertyParsers {
 		
 		abstract boolean isLiteralType(Type type);
 		
-		abstract PropertyValue<PropValue> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
+		abstract PropertyValue<PropValue> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx);
 		
-		abstract PropertyValue<PropValue> makeLikeProperty(String id,IFigureApplet fpa,IEvaluatorContext ctx);
+		abstract PropertyValue<PropValue> makeLikeProperty(String id,IFigureExecutionEnvironment fpa,IEvaluatorContext ctx);
 		
-		abstract PropertyValue<PropValue> makeComputedProperty(IValue arg,PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx);
+		abstract PropertyValue<PropValue> makeComputedProperty(IValue arg,PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx);
 		
-		abstract PropertyValue<PropValue> makeMeasureProperty(IValue idVal, IValue valVal, IFigureApplet fpa,PropertyManager pm,IEvaluatorContext ctx);
+		abstract PropertyValue<PropValue> makeMeasureProperty(IValue idVal, IValue valVal, IFigureExecutionEnvironment fpa,PropertyManager pm,IEvaluatorContext ctx);
 		
 		public PropertyValue<PropValue> parseProperty(IConstructor c, PropertyManager pm, int propIndex,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			IValue arg = c.get(propIndex);
 			//System.out.print("Type  " + arg.getType().toString() + " " + this + "\n");
 			if(isLiteralType(arg.getType()))
@@ -94,7 +94,7 @@ public class PropertyParsers {
 	 * Get a boolean argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. shapeConnected(true)
-	 * @param fpa	The IFigureApplet
+	 * @param fpa	The IFigureExecutionEnvironment
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -110,24 +110,24 @@ public class PropertyParsers {
 		}
 
 		@Override
-		PropertyValue<Boolean> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Boolean> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantBooleanProperty(property,((IBool) arg).getValue());
 		}
 
 		@Override
 		PropertyValue<Boolean> makeLikeProperty( String id,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return  new LikeProperties.LikeBooleanProperty(property, id, fpa, ctx);
 		}
 
 		@Override
-		PropertyValue<Boolean> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Boolean> makeComputedProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedBooleanProperty(property,arg, fpa);
 		}
 
 		@Override
 		PropertyValue<Boolean> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa,  PropertyManager pm, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa,  PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureBooleanProperty(property, idVal, valVal, fpa, ctx);
 		}
 	} 
@@ -135,7 +135,7 @@ public class PropertyParsers {
 	 * Get an integer argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. lineWidth(10)
-	 * @param fpa	The IFigureApplet
+	 * @param fpa	The IFigureExecutionEnvironment
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -150,24 +150,24 @@ public class PropertyParsers {
 		}
 
 		@Override
-		PropertyValue<Integer> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Integer> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantIntegerProperty(property,((IInteger) arg).intValue());
 		}
 
 		@Override
 		PropertyValue<Integer> makeLikeProperty(String id,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeIntegerProperty(property, id, fpa, ctx);
 		}
 
 		@Override
-		PropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedIntegerProperty(property,arg, fpa);
 		}
 
 		@Override
 		PropertyValue<Integer> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, PropertyManager pm, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureIntegerProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -175,7 +175,7 @@ public class PropertyParsers {
 	 * Get a string argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. fontName("Helvetica")
-	 * @param fpa	The IFigureApplet
+	 * @param fpa	The IFigureExecutionEnvironment
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -190,24 +190,24 @@ public class PropertyParsers {
 		}
 
 		@Override
-		PropertyValue<String> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<String> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantStringProperty(property,((IString) arg).getValue());
 		}
 
 		@Override
 		PropertyValue<String> makeLikeProperty(String id,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeStringProperty(property, id, fpa, ctx);
 		}
 
 		@Override
-		PropertyValue<String> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<String> makeComputedProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedStringProperty(property,arg, fpa);
 		}
 
 		@Override
 		PropertyValue<String> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa, PropertyManager pm, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureStringProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -216,7 +216,7 @@ public class PropertyParsers {
 	 * Get a real argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. width(25.7)
-	 * @param fpa	The IFigureApplet
+	 * @param fpa	The IFigureExecutionEnvironment
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -232,24 +232,24 @@ public class PropertyParsers {
 		}
 
 		@Override
-		PropertyValue<Double> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Double> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ConstantProperties.ConstantRealProperty(property,(double) ((IReal) arg).floatValue());
 		}
 
 		@Override
 		PropertyValue<Double> makeLikeProperty(String id,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeRealProperty(property, id, fpa, ctx);
 		}
 
 		@Override
-		PropertyValue<Double> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Double> makeComputedProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedRealProperty(property,arg, fpa);
 		}
 
 		@Override
 		PropertyValue<Double> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa,  PropertyManager pm,IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa,  PropertyManager pm,IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureRealProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -259,7 +259,7 @@ public class PropertyParsers {
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. lineWidth(10)
 	 * @param i		The argument position of the argument in the constructor
-	 * @param fpa	The IFigureApplet
+	 * @param fpa	The IFigureExecutionEnvironment
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -276,7 +276,7 @@ public class PropertyParsers {
 		}
 		
 		@Override
-		PropertyValue<Double> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Double> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			double value;
 			value = parseNum(arg);
 			return new ConstantProperties.ConstantRealProperty(property,value);
@@ -301,7 +301,7 @@ public class PropertyParsers {
 	 * Get an color argument
 	 * @param prop	The desired property.
 	 * @param c		The constructor of the property, e.g. fillColor("blue" or fillColor(color(0,0,255))
-	 * @param fpa	The IFigureApplet
+	 * @param fpa	The IFigureExecutionEnvironment
 	 * @param ctx	The evaulator context (to generate exceptions)
 	 * @return
 	 */
@@ -317,7 +317,7 @@ public class PropertyParsers {
 		}
 		
 		@Override
-		PropertyValue<Integer> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Integer> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			if (arg.getType().isStringType()) {
 				String s = ((IString) arg).getValue().toLowerCase();
 				if(s.length() == 0)
@@ -339,18 +339,18 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Integer> makeLikeProperty(String id,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeColorProperty(property, id, fpa, ctx);
 		}
 
 		@Override
-		PropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Integer> makeComputedProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedColorProperty(property,arg, fpa);
 		}
 
 		@Override
 		PropertyValue<Integer> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa,  PropertyManager pm, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa,  PropertyManager pm, IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureColorProperty(property, idVal, valVal, fpa, ctx);
 		}
 	}
@@ -368,7 +368,7 @@ public class PropertyParsers {
 		}
 		
 		@Override
-		PropertyValue<Figure> makeConstantProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Figure> makeConstantProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			
 			Figure fig =  FigureFactory.make(fpa, ((IConstructor) arg), pm, null, ctx);
 			return new ConstantProperties.ConstantFigureProperty(property,fig); 
@@ -376,18 +376,18 @@ public class PropertyParsers {
 
 		@Override
 		PropertyValue<Figure> makeLikeProperty(String id,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new LikeProperties.LikeFigureProperty(property,id, fpa, ctx);
 		}
 
 		@Override
-		PropertyValue<Figure> makeComputedProperty(IValue arg, PropertyManager pm, IFigureApplet fpa, IEvaluatorContext ctx) {
+		PropertyValue<Figure> makeComputedProperty(IValue arg, PropertyManager pm, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			return new ComputedProperties.ComputedFigureProperty(property,arg, fpa, pm, ctx);
 		}
 
 		@Override
 		PropertyValue<Figure> makeMeasureProperty(IValue idVal, IValue valVal,
-				IFigureApplet fpa,  PropertyManager pm,IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa,  PropertyManager pm,IEvaluatorContext ctx) {
 			return new MeasureProperties.MeasureFigureProperty(property, idVal, valVal, fpa, ctx, pm);
 		}
 	}
@@ -402,7 +402,7 @@ public class PropertyParsers {
 		
 		public PropertyValue<Void> parseProperty(
 				IConstructor c, PropertyManager pm, int propIndex,
-				IFigureApplet fpa, IEvaluatorContext ctx) {
+				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
 			 return new ComputedProperties.HandlerProperty(property,c.get(0),fpa);
 		}
 		

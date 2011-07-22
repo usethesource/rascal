@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.IFigureApplet;
+import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -40,7 +40,7 @@ public class TreeMapNode extends Figure {
 	private double[] childTop;
 	private static boolean debug = true;
 	
-	public TreeMapNode(IFigureApplet fpa, TreeMap treeMap, PropertyManager properties,
+	public TreeMapNode(IFigureExecutionEnvironment fpa, TreeMap treeMap, PropertyManager properties,
 			Figure fig) {
 		super(fpa, properties);
 		this.treemap = treeMap;
