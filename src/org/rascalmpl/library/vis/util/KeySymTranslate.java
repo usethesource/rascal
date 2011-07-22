@@ -53,12 +53,12 @@ public class KeySymTranslate {
 		case SWT.ARROW_UP: return KeySym_keyArrowUp;
 		case SWT.BREAK: return KeySym_keyBreak;
 		case SWT.CAPS_LOCK: return KeySym_keyCapsLock;
-		case SWT.COMMAND:
-			if(e.keyLocation == SWT.LEFT) return KeySym_keyCommandLeft;
-			else return KeySym_keyCommandRight;
-		case SWT.CTRL:
-			if(e.keyLocation == SWT.LEFT) return KeySym_keyControlLeft;
-			else return KeySym_keyControlRight;
+		case SWT.COMMAND: return KeySym_keyCommandLeft;
+			//if(e.keyLocation == SWT.LEFT) return KeySym_keyCommandLeft;
+			//else return KeySym_keyCommandRight;
+		case SWT.CTRL: return KeySym_keyControlLeft;
+			//if(e.keyLocation == SWT.LEFT) return KeySym_keyControlLeft;
+			//else return KeySym_keyControlRight;
 		case SWT.END: return KeySym_keyEnd;
 		case SWT.F1: return KeySym_keyF1;
 		case SWT.F10: return KeySym_keyF10;
@@ -67,12 +67,12 @@ public class KeySymTranslate {
 		case SWT.F13: return KeySym_keyF13;
 		case SWT.F14: return KeySym_keyF14;
 		case SWT.F15: return KeySym_keyF15;
-		case SWT.F16: return KeySym_keyF16;
-		case SWT.F17: return KeySym_keyF17;
-		case SWT.F18: return KeySym_keyF18;
-		case SWT.F19: return KeySym_keyF19;
+		//case SWT.F16: return KeySym_keyF16;
+		//case SWT.F17: return KeySym_keyF17;
+		//case SWT.F18: return KeySym_keyF18;
+		//case SWT.F19: return KeySym_keyF19;
 		case SWT.F2: return KeySym_keyF2;
-		case SWT.F20: return KeySym_keyF20;
+		//case SWT.F20: return KeySym_keyF20;
 		case SWT.F3: return KeySym_keyF3;
 		case SWT.F4: return KeySym_keyF4;
 		case SWT.F5: return KeySym_keyF5;
@@ -106,9 +106,9 @@ public class KeySymTranslate {
 		case SWT.PAUSE: return KeySym_keyPause;
 		case SWT.PRINT_SCREEN: return KeySym_keyPrintScreen;
 		case SWT.SCROLL_LOCK: return KeySym_keyScrollLock;
-		case SWT.SHIFT: 
-			if(e.keyLocation == SWT.LEFT) return KeySym_keyShiftLeft;
-			else return KeySym_keyShiftRight;
+		case SWT.SHIFT: return KeySym_keyShiftLeft;
+			//if(e.keyLocation == SWT.LEFT) return KeySym_keyShiftLeft;
+			//else return KeySym_keyShiftRight;
 		case 8 : return KeySym_keyBackSpace;
 		case '\t': return KeySym_keyTab;
 		case 13: return KeySym_keyEnter;
