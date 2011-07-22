@@ -71,7 +71,7 @@ HighScores readHighScores(){
 
 
 int timeTillDrop(TetrisState state){
-	return  max(20, 1500 - state.level * 50);
+	return  max(20, 1500 - state.level * 120);
 } 
 
 void writeHighScores(HighScores highScores){
