@@ -160,7 +160,7 @@ Figure mainScreen(TetrisVisState state,  FProperty props...){
 		newHigh = newHighScore(state) ? "\n NEW HIGHSCORE!" :"";
 		gameOverMsg = box(
 			text("GAME OVER!\n score <state.logicState.score>" + newHigh + "\n press F1 to restart!", fontColor("white"),fontSize(20))
-			,[fillColor("black"),("white"),grow(1.3),resizable(false)] + props);
+			,[fillColor("black"),grow(1.3),resizable(false)] + props);
 		return overlay([board(state.logicState.boardWithCurrentTetromino,0),gameOverMsg],props);
 	} else {
 		return board(state.logicState.boardWithCurrentTetromino,0,props);
