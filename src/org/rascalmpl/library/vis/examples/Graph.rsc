@@ -351,6 +351,8 @@ public void graphn(){
     render(graph(nodes, edges, hint("layered"), size(400)));
 }
 
+// See Introduction to the Theory of Computation, Michael Sipser, page 285)
+
 public void sat(){
      Figure g1 = graph([ shapeEllipse(text("A1 1"), id("A1"),  fillColor("lightgreen"),layer("BOTTOM")),
      	  shapeEllipse(text("B1 1"), id("B1"), fillColor("lightgreen"), layer("BOTTOM")),
