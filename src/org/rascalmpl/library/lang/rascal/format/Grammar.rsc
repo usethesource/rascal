@@ -219,6 +219,10 @@ public str symbol2rascal(Symbol sym) {
         return iterseps2rascal(x, seps, "+");
     case \iter-star-seps(x,seps) : 
     	return iterseps2rascal(x, seps, "*");
+    case alt(set[Symbol] alts): {
+        <f,as> = takeOneFrom(alts);
+        return "(" + (symbol2rascal(f) | "<it> | <symbol2rascal(a)>" | a <- as) + ")";
+    }
     case \layouts(str x): 
     	return "";
     case \start(x):
