@@ -862,22 +862,33 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			Set<String> onHeap = new HashSet<String>();
-
+			Set<String> extendingModules = new HashSet<String>();
+			
+			monitor.startJob("Cleaning modules", names.size());
 			for (String mod : names) {
 				if (heap.existsModule(mod)) {
 					onHeap.add(mod);
+					extendingModules.addAll(heap.getExtendingModules(mod));
 					heap.removeModule(heap.getModule(mod));
 				}
+				monitor.event("Processed " + mod, 1);
 			}
+			extendingModules.removeAll(names);
 
+			monitor.startJob("Reloading modules", onHeap.size());
 			for (String mod : onHeap) {
 				if (!heap.existsModule(mod)) {
 					stderr.print("Reloading module " + mod);
 					reloadModule(mod, errorLocation);
 				}
+				monitor.event("loaded " + mod, 1);
 			}
-
-			Set<String> depending = getDependingModules(names);
+			monitor.endJob(true);
+			
+			Set<String> depending = new HashSet<String>();
+			depending.addAll(getDependingModules(names));
+			
+			monitor.startJob("Reconnecting importers of affected modules", depending.size());
 			for (String mod : depending) {
 				ModuleEnvironment env = heap.getModule(mod);
 				Set<String> todo = new HashSet<String>(env.getImports());
@@ -889,7 +900,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							env.addImport(imp, imported);
 						}
 					}
+					
 				}
+				monitor.event("Reconnected " + mod, 1);
+			}
+			monitor.endJob(true);
+			
+			if (!extendingModules.isEmpty()) {
+				reloadModules(monitor, extendingModules, errorLocation);
 			}
 		}
 		finally {
@@ -1232,6 +1250,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public Module extendCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment env = getCurrentModuleEnvironment();
+		env.addExtend(name);
+		
 		try {
 			Module module = loadModule(name, env);
 
@@ -1534,4 +1554,5 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		return new NullRascalMonitor();
 	}
+
 }

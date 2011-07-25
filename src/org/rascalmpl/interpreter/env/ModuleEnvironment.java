@@ -16,6 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -127,7 +128,7 @@ public class ModuleEnvironment extends Environment {
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) Factory.Symbol_Sort.make(VF, "SyntaxDefinition"));
-		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(DefSort)));
+		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
 		
 		while(!todo.isEmpty()){
 			String m = todo.get(0);
@@ -147,12 +148,19 @@ public class ModuleEnvironment extends Environment {
 					importWriter.insert(VF.string(impname));
 				}
 				
+				ISetWriter extendWriter = VF.setWriter(TF.stringType());
+				for(String impname : env.getExtends()){
+					if(!done.contains(impname)) todo.add(impname);
+					
+					extendWriter.insert(VF.string(impname));
+				}
+				
 				ISetWriter defWriter = VF.setWriter(DefSort);
 				for(IValue def : env.productions){
 					defWriter.insert(def);
 				}
 				
-				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
+				ITuple t = VF.tuple(importWriter.done(), extendWriter.done(), defWriter.done());
 				result.put(VF.string(m), t);
 			}else if(m == getName()){ // This is the root scope.
 				ISetWriter importWriter = VF.setWriter(TF.stringType());
@@ -162,12 +170,19 @@ public class ModuleEnvironment extends Environment {
 					importWriter.insert(VF.string(impname));
 				}
 				
+				ISetWriter extendWriter = VF.setWriter(TF.stringType());
+				for(String impname : env.getExtends()){
+					if(!done.contains(impname)) todo.add(impname);
+					
+					extendWriter.insert(VF.string(impname));
+				}
+				
 				ISetWriter defWriter = VF.setWriter(DefSort);
 				for(IValue def : productions){
 					defWriter.insert(def);
 				}
 				
-				ITuple t = VF.tuple(importWriter.done(), defWriter.done());
+				ITuple t = VF.tuple(importWriter.done(), extendWriter.done(), defWriter.done());
 				result.put(VF.string(m), t);
 			}
 		}
@@ -183,6 +198,13 @@ public class ModuleEnvironment extends Environment {
 	public void addImport(String name, ModuleEnvironment env) {
 		importedModules.put(name, env);
 		typeStore.importStore(env.typeStore);
+	}
+	
+	public void addExtend(String name) {
+		if (extended == null) {
+			extended = new HashSet<String>();
+		}
+		extended.add(name);
 	}
 	
 	public List<AbstractFunction> getTests() {
@@ -483,7 +505,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public String toString() {
-		return "Environment [ " + getName() + ":" + ((importedModules != null) ? importedModules : "") + "]"; 
+		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
 	}
 
 	@Override
@@ -670,5 +692,13 @@ public class ModuleEnvironment extends Environment {
 		if (this.nameFlags != null && nameFlags.get(name) != null)
 			return this;
 		return null;
+	}
+
+	public Set<String> getExtends() {
+		if (extended != null) {
+			return Collections.unmodifiableSet(extended);
+		}
+		
+		return Collections.<String>emptySet();
 	}
 }
