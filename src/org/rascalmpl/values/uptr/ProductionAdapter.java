@@ -55,7 +55,7 @@ public class ProductionAdapter {
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
-		return false;
+		return SymbolAdapter.isSort(getType(tree));
 	}
 	
 	public static boolean isLayout(IConstructor tree) {
