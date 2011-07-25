@@ -366,7 +366,7 @@ public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ ini
       if(hasCustomType(specChildren)){
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+         } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
    }
    
@@ -389,7 +389,7 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs){
       if(appl(prod(label("Identifier",_),_,_),_) := theType){
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+         } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
    }
    
@@ -414,11 +414,11 @@ public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","
              }
           }
        }
-         
+       
        if(hasCustomType(specChildren)){
           if(unparse(theType) notin typeDefs){
              fail;
-          } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
        }
     }
    
@@ -433,7 +433,7 @@ public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs){
       if(appl(prod(label("Identifier",_),_,_),_) := theType){
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+         } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
       
       for(spec <- specChildren){
@@ -464,7 +464,7 @@ public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declara
       if(hasCustomType(specChildren)){
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed.
+         } // Fail if not typedeffed.
       }
    }
    
@@ -479,7 +479,7 @@ public Tree StructDeclWithoutDecl(Specifier+ specs){
       if(appl(prod(label("Identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed. And may be ambiguous with "Exp * Exp".
+         } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
       
       for(spec <- specChildren){
@@ -507,7 +507,7 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
       if(appl(prod(label("Identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed.
+         } // Fail if not typedeffed.
       }
       
       for(spec <- specChildren){
@@ -539,7 +539,7 @@ public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl)
       if(appl(prod(label("Identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
             fail;
-         } // Fail if not typedefed.
+         } // Fail if not typedeffed.
       }
       
       for(spec <- specChildren){
