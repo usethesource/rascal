@@ -218,7 +218,7 @@ PlacedTetromino down(PlacedTetromino t){
 }
 
 bool onBoard(Board b, Coordinate c){
-	return c[0] < nrRows(b) && c[1] >= 0 && c[1] <= nrColumns(b) && c[0] >= 0 ; 
+	return c[0] < nrRows(b) && c[1] >= 0 && c[1] < nrColumns(b) && c[0] >= 0 ; 
 }
 
 Coordinate cellLocationOfPlacedTetromino(PlacedTetromino t,Coordinate cell){
