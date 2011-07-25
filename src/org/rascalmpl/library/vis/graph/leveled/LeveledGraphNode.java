@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Bert Lisser - Bert.Lisser@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.leveled;
 
@@ -518,7 +519,7 @@ public class LeveledGraphNode implements Comparable<LeveledGraphNode> {
 		if(figure != null){
 			figure.bbox();
 			blockWidth = figure.minSize.getWidth();
-		}
+		};
 	}
 	
 	double width(){

@@ -1667,7 +1667,7 @@ public  Figure shapeDoubleEllipse(FProperty props...) {
 }
 
 public  Figure shapeBox(FProperty props...) {
-	return space(box(fig, props),props+stdWidth(40)+stdHeight(30));
+	return space(box(props),props+stdWidth(40)+stdHeight(30));
 }
 
 public Figure shapeDiamond(FProperty props...) {
@@ -1686,22 +1686,22 @@ public Figure shapeParallelogram(FProperty props...) {
 }
 
 public  Figure shapeEllipse(Figure fig, FProperty props...) {
-	return overlay([shapeEllipse(props), fig], props);
+	return overlay([shapeEllipse(props), fig], shapeClosed(true)+props);
 }
 
 public  Figure shapeDoubleEllipse(Figure fig,  FProperty props...) {
-	return overlay([shapeDoubleEllipse(props), fig], props);
+	return overlay([shapeDoubleEllipse(props), fig], shapeClosed(true)+props);
 }
 
 public  Figure shapeBox(Figure fig, FProperty props...) {
-	return overlay([shapeBox(props), fig], props);
+	return overlay([shapeBox(props), fig], shapeClosed(true)+props);
 }
 
 public  Figure shapeDiamond(Figure fig, FProperty props...) {
-	return overlay([shapeDiamond(props), fig], props);
+	return overlay([shapeDiamond(props), fig], shapeClosed(true)+props);
 }
 
 public  Figure shapeParallelogram(Figure fig, FProperty props...) {
-	return overlay([shapeParallelogram(props), fig], props);
+	return overlay([shapeParallelogram(props), fig], shapeClosed(true)+props);
 }
 

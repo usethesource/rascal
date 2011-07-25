@@ -28,6 +28,7 @@ import org.rascalmpl.library.vis.util.NameResolver;
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
  * 
  * @author paulk
+ * @author bertl
  * 
  */
 public class LeveledGraphEdge extends Figure {
@@ -256,18 +257,6 @@ public class LeveledGraphEdge extends Figure {
 		setLeft(left);
 		setTop(top);
 		applyProperties(gc);
-		double x0 = this.getFrom().x, y0 = this.getFrom().y;
-		double x1 = this.getTo().x, y1 = this.getTo().y;
-		LeveledGraphNode subgraph = G.inSubgraph.get(this.getFrom().figure);
-		if ( subgraph != null) {
-			this.getFrom().x += subgraph.x-subgraph.figure.minSize.getWidth()/2;
-			this.getFrom().y += subgraph.y-subgraph.figure.minSize.getHeight()/2;
-		}
-		subgraph = G.inSubgraph.get(this.getTo().figure);
-		if (subgraph != null) {
-			this.getTo().x += subgraph.x-subgraph.figure.minSize.getWidth()/2;
-			this.getTo().y += subgraph.y-subgraph.figure.minSize.getHeight()/2;
-		}
 		if (debug)
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
 					+ "," + getFrom().y + ") -> (" + getTo().name + ": "
@@ -410,10 +399,6 @@ public class LeveledGraphEdge extends Figure {
 						+ labelY - label.minSize.getHeight() / 2,gc);
 			}
 		}
-		this.getFrom().x = x0;
-		this.getFrom().y = y0;
-		this.getTo().x = x1;
-		this.getTo().y= y1;
 	}
 
 	private void drawLastSegment(double left, double top, double startImX,
@@ -567,12 +552,16 @@ public class LeveledGraphEdge extends Figure {
 
 	public void pushFrom(LeveledGraphNode from) {
 		this.oldFrom = this.from;
+		this.getTo().delIn(this.from);
 		this.from = from;
+		this.getTo().addIn(this.from);
 	}
 
 	public void pushTo(LeveledGraphNode to) {
 		this.oldTo = this.to;
+		this.getFrom().delOut(to);
 		this.to = to;
+		this.getFrom().addIn(to);
 	}
 
 	public LeveledGraphNode popFrom() {
@@ -581,7 +570,7 @@ public class LeveledGraphEdge extends Figure {
 			this.getTo().delIn(f);
 			this.from = this.oldFrom;
 			this.oldFrom = null;
-			this.getTo().addIn(this.getFrom());
+			this.getTo().addIn(this.from);
 			return this.from;
 		}
 		return null;
@@ -594,7 +583,7 @@ public class LeveledGraphEdge extends Figure {
 			this.to = this.oldTo;
 			this.oldTo = null;
 			this.getFrom().addOut(this.getTo());
-			return this.from;
+			return this.to;
 		}
 		return null;
 	}

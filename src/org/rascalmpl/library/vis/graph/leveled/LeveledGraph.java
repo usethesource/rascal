@@ -78,8 +78,9 @@ public class LeveledGraph extends Figure {
 	private static final boolean debug = false;
 	private static final boolean printGraph = false;
 
-	public LeveledGraph(IFigureExecutionEnvironment fpa, PropertyManager properties,
-			IList nodes, IList edges, IEvaluatorContext ctx) {
+	public LeveledGraph(IFigureExecutionEnvironment fpa,
+			PropertyManager properties, IList nodes, IList edges,
+			IEvaluatorContext ctx) {
 		super(fpa, properties);
 		if (printGraph) {
 			String sep = "";
@@ -135,6 +136,7 @@ public class LeveledGraph extends Figure {
 					subNodes.add(z);
 					inSubgraph.put(z.figure, node);
 				}
+				System.err.println("Put subgraphNodes:"+node);
 				subGraphNodes.put(node, subNodes);
 			}
 			if (layer.length() > 0) {
@@ -188,7 +190,7 @@ public class LeveledGraph extends Figure {
 				}
 				q = inSubgraph.get(e.getTo().figure);
 				if (q != null) {
-					e.pushTo(inSubgraph.get(q));
+					e.pushTo(q);
 				}
 				e.getFrom().addOut(e.getTo());
 				e.getTo().addIn(e.getFrom());
@@ -273,15 +275,17 @@ public class LeveledGraph extends Figure {
 		}
 	}
 
-//	private boolean isExternalConnection(LayeredGraphNode n1,
-//			LayeredGraphNode n2) {
-//		boolean b1 = (inSubgraph.get(n1.figure) == null), b2 = (inSubgraph.get(n2.figure) == null);
-//		return (b1 && !b2) || (!b1 && b2);
-//	}
+	// private boolean isExternalConnection(LayeredGraphNode n1,
+	// LayeredGraphNode n2) {
+	// boolean b1 = (inSubgraph.get(n1.figure) == null), b2 =
+	// (inSubgraph.get(n2.figure) == null);
+	// return (b1 && !b2) || (!b1 && b2);
+	// }
 
 	@Override
 	public void bbox() {
-		if (this.getParent() != null) return;
+		if (this.getParent() != null)
+			return;
 		minSize.setWidth(getWidthProperty());
 		MAXWIDTH = minSize.getWidth();
 		// MAXWIDTH = width = 1000;
@@ -291,7 +295,7 @@ public class LeveledGraph extends Figure {
 
 		double maxNodeWidth = 0;
 		System.err.println("bbox:" + inSubgraph.size() + " " + this + " "
-				+ this.parent);	
+				+ this.parent);
 		for (LeveledGraphNode g : nodes) {
 			if (g.figure instanceof LeveledGraph) {
 				LeveledGraph h = (LeveledGraph) g.figure;
@@ -474,17 +478,17 @@ public class LeveledGraph extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top,GraphicsContext gc) {
+	public void draw(double left, double top, GraphicsContext gc) {
 		this.setLeft(left);
 		this.setTop(top);
 
 		applyProperties(gc);
 		// fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		for (LeveledGraphEdge e : edges)
-			e.draw(left, top,gc);
+			e.draw(left, top, gc);
 
 		for (LeveledGraphNode n : nodes) {
-			n.draw(left, top,gc);
+			n.draw(left, top, gc);
 		}
 	}
 
@@ -553,8 +557,8 @@ public class LeveledGraph extends Figure {
 			print("moveInnerCrossingsDown", layers);
 
 		placeHorizontal(layers);
-		placeOldNodes();
-		placeLabels(layers);
+		placeOldNodes(layers);
+		placeLabels(layers.size());
 
 		if (debug)
 			printGraph("Final graph");
@@ -1726,28 +1730,33 @@ public class LeveledGraph extends Figure {
 		return layer;
 	}
 
-	private void placeOldNodes() {
+	private void placeOldNodes(LinkedList<LinkedList<LeveledGraphNode>> layers) {
 		for (LeveledGraphEdge e : edges) {
-			LeveledGraphNode f = e.popFrom();
-			/*
-			 * if (f != null) { LayeredGraphNode g = e.getFrom();
-			 * System.err.println("From:" + g.x + " " + g.y + " " + f.x + " " +
-			 * f.y); g.y += f.y; g.x += f.x; }
-			 */
-			f = e.popTo();
-			/*
-			 * if (f != null) { LayeredGraphNode g = e.getTo();
-			 * System.err.println("To:" + g.x + " " + g.y + " " + f.x + " " +
-			 * f.y); g.y += f.y; g.x += f.x; }
-			 */
+			e.popFrom();
+			e.popTo();
+		}
+		for (LeveledGraphNode subgraph : subGraphNodes.keySet()) {
+			int idx = subgraph.layer;
+			LeveledGraph g = (LeveledGraph) subgraph.figure;
+			for (LeveledGraphNode s : g.nodes) {
+				s.x += subgraph.x-subgraph.figure.minSize.getWidth()/2;
+				s.y += subgraph.y-subgraph.figure.minSize.getHeight()/2;
+				nodes.add(s);
+				layers.get(idx).add(s);
+			}
+			for (LeveledGraphEdge e : g.edges) {
+				edges.add(e);
+			}
+			nodes.remove(subgraph);
+			layers.get(idx).remove(subgraph);
 		}
 
 	}
 
-	private void placeLabels(LinkedList<LinkedList<LeveledGraphNode>> layers) {
+	private void placeLabels(int nLayers) {
 		LinkedList<LinkedList<LeveledGraphEdge>> labels = new LinkedList<LinkedList<LeveledGraphEdge>>();
 
-		for (int i = 0; i < layers.size(); i++) {
+		for (int i = 0; i < nLayers; i++) {
 			labels.add(new LinkedList<LeveledGraphEdge>());
 		}
 
