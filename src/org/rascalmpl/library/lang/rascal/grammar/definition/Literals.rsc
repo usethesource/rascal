@@ -16,9 +16,11 @@ import ParseTree;
 import String;
 
 public Grammar literals(Grammar g) {
-  return compose(g, grammar({}, {prod(lit(s),str2syms(s),{}) | /lit(s) <- g}
-                              + {prod(cilit(s),cistr2syms(s),{}) | /cilit(s) <- g}));
+  return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
 }
+
+public Production literal(str s) = prod(lit(s),str2syms(s),{});
+public Production ciliteral(str s) = prod(cilit(s),cistr2syms(s),{});
 
 public list[Symbol] str2syms(str x) {
   // TODO: escaping?
