@@ -247,6 +247,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		return bool(false, ctx);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult that) {
 		// Note the reverse concat.
