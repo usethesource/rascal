@@ -68,7 +68,7 @@ public list[Message] verticalCauses(Tree x, Tree y) {
 public list[Message] deeperCauses(Tree x, Tree y) {
   // collect lexical trees
   rX = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := x} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := x};
-  rY = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := y} + + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := y};
+  rY = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := y};
  
   // collect literals
   lX = {<yield(t),t> | /t:appl(prod(l:lit(_),_,_),_) := x};
