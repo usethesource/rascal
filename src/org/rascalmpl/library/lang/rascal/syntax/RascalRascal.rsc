@@ -401,7 +401,7 @@ syntax LocalVariableDeclaration
 lexical RealLiteral
 	= [0-9]+ [D F d f] 
 	| [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]?
-	| [0-9]+ "." [0-9]* [D F d f]? 
+	| [0-9]+ "." !>> "." [0-9]* [D F d f]?  
 	| [0-9]+ "." [0-9]* [E e] [+ \-]? [0-9]+ [D F d f]? 
 	| [.] !<< "." [0-9]+ [D F d f]? 
 	| [.] !<< "." [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? 
