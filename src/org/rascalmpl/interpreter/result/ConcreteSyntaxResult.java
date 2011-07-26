@@ -108,7 +108,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			IConstructor prod = TreeAdapter.getProduction(tree);
 			IList syms = ProductionAdapter.getSymbols(prod);
 			
-			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+			// TODO: find deeper into optionals, alternatives and sequences checking the actual arguments for presence/absence of optional trees.
 			for (int i = 0; i < syms.length(); i++) {
 				IConstructor sym = (IConstructor) syms.get(i);
 				if (SymbolAdapter.isLabel(sym)) {
