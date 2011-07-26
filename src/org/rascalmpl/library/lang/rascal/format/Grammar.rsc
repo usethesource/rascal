@@ -223,6 +223,10 @@ public str symbol2rascal(Symbol sym) {
         <f,as> = takeOneFrom(alts);
         return "(" + (symbol2rascal(f) | "<it> | <symbol2rascal(a)>" | a <- as) + ")";
     }
+     case seq(list[Symbol] ss): {
+        <f,as> = takeOneFrom(ss);
+        return "(" + (symbol2rascal(f) | "<it> <symbol2rascal(a)>" | a <- as) + ")";
+    }
     case \layouts(str x): 
     	return "";
     case \start(x):
@@ -235,12 +239,6 @@ public str symbol2rascal(Symbol sym) {
      	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
-    case \at-column(int i) : 
-        return "@<i>";
-    case \start-of-line() :
-        return "^";
-    case \end-of-line():
-        return "$";    
     case conditional(Symbol s, {Condition c, Condition d, set[Condition] r}):
         return symbol2rascal(conditional(conditional(s, {c}), {d, r})); 
     case conditional(s, {delete(t)}) :
@@ -250,10 +248,17 @@ public str symbol2rascal(Symbol sym) {
     case conditional(s, {\not-follow(t)}) :
         return "<symbol2rascal(s)> !\>\> <symbol2rascal(t)>";
     case conditional(s, {precede(t)}) :
-        return "<symbol2rascal(t)> \<\< <symbol2rascal(s)> ";
+        return "<symbol2rascal(s)> \<\< <symbol2rascal(s)> ";
     case conditional(s, {\not-precede(t)}) :
-        return "<symbol2rascal(t)> !\<\< <symbol2rascal(s)> ";    
+        return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
+    case conditional(s, {\at-column(int i)}) :
+        return "<symbol2rascal(s)>@<i>";
+    case conditional(s, {\start-of-line()}) :
+        return "^<symbol2rascal(s)>";
+    case conditional(s, {\end-of-line()}) :
+        return "<symbol2rascal(s)>$";    
   }
+  
   throw "symbol2rascal: missing case <sym>";
 }
 
