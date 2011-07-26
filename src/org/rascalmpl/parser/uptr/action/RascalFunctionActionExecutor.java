@@ -189,7 +189,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			
 			for(int i = nrOfArgs - 1; i >= 0; --i){
 				IValue arg = args.get(i);
-				types[i] = arg.getType();
+				types[i] = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) arg);
 				actuals[i] = arg;
 			}
 			
