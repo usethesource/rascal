@@ -105,8 +105,13 @@ public class NonTerminalType extends ExternalType {
 		
 		if (other instanceof NonTerminalType) {
 			IConstructor otherSym = ((NonTerminalType)other).symbol;
-			if (SymbolAdapter.isPlusList(symbol) && SymbolAdapter.isStarList(otherSym)) {
-				return true; // TODO add check if they have the same element type
+			if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym));
+			}
+			
+			if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+				return SymbolAdapter.isEqual(SymbolAdapter.getSymbol(symbol), SymbolAdapter.getSymbol(otherSym))
+				    && SymbolAdapter.isEqual(SymbolAdapter.getSeparators(symbol), SymbolAdapter.getSeparators(otherSym));
 			}
 			
 			return SymbolAdapter.isEqual(otherSym, symbol);
