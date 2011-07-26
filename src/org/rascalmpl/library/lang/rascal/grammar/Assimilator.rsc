@@ -21,6 +21,7 @@ import Grammar;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Regular;
+import lang::rascal::format::Escape;
 
 public data Symbol = meta(Symbol wrapped);
 
