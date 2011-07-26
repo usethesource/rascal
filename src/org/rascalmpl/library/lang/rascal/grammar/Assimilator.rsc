@@ -20,6 +20,7 @@ import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Regular;
 
 public data Symbol = meta(Symbol wrapped);
 
@@ -43,20 +44,27 @@ public set[Production] quotes() {
 }
 
 public set[Production] layoutProductions(Grammar object) {
-  return {prod(layouts("$QUOTES"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{})};
+  return {prod(layouts("$QUOTES"),[conditional(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)])),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{})};
 }
 
 private Symbol rl = layouts("$QUOTES");
 
-// TODO: this does not generate productions for bound parameterized symbols
 public set[Production] fromRascal(Grammar object) {
-  return  {prod(label("ConcreteQuoted",meta(sort("Expression"))),[lit("`"),rl,nont,rl,lit("`")],{}),
-        prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
-        prod(label("ConcreteQuoted",meta(sort("Pattern"))),[lit("`"),rl,nont,rl,lit("`")],{}),
-        prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
-        { prod(l,str2syms(L),{}) | l:lit(L) <- symLits } // to define the literals (TODO factor this out, we implemented this to many times)
-      | Symbol nont <- object.rules, isNonterminal(nont), symLits := symbolLiterals(nont) };
+  return  { untypedQuotes(nont), typedQuotes(nont) | Symbol nont <- object.rules, isNonterminal(nont), !isRegular(nont)}
+        + { typedQuotes(nont) | Symbol nont <- object.rules, isRegular(nont) }
+        + { literal(L) | Symbol nont <- object.rules, lit(L) <- symbolLiterals(nont) }
+        ; 
 }
+
+public set[Production] untypedQuotes(Symbol nont) =
+  {prod(label("ConcreteQuoted",meta(sort("Expression"))),[lit("`"),rl,nont,rl,lit("`")],{}),
+   prod(label("ConcreteQuoted",meta(sort("Pattern"))),[lit("`"),rl,nont,rl,lit("`")],{})
+  };
+  
+public set[Production] typedQuotes(Symbol nont) =
+    {prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
+     prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{})
+    |  symLits := symbolLiterals(nont)};  
 
 // TODO: this does not generate productions for bound parameterized symbols
 public set[Production] toRascal(Grammar object) {

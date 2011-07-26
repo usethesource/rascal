@@ -77,13 +77,14 @@ public str generateMetaParser(str package, str name, str super, Grammar gr) {
   int newItem() { uniqueItem += 2; return uniqueItem; };
   
   gr = expandParameterizedSymbols(gr);
+  gr = makeRegularStubs(gr);
   
   fr = grammar({}, fromRascal(gr));
   tr = grammar({}, toRascal(gr));
   q = grammar({}, quotes()); // TODO parametrize quotes to use quote definitions
-  l = grammar({}, layoutProductions(gr));
+  //l = grammar({}, layoutProductions(gr)); // commented out because layout prods are already in object parser
   
-  full = compose(fr, compose(tr, compose(q, l)));
+  full = compose(fr, compose(tr, q));
   
   return generate(package, name, super, newItem, true, false, {}, full);
 }
