@@ -62,25 +62,14 @@ public set[Production] makeRegularStubs(set[Production] prods) {
   return {regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
 }
 
-private set[Symbol] getRegular(Symbol s) {
-  result = {};
-  visit (s) {
-     case t:\opt(Symbol n) : 
-       result += {t};
-     case t:\iter(Symbol n) : 
-       result += {t};
-     case t:\iter-star(Symbol n) : 
-       result += {t};
-     case t:\iter-seps(Symbol n, list[Symbol] sep) : 
-       result += {t};
-     case t:\iter-star-seps(Symbol n,list[Symbol] sep) : 
-       result += {t};
-     case t:\alt(set[Symbol] alts):
-       result += {t};
-     case t:\seq(list[Symbol] elems):
-       result += {t};
-     case t:\empty():
-       result += {t};  
-  }
-  return result;
-}  
+private set[Symbol] getRegular(Symbol s) = { t | /Symbol t := s, isRegular(t) }; 
+
+public default bool isRegular(Symbol s) = false;
+public bool isRegular(opt(Symbol _)) = true;
+public bool isRegular(iter(Symbol _)) = true;
+public bool isRegular(\iter-star(Symbol _)) = true;
+public bool isRegular(\iter-seps(Symbol _, list[Symbol] _)) = true;
+public bool isRegular(\iter-star-seps(Symbol _, list[Symbol] _)) = true;
+public bool isRegular(alt(set[Symbol] _)) = true;
+public bool isRegular(seq(list[Symbol] _)) = true;
+public bool isRegular(empty()) = true;
