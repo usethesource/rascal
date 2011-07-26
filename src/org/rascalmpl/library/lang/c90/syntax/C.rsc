@@ -396,7 +396,7 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs){
    return it;
 }
 
-public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators){
+public Tree GlobalDeclarationWithInitDecls(Specifier* specs, {InitDeclarator ","}+ initDeclarators){
    list[Tree] specChildren;
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
@@ -410,17 +410,17 @@ public Tree GlobalDeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","
                   InitDeclarator initDecl = variableTuple.initDecl;
                   tuple[list[Specifier], Declarator] modifiers = findModifiers(specChildren, initDecl.decl);
                   typeDefs += (variable:<theType, modifiers>); // Record the typedef.
-                }
-             }
-          }
-       }
+               }
+            }
+         }
+      }
        
-       if(hasCustomType(specChildren)){
-          if(unparse(theType) notin typeDefs){
-             fail;
-          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
-       }
-    }
+      if(hasCustomType(specChildren)){
+         if(unparse(theType) notin typeDefs){
+            fail;
+         } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
+      }
+   }
    
    return it;
 }
