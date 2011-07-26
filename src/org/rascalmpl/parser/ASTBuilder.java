@@ -578,7 +578,8 @@ public class ASTBuilder {
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
 			stats.setConcreteFragmentCount(1);
-			stats.setConcreteFragmentSize(TreeAdapter.getLocation(pattern).getLength());
+			ISourceLocation location = TreeAdapter.getLocation(pattern);
+			stats.setConcreteFragmentSize(location.getLength());
 			
 			if (stats.isAmbiguous()) {
 				throw new Ambiguous(ast.getTree());
@@ -802,25 +803,11 @@ public class ASTBuilder {
 	}
 
 	private IConstructor getConcretePattern(IConstructor tree) {
-		String cons = TreeAdapter.getConstructorName(tree);
-		
-		if (cons.equals("ConcreteQuoted")) {
-			return (IConstructor) getASTArgs(tree).get(0);
-		}
-		
-		if (cons.equals("ConcreteTypedQuoted")) {
-			 return (IConstructor) TreeAdapter.getArgs(tree).get(8);
-		}
-		
-		throw new ImplementationError("Unexpected embedding syntax");
+		IList args = TreeAdapter.getArgs(tree);
+		return  (IConstructor) args.get(args.length() - 3);
 	}
 
 	private IList getASTArgs(IConstructor tree) {
-//		if (!TreeAdapter.isContextFree(tree)) {
-//			throw new ImplementationError("This is not a context-free production: "
-//					+ tree);
-//		}
-	
 		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 	
