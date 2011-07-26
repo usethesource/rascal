@@ -54,16 +54,32 @@ public class SeparatedStarList extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LIST2 = new SeparatedListStackNode(2, 0, PROD_SEPSTARLIST_A_b, NONTERMINAL_A0, new AbstractStackNode[]{LITERAL_b1}, false);
 	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, 0, PROD_a_a, new char[]{'a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = LIST2;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_SEPSTARLIST_A_b);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a3;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
 	public SeparatedStarList(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_SEPSTARLIST_A_b, LIST2);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a3);
+		expect(A_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

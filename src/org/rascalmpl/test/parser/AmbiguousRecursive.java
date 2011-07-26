@@ -41,23 +41,45 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_S0 = new NonTerminalStackNode(0, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_S1 = new NonTerminalStackNode(1, 1, "S");
-	private final static AbstractStackNode NONTERMINAL_S2 = new NonTerminalStackNode(2, 2, "S");
-	private final static AbstractStackNode NONTERMINAL_S3 = new NonTerminalStackNode(3, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_S4 = new NonTerminalStackNode(4, 1, "S");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 0, PROD_a_a, new char[]{'a'});
+	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[3];
+	static{
+		S_EXPECT_1[0] = new NonTerminalStackNode(0, 0, "S");
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = new NonTerminalStackNode(1, 1, "S");
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[2] = new NonTerminalStackNode(2, 2, "S");
+		S_EXPECT_1[2].setProduction(S_EXPECT_1);
+		S_EXPECT_1[2].markAsEndNode();
+		S_EXPECT_1[2].setParentProduction(PROD_S_SSS);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_2[0] = new NonTerminalStackNode(3, 0, "S");
+		S_EXPECT_2[0].setProduction(S_EXPECT_2);
+		S_EXPECT_2[1] = new NonTerminalStackNode(4, 1, "S");
+		S_EXPECT_2[1].setProduction(S_EXPECT_2);
+		S_EXPECT_2[1].markAsEndNode();
+		S_EXPECT_2[1].setParentProduction(PROD_S_SS);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_3 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_3[0] = new LiteralStackNode(5, 0, PROD_a_a, new char[]{'a'});
+		S_EXPECT_3[0].setProduction(S_EXPECT_3);
+		S_EXPECT_3[0].markAsEndNode();
+		S_EXPECT_3[0].setParentProduction(PROD_S_a);
+	}
 	
 	public AmbiguousRecursive(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_SSS, NONTERMINAL_S0, NONTERMINAL_S1, NONTERMINAL_S2);
-		
-		expect(PROD_S_SS, NONTERMINAL_S3, NONTERMINAL_S4);
-		
-		expect(PROD_S_a, LITERAL_a5);
+		expect(S_EXPECT_1);
+		expect(S_EXPECT_2);
+		expect(S_EXPECT_3);
 	}
 	
 	public IConstructor executeParser(){

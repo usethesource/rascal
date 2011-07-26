@@ -238,7 +238,10 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    private static final AbstractStackNode[] _init_<id>() {
            '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
-           '      tmp[<ii>] = <items[i].new>;<}>
+           '      tmp[<ii>] = <items[i].new>;
+           '      tmp[<ii>].setProduction(tmp);<}>
+           '      tmp[<size(lhses) - 1>].markAsEndNode();
+           '      tmp[<size(lhses) - 1>].setParentProduction(<name>.<id>);
            '      return tmp;
            '	}<}>
            '  }<}>
@@ -367,7 +370,7 @@ public str generateExpect(Items items, Production p){
     switch (p) {
       case prod(_,_,_) : 
 	       return "// <p>
-	              'expect(<value2id(p)>, <sym2name(p.def)>.<value2id(p)>);";
+	              'expect(<sym2name(p.def)>.<value2id(p)>);";
       case lookahead(_, classes, Production q) :
         return "if (<generateClassConditional(classes)>) {
                '  <generateExpect(items, q)>

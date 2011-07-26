@@ -44,21 +44,44 @@ public class Sequence2 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, 0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_b5 = new LiteralStackNode(5, 0, PROD_b_b, new char[]{'b'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = SEQUENCE3;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_SEQ_AB);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a4;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		B_EXPECT_1[0] = LITERAL_b5;
+		B_EXPECT_1[0].setProduction(B_EXPECT_1);
+		B_EXPECT_1[0].markAsEndNode();
+		B_EXPECT_1[0].setParentProduction(PROD_B_b);
+	}
 	
 	public Sequence2(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_SEQ_AB, SEQUENCE3);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a4);
+		expect(A_EXPECT_1);
 	}
 	
 	public void B(){
-		expect(PROD_B_b, LITERAL_b5);
+		expect(B_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

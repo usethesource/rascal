@@ -38,12 +38,20 @@ public class CharRange extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode CHAR_a0 = new CharStackNode(0, 0, new char[][]{{'a','z'}});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = CHAR_a0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_PLUSLISTa_z_a_z);
+	}
+	
 	public CharRange(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_PLUSLISTa_z_a_z, CHAR_a0);
+		expect(S_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

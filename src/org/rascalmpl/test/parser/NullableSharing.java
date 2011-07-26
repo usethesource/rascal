@@ -47,20 +47,46 @@ public class NullableSharing extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_N2 = new NonTerminalStackNode(2, 1, "N");
 	private final static AbstractStackNode EPSILON3 = new EpsilonStackNode(3, 0);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_N1;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = NONTERMINAL_N2;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_NN);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = EPSILON3;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_empty);
+	}
+	
+	private final static AbstractStackNode[] N_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		N_EXPECT_1[0] = NONTERMINAL_A0;
+		N_EXPECT_1[0].setProduction(N_EXPECT_1);
+		N_EXPECT_1[0].markAsEndNode();
+		N_EXPECT_1[0].setParentProduction(PROD_N_A);
+	}
+	
 	public NullableSharing(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_NN, NONTERMINAL_N1, NONTERMINAL_N2);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_empty, EPSILON3);
+		expect(A_EXPECT_1);
 	}
 	
 	public void N(){
-		expect(PROD_N_A, NONTERMINAL_A0);
+		expect(N_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

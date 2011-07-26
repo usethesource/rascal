@@ -49,16 +49,34 @@ public class Optional1 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NON_TERMINAL_O2 = new NonTerminalStackNode(2, 0, "O");
 	private final static AbstractStackNode OPTIONAL_3 = new OptionalStackNode(3, 1, PROD_OPTIONAL_O_O, NON_TERMINAL_O2);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = LITERAL_a0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = OPTIONAL_3;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_aOPTIONAL_O);
+	}
+	
+	private final static AbstractStackNode[] O_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		O_EXPECT_1[0] = LITERAL_a1;
+		O_EXPECT_1[0].setProduction(O_EXPECT_1);
+		O_EXPECT_1[0].markAsEndNode();
+		O_EXPECT_1[0].setParentProduction(PROD_O_a);
+	}
+	
 	public Optional1(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_aOPTIONAL_O, LITERAL_a0, OPTIONAL_3);
+		expect(S_EXPECT_1);
 	}
 	
 	public void O(){
-		expect(PROD_O_a, LITERAL_a1);
+		expect(O_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

@@ -100,7 +100,6 @@ public class ErrorTreeBuilder{
 
 		AbstractStackNode[] prod = node.getProduction();
 		AbstractStackNode next = prod[nextDot];
-		next.setProduction(prod);
 		next = updateNextNode(next, node, result);
 		
 		AbstractStackNode[][] alternateProds = node.getAlternateProductions();

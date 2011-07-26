@@ -53,25 +53,59 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
 	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, 0, "B");
 	private final static AbstractStackNode LITERAL_b2 = new LiteralStackNode(2, 0, PROD_b_b, new char[]{'b'});
-	private final static AbstractStackNode LITERALL_ab3 = new LiteralStackNode(3, 1, PROD_ab_ab, new char[]{'a','b'});
+	private final static AbstractStackNode LITERAL_ab3 = new LiteralStackNode(3, 1, PROD_ab_ab, new char[]{'a','b'});
 	private final static AbstractStackNode LITERAL_bab4 = new LiteralStackNode(4, 0, PROD_bab_bab, new char[]{'b','a','b'});
+	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_A0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = LITERAL_ab3;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_Aab);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_2[0] = LITERAL_bab4;
+		S_EXPECT_2[0].setProduction(S_EXPECT_2);
+		S_EXPECT_2[0].markAsEndNode();
+		S_EXPECT_2[0].setParentProduction(PROD_S_bab);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = NONTERMINAL_B1;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_B);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		B_EXPECT_1[0] = LITERAL_b2;
+		B_EXPECT_1[0].setProduction(B_EXPECT_1);
+		B_EXPECT_1[0].markAsEndNode();
+		B_EXPECT_1[0].setParentProduction(PROD_B_b);
+	}
 	
 	public Ambiguous2(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_Aab, NONTERMINAL_A0, LITERALL_ab3);
+		expect(S_EXPECT_1);
 		
-		expect(PROD_S_bab, LITERAL_bab4);
+		expect(S_EXPECT_2);
 	}
 	
 	public void A(){
-		expect(PROD_A_B, NONTERMINAL_B1);
+		expect(A_EXPECT_1);
 	}
 	
 	public void B(){
-		expect(PROD_B_b, LITERAL_b2);
+		expect(B_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

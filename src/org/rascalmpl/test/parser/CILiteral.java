@@ -45,12 +45,20 @@ public class CILiteral extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, 0, PROD_bla_bla, new char[]{'b','l','a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = LITERAL_bla0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_A);
+	}
+	
 	public CILiteral(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_A, LITERAL_bla0);
+		expect(S_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

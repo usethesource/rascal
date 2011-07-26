@@ -38,12 +38,20 @@ public class Epsilon extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode EPSILON_1 = new EpsilonStackNode(1, 0);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = EPSILON_1;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_epsilon);
+	}
+	
 	public Epsilon(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_epsilon, EPSILON_1);
+		expect(S_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){
