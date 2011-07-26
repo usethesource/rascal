@@ -171,7 +171,7 @@ public class ModuleEnvironment extends Environment {
 				}
 				
 				ISetWriter extendWriter = VF.setWriter(TF.stringType());
-				for(String impname : env.getExtends()){
+				for(String impname : getExtends()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					extendWriter.insert(VF.string(impname));
