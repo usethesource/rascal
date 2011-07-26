@@ -88,7 +88,9 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \layouts(n) : return [];
     case \iter(s) : return [symbolLiterals(s),rl,lit("+")];
     case \iter-star(s) : return [symbolLiterals(s),rl,lit("*")];
+    case \iter-seps(s, [layouts(_)]) : return [symbolLiterals(s),rl,lit("+")];
     case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("+")];
+    case \iter-star-seps(s, [layouts(_)]) : return [symbolLiterals(s),rl,lit("*")];
     case \iter-star-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")];
     case \alt(alts) : return [lit("("),rl,tail(tail(tail([rl,lit("|"),rl,symbolLiterals(t) | t <- seps ]))),rl,lit(")")];
     case \seq(elems) : return [lit("("),rl,tail([rl,symbolLiterals(t) | t <- elems]),rl,lit(")")];  
