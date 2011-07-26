@@ -7,14 +7,19 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.AlternativeStackNode;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.HashMap;
+import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 
 // TODO Handle restrictions.
 public class ExpectBuilder{
+	private final IntegerMap resultStoreMappings;
+	
 	private final SortedIntegerObjectList<DoubleArrayList<IConstructor, AbstractStackNode[]>> alternatives;
 	
-	public ExpectBuilder(){
+	public ExpectBuilder(IntegerMap resultStoreMappings){
 		super();
+		
+		this.resultStoreMappings = resultStoreMappings;
 		
 		alternatives = new SortedIntegerObjectList<DoubleArrayList<IConstructor, AbstractStackNode[]>>();
 	}

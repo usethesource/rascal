@@ -40,22 +40,53 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	private final static AbstractStackNode EPSILON4 = new EpsilonStackNode(4, 0);
 	private final static AbstractStackNode EPSILON5 = new EpsilonStackNode(5, 0);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = LIST2;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTA);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a3;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_2[0] = EPSILON4;
+		A_EXPECT_2[0].setProduction(A_EXPECT_2);
+		A_EXPECT_2[0].markAsEndNode();
+		A_EXPECT_2[0].setParentProduction(PROD_A_epsilon);
+	}
+	
+	private final static AbstractStackNode[] SEP_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		SEP_EXPECT_1[0] = EPSILON5;
+		SEP_EXPECT_1[0].setProduction(SEP_EXPECT_1);
+		SEP_EXPECT_1[0].markAsEndNode();
+		SEP_EXPECT_1[0].setParentProduction(PROD_SEP_epsilon);
+	}
+	
 	public AmbiguousSeparatedEpsilonList(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_PLUSLISTA, LIST2);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a3);
-		
-		expect(PROD_A_epsilon, EPSILON4);
+		expect(A_EXPECT_1);
+		expect(A_EXPECT_2);
 	}
 	
 	public void SEP(){
-		expect(PROD_SEP_epsilon, EPSILON5);
+		expect(SEP_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

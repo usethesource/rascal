@@ -52,18 +52,45 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 	private final static AbstractStackNode LITERAL_a4 = new LiteralStackNode(4, 1, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 0, PROD_a_a, new char[]{'a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = LITERAL_a3;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = LIST1;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_aPLUSLISTA);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_2[0] = LIST2;
+		S_EXPECT_2[0].setProduction(S_EXPECT_2);
+		S_EXPECT_2[1] = LITERAL_a4;
+		S_EXPECT_2[1].setProduction(S_EXPECT_2);
+		S_EXPECT_2[1].markAsEndNode();
+		S_EXPECT_2[1].setParentProduction(PROD_S_PLUSLISTAa);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a5;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
 	public AmbiguousNonTerminalPlusList1(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_aPLUSLISTA, LITERAL_a3, LIST1);
-		
-		expect(PROD_S_PLUSLISTAa, LIST2, LITERAL_a4);
+		expect(S_EXPECT_1);
+		expect(S_EXPECT_2);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a5);
+		expect(A_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

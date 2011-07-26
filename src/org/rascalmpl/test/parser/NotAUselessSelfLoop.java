@@ -65,32 +65,101 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, 0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, 0, PROD_a_a, new char[]{'a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_A0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = NONTERMINAL_A1;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_AA);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_2[0] = NONTERMINAL_B6;
+		S_EXPECT_2[0].setProduction(S_EXPECT_2);
+		S_EXPECT_2[0].markAsEndNode();
+		S_EXPECT_2[0].setParentProduction(PROD_S_B);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		A_EXPECT_1[0] = NONTERMINAL_C7;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[1] = NONTERMINAL_C8;
+		A_EXPECT_1[1].setProduction(A_EXPECT_1);
+		A_EXPECT_1[1].markAsEndNode();
+		A_EXPECT_1[1].setParentProduction(PROD_A_CC);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_2[0] = LITERAL_a11;
+		A_EXPECT_2[0].setProduction(A_EXPECT_2);
+		A_EXPECT_2[0].markAsEndNode();
+		A_EXPECT_2[0].setParentProduction(PROD_A_a);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		B_EXPECT_1[0] = NONTERMINAL_A2;
+		B_EXPECT_1[0].setProduction(B_EXPECT_1);
+		B_EXPECT_1[1] = NONTERMINAL_A3;
+		B_EXPECT_1[1].setProduction(B_EXPECT_1);
+		B_EXPECT_1[1].markAsEndNode();
+		B_EXPECT_1[1].setParentProduction(PROD_B_AA);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_2 = new AbstractStackNode[2];
+	static{
+		B_EXPECT_2[0] = NONTERMINAL_C9;
+		B_EXPECT_2[0].setProduction(B_EXPECT_2);
+		B_EXPECT_2[1] = NONTERMINAL_C10;
+		B_EXPECT_2[1].setProduction(B_EXPECT_2);
+		B_EXPECT_2[1].markAsEndNode();
+		B_EXPECT_2[1].setParentProduction(PROD_B_CC);
+	}
+	
+	private final static AbstractStackNode[] C_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		C_EXPECT_1[0] = NONTERMINAL_A4;
+		C_EXPECT_1[0].setProduction(C_EXPECT_1);
+		C_EXPECT_1[1] = NONTERMINAL_A5;
+		C_EXPECT_1[1].setProduction(C_EXPECT_1);
+		C_EXPECT_1[1].markAsEndNode();
+		C_EXPECT_1[1].setParentProduction(PROD_C_AA);
+	}
+	
+	private final static AbstractStackNode[] C_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		C_EXPECT_2[0] = LITERAL_a12;
+		C_EXPECT_2[0].setProduction(C_EXPECT_2);
+		C_EXPECT_2[0].markAsEndNode();
+		C_EXPECT_2[0].setParentProduction(PROD_C_a);
+	}
 	public NotAUselessSelfLoop(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_AA, NONTERMINAL_A0, NONTERMINAL_A1);
-		
-		expect(PROD_S_B, NONTERMINAL_B6);
+		expect(S_EXPECT_1);
+		expect(S_EXPECT_2);
 	}
 	
 	public void A(){
-		expect(PROD_A_CC, NONTERMINAL_C7, NONTERMINAL_C8);
-		
-		expect(PROD_A_a, LITERAL_a11);
+		expect(A_EXPECT_1);
+		expect(A_EXPECT_2);
 	}
 	
 	public void B(){
-		expect(PROD_B_AA, NONTERMINAL_A2, NONTERMINAL_A3);
-
-		expect(PROD_B_CC, NONTERMINAL_C9, NONTERMINAL_C10);
+		expect(B_EXPECT_1);
+		expect(B_EXPECT_2);
 	}
 	
 	public void C(){
-		expect(PROD_C_AA, NONTERMINAL_A4, NONTERMINAL_A5);
-		
-		expect(PROD_C_a, LITERAL_a12);
+		expect(C_EXPECT_1);
+		expect(C_EXPECT_2);
 	}
 	
 	public IConstructor executeParser(){

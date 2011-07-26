@@ -54,22 +54,62 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, 0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, 0, PROD_a_a, new char[]{'a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[3];
+	static{
+		S_EXPECT_1[0] = LITERAL_a3;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = NONTERMINAL_A0;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[2] = LITERAL_a4;
+		S_EXPECT_1[2].setProduction(S_EXPECT_1);
+		S_EXPECT_1[2].markAsEndNode();
+		S_EXPECT_1[2].setParentProduction(PROD_S_aAa);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		A_EXPECT_1[0] = NONTERMINAL_B1;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[1] = LITERAL_a5;
+		A_EXPECT_1[1].setProduction(A_EXPECT_1);
+		A_EXPECT_1[1].markAsEndNode();
+		A_EXPECT_1[1].setParentProduction(PROD_A_Ba);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[2];
+	static{
+		A_EXPECT_2[0] = LITERAL_a6;
+		A_EXPECT_2[0].setProduction(A_EXPECT_2);
+		A_EXPECT_2[1] = NONTERMINAL_B2;
+		A_EXPECT_2[1].setProduction(A_EXPECT_2);
+		A_EXPECT_2[1].markAsEndNode();
+		A_EXPECT_2[1].setParentProduction(PROD_A_aB);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		B_EXPECT_1[0] = LITERAL_a7;
+		B_EXPECT_1[0].setProduction(B_EXPECT_1);
+		B_EXPECT_1[0].markAsEndNode();
+		B_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
 	public SplitAndMerge1(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_aAa, LITERAL_a3, NONTERMINAL_A0, LITERAL_a4);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_Ba, NONTERMINAL_B1, LITERAL_a5);
+		expect(A_EXPECT_1);
 		
-		expect(PROD_A_aB, LITERAL_a6, NONTERMINAL_B2);
+		expect(A_EXPECT_2);
 	}
 	
 	public void B(){
-		expect(PROD_A_a, LITERAL_a7);
+		expect(B_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

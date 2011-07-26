@@ -125,11 +125,8 @@ public abstract class SGTDBF implements IGTD{
 		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 	}
 	
-	protected void expect(IConstructor production, AbstractStackNode... symbolsToExpect){
+	protected void expect(AbstractStackNode... symbolsToExpect){
 		lastExpects.add(symbolsToExpect);
-		
-		AbstractStackNode lastNode = symbolsToExpect[symbolsToExpect.length - 1];
-		lastNode.setParentProduction(production);
 	}
 	
 	protected void invokeExpects(AbstractStackNode nonTerminal){
@@ -563,7 +560,6 @@ public abstract class SGTDBF implements IGTD{
 
 		AbstractStackNode[] prod = node.getProduction();
 		AbstractStackNode newNext = prod[nextDot];
-		newNext.setProduction(prod);
 		AbstractStackNode next = updateNextNode(newNext, node, result);
 		
 		// Handle alternative nexts (and prefix sharing).
@@ -708,9 +704,6 @@ public abstract class SGTDBF implements IGTD{
 		EXPECTS: for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode[] expectedNodes = lastExpects.get(i);
 			
-			AbstractStackNode last = expectedNodes[expectedNodes.length - 1];
-			last.markAsEndNode();
-			
 			AbstractStackNode first = expectedNodes[0];
 			
 			if(first.isMatchable()){
@@ -738,7 +731,6 @@ public abstract class SGTDBF implements IGTD{
 			}
 			
 			first.setStartLocation(location);
-			first.setProduction(expectedNodes);
 			first.initEdges();
 			if(cachedEdges == null){
 				cachedEdges = first.addEdge(stackBeingWorkedOn);

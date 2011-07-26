@@ -46,18 +46,41 @@ public class Ambiguous1 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a1 = new LiteralStackNode(1, 0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, 0, PROD_a_a, new char[]{'a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_A0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_A);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_2[0] = LITERAL_a1;
+		S_EXPECT_2[0].setProduction(S_EXPECT_2);
+		S_EXPECT_2[0].markAsEndNode();
+		S_EXPECT_2[0].setParentProduction(PROD_S_a);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a2;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
 	public Ambiguous1(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_A, NONTERMINAL_A0);
-		
-		expect(PROD_S_a, LITERAL_a1);
+		expect(S_EXPECT_1);
+		expect(S_EXPECT_2);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a2);
+		expect(A_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

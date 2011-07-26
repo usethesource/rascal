@@ -7,11 +7,11 @@ import org.rascalmpl.parser.gtd.grammar.symbol.Symbol;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
-import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.IntegerList;
-import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap.Entry;
+import org.rascalmpl.parser.gtd.util.IntegerList;
+import org.rascalmpl.parser.gtd.util.IntegerMap;
+import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 
 // TODO Consolidate expect id generation.
 // TODO Handle restrictions.
@@ -19,7 +19,7 @@ public class GrammarBuilder{
 	private final IntegerKeyedHashMap<ArrayList<Alternative>> productions;
 	private final ObjectKeyedIntegerMap<String> sortMappings;
 	private final LookAheadRange lookAheadChain;
-	private final HashMap<Symbol, ArrayList<Symbol>> restrictions;
+	private final IntegerKeyedHashMap<IntegerList> restrictions;
 	
 	private int sortIdentifierCounter = -1;
 	
@@ -29,7 +29,7 @@ public class GrammarBuilder{
 		productions = new IntegerKeyedHashMap<ArrayList<Alternative>>();
 		sortMappings = new ObjectKeyedIntegerMap<String>();
 		lookAheadChain = new LookAheadRange(-1, -1);
-		restrictions = new HashMap<Symbol, ArrayList<Symbol>>();
+		restrictions = new IntegerKeyedHashMap<IntegerList>();
 	}
 	
 	private static class LookAheadRange{
@@ -155,17 +155,21 @@ public class GrammarBuilder{
 		alternatives.add(new Alternative(prod, symbols, lookAheadRanges));
 	}
 	
-	public void restrict(Symbol child, Symbol parent){
-		ArrayList<Symbol> restrictedParents = restrictions.get(child);
+	public void restrict(int childId, int parentId){
+		IntegerList restrictedParents = restrictions.get(childId);
 		if(restrictedParents == null){
-			restrictedParents = new ArrayList<Symbol>();
-			restrictions.putUnsafe(child, restrictedParents);
+			restrictedParents = new IntegerList();
+			restrictions.putUnsafe(childId, restrictedParents);
 		}
 		
-		restrictedParents.add(parent);
+		restrictedParents.add(parentId);
 	}
 	
 	private AbstractStackNode[][][] buildExpectMatrix(){
+		// TODO Handle restrictions.
+		IntegerMap resultStoreMappings = new IntegerMap();
+		
+		
 		State state = new State();
 		
 		int nrOfLookAheadRanges = lookAheadChain.countRanges() - 1;
@@ -225,7 +229,7 @@ public class GrammarBuilder{
 				int lookAheadIdentifier = lookAheadClusterEntry.key;
 				DoubleArrayList<IConstructor, Symbol[]> lookAheadCluster = lookAheadClusterEntry.value;
 				
-				ExpectBuilder expectBuilder = new ExpectBuilder();
+				ExpectBuilder expectBuilder = new ExpectBuilder(resultStoreMappings);
 				
 				for(int j = lookAheadCluster.size() - 1; j >= 0; --j){
 					IConstructor prod = lookAheadCluster.getFirst(j);

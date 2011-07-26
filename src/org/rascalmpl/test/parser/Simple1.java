@@ -48,16 +48,35 @@ public class Simple1 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_aa1 = new LiteralStackNode(1, 0, PROD_aa_a, new char[]{'a','a'});
 	private final static AbstractStackNode LITERAL_b2 = new LiteralStackNode(2, 1, PROD_b_b, new char[]{'b'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_A0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = LITERAL_b2;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_Ab);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_aa1;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_aa);
+	}
+	
+	
 	public Simple1(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_Ab, NONTERMINAL_A0, LITERAL_b2);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_aa, LITERAL_aa1);
+		expect(A_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

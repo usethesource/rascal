@@ -42,12 +42,20 @@ public class CharPlusList extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode CHAR0 = new CharStackNode(0, 0, new char[][]{{'a', 'z'}});
 	private final static AbstractStackNode LIST1 = new ListStackNode(1, 0, PROD_PLUSLISTa_z, CHAR0, true);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = LIST1;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTa_z);
+	}
+	
 	public CharPlusList(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_PLUSLISTa_z, LIST1);
+		expect(S_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

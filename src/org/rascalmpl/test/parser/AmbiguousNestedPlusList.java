@@ -49,16 +49,32 @@ public class AmbiguousNestedPlusList extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode CHAR2 = new CharStackNode(2, 0, new char[][]{{'a', 'a'}});
 	private final static AbstractStackNode CHAR_LIST3 = new ListStackNode(3, 0, PROD_PLUSLISTa, CHAR2, true);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = LIST1;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTA);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = CHAR_LIST3;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_PLUSLISTa);
+	}
+	
 	public AmbiguousNestedPlusList(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_PLUSLISTA, LIST1);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_PLUSLISTa, CHAR_LIST3);
+		expect(A_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

@@ -65,32 +65,91 @@ public class SplitAndMerge2 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, 1, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_aa9 = new LiteralStackNode(9, 1, PROD_aa_aa, new char[]{'a','a'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_D4;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_D);
+	}
+	
+	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_2[0] = NONTERMINAL_D5;
+		S_EXPECT_2[0].setProduction(S_EXPECT_2);
+		S_EXPECT_2[1] = LITERAL_a6;
+		S_EXPECT_2[1].setProduction(S_EXPECT_2);
+		S_EXPECT_2[1].markAsEndNode();
+		S_EXPECT_2[1].setParentProduction(PROD_S_Da);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a7;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		B_EXPECT_1[0] = NONTERMINAL_A0;
+		B_EXPECT_1[0].setProduction(B_EXPECT_1);
+		B_EXPECT_1[0].markAsEndNode();
+		B_EXPECT_1[0].setParentProduction(PROD_B_A);
+	}
+	
+	private final static AbstractStackNode[] C_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		C_EXPECT_1[0] = NONTERMINAL_B1;
+		C_EXPECT_1[0].setProduction(C_EXPECT_1);
+		C_EXPECT_1[1] = LITERAL_a8;
+		C_EXPECT_1[1].setProduction(C_EXPECT_1);
+		C_EXPECT_1[1].markAsEndNode();
+		C_EXPECT_1[1].setParentProduction(PROD_C_Ba);
+	}
+	
+	private final static AbstractStackNode[] C_EXPECT_2 = new AbstractStackNode[2];
+	static{
+		C_EXPECT_2[0] = NONTERMINAL_B2;
+		C_EXPECT_2[0].setProduction(C_EXPECT_2);
+		C_EXPECT_2[1] = LITERAL_aa9;
+		C_EXPECT_2[1].setProduction(C_EXPECT_2);
+		C_EXPECT_2[1].markAsEndNode();
+		C_EXPECT_2[1].setParentProduction(PROD_C_Baa);
+	}
+	
+	private final static AbstractStackNode[] D_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		D_EXPECT_1[0] = NONTERMINAL_C3;
+		D_EXPECT_1[0].setProduction(D_EXPECT_1);
+		D_EXPECT_1[0].markAsEndNode();
+		D_EXPECT_1[0].setParentProduction(PROD_D_C);
+	}
 	public SplitAndMerge2(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_D, NONTERMINAL_D4);
-		
-		expect(PROD_S_Da, NONTERMINAL_D5, LITERAL_a6);
+		expect(S_EXPECT_1);
+		expect(S_EXPECT_2);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a7);
+		expect(A_EXPECT_1);
 	}
 	
 	public void B(){
-		expect(PROD_B_A, NONTERMINAL_A0);
+		expect(B_EXPECT_1);
 	}
 	
 	public void C(){
-		expect(PROD_C_Ba, NONTERMINAL_B1, LITERAL_a8);
-		
-		expect(PROD_C_Baa, NONTERMINAL_B2, LITERAL_aa9);
+		expect(C_EXPECT_1);
+		expect(C_EXPECT_2);
 	}
 	
 	public void D(){
-		expect(PROD_D_C, NONTERMINAL_C3);
+		expect(D_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

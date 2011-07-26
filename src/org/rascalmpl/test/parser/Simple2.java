@@ -52,20 +52,45 @@ public class Simple2 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, 0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode LITERAL_b3 = new LiteralStackNode(3, 0, PROD_b_b, new char[]{'b'});
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	static{
+		S_EXPECT_1[0] = NONTERMINAL_A0;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1] = NONTERMINAL_B1;
+		S_EXPECT_1[1].setProduction(S_EXPECT_1);
+		S_EXPECT_1[1].markAsEndNode();
+		S_EXPECT_1[1].setParentProduction(PROD_S_AB);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a2;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
+	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		B_EXPECT_1[0] = LITERAL_b3;
+		B_EXPECT_1[0].setProduction(B_EXPECT_1);
+		B_EXPECT_1[0].markAsEndNode();
+		B_EXPECT_1[0].setParentProduction(PROD_B_b);
+	}
 	public Simple2(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_AB, NONTERMINAL_A0, NONTERMINAL_B1);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a2);
+		expect(A_EXPECT_1);
 	}
 	
 	public void B(){
-		expect(PROD_B_b, LITERAL_b3);
+		expect(B_EXPECT_1);
 	}
 	
 	public IConstructor executeParser(){

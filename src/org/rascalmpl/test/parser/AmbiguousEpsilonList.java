@@ -52,18 +52,40 @@ public class AmbiguousEpsilonList extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, 0, PROD_a_a, new char[]{'a'});
 	private final static AbstractStackNode EPSILON3 = new EpsilonStackNode(3, 0);
 	
+	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		S_EXPECT_1[0] = LIST1;
+		S_EXPECT_1[0].setProduction(S_EXPECT_1);
+		S_EXPECT_1[0].markAsEndNode();
+		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTA);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_1[0] = LITERAL_a2;
+		A_EXPECT_1[0].setProduction(A_EXPECT_1);
+		A_EXPECT_1[0].markAsEndNode();
+		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+	}
+	
+	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[1];
+	static{
+		A_EXPECT_2[0] = EPSILON3;
+		A_EXPECT_2[0].setProduction(A_EXPECT_2);
+		A_EXPECT_2[0].markAsEndNode();
+		A_EXPECT_2[0].setParentProduction(PROD_A_epsilon);
+	}
 	public AmbiguousEpsilonList(){
 		super();
 	}
 	
 	public void S(){
-		expect(PROD_S_PLUSLISTA, LIST1);
+		expect(S_EXPECT_1);
 	}
 	
 	public void A(){
-		expect(PROD_A_a, LITERAL_a2);
-		
-		expect(PROD_A_epsilon, EPSILON3);
+		expect(A_EXPECT_1);
+		expect(A_EXPECT_2);
 	}
 	
 	public IConstructor executeParser(){
