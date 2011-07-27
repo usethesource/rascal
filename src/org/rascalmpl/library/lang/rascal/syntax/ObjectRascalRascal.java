@@ -11012,12 +11012,7 @@ public class ObjectRascalRascal extends org.rascalmpl.library.lang.rascal.syntax
     // prod(label("Default",sort("Renamings")),[lit("renaming"),layouts("LAYOUTLIST"),label("renamings",\iter-seps(sort("Renaming"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]))],{})
     expect(Renamings.prod__Default_Renamings__lit_renaming_layouts_LAYOUTLIST_renamings_iter_seps__Renaming__layouts_LAYOUTLIST_lit___44_layouts_LAYOUTLIST_);
   }
-  public void layouts_$QUOTES() {
-    
-    
-    // prod(layouts("$QUOTES"),[conditional(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)])),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{})
-    expect(layouts_$QUOTES.prod__layouts_$QUOTES__conditional__iter_star__char_class___range__9_10_range__13_13_range__32_32__not_follow__char_class___range__9_10_range__13_13_range__32_32_);
-  }
+  
   public void Statement() {
     
     

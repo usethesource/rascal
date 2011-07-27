@@ -15929,7 +15929,6 @@ public class MetaRascalRascal extends ObjectRascalRascal {
     expect(Formals.prod__MetaVariable_Formals__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
   }
   public void layouts_$QUOTES() {
-    super.layouts_$QUOTES();
     
     // prod(layouts("$QUOTES"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{})
     expect(layouts_$QUOTES.prod__layouts_$QUOTES__iter_star__char_class___range__9_10_range__13_13_range__32_32_);
