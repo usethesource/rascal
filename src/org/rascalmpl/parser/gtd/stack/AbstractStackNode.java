@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
 public abstract class AbstractStackNode{
 	public final static int START_SYMBOL_ID = -1;
+	public final static int DEFAULT_START_LOCATION = -1;
 	
 	protected AbstractStackNode[] production;
 	protected AbstractStackNode[][] alternateProductions;
@@ -33,7 +34,7 @@ public abstract class AbstractStackNode{
 	
 	protected int startLocation;
 
-	protected boolean isEndNode;
+	private boolean isEndNode;
 	private boolean isSeparator;
 	private boolean isLayout;
 	
@@ -49,7 +50,7 @@ public abstract class AbstractStackNode{
 		this.id = id;
 		this.dot = dot;
 		
-		this.startLocation = -1;
+		this.startLocation = DEFAULT_START_LOCATION;
 		
 		this.enterFilters = null;
 		this.completionFilters = null;
@@ -61,13 +62,13 @@ public abstract class AbstractStackNode{
 		this.id = id;
 		this.dot = dot;
 		
-		this.startLocation = -1;
+		this.startLocation = DEFAULT_START_LOCATION;
 		
 		this.enterFilters = enterFilters;
 		this.completionFilters = completionFilters;
 	}
 	
-	protected AbstractStackNode(AbstractStackNode original){
+	protected AbstractStackNode(AbstractStackNode original, int startLocation){
 		super();
 		
 		id = original.id;
@@ -76,7 +77,7 @@ public abstract class AbstractStackNode{
 		production = original.production;
 		alternateProductions = original.alternateProductions;
 		
-		startLocation = original.startLocation;
+		this.startLocation = startLocation;
 		
 		isEndNode = original.isEndNode;
 		isSeparator = original.isSeparator;
@@ -169,9 +170,9 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Sharing.
-	public abstract AbstractStackNode getCleanCopy();
+	public abstract AbstractStackNode getCleanCopy(int startLocation);
 
-	public abstract AbstractStackNode getCleanCopyWithResult(AbstractNode result);
+	public abstract AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result);
 	
 	public boolean isSimilar(AbstractStackNode node){
 		return (node.id == id);
@@ -469,10 +470,6 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Location.
-	public void setStartLocation(int startLocation){
-		this.startLocation = startLocation;
-	}
-	
 	public int getStartLocation(){
 		return startLocation;
 	}

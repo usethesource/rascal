@@ -40,8 +40,8 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		this.children = generateAlternatives(alternatives);
 	}
 	
-	private AlternativeStackNode(AlternativeStackNode original){
-		super(original);
+	private AlternativeStackNode(AlternativeStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		production = original.production;
 		name = original.name;
@@ -53,7 +53,7 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		AbstractStackNode[] children = new AbstractStackNode[alternatives.length];
 		
 		for(int i = alternatives.length - 1; i >= 0; --i){
-			AbstractStackNode child = alternatives[i].getCleanCopy();
+			AbstractStackNode child = alternatives[i].getCleanCopy(DEFAULT_START_LOCATION);
 
 			AbstractStackNode[] prod = new AbstractStackNode[]{child};
 			child.setProduction(prod);
@@ -77,11 +77,11 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new AlternativeStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new AlternativeStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	

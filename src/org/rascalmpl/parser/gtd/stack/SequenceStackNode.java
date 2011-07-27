@@ -40,8 +40,8 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		this.children = generateChildren(children);
 	}
 	
-	private SequenceStackNode(SequenceStackNode original){
-		super(original);
+	private SequenceStackNode(SequenceStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		production = original.production;
 		name = original.name;
@@ -53,7 +53,7 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		AbstractStackNode[] prod = new AbstractStackNode[children.length];
 		
 		for(int i = children.length - 1; i >= 0; --i){
-			AbstractStackNode child = children[i].getCleanCopy();
+			AbstractStackNode child = children[i].getCleanCopy(DEFAULT_START_LOCATION);
 			child.setProduction(prod);
 			prod[i] = child;
 		}
@@ -75,11 +75,11 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new SequenceStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new SequenceStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -46,8 +46,8 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	private SeparatedListStackNode(SeparatedListStackNode original){
-		super(original);
+	private SeparatedListStackNode(SeparatedListStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		production = original.production;
 		name = original.name;
@@ -57,7 +57,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	private AbstractStackNode[] generateChildren(AbstractStackNode child, AbstractStackNode[] separators){
-		AbstractStackNode listNode = child.getCleanCopy();
+		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
 		listNode.setParentProduction(production);
 		
 		int numberOfSeparators = separators.length;
@@ -77,7 +77,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 	}
 	
 	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy();
+		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setParentProduction(production);
 		return empty;
 	}
@@ -94,11 +94,11 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new SeparatedListStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new SeparatedListStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	

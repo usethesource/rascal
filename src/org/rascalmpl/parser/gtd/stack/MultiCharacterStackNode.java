@@ -44,8 +44,8 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		result = null;
 	}
 	
-	private MultiCharacterStackNode(MultiCharacterStackNode original){
-		super(original);
+	private MultiCharacterStackNode(MultiCharacterStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		production = original.production;
 		
@@ -54,8 +54,8 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		result = null;
 	}
 	
-	private MultiCharacterStackNode(MultiCharacterStackNode original, AbstractNode result){
-		super(original);
+	private MultiCharacterStackNode(MultiCharacterStackNode original, int startLocation, AbstractNode result){
+		super(original, startLocation);
 		
 		this.production = original.production;
 		
@@ -110,12 +110,12 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		return true;
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new MultiCharacterStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new MultiCharacterStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
-		return new MultiCharacterStackNode(this, result);
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
+		return new MultiCharacterStackNode(this, startLocation, result);
 	}
 	
 	public int getLength(){

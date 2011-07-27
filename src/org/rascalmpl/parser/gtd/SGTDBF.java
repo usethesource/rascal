@@ -193,9 +193,9 @@ public abstract class SGTDBF implements IGTD{
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null) return null;
 			
-			next = next.getCleanCopyWithResult(nextResult);
+			next = next.getCleanCopyWithResult(location, nextResult);
 		}else{
-			next = next.getCleanCopy();
+			next = next.getCleanCopy(location);
 		}
 		
 		if(!node.isMatchable() || result.isEmpty()){
@@ -203,7 +203,6 @@ public abstract class SGTDBF implements IGTD{
 		}else{ // Non-nullable terminal specific edge set sharing optimization.
 			next.updateNodeAfterNonEmptyMatchable(node, result);
 		}
-		next.setStartLocation(location);
 		
 		sharedNextNodes.putUnsafe(next.getId(), next);
 		stacksToExpand.push(next);
@@ -249,13 +248,12 @@ public abstract class SGTDBF implements IGTD{
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null) return false;
 			
-			next = next.getCleanCopyWithResult(nextResult);
+			next = next.getCleanCopyWithResult(location, nextResult);
 		}else{
-			next = next.getCleanCopy();
+			next = next.getCleanCopy(location);
 		}
 		
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
-		next.setStartLocation(location);
 		
 		sharedNextNodes.putUnsafe(id, next);
 		stacksToExpand.push(next);
@@ -783,15 +781,14 @@ public abstract class SGTDBF implements IGTD{
 					}
 				}
 				
-				first = first.getCleanCopyWithResult(result);
+				first = first.getCleanCopyWithResult(location, result);
 				
 				addTodo(first, length, result);
 			}else{
-				first = first.getCleanCopy();
+				first = first.getCleanCopy(location);
 				stacksToExpand.push(first);
 			}
 			
-			first.setStartLocation(location);
 			first.initEdges();
 			if(cachedEdges == null){
 				cachedEdges = first.addEdge(stackBeingWorkedOn);
@@ -889,17 +886,16 @@ public abstract class SGTDBF implements IGTD{
 							}
 						}
 						
-						child = child.getCleanCopyWithResult(result);
+						child = child.getCleanCopyWithResult(location, result);
 						
 						addTodo(child, length, result);
 					}else{
-						child = child.getCleanCopy();
+						child = child.getCleanCopy(location);
 						stacksToExpand.push(child);
 					}
 					
 					sharedNextNodes.putUnsafe(childId, child);
 					
-					child.setStartLocation(location);
 					child.initEdges();
 					child.addEdgeWithPrefix(stack, null, location);
 				}
@@ -907,8 +903,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			if(stack.canBeEmpty()){ // Star list, optional or such.
 				// This epsilon is unique for this position, so we don't need to check for sharing.
-				AbstractStackNode empty = stack.getEmptyChild().getCleanCopy();
-				empty.setStartLocation(location);
+				AbstractStackNode empty = stack.getEmptyChild().getCleanCopy(location);
 				empty.initEdges();
 				empty.addEdge(stack);
 				
@@ -947,8 +942,7 @@ public abstract class SGTDBF implements IGTD{
 		todoLists = new DoubleStack[DEFAULT_TODOLIST_CAPACITY];
 		
 		// Handle the initial expansion of the root node.
-		AbstractStackNode rootNode = startNode.getCleanCopy();
-		rootNode.setStartLocation(0);
+		AbstractStackNode rootNode = startNode.getCleanCopy(0);
 		rootNode.initEdges();
 		stacksToExpand.push(rootNode);
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
