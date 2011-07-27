@@ -767,7 +767,7 @@ public abstract class SGTDBF implements IGTD{
 		EXPECTS: for(int i = nrOfExpects - 1; i >= 0; --i){
 			AbstractStackNode first = lastExpects.get(i);
 			
-			if(first.isMatchable()){
+			if(first.isMatchable()){ // Eager matching optimization.
 				int length = first.getLength();
 				int endLocation = location + length;
 				if(endLocation > input.length) continue;
@@ -775,7 +775,7 @@ public abstract class SGTDBF implements IGTD{
 				AbstractNode result = first.match(input, location);
 				if(result == null) continue;
 				
-				// Filtering
+				// Handle filtering.
 				IEnterFilter[] enterFilters = first.getEnterFilters();
 				if(enterFilters != null){
 					for(int j = enterFilters.length - 1; j >= 0; --j){
@@ -853,7 +853,7 @@ public abstract class SGTDBF implements IGTD{
 				ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 				if(levelResultStoreMap != null){
 					AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName(), getResultStoreId(stack.getId()));
-					if(resultStore != null){ // Is nullable, add the known results.
+					if(resultStore != null){ // Has pre-existing nullable results, handle the node.
 						stacksWithNonTerminalsToReduce.push(stack, resultStore);
 					}
 				}
