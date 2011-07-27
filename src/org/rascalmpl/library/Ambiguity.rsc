@@ -88,13 +88,9 @@ public list[Message] deeperCauses(Tree x, Tree y) {
     result += [info("Unique layout to the one: <symbol2rascal(t[0].prod.def)>", x@\loc?|dunno:///|) | t <- laX - laY];
     result += [info("Unique layout to the other: <symbol2rascal(t[0].prod.def)>", x@\loc?|dunno:///|) | t <- laY - laX];
     
-     iprintln(result);
-     
     // literals that became lexicals and vice versa
     result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rX o lY];
     result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rY o lX];
-    
-   
     
     // lexicals that overlap position, but are shorter (longest match issue)
     for (<tX,yX> <- rX, <tY,yY> <- rY, tX != tY) {
