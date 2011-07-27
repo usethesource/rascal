@@ -10,7 +10,6 @@ import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 
-// TODO Handle restrictions.
 public class ExpectBuilder{
 	private final IntegerMap resultStoreMappings;
 	
@@ -33,7 +32,7 @@ public class ExpectBuilder{
 		}
 		
 		// Clone the alternative so we don't get entangled in look-ahead related issues.
-		AbstractStackNode[] clonedAlternative = new AlternativeStackNode[alternativeLength];
+		AbstractStackNode[] clonedAlternative = new AbstractStackNode[alternativeLength];
 		for(int i = alternativeLength - 1; i >= 0; --i){
 			clonedAlternative[i] = alternative[i].getCleanCopy();
 		}
@@ -68,14 +67,19 @@ public class ExpectBuilder{
 					int k = 1;
 					CHAIN: for(; k < alternative.length; ++k){
 						AbstractStackNode alternativeItem = alternative[k];
+						int alternativeItemResultStoreId = resultStoreMappings.get(alternativeItem.getId());
 						
-						if(alternativeItem.equals(sharedExpect[k])){
+						AbstractStackNode sharedExpectItem = sharedExpect[k];
+						int sharedExpectItemResultStoreId = resultStoreMappings.get(sharedExpectItem.getId());
+						
+						if(alternativeItem.equals(sharedExpectItem) && alternativeItemResultStoreId == sharedExpectItemResultStoreId){
 							AbstractStackNode[][] otherAlternatives = alternativeItem.getAlternateProductions();
 							if(otherAlternatives != null){
 								for(int l = otherAlternatives.length - 1; l >= 0; --l){
 									AbstractStackNode[] otherAlternative = otherAlternatives[l];
 									AbstractStackNode otherAlternativeItem = otherAlternative[k];
-									if(otherAlternativeItem.equals(sharedExpect[k])){
+									int otherAlternativeItemResultStoreId = resultStoreMappings.get(otherAlternativeItem.getId());
+									if(otherAlternativeItem.equals(sharedExpectItem) && otherAlternativeItemResultStoreId == sharedExpectItemResultStoreId){
 										otherAlternativeItem.setProduction(alternative);
 										alternative = otherAlternative;
 										
