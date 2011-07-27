@@ -1,7 +1,7 @@
-package org.rascalmpl.parser.gtd.grammar.symbol;
+package org.rascalmpl.parser.gtd.experiments.grammar.symbol;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.parser.gtd.grammar.State;
+import org.rascalmpl.parser.gtd.experiments.grammar.State;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;

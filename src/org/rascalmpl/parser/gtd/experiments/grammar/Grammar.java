@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.grammar;
+package org.rascalmpl.parser.gtd.experiments.grammar;
 
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 
