@@ -22,5 +22,5 @@ public interface IGTD{
 	
 	IConstructor parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
 	
-	IConstructor buildErrorTree();
+	IConstructor buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor);
 }
