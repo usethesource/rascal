@@ -45,8 +45,8 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	private ListStackNode(ListStackNode original){
-		super(original);
+	private ListStackNode(ListStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		production = original.production;
 		name = original.name;
@@ -56,14 +56,14 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 	}
 	
 	private AbstractStackNode[] generateChildren(AbstractStackNode child){
-		AbstractStackNode listNode = child.getCleanCopy();
+		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
 		listNode.setParentProduction(production);
 		listNode.setProduction(new AbstractStackNode[]{listNode, listNode});
 		return new AbstractStackNode[]{listNode};
 	}
 	
 	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy();
+		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setParentProduction(production);
 		return empty;
 	}
@@ -80,11 +80,11 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new ListStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new ListStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	

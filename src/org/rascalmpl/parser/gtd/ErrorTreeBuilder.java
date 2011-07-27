@@ -72,8 +72,7 @@ public class ErrorTreeBuilder{
 	}
 	
 	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
-		next = next.getCleanCopy();
-		next.setStartLocation(location);
+		next = next.getCleanCopy(location);
 		next.updateNode(node, result);
 		
 		IConstructor nextSymbol = findSymbol(next);
@@ -85,9 +84,8 @@ public class ErrorTreeBuilder{
 	}
 	
 	private void updateAlternativeNextNode(AbstractStackNode next, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
-		next = next.getCleanCopy();
+		next = next.getCleanCopy(location);
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
-		next.setStartLocation(location);
 		
 		IConstructor nextSymbol = findSymbol(next);
 		AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());

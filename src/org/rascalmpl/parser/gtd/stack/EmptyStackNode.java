@@ -44,8 +44,8 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		this.emptyChild = generateEmptyChild(); 
 	}
 	
-	private EmptyStackNode(EmptyStackNode original){
-		super(original);
+	private EmptyStackNode(EmptyStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		production = original.production;
 		name = original.name;
@@ -54,7 +54,7 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 	}
 	
 	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy();
+		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setParentProduction(production);
 		return empty;
 	}
@@ -71,11 +71,11 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new EmptyStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new EmptyStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	

@@ -37,16 +37,16 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		result = null;
 	}
 	
-	private CharStackNode(CharStackNode original){
-		super(original);
+	private CharStackNode(CharStackNode original, int startLocation){
+		super(original, startLocation);
 		
 		ranges = original.ranges;
 		
 		result = null;
 	}
 	
-	private CharStackNode(CharStackNode original, AbstractNode result){
-		super(original);
+	private CharStackNode(CharStackNode original, int startLocation, AbstractNode result){
+		super(original, startLocation);
 		
 		this.ranges = original.ranges;
 		
@@ -85,12 +85,12 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return false;
 	}
 	
-	public AbstractStackNode getCleanCopy(){
-		return new CharStackNode(this);
+	public AbstractStackNode getCleanCopy(int startLocation){
+		return new CharStackNode(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(AbstractNode result){
-		return new CharStackNode(this, result);
+	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
+		return new CharStackNode(this, startLocation, result);
 	}
 	
 	public int getLength(){

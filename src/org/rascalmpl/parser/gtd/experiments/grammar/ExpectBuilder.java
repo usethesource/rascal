@@ -33,7 +33,7 @@ public class ExpectBuilder{
 		// Clone the alternative so we don't get entangled in look-ahead related issues.
 		AbstractStackNode[] clonedAlternative = new AbstractStackNode[alternativeLength];
 		for(int i = alternativeLength - 1; i >= 0; --i){
-			clonedAlternative[i] = alternative[i].getCleanCopy();
+			clonedAlternative[i] = alternative[i].getCleanCopy(AbstractStackNode.DEFAULT_START_LOCATION);
 		}
 		
 		alternativesList.add(production, clonedAlternative);
