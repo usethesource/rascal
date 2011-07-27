@@ -51,7 +51,7 @@ public class MatchResult extends AbstractBooleanResult {
 
 		mp = pattern.getMatcher(ctx);
 		
-    	mp.initMatch(expression.interpret(ctx.getEvaluator()));
+    	mp.initMatch(result);
 
     	if(!mp.mayMatch(subjectType, ctx.getCurrentEnvt())) {
     		throw new UnexpectedTypeError(mp.getType(ctx.getCurrentEnvt()), subjectType, ctx.getCurrentAST());
