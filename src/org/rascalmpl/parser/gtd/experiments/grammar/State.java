@@ -1,6 +1,6 @@
-package org.rascalmpl.parser.gtd.grammar;
+package org.rascalmpl.parser.gtd.experiments.grammar;
 
-import org.rascalmpl.parser.gtd.grammar.symbol.Symbol;
+import org.rascalmpl.parser.gtd.experiments.grammar.symbol.Symbol;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public class State{
