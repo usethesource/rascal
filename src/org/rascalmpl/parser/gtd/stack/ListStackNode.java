@@ -57,7 +57,6 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 	
 	private AbstractStackNode[] generateChildren(AbstractStackNode child){
 		AbstractStackNode listNode = child.getCleanCopy();
-		listNode.markAsEndNode();
 		listNode.setParentProduction(production);
 		listNode.setProduction(new AbstractStackNode[]{listNode, listNode});
 		return new AbstractStackNode[]{listNode};
@@ -65,7 +64,6 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 	
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy();
-		empty.markAsEndNode();
 		empty.setParentProduction(production);
 		return empty;
 	}

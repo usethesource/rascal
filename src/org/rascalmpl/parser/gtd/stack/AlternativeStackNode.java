@@ -57,7 +57,6 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 
 			AbstractStackNode[] prod = new AbstractStackNode[]{child};
 			child.setProduction(prod);
-			child.markAsEndNode();
 			child.setParentProduction(production);
 			
 			children[i] = child;

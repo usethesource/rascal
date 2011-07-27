@@ -37,10 +37,11 @@ public abstract class AbstractStackNode{
 	private boolean isSeparator;
 	private boolean isLayout;
 	
-	// Last node specific stuff
-	private IConstructor parentProduction;
 	private final IEnterFilter[] enterFilters;
 	private final ICompletionFilter[] completionFilters;
+	
+	// Last node specific stuff
+	private IConstructor parentProduction;
 	
 	public AbstractStackNode(int id, int dot){
 		super();
@@ -91,10 +92,6 @@ public abstract class AbstractStackNode{
 		return id;
 	}
 	
-	public void markAsEndNode(){
-		isEndNode = true;
-	}
-	
 	public boolean isEndNode(){
 		return isEndNode;
 	}
@@ -134,6 +131,7 @@ public abstract class AbstractStackNode{
 	// Last node specific stuff.
 	public void setParentProduction(IConstructor parentProduction){
 		this.parentProduction = parentProduction;
+		isEndNode = true;
 	}
 	
 	public IConstructor getParentProduction(){

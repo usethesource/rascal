@@ -42,7 +42,6 @@ public class CharRange extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = CHAR_a0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].markAsEndNode();
 		S_EXPECT_1[0].setParentProduction(PROD_PLUSLISTa_z_a_z);
 	}
 	

@@ -76,7 +76,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = NONTERMINAL_A0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].markAsEndNode();
 		S_EXPECT_1[0].setParentProduction(PROD_S_A);
 	}
 	
@@ -84,7 +83,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_2[0] = NONTERMINAL_E4;
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
-		S_EXPECT_2[0].markAsEndNode();
 		S_EXPECT_2[0].setParentProduction(PROD_S_E);
 	}
 	
@@ -92,7 +90,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		A_EXPECT_1[0] = NONTERMINAL_B1;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_B);
 	}
 	
@@ -100,7 +97,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		B_EXPECT_1[0] = NONTERMINAL_C2;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].markAsEndNode();
 		B_EXPECT_1[0].setParentProduction(PROD_B_C);
 	}
 	
@@ -108,7 +104,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		C_EXPECT_1[0] = NONTERMINAL_D3;
 		C_EXPECT_1[0].setProduction(C_EXPECT_1);
-		C_EXPECT_1[0].markAsEndNode();
 		C_EXPECT_1[0].setParentProduction(PROD_C_D);
 	}
 	
@@ -116,7 +111,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		D_EXPECT_1[0] = NONTERMINAL_E5;
 		D_EXPECT_1[0].setProduction(D_EXPECT_1);
-		D_EXPECT_1[0].markAsEndNode();
 		D_EXPECT_1[0].setParentProduction(PROD_D_E);
 	}
 	
@@ -124,7 +118,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		D_EXPECT_2[0] = LITERAL_a8;
 		D_EXPECT_2[0].setProduction(D_EXPECT_2);
-		D_EXPECT_2[0].markAsEndNode();
 		D_EXPECT_2[0].setParentProduction(PROD_D_a);
 	}
 	
@@ -132,7 +125,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		E_EXPECT_1[0] = NONTERMINAL_F6;
 		E_EXPECT_1[0].setProduction(E_EXPECT_1);
-		E_EXPECT_1[0].markAsEndNode();
 		E_EXPECT_1[0].setParentProduction(PROD_E_F);
 	}
 	
@@ -140,7 +132,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		F_EXPECT_1[0] = NONTERMINAL_G7;
 		F_EXPECT_1[0].setProduction(F_EXPECT_1);
-		F_EXPECT_1[0].markAsEndNode();
 		F_EXPECT_1[0].setParentProduction(PROD_F_G);
 	}
 	
@@ -148,7 +139,6 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	static{
 		G_EXPECT_1[0] = LITERAL_a9;
 		G_EXPECT_1[0].setProduction(G_EXPECT_1);
-		G_EXPECT_1[0].markAsEndNode();
 		G_EXPECT_1[0].setParentProduction(PROD_G_a);
 	}
 	

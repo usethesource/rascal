@@ -240,7 +240,6 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[i].new>;
            '      tmp[<ii>].setProduction(tmp);<}>
-           '      tmp[<size(lhses) - 1>].markAsEndNode();
            '      tmp[<size(lhses) - 1>].setParentProduction(<name>.<id>);
            '      return tmp;
            '	}<}>
@@ -493,8 +492,18 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
         sym = sym.symbol; 
     }
     
-    filters  = "new IEnterFilter[] {<(enters != []) ? head(enters) : ""><for (enters != [], f <- tail(enters)) {>, <f><}>}"
-             + ", new ICompletionFilter[] {<(exits != []) ? head(exits) : ""><for (exits != [], f <- tail(exits)) {>, <f><}>}";
+    filters = "";
+    if(enters != []){
+    	filters += "new IEnterFilter[] {<head(enters)><for (enters != [], f <- tail(enters)) {>, <f><}>}";
+    }else{
+    	filters += "null";
+    }
+    
+    if(exits != []){
+    	filters += ", new ICompletionFilter[] {<head(exits)><for (exits != [], f <- tail(exits)) {>, <f><}>}";
+    }else{
+    	filters += ", null";
+    }
     
     switch ((meta(_) := sym) ? sym.wrapped : sym) {
         case \sort(n) : 

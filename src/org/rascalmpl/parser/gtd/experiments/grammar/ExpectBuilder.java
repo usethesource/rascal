@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.AlternativeStackNode;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
@@ -56,7 +55,6 @@ public class ExpectBuilder{
 				if(sharedExpect == null){
 					alternative[alternative.length - 1].setProduction(alternative);
 					alternative[alternative.length - 1].setParentProduction(production);
-					alternative[alternative.length - 1].markAsEndNode();
 					
 					for(int k = alternative.length - 2; k >= 0; --k){
 						alternative[k].setProduction(alternative);
@@ -98,7 +96,6 @@ public class ExpectBuilder{
 						sharedExpect[k - 1].addProduction(alternative);
 					}else{
 						sharedExpect[alternative.length - 1].setParentProduction(production);
-						sharedExpect[alternative.length - 1].markAsEndNode();
 					}
 					
 					for(; k < alternative.length; ++k){
@@ -106,7 +103,6 @@ public class ExpectBuilder{
 					}
 					
 					alternative[alternative.length - 1].setParentProduction(production);
-					alternative[alternative.length - 1].markAsEndNode();
 				}
 			}
 		}

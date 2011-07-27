@@ -58,9 +58,7 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 			prod[i] = child;
 		}
 		
-		AbstractStackNode lastChild = prod[prod.length - 1];
-		lastChild.markAsEndNode();
-		lastChild.setParentProduction(production);
+		prod[prod.length - 1].setParentProduction(production);
 		
 		return new AbstractStackNode[]{prod[0]};
 	}

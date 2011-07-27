@@ -44,7 +44,6 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	static{
 		S_EXPECT_1[0] = LIST2;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].markAsEndNode();
 		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTA);
 	}
 	
@@ -52,7 +51,6 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	static{
 		A_EXPECT_1[0] = LITERAL_a3;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_a);
 	}
 	
@@ -60,7 +58,6 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	static{
 		A_EXPECT_2[0] = EPSILON4;
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
-		A_EXPECT_2[0].markAsEndNode();
 		A_EXPECT_2[0].setParentProduction(PROD_A_epsilon);
 	}
 	
@@ -68,7 +65,6 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	static{
 		SEP_EXPECT_1[0] = EPSILON5;
 		SEP_EXPECT_1[0].setProduction(SEP_EXPECT_1);
-		SEP_EXPECT_1[0].markAsEndNode();
 		SEP_EXPECT_1[0].setParentProduction(PROD_SEP_epsilon);
 	}
 	
