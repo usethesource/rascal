@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.env.Environment;
  */
 public class NotResult extends AbstractBooleanResult {
 	private final IBooleanResult arg;
+	private boolean firstTime;
 
 	public NotResult(IEvaluatorContext ctx, IBooleanResult arg) {
 		super(ctx);
@@ -36,11 +37,12 @@ public class NotResult extends AbstractBooleanResult {
 	public void init() {
 		super.init();
 		arg.init();
+		this.firstTime = true;
 	}
 
 	@Override
 	public boolean hasNext() {
-		return arg.hasNext();
+		return firstTime;
 	}
 	
 	@Override
@@ -48,6 +50,7 @@ public class NotResult extends AbstractBooleanResult {
 		Environment old = ctx.getCurrentEnvt();
 		ctx.pushEnv();
 		try {
+			firstTime = false;
 			return !arg.next();
 		}
 		finally {
