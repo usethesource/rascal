@@ -62,7 +62,6 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2] = LITERAL_a4;
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2].markAsEndNode();
 		S_EXPECT_1[2].setParentProduction(PROD_S_aAa);
 	}
 	
@@ -72,7 +71,6 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
 		A_EXPECT_1[1] = LITERAL_a5;
 		A_EXPECT_1[1].setProduction(A_EXPECT_1);
-		A_EXPECT_1[1].markAsEndNode();
 		A_EXPECT_1[1].setParentProduction(PROD_A_Ba);
 	}
 	
@@ -82,7 +80,6 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
 		A_EXPECT_2[1] = NONTERMINAL_B2;
 		A_EXPECT_2[1].setProduction(A_EXPECT_2);
-		A_EXPECT_2[1].markAsEndNode();
 		A_EXPECT_2[1].setParentProduction(PROD_A_aB);
 	}
 	
@@ -90,7 +87,6 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 	static{
 		B_EXPECT_1[0] = LITERAL_a7;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].markAsEndNode();
 		B_EXPECT_1[0].setParentProduction(PROD_A_a);
 	}
 	

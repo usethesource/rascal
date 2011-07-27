@@ -816,7 +816,6 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(37, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_HexIntegerLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -837,7 +836,6 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(27, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PostStringChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -858,7 +856,6 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(75, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_OctalEscapeSequence__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -879,7 +876,6 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(115, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_RegExpLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -900,7 +896,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(125, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Literal__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -921,7 +917,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(137, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Module__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -942,7 +938,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(157, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ModuleParameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -972,7 +968,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(167, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Catch_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Catch_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -990,7 +986,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(189, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PrePathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1020,7 +1016,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(199, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_NonterminalLabel_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_NonterminalLabel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1038,7 +1034,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(229, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PostProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1056,7 +1052,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(241, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_SyntaxDefinition_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1074,7 +1070,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(231, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_IntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1092,7 +1088,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(251, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_FunctionBody_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1122,7 +1118,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(261, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PreProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PreProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1140,7 +1136,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(291, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Word_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1170,7 +1166,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(323, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_TagString_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TagString_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1188,7 +1184,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(293, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_DecimalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1218,7 +1214,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(325, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Char_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Char_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1236,7 +1232,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(347, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_MidStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1254,7 +1250,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(365, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_RegExpModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1272,7 +1268,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(367, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_DataTarget_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1302,7 +1298,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(377, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_OctalEscapeSequence_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_OctalEscapeSequence_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1332,7 +1328,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(399, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_LocalVariableDeclaration_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_LocalVariableDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1350,7 +1346,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(429, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Range_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1380,7 +1376,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(431, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PostProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PostProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1398,7 +1394,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(461, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_QualifiedName_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1416,7 +1412,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(473, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_TimeZonePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1434,7 +1430,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(463, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StringMiddle_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1464,7 +1460,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(503, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_MidStringChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_MidStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1494,7 +1490,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(505, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_QualifiedName_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_QualifiedName_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1524,7 +1520,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(527, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_UnicodeEscape_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_UnicodeEscape_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1554,7 +1550,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(549, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Nonterminal_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Nonterminal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1584,7 +1580,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(591, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_HexIntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_HexIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1602,7 +1598,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(601, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Statement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1620,7 +1616,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(603, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Class_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1638,7 +1634,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(621, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Bound_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1668,7 +1664,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(623, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Assignable_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assignable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1698,7 +1694,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(645, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Toplevel_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Toplevel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1728,7 +1724,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[0].setProduction(tmp);
       tmp[1] = new NonTerminalStackNode(669, 1, "layouts_$QUOTES", new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[1].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_BooleanLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_BooleanLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1758,7 +1754,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(699, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StringMiddle_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringMiddle_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1776,7 +1772,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(689, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_BooleanLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1806,7 +1802,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(731, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Expression_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1824,7 +1820,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(721, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_OctalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1854,7 +1850,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(753, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_DecimalIntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DecimalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1872,7 +1868,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(775, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Literal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1890,7 +1886,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(785, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PreProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1908,7 +1904,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(795, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Signature_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1926,7 +1922,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(805, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Renaming_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1944,7 +1940,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(823, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_TypeArg_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -1974,7 +1970,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(825, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_DateTimeLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DateTimeLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2004,7 +2000,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(847, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Replacement_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Replacement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2034,7 +2030,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(869, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StringTemplate_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringTemplate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2052,7 +2048,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(891, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Field_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2082,7 +2078,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(901, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StringCharacter_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringCharacter_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2112,7 +2108,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(923, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PatternWithAction_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PatternWithAction_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2142,7 +2138,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(945, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Variant_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Variant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2172,7 +2168,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(967, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PostPathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PostPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2190,7 +2186,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(989, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Mapping__Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2220,7 +2216,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(999, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ShellCommand_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ShellCommand_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2238,7 +2234,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1021, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2268,7 +2264,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1031, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_RegExpModifier_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RegExpModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2298,7 +2294,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1053, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Tag_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Tag_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2316,7 +2312,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(1083, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_MidProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2346,7 +2342,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1085, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Target_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Target_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2364,7 +2360,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(1115, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Tags_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2394,7 +2390,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1117, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Module_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Module_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2412,7 +2408,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1139, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StructuredType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2442,7 +2438,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1149, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Variable_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Variable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2472,7 +2468,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1171, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Assignment_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assignment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2490,7 +2486,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1193, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Variant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2508,7 +2504,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1203, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_BasicType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2538,7 +2534,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1213, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_CaseInsensitiveStringConstant_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_CaseInsensitiveStringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2556,7 +2552,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1235, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2574,7 +2570,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1245, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ModuleActuals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2592,7 +2588,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1265, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_OctalEscapeSequence_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2610,7 +2606,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1255, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_HexIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2628,7 +2624,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1275, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_MidPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2658,7 +2654,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1285, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_BasicType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_BasicType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2676,7 +2672,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1307, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StringTemplate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2706,7 +2702,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1317, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Declarator_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Declarator_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2736,7 +2732,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1339, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_TimeZonePart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TimeZonePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2778,7 +2774,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1361, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[16].markAsEndNode();
+      
       tmp[16].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Mapping_layouts_$QUOTES_lit___91_layouts_$QUOTES_lit_Expression_layouts_$QUOTES_lit___93_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Mapping__Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2796,7 +2792,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1395, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Assoc_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2814,7 +2810,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1405, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_RealLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2832,7 +2828,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1415, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_JustTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2850,7 +2846,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1425, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_LocationLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2880,7 +2876,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1435, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_FunctionDeclaration_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2910,7 +2906,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1457, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_DateAndTime_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DateAndTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2928,7 +2924,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1479, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_NamedBackslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2946,7 +2942,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1489, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Renamings_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2964,7 +2960,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1499, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StringLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -2994,7 +2990,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1509, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Statement_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Statement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3024,7 +3020,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1531, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StructuredType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StructuredType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3042,7 +3038,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1553, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Type_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3060,7 +3056,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1563, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Toplevel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3078,7 +3074,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1573, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3108,7 +3104,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1583, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ImportedModule_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ImportedModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3138,7 +3134,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1605, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Prod_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Prod_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3168,7 +3164,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1627, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_JustDate_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_JustDate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3198,7 +3194,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1649, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Kind_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Kind_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3228,7 +3224,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1671, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Literal_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Literal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3246,7 +3242,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1693, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Module_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3276,7 +3272,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1703, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Word_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Word_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3306,7 +3302,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1725, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Case_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Case_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3336,7 +3332,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1747, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Strategy_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Strategy_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3354,7 +3350,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1769, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_NonterminalLabel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3384,7 +3380,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1779, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PathTail_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PathTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3402,7 +3398,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1801, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Nonterminal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3420,7 +3416,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1811, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_TagString_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3450,7 +3446,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1821, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Comment_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Comment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3468,7 +3464,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1843, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3486,7 +3482,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1853, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Assignment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3504,7 +3500,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1863, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Assignable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3534,7 +3530,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1895, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Declaration_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Declaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3564,7 +3560,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1873, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PathPart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PathPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3594,7 +3590,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1939, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_FunctionType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3624,7 +3620,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1917, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Label_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Label_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3642,7 +3638,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1961, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PatternWithAction_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3672,7 +3668,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1971, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_TimePartNoTZ_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TimePartNoTZ_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3690,7 +3686,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(1993, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_TimePartNoTZ_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3708,7 +3704,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2003, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_FunctionDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3738,7 +3734,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2013, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3768,7 +3764,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2035, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Backslash_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Backslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3798,7 +3794,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2057, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Visibility_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Visibility_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3816,7 +3812,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2079, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_RegExpLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3834,7 +3830,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2089, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Char_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3864,7 +3860,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2121, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Comprehension_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Comprehension_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3894,7 +3890,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2099, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StringTail_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3912,7 +3908,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2143, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Target_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3942,7 +3938,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2153, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_NamedBackslash_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_NamedBackslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3972,7 +3968,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2175, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ProtocolPart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProtocolPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -3990,7 +3986,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2197, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_LAYOUT_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4008,7 +4004,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2207, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_UserType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4038,7 +4034,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2217, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_RegExpLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RegExpLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4056,7 +4052,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2239, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Body_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4086,7 +4082,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2249, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ModuleParameters_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ModuleParameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4104,7 +4100,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2271, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PathPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4122,7 +4118,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2281, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Replacement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4152,7 +4148,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2291, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_SyntaxDefinition_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_SyntaxDefinition_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4182,7 +4178,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2313, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Start_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Start_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4212,7 +4208,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2335, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PrePathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PrePathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4242,7 +4238,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2377, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ProdModifier_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProdModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4260,7 +4256,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2357, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PreStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4278,7 +4274,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2367, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_URLChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4296,7 +4292,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2399, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Visit_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4326,7 +4322,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2409, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Parameters_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Parameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4356,7 +4352,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2453, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PostStringChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PostStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4386,7 +4382,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2431, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_UserType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_UserType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4404,7 +4400,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2475, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Declaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4422,7 +4418,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2507, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Comprehension_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4452,7 +4448,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2485, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Commands_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Commands_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4470,7 +4466,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2517, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_TypeVar_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4500,7 +4496,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2527, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StringLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4542,7 +4538,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2549, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[16].markAsEndNode();
+      
       tmp[16].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Mapping_layouts_$QUOTES_lit___91_layouts_$QUOTES_lit_Pattern_layouts_$QUOTES_lit___93_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Mapping__Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4572,7 +4568,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2583, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Body_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Body_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4602,7 +4598,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2605, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_StringConstant_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4632,7 +4628,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2627, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_JustTime_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_JustTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4662,7 +4658,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2649, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PreModule_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PreModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4680,7 +4676,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2671, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Comment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4710,7 +4706,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2681, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_FunctionModifier_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4740,7 +4736,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2703, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ProtocolTail_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProtocolTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4770,7 +4766,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2725, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Renamings_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Renamings_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4800,7 +4796,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2747, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Type_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Type_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4818,7 +4814,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2769, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_LocalVariableDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4836,7 +4832,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2801, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StringTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4866,7 +4862,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2779, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Command_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Command_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4896,7 +4892,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2811, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Header_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Header_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4914,7 +4910,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2833, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_JustDate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4932,7 +4928,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2843, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_CaseInsensitiveStringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4962,7 +4958,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2853, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_IntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_IntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4980,7 +4976,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2875, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Name_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -4998,7 +4994,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2885, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Start_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5028,7 +5024,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2895, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_LocationLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_LocationLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5058,7 +5054,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2917, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_RegExp_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5076,7 +5072,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2939, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_DateTimeLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5094,7 +5090,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2949, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PostStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5124,7 +5120,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2959, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_DatePart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DatePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5142,7 +5138,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2981, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_NamedRegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5172,7 +5168,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(2991, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Range_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Range_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5202,7 +5198,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3023, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Renaming_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Renaming_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5232,7 +5228,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3045, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Field_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Field_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5250,7 +5246,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3013, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Strategy_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5280,7 +5276,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3067, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_FunctionModifiers_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionModifiers_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5298,7 +5294,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3089, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Kind_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5328,7 +5324,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3099, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Tags_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Tags_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5358,7 +5354,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3121, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5388,7 +5384,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3143, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_OctalIntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_OctalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5406,7 +5402,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3165, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Import_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5436,7 +5432,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3185, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_TypeVar_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TypeVar_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5454,7 +5450,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3175, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_RegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5484,7 +5480,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3207, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_ModuleActuals_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ModuleActuals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5514,7 +5510,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3229, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Bound_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Bound_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5532,7 +5528,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3251, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_StringCharacter_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5550,7 +5546,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3261, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ShellCommand_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5568,7 +5564,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3271, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Command_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5586,7 +5582,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3281, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ProtocolTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5616,7 +5612,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3291, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_DataTypeSelector_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DataTypeSelector_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5634,7 +5630,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3313, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Visibility_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5652,7 +5648,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3323, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PostPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5682,7 +5678,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3333, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Name_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Name_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5712,7 +5708,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3355, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Import_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Import_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5742,7 +5738,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3377, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Signature_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Signature_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5760,7 +5756,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3409, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Case_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5778,7 +5774,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3399, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_FunctionType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5796,7 +5792,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3419, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_FunctionModifiers_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5814,7 +5810,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3429, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Mapping__Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5832,7 +5828,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3461, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ProdModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5862,7 +5858,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3439, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_URLChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_URLChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5880,7 +5876,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3481, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_UnicodeEscape_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5898,7 +5894,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3471, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Prod_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5916,7 +5912,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3491, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_DateAndTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5946,7 +5942,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3501, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Assoc_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assoc_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5964,7 +5960,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3523, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Tag_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -5994,7 +5990,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3555, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Formals_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Formals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6024,7 +6020,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3533, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_LAYOUT_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_LAYOUT_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6054,7 +6050,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3577, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Class_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Class_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6072,7 +6068,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3599, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Variable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6090,7 +6086,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3609, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Catch_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6108,7 +6104,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3619, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Sym_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6138,7 +6134,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3629, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_PreStringChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PreStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6156,7 +6152,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3673, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Commands_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6186,7 +6182,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3651, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Sym_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Sym_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6204,7 +6200,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3683, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Header_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6222,7 +6218,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3693, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ImportedModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6252,7 +6248,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3703, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Pattern_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6282,7 +6278,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3725, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_MidProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_MidProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6300,7 +6296,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3747, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6330,7 +6326,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3757, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_NamedRegExp_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_NamedRegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6348,7 +6344,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3789, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_ProtocolPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6366,7 +6362,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3779, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PreModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6384,7 +6380,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3799, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Label_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6402,7 +6398,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3809, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_FunctionModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6432,7 +6428,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3819, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_DataTarget_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DataTarget_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6462,7 +6458,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3841, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_FunctionBody_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionBody_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6480,7 +6476,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3873, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_DatePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6498,7 +6494,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3863, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Parameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6528,7 +6524,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3883, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_Visit_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Visit_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6546,7 +6542,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3905, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_DataTypeSelector_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6564,7 +6560,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3915, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_PathTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6582,7 +6578,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3925, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Backslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6600,7 +6596,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3935, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Formals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6618,7 +6614,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3945, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Pattern__lit___96_layouts_$QUOTES_Declarator_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6648,7 +6644,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3955, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_MidPathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_MidPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6678,7 +6674,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3977, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_TypeArg_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TypeArg_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6708,7 +6704,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(3999, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Pattern__lit___40_layouts_$QUOTES_lit_RealLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RealLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -6729,7 +6725,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4041, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_NamedRegExp__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6750,7 +6746,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4031, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PreProtocolChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6771,7 +6767,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4063, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ModuleParameters__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6792,7 +6788,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4073, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Strategy__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6813,7 +6809,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4131, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Char__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6834,7 +6830,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4211, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Variable__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6855,7 +6851,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4201, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_TypeArg__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6876,7 +6872,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4221, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PrePathChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6897,7 +6893,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4241, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Renaming__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6918,7 +6914,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4231, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Catch__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6939,7 +6935,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4279, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Signature__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6960,7 +6956,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4269, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_MidPathChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -6981,7 +6977,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4289, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Sym__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7002,7 +6998,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4353, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_NonterminalLabel__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7023,7 +7019,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4459, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PostProtocolChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7044,7 +7040,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4449, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Header__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7065,7 +7061,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4469, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Commands__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7086,7 +7082,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4479, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_SyntaxDefinition__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7107,7 +7103,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4583, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Kind__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7128,7 +7124,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4679, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ImportedModule__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7149,7 +7145,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4713, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_IntegerLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7170,7 +7166,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4703, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Target__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7191,7 +7187,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4741, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_FunctionBody__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7212,7 +7208,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4791, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Expression__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7233,7 +7229,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4997, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Import__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7254,7 +7250,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(4965, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_UserType__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7275,7 +7271,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5027, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Body__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7296,7 +7292,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5017, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_LAYOUT__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7317,7 +7313,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5007, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Word__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7338,7 +7334,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5037, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_TagString__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7359,7 +7355,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5047, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Nonterminal__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7380,7 +7376,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5111, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PreModule__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7401,7 +7397,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5121, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_DecimalIntegerLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7422,7 +7418,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5141, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ProtocolPart__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7443,7 +7439,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5131, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StringTemplate__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7464,7 +7460,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5161, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Comment__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7485,7 +7481,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5171, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Label__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7506,7 +7502,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5295, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Field__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7527,7 +7523,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5305, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PathPart__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7548,7 +7544,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5335, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_RegExp__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7569,7 +7565,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5361, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_FunctionModifier__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7590,7 +7586,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5389, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_MidStringChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7611,7 +7607,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5417, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ProtocolChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7632,7 +7628,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5399, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Assignment__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7653,7 +7649,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5469, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_RegExpModifier__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7674,7 +7670,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5481, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Assignable__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7695,7 +7691,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5565, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Assoc__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7716,7 +7712,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5619, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Replacement__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7737,7 +7733,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5767, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_DataTarget__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7758,7 +7754,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5811, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_RealLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7779,7 +7775,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5977, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Parameters__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7800,7 +7796,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6029, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_DatePart__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7821,7 +7817,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(5987, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Mapping__Pattern__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7842,7 +7838,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6075, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_LocalVariableDeclaration__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7863,7 +7859,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6085, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StringCharacter__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7884,7 +7880,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6123, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_JustTime__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7905,7 +7901,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6223, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StringConstant__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7926,7 +7922,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6213, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Range__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7947,7 +7943,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6249, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_LocationLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7968,7 +7964,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6259, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ShellCommand__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -7989,7 +7985,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6343, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_URLChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8010,7 +8006,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6311, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StringMiddle__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8031,7 +8027,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6353, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_QualifiedName__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8052,7 +8048,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6363, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_TimeZonePart__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8073,7 +8069,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6373, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_DataTypeSelector__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8094,7 +8090,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6421, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StringTail__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8115,7 +8111,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6383, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PreStringChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8136,7 +8132,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6461, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PatternWithAction__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8157,7 +8153,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6527, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Visit__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8178,7 +8174,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6517, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Command__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8199,7 +8195,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6537, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ProtocolTail__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8220,7 +8216,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6583, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PathTail__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8241,7 +8237,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6557, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_MidProtocolChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8262,7 +8258,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6547, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_NamedBackslash__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8283,7 +8279,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6603, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_JustDate__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8304,7 +8300,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6593, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Visibility__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8325,7 +8321,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6613, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PostPathChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8346,7 +8342,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6643, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_CaseInsensitiveStringConstant__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8367,7 +8363,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6633, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Backslash__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8388,7 +8384,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6623, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StringLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8409,7 +8405,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6705, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Renamings__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8430,7 +8426,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6715, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Tags__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8443,7 +8439,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       
       tmp[0] = new ListStackNode(6771, 0, regular__iter_star__char_class___range__9_10_range__13_13_range__32_32, new CharStackNode(6773, 0, new char[][]{{9,10},{13,13},{32,32}}, new IEnterFilter[] {}, new ICompletionFilter[] {}), false, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[0].markAsEndNode();
+      
       tmp[0].setParentProduction(MetaRascalRascal.prod__layouts_$QUOTES__iter_star__char_class___range__9_10_range__13_13_range__32_32_);
       return tmp;
 	}
@@ -8464,7 +8460,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6761, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Formals__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -8485,7 +8481,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6775, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Assignment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8503,7 +8499,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6785, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Assignable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8521,7 +8517,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(6803, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8551,7 +8547,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6805, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Comment_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Comment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8569,7 +8565,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6827, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_TagString_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8587,7 +8583,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(6845, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Nonterminal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8617,7 +8613,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6847, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PathTail_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PathTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8635,7 +8631,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6869, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_NonterminalLabel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8665,7 +8661,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6879, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Strategy_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Strategy_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8695,7 +8691,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(6921, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Case_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Case_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8725,7 +8721,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6923, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Literal_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Literal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8755,7 +8751,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6945, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Word_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Word_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8773,7 +8769,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(6975, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Module_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8803,7 +8799,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6977, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Backslash_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Backslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8833,7 +8829,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(6999, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Visibility_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Visibility_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8851,7 +8847,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7021, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_FunctionDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8881,7 +8877,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7031, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8911,7 +8907,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7053, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_TimePartNoTZ_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TimePartNoTZ_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8929,7 +8925,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7075, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_TimePartNoTZ_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8947,7 +8943,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7085, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PatternWithAction_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -8977,7 +8973,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(7137, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PathPart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PathPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9007,7 +9003,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7095, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Declaration_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Declaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9037,7 +9033,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(7181, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Label_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Label_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9067,7 +9063,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7139, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_FunctionType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9085,7 +9081,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7183, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Assoc_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9103,7 +9099,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7193, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_RealLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9145,7 +9141,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7203, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[16].markAsEndNode();
+      
       tmp[16].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Mapping_layouts_$QUOTES_lit___91_layouts_$QUOTES_lit_Expression_layouts_$QUOTES_lit___93_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Mapping__Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9175,7 +9171,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(7257, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_TimeZonePart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TimeZonePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9205,7 +9201,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7259, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Declarator_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Declarator_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9223,7 +9219,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7281, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StringTemplate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9253,7 +9249,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7291, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_BasicType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_BasicType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9271,7 +9267,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7313, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_MidPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9289,7 +9285,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7333, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_HexIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9307,7 +9303,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7323, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_OctalEscapeSequence_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9325,7 +9321,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7343, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9355,7 +9351,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7397, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_JustDate_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_JustDate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9385,7 +9381,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7375, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Prod_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Prod_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9415,7 +9411,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7353, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Kind_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Kind_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9445,7 +9441,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(7439, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ImportedModule_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ImportedModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9463,7 +9459,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7441, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Toplevel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9481,7 +9477,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7451, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Type_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9511,7 +9507,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7461, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StructuredType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StructuredType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9541,7 +9537,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7483, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Statement_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Statement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9559,7 +9555,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7505, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_NamedBackslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9589,7 +9585,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7515, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_DateAndTime_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DateAndTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9607,7 +9603,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7537, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StringLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9625,7 +9621,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(7555, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Renamings_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9655,7 +9651,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7557, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_FunctionDeclaration_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9673,7 +9669,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7579, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_JustTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9691,7 +9687,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7589, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_LocationLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9721,7 +9717,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7599, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PostPathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PostPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9751,7 +9747,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7621, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PatternWithAction_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PatternWithAction_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9781,7 +9777,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7643, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Variant_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Variant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9811,7 +9807,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7665, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StringCharacter_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringCharacter_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9829,7 +9825,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7687, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Field_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9859,7 +9855,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7697, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StringTemplate_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringTemplate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9889,7 +9885,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7719, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Replacement_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Replacement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9919,7 +9915,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7741, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_DateTimeLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DateTimeLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9937,7 +9933,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7763, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_TypeArg_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9955,7 +9951,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7773, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Renaming_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -9973,7 +9969,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(7791, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Signature_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10003,7 +9999,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7793, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_DecimalIntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DecimalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10021,7 +10017,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7815, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PreProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10039,7 +10035,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7825, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Literal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10057,7 +10053,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7835, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10087,7 +10083,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7845, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_CaseInsensitiveStringConstant_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_CaseInsensitiveStringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10105,7 +10101,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7867, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ModuleActuals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10123,7 +10119,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7877, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Variant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10153,7 +10149,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7887, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Assignment_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assignment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10171,7 +10167,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7909, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_BasicType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10201,7 +10197,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7919, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Variable_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Variable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10231,7 +10227,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7941, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Module_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Module_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10249,7 +10245,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7963, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StructuredType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10267,7 +10263,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7973, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_MidProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10297,7 +10293,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(7983, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Tag_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Tag_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10327,7 +10323,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8015, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Target_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Target_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10345,7 +10341,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8005, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Tags_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10375,7 +10371,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8037, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_RegExpModifier_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RegExpModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10405,7 +10401,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8059, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ShellCommand_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ShellCommand_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10423,7 +10419,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8081, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10441,7 +10437,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8091, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Mapping__Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10459,7 +10455,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8101, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_DataTarget_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10477,7 +10473,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[3].setProduction(tmp);
       tmp[4] = new LiteralStackNode(8129, 4, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[4].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_RegExpModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10495,7 +10491,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8111, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_MidStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10525,7 +10521,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8131, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Char_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Char_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10543,7 +10539,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8153, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Word_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10573,7 +10569,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8163, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PreProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PreProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10591,7 +10587,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8207, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_DecimalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10621,7 +10617,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8185, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_TagString_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TagString_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10639,7 +10635,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8217, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_SyntaxDefinition_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10657,7 +10653,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8227, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_IntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10675,7 +10671,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8237, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_FunctionBody_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10693,7 +10689,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8247, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PostProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10723,7 +10719,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8257, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_NonterminalLabel_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_NonterminalLabel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10741,7 +10737,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8279, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ModuleParameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10771,7 +10767,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8289, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Catch_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Catch_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10789,7 +10785,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8311, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PrePathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10807,7 +10803,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8343, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_OctalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10837,7 +10833,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8321, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Expression_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10867,7 +10863,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8353, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_BooleanLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_BooleanLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10897,7 +10893,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8375, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Toplevel_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Toplevel_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10927,7 +10923,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8397, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Assignable_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assignable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10957,7 +10953,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8419, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StringMiddle_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringMiddle_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10975,7 +10971,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8441, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_BooleanLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -10993,7 +10989,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8451, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Bound_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11011,7 +11007,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8461, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Class_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11029,7 +11025,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8471, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Statement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11059,7 +11055,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8481, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_HexIntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_HexIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11089,7 +11085,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8503, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Nonterminal_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Nonterminal_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11119,7 +11115,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8525, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_UnicodeEscape_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_UnicodeEscape_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11149,7 +11145,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[9].setProduction(tmp);
       tmp[10] = new LiteralStackNode(8587, 10, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[10].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_MidStringChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_MidStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11167,7 +11163,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8557, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_TimeZonePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11185,7 +11181,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8547, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StringMiddle_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11203,7 +11199,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8589, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_QualifiedName_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11233,7 +11229,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8599, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PostProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PostProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11263,7 +11259,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8621, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_QualifiedName_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_QualifiedName_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11281,7 +11277,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8643, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Range_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11311,7 +11307,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8653, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_LocalVariableDeclaration_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_LocalVariableDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11341,7 +11337,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8675, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_OctalEscapeSequence_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_OctalEscapeSequence_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11371,7 +11367,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8697, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_FunctionBody_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionBody_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11401,7 +11397,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8719, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_DataTarget_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DataTarget_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11419,7 +11415,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8741, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_FunctionModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11437,7 +11433,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8751, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Label_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11467,7 +11463,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8761, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_NamedRegExp_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_NamedRegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11485,7 +11481,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8793, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PreModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11503,7 +11499,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8783, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ProtocolPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11521,7 +11517,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8803, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ImportedModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11551,7 +11547,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8823, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Pattern_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11581,7 +11577,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8845, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_MidProtocolChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_MidProtocolChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11599,7 +11595,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8813, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11617,7 +11613,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8867, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Sym_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11635,7 +11631,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8887, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Header_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11665,7 +11661,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8897, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Sym_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Sym_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11683,7 +11679,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8877, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Commands_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11713,7 +11709,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8919, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PreStringChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PreStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11743,7 +11739,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8941, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Class_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Class_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11761,7 +11757,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8973, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Catch_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11779,7 +11775,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8963, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Variable_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11809,7 +11805,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9005, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_LAYOUT_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_LAYOUT_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11839,7 +11835,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(8983, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Formals_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Formals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11869,7 +11865,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9027, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_RealLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RealLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11899,7 +11895,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9049, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_TypeArg_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TypeArg_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11929,7 +11925,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9071, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_MidPathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_MidPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11947,7 +11943,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9093, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Declarator_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11965,7 +11961,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9103, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Formals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -11983,7 +11979,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9113, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PathTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12001,7 +11997,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9123, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Backslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12019,7 +12015,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9133, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_DataTypeSelector_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12049,7 +12045,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9143, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Visit_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Visit_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12067,7 +12063,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9165, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Parameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12085,7 +12081,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9175, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_DatePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12115,7 +12111,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9185, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ModuleActuals_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ModuleActuals_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12133,7 +12129,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9229, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_RegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12163,7 +12159,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9207, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_TypeVar_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_TypeVar_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12181,7 +12177,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9239, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Import_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12211,7 +12207,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9259, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Tags_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Tags_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12229,7 +12225,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9249, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Kind_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12259,7 +12255,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9281, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_OctalIntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_OctalIntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12289,7 +12285,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9303, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12319,7 +12315,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9325, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_FunctionModifiers_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionModifiers_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12337,7 +12333,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9391, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Strategy_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12367,7 +12363,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9347, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Renaming_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Renaming_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12397,7 +12393,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9369, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Field_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Field_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12427,7 +12423,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9401, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Range_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Range_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12445,7 +12441,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9445, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PostStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12475,7 +12471,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9423, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_DatePart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DatePart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12493,7 +12489,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9455, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_NamedRegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12511,7 +12507,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9475, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Prod_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12529,7 +12525,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9465, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_UnicodeEscape_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12547,7 +12543,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9507, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Tag_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12577,7 +12573,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9485, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Assoc_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Assoc_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12595,7 +12591,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9517, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_DateAndTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12613,7 +12609,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9527, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Mapping__Expression_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12631,7 +12627,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9537, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_FunctionModifiers_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12661,7 +12657,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9547, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_URLChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_URLChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12679,7 +12675,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9569, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ProdModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12697,7 +12693,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9589, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_FunctionType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12715,7 +12711,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9579, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Case_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12745,7 +12741,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9599, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Signature_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Signature_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12775,7 +12771,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9621, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Import_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Import_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12805,7 +12801,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9643, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Name_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Name_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12823,7 +12819,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9675, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Visibility_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12841,7 +12837,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9665, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PostPathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12871,7 +12867,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9685, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_DataTypeSelector_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_DataTypeSelector_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12889,7 +12885,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9707, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ProtocolTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12907,7 +12903,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9717, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Command_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12925,7 +12921,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9727, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StringCharacter_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12955,7 +12951,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9737, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Bound_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Bound_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -12973,7 +12969,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9759, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_ShellCommand_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13003,7 +12999,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9769, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Renamings_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Renamings_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13033,7 +13029,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9791, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ProtocolTail_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProtocolTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13063,7 +13059,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9813, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_FunctionModifier_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_FunctionModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13081,7 +13077,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9835, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Comment_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13111,7 +13107,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9845, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PreModule_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PreModule_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13141,7 +13137,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9867, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StringConstant_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13171,7 +13167,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9889, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_JustTime_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_JustTime_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13213,7 +13209,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9911, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[16].markAsEndNode();
+      
       tmp[16].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Mapping_layouts_$QUOTES_lit___91_layouts_$QUOTES_lit_Pattern_layouts_$QUOTES_lit___93_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Mapping__Pattern_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13243,7 +13239,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9945, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Body_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Body_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13261,7 +13257,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9967, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_DateTimeLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13291,7 +13287,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9977, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_RegExp_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RegExp_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13321,7 +13317,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(9999, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_LocationLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_LocationLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13339,7 +13335,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10031, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Start_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13357,7 +13353,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10021, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Name_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13375,7 +13371,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10041, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_JustDate_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13405,7 +13401,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10051, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_IntegerLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_IntegerLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13423,7 +13419,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10073, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_CaseInsensitiveStringConstant_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13453,7 +13449,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10083, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Header_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Header_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13483,7 +13479,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10105, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Command_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Command_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13501,7 +13497,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10127, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_StringTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13531,7 +13527,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10147, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Type_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Type_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13549,7 +13545,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10137, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_LocalVariableDeclaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13567,7 +13563,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10169, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Replacement_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13597,7 +13593,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10179, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_SyntaxDefinition_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_SyntaxDefinition_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13615,7 +13611,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10201, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PathPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13645,7 +13641,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10211, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ModuleParameters_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ModuleParameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13675,7 +13671,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10285, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_RegExpLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_RegExpLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13693,7 +13689,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10275, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_UserType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13711,7 +13707,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10265, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_LAYOUT_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13741,7 +13737,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10243, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ProtocolPart_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProtocolPart_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13759,7 +13755,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10233, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Body_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13777,7 +13773,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10307, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Target_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13807,7 +13803,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10317, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_NamedBackslash_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_NamedBackslash_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13837,7 +13833,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10339, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StringTail_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringTail_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13867,7 +13863,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10361, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Comprehension_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Comprehension_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13885,7 +13881,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10383, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Char_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13903,7 +13899,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10393, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_RegExpLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13933,7 +13929,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10403, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_StringLiteral_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_StringLiteral_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13951,7 +13947,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10447, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Comprehension_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13981,7 +13977,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10425, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Commands_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Commands_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -13999,7 +13995,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10457, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_TypeVar_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14017,7 +14013,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10467, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Declaration_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14047,7 +14043,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10477, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Parameters_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Parameters_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14077,7 +14073,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10521, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PostStringChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PostStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14107,7 +14103,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10499, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_UserType_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_UserType_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14125,7 +14121,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10543, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_URLChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14155,7 +14151,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10563, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_ProdModifier_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_ProdModifier_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14173,7 +14169,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10553, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_PreStringChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14191,7 +14187,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10585, 0, prod__lit___96__char_class___range__96_96_, new char[] {96}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__ConcreteQuoted_$Expression__lit___96_layouts_$QUOTES_Visit_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14221,7 +14217,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10595, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_PrePathChars_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_PrePathChars_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14251,7 +14247,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10617, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[10].markAsEndNode();
+      
       tmp[10].setParentProduction(MetaRascalRascal.prod__ConcreteTypedQuoted_$Expression__lit___40_layouts_$QUOTES_lit_Start_layouts_$QUOTES_lit___41_layouts_$QUOTES_lit___96_layouts_$QUOTES_Start_layouts_$QUOTES_lit___96_);
       return tmp;
 	}
@@ -14272,7 +14268,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10671, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Start__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14293,7 +14289,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10703, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Name__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14314,7 +14310,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10733, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_TimePartNoTZ__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14335,7 +14331,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10723, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Statement__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14356,7 +14352,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10821, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_StructuredType__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14377,7 +14373,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10899, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_FunctionType__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14398,7 +14394,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10937, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Case__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14419,7 +14415,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10947, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Declarator__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14440,7 +14436,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10957, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Bound__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14461,7 +14457,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10977, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Type__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14482,7 +14478,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(10967, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Declaration__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14503,7 +14499,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11013, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Class__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14524,7 +14520,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11023, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Mapping__Expression__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14545,7 +14541,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11043, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_FunctionModifiers__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14566,7 +14562,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11033, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Comprehension__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14587,7 +14583,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11121, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Variant__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14608,7 +14604,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11163, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_FunctionDeclaration__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14629,7 +14625,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11181, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ProdModifier__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14650,7 +14646,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11225, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_BooleanLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14671,7 +14667,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11215, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Toplevel__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14692,7 +14688,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11255, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_TypeVar__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14713,7 +14709,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11265, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_BasicType__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14734,7 +14730,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11275, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_UnicodeEscape__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14755,7 +14751,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11285, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Prod__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14776,7 +14772,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11305, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_OctalIntegerLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14797,7 +14793,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11295, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_DateTimeLiteral__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14818,7 +14814,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11355, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_PathChars__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14839,7 +14835,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11345, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Pattern__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14860,7 +14856,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11365, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_DateAndTime__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14881,7 +14877,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11413, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_Tag__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}
@@ -14902,7 +14898,7 @@ public class MetaRascalRascal extends ObjectRascalRascal {
       tmp[1].setProduction(tmp);
       tmp[0] = new LiteralStackNode(11423, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, new IEnterFilter[] {}, new ICompletionFilter[] {});
       tmp[0].setProduction(tmp);
-      tmp[4].markAsEndNode();
+      
       tmp[4].setParentProduction(MetaRascalRascal.prod__MetaVariable_ModuleActuals__lit___60_layouts_$QUOTES_$Pattern_layouts_$QUOTES_lit___62_);
       return tmp;
 	}

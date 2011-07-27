@@ -42,7 +42,6 @@ public class Epsilon extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = EPSILON_1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].markAsEndNode();
 		S_EXPECT_1[0].setParentProduction(PROD_S_epsilon);
 	}
 	

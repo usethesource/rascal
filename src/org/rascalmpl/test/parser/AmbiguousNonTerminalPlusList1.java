@@ -58,7 +58,6 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = LIST1;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].markAsEndNode();
 		S_EXPECT_1[1].setParentProduction(PROD_S_aPLUSLISTA);
 	}
 	
@@ -68,7 +67,6 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
 		S_EXPECT_2[1] = LITERAL_a4;
 		S_EXPECT_2[1].setProduction(S_EXPECT_2);
-		S_EXPECT_2[1].markAsEndNode();
 		S_EXPECT_2[1].setParentProduction(PROD_S_PLUSLISTAa);
 	}
 	
@@ -76,7 +74,6 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 	static{
 		A_EXPECT_1[0] = LITERAL_a5;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_a);
 	}
 	

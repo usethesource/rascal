@@ -54,7 +54,6 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = new NonTerminalStackNode(0, 0, "E");
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].markAsEndNode();
 		S_EXPECT_1[0].setParentProduction(PROD_S_E);
 	}
 	
@@ -67,7 +66,6 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 		E_EXPECT_1[2] = new NonTerminalStackNode(2, 2, "E");
 		E_EXPECT_1[2].setProduction(E_EXPECT_1);
 		E_EXPECT_1[2].setParentProduction(PROD_E_EplusE);
-		E_EXPECT_1[2].markAsEndNode();
 	}
 	private final static AbstractStackNode[] E_EXPECT_2 = new AbstractStackNode[3];
 	static{
@@ -78,14 +76,12 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 		E_EXPECT_2[2] = new NonTerminalStackNode(3, 2, "E");
 		E_EXPECT_2[2].setProduction(E_EXPECT_2);
 		E_EXPECT_2[2].setParentProduction(PROD_E_EstarE);
-		E_EXPECT_2[2].markAsEndNode();
 	}
 	private final static AbstractStackNode[] E_EXPECT_3 = new AbstractStackNode[1];
 	static{
 		E_EXPECT_3[0] = new LiteralStackNode(6, 0, PROD_1_1, "1".toCharArray());
 		E_EXPECT_3[0].setProduction(E_EXPECT_3);
 		E_EXPECT_3[0].setParentProduction(PROD_E_1);
-		E_EXPECT_3[0].markAsEndNode();
 	}
 	
 	public Ambiguous9(){

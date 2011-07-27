@@ -55,7 +55,6 @@ public class Optional2 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = OPTIONAL_3;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].markAsEndNode();
 		S_EXPECT_1[1].setParentProduction(PROD_S_aOPTIONAL_O);
 	}
 	
@@ -63,7 +62,6 @@ public class Optional2 extends SGTDBF implements IParserTest{
 	static{
 		O_EXPECT_1[0] = LITERAL_a1;
 		O_EXPECT_1[0].setProduction(O_EXPECT_1);
-		O_EXPECT_1[0].markAsEndNode();
 		O_EXPECT_1[0].setParentProduction(PROD_O_a);
 	}
 	

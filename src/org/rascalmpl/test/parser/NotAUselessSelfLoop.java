@@ -71,7 +71,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = NONTERMINAL_A1;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].markAsEndNode();
 		S_EXPECT_1[1].setParentProduction(PROD_S_AA);
 	}
 	
@@ -79,7 +78,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_2[0] = NONTERMINAL_B6;
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
-		S_EXPECT_2[0].markAsEndNode();
 		S_EXPECT_2[0].setParentProduction(PROD_S_B);
 	}
 	
@@ -89,7 +87,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
 		A_EXPECT_1[1] = NONTERMINAL_C8;
 		A_EXPECT_1[1].setProduction(A_EXPECT_1);
-		A_EXPECT_1[1].markAsEndNode();
 		A_EXPECT_1[1].setParentProduction(PROD_A_CC);
 	}
 	
@@ -97,7 +94,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 	static{
 		A_EXPECT_2[0] = LITERAL_a11;
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
-		A_EXPECT_2[0].markAsEndNode();
 		A_EXPECT_2[0].setParentProduction(PROD_A_a);
 	}
 	
@@ -107,7 +103,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
 		B_EXPECT_1[1] = NONTERMINAL_A3;
 		B_EXPECT_1[1].setProduction(B_EXPECT_1);
-		B_EXPECT_1[1].markAsEndNode();
 		B_EXPECT_1[1].setParentProduction(PROD_B_AA);
 	}
 	
@@ -117,7 +112,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 		B_EXPECT_2[0].setProduction(B_EXPECT_2);
 		B_EXPECT_2[1] = NONTERMINAL_C10;
 		B_EXPECT_2[1].setProduction(B_EXPECT_2);
-		B_EXPECT_2[1].markAsEndNode();
 		B_EXPECT_2[1].setParentProduction(PROD_B_CC);
 	}
 	
@@ -127,7 +121,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 		C_EXPECT_1[0].setProduction(C_EXPECT_1);
 		C_EXPECT_1[1] = NONTERMINAL_A5;
 		C_EXPECT_1[1].setProduction(C_EXPECT_1);
-		C_EXPECT_1[1].markAsEndNode();
 		C_EXPECT_1[1].setParentProduction(PROD_C_AA);
 	}
 	
@@ -135,7 +128,6 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 	static{
 		C_EXPECT_2[0] = LITERAL_a12;
 		C_EXPECT_2[0].setProduction(C_EXPECT_2);
-		C_EXPECT_2[0].markAsEndNode();
 		C_EXPECT_2[0].setParentProduction(PROD_C_a);
 	}
 	public NotAUselessSelfLoop(){

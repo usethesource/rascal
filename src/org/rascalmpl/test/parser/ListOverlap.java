@@ -63,7 +63,6 @@ public class ListOverlap extends SGTDBF implements IParserTest{
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2] = new ListStackNode(5, 2, PROD_STARLISTA, NONTERMINAL_A2, false);
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2].markAsEndNode();
 		S_EXPECT_1[2].setParentProduction(PROD_S_STARLISTASTARLISTBSTARLISTA);
 	}
 	
@@ -71,7 +70,6 @@ public class ListOverlap extends SGTDBF implements IParserTest{
 	static{
 		A_EXPECT_1[0] = new LiteralStackNode(6, 0, PROD_a_a, new char[]{'a'});
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_a);
 	}
 	
@@ -79,7 +77,6 @@ public class ListOverlap extends SGTDBF implements IParserTest{
 	static{
 		B_EXPECT_1[0] = new LiteralStackNode(7, 0, PROD_b_b, new char[]{'b'});
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].markAsEndNode();
 		B_EXPECT_1[0].setParentProduction(PROD_B_b);
 	}
 	

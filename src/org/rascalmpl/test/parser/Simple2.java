@@ -58,7 +58,6 @@ public class Simple2 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = NONTERMINAL_B1;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].markAsEndNode();
 		S_EXPECT_1[1].setParentProduction(PROD_S_AB);
 	}
 	
@@ -66,7 +65,6 @@ public class Simple2 extends SGTDBF implements IParserTest{
 	static{
 		A_EXPECT_1[0] = LITERAL_a2;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_a);
 	}
 	
@@ -74,7 +72,6 @@ public class Simple2 extends SGTDBF implements IParserTest{
 	static{
 		B_EXPECT_1[0] = LITERAL_b3;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].markAsEndNode();
 		B_EXPECT_1[0].setParentProduction(PROD_B_b);
 	}
 	public Simple2(){

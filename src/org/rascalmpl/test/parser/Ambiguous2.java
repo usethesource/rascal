@@ -62,7 +62,6 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = LITERAL_ab3;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].markAsEndNode();
 		S_EXPECT_1[1].setParentProduction(PROD_S_Aab);
 	}
 	
@@ -70,7 +69,6 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_2[0] = LITERAL_bab4;
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
-		S_EXPECT_2[0].markAsEndNode();
 		S_EXPECT_2[0].setParentProduction(PROD_S_bab);
 	}
 	
@@ -78,7 +76,6 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	static{
 		A_EXPECT_1[0] = NONTERMINAL_B1;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_B);
 	}
 	
@@ -86,7 +83,6 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	static{
 		B_EXPECT_1[0] = LITERAL_b2;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].markAsEndNode();
 		B_EXPECT_1[0].setParentProduction(PROD_B_b);
 	}
 	

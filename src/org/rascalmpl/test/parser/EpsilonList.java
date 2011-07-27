@@ -50,7 +50,6 @@ public class EpsilonList extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = LIST1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].markAsEndNode();
 		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTA);
 	}
 	
@@ -58,7 +57,6 @@ public class EpsilonList extends SGTDBF implements IParserTest{
 	static{
 		A_EXPECT_1[0] = EPSILON2;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].markAsEndNode();
 		A_EXPECT_1[0].setParentProduction(PROD_A_epsilon);
 	}
 	

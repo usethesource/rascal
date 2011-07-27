@@ -55,7 +55,6 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 	
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy();
-		empty.markAsEndNode();
 		empty.setParentProduction(production);
 		return empty;
 	}
