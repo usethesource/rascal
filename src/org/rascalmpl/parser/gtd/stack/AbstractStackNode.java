@@ -37,7 +37,7 @@ public abstract class AbstractStackNode{
 	private boolean isSeparator;
 	private boolean isLayout;
 	
-	// Last node specific filter stuff
+	// Last node specific stuff
 	private IConstructor parentProduction;
 	private final IEnterFilter[] enterFilters;
 	private final ICompletionFilter[] completionFilters;

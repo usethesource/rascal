@@ -65,7 +65,7 @@ public abstract class SGTDBF implements IGTD{
 	private DoubleStack<AbstractStackNode, AbstractNode> stacksWithTerminalsToReduce;
 	private final DoubleStack<AbstractStackNode, AbstractContainerNode> stacksWithNonTerminalsToReduce;
 	
-	private final ArrayList<AbstractStackNode[]> lastExpects;
+	private final ArrayList<AbstractStackNode> lastExpects;
 	private final HashMap<String, ArrayList<AbstractStackNode>> cachedEdgesForExpect;
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
@@ -104,7 +104,7 @@ public abstract class SGTDBF implements IGTD{
 		stacksToExpand = new Stack<AbstractStackNode>();
 		stacksWithNonTerminalsToReduce = new DoubleStack<AbstractStackNode, AbstractContainerNode>();
 		
-		lastExpects = new ArrayList<AbstractStackNode[]>();
+		lastExpects = new ArrayList<AbstractStackNode>();
 		cachedEdgesForExpect = new HashMap<String, ArrayList<AbstractStackNode>>();
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
@@ -126,7 +126,7 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	protected void expect(AbstractStackNode... symbolsToExpect){
-		lastExpects.add(symbolsToExpect);
+		lastExpects.add(symbolsToExpect[0]);
 	}
 	
 	protected void invokeExpects(AbstractStackNode nonTerminal){
@@ -702,9 +702,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		EXPECTS: for(int i = nrOfExpects - 1; i >= 0; --i){
-			AbstractStackNode[] expectedNodes = lastExpects.get(i);
-			
-			AbstractStackNode first = expectedNodes[0];
+			AbstractStackNode first = lastExpects.get(i);
 			
 			if(first.isMatchable()){
 				int length = first.getLength();
