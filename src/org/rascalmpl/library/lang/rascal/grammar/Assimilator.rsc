@@ -45,10 +45,12 @@ public set[Production] quotes() {
 }
 
 public set[Production] layoutProductions(Grammar object) {
-  return {prod(layouts("$QUOTES"),[conditional(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)])),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{})};
+  return {prod(layouts("$QUOTES"),[conditional(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)])),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),
+          prod(layouts("$BACKTICKS"),[],{})};
 }
 
 private Symbol rl = layouts("$QUOTES");
+private Symbol bt = layouts("$BACKTICKS");
 
 public set[Production] fromRascal(Grammar object) {
   return  { untypedQuotes(nont), typedQuotes(nont) | Symbol nont <- object.rules, isNonterminal(nont), !isRegular(nont)}
@@ -58,13 +60,13 @@ public set[Production] fromRascal(Grammar object) {
 }
 
 public set[Production] untypedQuotes(Symbol nont) =
-  {prod(label("ConcreteQuoted",meta(sort("Expression"))),[lit("`"),rl,nont,rl,lit("`")],{}),
-   prod(label("ConcreteQuoted",meta(sort("Pattern"))),[lit("`"),rl,nont,rl,lit("`")],{})
+  {prod(label("ConcreteQuoted",meta(sort("Expression"))),[lit("`"),bt,nont,bt,lit("`")],{}),
+   prod(label("ConcreteQuoted",meta(sort("Pattern"))),[lit("`"),bt,nont,bt,lit("`")],{})
   };
   
 public set[Production] typedQuotes(Symbol nont) =
-    {prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{}),
-     prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),rl,nont,rl,lit("`")],{})
+    {prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),bt,nont,bt,lit("`")],{}),
+     prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),bt,nont,bt,lit("`")],{})
     |  symLits := symbolLiterals(nont)};  
 
 // TODO: this does not generate productions for bound parameterized symbols
@@ -80,7 +82,6 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \keywords(n): return [lit(n)];
     case \empty() : return [lit("("), rl, lit(")")];
     case \opt(s) : return [symbolLiterals(s),rl,lit("?")];
-    case \START() : return [lit("START")];
     case \start(s) : return [lit("start"),rl,lit("["),rl,symbolLiterals(s),rl,lit("]")];
     case \label(n,s) : return symbolLiterals(s); 
     case \lit(n) : return [lit(quote(n))];
@@ -89,8 +90,10 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \iter(s) : return [symbolLiterals(s),rl,lit("+")];
     case \iter-star(s) : return [symbolLiterals(s),rl,lit("*")];
     case \iter-seps(s, [layouts(_)]) : return [symbolLiterals(s),rl,lit("+")];
+    case \iter-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),rl,symbolLiterals(s),rl,symbolLiterals(sep),rl,lit("}"),rl,lit("+")];
     case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("+")];
     case \iter-star-seps(s, [layouts(_)]) : return [symbolLiterals(s),rl,lit("*")];
+    case \iter-star-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),rl,symbolLiterals(s),rl,symbolLiterals(sep),rl,lit("}"),rl,lit("*")];
     case \iter-star-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")];
     case \alt(alts) : return [lit("("),rl,tail(tail(tail([rl,lit("|"),rl,symbolLiterals(t) | t <- alts ]))),rl,lit(")")];
     case \seq(elems) : return [lit("("),rl,tail([rl,symbolLiterals(t) | t <- elems]),rl,lit(")")];  
