@@ -23,9 +23,10 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -48,31 +49,30 @@ public class SpringGraph extends Figure {
 	protected ArrayList<SpringGraphNode> nodes;
 	protected ArrayList<SpringGraphEdge> edges;
 	private HashMap<String, SpringGraphNode> registered;
-	IEvaluatorContext ctx;
 	
 	// Fields for force layout
 	protected double springConstant;
 	protected double springConstant2;
 	protected int temperature;
 	private static boolean debug = false;
+	IFigureConstructionEnv fpa;
 
 	
-	public SpringGraph(IFigureExecutionEnvironment fpa, PropertyManager properties, IList nodes,
-			IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties);
+	public SpringGraph(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes,
+			IList edges) {
+		super(properties);
 		this.nodes = new ArrayList<SpringGraphNode>();
-		this.ctx = ctx;
 		minSize.setWidth(getWidthProperty());
 		minSize.setHeight(getHeightProperty());
 		registered = new HashMap<String,SpringGraphNode>();
 		for(IValue v : nodes){
 
 			IConstructor c = (IConstructor) v;
-			Figure ve = FigureFactory.make(fpa, c, properties, null, ctx);
+			Figure ve = FigureFactory.make(fpa, c, properties, null);
 			String name = ve.getIdProperty();
 
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 			SpringGraphNode node = new SpringGraphNode(this, name, ve);
 			this.nodes.add(node);
@@ -82,8 +82,7 @@ public class SpringGraph extends Figure {
 		this.edges = new ArrayList<SpringGraphEdge>();
 		for (IValue v : edges) {
 			IConstructor c = (IConstructor) v;
-			SpringGraphEdge e = FigureFactory.makeSpringGraphEdge(this, fpa, c, properties,
-					ctx);
+			SpringGraphEdge e = FigureFactory.makeSpringGraphEdge(this, fpa, c, properties);
 			this.edges.add(e);
 			e.getFrom().addOut(e.getTo());
 			e.getTo().addIn(e.getFrom());
@@ -198,17 +197,15 @@ public class SpringGraph extends Figure {
 
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc) {
 
 		applyProperties(gc);
 		
 		for (SpringGraphEdge e : edges)
-			e.draw(left, top, gc);
+			e.draw(gc);
 		
 		for (SpringGraphNode n : nodes)
-			n.draw(left, top,gc);
+			n.draw(gc);
 	}
 	
 	
@@ -233,13 +230,13 @@ public class SpringGraph extends Figure {
 	}
 	
 
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
 		for(SpringGraphNode node : nodes){
-			node.computeFiguresAndProperties();
+			node.computeFiguresAndProperties(env);
 		}
 		for(SpringGraphEdge edge : edges){
-			edge.computeFiguresAndProperties();
+			edge.computeFiguresAndProperties(env);
 		}
 	}
 	

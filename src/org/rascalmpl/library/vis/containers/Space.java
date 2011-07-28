@@ -12,10 +12,9 @@
 package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
 
 /**
  * Spacing that can act as container.
@@ -25,8 +24,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  */
 public class Space extends Container {
 
-	public Space(IFigureExecutionEnvironment fpa, Figure inside, PropertyManager properties) {
-		super(fpa, inside, properties);
+	public Space(Figure inside, PropertyManager properties) {
+		super(inside, properties);
 	}
 
 	@Override

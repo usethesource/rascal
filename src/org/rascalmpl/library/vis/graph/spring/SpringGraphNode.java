@@ -17,6 +17,7 @@ import org.rascalmpl.library.vis.Figure;
 
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
@@ -169,9 +170,9 @@ public class SpringGraphNode {
 		return figure != null ? figure.minSize.getHeight() : 0;
 	}
 
-	void draw(double left, double top, GraphicsContext gc) {
+	void draw(GraphicsContext gc) {
 		if(figure != null){
-			figure.draw(getX() + left - figure.minSize.getWidth()/2, getY() + top - figure.minSize.getHeight()/2, gc);
+			figure.draw(gc);
 		}
 	}
 
@@ -195,8 +196,8 @@ public class SpringGraphNode {
 		return y;
 	}
 	
-	public void computeFiguresAndProperties(){
-		if(figure!=null)figure.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		if(figure!=null)figure.computeFiguresAndProperties(env);
 	}
 	
 	public void registerNames(NameResolver resolver){
@@ -206,8 +207,7 @@ public class SpringGraphNode {
 	public void layout() {
 		if(figure!=null) {
 			figure.setToMinSize();
-			figure.layout();
+			 figure.layout();
 		}
-		
 	}
 }

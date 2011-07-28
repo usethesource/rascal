@@ -27,13 +27,13 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
-
 
 /**
 
@@ -56,7 +56,7 @@ public class LayeredGraph extends Figure {
 	protected ArrayList<LayeredGraphEdge> edges;
 	protected HashMap<String, LayeredGraphNode> registeredNodeIds;
 	protected HashMap<String, LinkedList<LayeredGraphNode>> registeredLayerIds;
-	IEvaluatorContext ctx;
+	protected IFigureConstructionEnv fpa;
 	
 	double hgap;
 	double vgap;
@@ -66,10 +66,10 @@ public class LayeredGraph extends Figure {
 	private static final boolean debug = true;
 	private static final boolean printGraph = false;
 	
-	public LayeredGraph(IFigureExecutionEnvironment fpa, PropertyManager properties, IList nodes,
-			IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties);
-		
+	public LayeredGraph(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes,
+			IList edges) {
+		super(properties);
+		this.fpa = fpa;
 		if(printGraph){
 			String sep = "";
 			System.err.printf("graph([\n");
@@ -86,7 +86,6 @@ public class LayeredGraph extends Figure {
 			System.err.printf("]);");
 		}
 		
-		this.ctx = ctx;
 		
 		// Create the nodes
 		
@@ -96,15 +95,15 @@ public class LayeredGraph extends Figure {
 		
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, null, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, null);
 			String name = fig.getIdProperty();
 			String layer = fig.getLayerProperty();
 
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 			if(getRegisteredNodeId(name) != null)
-				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		
 			LayeredGraphNode node = new LayeredGraphNode(name, fig);
 			this.nodes.add(node);
@@ -120,9 +119,9 @@ public class LayeredGraph extends Figure {
 		this.edges = new ArrayList<LayeredGraphEdge>();
 		for (IValue v : edges) {
 			IConstructor c = (IConstructor) v;
-		    PropertyManager pm = c.arity() > 2 ? new PropertyManager(fpa, properties, (IList) c.get(2), ctx) : properties;
+		    PropertyManager pm = c.arity() > 2 ? new PropertyManager(fpa, properties, (IList) c.get(2)) : properties;
 			
-			LayeredGraphEdge e = FigureFactory.makeLayeredGraphEdge(this, fpa, c, pm, ctx);
+			LayeredGraphEdge e = FigureFactory.makeLayeredGraphEdge(this, fpa, c, pm);
 			boolean done = false;
 			
 			for(LayeredGraphEdge other : this.edges){
@@ -410,17 +409,15 @@ public class LayeredGraph extends Figure {
 
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc) {
 
 		applyProperties(gc);		
-		gc.rect(left, top, minSize.getWidth(), minSize.getHeight());
+		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 		for (LayeredGraphEdge e : edges)
-			e.draw(left, top, gc);
+			e.draw(gc);
 		
 		for (LayeredGraphNode n : nodes) {
-			n.draw(left, top,gc);
+			n.draw(getLeft(),  getTop() ,gc);
 		}	
 	}
 	
@@ -823,22 +820,22 @@ public class LayeredGraph extends Figure {
 				}
 			}
 			//if(old == null)
-			//	throw RuntimeExceptionFactory.figureException("Internal error in insertVirtualNode", vfVname, ctx.getCurrentAST(), ctx.getStackTrace());
+			//	throw RuntimeExceptionFactory.figureException("Internal error in insertVirtualNode", vfVname, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 			IString vfGname = vf.string(from.name);
 			IString vfOname = vf.string(to.name);
 			if(old != null){
 				if(old.isReversed()){
-					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, properties, vfGname, vfVname, old.fromArrow, old.toArrow, ctx);
-					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, properties, vfVname, vfOname, old.fromArrow, old.toArrow,ctx);
+					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, properties, vfGname, vfVname, old.fromArrow, old.toArrow);
+					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, properties, vfVname, vfOname, old.fromArrow, old.toArrow);
 					if(old.getFrom().layer == halfWay)
 						e1.label = orgEdgeLabel;
 						
 					edges.add(e1);
 					edges.add(e2);
 				} else {
-					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, properties, vfGname, vfVname, old.toArrow, old.fromArrow, ctx);
-					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, properties, vfVname, vfOname, old.toArrow, old.fromArrow,ctx);
+					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, properties, vfGname, vfVname, old.toArrow, old.fromArrow);
+					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, properties, vfVname, vfOname, old.toArrow, old.fromArrow);
 					if(old.getFrom().layer == halfWay)
 						e1.label = orgEdgeLabel;
 					
@@ -1489,13 +1486,13 @@ public class LayeredGraph extends Figure {
 	}
 	
 
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
 		for(LayeredGraphNode node : nodes){
-			node.computeFiguresAndProperties();
+			node.computeFiguresAndProperties(env);
 		}
 		for(LayeredGraphEdge edge : edges){
-			edge.computeFiguresAndProperties();
+			edge.computeFiguresAndProperties(env);
 		}
 	}
 	
@@ -1519,6 +1516,5 @@ public class LayeredGraph extends Figure {
 		for(LayeredGraphEdge edge : edges){
 			edge.layout();
 		}
-		
 	}
 }

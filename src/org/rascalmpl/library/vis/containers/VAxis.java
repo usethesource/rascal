@@ -2,17 +2,16 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
 
 public class VAxis extends HAxis {
 
-	public VAxis(String label,boolean bottom, IFigureExecutionEnvironment fpa, Figure inner,
+	public VAxis(String label,boolean bottom,  Figure inner,
 			PropertyManager properties) {
-		super(label,true, bottom, fpa, inner, properties);
+		super(label,true, bottom,  inner, properties);
 	}
 
 	double minimumMajorTicksInterval(){
@@ -30,9 +29,7 @@ public class VAxis extends HAxis {
 	
 
 	
-	public void draw(double left, double top, GraphicsContext gc){
-		setLeft(left);
-		setTop(top);
+	public void draw(GraphicsContext gc){
 		double axisLeft ;
 		if(bottom){
 			axisLeft = innerFig.size.getWidth();
@@ -58,7 +55,7 @@ public class VAxis extends HAxis {
 		
 		double direction = bottom ? 1.0f : -1.0f;
 		gc.fill(255);
-		//fpa.rect(left,top, size.getWidth(),size.getHeight());
+		//fpa.rect(getLeft(),getTop(), size.getWidth(),size.getHeight());
 		
 		String format =formatString();
 		//System.out.print("format : " + format + "\n");
@@ -71,35 +68,35 @@ public class VAxis extends HAxis {
 				} else {
 					gc.stroke(getColorProperty(Properties.GUIDE_COLOR));
 				}
-				gc.line( left + axisLeft , 
-						top + topOffset + outerSpace - tick.pixelPos,
-						left +axisLeft  + innerFig.size.getWidth(),
-						top + topOffset +outerSpace- tick.pixelPos);
+				gc.line( getLeft() + axisLeft , 
+						getTop() + topOffset + outerSpace - tick.pixelPos,
+						getLeft() +axisLeft  + innerFig.size.getWidth(),
+						getTop() + topOffset +outerSpace- tick.pixelPos);
 				
 		
 				gc.stroke(0);
-				gc.text(label,  left + axisLeft + tickHeight + (bottom ? textTickSpacing : -(textTickSpacing + getTextWidth(label)) ), top + topOffset +outerSpace- tick.pixelPos );
+				gc.text(label,  getLeft() + axisLeft + tickHeight + (bottom ? textTickSpacing : -(textTickSpacing + getTextWidth(label)) ), getTop() + topOffset +outerSpace- tick.pixelPos );
 			}
-			gc.line(left + axisLeft + tickHeight , 
-					top + topOffset +outerSpace- tick.pixelPos,
-					left + axisLeft,
-					top + topOffset +outerSpace- tick.pixelPos);
+			gc.line(getLeft() + axisLeft + tickHeight , 
+					getTop() + topOffset +outerSpace- tick.pixelPos,
+					getLeft() + axisLeft,
+					getTop() + topOffset +outerSpace- tick.pixelPos);
 		}
 		if(!this.label.equals("")){
 			gc.pushMatrix();
-			gc.translate(left + axisLeft + direction * (majorTickHeight + textTickSpacing + labelSpacing + getTextDescent() + labelWidth()), top + topOffset + 0.5 * (outerSpace - getTextWidth(this.label)));
+			gc.translate(getLeft() + axisLeft + direction * (majorTickHeight + textTickSpacing + labelSpacing + getTextDescent() + labelWidth()), getTop() + topOffset + 0.5 * (outerSpace - getTextWidth(this.label)));
 			gc.rotate(0.5  * Math.PI);
 			gc.text(this.label, 0,0);
 			gc.popMatrix();
 			
 		}
 		//System.out.printf("Innerfig %s\n",innerFig.size);
-		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
+		innerFig.draw(gc);
 		/*
-		fpa.line(left + axisLeft,
-				top + innerFigLocation.getY(),
-				left + axisLeft,
-				top + innerFigLocation.getY() + innerFig.size.getHeight());
+		fpa.line(getLeft() + axisLeft,
+				getTop() + innerFigLocation.getY(),
+				getLeft() + axisLeft,
+				getTop() + innerFigLocation.getY() + innerFig.size.getHeight());
 		*/
 		
 	}

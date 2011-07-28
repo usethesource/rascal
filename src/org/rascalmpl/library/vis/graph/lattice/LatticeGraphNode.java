@@ -18,6 +18,8 @@ import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
@@ -72,12 +74,11 @@ public class LatticeGraphNode {
 		return figure != null ? figure.minSize.getHeight() : 0;
 	}
 
-	void draw(double left, double top, GraphicsContext gc) {
+	void draw(GraphicsContext gc) {
 		if (debug) System.err.println("draw:"+this.getClass()+" "+figure);
 		if (figure != null) {
 			figure.bbox();
-			figure.draw(x + left - figure.minSize.getWidth() / 2, y + top - figure.minSize.getHeight()
-					/ 2, gc);
+			figure.draw(gc);
 			// if (mousePressed) {
 			// // System.err.println("Pressed");
 			// IFigureExecutionEnvironment fpa = figure.fpa;
@@ -112,9 +113,9 @@ public class LatticeGraphNode {
 	}
 	
 
-	public void computeFiguresAndProperties(){
+	public void computeFiguresAndProperties(ICallbackEnv env){
 		if(figure!=null){
-			figure.computeFiguresAndProperties();
+			figure.computeFiguresAndProperties(env);
 		}
 	}
 	

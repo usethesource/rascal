@@ -25,9 +25,9 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -50,9 +50,11 @@ public class Tree extends Figure {
 	private HashSet<TreeNode> hasParent;
 	private TreeNodeRaster raster;
 	TreeNode root = null;
+	IFigureConstructionEnv fpa;
 	
-	public Tree(IFigureExecutionEnvironment fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties);		
+	public Tree(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes, IList edges) {
+		super(properties);		
+		this.fpa = fpa;
 		nodeMap = new HashMap<String,TreeNode>();
 		hasParent = new HashSet<TreeNode>();
 		raster = new TreeNodeRaster();
@@ -60,10 +62,10 @@ public class Tree extends Figure {
 		// Construct TreeNodes
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, null, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, null);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Tree: Missing id property in node", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			TreeNode tn = new TreeNode(fpa, properties, fig);
 			nodeMap.put(name, tn);
 		}
@@ -82,15 +84,15 @@ public class Tree extends Figure {
 
 			TreeNode fromNode = nodeMap.get(from);
 			if(fromNode == null)
-				throw RuntimeExceptionFactory.figureException("Tree: edge uses non-existing node id " + from, v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Tree: edge uses non-existing node id " + from, v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			String to = ((IString)c.get(iTo)).getValue();
 			TreeNode toNode = nodeMap.get(to);
 			if(toNode == null)
-				throw RuntimeExceptionFactory.figureException("Tree: edge uses non-existing node id " + to, v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Tree: edge uses non-existing node id " + to, v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			if(hasParent.contains(toNode))
-				throw RuntimeExceptionFactory.figureException("Tree: node " + to + " has multiple parents", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Tree: node " + to + " has multiple parents", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			hasParent.add(toNode);
-			fromNode.addChild(properties, edgeProperties, toNode, ctx);
+			fromNode.addChild(properties, edgeProperties, toNode, fpa.getRascalContext());
 		}
 		
 		root = null;
@@ -98,11 +100,11 @@ public class Tree extends Figure {
 			if(!hasParent.contains(n)){
 				if(root != null)
 					throw RuntimeExceptionFactory.figureException("Tree: multiple roots found: " + root.rootFigure.getIdProperty() + " and " + n.rootFigure.getIdProperty(),
-																  edges, ctx.getCurrentAST(), ctx.getStackTrace());
+																  edges, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 				root = n;
 			}
 		if(root == null)
-			throw RuntimeExceptionFactory.figureException("Tree: no root found", edges, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.figureException("Tree: no root found", edges, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 	}
 	
 	@Override
@@ -118,13 +120,11 @@ public class Tree extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc) {
 		
 		//System.err.printf("Tree.draw(%f,%f)\n", left, top);
 		applyProperties(gc);
-		root.draw(left, top, gc);
+		root.draw(gc);
 	}
 	
 	@Override
@@ -159,7 +159,6 @@ public class Tree extends Figure {
 			root.setToMinSize();
 			root.layout();
 		}
-		
 	}
 
 }

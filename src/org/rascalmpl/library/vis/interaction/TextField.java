@@ -22,48 +22,41 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.values.ValueFactoryFactory;
-// TODO: something is weird here, when resizing!!
-public class TextField extends Figure {
-	// Function of type Figure (list[str]) to compute new figure
-	private final IValue callback; // Function of type void() to inform backend
-									// about entered text
-	private final IValue validate; // Function of type bool(str) to validate
-									// input sofar
 
-	private boolean validated = true;
+public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 
-	private final Color trueColor;
 	private final Color falseColor;
-	
-	private int tLimit;
-	
-	final private IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	String text;
 
-	final Text textfield;
+	public TextField(IFigureConstructionEnv fpa, String text, IValue cb, IValue validate, PropertyManager properties) {
+		super(fpa, cb, validate, properties);
+		this.text = text;
+		falseColor = SWTFontsAndColors.getRgbColor(FigureColorUtils.colorNames.get("red").intValue());
+	}
 
-	public TextField(IFigureExecutionEnvironment fpa, String text, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
-		super(fpa, properties);
-		trueColor = fpa.getRgbColor(getFillColorProperty());
+	@Override
+	public void draw(GraphicsContext gc) {
+		super.draw(gc);
+		widget.setForeground(validated ? SWTFontsAndColors.getRgbColor(getFontColorProperty()) : falseColor);
+	}
+
+	@Override
+	Text makeWidget(Composite comp) {
+		Text textfield = new Text(comp, SWT.SINGLE | SWT.BORDER);
 		
-		falseColor = new Color(fpa.getComp().getDisplay(), 255, 0, 0);
-		textfield = new Text(fpa.getComp(), SWT.SINGLE | SWT.BORDER);
-		fpa.checkIfIsCallBack(cb);
-		this.callback = cb;
-		if (validate != null) {
-			fpa.checkIfIsCallBack(validate);
-		}
-		this.validate = validate;
-
 		textfield.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				doValidate();
@@ -72,80 +65,22 @@ public class TextField extends Figure {
 		textfield.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				try {
-					doCallBack();
-				} catch (Exception ex) {
-					System.err.println("EXCEPTION" + ex);
-					ex.printStackTrace();
-				}
+				doCallback();
 			}
 		});
 		textfield.setText(text);
-		minSize.setWidth(getWidthProperty());
-		tLimit = FigureApplet.round(minSize.getWidth() / getTextWidth("b"));
-		doValidate();
-		/*if (text.length()>tLimit) {
-			  tLimit = text.length();	
-			  minSize.setWidth(fpa.textWidth(text));
-		}*/
+		return textfield;
 	}
 
 	@Override
-	public void bbox() {
-		Point p = textfield.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		minSize.setWidth(p.x);
-		minSize.setHeight(p.y);
-		//textfield.setTextLimit(tLimit);
-		//setNonResizable();
-		setResizableX(false, true);
-		super.bbox();
+	Result<IValue> executeValidate() {
+		return cbenv.executeRascalCallBackSingleArgument(validate, TypeFactory.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getText()));
 	}
 
-	public boolean doValidate() {
+	@Override
+	void executeCallback() {
+		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getText()));
 		
-		if (validate != null) {
-			System.out.printf("Validating123!\n");
-			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
-					validate, TypeFactory.getInstance().stringType(),
-					vf.string(textfield.getText()));
-			validated = res.getValue().isEqual(vf.bool(true));
-			//textfield.setForeground(validated ? trueColor : falseColor);
-			textfield.setBackground(validated ? trueColor : falseColor);
-			textfield.redraw();
-			return validated;
-		}
-		return true;
 	}
 
-	public void doCallBack() {
-		//System.out.printf("callbacking!\n");
-		if (validated) {
-			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), vf.string(textfield.getText()));
-			fpa.setComputedValueChanged();
-			fpa.redraw();
-		}
-		textfield.redraw();
-	}
-
-	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		textfield.setForeground(fpa.getRgbColor(getFontColorProperty()));
-		textfield
-				.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
-		textfield.setBackground(validated ? trueColor : falseColor);
-		textfield
-				.setLocation(FigureApplet.round(left), FigureApplet.round(top));
-	}
-
-	@Override
-	public void destroy() {
-		textfield.dispose();
-	}
-	
-	@Override
-	public void layout() {
-	}
 }

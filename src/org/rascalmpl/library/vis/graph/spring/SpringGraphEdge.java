@@ -17,9 +17,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 import org.rascalmpl.library.vis.FigureApplet;
@@ -38,26 +39,25 @@ public class SpringGraphEdge extends Figure {
 	private boolean inverted = false;
 	private static boolean debug = true;
 	
-	public SpringGraphEdge(SpringGraph G, IFigureExecutionEnvironment fpa, PropertyManager properties, 
+	public SpringGraphEdge(SpringGraph G, IFigureConstructionEnv fpa, PropertyManager properties, 
 						IString fromName, IString toName, 
-						IConstructor toArrowCons, IConstructor fromArrowCons,
-						IEvaluatorContext ctx) {
-		super(fpa, properties);
+						IConstructor toArrowCons, IConstructor fromArrowCons) {
+		super( properties);
 		this.from = G.getRegistered(fromName.getValue());
 		
 		if(getFrom() == null){
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + fromName.getValue() + "\"",
-					fromName, ctx.getCurrentAST(), ctx.getStackTrace());
+					fromName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		}
 		to = G.getRegistered(toName.getValue());
 		if(to == null){
-			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		}
 		if(toArrowCons != null){
-			 toArrow = FigureFactory.make(fpa, toArrowCons, properties, null, ctx);
+			 toArrow = FigureFactory.make(fpa, toArrowCons, properties, null);
 		}
 		if(fromArrowCons != null){
-			 fromArrow = FigureFactory.make(fpa, fromArrowCons, properties, null, ctx);
+			 fromArrow = FigureFactory.make(fpa, fromArrowCons, properties, null);
 		}
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
@@ -102,22 +102,22 @@ public class SpringGraphEdge extends Figure {
 
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
+	void draw(GraphicsContext gc) {
 		applyProperties(gc);
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
 				to.name + ": " + to.getX() + "," + to.getY() + ")");
 
-		gc.line(left + getFrom().figX(), top + getFrom().figY(), 
-				left + getTo().figX(), top + getTo().figY());
+		gc.line(getLeft() + getFrom().figX(), getTop() + getFrom().figY(), 
+				getLeft() + getTo().figX(), getTop() + getTo().figY());
 		if(toArrow != null){
-			getTo().figure.connectArrowFrom(left, top, 
+			getTo().figure.connectArrowFrom(getLeft(), getTop(), 
 					getTo().figX(), getTo().figY(), 
 					getFrom().figX(), getFrom().figY(),
 					toArrow,gc
 			);
 
 			if(fromArrow != null)
-				getFrom().figure.connectArrowFrom(left, top, 
+				getFrom().figure.connectArrowFrom(getLeft(), getTop(), 
 						getFrom().figX(), getFrom().figY(), 
 						getTo().figX(), getTo().figY(),
 						fromArrow,gc
@@ -133,10 +133,10 @@ public class SpringGraphEdge extends Figure {
 		
 	}
 	
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
-		if(fromArrow!=null)fromArrow.computeFiguresAndProperties();
-		if(toArrow!=null)toArrow.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
+		if(fromArrow!=null)fromArrow.computeFiguresAndProperties(env);
+		if(toArrow!=null)toArrow.computeFiguresAndProperties(env);
 	}
 	
 
@@ -158,7 +158,6 @@ public class SpringGraphEdge extends Figure {
 			toArrow.setToMinSize();
 			toArrow.layout();
 		}
-		
 	}
 
 

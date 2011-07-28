@@ -10,7 +10,6 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *   * Bert Lisser - Bert.Lisser@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.library.vis.graph.leveled;
 
@@ -19,6 +18,7 @@ import java.util.LinkedList;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
@@ -519,7 +519,7 @@ public class LeveledGraphNode implements Comparable<LeveledGraphNode> {
 		if(figure != null){
 			figure.bbox();
 			blockWidth = figure.minSize.getWidth();
-		};
+		}
 	}
 	
 	double width(){
@@ -535,15 +535,15 @@ public class LeveledGraphNode implements Comparable<LeveledGraphNode> {
 	}
 	
 
-	void draw(double left, double top, GraphicsContext gc) {
+	void draw( GraphicsContext gc) {
 		if(figure != null){
 			figure.bbox();
-			figure.draw(x + left - figure.minSize.getWidth()/2, y + top - figure.minSize.getHeight()/2,gc);
+			figure.draw(gc);
 		}
 	}
 	
-	public void computeFiguresAndProperties(){
-		if(figure!=null)figure.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		if(figure!=null)figure.computeFiguresAndProperties(env);
 	}
 
 	public void registerNames(NameResolver resolver){
@@ -555,6 +555,5 @@ public class LeveledGraphNode implements Comparable<LeveledGraphNode> {
 			figure.setToMinSize();
 			figure.layout();
 		}
-		
 	}
 }

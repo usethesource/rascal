@@ -12,23 +12,23 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.graph.leveled;
 
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
+import java.util.Vector;
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
  * 
  * @author paulk
- * @author bertl
  * 
  */
 public class LeveledGraphEdge extends Figure {
@@ -36,7 +36,8 @@ public class LeveledGraphEdge extends Figure {
 	private LeveledGraphNode to;
 	private LeveledGraphNode oldFrom;
 	final private LeveledGraph G;
-
+	IFigureConstructionEnv fpa;
+	
 	public LeveledGraphNode getOldFrom() {
 		return oldFrom;
 	}
@@ -67,24 +68,24 @@ public class LeveledGraphEdge extends Figure {
 	private static boolean debug = false;
 	private static boolean useSplines = true;
 
-	public LeveledGraphEdge(LeveledGraph G, IFigureExecutionEnvironment fpa,
-			PropertyManager properties, IString fromName, IString toName,
-			IEvaluatorContext ctx) {
-		super(fpa, properties);
+	public LeveledGraphEdge(LeveledGraph G, IFigureConstructionEnv fpa,
+			PropertyManager properties, IString fromName, IString toName) {
+		super(properties);
+		this.fpa = fpa;
 		this.G = G;
 		this.from = G.getRegisteredNodeId(fromName.getValue());
 
 		if (getFrom() == null) {
 			throw RuntimeExceptionFactory.figureException(
 					"No node with id property + \"" + fromName.getValue()
-							+ "\"", fromName, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+							+ "\"", fromName, fpa.getRascalContext().getCurrentAST(),
+					fpa.getRascalContext().getStackTrace());
 		}
 		to = G.getRegisteredNodeId(toName.getValue());
 		if (to == null) {
 			throw RuntimeExceptionFactory.figureException(
 					"No node with id property + \"" + toName.getValue() + "\"",
-					toName, ctx.getCurrentAST(), ctx.getStackTrace());
+					toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		}
 		toArrow = super.getToArrow();
 
@@ -98,25 +99,25 @@ public class LeveledGraphEdge extends Figure {
 					+ " " + fromArrow + " " + label);
 	}
 
-	public LeveledGraphEdge(LeveledGraph G, IFigureExecutionEnvironment fpa,
+	public LeveledGraphEdge(LeveledGraph G, IFigureConstructionEnv fpa,
 			PropertyManager properties, IString fromName, IString toName,
-			Figure toArrow, Figure fromArrow, IEvaluatorContext ctx) {
+			Figure toArrow, Figure fromArrow) {
 
-		super(fpa, properties);
+		super( properties);
 		this.G = G;
 		this.from = G.getRegisteredNodeId(fromName.getValue());
 
 		if (getFrom() == null) {
 			throw RuntimeExceptionFactory.figureException(
 					"No node with id property + \"" + fromName.getValue()
-							+ "\"", fromName, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+							+ "\"", fromName, fpa.getRascalContext().getCurrentAST(),
+					fpa.getRascalContext().getStackTrace());
 		}
 		to = G.getRegisteredNodeId(toName.getValue());
 		if (to == null) {
 			throw RuntimeExceptionFactory.figureException(
 					"No node with id property + \"" + toName.getValue() + "\"",
-					toName, ctx.getCurrentAST(), ctx.getStackTrace());
+					toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		}
 		this.toArrow = toArrow;
 		this.fromArrow = fromArrow;
@@ -253,9 +254,7 @@ public class LeveledGraphEdge extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top,GraphicsContext gc) {
-		setLeft(left);
-		setTop(top);
+	public void draw(GraphicsContext gc) {
 		applyProperties(gc);
 		if (debug)
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
@@ -300,7 +299,7 @@ public class LeveledGraphEdge extends Figure {
 				currentNode = nextNode;
 			}
 
-			drawLastSegment(left, top, imX, imY, prevNode, currentNode,gc);
+			drawLastSegment(imX, imY, prevNode, currentNode,gc);
 
 		} else {
 			if (debug)
@@ -313,44 +312,44 @@ public class LeveledGraphEdge extends Figure {
 				double hgap = getHGapProperty();
 				double vgap = getVGapProperty();
 
-				// beginCurve(left + node.figX(), top + node.figY()-h/3);
-				// addPointToCurve(left + node.figX(), top + node.figY()-h/3);
-				// addPointToCurve(left + node.figX(), top +
+				// beginCurve(getLeft() + node.figX(), getTop() + node.figY()-h/3);
+				// addPointToCurve(getLeft() + node.figX(), getTop() + node.figY()-h/3);
+				// addPointToCurve(getLeft() + node.figX(), getTop() +
 				// node.figY()-h/3-vgap);
-				// addPointToCurve(left + node.figX() + w/2 + hgap, top +
+				// addPointToCurve(getLeft() + node.figX() + w/2 + hgap, getTop() +
 				// node.figY()-h/3-vgap);
-				// addPointToCurve(left + node.figX() + w/2 + hgap, top +
+				// addPointToCurve(getLeft() + node.figX() + w/2 + hgap, getTop() +
 				// node.figY()-h/3);
-				// addPointToCurve(left + node.figX() + w/2 + hgap, top +
+				// addPointToCurve(getLeft() + node.figX() + w/2 + hgap, getTop() +
 				// node.figY());
-				// addPointToCurve(left + node.figX() + w/2, top + node.figY());
-				// endCurve(left + node.figX() + w/2, top + node.figY());
+				// addPointToCurve(getLeft() + node.figX() + w/2, getTop() + node.figY());
+				// endCurve(getLeft() + node.figX() + w/2, getTop() + node.figY());
 
-				beginCurve(left + node.figX(), top + node.figY() - h / 2,gc);
-				addPointToCurve(left + node.figX() + w / 4, top + node.figY()
+				beginCurve(getLeft() + node.figX(), getTop() + node.figY() - h / 2,gc);
+				addPointToCurve(getLeft() + node.figX() + w / 4, getTop() + node.figY()
 						- (h / 2 + vgap / 4),gc);
-				addPointToCurve(left + node.figX() + w / 2, top + node.figY()
+				addPointToCurve(getLeft() + node.figX() + w / 2, getTop() + node.figY()
 						- (h / 2 + vgap / 2),gc);
-				addPointToCurve(left + node.figX(), top + node.figY()
+				addPointToCurve(getLeft() + node.figX(), getTop() + node.figY()
 						- (h + vgap),gc);
-				addPointToCurve(left + node.figX(), top + node.figY()
+				addPointToCurve(getLeft() + node.figX(), getTop() + node.figY()
 						- (h / 2 + vgap / 4),gc);
-				endCurve(left + node.figX(), top + node.figY() - h / 2,gc);
+				endCurve(getLeft() + node.figX(), getTop() + node.figY() - h / 2,gc);
 
 				if (toArrow != null) {
 					if (debug)
 						System.err
 								.println("[reversed] Drawing from arrow from "
 										+ getFrom().name);
-					getTo().figure.connectArrowFrom(left, top, getTo().figX(),
+					getTo().figure.connectArrowFrom(getLeft(), getTop(), getTo().figX(),
 							getTo().figY(), node.figX(), node.figY()
 									- (h / 2 + vgap / 4), toArrow,gc);
 					return;
 				}
 			} else {
 
-				gc.line(left + getFrom().figX(), top + getFrom().figY(), left
-						+ getTo().figX(), top + getTo().figY());
+				gc.line(getLeft() + getFrom().figX(), getTop() + getFrom().figY(), getLeft()
+						+ getTo().figX(), getTop() + getTo().figY());
 			}
 
 			if (fromArrow != null || toArrow != null) {
@@ -361,7 +360,7 @@ public class LeveledGraphEdge extends Figure {
 							System.err
 									.println("[reversed] Drawing from arrow from "
 											+ getFrom().name);
-						getFrom().figure.connectArrowFrom(left, top, getFrom()
+						getFrom().figure.connectArrowFrom(getLeft(), getTop(), getFrom()
 								.figX(), getFrom().figY(), getTo().figX(),
 								getTo().figY(), toArrow,gc);
 					}
@@ -371,7 +370,7 @@ public class LeveledGraphEdge extends Figure {
 							System.err
 									.println("[reversed] Drawing to arrow to "
 											+ getToOrg().name);
-						getTo().figure.connectArrowFrom(left, top, getTo()
+						getTo().figure.connectArrowFrom(getLeft(), getTop(), getTo()
 								.figX(), getTo().figY(), getFrom().figX(),
 								getFrom().figY(), fromArrow,gc);
 					}
@@ -380,7 +379,7 @@ public class LeveledGraphEdge extends Figure {
 						System.err.println("Drawing to arrow to "
 								+ getTo().name);
 					if (toArrow != null) {
-						getTo().figure.connectArrowFrom(left, top, getTo()
+						getTo().figure.connectArrowFrom(getLeft(), getTop(), getTo()
 								.figX(), getTo().figY(), getFrom().figX(),
 								getFrom().figY(), toArrow,gc);
 					}
@@ -388,20 +387,19 @@ public class LeveledGraphEdge extends Figure {
 						if (debug)
 							System.err.println("Drawing from arrow from "
 									+ getFrom().name);
-						getFrom().figure.connectArrowFrom(left, top, getFrom()
+						getFrom().figure.connectArrowFrom(getLeft(), getTop(), getFrom()
 								.figX(), getFrom().figY(), getTo().figX(),
 								getTo().figY(), fromArrow,gc);
 					}
 				}
 			}
 			if (label != null) {
-				label.draw(left + labelX - label.minSize.getWidth() / 2, top
-						+ labelY - label.minSize.getHeight() / 2,gc);
+				label.draw(gc);
 			}
 		}
 	}
 
-	private void drawLastSegment(double left, double top, double startImX,
+	private void drawLastSegment(double startImX,
 			double startImY, LeveledGraphNode prevNode,
 			LeveledGraphNode currentNode,GraphicsContext gc) {
 		double dx = currentNode.figX() - prevNode.figX();
@@ -422,13 +420,13 @@ public class LeveledGraphEdge extends Figure {
 		// Finally draw the arrows on both sides of the edge
 
 		if (getFromArrow() != null) {
-			getFrom().figure.connectArrowFrom(left, top, getFrom().figX(),
+			getFrom().figure.connectArrowFrom(getLeft(), getTop(), getFrom().figX(),
 					getFrom().figY(), startImX, startImY, getFromArrow(),gc);
 		}
 		if (getToArrow() != null) {
 			if (debug)
 				System.err.println("Has a to arrow");
-			currentNode.figure.connectArrowFrom(left, top, currentNode.figX(),
+			currentNode.figure.connectArrowFrom(getLeft(), getTop(), currentNode.figX(),
 					currentNode.figY(), imX, imY, getToArrow(),gc);
 		}
 	}
@@ -512,14 +510,14 @@ public class LeveledGraphEdge extends Figure {
 				|| (toArrow != null && toArrow.getFiguresUnderMouse(c, result));
 	}
 
-	public void computeFiguresAndProperties() {
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env) {
+		super.computeFiguresAndProperties(env);
 		if (fromArrow != null)
-			fromArrow.computeFiguresAndProperties();
+			fromArrow.computeFiguresAndProperties(env);
 		if (toArrow != null)
-			toArrow.computeFiguresAndProperties();
+			toArrow.computeFiguresAndProperties(env);
 		if (label != null)
-			label.computeFiguresAndProperties();
+			label.computeFiguresAndProperties(env);
 	}
 
 	public void registerNames(NameResolver resolver) {
@@ -547,7 +545,6 @@ public class LeveledGraphEdge extends Figure {
 			label.setToMinSize();
 			label.layout();
 		}
-
 	}
 
 	public void pushFrom(LeveledGraphNode from) {

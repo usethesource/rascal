@@ -102,7 +102,7 @@ public enum Properties {
 		this.shortCallBackType = shortCallBackType;
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "serial" })
 	public static final HashMap<String, PropertySetters.PropertySetter> propertySetters = new HashMap<String, PropertySetters.PropertySetter>() {{
 		put("mouseStick" , new PropertySetters.SingleBooleanPropertySetter(MOUSE_STICK));
 		put("shapeClosed", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CLOSED));
@@ -258,7 +258,7 @@ public enum Properties {
 	
 	static final boolean[] stds = {false,true};
 	
-	static String genPropertyCode(String propertyName,PropertySetters.PropertySetter setter,boolean std){
+	static String genPropertyCode(String propertyName,@SuppressWarnings("rawtypes") PropertySetters.PropertySetter setter,boolean std){
 		Types type = setter.getProperty(0).type;
 		HashMap<String, Integer> nameOccurances = new HashMap<String, Integer>();
 		String result = "";

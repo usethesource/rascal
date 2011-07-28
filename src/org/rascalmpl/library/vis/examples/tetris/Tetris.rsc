@@ -138,7 +138,7 @@ bool newHighScore(TetrisVisState state){
 
 Figure highScoresFig(TetrisVisState state, void (str) callback,FProperty props...){
 	if(state.logicState.gameOver && !state.highScoreEntered && newHighScore(state)){
-		return vcat([text("Enter your \n name for\n HIGHSCORE"),textfield("",callback)],vgrow(1.1));
+		return vcat([text("Enter your \n name for\n HIGHSCORE"),textfield("Winner!",callback)],vgrow(1.1));
 	} else {
 		return box(grid([ [text("<name>"),text("<highScore>")] | <name,highScore> <- take(nrHighScores,state.highScores)],vgrow(1.05)), 
 		[fillColor("black"),stdFontColor("white")] + props);

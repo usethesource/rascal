@@ -1276,8 +1276,7 @@ public data Figure =
    | _button(str label, void () vcallback, FProperties props)
    | _textfield(str text, void (str) scallback, FProperties props)
    | _textfield(str text, void (str) scallback, bool (str) validate, FProperties props)
-   | _combo(str text, list[str] choices, void (str) scallback, FProperties props)
-   | _combo(str text, list[str] choices, void (str) scallback, bool (str) validate, FProperties props)
+   | _combo(list[str] choices, void (str) scallback, FProperties props)
    | _choice(list[str] choices, void(str s) ccallback, FProperties props)
    | _checkbox(str text, bool checked, void(bool) vbcallback, FProperties props)
    ;
@@ -1503,13 +1502,10 @@ public Figure textfield(str text,  void (str) callback, bool (str) validate, FPr
  	return _textfield(text, callback, validate, props);
 }
 
-public Figure combo(str text, list[str] choices, void (str) callback, FProperty props...){
- 	return _combo(text, choices, callback, props);
+public Figure combo(list[str] choices, void (str) callback, FProperty props...){
+ 	return _combo(choices, callback, props);
 }
  
-public Figure combo(str text, list[str] choices, void (str) callback, bool (str) validate, FProperty props...){
- 	return _combo(text, choices, callback, validate, props);
-}
 public Figure choice(list[str] choices, void(str s) ccallback, FProperty props...){
    return _choice(choices, ccallback, props);
 }
@@ -1704,4 +1700,5 @@ public  Figure shapeDiamond(Figure fig, FProperty props...) {
 public  Figure shapeParallelogram(Figure fig, FProperty props...) {
 	return overlay([shapeParallelogram(props), fig], shapeClosed(true)+props);
 }
+
 

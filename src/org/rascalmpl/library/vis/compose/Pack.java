@@ -16,10 +16,7 @@ import java.util.Comparator;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
 
@@ -40,8 +37,8 @@ public class Pack extends Compose {
 	static protected boolean debug =false;
 	boolean initialized = false;
 
-	public Pack(IFigureExecutionEnvironment fpa, Figure[] figures, PropertyManager properties) {
-		super(fpa, figures, properties);
+	public Pack(Figure[] figures, PropertyManager properties) {
+		super( figures, properties);
 	}
 	
 	/*
@@ -72,10 +69,10 @@ public class Pack extends Compose {
 	public void layout(){
 		Node.hgap = getHGapProperty();
 		Node.vgap = getVGapProperty();
-		
 		for(Figure v : figures){
 			v.takeDesiredWidth(v.minSize.getWidth());
 			v.takeDesiredHeight(v.minSize.getHeight());
+			v.layout();
 		}
 		/* double surface = 0;
 		double maxw = 0;
@@ -122,7 +119,6 @@ public class Pack extends Compose {
 				nd.figure = fig;
 			}
 		//}
-		//initialized = true;
 	}
 	
 	@Override
@@ -134,23 +130,22 @@ public class Pack extends Compose {
 
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
+	void draw(GraphicsContext gc) {
 		//if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
-		setLeft(left);
-		setTop(top);
-		
 		
 
 		if(fits){
-			if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
-			root.draw(left, top,gc);
+			//if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
+			root.draw(getLeft(), getTop(),gc);
 		} else {
 			String message = "Pack: cannot fit!";
 			System.err.printf("Pack: cannot fit\n");
 			applyProperties(gc);
 			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
-			gc.rect(left, top, size.getWidth(), size.getHeight());
-			gc.text(message, left + size.getWidth()/2.0 - getTextWidth(message)/2.0, top + size.getHeight()/2.0 - getTextAscent());
+			gc.rect(getLeft(), getTop(), size.getWidth(), size.getHeight());
+			gc.text(message,
+					getLeft() + size.getWidth()/2.0 - getTextWidth(message)/2.0,
+					getTop() + size.getHeight()/2.0 - getTextAscent());
 			
 		}
 	}
@@ -247,7 +242,7 @@ class Node {
 		if(lnode != null) lnode.draw(left, top,gc);
 		if(rnode != null) rnode.draw(left, top,gc);
 		if(figure != null){
-			figure.draw(left + this.left, top + this.top, gc);
+			figure.draw(gc);
 		}
 	}
 }

@@ -16,36 +16,37 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.containers.WithInnerFig;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 public class ComputeFigure extends WithInnerFig {
 	
 	final private IValue callback;
-	
+	private IFigureConstructionEnv env;
 	
 	private IList childProps;
 
-	public ComputeFigure(IFigureExecutionEnvironment fpa, PropertyManager properties,  IValue fun, IList childProps) {
-		super(fpa, null,properties);
-	
+	public ComputeFigure(IFigureConstructionEnv env, PropertyManager properties,  IValue fun, IList childProps) {
+		super(null,properties);
+		this.env = env;
 		this.childProps = childProps;
-		fpa.checkIfIsCallBack(fun);
+		env.getCallBackEnv().checkIfIsCallBack(fun);
 		this.callback = fun;
 	}
 	
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
 		if(innerFig != null){
 			innerFig.destroy();
 		}
-		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, fpa.getRascalContext());
+		IConstructor figureCons = (IConstructor) env.executeRascalCallBackWithoutArguments(callback).getValue();
+		innerFig = FigureFactory.make(this.env, figureCons, properties, childProps);
 		innerFig.init();
-		innerFig.computeFiguresAndProperties();
+		innerFig.computeFiguresAndProperties(env);
 		properties = innerFig.properties;
 		//fpa.setComputedValueChanged();
 	}
@@ -67,11 +68,8 @@ public class ComputeFigure extends WithInnerFig {
 	}
 	
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		//System.err.println("ComputeFigure.draw: " + left + ", " + top + "\n");
-		this.setLeft(left);
-		this.setTop(top);
-		innerFig.draw(left,top, gc);
+	public void draw(GraphicsContext gc) {
+		innerFig.draw(gc);
 	}
 	
 

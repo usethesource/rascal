@@ -13,6 +13,7 @@
 package org.rascalmpl.library.vis.properties;
 
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
 
 public class ConstantProperties {
 
@@ -29,7 +30,7 @@ public class ConstantProperties {
 			return value;
 		}
 		
-		public void compute() {
+		public void compute(ICallbackEnv env) {
 		}
 
 	}

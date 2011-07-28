@@ -1,5 +1,6 @@
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.containers;
 
+import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -8,7 +9,7 @@ public class EmptyFigure extends Figure{
 	public static final EmptyFigure instance = new EmptyFigure(); 
 	
 	private EmptyFigure(){
-		super(null, new PropertyManager());
+		super(new PropertyManager());
 	}
 	
 	@Override
@@ -18,14 +19,12 @@ public class EmptyFigure extends Figure{
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
+	public void draw(GraphicsContext gc) {
 		
 	}
 
 	@Override
 	public void layout() {
-
-		
 	}
 
 }

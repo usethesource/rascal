@@ -18,10 +18,9 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -40,9 +39,9 @@ public class TreeMapNode extends Figure {
 	private double[] childTop;
 	private static boolean debug = true;
 	
-	public TreeMapNode(IFigureExecutionEnvironment fpa, TreeMap treeMap, PropertyManager properties,
+	public TreeMapNode(IFigureConstructionEnv fpa, TreeMap treeMap, PropertyManager properties,
 			Figure fig) {
-		super(fpa, properties);
+		super(properties);
 		this.treemap = treeMap;
 		rootFigure = fig;
 		children = new ArrayList<TreeMapNode>();
@@ -116,20 +115,18 @@ public class TreeMapNode extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc){
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc){
 		if(debug)System.err.printf("draw: %s at %f, %f \n", 
-				          rootFigure.getIdProperty(), left,  top
+				          rootFigure.getIdProperty(), getLeft(),  getTop()
 				          );
 		
 		rootFigure.applyProperties(gc);
-		gc.rect(left, top, minSize.getWidth(), minSize.getHeight());
+		gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 		
 		int n = children.size();
 		for(int i = 0; i < n; i++){
 			TreeMapNode child = children.get(i);
-			child.draw(left + childLeft[i], top + childTop[i], gc);
+			child.draw(gc);
 		}
 	}
 

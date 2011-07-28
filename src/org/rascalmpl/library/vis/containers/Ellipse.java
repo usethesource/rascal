@@ -14,9 +14,6 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -33,8 +30,8 @@ public class Ellipse extends Container {
 	
 	final static boolean debug = false;
 
-	public Ellipse(IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
-		super(fpa, inner, properties);
+	public Ellipse(Figure inner, PropertyManager properties) {
+		super(inner, properties);
 	}
 	
 	@Override
@@ -82,11 +79,10 @@ public class Ellipse extends Container {
    //     fpa.line(left + fromX, top + fromY, left + IX, top + IY);
         
         if(toArrow != null){
-        	toArrow.bbox();
         	gc.pushMatrix();
         	gc.translate(left + IX, top + IY);
         	gc.rotate(FigureApplet.radians(-90) + theta);
-        	toArrow.draw(-toArrow.minSize.getWidth()/2, 0, gc);
+        	toArrow.draw(gc);
         	gc.popMatrix();
         }
 	}
