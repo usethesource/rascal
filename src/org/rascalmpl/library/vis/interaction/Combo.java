@@ -24,24 +24,20 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Combo> {
 
-	String[] choices;
+	;
 
 	public Combo(IFigureConstructionEnv env, String[] choices, IValue cb,  PropertyManager properties) {
 		super(env, cb, properties);
-		this.choices =choices;
+		widget = makeWidget(env.getSWTParent(), env,choices);
 	}
 
 
-	@Override
-	org.eclipse.swt.widgets.Combo makeWidget(Composite comp) {
+	org.eclipse.swt.widgets.Combo makeWidget(Composite comp, IFigureConstructionEnv env,String[] choices) {
 		 org.eclipse.swt.widgets.Combo combo = new org.eclipse.swt.widgets.Combo(comp, SWT.DROP_DOWN
 				| SWT.BORDER);
 		 for(String s : choices){
 			 combo.add(s);
 		 }
-		// System.err.println("callback = " + callback);
-
-
 		combo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				executeCallback();

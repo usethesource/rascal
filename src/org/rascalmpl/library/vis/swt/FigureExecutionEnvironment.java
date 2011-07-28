@@ -36,7 +36,6 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	}
 	
 	public void computeFigures(){
-		System.out.printf("Recomputing %d\n",System.currentTimeMillis());
 		computing = true;
 		NameResolver resolver = new NameResolver(ctx);
 		figureRoot.init();

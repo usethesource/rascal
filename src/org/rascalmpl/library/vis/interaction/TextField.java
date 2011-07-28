@@ -39,12 +39,12 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 
 	private final Color falseColor;
-	String text;
+	
 
-	public TextField(IFigureConstructionEnv fpa, String text, IValue cb, IValue validate, PropertyManager properties) {
-		super(fpa, cb, validate, properties);
-		this.text = text;
+	public TextField(IFigureConstructionEnv env, String text, IValue cb, IValue validate, PropertyManager properties) {
+		super(env, cb, validate, properties);
 		falseColor = SWTFontsAndColors.getRgbColor(FigureColorUtils.colorNames.get("red").intValue());
+		widget = makeWidget(env.getSWTParent(), env,text);
 	}
 
 	@Override
@@ -53,8 +53,7 @@ public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 		widget.setForeground(validated ? SWTFontsAndColors.getRgbColor(getFontColorProperty()) : falseColor);
 	}
 
-	@Override
-	Text makeWidget(Composite comp) {
+	Text makeWidget(Composite comp, IFigureConstructionEnv env,String text) {
 		Text textfield = new Text(comp, SWT.SINGLE | SWT.BORDER);
 		
 		textfield.addModifyListener(new ModifyListener() {

@@ -10,16 +10,15 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 public class Scrollable extends SWTWidgetFigure<FigureSWTApplet> {
 
-	IConstructor inner;
-	IFigureConstructionEnv env;
 	
 	public Scrollable(IFigureConstructionEnv env, IConstructor inner, PropertyManager properties) {
 		super(env,  properties);
-		this.inner = inner;
-		this.env = env;
+		widget = makeWidget(env.getSWTParent(), env,inner);
 	}
-	@Override
-	FigureSWTApplet makeWidget(Composite comp) {
+	
+	
+	
+	FigureSWTApplet makeWidget(Composite comp, IFigureConstructionEnv env,IConstructor inner) {
 		return new FigureSWTApplet(comp, inner,env.getFigureExecEnv());
 	}
 
