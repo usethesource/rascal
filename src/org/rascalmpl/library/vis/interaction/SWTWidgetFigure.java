@@ -31,7 +31,7 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	
 	SWTWidgetFigure(IFigureConstructionEnv env,PropertyManager properties){
 		super(properties);
-		widget = makeWidget(env.getSWTParent());
+		
 	}
 
 	@Override
@@ -42,8 +42,6 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 		setResizable();
 		super.bbox();
 	}
-	
-	abstract WidgetType makeWidget(Composite comp);
 	
 	@Override
 	public void layout() {

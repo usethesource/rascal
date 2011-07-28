@@ -23,17 +23,15 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.List> {
 	private IValue callback;
-	org.eclipse.swt.widgets.List list;
-	String[] choices;
+	
 
 	public Choice(IFigureConstructionEnv env, String[] choices, IValue fun, PropertyManager properties) {
 		super(env, fun, properties);
-		this.choices = choices;
+		widget = makeWidget(env.getSWTParent(), env,choices);
 	}
 	
 
-	@Override
-	org.eclipse.swt.widgets.List makeWidget(Composite comp) {
+	org.eclipse.swt.widgets.List makeWidget(Composite comp, IFigureConstructionEnv env,String[] choices) {
 		org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(comp, SWT.SINGLE|SWT.BORDER);
 		for(String val : choices){
              list.add(val);

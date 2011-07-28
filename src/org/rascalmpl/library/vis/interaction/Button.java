@@ -20,19 +20,17 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Button> {
-	protected String caption;
 
-	public Button(IFigureConstructionEnv fpa, String caption, IValue fun,  PropertyManager properties) {
-		super(fpa, fun, properties);
-		this.caption = caption;
+	public Button(IFigureConstructionEnv env, String caption, IValue fun,  PropertyManager properties) {
+		super(env, fun, properties);
+		widget = makeWidget(env.getSWTParent(), env,caption);
 	}
 	
 	int buttonType(){
 		return SWT.PUSH;
 	}
 
-	@Override
-	org.eclipse.swt.widgets.Button makeWidget(Composite comp) {
+	org.eclipse.swt.widgets.Button makeWidget(Composite comp, IFigureConstructionEnv env,String caption) {
 		org.eclipse.swt.widgets.Button result = new org.eclipse.swt.widgets.Button(comp,buttonType());
 		result.addSelectionListener(new SelectionAdapter() {
 			@Override

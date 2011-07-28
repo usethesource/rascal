@@ -275,7 +275,7 @@ public class FigureSWTApplet extends ScrolledComposite
 
 	@Override
 	public Composite getSWTParent() {
-		return this;
+		return inner;
 	}
 
 	@Override
