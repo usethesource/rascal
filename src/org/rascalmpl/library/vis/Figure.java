@@ -215,7 +215,7 @@ public abstract class Figure implements Comparable<Figure> {
 			fromX += 0.00001;
 		double s = (fromY - Y) / (fromX - X);
 
-		double theta = FigureApplet.atan(s);
+		double theta = Math.atan(s);
 		if (theta < 0) {
 			if (fromX < X)
 				theta += FigureApplet.PI;

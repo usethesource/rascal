@@ -23,7 +23,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	private boolean callbackBatch;
 	private boolean batchEmpty;
 	private boolean computing;
-
+	private long rascalTime = 0;
+	public static boolean profile = false;
 	
 	public FigureExecutionEnvironment(Composite parent, IConstructor cfig,IEvaluatorContext ctx) {
 		this.ctx = ctx;
@@ -54,11 +55,19 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	}
 	
 	public void endCallbackBatch(){
+		long startTime = System.nanoTime();
 		callbackBatch = false;
 		if(!batchEmpty){
 			computeFigures();
 			appletRoot.layoutForce();
+			if(profile){
+				double figTime = ((double)(System.nanoTime() - startTime)) / 1000000.0;
+				double rascalTimeD = ((double)rascalTime) / 1000000.0;
+				System.out.printf("Compute figures took %f rascal time: %f rascal portion %f\n", figTime, rascalTimeD, rascalTimeD / figTime);
+				rascalTime = 0;
+			}
 		}
+		
 	}
 
 	public IEvaluatorContext getRascalContext() {
@@ -75,6 +84,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 
 	public Result<IValue> executeRascalCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
+		long startTime = System.nanoTime();
 		Result<IValue> result = null;
 		try {
 			result = ((ICallableValue) callback).call(argTypes, argVals);
@@ -91,6 +101,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 				appletRoot.layoutForce();
 			}
 		}
+		if(profile) rascalTime += System.nanoTime() - startTime;
 		return result;
 	}
 

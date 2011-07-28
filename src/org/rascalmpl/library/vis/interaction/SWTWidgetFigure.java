@@ -27,7 +27,7 @@ import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 
 public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure{
 
-	WidgetType widget;
+	public WidgetType widget;
 	
 	SWTWidgetFigure(IFigureConstructionEnv env,PropertyManager properties){
 		super(properties);
