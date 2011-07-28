@@ -26,22 +26,25 @@ public abstract class AbstractStackNode{
 	
 	protected AbstractStackNode[] production;
 	protected AbstractStackNode[][] alternateProductions;
+	
 	protected IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap;
 	protected ArrayList<Link>[] prefixesMap;
 	
 	protected final int id;
 	protected final int dot;
 	
-	protected int startLocation;
-
+	protected final int startLocation;
+	
+	// Flags
 	private boolean isEndNode;
 	private boolean isSeparator;
 	private boolean isLayout;
 	
+	// Filters
 	private final IEnterFilter[] enterFilters;
 	private final ICompletionFilter[] completionFilters;
 	
-	// Last node specific stuff
+	// The production (specific to end nodes only)
 	private IConstructor parentProduction;
 	
 	public AbstractStackNode(int id, int dot){
@@ -89,64 +92,121 @@ public abstract class AbstractStackNode{
 	}
 	
 	// General.
+	/**
+	 * Returns the id of the node.
+	 */
 	public int getId(){
 		return id;
 	}
 	
+	/**
+	 * Checks whether or not this node is the last node in the production.
+	 * Note that while this may be an end node alternative continuations of this production may be possible.
+	 */
 	public boolean isEndNode(){
 		return isEndNode;
 	}
 	
+	/**
+	 * Mark this node as being a separator.
+	 */
 	public void markAsSeparator(){
 		isSeparator = true;
 	}
 	
+	/**
+	 * Checks whether or not this nodes is a separator.
+	 */
 	public boolean isSeparator(){
 		return isSeparator;
 	}
 	
+	/**
+	 * Marks this node as representing layout.
+	 */
 	public void markAsLayout(){
 		isLayout = true;
 	}
 	
+	/**
+	 * Checks whether or not this node represents layout.
+	 */
 	public boolean isLayout(){
 		return isLayout;
 	}
 	
+	/**
+	 * Checks whether this node represents a 'matchable' leaf node.
+	 */
 	public final boolean isMatchable(){
 		return (this instanceof IMatchableStackNode);
 	}
 	
+	/**
+	 * Check wheterh this node represents a node which needs to be expanded in-place.
+	 */
 	public final boolean isExpandable(){
 		return (this instanceof IExpandableStackNode);
 	}
 	
+	/**
+	 * Checks if this node represents a nullable leaf node.
+	 */
 	public abstract boolean isEmptyLeafNode();
 	
+	/**
+	 * Returns the name associated with the symbol in this node (optional operation).
+	 */
 	public abstract String getName();
 	
+	/**
+	 * Matches the symbol associated with this node to the input at the specified location.
+	 * This operation is only available on matchable nodes.
+	 */
 	public abstract AbstractNode match(char[] input, int location);
 	
+	/**
+	 * Check whether of this this node is equal to the given node.
+	 */
 	public abstract boolean isEqual(AbstractStackNode stackNode);
 	
 	// Last node specific stuff.
+	/**
+	 * Associates a production with this node, indicating that this is the last node in the production.
+	 * This production will be used in result construction during reduction.
+	 */
 	public void setParentProduction(IConstructor parentProduction){
 		this.parentProduction = parentProduction;
 		isEndNode = true;
 	}
 	
+	/**
+	 * Retrieves the production associated with the alternative this node is a part of.
+	 * Only the last node in the alternative will have this production on it.
+	 */
 	public IConstructor getParentProduction(){
 		return parentProduction;
 	}
 	
+	/**
+	 * Retrieves the enter filters associated with the symbol in this node.
+	 * The returned value may be null if no enter filters are present.
+	 */
 	public IEnterFilter[] getEnterFilters(){
 		return enterFilters;
 	}
 	
+	/**
+	 * Retrieves the completion filters associated with the symbol in this node.
+	 * The returned value may be null if no completion filters are present.
+	 */
 	public ICompletionFilter[] getCompletionFilters(){
 		return completionFilters;
 	}
 	
+	/**
+	 * Checks whether or not the filters that are associated with this nodes symbol are equal to those of the given node.
+	 */
 	public boolean hasEqualFilters(AbstractStackNode otherNode){
 		IEnterFilter[] otherEnterFilters = otherNode.enterFilters;
 		OUTER: for(int i = enterFilters.length - 1; i >= 0; --i){
@@ -169,24 +229,46 @@ public abstract class AbstractStackNode{
 		return true;
 	}
 	
-	// Sharing.
+	// Creation and sharing.
+	/**
+	 * Creates a new copy of this node for the indicated position.
+	 */
 	public abstract AbstractStackNode getCleanCopy(int startLocation);
-
+	
+	/**
+	 * Creates a new copy of this node for the indicated position and associated the given result with it.
+	 * This method has the same effect as the one above, but is exclusively used for matchable nodes;
+	 * as their results are constructed before the node is created.
+	 */
 	public abstract AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result);
 	
+	/**
+	 * Checks whether or not this node has the same id as the given one.
+	 * This method is used when determining whether or not stacks should to be merged.
+	 */
 	public boolean isSimilar(AbstractStackNode node){
 		return (node.id == id);
 	}
 	
-	// Linking & prefixes.
+	// Node continuations.
+	/**
+	 * Indicates the current location in the alternative this node is a part of.
+	 */
 	public int getDot(){
 		return dot;
 	}
 	
+	/**
+	 * Sets the main alternative this node is a part of.
+	 */
 	public void setProduction(AbstractStackNode[] production){
 		this.production = production;
 	}
 	
+	/**
+	 * Adds an additional alternative this node is a part of.
+	 * This can be the case if the symbol this node is associated with is located in a shared prefix of more then one alternative.
+	 */
 	public void addProduction(AbstractStackNode[] production){
 		if(this.production == null){
 			this.production = production;
@@ -201,18 +283,28 @@ public abstract class AbstractStackNode{
 		}
 	}
 	
+	/**
+	 * Checks if this node has possible continuations.
+	 */
 	public boolean hasNext(){
 		return !((production == null) || ((dot + 1) == production.length));
 	}
 	
+	/**
+	 * Retrieves the main alternative the symbol this node is associated with is a part of.
+	 */
 	public AbstractStackNode[] getProduction(){
 		return production;
 	}
 	
+	/**
+	 * Retrieves the alternative continuations the symbols this node is associated with is a part of.
+	 */
 	public AbstractStackNode[][] getAlternateProductions(){
 		return alternateProductions;
 	}
 	
+	// Edges & prefixes.
 	public void initEdges(){
 		edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>();
 	}
