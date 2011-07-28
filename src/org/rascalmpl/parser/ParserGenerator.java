@@ -48,10 +48,17 @@ public class ParserGenerator {
 		this.vf = factory;
 		
 		monitor.startJob("Loading parser generator", 100, 139);
-		evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
-		evaluator.doImport(monitor, "lang::rascal::grammar::Assimilator");
-		monitor.endJob(true);
+		try {
+			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
+			evaluator.doImport(monitor, "lang::rascal::grammar::Assimilator");
+		}
+		catch (Throwable e) {
+			throw new ImplementationError("Exception while loading parser generator: " + e.getMessage(), e);
+		}
+		finally {
+			monitor.endJob(true);
+		}
 	}
 	
 	/**

@@ -43,14 +43,12 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public abstract class Tree {
 	protected static boolean isConstant(java.util.List<Expression> args) {
-		boolean tmp = true;
 		for (org.rascalmpl.ast.Expression e : args) { 
 			if (e.getStats().getNestedMetaVariables() > 0) {
-				tmp = false;
-				break;
+				return false;
 			}
 		}
-		return tmp;
+		return true;
 	}
 	
   static public class Appl extends org.rascalmpl.ast.Expression {
@@ -65,7 +63,6 @@ public abstract class Tree {
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 		this.args = args;
 		this.constant = isConstant(args);
-	
 	}
 
 	@Override
