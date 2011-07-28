@@ -419,6 +419,10 @@ public class SWTGraphicsContext implements GraphicsContext {
 		currentFont = new Font(device, fd);
 		gc.setFont(currentFont);
 	}
+	
+	public void dispose(){
+		gc.dispose();
+	}
 
 	
 }

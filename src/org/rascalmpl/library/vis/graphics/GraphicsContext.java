@@ -37,6 +37,6 @@ public interface GraphicsContext {
 	public void endShape();
 	public void endShape(int arg0 );
 
-
+	public void dispose();
 
 }

@@ -42,6 +42,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.KeySymFactory;
 import org.rascalmpl.library.vis.containers.Box;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
@@ -95,7 +96,9 @@ public class FigureSWTApplet extends ScrolledComposite
 
 	private void draw(GC swtGC) {
 		swtGC.setBackground(SWTFontsAndColors.getColor(SWT.COLOR_WHITE));
-		figure.draw(new SWTGraphicsContext(swtGC));
+		GraphicsContext gc = new SWTGraphicsContext(swtGC);
+		figure.draw(gc);
+		gc.dispose();
 	}
 	
 	public void layoutForce(){
@@ -108,7 +111,7 @@ public class FigureSWTApplet extends ScrolledComposite
 	}
 
 	private void layoutFigures(boolean force) {
-		Rectangle r = getBounds();
+		Rectangle r = getClientArea();
 		BoundingBox curSize = new BoundingBox(r.width,r.height);
 		boolean resized = !(curSize.isEq(lastSize));
 		lastSize = curSize;
@@ -125,7 +128,7 @@ public class FigureSWTApplet extends ScrolledComposite
 			}
 			
 			figure.layout();
-			setSize((int) Math.ceil(viewPort.getWidth()),
+			setMinSize((int) Math.ceil(viewPort.getWidth()),
 				(int) Math.ceil(viewPort.getHeight()));
 
 		}
