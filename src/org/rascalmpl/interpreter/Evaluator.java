@@ -423,14 +423,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return func.call(getMonitor(), types, args).getValue();
 	}
 	
-	private IConstructor parseObject(IConstructor startSort, URI location, char[] input, boolean withErrorTree){
+	public IConstructor parseObject(IConstructor startSort, URI location, char[] input, boolean withErrorTree){
 		IGTD parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
 			startSort = SymbolAdapter.getStart(startSort);
 		}
-		if (SymbolAdapter.isSort(startSort)) {
+		
+		if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
 			name += SymbolAdapter.getName(startSort);
 		}
 
@@ -874,6 +875,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				monitor.event("Processed " + mod, 1);
 			}
 			extendingModules.removeAll(names);
+			monitor.endJob(true);
 
 			monitor.startJob("Reloading modules", onHeap.size());
 			for (String mod : onHeap) {
@@ -1033,7 +1035,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		char[] data;
 		try{
 			data = getResourceContent(location);
-		}catch(IOException ioex){
+		}catch (IOException ioex){
 			throw new ModuleLoadError(location.toString(), ioex.getMessage(), cause);
 		}
 

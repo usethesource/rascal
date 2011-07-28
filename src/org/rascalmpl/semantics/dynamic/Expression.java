@@ -60,7 +60,6 @@ import org.rascalmpl.interpreter.matching.ListPattern;
 import org.rascalmpl.interpreter.matching.MatchResult;
 import org.rascalmpl.interpreter.matching.MultiVariablePattern;
 import org.rascalmpl.interpreter.matching.NodePattern;
-import org.rascalmpl.interpreter.matching.NotPattern;
 import org.rascalmpl.interpreter.matching.NotResult;
 import org.rascalmpl.interpreter.matching.OrResult;
 import org.rascalmpl.interpreter.matching.QualifiedNamePattern;
@@ -90,11 +89,9 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.lang.rascal.syntax.RascalRascal;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.uptr.NodeToUPTR;
-import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
+import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
 
@@ -935,44 +932,32 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> result = this.getPattern().interpret(__eval);
 			Type expected = getType().typeOf(__eval.getCurrentEnvt());
 
-			// TODO: there must be a cleaner way to do this
-			if (expected instanceof NonTerminalType
-					&& result.getType().isSubtypeOf(TF.stringType())) {
-				String command = '(' + expected.toString() + ')' + '`'
-						+ ((IString) result.getValue()).getValue() + '`';
-				__eval.__setInterrupt(false);
-				IConstructor tree = new RascalRascal().parse(
-						Parser.START_COMMAND,
-						this.getLocation().getURI(),
-						command.toCharArray(),
-						new RascalFunctionActionExecutor(__eval),
-						new NodeToUPTR());
+			if (!(expected instanceof NonTerminalType)) {
+				throw new UnsupportedOperationError("inline parsing", expected, this);
+			}
+			
+			if (!result.getType().isSubtypeOf(TF.stringType())) {
+				throw new UnsupportedOperationError("inline parsing", result.getType(), this);
+			}
+			
+			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
+			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol)) {
+				throw new UnsupportedOperationError("inline parsing", expected, this);
+			}
 
-				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
-						.getArgs(tree).get(1); // top
-				// command
-				// expression
-				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
-						.getArgs(tree).get(0); // typed
-				// quoted
-				// embedded
-				// fragment
-				tree = (IConstructor) org.rascalmpl.values.uptr.TreeAdapter
-						.getArgs(tree).get(8); // wrapped
-				// string
-				// between
-				// `...`
+			__eval.__setInterrupt(false);
+			try {
+				IConstructor tree = __eval.parseObject(symbol,
+						this.getLocation().getURI(),
+						((IString) result.getValue()).getValue().toCharArray(),
+						false);
+
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(expected, tree, __eval);
 			}
-			if (!result.getType().isSubtypeOf(expected)) {
-				throw new UnexpectedTypeError(expected, result.getType(), this
-						.getPattern());
+			catch (ParseError e) {
+				throw RuntimeExceptionFactory.parseError(getLocation(), this, __eval.getStackTrace());
 			}
-
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					expected, result.getValue(), __eval);
-
 		}
 
 		@Override
@@ -1607,11 +1592,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
 			return new NotResult(eval, getArgument().buildBacktracker(eval));
-		}
-
-		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new NotPattern(eval, this, this.getArgument().buildMatcher(eval));
 		}
 
 		@Override

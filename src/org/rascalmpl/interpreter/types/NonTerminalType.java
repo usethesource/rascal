@@ -26,8 +26,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
  * This is an "extension" of the PDB's type system with a special kind of type
- * that implements the mapping between SDF's sort names and Rascal types. These
- * types should never escape into the PDB, that would break a lot...
+ * that implements the connection between Rascal's non-terminals and Rascal types. 
  */
 public class NonTerminalType extends ExternalType {
 	private IConstructor symbol;
@@ -130,10 +129,6 @@ public class NonTerminalType extends ExternalType {
 		}
 		
 		return super.isSubtypeOf(other);
-	}
-	
-	public boolean isConcreteCFList() {
-		return false;
 	}
 	
 	@Override

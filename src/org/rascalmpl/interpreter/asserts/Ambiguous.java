@@ -21,6 +21,7 @@ public final class Ambiguous extends AssertionError {
 
 	public Ambiguous(IConstructor tree) {
 		super("Unexpected ambiguity at " + tree.getAnnotation("loc") + ": " + getValueString(tree));
+		printStackTrace();
 	}
 
 	private static String getValueString(IConstructor tree) {
