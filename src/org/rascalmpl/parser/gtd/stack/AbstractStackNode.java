@@ -328,7 +328,7 @@ public abstract class AbstractStackNode{
 	}
 	
 	/**
-	 * Adds the given of edges to the set of edges for the indicated location.
+	 * Adds the given set of edges to the edge map for the indicated location.
 	 */
 	public void addEdges(ArrayList<AbstractStackNode> edges, int startLocation){
 		edgesMap.add(startLocation, edges);
@@ -343,6 +343,7 @@ public abstract class AbstractStackNode{
 	 * This may be required in case a stack merges occur at the point where one of these alternatives starts.
 	 */
 	public void addEdgeWithPrefix(AbstractStackNode edge, Link prefix, int startLocation){
+		// Initialize the prefix map (if necessary).
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[(edgesMapSize + 1) << 1];
@@ -356,6 +357,7 @@ public abstract class AbstractStackNode{
 			}
 		}
 		
+		// Add the edge.
 		ArrayList<AbstractStackNode> edges;
 		int index = edgesMap.findKey(startLocation);
 		if(index == -1){
@@ -368,6 +370,7 @@ public abstract class AbstractStackNode{
 		}
 		edges.add(edge);
 		
+		// Add the prefix.
 		ArrayList<Link> prefixes = prefixesMap[index];
 		if(prefixes == null){
 			prefixes = new ArrayList<Link>(1);
@@ -376,6 +379,10 @@ public abstract class AbstractStackNode{
 		prefixes.add(prefix);
 	}
 	
+	/**
+	 * Add the given prefix at the indicated index.
+	 * This index is directly linked to a certain set of edges in the edge map.
+	 */
 	private void addPrefix(Link prefix, int index){
 		ArrayList<Link> prefixes = prefixesMap[index];
 		if(prefixes == null){
@@ -384,6 +391,100 @@ public abstract class AbstractStackNode{
 		}
 		
 		prefixes.add(prefix);
+	}
+	
+	/**
+	 * Updates this node with information from its predecessor in the alternative.
+	 * The sets of edges on this predecessor will be transferred to this node and
+	 * the required prefixes for this node will be constructed, using the predecessor's
+	 * prefixes in combination with its given result.
+	 * 
+	 * This method also takes care of stack merges in the process of doing this.
+	 */
+	public void updateNode(AbstractStackNode predecessor, AbstractNode predecessorResult){
+		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
+		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
+		
+		if(edgesMap == null){ // Clean node, no stack merge occurred.
+			// Initialize the edges map.
+			edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>(edgesMapToAdd);
+			
+			// Initialize the prefixes map.
+			if(prefixesMap == null){
+				prefixesMap = new ArrayList[edgesMap.size()];
+			}
+			
+			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
+				int index = edgesMap.findKey(predecessor.getStartLocation());
+				addPrefix(new Link(null, predecessorResult), index);
+			}else{ // The predecessor has prefixes.
+				int nrOfPrefixes = edgesMapToAdd.size();
+				for(int i = nrOfPrefixes - 1; i >= 0; --i){
+					ArrayList<Link> prefixes = prefixesMap[i];
+					if(prefixes == null){
+						prefixes = new ArrayList<Link>(1);
+						prefixesMap[i] = prefixes;
+					}
+					
+					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
+				}
+			}
+		}else if(edgesMap != edgesMapToAdd){ // A stack merge occurred (and the production is non-cyclic (expandable nodes, such as lists, can have cyclic child alternatives)).
+			// Initialize the prefixes map.
+			int edgesMapSize = edgesMap.size();
+			int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
+			if(prefixesMap == null){
+				prefixesMap = new ArrayList[possibleMaxSize];
+			}else{
+				if(prefixesMap.length < possibleMaxSize){
+					ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+					prefixesMap = new ArrayList[possibleMaxSize];
+					System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+				}
+			}
+			
+			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
+				edgesMap.add(edgesMapToAdd.getKey(0), edgesMapToAdd.getValue(0));
+				addPrefix(new Link(null, predecessorResult), edgesMap.size() - 1);
+			}else{
+				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
+					int startLocation = edgesMapToAdd.getKey(i);
+					int index = edgesMap.findKeyBefore(startLocation, edgesMapSize);
+					ArrayList<Link> prefixes;
+					if(index == -1){
+						index = edgesMap.size();
+						edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+						
+						prefixes = new ArrayList<Link>(1);
+						prefixesMap[index] = prefixes;
+					}else{
+						prefixes = prefixesMap[index];
+					}
+					
+					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
+				}
+			}
+		}else{ // A stack merge occured and the production is self cyclic (expandable nodes, such as lists, can have cyclic child alternatives).
+			if(prefixesMap == null){
+				prefixesMap = new ArrayList[edgesMap.size()];
+			}
+			
+			if(prefixesMapToAdd == null){
+				int index = edgesMap.findKey(predecessor.getStartLocation());
+				addPrefix(new Link(null, predecessorResult), index);
+			}else{
+				int nrOfPrefixes = edgesMapToAdd.size();
+				for(int i = nrOfPrefixes - 1; i >= 0; --i){
+					ArrayList<Link> prefixes = prefixesMap[i];
+					if(prefixes == null){
+						prefixes = new ArrayList<Link>(1);
+						prefixesMap[i] = prefixes;
+					}
+					
+					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
+				}
+			}
+		}
 	}
 	
 	public void updateNodeAfterNonEmptyMatchable(AbstractStackNode predecessor, AbstractNode result){
@@ -408,95 +509,6 @@ public abstract class AbstractStackNode{
 				}
 				
 				prefixes.add(new Link(prefixesMapToAdd[i], result));
-			}
-		}
-	}
-	
-	public void updateNode(AbstractStackNode predecessor, AbstractNode result){
-		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
-		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
-		
-		if(edgesMap == null){
-			edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>(edgesMapToAdd);
-
-			if(prefixesMap == null){
-				prefixesMap = new ArrayList[edgesMap.size()];
-			}
-			
-			if(prefixesMapToAdd == null){
-				int index = edgesMap.findKey(predecessor.getStartLocation());
-				addPrefix(new Link(null, result), index);
-			}else{
-				int nrOfPrefixes = edgesMapToAdd.size();
-				for(int i = nrOfPrefixes - 1; i >= 0; --i){
-					ArrayList<Link> prefixes = prefixesMap[i];
-					if(prefixes == null){
-						prefixes = new ArrayList<Link>(1);
-						prefixesMap[i] = prefixes;
-					}
-					
-					prefixes.add(new Link(prefixesMapToAdd[i], result));
-				}
-			}
-		}else if(edgesMap != edgesMapToAdd){
-			int edgesMapSize = edgesMap.size();
-			int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
-			if(prefixesMap == null){
-				prefixesMap = new ArrayList[possibleMaxSize];
-			}else{
-				if(prefixesMap.length < possibleMaxSize){
-					ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-					prefixesMap = new ArrayList[possibleMaxSize];
-					System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
-				}
-			}
-			
-			if(prefixesMapToAdd == null){
-				int startLocation = edgesMapToAdd.getKey(0);
-				int index = edgesMap.findKey(startLocation);
-				if(index == -1){
-					addPrefix(new Link(null, result), edgesMap.size());
-					edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
-				}else{
-					addPrefix(new Link(null, result), index);
-				}
-			}else{
-				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
-					int startLocation = edgesMapToAdd.getKey(i);
-					int index = edgesMap.findKeyBefore(startLocation, edgesMapSize);
-					ArrayList<Link> prefixes;
-					if(index == -1){
-						index = edgesMap.size();
-						edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
-						
-						prefixes = new ArrayList<Link>(1);
-						prefixesMap[index] = prefixes;
-					}else{
-						prefixes = prefixesMap[index];
-					}
-					
-					prefixes.add(new Link(prefixesMapToAdd[i], result));
-				}
-			}
-		}else{
-			if(prefixesMap == null){
-				prefixesMap = new ArrayList[edgesMap.size()];
-			}
-			
-			if(prefixesMapToAdd == null){
-				int index = edgesMap.findKey(predecessor.getStartLocation());
-				addPrefix(new Link(null, result), index);
-			}else{
-				int nrOfPrefixes = edgesMapToAdd.size();
-				for(int i = nrOfPrefixes - 1; i >= 0; --i){
-					ArrayList<Link> prefixes = prefixesMap[i];
-					if(prefixes == null){
-						prefixes = new ArrayList<Link>(1);
-						prefixesMap[i] = prefixes;
-					}
-					
-					prefixes.add(new Link(prefixesMapToAdd[i], result));
-				}
 			}
 		}
 	}
