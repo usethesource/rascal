@@ -139,6 +139,9 @@ public class TraversalEvaluator {
 			return traverseStringOnce(subject, casesOrRules, tr);
 		}
 
+		boolean hasMatched = false;
+		boolean hasChanged = false;
+		
 		if (direction == DIRECTION.TopDown){
 			IValue newTop = traverseTop(subject, casesOrRules, tr);
 
@@ -156,6 +159,9 @@ public class TraversalEvaluator {
 			else {
 				subject = newTop;
 			}
+			
+			hasMatched = tr.matched;
+			hasChanged = tr.changed;
 		}
 
 		if (subjectType.isAbstractDataType()){
@@ -173,14 +179,19 @@ public class TraversalEvaluator {
 		} else {
 			result = subject;
 		}
+		
+		if (direction == DIRECTION.TopDown) {
+			tr.matched |= hasMatched;
+			tr.changed |= hasChanged;
+		}
 
 		if (direction == DIRECTION.BottomUp) {
 			if ((progress == PROGRESS.Breaking) && tr.changed) {
 				return result;
 			}
 
-			boolean hasMatched = tr.matched;
-			boolean hasChanged = tr.changed;
+			hasMatched = tr.matched;
+			hasChanged = tr.changed;
 			tr.matched = false;
 			tr.changed = false;
 			result = traverseTop(result, casesOrRules, tr);
