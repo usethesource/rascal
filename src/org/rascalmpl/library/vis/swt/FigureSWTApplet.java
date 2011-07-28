@@ -37,6 +37,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -51,7 +52,7 @@ import org.rascalmpl.library.vis.util.KeySymTranslate;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureSWTApplet extends ScrolledComposite 
-	implements IFigureConstructionEnv, ISWTZOrdering, PaintListener, MouseListener,MouseMoveListener,  ControlListener, MouseTrackListener, DisposeListener, KeyListener {
+	implements IFigureConstructionEnv, PaintListener, MouseListener,MouseMoveListener,  ControlListener, MouseTrackListener, DisposeListener, KeyListener {
 
 	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
 	private static boolean debug = false;
@@ -66,6 +67,8 @@ public class FigureSWTApplet extends ScrolledComposite
 	private BoundingBox lastSize;
 	volatile GC gc;
 	private FigureExecutionEnvironment env;
+	private SWTZOrderManager zorderManager;
+
 
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env){
 		this(parent,cfig,env,true,true);
@@ -92,17 +95,19 @@ public class FigureSWTApplet extends ScrolledComposite
 		Figure fig = FigureFactory.make(this, cfig, null, null);
 		fig = new Box( fig, new PropertyManager());
 		this.figure = fig;
+		zorderManager = new SWTZOrderManager(inner);
 	}
 
 	private void draw(GC swtGC) {
+		long startTime = System.nanoTime();
 		swtGC.setBackground(SWTFontsAndColors.getColor(SWT.COLOR_WHITE));
 		GraphicsContext gc = new SWTGraphicsContext(swtGC);
 		figure.draw(gc);
 		gc.dispose();
+		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
 	}
 	
 	public void layoutForce(){
-		figure.setSWTZOrder(this);
 		layoutFigures(true);
 		for(FigureSWTApplet child : children){
 			child.layoutForce();
@@ -132,6 +137,8 @@ public class FigureSWTApplet extends ScrolledComposite
 				(int) Math.ceil(viewPort.getHeight()));
 
 		}
+		zorderManager.start();
+		figure.setSWTZOrder(zorderManager);
 		updateFiguresUnderMouse();
 	}
 
@@ -259,24 +266,6 @@ public class FigureSWTApplet extends ScrolledComposite
 	}
 
 	@Override
-	public void pushOverlap() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void popOverlap() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void register(Figure fig) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public Composite getSWTParent() {
 		return inner;
 	}
@@ -299,21 +288,4 @@ public class FigureSWTApplet extends ScrolledComposite
 	public Figure getFigure(){
 		return figure;
 	}
-
-	
-
-	/*
-		public void write(OutputStream out, int mode) {
-			Image image = new Image(comp.getDisplay(), getFigureWidth(),
-					getFigureHeight());
-			GC gc = new GC(image);
-			drawFigure(gc);
-			ImageLoader loader = new ImageLoader();
-			loader.data = new ImageData[] { image.getImageData() };
-			loader.save(out, mode);
-			gc.dispose();
-			image.dispose();
-		}
-	*/
-	
 }

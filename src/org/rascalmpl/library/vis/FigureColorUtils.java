@@ -306,7 +306,7 @@ public class FigureColorUtils {
 	}
 
 	public IInteger gray(IReal r) {
-		int g = FigureApplet.round(255 * r.floatValue());
+		int g = (int)Math.round(255 * r.doubleValue());
 		return vf.integer(figureColor(g, g, g));
 	}
 
@@ -316,7 +316,7 @@ public class FigureColorUtils {
 	}
 
 	public IInteger gray(IReal r, IReal alpha) {
-		int g = FigureApplet.round(255 * r.floatValue());
+		int g = (int)Math.round(255 * r.doubleValue());
 		return vf.integer(figureColor(g, g, g, alpha.floatValue()));
 	}
 

@@ -116,7 +116,7 @@ public class Text extends Figure {
 			if(angle != 0){
 				gc.pushMatrix();
 				gc.translate(getLeft() + hfill, getTop() + vfill);
-				gc.rotate((FigureApplet.radians(angle)));
+				gc.rotate((Math.toRadians(angle)));
 				gc.text(txt.getValue(), 0, 0);
 				gc.popMatrix();
 			} else {
