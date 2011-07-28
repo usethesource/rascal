@@ -30,7 +30,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		// ctx.registerComputationFinishedListener(this)!!!!
 		callbackBatch = false;
 		computing = false;
-		appletRoot = new FigureSWTApplet(parent, cfig, this,true,true);
+		appletRoot = new FigureSWTApplet(parent, cfig, this);
 		figureRoot = appletRoot.getFigure();
 		computeFigures();
 	}
