@@ -791,7 +791,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			first.initEdges();
 			if(cachedEdges == null){
-				cachedEdges = first.addEdge(stackBeingWorkedOn);
+				cachedEdges = first.addEdge(stackBeingWorkedOn, location);
 			}else{
 				first.addEdges(cachedEdges, location);
 			}
@@ -905,7 +905,7 @@ public abstract class SGTDBF implements IGTD{
 				// This epsilon is unique for this position, so we don't need to check for sharing.
 				AbstractStackNode empty = stack.getEmptyChild().getCleanCopy(location);
 				empty.initEdges();
-				empty.addEdge(stack);
+				empty.addEdge(stack, location);
 				
 				stacksToExpand.push(empty);
 			}

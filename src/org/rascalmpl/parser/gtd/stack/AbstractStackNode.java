@@ -305,13 +305,17 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Edges & prefixes.
+	/**
+	 * Initializes the set of edges of this node.
+	 */
 	public void initEdges(){
 		edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>();
 	}
 	
-	public ArrayList<AbstractStackNode> addEdge(AbstractStackNode edge){
-		int startLocation = edge.getStartLocation();
-		
+	/**
+	 * Adds the given edge to the set of edges for the indicated location.
+	 */
+	public ArrayList<AbstractStackNode> addEdge(AbstractStackNode edge, int startLocation){
 		ArrayList<AbstractStackNode> edges = edgesMap.findValue(startLocation);
 		if(edges == null){
 			edges = new ArrayList<AbstractStackNode>(1);
@@ -323,10 +327,21 @@ public abstract class AbstractStackNode{
 		return edges;
 	}
 	
+	/**
+	 * Adds the given of edges to the set of edges for the indicated location.
+	 */
 	public void addEdges(ArrayList<AbstractStackNode> edges, int startLocation){
 		edgesMap.add(startLocation, edges);
 	}
 	
+	/**
+	 * Adds the given edge to the set of edges for the indicated location and associated the given prefix with this node.
+	 * 
+	 * This method is used by children of expandable nodes;
+	 * expandable nodes contain dynamically unfolding alternatives, which can be cyclic.
+	 * A 'null' prefix, for example, indicates that the current node starts the alternative.
+	 * This may be required in case a stack merges occur at the point where one of these alternatives starts.
+	 */
 	public void addEdgeWithPrefix(AbstractStackNode edge, Link prefix, int startLocation){
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
