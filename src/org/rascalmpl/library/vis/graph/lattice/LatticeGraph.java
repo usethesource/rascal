@@ -34,9 +34,10 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -62,7 +63,6 @@ public class LatticeGraph extends Figure implements
 	private HashMap<String, LatticeGraphNode> registered;
 	private final boolean debug = false;
 	private LinkedList<LatticeGraphNode> nextLayer = new LinkedList<LatticeGraphNode>();
-	IEvaluatorContext ctx;
 	Layer[] layers;
 	final int border = 20;
 	final int lmargin = 0;
@@ -217,11 +217,10 @@ public class LatticeGraph extends Figure implements
 
 	// Organism[][] islands;
 
-	public LatticeGraph(IFigureExecutionEnvironment fpa, PropertyManager properties,
-			IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties);
+	public LatticeGraph(IFigureConstructionEnv fpa, PropertyManager properties,
+			IList nodes, IList edges) {
+		super( properties);
 		this.nodes = new ArrayList<LatticeGraphNode>();
-		this.ctx = ctx;
 		propt = tf.abstractDataType(ts, "propt");
 		shapeCurved = tf.constructor(ts, propt, "shapeCurved", tf.boolType());
 		minSize.setWidth(getWidthProperty());
@@ -231,12 +230,12 @@ public class LatticeGraph extends Figure implements
 		registered = new HashMap<String, LatticeGraphNode>();
 		for (IValue v : nodes) {
 			IConstructor c = (IConstructor) v;
-			Figure ve = FigureFactory.make(fpa, c, properties, null, ctx);
+			Figure ve = FigureFactory.make(fpa, c, properties, null);
 			String name = ve.getIdProperty();
 			if (name.length() == 0)
 				throw RuntimeExceptionFactory.figureException(
 						"Id property should be defined", v,
-						ctx.getCurrentAST(), ctx.getStackTrace());
+						fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			LatticeGraphNode node = new LatticeGraphNode(name, ve);
 			this.nodes.add(node);
 			register(name, node);
@@ -246,7 +245,7 @@ public class LatticeGraph extends Figure implements
 		for (IValue v : edges) {
 			IConstructor c = (IConstructor) v;
 			LatticeGraphEdge e = FigureFactory.makeLatticeGraphEdge(this, fpa,
-					c, properties, ctx);
+					c, properties);
 			this.edges.add(e);
 			e.getFrom().addOut(e.getTo());
 			e.getTo().addIn(e.getFrom());
@@ -254,7 +253,7 @@ public class LatticeGraph extends Figure implements
 
 		if (!isLattice())
 			throw RuntimeExceptionFactory.figureException("Not a lattice",
-					null, ctx.getCurrentAST(), ctx.getStackTrace());
+					null, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 		assignRank();
 		computeReached();
@@ -269,7 +268,7 @@ public class LatticeGraph extends Figure implements
 						// System.err.println("BINGO");
 						PropertyManager ep = new PropertyManager(fpa,
 								properties, vf.list(vf.constructor(shapeCurved,
-										vf.bool(true))), ctx);
+										vf.bool(true))));
 						e.properties = ep;
 					}
 	}
@@ -321,14 +320,12 @@ public class LatticeGraph extends Figure implements
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	public void draw(GraphicsContext gc) {
 		applyProperties(gc);
 		for (LatticeGraphEdge e : edges)
-			e.draw(left, top, gc);
+			e.draw(gc);
 		for (LatticeGraphNode n : nodes) {
-			n.draw(left, top,gc);
+			n.draw(gc);
 		}
 	}
 
@@ -571,10 +568,10 @@ public class LatticeGraph extends Figure implements
 		return true;
 	}
 	
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
 		for(LatticeGraphNode node : nodes){
-			node.figure.computeFiguresAndProperties();
+			node.figure.computeFiguresAndProperties(env);
 		}
 	}
 	

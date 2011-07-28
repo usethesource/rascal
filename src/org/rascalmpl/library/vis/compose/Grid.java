@@ -2,12 +2,12 @@ package org.rascalmpl.library.vis.compose;
 
 import java.util.Vector;
 
-import org.rascalmpl.library.vis.EmptyFigure;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.containers.EmptyFigure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -49,9 +49,8 @@ public class Grid extends Figure {
 		}
 	}
 	
-	public Grid(IFigureExecutionEnvironment fpa, Figure[][] figureMatrix,
-			PropertyManager properties) {
-		super(fpa, properties);
+	public Grid(Figure[][] figureMatrix,PropertyManager properties) {
+		super(properties);
 		this.figureMatrix = figureMatrix;
 		Util.makeRectangular(figureMatrix,EmptyFigure.instance);
 		
@@ -82,8 +81,6 @@ public class Grid extends Figure {
 			computeMinWidth(flip);
 		}
 		setResizable();
-		super.bbox();
-		//System.out.printf("Grid minsize %s\n",minSize);
 	}
 	
 
@@ -289,9 +286,7 @@ public class Grid extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc){
-		setLeft(left);
-		setTop(top);
+	void draw(GraphicsContext gc){
 		applyProperties(gc);
 		for(int row = 0 ; row < nrRows; row++){
 			//fpa.line(left , top + rowCenters[row], left + 5000, top + rowCenters[row]);
@@ -302,7 +297,7 @@ public class Grid extends Figure {
 		for(int row = 0 ; row < nrRows ; row++){
 			for(int collumn = 0 ; collumn < nrColumns ; collumn++){
 				//System.out.printf("Drawing %d %d at %f %f of width %f height %f\n", row, collumn,left + xPos[row][collumn], top + yPos[row][collumn],desiredWidths[row][collumn],desiredHeights[row][collumn]);
-				figureMatrix[row][collumn].draw(left + pos[row][collumn].getX(),top + pos[row][collumn].getY(), gc);
+				figureMatrix[row][collumn].draw(gc);
 			}
 		}
 	}
@@ -317,11 +312,11 @@ public class Grid extends Figure {
 		}
 	}
 	
-	public void computeFiguresAndProperties() {
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env) {
+		super.computeFiguresAndProperties(env);
 		for(Figure[] row : figureMatrix){
 			for(Figure fig : row){
-				fig.computeFiguresAndProperties();
+				fig.computeFiguresAndProperties(env);
 			}
 		}
 	}
@@ -369,6 +364,14 @@ public class Grid extends Figure {
 		for(Figure[] row : figureMatrix){
 			for(Figure fig : row){
 				fig.destroy();
+			}
+		}
+	}
+	
+	public void setSWTZOrder(ISWTZOrdering zorder){
+		for(Figure[] row : figureMatrix){
+			for(Figure fig : row){
+				fig.setSWTZOrder(zorder);
 			}
 		}
 	}

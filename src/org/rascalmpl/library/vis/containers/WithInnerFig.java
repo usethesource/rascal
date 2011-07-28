@@ -1,14 +1,14 @@
 package org.rascalmpl.library.vis.containers;
 
+
 import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
-
 
 public abstract class WithInnerFig extends Figure {
 	
@@ -17,8 +17,8 @@ public abstract class WithInnerFig extends Figure {
 	final static boolean debug = false;
 	Coordinate innerFigLocation;
 
-	public WithInnerFig(IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
-		super(fpa, properties);
+	public WithInnerFig(Figure inner, PropertyManager properties) {
+		super(properties);
 		this.innerFig = inner;
 		innerFigLocation = new Coordinate();
 		if(debug)System.err.printf("container.init: width=%f, height=%f, hanchor=%f, vanchor=%f\n", minSize.getWidth(), minSize.getHeight(), getHAlignProperty(), getVAlignProperty());
@@ -41,10 +41,10 @@ public abstract class WithInnerFig extends Figure {
 		}
 	}
 	
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
 		if(innerFig!=null){
-			innerFig.computeFiguresAndProperties();
+			innerFig.computeFiguresAndProperties(env);
 		}
 	}
 	
@@ -85,6 +85,12 @@ public abstract class WithInnerFig extends Figure {
 		super.destroy();
 		if(innerFig!=null){
 			innerFig.destroy();
+		}
+	}
+	
+	public void setSWTZOrder(ISWTZOrdering zorder){
+		if(innerFig!=null){
+			innerFig.setSWTZOrder(zorder);
 		}
 	}
 	

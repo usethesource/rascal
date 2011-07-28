@@ -15,84 +15,40 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
-public class Button extends Figure {
-	final private IValue callback;
-	final org.eclipse.swt.widgets.Button button;
-	boolean first;
+public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Button> {
+	protected String caption;
 
-	public Button(IFigureExecutionEnvironment fpa, String caption, IValue fun, IEvaluatorContext ctx, PropertyManager properties) {
-		super(fpa, properties);
-		first = true;
-		fpa.checkIfIsCallBack(fun);
-		this.callback = fun;
-		this.button = new org.eclipse.swt.widgets.Button(fpa.getComp(),
-				SWT.PUSH);
-		
-		button.addSelectionListener(new SelectionAdapter() {
+	public Button(IFigureConstructionEnv fpa, String caption, IValue fun,  PropertyManager properties) {
+		super(fpa, fun, properties);
+		this.caption = caption;
+	}
+	
+	int buttonType(){
+		return SWT.PUSH;
+	}
+
+	@Override
+	org.eclipse.swt.widgets.Button makeWidget(Composite comp) {
+		org.eclipse.swt.widgets.Button result = new org.eclipse.swt.widgets.Button(comp,buttonType());
+		result.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					doCallBack();
-				} catch (Exception ex) {
-					System.err.println("EXCEPTION");
-					ex.printStackTrace();
-				}
+				executeCallback();
 			}
 		});
 		
-		button.setText(caption);
-		//System.out.printf("created button\n");
-		 
-		
+		result.setText(caption);
+		return result;
 	}
 
 	@Override
-	public void bbox() {
-		//System.out.printf("starting button button\n");
-		Point p = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		minSize.setWidth(p.x);
-		minSize.setHeight(p.y);
-		setResizable();
-		super.bbox();
+	void executeCallback() {
+		cbenv.executeRascalCallBackWithoutArguments(callback);
 	}
 
-	public void doCallBack() {
-		fpa.executeRascalCallBackWithoutArguments(callback);
-		fpa.setComputedValueChanged();
-		fpa.redraw();
-	}
-
-	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		//button.setSize(FigureApplet.round(getWidthProperty()),
-		//		FigureApplet.round(getHeightProperty()));
-		button.setSize(FigureApplet.round(size.getWidth()),
-				FigureApplet.round(size.getHeight()));
-		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
-		button.setLocation(FigureApplet.round(left),
-		         FigureApplet.round(top));
-	}
-
-	@Override
-	public void destroy() {
-		// fpa.setComputedValueChanged();
-		//System.out.printf("destroying button\n");
-		button.dispose();
-	}
-
-	@Override
-	public void layout() {
-	}
 
 }

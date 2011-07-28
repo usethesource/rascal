@@ -12,8 +12,6 @@
 package org.rascalmpl.library.vis.compose;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
 
@@ -38,8 +36,8 @@ public class HVCat extends Compose {
 	
 	static boolean debug = false;
 
-	public HVCat(IFigureExecutionEnvironment fpa, Figure[] figures, PropertyManager properties) {
-		super(fpa,figures, properties);
+	public HVCat(Figure[] figures, PropertyManager properties) {
+		super(figures, properties);
 		leftElem = new double[figures.length];
 		topRowElem = new double[figures.length];
 		rowHeight = new double[figures.length];

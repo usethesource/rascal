@@ -21,7 +21,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -43,9 +44,9 @@ public class PropertyManager {
 	PropertyManager parent;
 
 	
-	public static PropertyManager extendProperties(IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager pm, IList childProps, IEvaluatorContext ctx){
+	public static PropertyManager extendProperties(IFigureConstructionEnv fpa, IConstructor c, PropertyManager pm, IList childProps){
 		IList props = (IList) c.get(c.arity()-1);
-			 return new PropertyManager(fpa, pm, props, ctx);                         
+			 return new PropertyManager(fpa, pm, props);                         
 	}
 	
 	public static IList getChildProperties(IList props){
@@ -63,10 +64,10 @@ public class PropertyManager {
 		return result;
 	}
 	
-	public PropertyManager(IFigureExecutionEnvironment fpa, PropertyManager inherited, IList props, IEvaluatorContext ctx) {
+	public PropertyManager(IFigureConstructionEnv fpa, PropertyManager inherited, IList props) {
 		parent = inherited;
 		allocateArrays(props);
-		setProperties(fpa,props,ctx);
+		setProperties(fpa,props);
 	}
 	
 	public PropertyManager() {
@@ -81,7 +82,6 @@ public class PropertyManager {
 		int nrStdProperties = 0;
 		for(IValue v : props){
 			String pname = ((IConstructor) v).getName();
-			//System.err.printf("%s\n",pname);
 			if(pname.startsWith("_child")){
 			} 
 			else if(pname.startsWith("std")){
@@ -102,8 +102,7 @@ public class PropertyManager {
 		return s.substring(stdLength,stdLength+1).toLowerCase() + s.substring(stdLength+1);
 	}
 
-	private void setProperties(IFigureExecutionEnvironment fpa, IList props,
-			IEvaluatorContext ctx) {
+	private void setProperties(IFigureConstructionEnv fpa, IList props) {
 		int stdPropsIndex = 0;
 		int explicitPropsIndex = 0;
 		for (IValue v : props) {
@@ -116,9 +115,9 @@ public class PropertyManager {
 			if(pname.startsWith("std")){
 				// convert stdSize to size
 				pname = stripStd(pname);
-				stdPropsIndex = Properties.propertySetters.get(pname).execute(stdValues, stdPropsIndex, c, fpa, ctx, this);
+				stdPropsIndex = Properties.propertySetters.get(pname).execute(stdValues, stdPropsIndex, c, fpa, this);
 			} else {
-				explicitPropsIndex = Properties.propertySetters.get(pname).execute(explicitValues, explicitPropsIndex, c, fpa, ctx, this);
+				explicitPropsIndex = Properties.propertySetters.get(pname).execute(explicitValues, explicitPropsIndex, c, fpa, this);
 			}
 		}
 		Arrays.sort(explicitValues);
@@ -126,14 +125,14 @@ public class PropertyManager {
 	}
 	
 
-	public void computeProperties(){
+	public void computeProperties(ICallbackEnv env){
 		for(PropertyValue v : explicitValues){
 			if(v.property.type != Types.HANDLER)
-				v.compute();
+				v.compute(env);
 		}
 		for(PropertyValue v : stdValues){
 			if(v.property.type != Types.HANDLER)
-				v.compute();
+				v.compute(env);
 		}
 	}
 	
@@ -301,22 +300,22 @@ public class PropertyManager {
 		return false; // std default handler are not supported
 	}
 	
-	public void executeHandlerProperty(Properties property) {
+	public void executeHandlerProperty(ICallbackEnv env,Properties property) {
 		checkCorrectType(property, Types.HANDLER);
-		getPropertyValue(property).compute();
+		getPropertyValue(property).compute(env);
 	}
 	
 
-	public void executeVoidHandlerProperty(Properties property,Type[] types,IValue[] args ){
-		getPropertyValue(property).executeVoid(types, args);
+	public void executeVoidHandlerProperty(ICallbackEnv env,Properties property,Type[] types,IValue[] args ){
+		getPropertyValue(property).executeVoid(env,types, args);
 	}
 	
-	public IValue executeHandlerPropertyWithSingleArgument(Properties property,Type type,IValue arg ){
-		return getPropertyValue(property).executeWithSingleArg(type, arg);
+	public IValue executeHandlerPropertyWithSingleArgument(ICallbackEnv env,Properties property,Type type,IValue arg ){
+		return getPropertyValue(property).executeWithSingleArg(env,type, arg);
 	}
 	
-	public IValue executeHandlerProperty(Properties property,Type[] types,IValue[] args ){
-		return getPropertyValue(property).execute(types, args);
+	public IValue executeHandlerProperty(ICallbackEnv env,Properties property,Type[] types,IValue[] args ){
+		return getPropertyValue(property).execute(env,types, args);
 	}
 	
 }

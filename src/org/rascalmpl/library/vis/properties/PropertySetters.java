@@ -15,12 +15,12 @@ package org.rascalmpl.library.vis.properties;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 public class PropertySetters {
 
 	public interface PropertySetter<PropValue>{
-		int execute(PropertyValue[] array,int startIndex,IConstructor c, IFigureExecutionEnvironment fpa,IEvaluatorContext ctx, PropertyManager pm);
+		int execute(PropertyValue[] array,int startIndex,IConstructor c, IFigureConstructionEnv fpa, PropertyManager pm);
 		int nrOfPropertiesProduced();
 		int minNrOfArguments();
 		int maxNrOfArguments();
@@ -36,9 +36,9 @@ public class PropertySetters {
 		}
 		
 		@SuppressWarnings("rawtypes")
-		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx, PropertyManager pm){
-			array[startIndex] = parser.parseProperty(c, pm, 0, fpa, ctx);
+		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureConstructionEnv fpa,
+				 PropertyManager pm){
+			array[startIndex] = parser.parseProperty(c, pm, 0, fpa);
 			return startIndex+1;
 		}
 		
@@ -70,16 +70,16 @@ public class PropertySetters {
 		}
 		
 		@SuppressWarnings("rawtypes")
-		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx, PropertyManager pm){
+		public int execute(PropertyValue[] array,int startIndex, IConstructor c, IFigureConstructionEnv fpa,
+				PropertyManager pm){
 			int secondIndex;
 			if(c.arity() == 1){
 				secondIndex = 0;
 			} else {
 				secondIndex = 1;
 			}
-			array[startIndex] = parser1.parseProperty(c, pm, 0, fpa, ctx);
-			array[startIndex+1] = parser2.parseProperty( c, pm, secondIndex, fpa, ctx);
+			array[startIndex] = parser1.parseProperty(c, pm, 0, fpa);
+			array[startIndex+1] = parser2.parseProperty( c, pm, secondIndex, fpa);
 			return startIndex+2;
 		}
 		

@@ -14,7 +14,6 @@ package org.rascalmpl.library.vis.properties;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 public class LikeProperties {
@@ -24,7 +23,7 @@ public class LikeProperties {
 		Properties property;
 		String path;
 		
-		public LikeProperty(Properties property,String path, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx){
+		public LikeProperty(Properties property,String path){
 			super(property);
 			this.path = path;
 			this.property = property;
@@ -40,9 +39,8 @@ public class LikeProperties {
 	
 	static class LikeBooleanProperty extends LikeProperty<Boolean>{
 		
-		public LikeBooleanProperty(Properties property, String id,
-				IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
+		public LikeBooleanProperty(Properties property, String id) {
+			super(property, id);
 		}
 
 
@@ -57,9 +55,8 @@ public class LikeProperties {
 	
 	static class LikeIntegerProperty extends LikeProperty<Integer>{
 		
-		public LikeIntegerProperty(Properties property, String id, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
+		public LikeIntegerProperty(Properties property, String id) {
+			super(property, id);
 		}
 
 		@Override
@@ -70,9 +67,8 @@ public class LikeProperties {
 	
 	static class LikeColorProperty extends LikeProperty<Integer>{
 
-		public LikeColorProperty(Properties property, String id, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
+		public LikeColorProperty(Properties property, String id) {
+			super(property, id);
 		}
 		
 		@Override
@@ -83,9 +79,8 @@ public class LikeProperties {
 	
 	static class LikeRealProperty extends LikeProperty<Double>{
 		
-		public LikeRealProperty(Properties property, String id, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
+		public LikeRealProperty(Properties property, String id) {
+			super(property, id);
 		}
 
 		@Override
@@ -96,9 +91,8 @@ public class LikeProperties {
 	
 	static class LikeStringProperty extends LikeProperty<String>{
 		
-		public LikeStringProperty(Properties property, String id, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
+		public LikeStringProperty(Properties property, String id) {
+			super(property, id);
 		}
 
 		@Override
@@ -109,9 +103,8 @@ public class LikeProperties {
 	
 	static class LikeFigureProperty extends LikeProperty<Figure>{
 		
-		public LikeFigureProperty(Properties property,String id, IFigureExecutionEnvironment fpa,
-				IEvaluatorContext ctx) {
-			super(property, id, fpa, ctx);
+		public LikeFigureProperty(Properties property,String id) {
+			super(property, id);
 		}
 
 		@Override

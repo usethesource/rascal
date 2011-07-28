@@ -13,8 +13,6 @@
 package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 
@@ -37,14 +35,15 @@ public abstract class Container extends WithInnerFig {
 
 	final private static boolean debug = false;
 
-	public Container(IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
-		super(fpa,inner,properties);
+	public Container(Figure inner, PropertyManager properties) {
+		super(inner,properties);
 		
 	}
 	
 	public void bbox(){
-		
-		if(innerFig!=null)innerFig.bbox();
+		if(innerFig!=null){
+			innerFig.bbox();
+		}
 		minSize.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
 			computeMinWidth(flip);
@@ -78,22 +77,17 @@ public abstract class Container extends WithInnerFig {
 				innerFig.globalLocation.setX(flip,globalLocation.getX(flip) + innerFigLocation.getX(flip));
 			}
 		}
-		if(innerFig!=null)innerFig.layout();
-		
+		if(innerFig!=null) innerFig.layout();
 	}
 
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		//System.out.printf("drawing %f %f %f %f\n", left, top, size.getWidth(), size.getHeight());
-
-		setLeft(left);
-		setTop(top);
+	void draw(GraphicsContext gc) {
 		applyProperties(gc);
 		drawContainer(gc);
 		if(innerFig!=null) {
 			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
-			innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
+			innerFig.draw(gc);
 		}	
 	}
 

@@ -15,155 +15,48 @@ package org.rascalmpl.library.vis.interaction;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class Combo extends Figure {
-	// Function of type Figure (list[str]) to compute new figure
-	private final IValue callback; // Function of type void() to inform backend
-									// about entered text
-	private final IValue validate; // Function of type bool(str) to validate
-									// input sofar
+public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Combo> {
 
-	private boolean validated = true;
+	String[] choices;
 
-	private final Color trueColor;
-	private final Color falseColor;
+	public Combo(IFigureConstructionEnv env, String[] choices, IValue cb,  PropertyManager properties) {
+		super(env, cb, properties);
+		this.choices =choices;
+	}
 
-	final org.eclipse.swt.widgets.Combo combo;
 
-	private int tLimit;
-
-	public Combo(IFigureExecutionEnvironment fpa, String text, String[] choices, IValue cb, IValue validate, IEvaluatorContext ctx, PropertyManager properties) {
-		super(fpa, properties);
-		// trueColor = fpa.getColor(SWT.COLOR_GREEN);
-		trueColor = fpa.getRgbColor(getFontColorProperty());
-		falseColor = fpa.getColor(SWT.COLOR_RED);
-		combo = new org.eclipse.swt.widgets.Combo(fpa.getComp(), SWT.DROP_DOWN
+	@Override
+	org.eclipse.swt.widgets.Combo makeWidget(Composite comp) {
+		 org.eclipse.swt.widgets.Combo combo = new org.eclipse.swt.widgets.Combo(comp, SWT.DROP_DOWN
 				| SWT.BORDER);
-		fpa.checkIfIsCallBack(cb);
-		this.callback = cb;
-		if (validate != null) {
-			fpa.checkIfIsCallBack(validate);
-		}
-		this.validate = validate;
+		 for(String s : choices){
+			 combo.add(s);
+		 }
 		// System.err.println("callback = " + callback);
 
-		combo.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				doValidate();
-			}
-		});
+
 		combo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				try {
-					doCallBack(true);
-				} catch (Exception ex) {
-					System.err.println("EXCEPTION");
-					ex.printStackTrace();
-				}
-			}
-
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					doCallBack(false);
-				} catch (Exception ex) {
-					System.err.println("EXCEPTION");
-					ex.printStackTrace();
-				}
+				executeCallback();
 			}
 		});
-		combo.setText(text);
-		double m = getWidthProperty();
-		tLimit = FigureApplet.round(m / getTextWidth("m"));
-		for (String s : choices) {
-			combo.add(s);
-			double d = getTextWidth(s);
-			if (d > m)
-				m = d;
-			if (s.length()>tLimit) tLimit = s.length();
-		}
-		minSize.setWidth(m + 40);
-
+		return combo;
 	}
+
 
 	@Override
-	public void bbox() {
-		// Point p = combo.computeSize(FigureApplet.round(getWidthProperty()),
-		// SWT.DEFAULT, true);
-		Point p = combo.computeSize(FigureApplet.round(minSize.getWidth()), SWT.DEFAULT,
-				true);
-		minSize.setWidth(p.x);
-		minSize.setHeight(p.y);
-		combo.setTextLimit(tLimit);
-		
-		super.bbox();
-	}
-
-	public boolean doValidate() {
-		if (validate != null) {
-			Result<IValue> res = fpa.executeRascalCallBackSingleArgument(
-					validate, TypeFactory.getInstance().stringType(),
-					ValueFactoryFactory.getValueFactory().string(combo.getText()));
-			System.err.println("doValidate:"+combo.getText()+" "+res);
-			validated = res.getValue().isEqual(ValueFactoryFactory.getValueFactory().bool(true));
-			System.err.println("validate:"+combo.getText()+" "+validated);
-			return validated;
-		}
-		return true;
-	}
-
-	public void doCallBack(boolean isTextfield) {
-		if (!validated) {
-			combo.setForeground(falseColor);
-			combo.redraw();
+	void executeCallback() {
+		int s = widget.getSelectionIndex();
+		if (s < 0)
 			return;
-		}
-		combo.setForeground(trueColor);
-		if (isTextfield)
-			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(),  ValueFactoryFactory.getValueFactory().string(combo.getText()));
-		else {
-			int s = combo.getSelectionIndex();
-			if (s < 0)
-				return;
-			fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
-					.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(combo.getItem(s)));
-		}
-		fpa.setComputedValueChanged();
-	}
-
-	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		combo.setForeground(validated ? trueColor : falseColor);
-		// combo.setSize(FigureApplet.round(width), FigureApplet.round(height));
-		combo.setBackground(fpa.getRgbColor(getFillColorProperty()));
-		combo.setLocation(FigureApplet.round(left), FigureApplet.round(top));
-		combo.setSize(FigureApplet.round(size.getWidth()), FigureApplet.round(size.getHeight()));
-	}
-
-	@Override
-	public void destroy() {
-		combo.dispose();
-	}
-	
-	@Override
-	public void layout() {
+		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
+				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getItem(s)));
 	}
 }

@@ -5,26 +5,23 @@ import java.util.HashMap;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
 
 public class NameResolver {
 	
 	NameResolver parent;
 	HashMap<String, Figure> localFigures;
 	HashMap<String,NameResolver> children;
-	IFigureExecutionEnvironment fpa;
 	IEvaluatorContext ctx;
 	
-	public NameResolver(NameResolver parent,IFigureExecutionEnvironment fpa, IEvaluatorContext ctx){
+	public NameResolver(NameResolver parent, IEvaluatorContext ctx){
 		this.parent = parent;
 		localFigures = new HashMap<String, Figure>();
 		children = new HashMap<String, NameResolver>();
-		this.fpa = fpa;
 	}
 	
-	public NameResolver(IFigureExecutionEnvironment fpa,IEvaluatorContext ctx){
-		this(null,fpa,ctx);
+	public NameResolver(IEvaluatorContext ctx){
+		this(null,ctx);
 	}
 	
 	public void register(Figure fig){
@@ -38,7 +35,7 @@ public class NameResolver {
 	}
 	
 	public NameResolver newChild(String name){
-		NameResolver child = new NameResolver(this, fpa, ctx);
+		NameResolver child = new NameResolver(this, ctx);
 		children.put(name, child);
 		return child;
 	}

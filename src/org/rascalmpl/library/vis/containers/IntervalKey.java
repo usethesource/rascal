@@ -11,11 +11,12 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -25,17 +26,17 @@ public class IntervalKey extends WithInnerFig implements Key {
 	IValue interpolate;
 	// TODO: can this type be more general? (i.e. Comparable)
 	INumber low,high, interval;
-	final private IEvaluatorContext ctx;
 	private IList childProps;
 	String id;
+	IFigureConstructionEnv env;
 	
-	public IntervalKey(IFigureExecutionEnvironment fpa, IValue interpolate, IValue explain, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
-		super(fpa,null,properties);
-		this.ctx = ctx;
+	public IntervalKey(IFigureConstructionEnv env,IValue interpolate, IValue explain, PropertyManager properties,IList childProps){
+		super(null,properties);
 		this.childProps = childProps;
 		id = getIdProperty();
 		this.explain = explain;
 		this.interpolate = interpolate;
+		this.env = env;
 	}
 	
 
@@ -71,12 +72,12 @@ public class IntervalKey extends WithInnerFig implements Key {
 		IValue[] args = {low,high};
 		//System.out.printf("IntervalKey %s explain callBack!\n",id);
 		IConstructor figureCons = (IConstructor)
-			fpa.executeRascalCallBack(explain,argTypes,args).getValue();
+				env.getCallBackEnv().executeRascalCallBack(explain,argTypes,args).getValue();
 		//System.out.printf("IntervalKey %s explain done!\n",id);
-		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
+		innerFig = FigureFactory.make(env, figureCons, properties, childProps);
 		innerFig.init();
-		innerFig.computeFiguresAndProperties();
-		NameResolver resolver = new NameResolver(fpa, ctx);
+		innerFig.computeFiguresAndProperties(env.getCallBackEnv());
+		NameResolver resolver = new NameResolver( env.getRascalContext());
 		innerFig.registerNames(resolver);
 		innerFig.registerValues(resolver);
 		innerFig.getLikes(resolver);
@@ -103,8 +104,8 @@ public class IntervalKey extends WithInnerFig implements Key {
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		innerFig.draw(left, top, gc);
+	public void draw(GraphicsContext gc) {
+		innerFig.draw(gc);
 		
 	}
 	
@@ -140,7 +141,7 @@ public class IntervalKey extends WithInnerFig implements Key {
 		TypeFactory tf = TypeFactory.getInstance();
 		//System.out.printf("IntervalKey %s scale callBack!\n",id);
 		IValue res =  
-			fpa.executeRascalCallBackSingleArgument(interpolate, tf.valueType(), part).getValue();
+				env.getCallBackEnv().executeRascalCallBackSingleArgument(interpolate, tf.valueType(), part).getValue();
 		//System.out.printf("IntervalKey %s scale done!\n",id);
 		return res;
 	}

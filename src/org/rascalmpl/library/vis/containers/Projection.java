@@ -3,10 +3,11 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 public class Projection extends WithInnerFig {
@@ -16,12 +17,12 @@ public class Projection extends WithInnerFig {
 	IEvaluatorContext ctx;
 	boolean vertical;
 	
-	public Projection(IFigureExecutionEnvironment fpa, String projectOn, Figure projection,Figure innerFigure,PropertyManager properties, IEvaluatorContext ctx) {
-		super(fpa,innerFigure,properties);
+	public Projection(IFigureConstructionEnv env,String projectOn, Figure projection,Figure innerFigure,PropertyManager properties) {
+		super(innerFigure,properties);
 		this.projectOn = projectOn;
 		this.projection = projection;
 		this.properties = innerFigure.properties;
-		this.ctx = ctx;
+		this.ctx = env.getRascalContext();
 	}
 	
 	public void init(){
@@ -29,9 +30,9 @@ public class Projection extends WithInnerFig {
 		projection.init();
 	}
 	
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
-		projection.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
+		projection.computeFiguresAndProperties(env);
 	}
 	
 	public void registerNames(NameResolver resolver){
@@ -88,12 +89,11 @@ public class Projection extends WithInnerFig {
 		innerFig.size.set(size);
 		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();
-		
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		innerFig.draw(left, top, gc);
+	public void draw(GraphicsContext gc) {
+		innerFig.draw(gc);
 		
 	}
 }

@@ -30,8 +30,8 @@ public class Outline extends Figure {
 	private final IList lineInfo;
 	private final int maxLine;
 
-	public Outline(IFigureExecutionEnvironment fpa, PropertyManager properties, IList lineInfo, IInteger maxLine) {
-		super(fpa, properties);
+	public Outline(PropertyManager properties, IList lineInfo, IInteger maxLine) {
+		super(properties);
 		this.lineInfo = lineInfo;
 		this.maxLine = maxLine.intValue();
 	}
@@ -53,15 +53,13 @@ public class Outline extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc) {
 		
 	    double lw = getLineWidthProperty();
 		applyProperties(gc);
 		/* if(debug) */ System.err.println("Outline.draw => " + minSize.getWidth() + ", " + minSize.getHeight());
 		if(minSize.getHeight() > 0 && minSize.getWidth() > 0){
-			gc.rect(left, top, minSize.getWidth(), minSize.getHeight());
+			gc.rect(getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 			for(IValue v : lineInfo){
 				IConstructor lineDecor = (IConstructor) v;
 				int lino = ((IInteger) lineDecor.get(0)).intValue();
@@ -89,8 +87,8 @@ public class Outline extends Figure {
 				}
 
 				gc.stroke(color);
-				double vpos = top + (lino * minSize.getHeight()) /maxLine ;
-				gc.line(left + lw, vpos, left + minSize.getWidth() - lw, vpos);
+				double vpos = getTop() + (lino * minSize.getHeight()) /maxLine ;
+				gc.line(getLeft() + + lw, vpos, getLeft() + minSize.getWidth() - lw, vpos);
 			}
 		}
 	}

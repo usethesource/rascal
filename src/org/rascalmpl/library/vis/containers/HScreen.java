@@ -1,12 +1,10 @@
 package org.rascalmpl.library.vis.containers;
 
 import java.util.Vector;
-
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
 import org.rascalmpl.library.vis.util.Coordinate;
 
 public class HScreen extends WithInnerFig {
@@ -16,8 +14,8 @@ public class HScreen extends WithInnerFig {
 	double projectionsHeight;
 	boolean bottom;
 	
-	public HScreen(boolean flip, boolean bottom, IFigureExecutionEnvironment fpa, Figure inner, PropertyManager properties) {
-		super(fpa,inner,properties);
+	public HScreen(boolean flip, boolean bottom, Figure inner, PropertyManager properties) {
+		super(inner,properties);
 		projections = new Vector<HScreen.ProjectionPlacement>();
 		this.flip = flip;
 		projectionsHeight = 0;
@@ -108,12 +106,10 @@ public class HScreen extends WithInnerFig {
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		setLeft(left);
-		setTop(top);
-		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
+	public void draw(GraphicsContext gc) {
+		innerFig.draw(gc);
 		for(ProjectionPlacement p : projections){
-			p.projection.projection.draw(left + p.location.getX(), top +  p.location.getY(), gc );
+			p.projection.projection.draw(gc );
 		}
 		//drawScreen(left, top);
 	}

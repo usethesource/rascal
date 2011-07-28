@@ -1,14 +1,13 @@
 package org.rascalmpl.library.vis.interaction;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 
 
@@ -16,10 +15,9 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 
 	ExecuteTimer t;
 	
-	public Timer(IFigureExecutionEnvironment fpa, int delay, IValue callback, Figure inner, PropertyManager properties){
-		super(fpa,inner,properties);
-		t = new ExecuteTimer(fpa,callback);
-		fpa.getComp().getDisplay().timerExec(delay, t);
+	public Timer(IFigureConstructionEnv env, int delay, IValue callback, Figure inner, PropertyManager properties){
+		super(inner,properties);
+		t = new ExecuteTimer(delay,env.getCallBackEnv(),callback);
 		this.properties = inner.properties;
 	}
 	
@@ -54,24 +52,22 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 	
 	static class ExecuteTimer implements Runnable{
 
-		IFigureExecutionEnvironment fpa;
+		ICallbackEnv cbenv;
 		IValue callback;
 		boolean cancel;
-		ExecuteTimer(IFigureExecutionEnvironment fpa, IValue callback){
-			this.fpa = fpa;
+		ExecuteTimer(int delay,ICallbackEnv cbenv, IValue callback){
+			this.cbenv = cbenv;
 			this.callback = callback;
 			cancel = false;
+			Display.getCurrent().timerExec(delay, this);
 		}
 		
 		public void run() {
 			if(cancel) return;
-			if(fpa.getComp().isDisposed()) return;
-			IInteger result = (IInteger)fpa.executeRascalCallBackWithoutArguments(callback).getValue();
-			fpa.setComputedValueChanged();
-			fpa.redraw();
+			IInteger result = (IInteger)cbenv.executeRascalCallBackWithoutArguments(callback).getValue();
 			int newDelay = result.intValue();
 			if(newDelay != 0){
-				fpa.getComp().getDisplay().timerExec(newDelay, this);
+				Display.getCurrent().timerExec(newDelay, this);
 			}
 		}
 		
@@ -79,17 +75,7 @@ public class Timer extends org.rascalmpl.library.vis.containers.WithInnerFig {
 	}
 	
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		innerFig.draw(left, top, gc);
+	public void draw(GraphicsContext gc) {
+		innerFig.draw(gc);
 	}
-	
-	public void executeKeyDownHandlers(IValue keySym, IMap modifiers){
-	}
-	
-	public void executeKeyUpHandlers(IValue keySym, IMap modifiers){
-	}
-
-	public void executeMouseOverOffHandlers(Properties prop) {
-	}
-
 }

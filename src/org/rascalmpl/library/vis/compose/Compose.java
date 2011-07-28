@@ -12,13 +12,14 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.compose;
 
+
 import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -34,8 +35,8 @@ public abstract class Compose extends Figure {
 	protected Coordinate[] pos;
 	final private static boolean debug = false;
 
-	protected Compose(IFigureExecutionEnvironment fpa, Figure[] figures,PropertyManager properties) {
-		super(fpa, properties);
+	protected Compose(Figure[] figures,PropertyManager properties) {
+		super(properties);
 		this.figures = figures;
 		pos = new Coordinate[figures.length];
 		for(int i = 0 ; i < figures.length ; i++){
@@ -55,12 +56,10 @@ public abstract class Compose extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc){
-		setLeft(left);
-		setTop(top);
+	void draw(GraphicsContext gc){
 		applyProperties(gc);
 		for(int i = 0; i < figures.length; i++){
-			figures[i].draw(left + pos[i].getX(), top + pos[i].getY(), gc);
+			figures[i].draw(gc);
 		}
 	}
 	
@@ -83,10 +82,10 @@ public abstract class Compose extends Figure {
 		}
 	}
 	
-	public void computeFiguresAndProperties(){
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env){
+		super.computeFiguresAndProperties(env);
 		for(Figure fig : figures){
-			fig.computeFiguresAndProperties();
+			fig.computeFiguresAndProperties(env);
 		}
 	}
 	
@@ -137,6 +136,11 @@ public abstract class Compose extends Figure {
 		for(Figure fig : figures){
 			fig.bbox();
 		}
-		super.bbox();
+	}
+	
+	public void setSWTZOrder(ISWTZOrdering zorder){
+		for(Figure fig : figures){
+			fig.setSWTZOrder(zorder);
+		}
 	}
 }

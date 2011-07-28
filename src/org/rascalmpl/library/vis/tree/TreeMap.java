@@ -24,9 +24,9 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -42,18 +42,18 @@ public class TreeMap extends Figure {
 	private HashSet<TreeMapNode> hasParent;
 	TreeMapNode root = null;
 	
-	public TreeMap(IFigureExecutionEnvironment fpa, PropertyManager properties, IList nodes, IList edges, IEvaluatorContext ctx) {
-		super(fpa, properties);		
+	public TreeMap(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes, IList edges) {
+		super(properties);		
 		nodeMap = new HashMap<String,TreeMapNode>();
 		hasParent = new HashSet<TreeMapNode>();
 		
 		// Construct TreeMapNodes
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, null, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, null);
 			String name = fig.getIdProperty();
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("TreeMap: Missing id property in node", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: Missing id property in node", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			TreeMapNode tn = new TreeMapNode(fpa, this, properties, fig);
 			nodeMap.put(name, tn);
 		}
@@ -71,15 +71,15 @@ public class TreeMap extends Figure {
 
 			TreeMapNode fromNode = nodeMap.get(from);
 			if(fromNode == null)
-				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + from, v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + from, v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			String to = ((IString)c.get(iTo)).getValue();
 			TreeMapNode toNode = nodeMap.get(to);
 			if(toNode == null)
-				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + to, v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + to, v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			if(hasParent.contains(toNode))
-				throw RuntimeExceptionFactory.figureException("TreeMap: node " + to + " has multiple parents", v, ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("TreeMap: node " + to + " has multiple parents", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			hasParent.add(toNode);
-			fromNode.addChild(properties, edgeProperties, toNode, ctx);
+			fromNode.addChild(properties, edgeProperties, toNode, fpa.getRascalContext());
 		}
 		
 		root = null;
@@ -87,11 +87,11 @@ public class TreeMap extends Figure {
 			if(!hasParent.contains(n)){
 				if(root != null)
 				 throw RuntimeExceptionFactory.figureException("TreeMap: multiple roots found: " + root.rootFigure.getIdProperty() + " and " + n.rootFigure.getIdProperty(),
-						  edges, ctx.getCurrentAST(), ctx.getStackTrace());
+						  edges, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 				root = n;
 			}
 		if(root == null)
-			throw RuntimeExceptionFactory.figureException("TreeMap: no root found", edges, ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.figureException("TreeMap: no root found", edges, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 	}
 	
 	@Override
@@ -110,13 +110,9 @@ public class TreeMap extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		
-		System.err.printf("Tree.draw(%f,%f)\n", left, top);
+	void draw(GraphicsContext gc) {
 		applyProperties(gc);
-		root.draw(left, top, gc);
+		root.draw(gc);
 	}
 	
 	@Override
@@ -151,7 +147,6 @@ public class TreeMap extends Figure {
 			root.setToMinSize();
 			root.layout();
 		}
-		
 	}
 
 }

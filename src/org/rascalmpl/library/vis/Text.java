@@ -15,6 +15,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
 
 /**
  * Text element.
@@ -34,15 +35,15 @@ public class Text extends Figure {
 	private int textAlignH = FigureApplet.CENTER;	
 
 
-	public Text(IFigureExecutionEnvironment fpa, PropertyManager properties,PropertyValue<String> txt) {
-		super(fpa, properties);
+	public Text(PropertyManager properties,PropertyValue<String> txt) {
+		super( properties);
 		this.txt = txt;
 		//if(debug)System.err.printf("Text: %s\n", txt.getValue());
 	}
 	
-	public void computeFiguresAndProperties() {
-		super.computeFiguresAndProperties();
-		txt.compute();
+	public void computeFiguresAndProperties(ICallbackEnv env) {
+		super.computeFiguresAndProperties(env);
+		txt.compute(null);
 	}
 	
 	
@@ -105,10 +106,7 @@ public class Text extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		
+	void draw(GraphicsContext gc) {
 		applyProperties(gc);
 	
 		//if(debug)System.err.printf("text.draw: %s, font=%s, left=%f, top=%f, width=%f, height=%f\n", txt, fpa.getFont(), left, top, minSize.getWidth(), minSize.getHeight());
@@ -117,12 +115,12 @@ public class Text extends Figure {
 
 			if(angle != 0){
 				gc.pushMatrix();
-				gc.translate(left + hfill, top + vfill);
+				gc.translate(getLeft() + hfill, getTop() + vfill);
 				gc.rotate((FigureApplet.radians(angle)));
 				gc.text(txt.getValue(), 0, 0);
 				gc.popMatrix();
 			} else {
-				gc.text(txt.getValue(), left, top);
+				gc.text(txt.getValue(), getLeft(), getTop());
 //				vlp.rectMode(FigureApplet.CORNERS);
 //				vlp.text(txt, left, top, left+width, top+height);
 			}
@@ -166,6 +164,5 @@ public class Text extends Figure {
 	@Override
 	public void layout() {
 		size.set(minSize);
-		
 	}
 }

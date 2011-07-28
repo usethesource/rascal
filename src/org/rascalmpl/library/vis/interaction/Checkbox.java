@@ -16,81 +16,26 @@ package org.rascalmpl.library.vis.interaction;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.VisMath;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class Checkbox extends Figure {
-	final private IValue callback;
-	final org.eclipse.swt.widgets.Button button;
+public class Checkbox extends Button {
 
-	public Checkbox(IFigureExecutionEnvironment fpa, String caption, boolean checked, IValue fun,
-			IEvaluatorContext ctx, PropertyManager properties) {
-		super(fpa, properties);
-		fpa.checkIfIsCallBack(fun);
-		this.callback = fun;
-		this.button = new org.eclipse.swt.widgets.Button(fpa.getComp(),
-				SWT.CHECK);
-		button.setSelection(checked);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					doCallBack(button.getSelection());
-				} catch (Exception ex) {
-					System.err.println("EXCEPTION");
-					ex.printStackTrace();
-				}
-			}
-		});
-		button.setText(caption);
+	public Checkbox(IFigureConstructionEnv env, String caption, boolean checked, IValue fun,PropertyManager properties) {
+		super(env, caption, fun, properties);
 	}
+	
+	int buttonType(){
+		return SWT.CHECK;
+	}
+	
 
 	@Override
-	public void bbox() {
-		Point p = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		// width = list.getSize().x;
-		// height = list.getSize().y;
-		minSize.setWidth(p.x);
-		minSize.setHeight(p.y);
-		super.bbox();
-	}
-
-	public void doCallBack(boolean selected) {
-		// System.err.println("Calling callback: " + callback +
-		// " with selected = " + selected);
-		fpa.executeRascalCallBackSingleArgument(callback, TypeFactory
+	public void executeCallback() {
+		boolean selected = widget.getSelection();
+		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
 				.getInstance().boolType(), ValueFactoryFactory
 				.getValueFactory().bool(selected));
-		fpa.setComputedValueChanged();
-		fpa.redraw();
-	}
-
-	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
-		// button.setSize(FigureApplet.round(getWidthProperty()),
-		// FigureApplet.round(getHeightProperty()));
-		button.setSize(VisMath.round(size.getWidth()), VisMath.round(size.getHeight()));
-		button.setBackground(fpa.getRgbColor(getFillColorProperty()));
-		button.setLocation(VisMath.round(left), VisMath.round(top));
-	}
-
-	@Override
-	public void destroy() {
-		// fpa.setComputedValueChanged();
-		button.dispose();
-	}
-
-	@Override
-	public void layout() {
 	}
 }

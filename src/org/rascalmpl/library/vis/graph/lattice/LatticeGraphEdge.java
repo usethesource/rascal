@@ -16,9 +16,9 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
@@ -31,22 +31,21 @@ public class LatticeGraphEdge extends Figure {
 	private LatticeGraphNode to;
 	private static boolean debug = false;
 
-	public LatticeGraphEdge(LatticeGraph G, IFigureExecutionEnvironment fpa,
-			PropertyManager properties, IString fromName, IString toName,
-			IEvaluatorContext ctx) {
-		super(fpa, properties);
+	public LatticeGraphEdge(LatticeGraph G, IFigureConstructionEnv fpa,
+			PropertyManager properties, IString fromName, IString toName) {
+		super( properties);
 		this.from = G.getRegistered(fromName.getValue());
 		if (getFrom() == null) {
 			throw RuntimeExceptionFactory.figureException(
 					"No node with id property + \"" + fromName.getValue()
-							+ "\"", fromName, ctx.getCurrentAST(),
-					ctx.getStackTrace());
+							+ "\"", fromName, fpa.getRascalContext().getCurrentAST(),
+					fpa.getRascalContext().getStackTrace());
 		}
 		to = G.getRegistered(toName.getValue());
 		if (to == null) {
 			throw RuntimeExceptionFactory.figureException(
 					"No node with id property + \"" + toName.getValue() + "\"",
-					toName, ctx.getCurrentAST(), ctx.getStackTrace());
+					toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		}
 
 		if (debug)
@@ -63,26 +62,26 @@ public class LatticeGraphEdge extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
+	public void draw(GraphicsContext gc) {
 		applyProperties(gc);
 		if (debug)
 			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
 					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x
 					+ "," + to.y + ")");
 		if (getCurvedProperty()) {
-			double mx = (left + getFrom().figX() + left + getTo().figX()) / 2 + 20, my = (top
-					+ getFrom().figY() + top + getTo().figY()) / 2;
+			double mx = (getLeft() + getFrom().figX() + getLeft() + getTo().figX()) / 2 + 20, my = (getTop()
+					+ getFrom().figY() + getTop() + getTo().figY()) / 2;
 			gc.noFill();
 			gc.beginShape();
-			gc.curveVertex(left + getFrom().figX(), top + getFrom().figY());
-			gc.curveVertex(left + getFrom().figX(), top + getFrom().figY());
+			gc.curveVertex(getLeft() + getFrom().figX(), getTop() + getFrom().figY());
+			gc.curveVertex(getLeft() + getFrom().figX(), getTop() + getFrom().figY());
 			gc.curveVertex(mx, my);
-			gc.curveVertex(left + getTo().figX(), top + getTo().figY());
-			gc.curveVertex(left + getTo().figX(), top + getTo().figY());
+			gc.curveVertex(getLeft() + getTo().figX(), getTop() + getTo().figY());
+			gc.curveVertex(getLeft() + getTo().figX(), getTop() + getTo().figY());
 			gc.endShape();
 		} else
-			gc.line(left + getFrom().figX(), top + getFrom().figY(), left
-					+ getTo().figX(), top + getTo().figY());
+			gc.line(getLeft() + getFrom().figX(), getTop() + getFrom().figY(), getLeft()
+					+ getTo().figX(), getTop() + getTo().figY());
 	}
 
 	public void setColor(String s) {

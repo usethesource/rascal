@@ -9,11 +9,12 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -23,14 +24,14 @@ public class NominalKey extends WithInnerFig implements Key{
 	IValue whole;
 	IList possibilities;
 	Vector<IValue> originals;
-	final private IEvaluatorContext ctx;
 	private IList childProps;
 	IValue[] tmpArray ;
 	String id;
+	IFigureConstructionEnv env;
 	
-	public NominalKey(IFigureExecutionEnvironment fpa, IList possibilties, IValue whole, PropertyManager properties,IList childProps,IEvaluatorContext ctx){
-		super(fpa,null,properties);
-		this.ctx = ctx;
+	public NominalKey(IFigureConstructionEnv env, IList possibilties, IValue whole, PropertyManager properties,IList childProps){
+		super(null,properties);
+		this.env = env;
 		this.childProps = childProps;
 		this.whole = whole;
 		this.possibilities = possibilties;
@@ -51,11 +52,11 @@ public class NominalKey extends WithInnerFig implements Key{
 		
 		TypeFactory tf = TypeFactory.getInstance();
 		IList originalsL = ValueFactory.getInstance().list(originals.toArray(tmpArray));
-		IConstructor figureCons = (IConstructor) fpa.executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()),originalsL).getValue();
-		innerFig = FigureFactory.make(fpa, figureCons, properties, childProps, ctx);
+		IConstructor figureCons = (IConstructor) env.getCallBackEnv().executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()),originalsL).getValue();
+		innerFig = FigureFactory.make(env, figureCons, properties, childProps);
 		innerFig.init();
-		innerFig.computeFiguresAndProperties();
-		NameResolver resolver = new NameResolver(fpa, ctx);
+		innerFig.computeFiguresAndProperties(env.getCallBackEnv());
+		NameResolver resolver = new NameResolver( env.getRascalContext());
 		innerFig.registerNames(resolver);
 		innerFig.registerValues(resolver);
 		innerFig.getLikes(resolver);
@@ -75,7 +76,6 @@ public class NominalKey extends WithInnerFig implements Key{
 		innerFig.size.set(size);
 		innerFig.globalLocation.set(globalLocation);
 		innerFig.layout();
-		//System.out.printf("Nominal key bbox done!\n");
 	}
 	
 	public void registerNames(NameResolver resolver) {
@@ -83,8 +83,8 @@ public class NominalKey extends WithInnerFig implements Key{
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		innerFig.draw(left, top, gc);
+	public void draw(GraphicsContext gc) {
+		innerFig.draw(gc);
 		
 	}
 	

@@ -14,10 +14,9 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureApplet;
 
 /**
  * A wedge is a vee-shaped figure mostly used in pie charts. 
@@ -68,8 +67,8 @@ public class Wedge extends Container {
 	
 	private static boolean debug = false;
 
-	public Wedge(IFigureExecutionEnvironment fpa, Figure inside, PropertyManager properties) {
-		super(fpa, inside, properties);
+	public Wedge(Figure inside, PropertyManager properties) {
+		super(inside, properties);
 	}
 	
 	// Determine quadrant of angle according to numbering scheme:
@@ -292,9 +291,7 @@ public class Wedge extends Container {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc) {
 	
 		applyProperties(gc);
 		//if(debug)System.err.printf("%s.draw: left=%f, top=%f, width=%f, height=%f, hanchor=%f, vanchor=%f\n", containerName(), left, top, width, height, getHAlignProperty(), getVAlignProperty());
@@ -319,7 +316,7 @@ public class Wedge extends Container {
 	 * If the inside  element fits or during a mouseOver, draw it.
 	 */
 	void innerDraw(GraphicsContext gc){
-		innerFig.draw(centerX + IX - innerFig.minSize.getWidth()/2, centerY + IY - innerFig.minSize.getHeight()/2, gc);
+		innerFig.draw(gc);
 	}
 	
 	@Override

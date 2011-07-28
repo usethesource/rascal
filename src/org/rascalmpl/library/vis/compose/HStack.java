@@ -4,11 +4,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -20,11 +19,10 @@ public class HStack extends Compose implements Key{
 	Key actualKey;
 	double stackState;
 	
-	public HStack(boolean flip,IFigureExecutionEnvironment fpa, Figure[] figures,
-			PropertyManager properties,IEvaluatorContext ctx) {
-		super(fpa, figures, properties);
+	public HStack(IFigureConstructionEnv env,boolean flip, Figure[] figures,PropertyManager properties) {
+		super( figures, properties);
 		this.flip = flip;
-		this.ctx = ctx;
+		this.ctx = env.getRascalContext();
 	}
 	
 	public void init(){

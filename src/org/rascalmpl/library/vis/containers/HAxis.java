@@ -3,9 +3,6 @@ package org.rascalmpl.library.vis.containers;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -32,15 +29,15 @@ public class HAxis extends WithInnerFig implements Key {
 	double inheritedSpacing;
 	String label;
 	
-	public HAxis(String label,boolean flip, boolean bottom,IFigureExecutionEnvironment fpa, Figure inner,PropertyManager properties) {
-		super(fpa,inner , properties);
+	public HAxis(String label,boolean flip, boolean bottom,Figure inner,PropertyManager properties) {
+		super(inner , properties);
 		this.flip = flip;
 		this.bottom = bottom;
 		this.label = label;
 	}
 	
-	public HAxis(String label,boolean bottom,IFigureExecutionEnvironment fpa, Figure inner,PropertyManager properties) {
-		this(label,false,bottom,fpa,inner,properties);
+	public HAxis(String label,boolean bottom, Figure inner,PropertyManager properties) {
+		this(label,false,bottom,inner,properties);
 	}
 	
 	public void init(){
@@ -178,9 +175,7 @@ public class HAxis extends WithInnerFig implements Key {
 	
 	
 	
-	public void draw(double left, double top, GraphicsContext gc){
-		setLeft(left);
-		setTop(top);
+	public void draw(GraphicsContext gc){
 		//System.out.printf("innersize %s\n",innerFig.size);
 		double axisTop ;
 		if(bottom){
@@ -201,10 +196,10 @@ public class HAxis extends WithInnerFig implements Key {
 		double outerSpace = outerSpace();
 		//System.out.printf("left offset %f\n",leftOffset);
 		Tick[] ticks = getTicks(minimumMajorTicksInterval(), 
-				left + leftOffset
-				, left + leftOffset + spacing * innerFig.getRealProperty(alignProp())
-				,left + leftOffset + spacing * innerFig.getRealProperty(alignProp()) + pixelSpace
-				,left +  leftOffset + outerSpace
+				getLeft() + leftOffset
+				, getLeft() + leftOffset + spacing * innerFig.getRealProperty(alignProp())
+				,getLeft() + leftOffset + spacing * innerFig.getRealProperty(alignProp()) + pixelSpace
+				,getLeft() +  leftOffset + outerSpace
 				,minVal,maxVal
 				);
 
@@ -226,26 +221,28 @@ public class HAxis extends WithInnerFig implements Key {
 					gc.stroke(getColorProperty(Properties.GUIDE_COLOR));
 				}
 				gc.line( tick.pixelPos ,
-						top + axisTop,
+						getTop() + axisTop,
 						 tick.pixelPos,
-						top + axisTop + -direction * innerFig.size.getHeight());
+						 getTop() + axisTop + -direction * innerFig.size.getHeight());
 			
 		
 				applyProperties(gc);
-				gc.text(label,  tick.pixelPos , top + axisTop + tickHeight + (bottom ? getTextAscent() : -getTextDescent()));
+				gc.text(label,  tick.pixelPos , getTop() + axisTop + tickHeight + (bottom ? getTextAscent() : -getTextDescent()));
 			}
 			gc.line(tick.pixelPos ,
-					top + axisTop + tickHeight,
+					getTop() + axisTop + tickHeight,
 					tick.pixelPos,
-					top + axisTop );
+					getTop() + axisTop );
 		}
 		if(!this.label.equals("")){
-			gc.text(this.label, left + leftOffset + (0.5 * (innerFig.size.getWidth() - getTextWidth(this.label))), top + axisTop + direction* (majorTickHeight +  textTickSpacing 
+			gc.text(this.label,
+					getLeft() + leftOffset + (0.5 * (innerFig.size.getWidth() - getTextWidth(this.label))),
+					getTop() + axisTop + direction* (majorTickHeight +  textTickSpacing 
 					+ borderSpacing + getTextAscent() + getTextDescent()) + (bottom ? getTextAscent() : getTextDescent()));
 		}
 		//System.out.printf("Innerfig %s %s\n",this,innerFigLocation);
 		
-		innerFig.draw(left + innerFigLocation.getX(), top + innerFigLocation.getY(), gc);
+		innerFig.draw(gc);
 		/*fpa.line(left + innerFigLocation.getX(),
 				top + axisTop,
 				left + innerFigLocation.getX() + innerFig.size.getWidth(),

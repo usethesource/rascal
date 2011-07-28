@@ -10,7 +10,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.library.vis;
+package org.rascalmpl.library.vis.containers;
 
 // TODO: fix me! also take care global coordinates
 /*

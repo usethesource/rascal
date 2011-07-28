@@ -16,12 +16,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
+import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -30,9 +29,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * 
- * Overlay elements by stacking them:
- * - when alignAnchors==true aligned around their anchor point
- * - otherwise aligned according to current alignment settings.
+ * Overlay elements by stacking them
  * 
  * @author paulk
  *
@@ -41,11 +38,10 @@ public class Overlay extends Compose{
 	
 	private static boolean debug = false;
 	IEvaluatorContext ctx;
-
 	int where; 
 	
-	public Overlay(IFigureExecutionEnvironment fpa, Figure[] figures, PropertyManager properties,IEvaluatorContext ctx) {
-		super(fpa, figures, properties);
+	public Overlay(Figure[] figures, PropertyManager properties) {
+		super(figures, properties);
 		this.ctx = ctx;
 	}
 	
@@ -60,8 +56,10 @@ public class Overlay extends Compose{
 				} 
 			}
 		}
-		for(Figure fig : figures){
+		for(int i = 0 ; i < figures.length ; i++){
+			Figure fig = figures[i];
 			fig.bbox();
+			
 			for(boolean flip: BOTH_DIMENSIONS){
 				double h = fig.minSize.getWidth(flip) / fig.getHShrinkProperty(flip);
 				if(!fig.isHLocPropertyConverted(flip)){
@@ -70,9 +68,7 @@ public class Overlay extends Compose{
 				minSize.setWidth(flip,Math.max(minSize.getWidth(flip),h));
 			}
 		}
-		
 		setResizable();
-		super.bbox();
 	}
 
 	public void layout(){
@@ -114,9 +110,7 @@ public class Overlay extends Compose{
 		}
 	}
 	
-	public void draw(double left, double top, GraphicsContext gc){
-		setLeft(left);
-		setTop(top);
+	public void draw(GraphicsContext gc){
 		applyProperties(gc);
         boolean closed = getClosedProperty();
         boolean curved = getCurvedProperty();
@@ -130,32 +124,32 @@ public class Overlay extends Compose{
         }
         
         if(closed && connected && figures.length >= 0){
-        	gc.vertex(left + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
-    				top + pos[0].getY()  + figures[0].getVConnectProperty() * figures[0].size.getHeight()  );
+        	gc.vertex(getLeft() + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
+    				getTop() + pos[0].getY()  + figures[0].getVConnectProperty() * figures[0].size.getHeight()  );
         }
         if(connected){
 	        for(int i = 0 ; i < figures.length ; i++){
 	        	if(curved ){
-	        		gc.curveVertex(left + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
-	        				top + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
+	        		gc.curveVertex(getLeft() + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
+	        				getTop() + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
 	        	} else {
-	        		gc.vertex(left + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
-	        				top + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
+	        		gc.vertex(getLeft() + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
+	        				getTop() + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
 	        	} 
 	        }
         }
         
         if(connected){
 			if(closed){
-				gc.vertex(left + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
-        				top + pos[figures.length-1].getY()  + figures[figures.length-1].getVConnectProperty() * figures[figures.length-1].size.getHeight()  );
+				gc.vertex(getLeft()  + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
+						getTop() + pos[figures.length-1].getY()  + figures[figures.length-1].getVConnectProperty() * figures[figures.length-1].size.getHeight()  );
 				gc.endShape(FigureApplet.CLOSE);
 			} else 
 				gc.endShape();
 		}
 
 		for(int i = 0; i < figures.length; i++){
-			figures[i].draw(left + pos[i].getX(), top + pos[i].getY(), gc);
+			figures[i].draw(gc);
 		}
 	}
 		
@@ -182,6 +176,15 @@ public class Overlay extends Compose{
 			}
 			
 			
+	}
+	
+	public void setSWTZOrder(ISWTZOrdering zorder){
+		zorder.pushOverlap();
+		for(Figure fig : figures){
+			zorder.register(fig);
+			fig.setSWTZOrder(zorder);
+		}
+		zorder.popOverlap();
 	}
 	
 	public class LocalOffsetKey extends Figure implements Key{
@@ -228,14 +231,14 @@ public class Overlay extends Compose{
 			return actualKey.getId();
 		}
 
+
 		@Override
-		public void layout() {
+		public void draw(GraphicsContext gc) {
 			
 		}
 
 		@Override
-		public void draw(double left, double top, GraphicsContext gc) {
-			
+		public void layout() {
 		}
 		
 	}

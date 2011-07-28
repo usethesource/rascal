@@ -106,5 +106,9 @@ public class BoundingBox {
 	public String toString(){
 		return "w:"+width+"h:"+height;
 	}
+	
+	public boolean isEq(BoundingBox rhs){
+		return rhs!=null && width == rhs.width && height == rhs.height;
+	}
 
 }

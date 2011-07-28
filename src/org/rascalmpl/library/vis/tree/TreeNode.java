@@ -18,9 +18,9 @@ import java.util.Vector;
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -40,8 +40,8 @@ public class TreeNode extends Figure {
 	private double rootPosition;               // Root position of this TreeNode (= middle of rootFigure)
 	private static boolean debug = false;
 	
-	public TreeNode(IFigureExecutionEnvironment fpa, PropertyManager properties, Figure fig) {
-		super(fpa, properties);
+	public TreeNode(IFigureConstructionEnv fpa, PropertyManager properties, Figure fig) {
+		super(properties);
 		rootFigure = fig;
 		children = new ArrayList<TreeNode>();
 		edgeProperties = new ArrayList<PropertyManager>();
@@ -51,7 +51,7 @@ public class TreeNode extends Figure {
 			TreeNode toNode, IEvaluatorContext ctx) {
 		children.add(toNode);
 		//TODO
-		edgeProperties.add(new PropertyManager(null, inheritedProps, props, ctx));
+		edgeProperties.add(new PropertyManager(null, inheritedProps, props));
 	}
 	
 	/*
@@ -74,7 +74,7 @@ public class TreeNode extends Figure {
 	 * shapeTree places the current subtree (rooted in this TreeNode)  on the raster
 	 * 
 	 * @param rootMidX	x coordinate of center of the root figure
-	 * @param rootTop	y coordinate of top of root figure
+	 * @param rootTop	y coordinate of getTop() of root figure
 	 * @param raster	NodeRaster to be used
 	 * @return the x position of the center of the root
 	 */
@@ -113,7 +113,7 @@ public class TreeNode extends Figure {
 				branchPosition = position - widthDirectChildren/2; 		// Position of leftmost child
 			}
 			
-			double childTop = rootTop + rootFigure.minSize.getHeight() + vgap;         // Top of all children
+			double childTop = rootTop + rootFigure.minSize.getHeight() + vgap;         // getTop() of all children
 			 
 			childRoot = new double[nChildren];
 			
@@ -136,7 +136,8 @@ public class TreeNode extends Figure {
 			minSize.setWidth(Math.max(rootFigure.minSize.getWidth(), rightExtentChildren - (leftPosition - children.get(0).rootPosition)));
 
 			// Make child positions and rootPosition relative to this parent
-			setLeft(leftPosition - children.get(0).rootPosition);
+			// TODO: fixme!
+			//setLeft(leftPosition - children.get(0).rootPosition);
 			
 			for(int i = 0; i < nChildren; i++){
 				childRoot[i] -= getLeft();
@@ -146,7 +147,7 @@ public class TreeNode extends Figure {
 	
 		// After placing all children, we can finally add the current root figure to the raster.
 		raster.add(position, rootTop, rootFigure.minSize.getWidth(), rootFigure.minSize.getHeight());
-		if(debug)System.err.printf("shapeTree(%s, %f, %f) => position=%f, left=%f, top=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
+		if(debug)System.err.printf("shapeTree(%s, %f, %f) => position=%f, getLeft()=%f, getTop()=%f, width=%f, height=%f\n", id, rootMidX, rootTop, position, getLeft(), getTop(), minSize.getWidth(), minSize.getHeight());
 		return position;
 	}
 	
@@ -158,28 +159,25 @@ public class TreeNode extends Figure {
 	
 	@Override
 	public
-	void draw(double left, double top, GraphicsContext gc){
-		
-		this.setLeft(left);
-		this.setTop(top);
+	void draw(GraphicsContext gc){
 		
 		String id = rootFigure.getIdProperty();
 		int nChildren = children.size();
 		
 		applyProperties(gc);
 		
-		double positionRoot = left + rootPosition;
+		double positionRoot = getLeft() + rootPosition;
 		double leftRootFig = positionRoot - rootFigure.minSize.getWidth()/2;
 		
-		if(debug)System.err.printf("draw %s, %f, %f, rootFig at %f, %f\n", id, left, top, leftRootFig, top);
+		if(debug)System.err.printf("draw %s, %f, %f, rootFig at %f, %f\n", id, getLeft(), getTop(), leftRootFig, getTop());
 		
 		// Draw the root figure
-		rootFigure.draw(leftRootFig, top, gc);
+		rootFigure.draw(gc);
 		
 		if(nChildren == 0)
 			return;
 		
-		double bottomRootFig = top + rootFigure.minSize.getHeight();
+		double bottomRootFig = getTop() + rootFigure.minSize.getHeight();
 		double vgap          = getVGapProperty();
 		double childTop      = bottomRootFig + vgap; 
 		double horLine       = bottomRootFig + vgap/2;
@@ -189,18 +187,18 @@ public class TreeNode extends Figure {
 		
 		// Horizontal line connecting all the children
 		if(nChildren > 1)
-			gc.line(left + childRoot[0], horLine, left + childRoot[nChildren-1], horLine);
+			gc.line(getLeft() + childRoot[0], horLine, getLeft() + childRoot[nChildren-1], horLine);
 	
 		// TODO line style!
 		
 		for(int i = 0; i < nChildren; i++){
 			TreeNode child = children.get(i);
-			double positionChild = left + childRoot[i];
+			double positionChild = getLeft() + childRoot[i];
 			if(debug)System.err.printf("draw %s, child %d at posChild=%f, widthChild=%f, posRoot=%f\n", id, i, positionChild, child.minSize.getWidth(), child.rootPosition, childTop);
 
-			// Vertical line from horizontal line to top of this child
+			// Vertical line from horizontal line to getTop() of this child
 			gc.line(positionChild, horLine, positionChild, childTop);
-			child.draw(positionChild - child.leftExtent(), childTop, gc);
+			child.draw(gc);
 		}
 		
 	}

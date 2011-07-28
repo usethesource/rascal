@@ -27,9 +27,10 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -59,8 +60,7 @@ public class LeveledGraph extends Figure {
 	protected HashMap<String, LinkedList<LeveledGraphNode>> registeredLayerIds;
 	protected HashMap<LeveledGraphNode, LinkedList<LeveledGraphNode>> subGraphNodes;
 	final HashMap<Figure, LeveledGraphNode> inSubgraph;
-	IEvaluatorContext ctx;
-
+	private IFigureConstructionEnv fpa;
 	double hgap;
 	double vgap;
 	double MAXWIDTH;
@@ -78,10 +78,10 @@ public class LeveledGraph extends Figure {
 	private static final boolean debug = false;
 	private static final boolean printGraph = false;
 
-	public LeveledGraph(IFigureExecutionEnvironment fpa,
-			PropertyManager properties, IList nodes, IList edges,
-			IEvaluatorContext ctx) {
-		super(fpa, properties);
+	public LeveledGraph(IFigureConstructionEnv fpa, PropertyManager properties,
+			IList nodes, IList edges) {
+		super( properties);
+		this.fpa = fpa;
 		if (printGraph) {
 			String sep = "";
 			System.err.printf("graph([\n");
@@ -98,7 +98,6 @@ public class LeveledGraph extends Figure {
 			System.err.printf("]);");
 		}
 
-		this.ctx = ctx;
 
 		// Create the nodes
 
@@ -109,18 +108,18 @@ public class LeveledGraph extends Figure {
 		this.inSubgraph = new HashMap<Figure, LeveledGraphNode>();
 		for (IValue v : nodes) {
 			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, null, ctx);
+			Figure fig = FigureFactory.make(fpa, c, properties, null);
 			String name = fig.getIdProperty();
 			String layer = fig.getLayerProperty();
 			System.err.println("Layer:" + this.getClass() + " " + layer);
 			if (name.length() == 0)
 				throw RuntimeExceptionFactory.figureException(
 						"Id property should be defined", v,
-						ctx.getCurrentAST(), ctx.getStackTrace());
+						fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			if (getRegisteredNodeId(name) != null)
 				throw RuntimeExceptionFactory.figureException(
 						"Id property is doubly declared", v,
-						ctx.getCurrentAST(), ctx.getStackTrace());
+						fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 			LeveledGraphNode node = new LeveledGraphNode(name, fig);
 			this.nodes.add(node);
 			registerNodeId(name, node);
@@ -136,7 +135,6 @@ public class LeveledGraph extends Figure {
 					subNodes.add(z);
 					inSubgraph.put(z.figure, node);
 				}
-				System.err.println("Put subgraphNodes:"+node);
 				subGraphNodes.put(node, subNodes);
 			}
 			if (layer.length() > 0) {
@@ -150,10 +148,10 @@ public class LeveledGraph extends Figure {
 		for (IValue v : edges) {
 			IConstructor c = (IConstructor) v;
 			PropertyManager pm = c.arity() > 2 ? new PropertyManager(fpa,
-					properties, (IList) c.get(2), ctx) : properties;
+					properties, (IList) c.get(2)) : properties;
 
 			LeveledGraphEdge e = FigureFactory.makeLeveledGraphEdge(this, fpa,
-					c, pm, ctx);
+					c, pm);
 			boolean done = false;
 
 			for (LeveledGraphEdge other : this.edges) {
@@ -190,7 +188,7 @@ public class LeveledGraph extends Figure {
 				}
 				q = inSubgraph.get(e.getTo().figure);
 				if (q != null) {
-					e.pushTo(q);
+					e.pushTo(inSubgraph.get(q));
 				}
 				e.getFrom().addOut(e.getTo());
 				e.getTo().addIn(e.getFrom());
@@ -275,17 +273,15 @@ public class LeveledGraph extends Figure {
 		}
 	}
 
-	// private boolean isExternalConnection(LayeredGraphNode n1,
-	// LayeredGraphNode n2) {
-	// boolean b1 = (inSubgraph.get(n1.figure) == null), b2 =
-	// (inSubgraph.get(n2.figure) == null);
-	// return (b1 && !b2) || (!b1 && b2);
-	// }
+//	private boolean isExternalConnection(LayeredGraphNode n1,
+//			LayeredGraphNode n2) {
+//		boolean b1 = (inSubgraph.get(n1.figure) == null), b2 = (inSubgraph.get(n2.figure) == null);
+//		return (b1 && !b2) || (!b1 && b2);
+//	}
 
 	@Override
 	public void bbox() {
-		if (this.getParent() != null)
-			return;
+		if (this.getParent() != null) return;
 		minSize.setWidth(getWidthProperty());
 		MAXWIDTH = minSize.getWidth();
 		// MAXWIDTH = width = 1000;
@@ -295,7 +291,7 @@ public class LeveledGraph extends Figure {
 
 		double maxNodeWidth = 0;
 		System.err.println("bbox:" + inSubgraph.size() + " " + this + " "
-				+ this.parent);
+				+ this.parent);	
 		for (LeveledGraphNode g : nodes) {
 			if (g.figure instanceof LeveledGraph) {
 				LeveledGraph h = (LeveledGraph) g.figure;
@@ -478,17 +474,15 @@ public class LeveledGraph extends Figure {
 	}
 
 	@Override
-	public void draw(double left, double top, GraphicsContext gc) {
-		this.setLeft(left);
-		this.setTop(top);
+	public void draw(GraphicsContext gc) {
 
 		applyProperties(gc);
 		// fpa.rect(left, top, minSize.getWidth(), minSize.getHeight());
 		for (LeveledGraphEdge e : edges)
-			e.draw(left, top, gc);
+			e.draw(gc);
 
 		for (LeveledGraphNode n : nodes) {
-			n.draw(left, top, gc);
+			n.draw(gc);
 		}
 	}
 
@@ -953,7 +947,7 @@ public class LeveledGraph extends Figure {
 			// if(old == null)
 			// throw
 			// RuntimeExceptionFactory.figureException("Internal error in insertVirtualNode",
-			// vfVname, ctx.getCurrentAST(), ctx.getStackTrace());
+			// vfVname, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 			IString vfGname = vf.string(from.name);
 			IString vfOname = vf.string(to.name);
@@ -961,11 +955,11 @@ public class LeveledGraph extends Figure {
 				if (old.isReversed()) {
 					LeveledGraphEdge e1 = new LeveledGraphEdge(this, fpa,
 							properties, vfGname, vfVname, old.fromArrow,
-							old.toArrow, ctx);
+							old.toArrow);
 					e1.setOldTo(old.getOldTo());
 					LeveledGraphEdge e2 = new LeveledGraphEdge(this, fpa,
 							properties, vfVname, vfOname, old.fromArrow,
-							old.toArrow, ctx);
+							old.toArrow);
 					e2.setOldFrom(old.getOldFrom());
 					if (old.getFrom().layer == halfWay)
 						e1.label = orgEdgeLabel;
@@ -975,11 +969,11 @@ public class LeveledGraph extends Figure {
 				} else {
 					LeveledGraphEdge e1 = new LeveledGraphEdge(this, fpa,
 							properties, vfGname, vfVname, old.toArrow,
-							old.fromArrow, ctx);
+							old.fromArrow);
 					e1.setOldFrom(old.getOldFrom());
 					LeveledGraphEdge e2 = new LeveledGraphEdge(this, fpa,
 							properties, vfVname, vfOname, old.toArrow,
-							old.fromArrow, ctx);
+							old.fromArrow);
 					e2.setOldTo(old.getOldTo());
 					if (old.getFrom().layer == halfWay)
 						e1.label = orgEdgeLabel;
@@ -1804,13 +1798,13 @@ public class LeveledGraph extends Figure {
 		return true;
 	}
 
-	public void computeFiguresAndProperties() {
-		super.computeFiguresAndProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env) {
+		super.computeFiguresAndProperties(env);
 		for (LeveledGraphNode node : nodes) {
-			node.computeFiguresAndProperties();
+			node.computeFiguresAndProperties(env);
 		}
 		for (LeveledGraphEdge edge : edges) {
-			edge.computeFiguresAndProperties();
+			edge.computeFiguresAndProperties(env);
 		}
 	}
 
@@ -1833,6 +1827,5 @@ public class LeveledGraph extends Figure {
 		for (LeveledGraphEdge edge : edges) {
 			edge.layout();
 		}
-
 	}
 }

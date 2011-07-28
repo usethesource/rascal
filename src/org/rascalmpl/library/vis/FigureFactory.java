@@ -35,7 +35,6 @@ import org.rascalmpl.library.vis.containers.HScreen;
 import org.rascalmpl.library.vis.containers.IntervalKey;
 import org.rascalmpl.library.vis.containers.NominalKey;
 import org.rascalmpl.library.vis.containers.Projection;
-import org.rascalmpl.library.vis.containers.Scrollable;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.VAxis;
 import org.rascalmpl.library.vis.containers.Wedge;
@@ -52,12 +51,14 @@ import org.rascalmpl.library.vis.interaction.Checkbox;
 import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.Combo;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
+import org.rascalmpl.library.vis.interaction.Scrollable;
 import org.rascalmpl.library.vis.interaction.TextField;
 import org.rascalmpl.library.vis.interaction.Timer;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
 import org.rascalmpl.library.vis.properties.PropertyValue;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.tree.Tree;
 import org.rascalmpl.library.vis.tree.TreeMap;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -162,36 +163,36 @@ public class FigureFactory {
     }};
 	
     
-    public static Figure[] makeList(IFigureExecutionEnvironment fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+    public static Figure[] makeList(IFigureConstructionEnv env, IValue list, PropertyManager properties, IList childProps){
     	IList elems = (IList)list;
     	Figure[] result = new Figure[elems.length()];
     	for (int i = 0; i < elems.length(); i++) {
     		IConstructor c = (IConstructor)elems.get(i);
-			result[i] = FigureFactory.make(fpa, c, properties, childProps, ctx);
+			result[i] = FigureFactory.make(env, c, properties, childProps);
 		}
     	return result;
     }
     
-    public static Figure[][] make2DList(IFigureExecutionEnvironment fpa, IValue list, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+    public static Figure[][] make2DList(IFigureConstructionEnv env, IValue list, PropertyManager properties, IList childProps){
     	IList elems = (IList)list;
     	Figure[][] result = new Figure[elems.length()][];
     	for (int i = 0; i < elems.length(); i++) {
     		IList c = (IList)elems.get(i);
-			result[i] = makeList(fpa, c, properties, childProps, ctx);
+			result[i] = makeList(env, c, properties, childProps);
 		}
     	return result;
     }
     
-    public static Figure makeChild(IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
+    public static Figure makeChild(IFigureConstructionEnv env, IConstructor c, PropertyManager properties, IList childProps ){
     	if(c.arity() == 2 ){
-    		return makeChild(0,fpa,c,properties,childProps,ctx);
+    		return makeChild(0,env,c,properties,childProps);
     	} else {
     		return null;
     	}
     }
     
-    public static Figure makeChild(int index,IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx ){
-    		return FigureFactory.make(fpa, (IConstructor)c.get(index), properties, childProps, ctx);
+    public static Figure makeChild(int index,IFigureConstructionEnv env, IConstructor c, PropertyManager properties, IList childProps ){
+    		return FigureFactory.make(env, (IConstructor)c.get(index), properties, childProps);
     }
     
     public static String[] makeStringList(IList list){
@@ -205,10 +206,10 @@ public class FigureFactory {
     
     
 	
-	public static Figure make(IFigureExecutionEnvironment fpa, IConstructor c, PropertyManager properties, IList childProps, IEvaluatorContext ctx){
+	public static Figure make(IFigureConstructionEnv env, IConstructor c, PropertyManager properties, IList childProps){
 		String ename = c.getName();
 		//System.out.printf("Creating %s\n",ename);
-		properties = PropertyManager.extendProperties(fpa, c, properties, childProps, ctx);
+		properties = PropertyManager.extendProperties(env, c, properties, childProps);
 		IList childPropsNext = PropertyManager.getChildProperties((IList) c.get(c.arity()-1));
 		if(childProps != null){
 			IList childchildProps = PropertyManager.getChildProperties(childProps);
@@ -226,96 +227,96 @@ public class FigureFactory {
 		switch(pmap.get(ename)){
 			
 		case BOX:
-			return new Box(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new Box( makeChild(env,c,properties,childPropsNext), properties );
 			
 		case BUTTON:
-			return new Button(fpa, ((IString) c.get(0)).getValue(),c.get(1),ctx, properties);
+			return new Button(env, ((IString) c.get(0)).getValue(),c.get(1), properties);
 		
 		case CHECKBOX:
-			return new Checkbox(fpa,  ((IString) c.get(0)).getValue(),((IBool)c.get(1)).getValue(), c.get(2),ctx, properties);
+			return new Checkbox(env,  ((IString) c.get(0)).getValue(),((IBool)c.get(1)).getValue(), c.get(2), properties);
 			
 		case CHOICE:
-			return new Choice(fpa, makeStringList((IList) c.get(0)), c.get(1), ctx, properties);
+			return new Choice(env, makeStringList((IList) c.get(0)), c.get(1),  properties);
 		
 		case COMBO:
-			validate = null;
-			if(c.arity() > 4) validate = c.get(3);
-			
-			return new Combo(fpa,((IString) c.get(0)).getValue(), makeStringList((IList)c.get(1)), c.get(2), validate, ctx, properties);					
+			return new Combo(env, makeStringList((IList)c.get(0)), c.get(1),  properties);					
 			
 		case COMPUTEFIGURE:
-			return new ComputeFigure(fpa, properties,  c.get(0), childPropsNext);
+			return new ComputeFigure(env, properties,  c.get(0), childPropsNext);
 			
 	
 		case ELLIPSE:
-			return new Ellipse(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new Ellipse( makeChild(env,c,properties,childPropsNext), properties );
 					
 		case GRAPH:
+			
 			if(properties.getStringProperty(Properties.HINT).contains("lattice"))
-				return new LatticeGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+				return new LatticeGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			if(properties.getStringProperty(Properties.HINT).contains("layered"))
-				return new LayeredGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+				return new LayeredGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			if(properties.getStringProperty(Properties.HINT).contains("leveled"))
-				return new LeveledGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
-			return new SpringGraph(fpa, properties, (IList) c.get(0), (IList)c.get(1), ctx);
+				return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
+			return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
+			
+			// throw new Error("Graph temporarily out of order");
 			
 
 		case LEFTAXIS:
-			return new VAxis(((IString) c.get(0)).getValue(),false,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+			return new VAxis(((IString) c.get(0)).getValue(),false, makeChild(1,env,c,properties,childPropsNext), properties );
 		case RIGHTAXIS:
-			return new VAxis(((IString) c.get(0)).getValue(),true,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+			return new VAxis(((IString) c.get(0)).getValue(),true, makeChild(1,env,c,properties,childPropsNext), properties );
 		case TOPAXIS:
-			return new HAxis(((IString) c.get(0)).getValue(),false,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+			return new HAxis(((IString) c.get(0)).getValue(),false, makeChild(1,env,c,properties,childPropsNext), properties );
 		case BOTTOMAXIS:
-			return new HAxis(((IString) c.get(0)).getValue(),true,fpa, makeChild(1,fpa,c,properties,childPropsNext,ctx), properties );
+			return new HAxis(((IString) c.get(0)).getValue(),true, makeChild(1,env,c,properties,childPropsNext), properties );
 						
 			
 			
 		case LEFTSCREEN:
-			return new HScreen(true,false,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new HScreen(true,false, makeChild(env,c,properties,childPropsNext), properties );
 		case RIGHTSCREEN:
-			return new HScreen(true,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new HScreen(true,true, makeChild(env,c,properties,childPropsNext), properties );
 		case TOPSCREEN:
-			return new HScreen(false,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new HScreen(false,true, makeChild(env,c,properties,childPropsNext), properties );
 		case BOTTOMSCREEN:
-			return new HScreen(false,true,fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new HScreen(false,true, makeChild(env,c,properties,childPropsNext), properties );
 		
 			
 		case INTERVALKEY:
-			return new IntervalKey(fpa,c.get(0),c.get(1),properties,childProps,ctx);
+			return new IntervalKey(env,c.get(0),c.get(1),properties,childProps);
 		case NOMINALKEY:
-			return new NominalKey(fpa,(IList)c.get(0),c.get(1),properties,childProps,ctx);
+			return new NominalKey(env,(IList)c.get(0),c.get(1),properties,childProps);
 			
 		case HVCAT:
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new HVCat(fpa, children, properties);
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new HVCat( children, properties);
 			
 		case HSTACK:
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new HStack(false,fpa, children, properties,ctx);
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new HStack(env,false, children, properties);
 		case VSTACK:
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new HStack(true,fpa, children, properties,ctx);
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new HStack(env,true, children, properties);
 			
 		case GRID:
-			Figure[][] elems = make2DList(fpa, c.get(0), properties, childPropsNext, ctx);
-			return new Grid(fpa, elems, properties);
+			Figure[][] elems = make2DList(env, c.get(0), properties, childPropsNext);
+			return new Grid( elems, properties);
 			
 						
 		case OUTLINE: 
-			return new Outline(fpa, properties, (IList)c.get(0), (IInteger) c.get(1));
+			return new Outline( properties, (IList)c.get(0), (IInteger) c.get(1));
 			
 		case OVERLAY: 
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new Overlay(fpa, children, properties,ctx);
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new Overlay( children, properties);
 			
 		case PACK:  
-			children = makeList(fpa,c.get(0),properties,childPropsNext,ctx);
-			return new Pack(fpa, children, properties);
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new Pack( children, properties);
 			
 		case PLACE:
 			throw new Error("Place out of order..");
-			//return new Place(fpa, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
+			//return new Place(env, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
 
 		case PROJECTION:
 			String name;
@@ -328,85 +329,89 @@ public class FigureFactory {
 				name = "";
 				projectionIndex = 1;
 			}
-			Figure projecton = makeChild(projectionIndex,fpa,c,properties,childPropsNext,ctx);
-			Figure projection = makeChild(0,fpa,c,properties,childPropsNext,ctx);
-			return new Projection(fpa,name,projecton,projection,properties,ctx);
+			Figure projecton = makeChild(projectionIndex,env,c,properties,childPropsNext);
+			Figure projection = makeChild(0,env,c,properties,childPropsNext);
+			return new Projection(env,name,projecton,projection,properties);
 		case ROTATE:
 			//TODO
-			child =  makeChild(1,fpa,c,properties,childPropsNext,ctx);
+			child =  makeChild(1,env,c,properties,childPropsNext);
 			double angle = PropertyParsers.parseNum(c.get(0));
 			throw new Error("Rotate out of order..");
-			//return new Rotate(fpa, angle, child, properties);
+			//return new Rotate(env, angle, child, properties);
 			
 
 		case SCROLLABLE:
 			//throw new Error("Scrollable temporary out of order");
-			return new Scrollable(fpa, (IConstructor)c.get(0), ctx, properties);
+			return new Scrollable(env, (IConstructor)c.get(0),  properties);
 			
 		case SPACE:
-			return new Space(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new Space( makeChild(env,c,properties,childPropsNext), properties );
 			
 		case TEXT:
-			PropertyValue<String> txt = new PropertyParsers.StringArgParser(Properties.TEXT).parseProperty( c, null, 0, fpa, ctx);
+			PropertyValue<String> txt = new PropertyParsers.StringArgParser(Properties.TEXT).parseProperty( c, null, 0, env);
 
-			//return new Text(fpa, properties,  (IString) c.get(0), ctx);	// TODO: check this
-			return new Text(fpa, properties,txt);
+			//return new Text(env, properties,  (IString) c.get(0), ctx);	// TODO: check this
+			return new Text(properties,txt);
 						
 		case TEXTFIELD:
 			validate = null;
 			if(c.arity() > 3) validate = c.get(2);
-			return new TextField(fpa,  ((IString) c.get(0)).getValue(), c.get(1), validate, ctx, properties);
+			return new TextField(env,  ((IString) c.get(0)).getValue(), c.get(1), validate, properties);
 		case TIMER:
-			return new Timer(fpa, (int)PropertyParsers.parseNum(c.get(0)), c.get(1), makeChild(2,fpa,c,properties,childPropsNext,ctx), properties );
+			return new Timer(env, (int)PropertyParsers.parseNum(c.get(0)), c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
 			
 		case TREE: 			
-			return new Tree(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			// return new Tree(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			throw new Error("Tree temporarily out of order..");
 
 		case TREEMAP: 			
-			return new TreeMap(fpa,properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			//return new TreeMap(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
+			throw new Error("Treemap temporarily out of order..");
 			
 		case USE:	
 			throw new Error("Use temporary out of order..");
-			//return new Use(fpa,makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			//return new Use(env,makeChild(env,c,properties,childPropsNext,ctx), properties );
 
 		case WEDGE:			
-			return new Wedge(fpa, makeChild(fpa,c,properties,childPropsNext,ctx), properties );
+			return new Wedge( makeChild(env,c,properties,childPropsNext), properties );
 		}
-		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(), ctx.getStackTrace());
+		throw RuntimeExceptionFactory.illegalArgument(c, env.getRascalContext().getCurrentAST(),  env.getRascalContext().getStackTrace());
 	}
 	
-	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+	
+	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureConstructionEnv env, IConstructor c,
+			PropertyManager properties) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
 		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-		return new SpringGraphEdge(G, fpa, properties, from, to, toArrow, fromArrow,ctx);
+		return new SpringGraphEdge(G, env, properties, from, to, toArrow, fromArrow);
 	}
 	
-	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureConstructionEnv env, IConstructor c,
+			PropertyManager properties) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 //		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
 //		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-		return new LayeredGraphEdge(G, fpa, properties, from, to, ctx);
+		return new LayeredGraphEdge(G, env, properties, from, to);
 	}
 
-	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureConstructionEnv env, IConstructor c,
+			PropertyManager properties) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
 //		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
 //		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-		return new LeveledGraphEdge(G, fpa, properties, from, to, ctx);
+		return new LeveledGraphEdge(G, env, properties, from, to);
 	}
 	
-	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureExecutionEnvironment fpa, IConstructor c,
-			PropertyManager properties, IEvaluatorContext ctx) {
+	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureConstructionEnv env, IConstructor c,
+			PropertyManager properties) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
-		return new LatticeGraphEdge(G, fpa, properties, from, to,  ctx);
+		return new LatticeGraphEdge(G, env, properties, from, to);
 	}
+	
 
 }

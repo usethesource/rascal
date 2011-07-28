@@ -25,29 +25,27 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureFactory;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 public class ComputedProperties {
 
 	public static abstract class ComputedProperty<PropType> extends PropertyValue<PropType> {
-
-		IFigureExecutionEnvironment fpa;
 		
 		IValue fun;
 		PropType value;
 
-		public ComputedProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa){
+		public ComputedProperty(Properties property,IValue fun){
 			super(property);
 			this.fun = fun;
-			this.fpa = fpa;
 		}
 		
 		abstract PropType convertValue(IValue res);
 		
-		public void compute() {
-			Result<IValue> res = fpa.executeRascalCallBackWithoutArguments(fun);
+		public void compute(ICallbackEnv env) {
+			Result<IValue> res = env.executeRascalCallBackWithoutArguments(fun);
 			value = convertValue(res.getValue());
-			fpa.setComputedValueChanged();
 		}
 		
 		public PropType getValue() {
@@ -58,8 +56,8 @@ public class ComputedProperties {
 
 	public static class ComputedRealProperty extends ComputedProperty<Double>{
 
-		public ComputedRealProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
-			super(property,fun, fpa);
+		public ComputedRealProperty(Properties property,IValue fun) {
+			super(property,fun);
 		}
 
 		static Double convertValueS(IValue res){
@@ -78,8 +76,8 @@ public class ComputedProperties {
 	
 	public static class ComputedStringProperty extends ComputedProperty<String>{
 
-		public ComputedStringProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
-			super(property,fun, fpa);
+		public ComputedStringProperty(Properties property,IValue fun) {
+			super(property,fun);
 		}
 
 		static String convertValueS(IValue res){
@@ -95,8 +93,8 @@ public class ComputedProperties {
 	
 	public static class ComputedBooleanProperty extends ComputedProperty<Boolean>{
 
-		public ComputedBooleanProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
-			super(property,fun, fpa);
+		public ComputedBooleanProperty(Properties property,IValue fun) {
+			super(property,fun);
 		}
 
 		static Boolean convertValueS(IValue res){
@@ -112,8 +110,8 @@ public class ComputedProperties {
 	
 	public static class ComputedIntegerProperty extends ComputedProperty<Integer>{
 
-		public ComputedIntegerProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
-			super(property,fun, fpa);
+		public ComputedIntegerProperty(Properties property,IValue fun) {
+			super(property,fun);
 		}
 
 		static Integer convertValueS(IValue res){
@@ -128,8 +126,8 @@ public class ComputedProperties {
 	}
 	
 	public static class ComputedColorProperty extends ComputedIntegerProperty{
-		public ComputedColorProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
-			super(property,fun, fpa);
+		public ComputedColorProperty(Properties property,IValue fun) {
+			super(property,fun);
 		}
 		
 		static Integer convertValueS(IValue res){
@@ -157,32 +155,29 @@ public class ComputedProperties {
 	
 	public static class ComputedFigureProperty extends ComputedProperty<Figure>{
 		PropertyManager parentPm;
-		IFigureExecutionEnvironment fpa;
-		IEvaluatorContext ctx;
+		IFigureConstructionEnv fpa;
 		
-		public ComputedFigureProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa,PropertyManager parentPm, IEvaluatorContext ctx) {
-			super(property,fun, fpa);
-			this.fpa = fpa;
+		public ComputedFigureProperty(Properties property,IValue fun, PropertyManager parentPm) {
+			super(property,fun);
 			this.parentPm = parentPm;
-			this.ctx = ctx;
 		}
 		
-		static Figure convertValueS(IFigureExecutionEnvironment fpa,IValue res,PropertyManager parentPm, IEvaluatorContext ctx) {
-			Figure fig = FigureFactory.make(fpa, ((IConstructor) res), parentPm, null, ctx);
+		static Figure convertValueS(IFigureConstructionEnv fpa,IValue res,PropertyManager parentPm) {
+			Figure fig = FigureFactory.make(fpa, ((IConstructor) res), parentPm, null);
 			fig.bbox();
 			return fig;
 		}
 
 		@Override
 		Figure convertValue(IValue res) {
-			return convertValueS(fpa,res,parentPm,ctx);
+			return convertValueS(fpa,res,parentPm);
 		}
 		
-		public synchronized void compute() {
+		public synchronized void compute(ICallbackEnv env) {
 			if(value!=null){
 				value.destroy();
 			}
-			super.compute();
+			super.compute(env);
 		}
 		
 		
@@ -190,8 +185,8 @@ public class ComputedProperties {
 	
 	public static class HandlerProperty extends ComputedProperty<Void>{
 
-		public HandlerProperty(Properties property,IValue fun, IFigureExecutionEnvironment fpa) {
-			super(property,fun, fpa);
+		public HandlerProperty(Properties property,IValue fun) {
+			super(property,fun);
 		}
 
 		@Override
@@ -199,17 +194,17 @@ public class ComputedProperties {
 			return null;
 		}
 		@Override
-		public IValue executeWithSingleArg(Type type,IValue arg){
-			return fpa.executeRascalCallBackSingleArgument(fun, type, arg).getValue();
+		public IValue executeWithSingleArg(ICallbackEnv env,Type type,IValue arg){
+			return env.executeRascalCallBackSingleArgument(fun, type, arg).getValue();
 		}
 		
-		public void  executeVoid(Type[] types,IValue[] args){
-			fpa.executeRascalCallBack(fun, types, args);
+		public void  executeVoid(ICallbackEnv env,Type[] types,IValue[] args){
+			env.executeRascalCallBack(fun, types, args);
 		}
 		
 		@Override
-		public IValue execute(Type[] types,IValue[] args){
-			return fpa.executeRascalCallBack(fun, types, args).getValue();
+		public IValue execute(ICallbackEnv env,Type[] types,IValue[] args){
+			return env.executeRascalCallBack(fun, types, args).getValue();
 		}
 	}
 }

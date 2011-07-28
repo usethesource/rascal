@@ -8,7 +8,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.IFigureExecutionEnvironment;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -17,8 +17,7 @@ public class MeasureProperties {
 	
 	public static abstract class MeasureProperty<PropType> extends PropertyValue<PropType> {
 
-		IFigureExecutionEnvironment fpa;
-		IEvaluatorContext ctx;
+		ICallbackEnv fpa;
 		
 		IValue idVal;
 		IValue valVal;
@@ -29,23 +28,21 @@ public class MeasureProperties {
 
 		Key key;
 
-		public MeasureProperty(Properties property,IValue idVal, IValue valVal, IFigureExecutionEnvironment fpa,IEvaluatorContext ctx){
+		public MeasureProperty(Properties property,IValue idVal, IValue valVal, ICallbackEnv fpa){
 			super(property);
-			this.ctx = ctx;
 			
 			this.idVal = idVal;
 			this.valVal = valVal;
 			this.fpa = fpa;
 		}
 		
-		public synchronized void compute() {
+		public synchronized void compute(ICallbackEnv env) {
 			lastId = ((IString)computeIfNessecary(idVal)).getValue();
 			lastVal = computeIfNessecary(valVal);
 		}
 		
 		private IValue computeIfNessecary(IValue arg){
 			if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
-				fpa.setComputedValueChanged();
 				return fpa.executeRascalCallBackWithoutArguments(arg).getValue();
 			} else {
 				return arg;
@@ -65,8 +62,8 @@ public class MeasureProperties {
 				key.registerValue(property,lastVal);
 				
 			} else {
-				throw RuntimeExceptionFactory.figureException("Unkown key id:" + lastId, ctx.getValueFactory().string(lastId), ctx.getCurrentAST(),
-						ctx.getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Unkown key id:" + lastId, fpa.getRascalContext().getValueFactory().string(lastId), fpa.getRascalContext().getCurrentAST(),
+						fpa.getRascalContext().getStackTrace());
 			}
 		}
 		
@@ -102,8 +99,8 @@ public class MeasureProperties {
 	
 	public static class MeasureRealProperty extends MeasureProperty<Double>{
 		public MeasureRealProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
-			super(property, idVal, valVal, fpa, ctx);
+				IValue valVal, ICallbackEnv fpa) {
+			super(property, idVal, valVal, fpa);
 		}
 
 		@Override
@@ -114,8 +111,8 @@ public class MeasureProperties {
 	
 	public static class MeasureStringProperty extends MeasureProperty<String>{
 		public MeasureStringProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
-			super(property, idVal, valVal, fpa, ctx);
+				IValue valVal, ICallbackEnv fpa) {
+			super(property, idVal, valVal, fpa);
 		}
 
 		@Override
@@ -126,8 +123,8 @@ public class MeasureProperties {
 	
 	public static class MeasureBooleanProperty extends MeasureProperty<Boolean>{
 		public MeasureBooleanProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
-			super(property, idVal, valVal, fpa, ctx);
+				IValue valVal, ICallbackEnv fpa) {
+			super(property, idVal, valVal, fpa);
 		}
 
 		@Override
@@ -138,8 +135,8 @@ public class MeasureProperties {
 	
 	public static class MeasureIntegerProperty extends MeasureProperty<Integer>{
 		public MeasureIntegerProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
-			super(property, idVal, valVal, fpa, ctx);
+				IValue valVal, ICallbackEnv fpa) {
+			super(property, idVal, valVal, fpa);
 		}
 
 		@Override
@@ -150,8 +147,8 @@ public class MeasureProperties {
 	
 	public static class MeasureColorProperty extends MeasureProperty<Integer>{
 		public MeasureColorProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx) {
-			super(property, idVal, valVal, fpa, ctx);
+				IValue valVal, ICallbackEnv fpa) {
+			super(property, idVal, valVal, fpa);
 		}
 
 		@Override
@@ -160,18 +157,4 @@ public class MeasureProperties {
 		}
 	}
 	
-	public static class MeasureFigureProperty extends MeasureProperty<Figure>{
-		PropertyManager parentPm;
-		
-		public MeasureFigureProperty(Properties property, IValue idVal,
-				IValue valVal, IFigureExecutionEnvironment fpa, IEvaluatorContext ctx,PropertyManager parentPm) {
-			super(property, idVal, valVal, fpa, ctx);
-			this.parentPm = parentPm;
-		}
-
-		@Override
-		Figure parseVal(IValue v) {
-			return ComputedProperties.ComputedFigureProperty.convertValueS(fpa,v,parentPm,ctx);
-		}
-	}
 }

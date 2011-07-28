@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis;
 
+
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IMap;
@@ -25,6 +26,9 @@ import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.swt.ISWTZOrdering;
+import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
@@ -48,13 +52,9 @@ public abstract class Figure implements Comparable<Figure> {
 	public int sequenceNr;
 	@SuppressWarnings("unused")
 	private static final boolean debug = false;
-	public IFigureExecutionEnvironment fpa;
 
 
 	public PropertyManager properties;
-
-	private double left; // coordinates of top left corner of
-	private double top; // the element's bounding box
 	public BoundingBox minSize;
 	public BoundingBox size;
 	public Coordinate globalLocation; // TODO: set this everywere
@@ -64,10 +64,8 @@ public abstract class Figure implements Comparable<Figure> {
 		// TODO: needed for overlay.. remove this
 	}
 	
-	protected Figure(IFigureExecutionEnvironment fpa, PropertyManager properties) {
-		this.fpa = fpa;
+	public Figure(PropertyManager properties) {
 		this.properties = properties;
-		properties.computeProperties();
 		minSize = new BoundingBox();
 		size = new BoundingBox();
 		globalLocation = new Coordinate();
@@ -90,26 +88,19 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 
-	public void computeFiguresAndProperties() {
-		properties.computeProperties();
+	public void computeFiguresAndProperties(ICallbackEnv env) {
+		properties.computeProperties(env);
 	}
 	
 	public void finalize(){}
 
-	protected void setLeft(double left) {
-		this.left = left;
-	}
-
 	public double getLeft() {
-		return left;
+		return globalLocation.getX();
 	}
 
-	protected void setTop(double top) {
-		this.top = top;
-	}
 
 	public double getTop() {
-		return top;
+		return globalLocation.getY();
 	}
 
 	public double getCenterX() {
@@ -160,12 +151,12 @@ public abstract class Figure implements Comparable<Figure> {
 	/**
 	 * Compute the bounding box of the element. Should be called before draw
 	 * since, the computed width and height are stored in the element itself.
+	 * @param env TODO
 	 * 
 	 */
 
 	// top down compute minimum size
 	public void bbox(){
-		
 		if(!properties.isConverted(Properties.WIDTH)){
 			minSize.setWidth(Math.max(minSize.getWidth(),getWidthProperty()));
 		} else {
@@ -188,17 +179,14 @@ public abstract class Figure implements Comparable<Figure> {
 	public abstract void layout();
 	
 	
+	public void setSWTZOrder(ISWTZOrdering zorder){}
+	
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
-	 * 
-	 * @param left
-	 *            x-coordinate of corner
-	 * @param top
-	 *            y-coordinate of corner
 	 * @param gc TODO
 	 */
 
-	public abstract void draw(double left, double top, GraphicsContext gc);
+	public abstract void draw(GraphicsContext gc);
 
 	/**
 	 * Draw an arrow from an external position (fromX, fromY) directed to the
@@ -262,11 +250,10 @@ public abstract class Figure implements Comparable<Figure> {
 		 * //fpa.line(left + fromX, top + fromY, left + IX, top + IY);
 		 */
 		if (toArrow != null) {
-			toArrow.bbox();
 			gc.pushMatrix();
 			gc.translate(left + IX, top + IY);
 			gc.rotate(FigureApplet.radians(-90) + theta);
-			toArrow.draw(-toArrow.minSize.getWidth() / 2, 0, gc);
+			toArrow.draw(gc);
 			gc.popMatrix();
 		}
 	}
@@ -341,39 +328,38 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	
-	public void executeKeyDownHandlers(IValue keySym, IMap modifiers){
+	public void executeKeyDownHandlers(ICallbackEnv env,IValue keySym, IMap modifiers){
 		Type[] types = {keySym.getType(),modifiers.getType()};
 		IValue[] args = {keySym,modifiers};
 		if(isHandlerPropertySet(Properties.ON_KEY_DOWN)){
-			properties.executeVoidHandlerProperty(Properties.ON_KEY_DOWN, types, args);
+			properties.executeVoidHandlerProperty(env,Properties.ON_KEY_DOWN, types, args);
 		}
-		fpa.setComputedValueChanged();
-		fpa.redraw();
 	}
 	
-	public void executeKeyUpHandlers(IValue keySym, IMap modifiers){
+	public void executeKeyUpHandlers(ICallbackEnv env,IValue keySym, IMap modifiers){
 		Type[] types = {keySym.getType(),modifiers.getType()};
 		IValue[] args = {keySym,modifiers};
 		if(isHandlerPropertySet(Properties.ON_KEY_UP)){
-			properties.executeVoidHandlerProperty(Properties.ON_KEY_UP, types, args);
+			properties.executeVoidHandlerProperty(env,Properties.ON_KEY_UP, types, args);
 		}
-		fpa.setComputedValueChanged();
-		fpa.redraw();
 	}
 
-	public void executeMouseOverOffHandlers(Properties prop) {
+	public void executeMouseOverOffHandlers(ICallbackEnv env,Properties prop) {
 		if (isHandlerPropertySet(prop)) {
-			executeHandlerProperty(prop);
-			fpa.setComputedValueChanged();
+			executeHandlerProperty(env,prop);
 		}
 	}
 
-	public void executeMouseOverHandlers() {
-		executeMouseOverOffHandlers(Properties.ON_MOUSEOVER);
+	public void executeMouseOverHandlers(ICallbackEnv env) {
+		if(properties.isHandlerPropertySet(Properties.ON_MOUSEOVER)){
+			executeMouseOverOffHandlers(env,Properties.ON_MOUSEOVER);
+		}
 	}
 
-	public void executeMouseOffHandlers() {
-		executeMouseOverOffHandlers(Properties.ON_MOUSEOFF);
+	public void executeMouseOffHandlers(ICallbackEnv env) {
+		if(properties.isHandlerPropertySet(Properties.ON_MOUSEOFF)){
+			executeMouseOverOffHandlers(env,Properties.ON_MOUSEOFF);
+		}
 	}
 
 	public boolean mouseInside(double mouseX, double mouseY) {
@@ -416,6 +402,7 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public void takeDesiredWidth(double width){
+		
 		if(properties.isConverted(Properties.WIDTH)){
 			size.setWidth(properties.getRealProperty(Properties.WIDTH));
 			properties.getKey(Properties.WIDTH).registerOffset(globalLocation.getX());
@@ -428,6 +415,7 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public void takeDesiredHeight(double height){
+		
 		if(properties.isConverted(Properties.HEIGHT)){
 			size.setHeight(properties.getRealProperty(Properties.HEIGHT));
 			properties.getKey(Properties.HEIGHT).registerOffset(globalLocation.getY());
@@ -503,8 +491,8 @@ public abstract class Figure implements Comparable<Figure> {
 		return isStandardDefaultHandlerPropertySet(property);
 	}
 
-	public void executeHandlerProperty(Properties property) {
-		properties.executeHandlerProperty(property);
+	public void executeHandlerProperty(ICallbackEnv env,Properties property) {
+		properties.executeHandlerProperty(env,property);
 	}
 
 	public boolean isFigurePropertySet(Properties property) {
@@ -763,8 +751,9 @@ public abstract class Figure implements Comparable<Figure> {
 		return isHandlerPropertySet(Properties.MOUSE_CLICK);
 	}
 
-	public void executeOnClick() {
-		executeHandlerProperty(Properties.MOUSE_CLICK);
+	public void executeOnClick(ICallbackEnv env) {
+		if(isOnClickPropertySet())
+			executeHandlerProperty(env,Properties.MOUSE_CLICK);
 	}
 
 	public double getHAlignProperty(boolean flip) {
@@ -1038,14 +1027,20 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public double getTextAscent(){
-		return fpa.textAscent(getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
+		return SWTFontsAndColors.textAscent(
+				properties.getStringProperty(Properties.FONT),
+				properties.getIntegerProperty(Properties.FONT_SIZE));
 	}
 	
 	public double getTextDescent(){
-		return fpa.textDescent(getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
+		return SWTFontsAndColors.textDescent(
+				properties.getStringProperty(Properties.FONT),
+				properties.getIntegerProperty(Properties.FONT_SIZE));
 	}
 	
 	public double getTextWidth(String s){
-		return fpa.textWidth(s,getStringProperty(Properties.FONT), getIntegerProperty(Properties.FONT_SIZE), FontStyle.NORMAL);
+		return SWTFontsAndColors.textWidth(s, 
+				properties.getStringProperty(Properties.FONT),
+				properties.getIntegerProperty(Properties.FONT_SIZE));
 	}
 }
