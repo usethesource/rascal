@@ -430,7 +430,7 @@ public abstract class AbstractStackNode{
 				}
 			}
 		}else if(edgesMap != edgesMapToAdd){ // A stack merge occurred (and the production is non-cyclic (expandable nodes, such as lists, can have cyclic child alternatives)).
-			// Initialize the prefixes map.
+			// Initialize the prefixes map (if necessary).
 			int edgesMapSize = edgesMap.size();
 			int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 			if(prefixesMap == null){
@@ -446,29 +446,26 @@ public abstract class AbstractStackNode{
 			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
 				edgesMap.add(edgesMapToAdd.getKey(0), edgesMapToAdd.getValue(0));
 				addPrefix(new Link(null, predecessorResult), edgesMap.size() - 1);
-			}else{
+			}else{ // The predecessor has prefixes.
 				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 					int startLocation = edgesMapToAdd.getKey(i);
-					int index = edgesMap.findKeyBefore(startLocation, edgesMapSize);
+					int index = edgesMap.findKeyBefore(startLocation, edgesMapSize); // Only look where needed.
 					ArrayList<Link> prefixes;
-					if(index == -1){
+					if(index == -1){ // No prefix set for the given start location is present yet.
 						index = edgesMap.size();
 						edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
 						
 						prefixes = new ArrayList<Link>(1);
 						prefixesMap[index] = prefixes;
-					}else{
+					}else{ // A prefix set for the given start location is present.
 						prefixes = prefixesMap[index];
 					}
 					
+					// Add the prefix to the appropriate prefix set.
 					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
 				}
 			}
 		}else{ // A stack merge occured and the production is self cyclic (expandable nodes, such as lists, can have cyclic child alternatives).
-			if(prefixesMap == null){
-				prefixesMap = new ArrayList[edgesMap.size()];
-			}
-			
 			if(prefixesMapToAdd == null){
 				int index = edgesMap.findKey(predecessor.getStartLocation());
 				addPrefix(new Link(null, predecessorResult), index);
