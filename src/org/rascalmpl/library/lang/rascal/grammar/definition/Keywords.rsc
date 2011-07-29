@@ -21,3 +21,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   
   return conds;  
 }
+
+public set[Production] getKeywords(Grammar g) {
+  return {g.rules[s] | s:keywords(_) <- g.rules}; 
+}
