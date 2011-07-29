@@ -26,8 +26,22 @@ public class Rectangle {
 		this(c.getX(),c.getY(),b.getWidth(),b.getHeight());
 	}
 	
+	public boolean contains(Rectangle rhs){
+		return x <= rhs.x && xHigh >= rhs.xHigh && y <= rhs.y && yHigh >= rhs.yHigh;
+	}
+	
+	public boolean contains(Coordinate location, BoundingBox size){
+		return x <= location.getX() && xHigh >= location.getX() + size.getWidth() 
+			&& y <= location.getY() && yHigh >= location.getY() + size.getHeight();
+	}
+	
 	public boolean overlapsWith(Rectangle rhs){
 		return !(xHigh <= rhs.x || x >= rhs.xHigh || yHigh <= rhs.y || y >= rhs.yHigh);
+	}
+	
+	public boolean overlapWith(Coordinate location, BoundingBox size){
+		return !(xHigh <= location.getX() || x >= location.getX() + size.getWidth() 
+				|| yHigh <= location.getY() || y >= location.getY() + size.getHeight());
 	}
 	
 	// assumption: they overlap, check with overlapsWith
@@ -39,10 +53,14 @@ public class Rectangle {
 		return new Rectangle(nx,ny,nWidth,nHeight );
 	}
 	
+	
 	public double getX() { return x;}
 	public double getY() { return y;}
 	public double getWidth() { return width;}
 	public double getHeight() { return height;}
+	public double getXRight(){ return xHigh;}
+	public double getYDown() { return yHigh; }
+	
 	
 	public String toString(){
 		return String.format("Rectangle(x:%f y:%f w: %f h: %f)",x,y,width,height);

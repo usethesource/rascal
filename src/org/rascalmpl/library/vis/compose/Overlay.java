@@ -24,6 +24,7 @@ import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -72,7 +73,6 @@ public class Overlay extends Compose{
 	}
 
 	public void layout(){
-		//System.out.printf("osize : %s\n",size);
 		ForBothDimensions<Double> minLocs = new ForBothDimensions<Double>(Double.MAX_VALUE);
 		for(Figure fig : figures){
 			for(boolean flip : BOTH_DIMENSIONS){
@@ -110,7 +110,19 @@ public class Overlay extends Compose{
 		}
 	}
 	
+	@Override
 	public void draw(GraphicsContext gc){
+		drawShape(gc);
+		super.draw(gc);
+	}
+	
+	@Override
+	public void drawPart(Rectangle r,GraphicsContext gc){
+		drawShape(gc);
+		super.drawPart(r, gc);
+	}
+
+	private void drawShape(GraphicsContext gc) {
 		applyProperties(gc);
         boolean closed = getClosedProperty();
         boolean curved = getCurvedProperty();
@@ -146,10 +158,6 @@ public class Overlay extends Compose{
 				gc.endShape(FigureApplet.CLOSE);
 			} else 
 				gc.endShape();
-		}
-
-		for(int i = 0; i < figures.length; i++){
-			figures[i].draw(gc);
 		}
 	}
 		

@@ -6,6 +6,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureApplet;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.Rectangle;
 
 public class HScreen extends WithInnerFig {
 	
@@ -113,6 +114,7 @@ public class HScreen extends WithInnerFig {
 		}
 		//drawScreen(left, top);
 	}
+
 
 	void drawScreen(double left, double top,GraphicsContext gc) {
 		//System.out.printf("Horizontal borders %f %f\n", innerFig.getHorizontalBorders().getMinimum(),innerFig.getHorizontalBorders().getMaximum() );

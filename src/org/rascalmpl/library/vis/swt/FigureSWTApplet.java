@@ -94,7 +94,7 @@ public class FigureSWTApplet extends ScrolledComposite
 		Figure fig = FigureFactory.make(this, cfig, null, null);
 		fig = new Box( fig, new PropertyManager());
 		this.figure = fig;
-		zorderManager = new SWTZOrderManager(inner);
+		zorderManager = new SWTZOrderManager(inner,figure);
 		//OverlapCanvas c = new OverlapCanvas(inner);
 		/*Canvas test = new Canvas(inner,SWT.NORMAL);
 		test.setSize(100, 100);

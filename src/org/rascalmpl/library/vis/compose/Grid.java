@@ -11,6 +11,7 @@ import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.Rectangle;
 import org.rascalmpl.library.vis.util.Util;
 
 
@@ -287,17 +288,29 @@ public class Grid extends Figure {
 	@Override
 	public
 	void draw(GraphicsContext gc){
-		applyProperties(gc);
-		for(int row = 0 ; row < nrRows; row++){
-			//fpa.line(left , top + rowCenters[row], left + 5000, top + rowCenters[row]);
-		}
-		for(int row = 0 ; row < nrColumns; row++){
-			//fpa.line(left + collumnCenters[row], top , left + collumnCenters[row], top + 5000);
-		}
 		for(int row = 0 ; row < nrRows ; row++){
 			for(int collumn = 0 ; collumn < nrColumns ; collumn++){
-				//System.out.printf("Drawing %d %d at %f %f of width %f height %f\n", row, collumn,left + xPos[row][collumn], top + yPos[row][collumn],desiredWidths[row][collumn],desiredHeights[row][collumn]);
 				figureMatrix[row][collumn].draw(gc);
+			}
+		}
+	}
+	
+	@Override
+	public void drawPart(Rectangle rect,GraphicsContext gc){
+		int startRow = Util.binaryIntervalSearch(columnBorders.getForY(), rect.getY() - getTop());
+		int endRow = Util.binaryIntervalSearch(columnBorders.getForY(), rect.getYDown() - getTop());
+		int startColumn = Util.binaryIntervalSearch(columnBorders.getForX(), rect.getX() - getLeft());
+		int endColumn = Util.binaryIntervalSearch(columnBorders.getForX(), rect.getXRight() - getLeft());
+		for(int row = startRow ; row <= endRow ; row++){
+			for(int collumn = startColumn ; collumn <= endColumn; collumn++){
+				if(		(row == startRow && columnBorders.getForY()[startRow] < rect.getY())
+					|| 	(row == endRow && columnBorders.getForY()[endRow] > rect.getYDown())
+					|| 	(collumn == startColumn && columnBorders.getForX()[startColumn] < rect.getX())
+					|| 	(collumn == endColumn && columnBorders.getForX()[endColumn] > rect.getXRight())){
+					figureMatrix[row][collumn].drawPart(rect,gc);
+				} else {
+					figureMatrix[row][collumn].draw(gc);
+				}
 			}
 		}
 	}
