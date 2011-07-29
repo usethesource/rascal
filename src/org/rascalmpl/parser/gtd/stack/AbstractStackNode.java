@@ -410,9 +410,7 @@ public abstract class AbstractStackNode{
 			edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>(edgesMapToAdd);
 			
 			// Initialize the prefixes map.
-			if(prefixesMap == null){
-				prefixesMap = new ArrayList[edgesMap.size()];
-			}
+			prefixesMap = new ArrayList[edgesMap.size()];
 			
 			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
 				int index = edgesMap.findKey(predecessor.getStartLocation());
@@ -444,8 +442,8 @@ public abstract class AbstractStackNode{
 			}
 			
 			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
+				addPrefix(new Link(null, predecessorResult), edgesMap.size());
 				edgesMap.add(edgesMapToAdd.getKey(0), edgesMapToAdd.getValue(0));
-				addPrefix(new Link(null, predecessorResult), edgesMap.size() - 1);
 			}else{ // The predecessor has prefixes.
 				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 					int startLocation = edgesMapToAdd.getKey(i);
@@ -510,10 +508,19 @@ public abstract class AbstractStackNode{
 		}
 	}
 	
+	/**
+	 * This method is a specialized version of 'updateNode'.
+	 * 
+	 * Specifically, this is a part of the hidden-right-recursion fix.
+	 * It merges stacks and keeps track of which ones get merged
+	 * (the returned number indicated how many edge sets were added and
+	 * may need to be propagated forward).
+	 */
 	public int updateOvertakenNode(AbstractStackNode predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
 		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
+		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
 		int possibleMaxSize = edgesMapSize + potentialNewEdges;
 		if(prefixesMap == null){
@@ -527,10 +534,11 @@ public abstract class AbstractStackNode{
 		}
 		
 		int nrOfAddedEdges = 0;
-		if(prefixesMapToAdd == null){
+		if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
 			int startLocation = predecessor.getStartLocation();
-			if(touched.contains(startLocation)) return 0;
+			if(touched.contains(startLocation)) return 0; // Prefix present, abort.
 			
+			// Prefix not present, add it.
 			int index = edgesMap.findKey(startLocation);
 			if(index == -1){
 				addPrefix(new Link(null, result), edgesMap.size());
@@ -540,11 +548,11 @@ public abstract class AbstractStackNode{
 			}else{
 				addPrefix(new Link(null, result), index);
 			}
-		}else{
+		}else{ // The predecessor has prefixes.
 			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
 			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
 				int startLocation = edgesMapToAdd.getKey(i);
-				if(touched.contains(startLocation)) continue;
+				if(touched.contains(startLocation)) continue; // Prefix present, abort.
 				
 				int index = edgesMap.findKey(startLocation);
 				ArrayList<Link> prefixes;
