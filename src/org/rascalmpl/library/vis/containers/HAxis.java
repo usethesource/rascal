@@ -8,6 +8,7 @@ import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
 import org.rascalmpl.library.vis.util.Key;
+import org.rascalmpl.library.vis.util.Rectangle;
 
 
 public class HAxis extends WithInnerFig implements Key {
@@ -173,10 +174,7 @@ public class HAxis extends WithInnerFig implements Key {
 				Math.max(1, highestPrecision()),Math.max(0, -lowestPrecision()));
 	}
 	
-	
-	
-	public void draw(GraphicsContext gc){
-		//System.out.printf("innersize %s\n",innerFig.size);
+	void drawAxis(GraphicsContext gc){
 		double axisTop ;
 		if(bottom){
 			axisTop = innerFig.size.getHeight(flip);
@@ -240,17 +238,12 @@ public class HAxis extends WithInnerFig implements Key {
 					getTop() + axisTop + direction* (majorTickHeight +  textTickSpacing 
 					+ borderSpacing + getTextAscent() + getTextDescent()) + (bottom ? getTextAscent() : getTextDescent()));
 		}
-		//System.out.printf("Innerfig %s %s\n",this,innerFigLocation);
-		
-		innerFig.draw(gc);
-		/*fpa.line(left + innerFigLocation.getX(),
-				top + axisTop,
-				left + innerFigLocation.getX() + innerFig.size.getWidth(),
-				top + axisTop);*/
-		
-		
 	}
-
+	@Override
+	public void draw(GraphicsContext gc){
+		drawAxis(gc);
+		innerFig.draw(gc);
+	}
 
 	class Tick{
 		double pixelPos;

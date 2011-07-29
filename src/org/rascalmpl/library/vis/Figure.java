@@ -32,6 +32,7 @@ import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.Rectangle;
 
 /**
  * Figures are the foundation of Rascal visualization. They are based on a
@@ -183,10 +184,26 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
-	 * @param gc TODO
+	 * @param gc
 	 */
 
 	public abstract void draw(GraphicsContext gc);
+	
+	public void drawPart(Rectangle r,GraphicsContext gc){
+			draw(gc);
+	}
+	
+	public boolean overlapsWith(Rectangle r){
+		return r.overlapWith(globalLocation, size);
+	}
+	
+	public boolean isContainedIn(Rectangle r){
+		return r.contains(globalLocation,size);
+	}
+	
+	public Rectangle getRectangle(){
+		return new Rectangle(globalLocation, size);
+	}
 
 	/**
 	 * Draw an arrow from an external position (fromX, fromY) directed to the

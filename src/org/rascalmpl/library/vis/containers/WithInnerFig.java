@@ -4,11 +4,13 @@ package org.rascalmpl.library.vis.containers;
 import java.util.Vector;
 
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.Rectangle;
 
 public abstract class WithInnerFig extends Figure {
 	
@@ -32,6 +34,24 @@ public abstract class WithInnerFig extends Figure {
 		}
 		result.add(this);
 		return true;
+	}
+	
+	@Override
+	public void draw(GraphicsContext gc){
+		if(innerFig != null){
+			innerFig.draw(gc);
+		}
+	}
+	
+	@Override
+	public void drawPart(Rectangle r,GraphicsContext gc){
+		if(innerFig != null ){
+			if(innerFig.isContainedIn(r)){
+				innerFig.draw(gc);
+			} else if(innerFig.overlapsWith(r)){
+				innerFig.drawPart(r, gc);
+			}
+		}
 	}
 	
 	public void init(){

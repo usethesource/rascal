@@ -15,6 +15,7 @@ package org.rascalmpl.library.vis.containers;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.Rectangle;
 
 
 /**
@@ -85,14 +86,17 @@ public abstract class Container extends WithInnerFig {
 	void draw(GraphicsContext gc) {
 		applyProperties(gc);
 		drawContainer(gc);
-		if(innerFig!=null) {
-			//System.out.printf("translate %f %f", innerFigLocation.getX(), innerFigLocation.getY());
-			innerFig.draw(gc);
-		}	
+		super.draw(gc);
 	}
-
 	
-
+	@Override
+	public void drawPart(Rectangle r,GraphicsContext gc){
+		applyProperties(gc);
+		drawContainer(gc);
+		super.drawPart(r,gc);
+	}
+	
+	
 	/**
 	 * drawContainer: draws the graphics associated with the container (if any). 
 	 * It is overridden by subclasses.

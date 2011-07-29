@@ -38,7 +38,7 @@ public class Ellipse extends Container {
 	void drawContainer(GraphicsContext gc){
 		if (debug) System.err.println("drawContainer:"+this.getClass()+" "+getLeft()+" "+getTop()+" "+size.getWidth()+" "+size.getHeight());
 		double lw = getLineWidthProperty();
-		gc.ellipse(getLeft() + lw, getTop()+lw, size.getWidth()-2*lw, size.getHeight()-2*lw);
+		gc.ellipse(getLeft() , getTop(), size.getWidth()-lw, size.getHeight()-lw);
 	}
 	
 	@Override

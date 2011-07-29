@@ -12,6 +12,7 @@ import org.rascalmpl.library.vis.util.Rectangle;
 
 public class SWTZOrderManager implements ISWTZOrdering {
 	
+	private Figure parentFig;
 	private Composite floor;
 	private Vector<Control> newElements;
 	private Vector<Control> currentZOrder;
@@ -19,13 +20,14 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	private Vector<OverlapCanvas> overlapPool;
 	private int currentIndexOverlapPool;
 	
-	public SWTZOrderManager(Composite floor) {
+	public SWTZOrderManager(Composite floor,Figure parentFig) {
 		currentZOrder = new Vector<Control>();
 		newElements = new Vector<Control>();
 		overlapIndexes = new Stack<Integer>();
 		overlapPool = new Vector<OverlapCanvas>();
-		this.floor = floor;
 		currentIndexOverlapPool = 0;
+		this.parentFig = parentFig;
+		this.floor = floor;
 	}
 
 	public void begin(){
@@ -45,7 +47,6 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	
 	@Override
 	public void pushOverlap() {
-		System.out.printf("Push\n");
 		overlapIndexes.push(currentZOrder.size());
 		currentZOrder.addAll(newElements);
 		newElements.clear();
@@ -53,7 +54,6 @@ public class SWTZOrderManager implements ISWTZOrdering {
 
 	@Override
 	public void popOverlap() {
-		System.out.printf("Pop\n");
 		while(overlapIndexes.peek() > currentZOrder.size()){
 			newElements.remove(overlapIndexes.peek());
 		}
@@ -63,7 +63,6 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void register(Figure fig) {
-		System.out.printf("Registering %s\n",fig);
 		if(overlapIndexes.isEmpty()){
 			return;
 		}
@@ -77,19 +76,19 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	}
 
 	private void addSWTFigureOverlaps(Figure fig) {
-		System.out.printf("Adding SWT overlaps %s %d\n",fig,currentZOrder.size());
-		Rectangle figRect = new Rectangle(fig.globalLocation,fig.size);
-		for(int i = currentZOrder.size()-1 ; i >= 0; i--){
-			Control c = currentZOrder.get(i);
-			Rectangle cRect = new Rectangle(c.getLocation().x, c.getLocation().y,c.getSize().x,c.getSize().y );
-			if(figRect.overlapsWith(cRect)){
-				System.out.printf("Adding actual SWT overlap %s\n",fig);
-				Rectangle overlap = figRect.getOverlap(cRect);
-				addOverlap(fig,c,overlap,i);
-			} else {
-				System.out.printf("No actual SWT overlap %s with \n",fig, c);
-			}
+		if(overlapsWithSWT(fig)){
+			addOverlap(fig);
 		}
+	}
+	
+	private boolean overlapsWithSWT(Figure fig){
+		Rectangle figRect = new Rectangle(fig.globalLocation,fig.size);
+		for(Control c : currentZOrder){
+			Rectangle cRect = new Rectangle(c.getLocation().x, c.getLocation().y,c.getSize().x,c.getSize().y );
+			if(figRect.overlapsWith(cRect)){ return true; }
+		}
+		return false;
+		
 	}
 	
 	private OverlapCanvas getOverlapCanvasFromPool(){
@@ -100,26 +99,19 @@ public class SWTZOrderManager implements ISWTZOrdering {
 		return overlapPool.get(currentIndexOverlapPool-1);
 	}
 	
-	private void addOverlap(Figure fig, Control below, Rectangle overlap, int aboveIndex){
-		System.out.printf("Setting overlap canvas %s %d\n",overlap,aboveIndex);
+	private void addOverlap(Figure fig){
+		Rectangle overlap = fig.getRectangle();
 		OverlapCanvas canv = getOverlapCanvasFromPool();
-		canv.setOverlap(fig, overlap);
-		setZOrder(canv, aboveIndex);
-		newElements.add(canv);
+		canv.setOverlap(parentFig,overlap);
+		moveAboveAll(canv);
 	}
 	
 	private void moveAboveAll(Control c){
-		setZOrder(c,currentZOrder.size());
+		if(!currentZOrder.isEmpty()){
+			c.moveAbove(currentZOrder.lastElement());
+		}
 	}
 	
-	private void setZOrder(Control c, int aboveIndex){
-		for(int j = 0 ; j <= aboveIndex &&  j < currentZOrder.size(); j++){
-			c.moveAbove(currentZOrder.get(j));
-		}
-		for(int j = aboveIndex+1 ; j < currentZOrder.size() ; j++){
-			c.moveBelow(currentZOrder.get(j));
-		}
-	}
 	
 
 

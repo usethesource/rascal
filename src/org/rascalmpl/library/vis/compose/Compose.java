@@ -22,6 +22,7 @@ import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.Rectangle;
 
 /**
  * Abstract class for the composition of a list of visual elements.
@@ -60,6 +61,19 @@ public abstract class Compose extends Figure {
 		applyProperties(gc);
 		for(int i = 0; i < figures.length; i++){
 			figures[i].draw(gc);
+		}
+	}
+	
+	@Override
+	public
+	void drawPart(Rectangle r,GraphicsContext gc){
+		applyProperties(gc);
+		for(int i = 0; i < figures.length; i++){
+			if(r.contains(figures[i].globalLocation, figures[i].size)){
+				figures[i].draw(gc);
+			} else if(figures[i].overlapsWith(r)){
+				figures[i].drawPart(r,gc);
+			}
 		}
 	}
 	
