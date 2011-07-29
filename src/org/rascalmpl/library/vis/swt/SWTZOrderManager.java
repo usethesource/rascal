@@ -19,8 +19,9 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	private Stack<Integer> overlapIndexes;
 	private Vector<OverlapCanvas> overlapPool;
 	private int currentIndexOverlapPool;
+	private FigureSWTApplet parent;
 	
-	public SWTZOrderManager(Composite floor,Figure parentFig) {
+	public SWTZOrderManager(FigureSWTApplet parent,Composite floor,Figure parentFig) {
 		currentZOrder = new Vector<Control>();
 		newElements = new Vector<Control>();
 		overlapIndexes = new Stack<Integer>();
@@ -28,6 +29,7 @@ public class SWTZOrderManager implements ISWTZOrdering {
 		currentIndexOverlapPool = 0;
 		this.parentFig = parentFig;
 		this.floor = floor;
+		this.parent = parent;
 	}
 
 	public void begin(){
@@ -93,7 +95,7 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	
 	private OverlapCanvas getOverlapCanvasFromPool(){
 		if(currentIndexOverlapPool == overlapPool.size()){
-			overlapPool.add(new OverlapCanvas(floor));
+			overlapPool.add(new OverlapCanvas(parent,floor));
 		}
 		currentIndexOverlapPool++;
 		return overlapPool.get(currentIndexOverlapPool-1);
@@ -110,6 +112,12 @@ public class SWTZOrderManager implements ISWTZOrdering {
 		if(!currentZOrder.isEmpty()){
 			c.moveAbove(currentZOrder.lastElement());
 		}
+	}
+
+	@Override
+	public void registerOverlap(Figure fig) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
