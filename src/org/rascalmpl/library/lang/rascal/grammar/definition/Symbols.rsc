@@ -92,3 +92,11 @@ public Symbol \alt({set[Symbol] a, \alt(set[Symbol] b)}) = \alt(a + b);
 
 public Symbol \conditional(\conditional(Symbol s, set[Condition] cs1), set[Condition] cs2) 
   = \conditional(s, cs1 + cs2);
+
+public Symbol \conditional(Symbol s, {Condition c, set[Condition] cs}) {
+  // if there is a nested conditional, lift the nested conditions toplevel and make the nested symbol unconditional.
+  if (c has symbol, c.symbol is conditional) {
+     return \conditional(s, {c[symbol=c.symbol.symbol], c.symbol.conditions, cs}); 
+  }
+  else fail;
+}             
