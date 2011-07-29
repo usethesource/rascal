@@ -179,12 +179,13 @@ public class Overlay extends Compose{
 	}
 	
 	public void setSWTZOrder(ISWTZOrdering zorder){
-		zorder.pushOverlap();
+		
 		for(Figure fig : figures){
+			zorder.pushOverlap();
 			zorder.register(fig);
 			fig.setSWTZOrder(zorder);
 		}
-		zorder.popOverlap();
+		for(Figure fig : figures){ zorder.popOverlap(); }
 	}
 	
 	public class LocalOffsetKey extends Figure implements Key{

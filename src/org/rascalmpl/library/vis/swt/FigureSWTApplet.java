@@ -34,10 +34,9 @@ import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
@@ -96,6 +95,18 @@ public class FigureSWTApplet extends ScrolledComposite
 		fig = new Box( fig, new PropertyManager());
 		this.figure = fig;
 		zorderManager = new SWTZOrderManager(inner);
+		//OverlapCanvas c = new OverlapCanvas(inner);
+		/*Canvas test = new Canvas(inner,SWT.NORMAL);
+		test.setSize(100, 100);
+		test.setLocation(10, 10);
+		test.addPaintListener(new PaintListener() {
+			
+			@Override
+			public void paintControl(PaintEvent e) {
+				e.gc.drawOval(0, 0, 50, 50);
+				
+			}
+		});*/
 	}
 
 	private void draw(GC swtGC) {
@@ -137,12 +148,13 @@ public class FigureSWTApplet extends ScrolledComposite
 				(int) Math.ceil(viewPort.getHeight()));
 
 		}
-		zorderManager.start();
+		zorderManager.begin();
 		figure.setSWTZOrder(zorderManager);
-		updateFiguresUnderMouse();
+		zorderManager.end();
+		updateFiguresUnderMouse(true);
 	}
 
-	private void updateFiguresUnderMouse() {
+	private void updateFiguresUnderMouse(boolean partOfLayout) {
 		Vector<Figure> swp = figuresUnderMousePrev;
 		figuresUnderMousePrev = figuresUnderMouse;
 		figuresUnderMouse = swp;
@@ -151,7 +163,7 @@ public class FigureSWTApplet extends ScrolledComposite
 		int i = 0; int j = 0;
 		Collections.sort(figuresUnderMouse);
 		// compute the added and removed elements in a fast way
-		env.beginCallbackBatch();
+		if(!partOfLayout)env.beginCallbackBatch();
 		while(i < figuresUnderMouse.size() || j < figuresUnderMousePrev.size()){
 			int cmp;
 			if(i >= figuresUnderMouse.size()){
@@ -171,7 +183,7 @@ public class FigureSWTApplet extends ScrolledComposite
 				i++; j++;
 			}
 		}
-		env.endCallbackBatch();
+		if(!partOfLayout)env.endCallbackBatch();
 	}
 	
 	@Override
@@ -199,7 +211,7 @@ public class FigureSWTApplet extends ScrolledComposite
 	@Override
 	public void mouseMove(MouseEvent e) {
 		mouseLocation.set(e.x,e.y);
-		updateFiguresUnderMouse();
+		updateFiguresUnderMouse(false);
 	}
 
 	@Override
@@ -244,7 +256,7 @@ public class FigureSWTApplet extends ScrolledComposite
 	@Override
 	public void mouseExit(MouseEvent e) {
 		mouseLocation.set(-100,-100); // not on figure!
-		updateFiguresUnderMouse();
+		updateFiguresUnderMouse(false);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class Box extends Container {
 	@Override
 	void drawContainer(GraphicsContext gc){
 		double lw = getLineWidthProperty();
-		gc.rect(getLeft()-lw, getTop()-lw, size.getWidth() + lw, size.getHeight() + lw);
+		gc.rect(getLeft()+lw, getTop()+lw, size.getWidth() - 2*lw, size.getHeight() - 2*lw);
 	}
 	
 	@Override
