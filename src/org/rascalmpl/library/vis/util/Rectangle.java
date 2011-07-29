@@ -32,8 +32,8 @@ public class Rectangle {
 	
 	// assumption: they overlap, check with overlapsWith
 	public Rectangle getOverlap(Rectangle rhs){
-		double nx =  Math.min(x, rhs.x);
-		double ny = Math.min(y, rhs.y);
+		double nx =  Math.max(x, rhs.x);
+		double ny = Math.max(y, rhs.y);
 		double nWidth = Math.min(xHigh, rhs.xHigh) - nx;
 		double nHeight =  Math.min(yHigh, rhs.yHigh) - ny;
 		return new Rectangle(nx,ny,nWidth,nHeight );
@@ -43,4 +43,8 @@ public class Rectangle {
 	public double getY() { return y;}
 	public double getWidth() { return width;}
 	public double getHeight() { return height;}
+	
+	public String toString(){
+		return String.format("Rectangle(x:%f y:%f w: %f h: %f)",x,y,width,height);
+	}
 }

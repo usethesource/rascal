@@ -12,7 +12,6 @@ import static org.rascalmpl.library.vis.KeySymFactory.*;
 
 public class KeySymTranslate {
 	static final Type[] empty = {};
-	// static final Type[] modifiers = {"modCtrl","modCommand","modAlt","modShift"};
 	static final Type[] modifiers = {KeyModifier_modCtrl,KeyModifier_modCommand,KeyModifier_modAlt,KeyModifier_modShift};
 	static final int[] modifiersSWT = {SWT.CTRL, SWT.COMMAND, SWT.ALT, SWT.SHIFT };
 	
