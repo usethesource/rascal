@@ -63,10 +63,10 @@ public str grammar2rascal(Grammar g) {
 
 private Grammar cleanIdentifiers(Grammar g) {
   return visit (g) {
-    case sort(/<pre:.*>-<post:.*>/) => sort("\\<pre>-<post>")
-    case layouts(/<pre:.*>-<post:.*>/) => layouts("\\<pre>-<post>")
-    case lex(/<pre:.*>-<post:.*>/) => lex("\\<pre>-<post>")
-    case keywords(/<pre:.*>-<post:.*>/) => lex("\\<pre>-<post>")
+    case s:sort(/<pre:.*>-<post:.*>/) => sort(replaceAll(s.name, "-", "_"))
+    case s:layouts(/<pre:.*>-<post:.*>/) => layouts(replaceAll(s.name, "-", "_"))
+    case s:lex(/<pre:.*>-<post:.*>/) => lex(replaceAll(s.name, "-", "_"))
+    case s:keywords(/<pre:.*>-<post:.*>/) => keywords(replaceAll(s.name, "-", "_"))
     case label(/<pre:.*>-<post:.*>/, s) => label("\\<pre>-<post>", s)
   }
 } 
@@ -253,10 +253,14 @@ public str symbol2rascal(Symbol sym) {
         return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
     case conditional(s, {\at-column(int i)}) :
         return "<symbol2rascal(s)>@<i>";
-    case conditional(s, {\start-of-line()}) :
+    case conditional(s, {\begin-of-line()}) :
         return "^<symbol2rascal(s)>";
     case conditional(s, {\end-of-line()}) :
         return "<symbol2rascal(s)>$";    
+    case conditional(s, {}): {
+        println("WARNING: empty conditional <sym>");
+        return symbol2rascal(s);
+    }
   }
   
   throw "symbol2rascal: missing case <sym>";
