@@ -1234,6 +1234,7 @@ public data Figure =
 
 /* composition */
    
+   | _overlap(Figure under, Figure over, FProperties props)
    | _use(Figure elem)                           // use another elem
    | _use(Figure elem, FProperties props)
    
@@ -1397,6 +1398,11 @@ public Figure place(Figure fig, str at, Figure base, FProperty props ...){
 public Figure use(Figure fig, FProperty props ...){
   return _use(fig, props);
 }
+
+public Figure overlap(Figure under,Figure over, FProperty props ...){
+  return _overlap(under,over,props);
+}
+
 
 public Figure hcat(Figures figs, FProperty props ...){
   return _grid([[figs]],props);

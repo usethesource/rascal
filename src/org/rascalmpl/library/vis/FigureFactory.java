@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.compose.HStack;
 import org.rascalmpl.library.vis.compose.HVCat;
 import org.rascalmpl.library.vis.compose.Grid;
+import org.rascalmpl.library.vis.compose.Overlap;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
 import org.rascalmpl.library.vis.containers.Box;
@@ -103,6 +104,7 @@ public class FigureFactory {
 		INTERVALKEY,
 		OUTLINE,
 		OVERLAY, 
+		OVERLAP,
 		PACK, 
 		PLACE,
 		PROJECTION,
@@ -146,6 +148,7 @@ public class FigureFactory {
     	put("_intervalKey", Primitives.INTERVALKEY);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
+    	put("_overlap",     Primitives.OVERLAP);
     	put("_pack",		Primitives.PACK);	
     	put("_place",		Primitives.PLACE);
     	put("_projection",	Primitives.PROJECTION);
@@ -208,7 +211,6 @@ public class FigureFactory {
 	
 	public static Figure make(IFigureConstructionEnv env, IConstructor c, PropertyManager properties, IList childProps){
 		String ename = c.getName();
-		//System.out.printf("Creating %s\n",ename);
 		properties = PropertyManager.extendProperties(env, c, properties, childProps);
 		IList childPropsNext = PropertyManager.getChildProperties((IList) c.get(c.arity()-1));
 		if(childProps != null){
@@ -224,6 +226,7 @@ public class FigureFactory {
 		Figure[] children;
 		IValue validate;
 		Figure child;
+		
 		switch(pmap.get(ename)){
 			
 		case BOX:
@@ -310,6 +313,10 @@ public class FigureFactory {
 			children = makeList(env,c.get(0),properties,childPropsNext);
 			return new Overlay( children, properties);
 			
+		case OVERLAP:
+			 Figure under = makeChild(0,env,c,properties,childPropsNext);
+			 Figure over =  makeChild(1,env,c,properties,childPropsNext);
+			 return new Overlap(under, over, properties);
 		case PACK:  
 			children = makeList(env,c.get(0),properties,childPropsNext);
 			return new Pack( children, properties);
