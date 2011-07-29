@@ -239,7 +239,7 @@ public set[Production] getProduction(Prod P, bool isLex) {
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
-        return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> } `))};
+        return {prod(label(unescape(n),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
     case (Prod) `<Syms syms> -> <Sym sym> <Attrs ats>` : 
         return {prod(getSymbol(sym, isLex), getSymbols(syms, isLex),getAttributes(ats))};
     default: {
@@ -509,6 +509,9 @@ public Symbol getSymbol(Sym sym, bool isLex) {
        
     case (Sym) `< <Sym sym> -VAR >`:
         return getSymbol(sym, isLex);
+        
+    case (Sym) `<Sym lhs> | <Sym rhs>` : 
+        return alt({getSymbol(lhs, isLex), getSymbol(rhs, isLex)});
        
   }  
   
@@ -567,9 +570,12 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `(<Sym first> <Sym+ rest>)` :
         return seq([getSymbol(first, isLex)] + [\layouts("LAYOUTLIST"), getSymbol(e, isLex) | e <- rest]);
         
+        
     default: throw "missed a case <sym>";  
   }
 }
+
+public Symbol alt({alt(set[Symbol] ss), set[Symbol] rest}) = alt(ss + rest);
 
 test bool test40() = getSymbol((Sym) `"abc"`, false) 		== lit("abc");
 test bool test41() = getSymbol((Sym) `"a\\c"`, false) 		== lit("a\\c");
