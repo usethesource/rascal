@@ -79,6 +79,7 @@ private list[Symbol] symbolLiterals(Symbol sym) {
   switch (sym) {
     case \sort(n) : return [lit(n)];
     case \lex(n) : return [lit(n)];
+    case \conditional(s,_) : return symbolLiterals(s);
     case \keywords(n): return [lit(n)];
     case \empty() : return [lit("("), rl, lit(")")];
     case \opt(s) : return [symbolLiterals(s),rl,lit("?")];
