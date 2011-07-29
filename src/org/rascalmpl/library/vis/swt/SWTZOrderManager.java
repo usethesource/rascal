@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.compose.Overlap;
 import org.rascalmpl.library.vis.interaction.SWTWidgetFigure;
 import org.rascalmpl.library.vis.util.Rectangle;
 
@@ -115,9 +116,9 @@ public class SWTZOrderManager implements ISWTZOrdering {
 	}
 
 	@Override
-	public void registerOverlap(Figure fig) {
-		// TODO Auto-generated method stub
-		
+	public void registerOverlap(Overlap fig) {
+		parent.addOverlapFigure(fig);
+		addSWTFigureOverlaps(fig.over);
 	}
 	
 	
