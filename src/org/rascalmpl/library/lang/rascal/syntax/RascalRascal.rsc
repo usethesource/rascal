@@ -210,6 +210,7 @@ syntax Expression
 	> IsDefined: Expression argument "?" 
 	> Negation: "!" Expression argument 
 	| Negative: "-" Expression argument 
+	| AsType: "[" Type type "]" Expression argument
 	> TransitiveClosure: Expression argument "+" !>> "="
 	| TransitiveReflexiveClosure: Expression argument "*" !>> "=" 
 	> SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
@@ -251,7 +252,7 @@ syntax Expression
 
 syntax UserType
 	= Name: QualifiedName name 
-	| Parametric: QualifiedName name "[" {Type ","}+ parameters "]" ;
+	| Parametric: QualifiedName name >> "[" "[" {Type ","}+ parameters "]" ;
 
 syntax Import
 	= Extend: "extend" ImportedModule module ";" 
@@ -534,6 +535,7 @@ syntax Statement
 	| Fail: "fail" Target target ";" 
 	| Break: "break" Target target ";" 
 	| Continue: "continue" Target target ";" 
+    | Filter: "filter" ";"
 	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
 	| non-assoc Try: "try" Statement body Catch+ handlers 
 	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
@@ -794,7 +796,7 @@ syntax Pattern
 	| ReifiedType         : BasicType basicType "(" {Pattern ","}* arguments ")" 
 	| CallOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
 	> VariableBecomes     : Name name ":" Pattern pattern
-	| Guarded             : "[" Type type "]" Pattern pattern 
+	| AsType              : "[" Type type "]" Pattern pattern 
 	| Descendant          : "/" Pattern pattern 
 	| Anti                : "!" Pattern pattern 
 	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 

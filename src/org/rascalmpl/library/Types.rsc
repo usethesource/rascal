@@ -54,6 +54,9 @@ data Production
 
 public bool subtype(\type[&T] t, \type[&U] u) = subtype(t.symbol, u.symbol);
 
+@doc{
+This function documents and implements the subtype relation (not proper!) of Rascal's type system. 
+}
 public bool subtype(Symbol s, s) = true;
 public default bool subtype(Symbol s, Symbol t) = false;
 
