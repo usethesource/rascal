@@ -472,39 +472,39 @@ public abstract class AbstractStackNode{
 			}else{
 				int nrOfPrefixes = edgesMapToAdd.size();
 				for(int i = nrOfPrefixes - 1; i >= 0; --i){
-					ArrayList<Link> prefixes = prefixesMap[i];
-					if(prefixes == null){
-						prefixes = new ArrayList<Link>(1);
-						prefixesMap[i] = prefixes;
-					}
-					
-					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
+					// Add the prefix to the appropriate prefixes set.
+					prefixesMap[i].add(new Link(prefixesMapToAdd[i], predecessorResult));
 				}
 			}
 		}
 	}
 	
+	/**
+	 * This method is a specialized version of 'updateNode'.
+	 * In essence its function is the same, with the difference that stack merges are not handled
+	 * and the edges map is simply reused.
+	 * 
+	 * The is part of the 'selective edge sharing' optimization.
+	 * Since it is guaranteed that stack merges can never occur after non-nullable terminals
+	 * in a production it is save to use this assumption to improve efficiency.
+	 */
 	public void updateNodeAfterNonEmptyMatchable(AbstractStackNode predecessor, AbstractNode result){
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
+		// Set the edges map.
 		edgesMap = predecessor.edgesMap;
-
-		if(prefixesMap == null){
-			prefixesMap = new ArrayList[edgesMap.size()];
-		}
 		
-		if(prefixesMapToAdd == null){
-			int index = edgesMap.findKey(predecessor.getStartLocation());
-			addPrefix(new Link(null, result), index);
-		}else{
+		// Initialize the prefixes map.
+		prefixesMap = new ArrayList[edgesMap.size()];
+		
+		if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
+			addPrefix(new Link(null, result), edgesMap.findKey(predecessor.getStartLocation()));
+		}else{ // The predecessor has prefixes.
 			int nrOfPrefixes = edgesMap.size();
-			for(int i = nrOfPrefixes - 1; i >= 0; --i){
-				ArrayList<Link> prefixes = prefixesMap[i];
-				if(prefixes == null){
-					prefixes = new ArrayList<Link>(1);
-					prefixesMap[i] = prefixes;
-				}
-				
+			for(int i = nrOfPrefixes - 1; i >= 0; --i){ // Since we reuse the edges map the indexes of the prefixes map will correspond to the same start locations.
+				ArrayList<Link> prefixes = new ArrayList<Link>(1);
+				prefixesMap[i] = prefixes;
+				// Add the prefix to the appropriate prefixes set.
 				prefixes.add(new Link(prefixesMapToAdd[i], result));
 			}
 		}
