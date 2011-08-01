@@ -1,6 +1,6 @@
 package org.rascalmpl.library.vis.util;
 
-public class Rectangle {
+public final class Rectangle {
 
 	private double x;
 	private double y;
@@ -56,10 +56,13 @@ public class Rectangle {
 	
 	public double getX() { return x;}
 	public double getY() { return y;}
+	public double getX(boolean flip) { if(flip) return getY(); else return getX();}
 	public double getWidth() { return width;}
 	public double getHeight() { return height;}
+	public double getWidth(boolean flip) { if(flip) return getHeight(); else return getWidth();}
 	public double getXRight(){ return xHigh;}
 	public double getYDown() { return yHigh; }
+	public double getXRight(boolean flip) { if(flip) return getYDown(); else return getXRight();}
 	
 	
 	public String toString(){

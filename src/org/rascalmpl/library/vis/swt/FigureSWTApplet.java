@@ -34,26 +34,28 @@ import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.KeySymFactory;
-import org.rascalmpl.library.vis.compose.Overlap;
 import org.rascalmpl.library.vis.containers.Box;
+import org.rascalmpl.library.vis.containers.Overlap;
+import org.rascalmpl.library.vis.containers.Space;
+import org.rascalmpl.library.vis.containers.WhiteSpace;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.KeySymTranslate;
+import org.rascalmpl.library.vis.util.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureSWTApplet extends ScrolledComposite 
 	implements IFigureConstructionEnv, PaintListener, MouseListener,MouseMoveListener,  ControlListener, MouseTrackListener, DisposeListener, KeyListener {
 
-	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
+	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER ;
 	private static boolean debug = false;
 	private Vector<FigureSWTApplet> children;
 	private Composite inner;
@@ -93,7 +95,8 @@ public class FigureSWTApplet extends ScrolledComposite
 		children = new Vector<FigureSWTApplet>();
 		lastSize = null;
 		Figure fig = FigureFactory.make(this, cfig, null, null);
-		fig = new Box( fig, new PropertyManager());
+		fig = new WhiteSpace( fig, new PropertyManager());
+		
 		this.figure = fig;
 		zorderManager = new SWTZOrderManager(this,inner,figure);
 		overlapFigures = new Vector<Overlap>();
@@ -105,10 +108,22 @@ public class FigureSWTApplet extends ScrolledComposite
 		GraphicsContext gc = new SWTGraphicsContext(swtGC);
 		figure.draw(gc);
 		for(Overlap f : overlapFigures){
-			f.over.draw(gc);
+			f.nonLocalFigure.draw(gc);
 		}
 		gc.dispose();
 		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
+	}
+	
+	public void drawPart(Rectangle part,GraphicsContext gc){
+		long startTime = System.nanoTime();
+		figure.drawPart(part,gc);
+		for(Overlap f : overlapFigures){
+			if(f.nonLocalFigure.overlapsWith(part)){
+				f.nonLocalFigure.drawPart(part,gc);
+			}
+		}
+		gc.dispose();
+		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing (part) took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
 	}
 	
 	public void layoutForce(){
@@ -121,7 +136,7 @@ public class FigureSWTApplet extends ScrolledComposite
 
 	private void layoutFigures(boolean force) {
 		overlapFigures.clear();
-		Rectangle r = getClientArea();
+		org.eclipse.swt.graphics.Rectangle r = getClientArea();
 		BoundingBox curSize = new BoundingBox(r.width,r.height);
 		boolean resized = !(curSize.isEq(lastSize));
 		lastSize = curSize;
@@ -139,21 +154,11 @@ public class FigureSWTApplet extends ScrolledComposite
 			figure.layout();
 			setMinSize((int) Math.ceil(viewPort.getWidth()),
 				(int) Math.ceil(viewPort.getHeight()));
+			
 			zorderManager.begin();
 			figure.setSWTZOrder(zorderManager);
 			zorderManager.end();
-			for(Overlap f : overlapFigures){
-				for (boolean flip : Figure.BOTH_DIMENSIONS) {
-					if(f.over.isHShrinkPropertySet(flip)){
-						f.over.takeDesiredWidth(flip,viewPort.getWidth(flip) *f.over.getHShrinkProperty(flip)); // todo : this should exclude scrolling (?)
-					}
-				}
-				f.over.layout();
-				for (boolean flip : Figure.BOTH_DIMENSIONS) {
-					f.over.globalLocation.addX(flip,
-							(f.under.size.getWidth(flip) - f.over.size.getWidth(flip)) * f.over.getHAlignProperty(flip));
-				}
-			}
+			
 		}
 		updateFiguresUnderMouse(true);
 	}
@@ -165,12 +170,12 @@ public class FigureSWTApplet extends ScrolledComposite
 		figuresUnderMouse.clear();
 		figure.getFiguresUnderMouse(mouseLocation, figuresUnderMouse);
 		for(Overlap f : overlapFigures){
-			f.over.getFiguresUnderMouse(mouseLocation, figuresUnderMouse);
+			f.nonLocalFigure.getFiguresUnderMouse(mouseLocation, figuresUnderMouse);
 		}
 		int i = 0; int j = 0;
 		Collections.sort(figuresUnderMouse);
 		// compute the added and removed elements in a fast way
-		if(!partOfLayout)env.beginCallbackBatch();
+		env.beginCallbackBatch();
 		while(i < figuresUnderMouse.size() || j < figuresUnderMousePrev.size()){
 			int cmp;
 			if(i >= figuresUnderMouse.size()){
@@ -190,7 +195,7 @@ public class FigureSWTApplet extends ScrolledComposite
 				i++; j++;
 			}
 		}
-		if(!partOfLayout)env.endCallbackBatch();
+		env.endCallbackBatch(true);
 	}
 	
 	@Override

@@ -1,6 +1,6 @@
 package org.rascalmpl.library.vis.util;
 
-public class ForBothDimensions <T>{
+public final class ForBothDimensions <T>{
 	
 	T forX, forY;
 	

@@ -15,7 +15,7 @@ import org.rascalmpl.library.vis.util.Rectangle;
 public abstract class WithInnerFig extends Figure {
 	
 
-	protected Figure innerFig;
+	public Figure innerFig;
 	final static boolean debug = false;
 	Coordinate innerFigLocation;
 

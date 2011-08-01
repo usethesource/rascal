@@ -204,6 +204,50 @@ public abstract class Figure implements Comparable<Figure> {
 	public Rectangle getRectangle(){
 		return new Rectangle(globalLocation, size);
 	}
+	
+	public Rectangle getRectangleIncludingOuterLines(){
+		double hlw = 0.5 * getLineWidthProperty();
+		return new Rectangle(globalLocation.getX() - hlw, globalLocation.getY() -hlw , size.getWidth() + 2*hlw, size.getHeight() + 2*hlw);
+	}
+	
+	public double getX(){
+		return globalLocation.getX();
+	}
+	
+	public double getY(){
+		return globalLocation.getY();
+	}
+	
+	public double getX(boolean flip){
+		if(flip) return getY();
+		else return getX();
+	}
+	
+	public double getWidth(){
+		return size.getWidth();
+	}
+	
+	public double getHeight(){
+		return size.getHeight();
+	}
+	
+	public double getWidth(boolean flip){
+		if(flip) return getHeight();
+		else return getWidth();
+	}
+	
+	public double getXRight(){
+		return getX() + getWidth();
+	}
+	
+	public double getYDown(){
+		return getY() + getHeight();
+	}
+	
+	public double getXRight(boolean flip){
+		if(flip) return getYDown();
+		else return getXRight();
+	}
 
 	/**
 	 * Draw an arrow from an external position (fromX, fromY) directed to the
@@ -419,7 +463,6 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public void takeDesiredWidth(double width){
-		
 		if(properties.isConverted(Properties.WIDTH)){
 			size.setWidth(properties.getRealProperty(Properties.WIDTH));
 			properties.getKey(Properties.WIDTH).registerOffset(globalLocation.getX());
@@ -788,28 +831,6 @@ public abstract class Figure implements Comparable<Figure> {
 			return getVAlignProperty();
 		}
 	}
-
-	public double getWidth() {
-		return minSize.getWidth();
-	}
-
-	public double getHeight() {
-		return minSize.getHeight();
-	}
-
-	public double getWidth(boolean flip) {
-		if (flip)
-			return getHeight();
-		else
-			return getWidth();
-	}
-
-	public double getHeight(boolean flip) {
-		if (flip)
-			return getWidth();
-		else
-			return getHeight();
-	}
 	
 	public boolean isHGrowPropertySet(){
 		return properties.isRealPropertySet(Properties.HGROW);
@@ -1042,6 +1063,8 @@ public abstract class Figure implements Comparable<Figure> {
 		if(flip) return isHLocPropertyConverted();
 		else return isVLocPropertyConverted();
 	}
+	
+
 	
 	public double getTextAscent(){
 		return SWTFontsAndColors.textAscent(

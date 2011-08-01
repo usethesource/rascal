@@ -85,7 +85,29 @@ public class FigureApplet {
 	}
 
 	public static int round(double f) {
-		return (int) Math.round(f);
+		return (int)( f + 0.5);
+	}
+	
+	public static boolean isHalf(double f){
+		int ffloor = (int)f;
+		return f - ffloor == 0.5;
+	}
+	
+	public static boolean isWhole(double f){
+		int ffloor = (int)f;
+		return f - ffloor == 0.0;
+	}
+	
+	public static int roundDown(double f){
+		if(isHalf(f)){
+			return (int)f;
+		} else {
+			return round(f);
+		}
+	}
+	
+	public static int roundUp(double f){
+		return round(f);
 	}
 
 	public static double asin(double f) {
@@ -96,5 +118,18 @@ public class FigureApplet {
 		int k = random.nextInt((int) (y-x));
 		return x + k;
 	}
+	
+	public static int floor(double f){
+		return (int)f;
+	}
+	
+	public static int ceil(double f){
+		if(isWhole(f)) return (int)f;
+		else return (int)f +1;
+	}
 
+	public static boolean isEven(int b){
+		return b % 2 == 0;
+	}
+	
 }

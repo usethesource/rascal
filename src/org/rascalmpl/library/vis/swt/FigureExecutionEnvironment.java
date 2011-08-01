@@ -55,9 +55,16 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	}
 	
 	public void endCallbackBatch(){
+		endCallbackBatch(false);
+	}
+	
+	// dontRecompute param is currently neseccary because of non-memoization of nullary closures
+	// holding the mouse over a computed figure, with associated mouseOver handler will 
+	// otherwise result in infinite loop
+	public void endCallbackBatch(boolean dontRecompute){
 		long startTime = System.nanoTime();
 		callbackBatch = false;
-		if(!batchEmpty){
+		if(!batchEmpty && !dontRecompute){
 			computeFigures();
 			appletRoot.layoutForce();
 			if(profile){
