@@ -33,23 +33,35 @@ public ConstraintBase gatherAssignableConstraints(STBuilder st, ConstraintBase c
         
         // Variable _
         case (Assignable)`_` : {
-            <cb, tv> = makeFreshType(cb);
-            cb = addConstraintForLoc(cb, a@\loc, tv);
-            if (a@\loc in st.itemUses<0>)
-                cb.constraints = cb.constraints + DefinedBy(tv,st.itemUses[n@\loc],a@\loc);
-            else
-                cb.constraints = cb.constraints + ConstrainType(tv, makeFailType("No definition for this variable found",a@\loc), a@\loc);
+	        if (a@\loc in st.itemUses<0>) {
+			    RType itemType = makeVoidType();
+	        	definingIds = st.itemUses[a@\loc];
+			    if (size(definingIds) > 1) {
+			        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+			    } else {
+			        itemType = getTypeForItem(st, getOneFrom(definingIds));
+			    }
+		        cb = addConstraintForLoc(cb, a@\loc, itemType);
+	        } else {
+	            cb = addConstraintForLoc(cb, a@\loc, makeFailType("No definition for this variable found",a@\loc));
+	        }
             return cb;
         }
 
         // Variable with an actual name
         case (Assignable)`<QualifiedName qn>` : {
-            <cb, tv> = makeFreshType(cb);
-            cb = addConstraintForLoc(cb, a@\loc, tv);
-            if (qn@\loc in st.itemUses<0>)
-                cb.constraints = cb.constraints + DefinedBy(tv,st.itemUses[qn@\loc],a@\loc);
-            else
-                cb.constraints = cb.constraints + ConstrainType(tv, makeFailType("No definition for this variable found",a@\loc), a@\loc);
+	        if (qn@\loc in st.itemUses<0>) {
+			    RType itemType = makeVoidType();
+	        	definingIds = st.itemUses[qn@\loc];
+			    if (size(definingIds) > 1) {
+			        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+			    } else {
+			        itemType = getTypeForItem(st, getOneFrom(definingIds));
+			    }
+		        cb = addConstraintForLoc(cb, qn@\loc, itemType);
+	        } else {
+	            cb = addConstraintForLoc(cb, qn@\loc, makeFailType("No definition for this variable found",qn@\loc));
+	        }
             return cb;
         }
         

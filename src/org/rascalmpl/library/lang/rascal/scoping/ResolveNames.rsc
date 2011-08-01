@@ -428,9 +428,12 @@ public STBuilder handleModuleBodyNamesOnly(Body b, STBuilder stBuilder) {
                     stBuilder = handleFunctionNamesOnly(tgs,v,s,fb,t@\loc,stBuilder);
 
                 // Concrete (i.e., with a body) function declaration, in expression form
-// TODO: Add this back in when this case is supported by the parser                
-//                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e>;` :
-//                    stBuilder = handleFunctionExpNamesOnly(tgs,v,s,e,t@\loc,stBuilder);
+                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e>;` :
+                    stBuilder = handleFunctionExpNamesOnly(tgs,v,s,e,[],t@\loc,stBuilder);
+
+                // Concrete (i.e., with a body) function declaration, in expression form
+                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e> when <{Expression ";"}+ es>;` :
+                    stBuilder = handleFunctionExpNamesOnly(tgs,v,s,e,[esi|esi<-es],t@\loc,stBuilder);
 
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` :
@@ -443,10 +446,6 @@ public STBuilder handleModuleBodyNamesOnly(Body b, STBuilder stBuilder) {
                 // Rule declaration
                 case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` :
                     stBuilder = handleRuleDeclarationNamesOnly(tgs,n,pwa,t@\loc,stBuilder);
-
-                // Test
-                case (Toplevel) `<Test tst> ;` :
-                    stBuilder = handleTestNamesOnly(tst,t@\loc,stBuilder);
 
 // Views have been removed from the grammar.
 //                // View
@@ -484,9 +483,12 @@ public STBuilder handleModuleBodyFull(Body b, STBuilder stBuilder) {
                     stBuilder = handleFunction(tgs, v, s, fb, t@\loc, stBuilder);
 
                 // Concrete (i.e., with a body) function declaration, in expression form
-// TODO: Add this back in when this case is supported by the parser                
-//                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e>;` :
-//                    stBuilder = handleFunctionExp(tgs,v,s,e,t@\loc,stBuilder);
+                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e>;` :
+                    stBuilder = handleFunctionExp(tgs,v,s,e,[],t@\loc,stBuilder);
+
+                // Concrete (i.e., with a body) function declaration, in expression form
+                case (Toplevel) `<Tags tgs> <Visibility v> <Signature s> = <Expression e> when <{Expression ";"}+ es>;` :
+                    stBuilder = handleFunctionExp(tgs,v,s,e,[esi|esi<-es],t@\loc,stBuilder);
 
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility v> anno <Type typ> <Type otyp> @ <Name n> ;` :
@@ -500,10 +502,6 @@ public STBuilder handleModuleBodyFull(Body b, STBuilder stBuilder) {
                 case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` :
                     stBuilder = handleRuleDeclaration(tgs, n, pwa, t@\loc, stBuilder);
 
-                // Test
-                case (Toplevel) `<Test tst> ;` :
-                    stBuilder = handleTest(tst, t@\loc, stBuilder);
-
                 // ADT without variants
                 case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` :
                     stBuilder = handleAbstractADT(tgs, v, typ, t@\loc, stBuilder);
@@ -515,11 +513,6 @@ public STBuilder handleModuleBodyFull(Body b, STBuilder stBuilder) {
                 // Alias
                 case (Toplevel) `<Tags tgs> <Visibility v> alias <UserType typ> = <Type btyp> ;` :
                     stBuilder = handleAlias(tgs, v, typ, btyp, t@\loc, stBuilder);
-
-// Views have been removed from the grammar.
-//                // View
-//                case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
-//                    stBuilder = handleView(tgs, v, n, sn, alts, t@\loc, stBuilder);
 
                 default: throw "handleModuleBodyFull: No match for item <t>";
             }
@@ -569,9 +562,10 @@ public STBuilder handleFunctionNamesOnly(Tags ts, Visibility v, Signature s, Fun
 
 //
 // Handle standard function declarations with expressions for bodies, but
-// do NOT descend into the bodies
+// do NOT descend into the bodies. The scope information for the bodies
+// will be built in a later step.
 //
-public STBuilder handleFunctionExpNamesOnly(Tags ts, Visibility v, Signature s, FunctionBody b, loc l, STBuilder stBuilder) {
+public STBuilder handleFunctionExpNamesOnly(Tags ts, Visibility v, Signature s, Expression e, list[Expression] el, loc l, STBuilder stBuilder) {
     return handleAbstractFunctionNamesOnly(ts,v,s,l,stBuilder);       
 }
 
@@ -605,13 +599,13 @@ public STBuilder handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
     stBuilder = handleTagsNamesOnly(ts, stBuilder);
 
     switch(s) {
-        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
+        case (Signature)`<FunctionModifiers ns> <Type t> <Name n> <Parameters ps>` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
             RType retType = ct.rtype; stBuilder = ct.stBuilder;
             stBuilder = addFunction(n, retType, t@\loc, ps, mkEmptyList(), isPublic(v), stBuilder);
         }
 
-        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
+        case (Signature)`<FunctionModifiers ns> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
             RType retType = ct.rtype; stBuilder = ct.stBuilder;
             list[RType] throwsTypes = [ ];
@@ -663,15 +657,7 @@ public STBuilder handleFunction(Tags ts, Visibility v, Signature s, FunctionBody
     stBuilder = pushScope(getLayerAtLocation(l, stBuilder), stBuilder);
 
     // Now, process the function body
-    switch(s) {
-        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-            stBuilder = handleFunctionBody(b,stBuilder);
-        }
-
-        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
-            stBuilder = handleFunctionBody(b,stBuilder);
-        }
-    }
+    stBuilder = handleFunctionBody(b,stBuilder);
 
     return popScope(stBuilder);	
 }
@@ -681,22 +667,15 @@ public STBuilder handleFunction(Tags ts, Visibility v, Signature s, FunctionBody
 // already been processed, so this just enters the scope of the header and then processes the
 // function body.
 //
-public STBuilder handleFunctionExp(Tags ts, Visibility v, Signature s, Expression e, loc l, STBuilder stBuilder) {
+public STBuilder handleFunctionExp(Tags ts, Visibility v, Signature s, Expression e, list[Expression] el, loc l, STBuilder stBuilder) {
     stBuilder = handleTags(ts, stBuilder);
 
     // First, get back the scope item at location l so we can switch into the proper function scope
     stBuilder = pushScope(getLayerAtLocation(l, stBuilder), stBuilder);
 
     // Now, process the function body
-    switch(s) {
-        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps>` : {
-            stBuilder = handleExpression(e,stBuilder);
-        }
-
-        case (Signature)`<Type t> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ tts> ` : {
-            stBuilder = handleExpression(e,stBuilder);
-        }
-    }
+    for (eli <- el) stBuilder = handleExpression(eli,stBuilder);
+    stBuilder = handleExpression(e,stBuilder);
 
     return popScope(stBuilder);   
 }
@@ -776,27 +755,6 @@ public STBuilder handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithActio
 //							
 public STBuilder handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, STBuilder stBuilder) {
     return handlePatternWithAction(p, handleTags(t, stBuilder));
-}
-
-//
-// Tests don't introduce any top-level names, so we only need to handle the test tag on this first pass.
-//
-public STBuilder handleTestNamesOnly(Test t, loc l, STBuilder stBuilder) {
-    if ((Test)`<Tags tgs> test <Expression exp>` := t) {
-        return handleTagsNamesOnly(tgs, stBuilder);
-    }
-    throw "Unexpected syntax for test: <t>";
-}
-
-//
-// Tests can use names in the test expression, so we need to descend into the expression of the test
-// on the second pass.
-//
-public STBuilder handleTest(Test t, loc l, STBuilder stBuilder) {
-    if ((Test)`<Tags tgs> test <Expression exp>` := t) {
-        return handleExpression(exp,handleTags(tgs, stBuilder));
-    }
-    throw "Unexpected syntax for test: <t>";
 }
 
 //
@@ -885,22 +843,6 @@ public STBuilder handleAlias(Tags ts, Visibility v, UserType aliasType, Type ali
 }
 
 //
-// TODO: Implement later, views aren't currently supported
-//
-public STBuilder handleViewNamesOnly(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, STBuilder stBuilder) {
-    stBuilder = handleTagsNamesOnly(ts, stBuilder);
-    //throw "handleViewNamesOnly not yet implemented";
-    return stBuilder;
-}
-
-//
-// TODO: Implement later
-//
-public STBuilder handleView(Tags ts, Visibility v, Name n, Name sn, {Alternative "|"}+ alts, loc l, STBuilder stBuilder) {
-    return handleTags(ts, stBuilder);
-}
-
-//
 // Handle individual statements
 //
 public STBuilder handleStatement(Statement s, STBuilder stBuilder) {
@@ -943,8 +885,10 @@ public STBuilder handleStatement(Statement s, STBuilder stBuilder) {
             stBuilder = handleLabel(l,stBuilder);			
             stBuilder = justSTBuilder(pushNewBooleanScope(s@\loc, stBuilder));
             for (e <- es) stBuilder = handleExpression(e, stBuilder);
-            stBuilder = handleStatement(bf, handleStatement(bt, stBuilder));
-            stBuilder = popScope(stBuilder);
+            stBuilder = handleStatement(bt, stBuilder);
+            // pop before the else, since bindings from es should not be visible there
+            stBuilder = popScope(stBuilder); 
+            stBuilder = handleStatement(bf, stBuilder);
         }
 
         // if statement with no else; this opens a boolean scope, ensuring bindings in the if guard expression are visible just in the body
@@ -1017,14 +961,24 @@ public STBuilder handleStatement(Statement s, STBuilder stBuilder) {
         }
 
         // local function declaration; the called functions handle the scoping so we don't have to here
-// TODO: Add this back in when this case is supported by the parser                
-//        case (Statement) `<Tags ts> <Visibility v> <Signature sig> = <Expression e>;` : {
-//            // First get back the function signature information, creating the scope item
-//            stBuilder = handleFunctionExpNamesOnly(ts,v,sig,e,s@\loc,handleTagsNamesOnly(ts, stBuilder));
-//
-//            // Now, descend into the function, processing the body
-//            stBuilder = handleFunctionExp(ts,v,sig,e,s@\loc,handleTags(ts, stBuilder));
-//        }
+        case (Statement) `<Tags ts> <Visibility v> <Signature sig> = <Expression e>;` : {
+            // First get back the function signature information, creating the scope item
+            stBuilder = handleFunctionExpNamesOnly(ts,v,sig,e,[],s@\loc,handleTagsNamesOnly(ts, stBuilder));
+
+            // Now, descend into the function, processing the body
+            stBuilder = handleFunctionExp(ts,v,sig,e,[],s@\loc,handleTags(ts, stBuilder));
+        }
+
+        // local function declaration; the called functions handle the scoping so we don't have to here
+        case (Statement) `<Tags ts> <Visibility v> <Signature sig> = <Expression e> when <{Expression ","}+ es>;` : {
+        	eslist = [esi | esi <- es];
+        	
+            // First get back the function signature information, creating the scope item
+            stBuilder = handleFunctionExpNamesOnly(ts,v,sig,e,eslist,s@\loc,handleTagsNamesOnly(ts, stBuilder));
+
+            // Now, descend into the function, processing the body
+            stBuilder = handleFunctionExp(ts,v,sig,e,eslist,s@\loc,handleTags(ts, stBuilder));
+        }
 
         // local variable declaration
         case (Statement) `<Type t> <{Variable ","}+ vs> ;` :
@@ -1484,8 +1438,12 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
                 stBuilder = justSTBuilder(pushNewBooleanScope(exp@\loc, stBuilder));
                 popAtTheEnd = true;
             }
-            stBuilder = handleExpression(e3, handleExpression(e2, handleExpression(e1, stBuilder)));
+            stBuilder = handleExpression(e2, handleExpression(e1, stBuilder));
+            // Make sure names bound in e1 are not visible in e3
+            // TODO: What is we are already in a boolean scope? Should we always just start a new
+            // one here because of this?
             if (popAtTheEnd) stBuilder = popScope(stBuilder);
+            stBuilder = handleExpression(e3, stBuilder);
         }
 
         // IfDefinedOtherwise

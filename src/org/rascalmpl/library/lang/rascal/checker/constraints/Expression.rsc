@@ -13,14 +13,28 @@ module lang::rascal::checker::constraints::Expression
 import List;
 import ParseTree;
 import IO;
+import Set;
+
 import lang::rascal::types::Types;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::scoping::ResolveNames;
+import lang::rascal::scoping::ScopedTypes;
 import lang::rascal::checker::constraints::Constraints;
 import lang::rascal::checker::Annotations;
 import lang::rascal::checker::TreeUtils;
 import lang::rascal::checker::constraints::Pattern;
 import lang::rascal::syntax::RascalRascal;
+
+//
+// Directly inside a container, can this expression be used in a splice?
+//
+public bool spliceableExpression(Expression e) {
+	switch(e) {
+        case (Expression)`<Name n>` : return true;
+        case (Expression)`<QualifiedName qn>` : return true;
+        default: return false;
+	}
+}
 
 //
 // Overall driver to gather constraints on the various expressions present in Rascal.
@@ -60,32 +74,53 @@ public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase c
         // treat it as an anonymous type here, instead of as a regular name like in
         // the current implementation)
         case (Expression)`_`: {
-            < cb, te > = makeFreshType(cb);
-            if (exp@\loc in st.itemUses<0>)
-                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[exp@\loc], exp@\loc);
-            else
-                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
-            return addConstraintForLoc(cb, exp@\loc, te);
+	        if (exp@\loc in st.itemUses<0>) {
+			    RType itemType = makeVoidType();
+	        	definingIds = st.itemUses[exp@\loc];
+			    if (size(definingIds) > 1) {
+			        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+			    } else {
+			        itemType = getTypeForItem(st, getOneFrom(definingIds));
+			    }
+		        cb = addConstraintForLoc(cb, exp@\loc, itemType);
+	        } else {
+	            cb = addConstraintForLoc(cb, exp@\loc, makeFailType("No definition for this variable found",exp@\loc));
+	        }
+            return cb;
         }
 
         // Name
         case (Expression)`<Name n>`: {
-            < cb, te > = makeFreshType(cb);
-            if (n@\loc in st.itemUses<0>)
-                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[n@\loc], exp@\loc);
-            else
-                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
-            return addConstraintForLoc(cb, exp@\loc, te);
+	        if (n@\loc in st.itemUses<0>) {
+			    RType itemType = makeVoidType();
+	        	definingIds = st.itemUses[n@\loc];
+			    if (size(definingIds) > 1) {
+			        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+			    } else {
+			        itemType = getTypeForItem(st, getOneFrom(definingIds));
+			    }
+		        cb = addConstraintForLoc(cb, n@\loc, itemType);
+	        } else {
+	            cb = addConstraintForLoc(cb, n@\loc, makeFailType("No definition for this variable found",n@\loc));
+	        }
+            return cb;
         }
         
         // QualifiedName
         case (Expression)`<QualifiedName qn>`: {
-            < cb, te > = makeFreshType(cb);
-            if (qn@\loc in st.itemUses<0>)
-                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[qn@\loc], exp@\loc);
-            else
-                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
-            return addConstraintForLoc(cb, exp@\loc, te);
+	        if (qn@\loc in st.itemUses<0>) {
+			    RType itemType = makeVoidType();
+	        	definingIds = st.itemUses[qn@\loc];
+			    if (size(definingIds) > 1) {
+			        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+			    } else {
+			        itemType = getTypeForItem(st, getOneFrom(definingIds));
+			    }
+		        cb = addConstraintForLoc(cb, qn@\loc, itemType);
+	        } else {
+	            cb = addConstraintForLoc(cb, qn@\loc, makeFailType("No definition for this variable found",qn@\loc));
+	        }
+            return cb;
         }
 
         // ReifiedType
@@ -306,12 +341,19 @@ public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase c
         
         // It
         case (Expression)`it` : {
-            < cb, te > = makeFreshType(cb);
-            if (exp@\loc in st.itemUses<0>)
-                cb.constraints = cb.constraints + DefinedBy(te, st.itemUses[exp@\loc], exp@\loc);
-            else
-                cb.constraints = cb.constraints + ConstrainType(te, makeFailType("No definition for this name found", exp@\loc), exp@\loc);
-            return addConstraintForLoc(cb, exp@\loc, te);
+	        if (exp@\loc in st.itemUses<0>) {
+			    RType itemType = makeVoidType();
+	        	definingIds = st.itemUses[exp@\loc];
+			    if (size(definingIds) > 1) {
+			        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+			    } else {
+			        itemType = getTypeForItem(st, getOneFrom(definingIds));
+			    }
+		        cb = addConstraintForLoc(cb, exp@\loc, itemType);
+	        } else {
+	            cb = addConstraintForLoc(cb, exp@\loc, makeFailType("No definition for this variable found",exp@\loc));
+	        }
+            return cb;
         }
             
         // Any 
@@ -333,7 +375,7 @@ public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase c
     // TODO: This should be here, but the above is NEVER matching because of breakage inside Rascal.
     // So, fix that, and then uncomment this.  
     //throw "Error, unmatched expression <exp>";
-    return cs;
+    return cb;
 }
 
 //
@@ -419,8 +461,7 @@ public ConstraintBase gatherListExpressionConstraints(STBuilder st, ConstraintBa
 
         // If this is an element that can be spliced, i.e. is not surrounded by list
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`[<{Expression ","}* _>]` !:= e)
-            et = SpliceableElement(et);
+        if (spliceableExpression(e)) et = SpliceableElement(et);
 
         elements += et;
     }
@@ -450,8 +491,7 @@ public ConstraintBase gatherSetExpressionConstraints(STBuilder st, ConstraintBas
 
         // If this is an element that can be spliced, i.e. is not surrounded by list
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`{<{Expression ","}* _>}` !:= e)
-            et = SpliceableElement(et);
+        if (spliceableExpression(e)) et = SpliceableElement(et);
 
         elements += et;
     }
@@ -1036,9 +1076,9 @@ public ConstraintBase gatherOrExpressionConstraints(STBuilder st, ConstraintBase
 //
 public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
     te = typeForLoc(cb, e@\loc);
-    < cb, tp > = makeFreshType(cb);
     cb = gatherPatternConstraints(st, cb, p);
-    cb.constraints = cb.constraints + Bindable(p,te,tp,p@\loc);
+	tp = typeForLoc(cb, p@\loc);
+    cb.constraints = cb.constraints + Bindable(tp, te, p, U(), ep@\loc);
     return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
@@ -1051,9 +1091,9 @@ public ConstraintBase gatherMatchExpressionConstraints(STBuilder st, ConstraintB
 //
 public ConstraintBase gatherNoMatchExpressionConstraints(STBuilder st, ConstraintBase cb, Expression ep, Pattern p, Expression e) {
     te = typeForLoc(cb, e@\loc);
-    < cb, tp > = makeFreshType(cb);
     cb = gatherPatternConstraints(st, cb, p);
-    cb.constraints = cb.constraints + Bindable(p,te,tp,p@\loc);
+	tp = typeForLoc(cb, p@\loc);
+    cb.constraints = cb.constraints + Bindable(tp, te, p, U(), ep@\loc);
     return addConstraintForLoc(cb, ep@\loc, makeBoolType());
 }
 
@@ -1078,8 +1118,7 @@ public ConstraintBase gatherSetComprehensionExpressionConstraints(STBuilder st, 
 
         // If this is an element that can be spliced, i.e. is not surrounded by set
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`{<{Expression ","}* _>}` !:= e)
-            et = SpliceableElement(et);
+        if (spliceableExpression(e)) et = SpliceableElement(et);
 
         elements += et;
     }
@@ -1104,8 +1143,7 @@ public ConstraintBase gatherListComprehensionExpressionConstraints(STBuilder st,
 
         // If this is an element that can be spliced, i.e. is not surrounded by list
         // brackets, indicate that in the type, so we can calculate the lub correctly
-        if ((Expression)`[<{Expression ","}* _>]` !:= e)
-            et = SpliceableElement(et);
+        if (spliceableExpression(e)) et = SpliceableElement(et);
 
         elements += et;
     }

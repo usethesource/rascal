@@ -132,11 +132,6 @@ public str getTopLevelItemDesc(Toplevel t) {
             return "Rule (location <t@\loc>)";
         }
             
-        // Test
-        case (Toplevel) `<Test tst> ;` : {
-            return "Test (location <t@\loc>)";
-        }
-                            
         // ADT without variants
         case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` : {
             return "Abstract ADT (location <t@\loc>)";
@@ -657,40 +652,6 @@ public bool checkPatternCoverage(RType expectedType, set[Pattern] options, STBui
 //}
 
 //
-// CONSTRAINT: DefinedBy(RType lvalue, set[ItemId] definingIds, loc at)
-//
-// The DefinedBy constraint provides the link between the constraint solver
-// and the symbol table. Saying that t1 is defined by a set of IDs constrains
-// t1 to be the type of one of the items that the IDs define. If there are multiple
-// matching types, an overloaded type, with location information (if possible),
-// is returned instead. This is then used for overloading for functions and
-// constructors, and also needs to be taken account of during (for instance)
-// function calls, since an overlaoded function can be passed to another function.
-//
-// TODO: Make sure the subType rules are set up to properly handle
-// overloaded types, the rule should be that ot1 <: t2 when at least one
-// of the overloads in ot1 <: t2.
-//
-// TODO: Also need to make sure other functions handle overloaded types. Should
-// just look at these again and make sure we handle them consistently. Note that
-// there is no restriction here that these all be function or constructor types, 
-// but in practice that is what will happen, since other cases are scope errors.
-//
-public Constraint solveConstraint(STBuilder st, ConstraintBase cb, DefinedBy(RType lvalue, set[ItemId] definingIds, loc at)) {
-    RType itemType = makeVoidType();
-    
-    if (size(definingIds) > 1) {
-        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
-    } else if (size(definingIds) == 1) {
-        itemType = getTypeForItem(st, getOneFrom(definingIds));
-    } else {
-        itemType = makeFailType("No type has been defined for this item", at);
-    }
-    
-    return DefinedBy(itemType,definingIds,at);
-}
-
-//
 // CONSTRAINT: ConstrainType(RType constrainedType, RType typeConstraint, loc at)
 //
 public Constraint solveConstraint(STBuilder st, ConstraintBase cb, ConstrainType(RType constrainedType, RType typeConstraint, loc at)) {
@@ -1086,15 +1047,11 @@ public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindableToCas
 //
 // TODO: IMPLEMENT
 //
-public Constraint solveConstraint(STBuilder st, ConstraintBase cb, Bindable(Pattern pat, RType subjectType, RType result, loc at)) {
-    < bindings, failures > = bindPattern(cb, pat, subjectType);
-    if (size(failures) == 0) {
-        result = instantiate(result, bindings);
-    } else {
-        result = makeFailType("Binding failure, more info to come!", at);
-    }
-    
-    return Bindable(pat, subjectType, result, at);
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, Bindable(RType patType, RType subjectType, Pattern pat, SolveResult sr, loc at)) {
+    Constraints cs = bindPattern(st, cb, pat, subjectType);
+    if (size(cs) > 0)
+    	return ConstraintBundle(Bindable(patType, subjectType, pat, T(), at), cs);
+    return Bindable(patType, subjectType, pat, F(), at);
 }
 
 //
@@ -1130,38 +1087,85 @@ public default Constraint solveConstraint(STBuilder st, ConstraintBase cb, Const
 //    
 //    return cg - oldl - oldr + newl + newr;
 //}
+alias LabeledConstraintGraph = rel[RType,ConstraintNode,RType];
 
-public tuple[ConstraintBase,ConstraintGraph,bool,map[RType,RType]] solveConstraints(STBuilder st, ConstraintBase cb) {
+public RType getCurrentType(LabeledConstraintGraph lcg, RType rt) {
+	// The relation holds type, constraint, type pairs. The first type is
+	// the type we are looking up; the constraint and type are the constraint
+	// and the type it says the first type should have. For instance, if we
+	// have inferred type t(1), constraint c may assign c(1) the type int.
+	// So, we would have the triple < t(1), c(1), int >. Thus, to get the
+	// actual type for t(1), we need to grab back the types that the constraints
+	// have tried to assign to t(1).
+	
+	// If we don't find any assignments already here for this type, we haven't
+	// solved any constraints giving us type information. So, just give back
+	// the same type.
+	set[RType] options = lcg[rt,_];
+	if (size(options) == 0) return rt;
+
+	// If we have at least one assignment, try to use that to come up with the
+	// actual type. Note that the assignment may itself by an inference type,
+	// or have nested inference types, so we need to expand it by calling this
+	// function recursively.
+	// NOTE: This means we need to add checking for cycles, so we don't try to
+	// infinitely expand a type that is defined (for instance) in terms of itself.
+	set[RType] instantiated = { };
+	for (optT <- options) {
+		optT = visit(optT) {
+			case infT:RInferredType(_) => getCurrentType(lcg,infT) when infT != optT
+			case ivar:InferenceVar(_) => getCurrentType(lcg,ivar)  when ivar != optT
+		}
+		instantiated = instantiated + optT;			
+	}
+	options = instantiated;
+
+	// If we have any failures, those dominate other types. Return the collapsed
+	// failure type (the combination of all the failures in all fail types).
+	set[RType] failures = { optT | optT <- options, isFailType(optT) };
+	if (size(failures) > 0) return collapseFailTypes(failures);
+	
+	// If we don't have failures, find just the concrete types (those that do not
+	// still have inference vars) and return the lub of the concrete types.
+	set[RType] concretes = options - { optT | optT <- options, isInferenceType(optT) };
+	if (size(concretes) > 0) return lubSet(concretes);
+
+	// We don't currently try to merge the various inferred representations, like
+	// tuple[t(1),int] and tuple[real,t(2)] -- we let the constraint system do this.
+	// So, if we made it this far, all the types are inference types, just return
+	// the type we were initially given, we don't have enough information to assign
+	// an actual type yet.		
+	return rt;		
+}
+
+public tuple[ConstraintBase,ConstraintGraph,bool,LabeledConstraintGraph] solveConstraints(STBuilder st, ConstraintBase cb) {
     ConstraintGraph updateGraph(ConstraintGraph cg, Constraint old, Constraint new) {
-        ConstraintGraph oldl = { < CN(old), cr > | < CN(old), cr > <- cg };
-        ConstraintGraph oldr = { < cl, CN(old) > | < cl, CN(old) > <- cg };
-        ConstraintGraph newl = { < CN(new), cr > | cr <- oldl<1> };
-        ConstraintGraph newr = { < cl, CN(new) > | cl <- oldr<0> };
-        
-        return cg - oldl - oldr + newl + newr;
+    	return { < ((CN(old) == c1) ? CN(new) : c1), ((CN(old) == c2) ? CN(new) : c2) > | < c1, c2 > <- cg }; 
     }
-    
+
+    LabeledConstraintGraph updateLabeledGraph(LabeledConstraintGraph lcg, Constraint old, Constraint new) {
+    	return { < t1, ((c1 == CN(old)) ? CN(new) : c1), t2 > | < t1, c1, t2 > <- lcg }; 
+    }
+	
     int solvedCount = 0;
     
     // First, using the current constraint base, generate a graph representation
     // of the dependencies inherent in the constraints.
     println("Generating Constraint Graph...");
     ConstraintGraph cg = generateConstraintGraph(cb);
+    LabeledConstraintGraph lcg = { };
     println("Constraint Graph Generated");
+    
+    println("Building initial frontier...");
     set[ConstraintNode] frontier = { cn | cn:CN(c) <- top(cg), solvable(c) };
-    
-    // Maintain a structure to keep track of the history of the constraints
-    rel[Constraint,Constraint] history = { };
-    
-    // and a structure to keep track of the assignments to type variables
-    map[RType,RType] typeAssignment = ( t : t | TN(t) <- carrier(cg) );
+    println("Frontier built...");
     
     // If we don't have a frontier, this means that all the nodes depend on
     // some other node. If this is the case, it means that we cannot
     // solve the constraints.
     if (size(frontier) == 0) {
         println("ERROR: Irreducible constraint system.");
-        return < cb, cg, false, typeAssignment >;
+        return < cb, cg, false, { } >;
     }
 
     // Using the frontier, start solving the constraints in the graph, pushing
@@ -1188,56 +1192,69 @@ public tuple[ConstraintBase,ConstraintGraph,bool,map[RType,RType]] solveConstrai
                 if (c != cp) {
                     keepGoing = true;
 
+					// If we got back a constraint bundle as the modified constraint, it means
+					// we have new constraints we are adding (c2) as well as the possibly modified
+					// form of c (c1).					
+					Constraints addedConstraints = { };
+					if (ConstraintBundle(c1,c2) := cp) {
+						cp = c1;
+						if (size(c2) > 0) {
+							addedConstraints = c2;
+							cg = cg + generateConstraintGraph(addedConstraints); // Extend the graph with the new constraints
+						}
+					}
+					
                     // Put the modified constraint back into the constraint graph
                     cg = updateGraph(cg, c, cp);
+                    lcg = updateLabeledGraph(lcg, c, cp);
                     solvedCount += 1;
                     if (solvedCount % 100 == 0) println("Constraints Solved: <solvedCount>");
                     //println("SOLVED: <c> --\> <cp>");
                     
-                    // Save the modification as part of the history for this constraint
-                    history += < c, cp >;
-                    
                     // Find the information to update any bindings of inference vars
                     < bindings, res > = mappings(c, cp);
-                    
+	                    
                     // If we could derive the mappings, use these to update the constraints
                     // that depend on these types, and put the modified constraints into
                     // the next frontier and back into the graph.
-                    if (res) {
+                    if (res && size(bindings) > 0) {
+						// Fully instantiate the bindings, using the current type information;
+						// this ensures that any discovered replacements are properly taken into
+						// account (instead of having some constraints "falling behind" instead of
+						// using the most recently found type info)
+						bindings = { < tf, getCurrentType(lcg,tt) > | < tf, tt > <- bindings };
+						
                         // For each inferred type on the left-hand side of the bindings, find all the inferred
                         // types on the right-hand side, and tie these in to the graph so we ensure future
                         // type updates are correctly propagated.
-                        rel[RType,RType] updateTargets = { };
                         for (tl <- bindings<0>, isInferenceType(tl), tr <- { tii | ti <- bindings[tl], tii <- getInferredTypes(ti)}) {
-                            if (tr notin typeAssignment) typeAssignment[tr] = tr;
-                            if (typeAssignment[tr] != tr) updateTargets = updateTargets + < tr, typeAssignment[tr] >;
                             for ( c2c <- cg[TN(tl)] ) cg = cg + < TN(tr), c2c >;
                             for ( c2c <- (invert(cg))[TN(tl)] ) cg = cg + < c2c, TN(tr) >;
-                        }
-                        if (size(updateTargets) > 0) {
-                            cpold = cp;
-                            cp = instantiate(cpold, updateTargets);
-                            cg = updateGraph(cg, cpold, cp);
-                             < bindings, res > = mappings(c, cp);
-                             if (!res) throw "Error, re-mapping should not fail after succeeding!";
+                            for ( c2c <- cg[TN(tr)] ) cg = cg + < TN(tl), c2c >;
+                            for ( c2c <- (invert(cg))[TN(tr)] ) cg = cg + < c2c, TN(tl) >;
                         }
 
-                        // Handle any failures in the bindings -- fail always "overrides" any other types                        
-                        failures = { < tf, tt > | tf <- bindings<0>, tt <- bindings[tf], isFailType(tt) };
-                        for (tf <- failures<0>) typeAssignment[tf] = collapseFailTypes(failures[tf] + { typeAssignment[tf] });
+						// Apply the "expanded" bindings to the solved constraint, pushing in the
+						// update type info
+                        cpold = cp;
+                        cp = instantiate(cp, bindings);
+                        cg = updateGraph(cg, cpold, cp);
+                        lcg = updateLabeledGraph(lcg, cpold, cp);
 
-                        // Handle any successes -- we need to ensure we don't override existing failure information
-                        // TODO: need to handle type merges along different paths here, we currently include a rough version
-                        // of this here...
-                        successes = { < tf, tt > | tf <- bindings<0>, tf notin failures<0>, tt <- bindings[tf], !isFailType(tt), !isInferenceType(tt) };
-                        for (tf <- successes<0>, !isFailType(typeAssignment[tf])) {
-                            setToLub = successes[tf] + (isInferenceType(typeAssignment[tf]) ? { } : { typeAssignment[tf] });
-                            if (size(setToLub) > 0)
-                                typeAssignment[tf] = lubSet(setToLub);
-                        } 
+						// Add the new bindings into the labeled graph
+						lcg = lcg + { < tf, CN(cp), tt > | < tf, tt > <- bindings, tf != tt };
+						
+						// Extend the bindings to cover the inference vars in the added constraints						
+                    	for (addedC <- addedConstraints) {
+                    		< addedBindings, addedRes > = mappings(addedC, addedC);
+                    		addedBindings = { < tf, getCurrentType(lcg,tt) > | < tf, tt > <- addedBindings };
+							bindings = bindings + addedBindings;	                            
+                    	}
 
+						if (InferenceVar(248) in bindings<0>) println("248 bound to <bindings[InferenceVar(248)]> during solving of <c> TO <cp>");
+						
                         // Get all the constraints that we should update with the new type mapping
-                        set[Constraint] toUpdate = { cu |  < tf, tt > <- bindings, tf != tt, < TN(tf), CN(cu) > <- cg };
+                        set[Constraint] toUpdate = { cu | < tf, tt > <- bindings, tf != tt, < TN(tf), CN(cu) > <- cg };
                         
                         // Update each of these constraints with the new type information
                         rel[Constraint,Constraint] updated = { < cu, instantiate(cu, bindings) > | cu <- toUpdate };
@@ -1246,9 +1263,13 @@ public tuple[ConstraintBase,ConstraintGraph,bool,map[RType,RType]] solveConstrai
                         // Add these updated constraints to the next frontier, if they are now solvable (else
                         // we cannot reduce them anyway)
                         nextFrontier += { CN(cu) | cu <- updated<1>, solvable(cu) };
+                        nextFrontier += { CN(cu) | cu <- (addedConstraints-updated<0>), solvable(cu) }; // Make sure we get any that aren't already covered
                         
                         // And, put the changes back into the graph
-                        for (< cu, cv > <- updated) cg = updateGraph(cg, cu, cv);
+                        for (< cu, cv > <- updated) {
+                        	cg = updateGraph(cg, cu, cv);
+                        	lcg = updateLabeledGraph(lcg, cu, cv);
+                        }
                     }
                 }            
             }
@@ -1258,7 +1279,7 @@ public tuple[ConstraintBase,ConstraintGraph,bool,map[RType,RType]] solveConstrai
     }
     
     println("Total Constraints Solved: <solvedCount>");
-    return < cb, cg, true, typeAssignment >;
+    return < cb, cg, true, lcg >;
         
 }
 
@@ -1294,143 +1315,310 @@ public Tree checkTree(Tree t) {
     return t;
 }
 
-public tuple[rel[RType,RType] bindings, rel[Pattern,RType,RType] failures] bindPattern(ConstraintBase cb, Pattern pat, RType subjectType) {
-    rel[RType,RType] bindings = { };
-    rel[Pattern,RType,RType] failures = { };
+public set[Constraint] bindPattern(STBuilder st, ConstraintBase cb, Pattern pattern, RType subjectType) {
+	set[Constraint] cs = { };
+	
+	void bindPattern(Pattern pat, RType subject) {
+	    switch(pat) {
+	    	//
+	    	// The first set of patterns if for literals and names. These patterns have no children, so
+	    	// we do not need to record information needed later to descend into the patterns.
+	    	//
+	        case (Pattern)`<BooleanLiteral _>` : 
+	        	cs = cs + BindBooleanLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc); 
+	        
+	        case (Pattern)`<DecimalIntegerLiteral il>` : 
+	        	cs = cs + BindIntegerLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	
+	        case (Pattern)`<OctalIntegerLiteral il>` : 
+	        	cs = cs + BindIntegerLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	
+	        case (Pattern)`<HexIntegerLiteral il>` : 
+	        	cs = cs + BindIntegerLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	
+	        case (Pattern)`<RealLiteral rl>` : 
+	        	cs = cs + BindRealLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	
+	        case (Pattern)`<StringLiteral sl>` : 
+	        	cs = cs + BindStringLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	
+	        case (Pattern)`<LocationLiteral ll>` : 
+	        	cs = cs + BindLocationLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	
+	        case (Pattern)`<DateTimeLiteral dtl>` : 
+	        	cs = cs + BindDateTimeLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	        
+	        case (Pattern)`<RegExpLiteral rl>` : 
+	        	cs = cs + BindRegExpLiteral(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	        
+	        case (Pattern)`_` : 
+	        	cs = cs + BindPatternName(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	        
+	        case (Pattern)`<Name n>` : 
+	        	cs = cs + BindPatternName(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	        
+	        case (Pattern)`<QualifiedName qn>` : 
+	        	cs = cs + BindPatternName(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
+	        
+	        case (Pattern) `<Type t> <Name n>` : 
+	        	cs = cs + BindPatternName(typeForLoc(cb, pat@\loc), subject, U(), pat@\loc);
 
-    void bindPattern(Pattern pat, RType subjectType) {
-        switch(pat) {
-            case (Pattern)`<BooleanLiteral _>` :
-                if (isBoolType(subjectType) || isValueType(subjectType)) return;
-            
-            case (Pattern)`<DecimalIntegerLiteral il>` :
-                if (isIntType(subjectType) || isNumType(subjectType) || isValueType(subjectType)) return;
-    
-            case (Pattern)`<OctalIntegerLiteral il>` :
-                if (isIntType(subjectType) || isNumType(subjectType) || isValueType(subjectType)) return;
-    
-            case (Pattern)`<HexIntegerLiteral il>` :
-                if (isIntType(subjectType) || isNumType(subjectType) || isValueType(subjectType)) return;
-    
-            case (Pattern)`<RealLiteral rl>` :
-                if (isRealType(subjectType) || isNumType(subjectType) || isValueType(subjectType)) return;
-    
-            case (Pattern)`<StringLiteral sl>` :
-                if (isStrType(subjectType) || isValueType(subjectType)) return;
-    
-            case (Pattern)`<LocationLiteral ll>` :
-                if (isLocType(subjectType) || isValueType(subjectType)) return;
-    
-            case (Pattern)`<DateTimeLiteral dtl>` :
-                if (isDateTimeType(subjectType) || isValueType(subjectType)) return;
-            
-            case (Pattern)`<RegExpLiteral rl>` :
-                if (isStrType(subjectType) || isValueType(subjectType)) return;
-            
-            case (Pattern)`_` : {
-                bindings = bindings + < typeForLoc(cb, pat@\loc), subjectType >;
-                return;
-            }
-            
-            case (Pattern)`<Name n>` :  {
-                bindings = bindings + < typeForLoc(cb, pat@\loc), subjectType >;
-                return;
-            }
-            
-            case (Pattern)`<QualifiedName qn>` :  {
-                bindings = bindings + < typeForLoc(cb, pat@\loc), subjectType >;
-                return;
-            }
-            
-            case (Pattern) `<Type t> <Name n>` : {
-                bindings = bindings + < typeForLoc(cb, pat@\loc), subjectType >;
-                return;
-            }
-            
-            case (Pattern) `[<{Pattern ","}* pl>]` : {
-                if (isListType(subjectType)) {
-                    for (pli <- pl) {
-                        if ((Pattern)`_*` := pli) {
-                            bindings = bindings + < typeForLoc(cb, pli@\loc), subjectType >;
-                        } else if ((Pattern)`<QualifiedName qn> *` := pli) {
-                            bindings = bindings + < typeForLoc(cb, pli@\loc), subjectType >;
-                        } else {
-                            bindPattern(pli, getListElementType(subjectType)); 
-                        }
-                    }
-                    return;
-                }
-            }
-    
-            case (Pattern) `{<{Pattern ","}* pl>}` : {
-                if (isSetType(subjectType)) {
-                    for (pli <- pl) {
-                        if ((Pattern)`_*` := pli) {
-                            bindings = bindings + < typeForLoc(cb, pli@\loc), subjectType >;
-                        } else if ((Pattern)`<QualifiedName qn> *` := pli) {
-                            bindings = bindings + < typeForLoc(cb, pli@\loc), subjectType >;
-                        } else {
-                            bindPattern(pli, getSetElementType(subjectType)); 
-                        }
-                    }
-                    return;
-                }
-            }
-            
-            case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` : {
-                // TODO: Add code here
-                return;
-            }
-    
-            case (Pattern) `<Pattern p1> ( <{Pattern ","}* pl> )` : {
-                // TODO: Add code here
-                return;
-            }
-            
-            case (Pattern) `/ <Pattern p>` : {
-                // TODO: Add code here
-                // We may need to bind p without respect to type, we have no idea what it will match against
-                return;
-            }
-    
-            case (Pattern) `<Name n> : <Pattern p>` : {
-                bindPattern(p, subjectType); // The bound type will flow through to the type for n based on existing constraints
-                return;
-            }
-            
-            case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
-                bindPattern(p, subjectType); // The bound type will flow through to the type for n based on existing constraints
-                return;
-            }
-    
-            case (Pattern) `[ <Type t> ] <Pattern p>` : {
-                bindPattern(p, subjectType);
-                return;
-            }
-            
-            case (Pattern) `! <Pattern p>` : {
-                bindPattern(p, subjectType);
-                return;
-            }
-        }
-    
-        if (prod(_,_,attrs([_*,term(cons("Tuple")),_*])) := pat[0]) {
-            if (isTupleType(subjectType)) {
-                list[Pattern] tupleContents = getTuplePatternContents(pat);
-                list[RType] subjectTypes = getTupleFields(subjectType);
-                
-                if (size(tupleContents) == size(subjectTypes)) {
-                    for (idx <- index(tupleContents))
-                        bindPattern(tupleContents[idx], subjectTypes[idx]);
-                    return;
-                }
-            }
-        }
+			//
+			// The second set of patterns is for those that have a single child and are basically
+			// unstructured. For instance, the n : p pattern has just child p, and the type of
+			// n is directed either by the type of p or by an outside declaration/assignment.
+			// In these cases we just descend into p here and tie the information about the
+			// type of p back to the type of pat.
+			//	        
+	        case (Pattern) `/ <Pattern p>` : {
+	        	bindPattern(p, subject);
+	        	cs = cs + BindDeepPattern(typeForLoc(cb, pat@\loc), typeForLoc(cb, p@\loc), subject, U(), pat@\loc);
+	       	} 
+	
+	        case (Pattern) `<Name n> : <Pattern p>` : {
+	        	bindPattern(p, subject);
+	            //cs = cs + BindPatternAsName(typeForLoc(cb, pat@\loc), typeForLoc(cb, p@\loc), subject, U(), pat@\loc);
+	        }
+	        
+	        case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
+	        	bindPattern(p, subject);
+	            //cs = cs + BindPatternAsName(typeForLoc(cb, pat@\loc), typeForLoc(cb, p@\loc), subject, U(), pat@\loc);
+	        }
+	
+	        case (Pattern) `[ <Type t> ] <Pattern p>` : {
+	        	bindPattern(p, subject);
+	            //cs = cs + BindTypeGuard(typeForLoc(cb, pat@\loc), typeForLoc(cb, p@\loc), convertType(t), subject, U(), pat@\loc);
+	        }
+	        
+	        case (Pattern) `! <Pattern p>` : {
+	        	bindPattern(p, subject);
+	            //cs = cs + BindAntiPattern(typeForLoc(cb, pat@\loc), typeForLoc(cb, p@\loc), subject, U(), pat@\loc);
+	        }
 
-        failures = failures + < pat, patType, subjectType >;
-        return;
+			//
+			// The third set of patterns is those that are structured, such as list, set, and tuple
+			// patterns. In these cases we do not descend, since we may not have the needed information
+			// yet to do this correctly. Instead, we defer the descent until we have all the information
+			// we need. This is why we also store the information on the patterns.
+			//
+	        case (Pattern) `[<{Pattern ","}* pl>]` : {
+	        	cs = cs + BindListPattern(typeForLoc(cb, pat@\loc), subject, [pli | pli <- pl], U(), pat@\loc);
+	        	
+	        }
+	
+	        case (Pattern) `{<{Pattern ","}* pl>}` : {
+	        	cs = cs + BindSetPattern(typeForLoc(cb, pat@\loc), subject, [pli | pli <- pl], U(), pat@\loc);
+	        	
+	        }
+	        
+	        case (Pattern) `<BasicType t> ( <{Pattern ","}* pl> )` :
+	        	// TODO: We need to add the logic here for binding reified type patterns.
+	        	// We need a different bind checker for the patterns inside the brackets, since
+	        	// they should also be type patterns, not just any available pattern.
+	            cs = cs + BindReifiedTypePattern(typeForLoc(cb, pat@\loc), [typeForLoc(cb,pli@\loc)|pli<-pl], subject, convertType(t), [pli|pli<-pl], U(), pat@\loc);
+	
+	        case (Pattern) `<Pattern p1> ( <{Pattern ","}* pl> )` :
+	        	// NOTE: The call or tree pattern handling code will continue to unwind the
+	        	// parameters. This makes sure that we have some concept of what p1 is
+	        	// before trying to figure out type types of pl, since we need the first
+	        	// to accurately guage the second. If the subject type is wrong, we may
+	        	// actually be unable to determine the type of p1, for instance, in a case
+	        	// where we have two constructors with the same name and arity (but different
+	        	// argument types) that are part of two different ADTs. Doing it this way allows
+	        	// us to defer the decision until we have the needed information.
+	        	cs = cs + BindCallOrTreePattern(typeForLoc(cb, pat@\loc), typeForLoc(cb, p1@\loc), subject, p1, [pli|pli<-pl], U(), pat@\loc);
+	        
+	        // Tuple, with just one element
+	        case (Pattern) `<<Pattern pi>>` :
+	        	cs = cs + BindTuplePattern(typeForLoc(cb, pat@\loc), subject, [ pi ], U(), pat@\loc);
+	
+	        // Tuple, with multiple elements
+	        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` :
+	        	cs = cs + BindTuplePattern(typeForLoc(cb, pat@\loc), subject, [ pi ] + [ pli | pli <- pl ], U(), pat@\loc);
+	    }	
+	}
+	
+	bindPattern(pattern, subjectType);
+	return cs;
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindBooleanLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isBoolType(patType), comparable(patType,subType))
+		return BindBooleanLiteral(patType, subType, T(), at);
+	return BindBooleanLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindIntegerLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isIntType(patType), comparable(patType,subType))
+		return BindIntegerLiteral(patType, subType, T(), at);
+	return BindIntegerLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindRealLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isRealType(patType), comparable(patType,subType))
+		return BindRealLiteral(patType, subType, T(), at);
+	return BindRealLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindStringLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isStrType(patType), comparable(patType,subType))
+		return BindStringLiteral(patType, subType, T(), at);
+	return BindStringLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindLocationLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isLocType(patType), comparable(patType,subType))
+		return BindLocationLiteral(patType, subType, T(), at);
+	return BindLocationLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindDateTimeLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isDateTimeType(patType), comparable(patType,subType))
+		return BindDateTimeLiteral(patType, subType, T(), at);
+	return BindDateTimeLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindRegExpLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
+	if (isStrType(patType), comparable(patType,subType))
+		return BindRegExpLiteral(patType, subType, T(), at);
+	return BindRegExpLiteral(patType, subType, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindPatternName(RType patType, RType subType, SolveResult sr, loc at)) {
+	// Special case: if this name is being bound to a spliceable element, check to see if the name
+	// represents a list or set. If so wrap the contained element type in a list or set (respectively),
+	// since the name is a container for multiple elements.
+	if (SpliceableElement(se) := subType) {
+		if (isListType(patType))
+			subType = makeListType(se);
+		else if (isSetType(patType))
+			subType = makeSetType(se);
+		else
+			subType = se;
+	}
+	 
+	// If the type of the pattern name includes any inferred types, try to bind the subject type to it
+    if (size(getInferredTypes(patType)) > 0) {
+        < bindings, res > = unifyTypes(patType,subType);
+        if (res) {
+            patType = instantiate(patType, bindings);
+            sr = T();
+        } else {
+            patType = makeFailType("Cannot unify subject type <prettyPrintType(subType)> with pattern type <prettyPrintType(patType)>", at);
+            sr = F();
+        }
+    } else if (! comparable(patType, subType)) {
+        patType = makeFailType("Cannot bind subject type <prettyPrintType(subType)> to pattern type <prettyPrintType(patType)>", at);
+        sr = F();    
+    } else {
+    	sr = T();
     }
 
-    bindPattern(pat, subjectType);    
-    return < bindings, failures >;
+	return BindPatternName(patType, subType, sr, at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindDeepPattern(RType patType, RType childType, RType subType, SolveResult sr, loc at)) {
+	return BindDeepPattern(patType, childType, subType, sr, at);
+}
+
+//public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindPatternAsName(RType patType, RType childType, RType subType, SolveResult sr, loc at)) {
+//	return BindPatternAsName(patType, childType, subType, sr, at);
+//}
+//
+//public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindTypeGuard(RType patType, RType childType, RType guardType, RType subType, SolveResult sr, loc at)) {
+//	return BindTypeGuard(patType, childType, guardType, subType, sr, at);
+//}
+//
+//public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindAntiPattern(RType patType, RType childType, RType subType, SolveResult sr, loc at)) {
+//	return BindAntiPattern(patType, childType, subType, sr, at);
+//}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindListPattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)) {
+	Constraints toAdd = { };
+	// If we have a subject type of list (not, for instance, value, or an erroneous
+	// type), use the subject type to descend into the list pattern children, adding
+	// the appropriate constraints where possible. If we have a spliceable pattern,
+	// which is essentially a name, mark the type as spliceable. This information may
+	// be needed once the name is resolved. For instance, given a pattern like [a,b,c],
+	// if b is defined elsewhere as a list, then the type of b should be the same as the
+	// current subject type. If the type of b is defined as (for instance) int, then
+	// the element type of the current subject should be int as well. If b is inferred,
+	// then it will simply be the element type. In other words, the reason we need this
+	// information is because the variables need not be fresh in the pattern.
+	if (isListType(subType)) {
+	    for (pli <- childPatterns) {
+	        if ((Pattern)`_*` := pli || (Pattern)`<QualifiedName qn> *` := pli) {
+	            toAdd = toAdd + BindPatternName(typeForLoc(cb, pli@\loc), subType, U(), at);
+	        } else if (spliceablePattern(pli)) {
+	            toAdd = toAdd + bindPattern(st, cb, pli, SpliceableElement(getListElementType(subType)));
+	        } else {
+	            toAdd = toAdd + bindPattern(st, cb, pli, getListElementType(subType));
+	        }
+	    }
+	    return ConstraintBundle(BindListPattern(patType, subType, childPatterns, T(), at), toAdd);
+	}
+
+	if (isValueType(subType))
+		return BindListPattern(patType, subType, childPatterns, T(), at);
+
+	return BindListPattern(patType, subType, childPatterns, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindSetPattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)) {
+	Constraints toAdd = { };
+
+	// See the description above, in the list pattern logic, for why this is
+	// structured as it is.
+	if (isSetType(subType)) {
+	    for (pli <- childPatterns) {
+	        if ((Pattern)`_*` := pli || (Pattern)`<QualifiedName qn> *` := pli) {
+	            toAdd = toAdd + BindPatternName(typeForLoc(cb, pli@\loc), subType, U(), at);
+	        } else if (spliceablePattern(pli)) {
+	            toAdd = toAdd + bindPattern(st, cb, pli, SpliceableElement(getSetElementType(subType)));
+	        } else {
+	            toAdd = toAdd + bindPattern(st, cb, pli, getSetElementType(subType));
+	        }
+	    }
+	    return ConstraintBundle(BindSetPattern(patType, subType, childPatterns, T(), at), toAdd);
+	}
+
+	if (isValueType(subType))
+		return BindSetPattern(patType, subType, childPatterns, T(), at);
+		
+	return BindSetPattern(patType, subType, childPatterns, F(), at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindReifiedTypePattern(RType patType, list[RType] childTypes, RType subType, RType outerType, list[Pattern] childPatterns, SolveResult sr, loc at)) {
+	Constraints toAdd = { };
+	return BindReifiedTypePattern(patType,childTypes, subType, outerType, childPatterns, sr, at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindCallOrTreePattern(RType patType, RType headType, RType subType, Pattern headPat, list[Pattern] childPatterns, SolveResult sr, loc at)) {
+	Constraints toAdd = { };
+	return BindCallOrTreePattern(patType, headType, subType, headPat, childPatterns, sr, at);
+}
+
+public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindTuplePattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)) {
+	Constraints toAdd = { };
+	
+	if (U() := sr) {	
+		if (isTupleType(subType)) {
+			list[RType] subjectTypes = getTupleFields(subType);
+			if (size(childPatterns) == size(subjectTypes)) {
+				for (idx <- index(childPatterns))
+					toAdd = toAdd + bindPattern(st, cb, childPatterns[idx], subjectTypes[idx]);
+				return ConstraintBundle(BindTuplePattern(patType, subType, childPatterns, W(), at), toAdd);
+			}
+		}
+		
+		if (isValueType(subType))
+			return BindTuplePattern(patType, subType, childPatterns, T(), at);
+			
+		return BindTuplePattern(patType, subType, childPatterns, F(), at);
+	} else if (W() := sr) {
+		if (comparable(patType,subType))
+			return BindTuplePattern(patType, subType, childPatterns, T(), at);
+		else
+			return BindTuplePattern(patType, subType, childPatterns, F(), at);
+	}
 }

@@ -85,9 +85,13 @@ data ConstraintNode = TN(RType rt) | CN(Constraint c);
 alias ConstraintGraph = Graph[ConstraintNode];
 
 public ConstraintGraph generateConstraintGraph(ConstraintBase cb) {
+	return generateConstraintGraph(cb.constraints); 
+}
+  
+public ConstraintGraph generateConstraintGraph(Constraints cs) {
     ConstraintGraph cg = { };
     
-    for (Constraint c <- cb.constraints) {
+    for (Constraint c <- cs) {
         // If a constraint depends on a type before it can be solved,
         // we represent this by adding an edge from the type to the
         // constraint. We consider the edges to be directed.
@@ -290,9 +294,7 @@ public RBuiltInOp opForAOp(RAssignmentOp a) {
 // Failure:         Constrains a tree type to be a failure type, allows explicit indication of errors, versus
 //                  just inferring them from a failed unification
 //
-// DefinedBy:       Constrains the given type to that specified by the given scope ids
-//
-data SolveResult = T() | F() | U();
+data SolveResult = T() | F() | U() | W();
 
 data Constraint =
       LubOf(list[RType] typesToLub, RType lubResult, loc at)
@@ -319,13 +321,31 @@ data Constraint =
 	| AnnotationOf(Tree t, RType inType, RType annType, loc at)
 	| Composable(RType left, RType right, RType result, loc at)
     | BuiltInAppliable(RBuiltInOp op, RType domain, RType range, loc at)
-    | Bindable(Pattern pat, RType subjectType, RType result, loc at)
+    | Bindable(RType patType, RType subjectType, Pattern pat, SolveResult sr, loc at)
     | Enumerable(Tree pattern, RType subject, SolveResult sr, loc at)
 	| StepItType(Tree reducer, RType inType, RType outType, RType result, loc at)
-    | DefinedBy(RType lvalue, set[ItemId] definingIds, loc at)
     | ConstrainType(RType constrainedType, RType typeConstraint, loc at)
     | PatternReachable(RType patType, RType descType, loc at)
     | BindIfInferred(RType nameType, RType patType, loc at)
+    | BindBooleanLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindIntegerLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindRealLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindStringLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindLocationLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindDateTimeLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindRegExpLiteral(RType patType, RType subType, SolveResult sr, loc at)
+    | BindPatternName(RType patType, RType subType, SolveResult sr, loc at)
+    | BindDeepPattern(RType patType, RType childType, RType subType, SolveResult sr, loc at)
+    // TODO: We don't really need the following three, but they would provide more info -- implement anyway?
+    //| BindPatternAsName(RType patType, RType childType, RType subType, SolveResult sr, loc at)
+    //| BindTypeGuard(RType patType, RType childType, RType guardType, RType subType, SolveResult sr, loc at)
+    //| BindAntiPattern(RType patType, RType childType, RType subType, SolveResult sr, loc at)
+    | BindListPattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)
+    | BindSetPattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)
+    | BindReifiedTypePattern(RType patType, list[RType] childTypes, RType subType, RType outerType, list[Pattern] childPatterns, SolveResult sr, loc at)
+    | BindCallOrTreePattern(RType patType, RType headType, RType subType, Pattern headPat, list[Pattern] childPatterns, SolveResult sr, loc at)
+    | BindTuplePattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)
+    | ConstraintBundle(Constraint triggerConstraint, Constraints toAdd)
     ;
 
 public set[RType] getInferredTypes(RType rt) {
@@ -367,11 +387,25 @@ public set[RType] dependsOn(AnnotationAssignable(rv,lv,at,_,_)) = getInferredTyp
 public set[RType] dependsOn(AnnotationOf(_,t,_,_)) = getInferredTypes(t);
 public set[RType] dependsOn(Composable(lt,rt,_,_)) = getInferredTypes(lt) + getInferredTypes(rt);
 public set[RType] dependsOn(BuiltInAppliable(_,d,_,_)) = getInferredTypes(d);
-public set[RType] dependsOn(Bindable(_,st,_,_)) = getInferredTypes(st);
+public set[RType] dependsOn(Bindable(pt,st,_,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
 public set[RType] dependsOn(Enumerable(_,t,_,_)) = getInferredTypes(t);
 public set[RType] dependsOn(StepItType(_,inT,outT,_,_)) = getInferredTypes(inT) + getInferredTypes(outT);
-public set[RType] dependsOn(DefinedBy(_,_,_)) = { };
 public set[RType] dependsOn(ConstrainType(_,tc,_)) = getInferredTypes(tc);
+public set[RType] dependsOn(BindBooleanLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindIntegerLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindRealLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindStringLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindLocationLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindDateTimeLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindRegExpLiteral(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindPatternName(pt,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindDeepPattern(pt,ct,st,_,_)) = getInferredTypes(pt) + getInferredTypes(st) + getInferredTypes(ct);
+public set[RType] dependsOn(BindListPattern(pt,st,_,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindSetPattern(pt,st,_,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+public set[RType] dependsOn(BindReifiedTypePattern(pt,cts,st,ot,_,_,_)) = getInferredTypes(pt) + getInferredTypes(st) + getInferredTypes(ot) + { getInferredTypes(ctsi) | ctsi <- cts };
+public set[RType] dependsOn(BindCallOrTreePattern(pt,ht,st,_,_,_,_)) = getInferredTypes(pt) + getInferredTypes(st) + getInferredTypes(ht);
+public set[RType] dependsOn(BindTuplePattern(pt,st,_,_,_)) = getInferredTypes(pt) + getInferredTypes(st);
+
 public default set[RType] dependsOn(Constraint c) { throw "Unimplemented: <c>"; }
 
 //
@@ -402,11 +436,24 @@ public set[RType] provides(AnnotationAssignable(_,_,_,rt,_)) = getInferredTypes(
 public set[RType] provides(AnnotationOf(_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(Composable(_,_,rt,_)) = getInferredTypes(rt);
 public set[RType] provides(BuiltInAppliable(_,_,r,_)) = getInferredTypes(r);
-public set[RType] provides(Bindable(_,_,rt,_)) = getInferredTypes(rt);
+public set[RType] provides(Bindable(pt,_,_,_,_)) = getInferredTypes(pt);
 public set[RType] provides(Enumerable(_,_,_,_)) = { };
 public set[RType] provides(StepItType(_,_,_,rt,_)) = getInferredTypes(rt);
-public set[RType] provides(DefinedBy(l,_,_)) = getInferredTypes(l);
 public set[RType] provides(ConstrainType(ct,_,_)) = getInferredTypes(ct);
+public set[RType] provides(BindBooleanLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindIntegerLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindRealLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindStringLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindLocationLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindDateTimeLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindRegExpLiteral(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindPatternName(pt,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindDeepPattern(pt,_,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindListPattern(pt,_,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindSetPattern(pt,_,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindReifiedTypePattern(pt,_,_,_,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindCallOrTreePattern(pt,_,_,_,_,_,_)) = getInferredTypes(pt);
+public set[RType] provides(BindTuplePattern(pt,_,_,_,_)) = getInferredTypes(pt);
 public default set[RType]  provides(Constraint c) { throw "Unimplemented: <c>"; }
 
 //
@@ -432,10 +479,27 @@ public set[RType] getFailures(RType rt) {
 
 public bool solvable(ConstrainType(tl,tr,_)) = !hasFailures(tl) && !hasFailures(tr) && unifyTypes(tl,tr)[1];
 public bool solvable(Assignable(tl,tr,_,_)) = !hasFailures(tl) && !hasFailures(tr) && size(getInferredTypes(tr)) == 0;
-public bool solvable(Bindable(_,st,_,_)) = size(getInferredTypes(st)) == 0; 
-public bool default solvable(Constraint c) = size(dependsOn(c)) == 0 && !hasFailures(c);
-
-
+// Bindable is solvable if we have a concrete subject; some of the dependencies may also be solved during the bind,
+// so all the dependencies are also provides, and we cannot wait for them to have actual types before solving.
+public bool solvable(Bindable(_,sub,_,sr,_)) = size(getInferredTypes(sub)) == 0 && U() := sr;
+public bool solvable(BindBooleanLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindIntegerLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindRealLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindStringLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindLocationLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindDateTimeLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindRegExpLiteral(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0 && U() := sr;
+public bool solvable(BindPatternName(pt,st,sr,_)) = size(getInferredTypes(st)) == 0 && U() := sr;
+public bool solvable(BindDeepPattern(_,ct,st,sr,_)) = size(getInferredTypes(st)) == 0 && U() := sr;
+public bool solvable(BindListPattern(_,st,_,U(),_)) = size(getInferredTypes(st)) == 0;
+public bool solvable(BindListPattern(pt,st,_,W(),_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0;
+public bool solvable(BindSetPattern(_,st,_,U(),_)) = size(getInferredTypes(st)) == 0;
+public bool solvable(BindSetPattern(pt,st,_,W(),_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0;
+public bool solvable(BindReifiedTypePattern(_,cts,st,ot,_,sr,_)) = size(getInferredTypes(st) + getInferredTypes(ot)) == 0 && U() := sr; // TODO: Handle cts as well
+public bool solvable(BindCallOrTreePattern(_,ht,st,_,_,sr,_)) = size(getInferredTypes(ht)) == 0 && size(getInferredTypes(st)) == 0 && U() := sr;
+public bool solvable(BindTuplePattern(_,st,_,U(),_)) = size(getInferredTypes(st)) == 0;
+public bool solvable(BindTuplePattern(pt,st,_,W(),_)) = size(getInferredTypes(st)) == 0 && size(getInferredTypes(pt)) == 0;
+public default bool solvable(Constraint c) = size(dependsOn(c)) == 0 && !hasFailures(c);
 
 //
 // Is this constraint solved? i.e., are all inference types now resolved?
@@ -449,10 +513,24 @@ public bool solved(SubtypeOf(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(FieldAssignable(_,_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Comparable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
 public bool solved(Enumerable(_,_,SolveResult sr,_)) = sr := T() || sr := F();
-public bool solved(DefinedBy(RType t,_,_)) = InferenceVar(_) !:= t;
 public bool solved(Assignable(_,_,RFailType(_),_)) = true;
 public bool solved(ConstrainType(_,RFailType(_),_)) = true;
 public bool solved(ConstrainType(RType rt, rt, _)) = true;
+public bool solved(Bindable(_,_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindBooleanLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindIntegerLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindRealLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindStringLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindLocationLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindDateTimeLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindRegExpLiteral(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindPatternName(_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindDeepPattern(_,_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindListPattern(_,_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindSetPattern(_,_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindReifiedTypePattern(_,_,_,_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindCallOrTreePattern(_,_,_,_,_,sr,_)) = sr := T() || sr := F();
+public bool solved(BindTuplePattern(_,_,_,sr,_)) = sr := T() || sr := F();
 public default bool solved(Constraint c) = size(provides(c) + dependsOn(c)) == 0;
 
 //
@@ -482,17 +560,30 @@ public tuple[rel[RType,RType],bool] mappings(AnnotationAssignable(_,_,_,lt,_),An
 public tuple[rel[RType,RType],bool] mappings(AnnotationOf(_,_,lt,_),AnnotationOf(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(Composable(_,_,lt,_),Composable(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(BuiltInAppliable(_,_,lt,_),BuiltInAppliable(_,_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(Bindable(_,_,lt,_),Bindable(_,_,rt,_)) = unifyTypes(lt,rt);
 public tuple[rel[RType,RType],bool] mappings(Enumerable(_,_,_,_),Enumerable(_,_,_,_)) = < { }, true >;
 public tuple[rel[RType,RType],bool] mappings(StepItType(_,_,_,lt,_),StepItType(_,_,_,rt,_)) = unifyTypes(lt,rt);
-public tuple[rel[RType,RType],bool] mappings(DefinedBy(lo,_,_), DefinedBy(ln,_,_)) = unifyTypes(lo,ln);
 public tuple[rel[RType,RType],bool] mappings(ConstrainType(lt,_,_),ConstrainType(rt,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(Bindable(lt,_,_,_,_),Bindable(rt,_,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindBooleanLiteral(lt,_,_,_),BindBooleanLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindIntegerLiteral(lt,_,_,_),BindIntegerLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindRealLiteral(lt,_,_,_),BindRealLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindStringLiteral(lt,_,_,_),BindStringLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindLocationLiteral(lt,_,_,_),BindLocationLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindDateTimeLiteral(lt,_,_,_),BindDateTimeLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindRegExpLiteral(lt,_,_,_),BindRegExpLiteral(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindPatternName(lt,_,_,_),BindPatternName(rt,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindDeepPattern(lt,_,_,_,_),BindDeepPattern(rt,_,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindListPattern(lt,_,_,_,_),BindListPattern(rt,_,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindSetPattern(lt,_,_,_,_),BindSetPattern(rt,_,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindReifiedTypePattern(lt,_,_,_,_,_,_),BindReifiedTypePattern(rt,_,_,_,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindCallOrTreePattern(lt,_,_,_,_,_,_),BindCallOrTreePattern(rt,_,_,_,_,_,_)) = unifyTypes(lt,rt);
+public tuple[rel[RType,RType],bool] mappings(BindTuplePattern(lt,_,_,_,_),BindTuplePattern(rt,_,_,_,_)) = unifyTypes(lt,rt);
 
 public tuple[rel[RType,RType],bool] mappings(Assignable(lt1,_,rt1,_),Assignable(lt2,_,rt2,_)) {
      < r1, b1 > = unifyTypes(lt1,lt2);
      < r2, b2 > = unifyTypes(rt1,rt2);
      return < r1 + r2, b1 && b2 > ;
- }
+}
 
 public default tuple[rel[RType,RType],bool] mappings(Constraint cl, Constraint cr) { throw "mappings unimplemented for constraint pair: <cl>, <cr>"; }
 
@@ -572,10 +663,13 @@ public Constraint instantiateInferenceVar(Constraint c, RType infv, RType conc) 
     if (arity(c) == 0) return c;
     for (idx <- [0..arity(c)-1]) {
         if (RType rt := c[idx]) c[idx] = instantiateInferenceVar(rt,infv,conc);
-        // TODO: Thie following is a workaround for bug 1153. Once that is fixed
+        // TODO: The following is a workaround for bug 1153. Once that is fixed
         // we no longer need to break the test up in this manner.
-        if (list[node] rtl := c[idx], size(rtl) > 0, RType _ := rtl[0])
-            c[idx] = [ instantiateInferenceVar(rt,infv,conc) | rt <- rtl ]; 
+        //if (list[RType] rtl := c[idx], size(rtl) > 0, RType _ := rtl[0]) {
+        if (list[node] rtln := c[idx], size(rtln) > 0, RType _ := rtln[0], list[RType] rtl := c[idx]) {
+        	//println("Invoking with <c[idx]>");
+            c[idx] = [ instantiateInferenceVar(rt,infv,conc) | RType rt <- rtl ];
+        } 
     }
     return c;        
 }
