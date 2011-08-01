@@ -114,4 +114,16 @@ public abstract class WithInnerFig extends Figure {
 		}
 	}
 	
+	public void activate(){
+		if(innerFig!=null){
+			innerFig.activate();
+		}
+	}
+	
+	public void suspend(){
+		if(innerFig!=null){
+			innerFig.suspend();
+		}
+	}
+	
 }

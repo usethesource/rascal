@@ -38,6 +38,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		computeFigures();
 	}
 	
+	public boolean isBatchEmpty(){
+		return batchEmpty;
+	}
+	
 	public void computeFigures(){
 		computing = true;
 		NameResolver resolver = new NameResolver(ctx);

@@ -13,6 +13,8 @@
 package org.rascalmpl.library.vis.swt;
 
 import java.util.Collections;
+import java.util.Set;
+import java.util.Stack;
 import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -45,7 +47,9 @@ import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.WhiteSpace;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
+import org.rascalmpl.library.vis.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.KeySymTranslate;
@@ -70,6 +74,7 @@ public class FigureSWTApplet extends ScrolledComposite
 	private FigureExecutionEnvironment env;
 	private SWTZOrderManager zorderManager;
 	private Vector<Overlap> overlapFigures;
+	private Vector<MouseOver> mouseOverFigures;
 
 
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env){
@@ -96,10 +101,10 @@ public class FigureSWTApplet extends ScrolledComposite
 		lastSize = null;
 		Figure fig = FigureFactory.make(this, cfig, null, null);
 		fig = new WhiteSpace( fig, new PropertyManager());
-		
 		this.figure = fig;
 		zorderManager = new SWTZOrderManager(this,inner,figure);
 		overlapFigures = new Vector<Overlap>();
+		mouseOverFigures = new Stack<MouseOver>();
 	}
 
 	private void draw(GC swtGC) {
@@ -108,7 +113,7 @@ public class FigureSWTApplet extends ScrolledComposite
 		GraphicsContext gc = new SWTGraphicsContext(swtGC);
 		figure.draw(gc);
 		for(Overlap f : overlapFigures){
-			f.nonLocalFigure.draw(gc);
+			if(!(f.nonLocalFigure instanceof SWTWidgetFigure)) f.nonLocalFigure.draw(gc);
 		}
 		gc.dispose();
 		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
@@ -117,6 +122,7 @@ public class FigureSWTApplet extends ScrolledComposite
 	public void drawPart(Rectangle part,GraphicsContext gc){
 		long startTime = System.nanoTime();
 		figure.drawPart(part,gc);
+		
 		for(Overlap f : overlapFigures){
 			if(f.nonLocalFigure.overlapsWith(part)){
 				f.nonLocalFigure.drawPart(part,gc);
@@ -154,13 +160,16 @@ public class FigureSWTApplet extends ScrolledComposite
 			figure.layout();
 			setMinSize((int) Math.ceil(viewPort.getWidth()),
 				(int) Math.ceil(viewPort.getHeight()));
-			
-			zorderManager.begin();
-			figure.setSWTZOrder(zorderManager);
-			zorderManager.end();
-			
+			handleZOrder();	
 		}
 		updateFiguresUnderMouse(true);
+	}
+
+	private void handleZOrder() {
+		overlapFigures.clear();
+		zorderManager.begin();
+		figure.setSWTZOrder(zorderManager);
+		zorderManager.end();
 	}
 
 	private void updateFiguresUnderMouse(boolean partOfLayout) {
@@ -174,7 +183,9 @@ public class FigureSWTApplet extends ScrolledComposite
 		}
 		int i = 0; int j = 0;
 		Collections.sort(figuresUnderMouse);
+		Collections.sort(mouseOverFigures);
 		// compute the added and removed elements in a fast way
+		boolean mouseOverChanged = false;
 		env.beginCallbackBatch();
 		while(i < figuresUnderMouse.size() || j < figuresUnderMousePrev.size()){
 			int cmp;
@@ -187,15 +198,33 @@ public class FigureSWTApplet extends ScrolledComposite
 			}
 			if(cmp < 0){
 				figuresUnderMouse.get(i).executeMouseOverHandlers(env);
+				int index = Collections.binarySearch(mouseOverFigures, figuresUnderMouse.get(i));
+				if(index >= 0){
+					mouseOverFigures.get(index).setMouseOver();
+					mouseOverChanged = true;
+				}
 				i++;
 			} else if(cmp > 0){
 				figuresUnderMousePrev.get(j).executeMouseOffHandlers(env);
+				int index = Collections.binarySearch(mouseOverFigures, figuresUnderMousePrev.get(j));
+				if(index >= 0 ){
+					mouseOverFigures.get(index).unsetMouseOver();
+					mouseOverChanged = true;
+				}
 				j++;
 			} else {
 				i++; j++;
 			}
 		}
+		if(mouseOverChanged && env.isBatchEmpty()) {
+			handleZOrder(); // rehandle z ordering now that we now what is under mouse
+			inner.redraw();
+		}
 		env.endCallbackBatch(true);
+	}
+	
+	public void registerMouseOver(MouseOver mouseOver) {
+		mouseOverFigures.add(mouseOver);
 	}
 	
 	@Override

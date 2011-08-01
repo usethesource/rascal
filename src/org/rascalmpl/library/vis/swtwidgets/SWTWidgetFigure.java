@@ -10,9 +10,11 @@
  *   * Atze van der Ploeg - ploeg@cwi.nl (CWI)
  *******************************************************************************/
 
-package org.rascalmpl.library.vis.interaction;
+package org.rascalmpl.library.vis.swtwidgets;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -22,6 +24,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.FigureSWTApplet;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 
 
@@ -61,5 +64,18 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	@Override
 	public void destroy() {
 		if(widget!=null)widget.dispose();
+	}
+	
+
+	public void setSWTZOrder(ISWTZOrdering zorder){
+		zorder.registerControl(widget);
+	}
+	
+	public void suspend(){
+		widget.setVisible(false);
+	}
+	
+	public void activate(){
+		widget.setVisible(true);
 	}
 }

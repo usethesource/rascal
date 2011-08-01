@@ -157,4 +157,26 @@ public abstract class Compose extends Figure {
 			fig.setSWTZOrder(zorder);
 		}
 	}
+	
+	public boolean isVisible(){
+		for(Figure fig : figures){
+			if(fig.isVisible()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+
+	public void activate(){
+		for(Figure fig : figures){
+			fig.suspend();
+		}
+	}
+	
+	public void suspend(){
+		for(Figure fig : figures){
+			fig.suspend();
+		}
+	}
 }

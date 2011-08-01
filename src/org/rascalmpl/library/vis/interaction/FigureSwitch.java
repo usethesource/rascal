@@ -17,22 +17,32 @@ public class FigureSwitch extends Compose{
 		super(figures, properties);
 		this.callback = callback;
 		choice = 0;
+		for(Figure fig : figures){
+			fig.suspend();
+		}
 	}
 	
 
 	public void computeFiguresAndProperties(ICallbackEnv env) {
 		super.computeFiguresAndProperties(env);
-		choice = ((IInteger)(env.executeRascalCallBackWithoutArguments(callback).getValue())).intValue();
-		if(choice >= figures.length || choice < 0){
-			choice = 0;
+		int newChoice = ((IInteger)(env.executeRascalCallBackWithoutArguments(callback).getValue())).intValue();
+		if(newChoice >= figures.length || newChoice < 0){
+			newChoice = 0;
 		}
+		if(newChoice != choice){
+			figures[choice].suspend();
+			choice = newChoice;
+			figures[choice].activate();
+			
+		}
+		
 	}
 	
 	public void bbox(){
 		for(Figure fig : figures){
 			fig.bbox();
 			for(boolean flip : BOTH_DIMENSIONS){
-				minSize.setWidth(flip, Math.max(minSize.getWidth(flip),fig.minSize.getWidth(flip)));
+				minSize.setWidth(flip, Math.max(minSize.getWidth(flip),fig.minSize.getWidth(flip)/ fig.getHShrinkProperty(flip)));
 				setResizableX(flip, getResizableX(flip) || fig.getResizableX(flip));
 			}
 		}
@@ -45,10 +55,15 @@ public class FigureSwitch extends Compose{
 				figures[choice].globalLocation.addX(flip, (size.getWidth(flip) - figures[choice].size.getWidth(flip)) * figures[choice].getHAlignProperty(flip));
 		}
 		figures[choice].layout();
+		
 	}
 
 	public void draw(GraphicsContext gc){
 		figures[choice].draw(gc);
+	}
+	
+	public boolean isVisible(){
+		return figures[choice].isVisible();
 	}
 	
 }

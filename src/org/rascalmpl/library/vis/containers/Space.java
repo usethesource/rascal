@@ -37,4 +37,9 @@ public class Space extends Container {
 	String containerName(){
 		return "space";
 	}
+	
+	@Override
+	public boolean isVisible(){
+		return false;
+	}
 }

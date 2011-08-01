@@ -97,4 +97,16 @@ public class Outline extends Figure {
 	public void layout() {
 		size.set(minSize);
 	}
+
+	@Override
+	public void activate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void suspend() {
+		// TODO Auto-generated method stub
+		
+	}
 }
