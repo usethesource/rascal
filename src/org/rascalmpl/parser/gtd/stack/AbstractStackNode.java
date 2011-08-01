@@ -538,22 +538,18 @@ public abstract class AbstractStackNode{
 			int startLocation = predecessor.getStartLocation();
 			if(touched.contains(startLocation)) return 0; // Prefix present, abort.
 			
-			// Prefix not present, add it.
-			int index = edgesMap.findKey(startLocation);
-			if(index == -1){
-				addPrefix(new Link(null, result), edgesMap.size());
-				edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
-				touched.add(startLocation);
-				nrOfAddedEdges = 1;
-			}else{
-				addPrefix(new Link(null, result), index);
-			}
+			// Prefix not present, add it. As it's the first and only possible nullable prefix, it's guaranteed that there aren't any prefixes for the current start location present yet.
+			addPrefix(new Link(null, result), edgesMap.size());
+			edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
+			touched.add(startLocation);
+			nrOfAddedEdges = 1;
 		}else{ // The predecessor has prefixes.
 			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
 			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
 				int startLocation = edgesMapToAdd.getKey(i);
 				if(touched.contains(startLocation)) continue; // Prefix present, abort.
 				
+				// Prefix not present, add it.
 				int index = edgesMap.findKey(startLocation);
 				ArrayList<Link> prefixes;
 				if(index == -1){
