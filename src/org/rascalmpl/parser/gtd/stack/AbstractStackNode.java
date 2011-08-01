@@ -100,6 +100,13 @@ public abstract class AbstractStackNode{
 	}
 	
 	/**
+	 * Returns the start location of this node.
+	 */
+	public int getStartLocation(){
+		return startLocation;
+	}
+	
+	/**
 	 * Checks whether or not this node is the last node in the production.
 	 * Note that while this may be an end node alternative continuations of this production may be possible.
 	 */
@@ -479,6 +486,7 @@ public abstract class AbstractStackNode{
 	
 	/**
 	 * This method is a specialized version of 'updateNode'.
+	 * 
 	 * In essence its function is the same, with the difference that stack merges are not handled
 	 * and the edges map is simply reused.
 	 * 
@@ -515,6 +523,8 @@ public abstract class AbstractStackNode{
 	 * It merges stacks and keeps track of which ones get merged
 	 * (the returned number indicated how many edge sets were added and
 	 * may need to be propagated forward).
+	 * It also prevents possible prefix duplication, which is an artifact
+	 * of the parser's implementation.
 	 */
 	public int updateOvertakenNode(AbstractStackNode predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
 		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
@@ -552,7 +562,7 @@ public abstract class AbstractStackNode{
 				// Prefix not present, add it.
 				int index = edgesMap.findKey(startLocation);
 				ArrayList<Link> prefixes;
-				if(index == -1){
+				if(index == -1){ // No prefix set for the given start location is present yet.
 					index = edgesMap.size();
 					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
 					touched.add(startLocation);
@@ -561,10 +571,11 @@ public abstract class AbstractStackNode{
 					prefixesMap[index] = prefixes;
 					
 					++nrOfAddedEdges;
-				}else{
+				}else{ // A prefix set for the given start location is present.
 					prefixes = prefixesMap[index];
 				}
 				
+				// Add the prefix to the prefix set.
 				prefixes.add(new Link(prefixesMapToAdd[i], result));
 			}
 		}
@@ -572,37 +583,54 @@ public abstract class AbstractStackNode{
 		return nrOfAddedEdges;
 	}
 	
+	/**
+	 * This method is a specialized version of 'updateNode'.
+	 * 
+	 * When alternatives have a shared prefix, their successors can shared the same edges and prefixes maps.
+	 */
 	public void updatePrefixSharedNode(IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		this.edgesMap = edgesMap;
 		this.prefixesMap = prefixesMap;
 	}
 	
-	public boolean hasEdges(){
-		return (edgesMap.size() > 0);
-	}
-	
+	/**
+	 * Returns the edges map.
+	 */
 	public IntegerObjectList<ArrayList<AbstractStackNode>> getEdges(){
 		return edgesMap;
 	}
 	
+	/**
+	 * Returns the prefixes map.
+	 */
 	public ArrayList<Link>[] getPrefixesMap(){
 		return prefixesMap;
 	}
 	
-	// Location.
-	public int getStartLocation(){
-		return startLocation;
-	}
-	
+	// Matchables.
+	/**
+	 * Returns the length of this node (only applies to matchables).
+	 */
 	public abstract int getLength();
 	
-	// Lists.
+	/**
+	 * Returns the result associated with this node (only applies to matchables, after matching).
+	 */
+	public abstract AbstractNode getResult();
+	
+	// Expandables.
+	/**
+	 * Returns the set of children of this node (only applies to expandables).
+	 */
 	public abstract AbstractStackNode[] getChildren();
 	
+	/**
+	 * Returns whether or not this node can be nullable (only applies to expandables).
+	 */
 	public abstract boolean canBeEmpty();
 	
+	/**
+	 * Returns the empty child of this node (only applies to expandables that are nullable).
+	 */
 	public abstract AbstractStackNode getEmptyChild();
-	
-	// Results.
-	public abstract AbstractNode getResult();
 }
