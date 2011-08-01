@@ -27,6 +27,7 @@ public class Overlap extends FigureWithNonLocalFigure{
 		innerFig.setSWTZOrder(zorder);
 		zorder.pushOverlap();
 		zorder.registerOverlap(this);
+		nonLocalFigure.setSWTZOrder(zorder);
 		zorder.popOverlap();
 	}
 }

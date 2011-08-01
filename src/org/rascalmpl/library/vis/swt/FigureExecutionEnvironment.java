@@ -23,6 +23,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	private boolean callbackBatch;
 	private boolean batchEmpty;
 	private boolean computing;
+	private Composite swtRoot;
 	private long rascalTime = 0;
 	public static boolean profile = false;
 	
@@ -31,6 +32,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		// ctx.registerComputationFinishedListener(this)!!!!
 		callbackBatch = false;
 		computing = false;
+		this.swtRoot = parent;
 		appletRoot = new FigureSWTApplet(parent, cfig, this);
 		figureRoot = appletRoot.getFigure();
 		computeFigures();
@@ -74,6 +76,17 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 				rascalTime = 0;
 			}
 		}
+		if(dontRecompute && !batchEmpty){
+			swtRoot.getDisplay().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					computeFigures();
+					appletRoot.layoutForce();
+				}
+			});
+		}
+		
 		
 	}
 
