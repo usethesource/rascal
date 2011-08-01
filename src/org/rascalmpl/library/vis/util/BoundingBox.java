@@ -12,7 +12,7 @@
 
 package org.rascalmpl.library.vis.util;
 
-public class BoundingBox {
+public final class BoundingBox {
 	
 	private double width, height;
 	

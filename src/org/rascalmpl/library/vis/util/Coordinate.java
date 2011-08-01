@@ -12,7 +12,7 @@
 
 package org.rascalmpl.library.vis.util;
 
-public class Coordinate {
+public final class Coordinate {
 	
 	private  double x,y;
 	

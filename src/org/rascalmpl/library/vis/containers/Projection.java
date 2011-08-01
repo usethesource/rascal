@@ -10,7 +10,7 @@ import org.rascalmpl.library.vis.swt.IFigureApplet;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
-public class Projection extends WithInnerFig {
+public class Projection extends LayoutProxy {
 
 	String projectOn;
 	Figure projection;
@@ -21,7 +21,6 @@ public class Projection extends WithInnerFig {
 		super(innerFigure,properties);
 		this.projectOn = projectOn;
 		this.projection = projection;
-		this.properties = innerFigure.properties;
 		this.ctx = env.getRascalContext();
 	}
 	
@@ -73,27 +72,12 @@ public class Projection extends WithInnerFig {
 
 	@Override
 	public void bbox() {
-		innerFig.bbox();
+		super.bbox();
 		projection.bbox();
 		for(boolean flip : BOTH_DIMENSIONS){
-			minSize.setWidth(flip, innerFig.getWidth(flip));
 			if(flip == vertical){
 				minSize.setWidth(flip,Math.max(minSize.getWidth(flip), projection.minSize.getWidth(flip) / projection.getHShrinkProperty(flip)));
 			}
-			setResizableX(flip, innerFig.getResizableX(flip));
 		}
-	}
-	
-	@Override
-	public void layout(){
-		innerFig.size.set(size);
-		innerFig.globalLocation.set(globalLocation);
-		innerFig.layout();
-	}
-
-	@Override
-	public void draw(GraphicsContext gc) {
-		innerFig.draw(gc);
-		
 	}
 }

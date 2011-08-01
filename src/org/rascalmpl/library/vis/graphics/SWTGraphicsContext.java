@@ -12,7 +12,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.graphics.Transform;
-import org.rascalmpl.library.vis.FigureApplet;
+import static org.rascalmpl.library.vis.FigureApplet.*;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 
@@ -68,27 +68,30 @@ public class SWTGraphicsContext implements GraphicsContext {
 
 	public void rect(double x, double y, double width, double height) {
 		int alpha0 = gc.getAlpha();
-		int arg0 = FigureApplet.round(x), arg1 = FigureApplet.round(y), arg2 = FigureApplet
-				.round(width), arg3 = FigureApplet.round(height);
+		int xi, yi, wi,hi;
+		xi = round(x);
+		yi = round(y);
+		wi = round(width);
+		hi = round(height);
 		if (fill) {
 			gc.setAlpha(alphaFill);
 			if (shadow) {
-				drawShadowFigure(SHAPE.RECTANGLE, arg0, arg1, arg2, arg3);
+				drawShadowFigure(SHAPE.RECTANGLE, xi, yi, wi, hi);
 			}
-			gc.fillRectangle(arg0, arg1, arg2, arg3);
+			gc.fillRectangle( xi, yi, wi, hi);
 			gc.setAlpha(alpha0);
 		}
 		if (stroke) {
 			gc.setAlpha(alphaStroke);
-			gc.drawRectangle(arg0, arg1, arg2, arg3);
+			
+			gc.drawRectangle(xi, yi, wi, hi);
 			gc.setAlpha(alpha0);
 		}
 
 	}
 
 	public void ellipse(double x1, double y1, double width, double height) {
-		int arg0 = FigureApplet.round(x1), arg1 = FigureApplet.round(y1), arg2 = FigureApplet
-				.round(width), arg3 = FigureApplet.round(height);
+		int arg0 = round(x1), arg1 = round(y1), arg2 = round(width), arg3 = round(height);
 		int alpha0 = gc.getAlpha();
 		if (fill) {
 			gc.setAlpha(alphaFill);
@@ -181,7 +184,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void rotate(double angle) {
 		Transform transform = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.rotate((float) FigureApplet.degrees(angle));
+		transform.rotate((float) degrees(angle));
 		gc.setTransform(transform);
 	}
 
@@ -224,8 +227,8 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void arc(double x, double y, double width, double height,
 			double startAngle, double stopAngle) {
 		gc.drawArc((int) x, (int) y, (int) width, (int) height,
-				(int) FigureApplet.degrees(startAngle),
-				(int) FigureApplet.degrees(stopAngle));
+				(int) degrees(startAngle),
+				(int) degrees(stopAngle));
 
 	}
 
@@ -278,7 +281,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	}
 
 	public void endShape() {
-		endShape(FigureApplet.OPEN);
+		endShape(OPEN);
 	}
 
 	public void endShape(int arg0) {
@@ -292,15 +295,15 @@ public class SWTGraphicsContext implements GraphicsContext {
 		p.moveTo((float) q.x, (float) q.y);
 		if (debug)
 			System.err.println("q=(" + q.x + "," + q.y + " " + q.curved + ")");
-		if (arg0 == FigureApplet.CLOSE) {
+		if (arg0 == CLOSE) {
 			r.add(new TypedPoint(q.x, q.y, TypedPoint.kind.NORMAL));
 		}
 		while (!r.isEmpty()) {
 			drawNotCurved(r, p);
-			drawCurved(r, p, arg0 == FigureApplet.CLOSE);
+			drawCurved(r, p, arg0 == CLOSE);
 		}
 		int alpha0 = gc.getAlpha();
-		if (fill /* arg0 == FigureApplet.CLOSE */) {
+		if (fill /* arg0 == CLOSE */) {
 			gc.setAlpha(alphaFill);
 			gc.fillPath(p);
 			gc.setAlpha(alpha0);
