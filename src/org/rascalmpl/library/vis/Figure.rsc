@@ -1234,11 +1234,8 @@ public data Figure =
 
 /* composition */
    
+   | _fswitch(int () choice,Figures figs, FProperties props)
    | _overlap(Figure under, Figure over, FProperties props)
-   | _use(Figure elem)                           // use another elem
-   | _use(Figure elem, FProperties props)
-   
-   | _place(Figure onTop, str at, Figure onBottom, FProperties props)
                        
                    
    | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
@@ -1421,6 +1418,10 @@ public Figure hvcat(Figures figs, FProperty props ...){
 
 public Figure hstack(Figures figs, FProperty props ...){
   return _hstack(figs, props);
+}
+
+public Figure fswitch(int () choice,Figures figs, FProperty props ...){
+  return _fswitch(choice,figs, props);
 }
 
 public Figure vstack(Figures figs, FProperty props ...){

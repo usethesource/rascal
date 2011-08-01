@@ -52,6 +52,7 @@ import org.rascalmpl.library.vis.interaction.Checkbox;
 import org.rascalmpl.library.vis.interaction.Choice;
 import org.rascalmpl.library.vis.interaction.Combo;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
+import org.rascalmpl.library.vis.interaction.FigureSwitch;
 import org.rascalmpl.library.vis.interaction.Scrollable;
 import org.rascalmpl.library.vis.interaction.TextField;
 import org.rascalmpl.library.vis.interaction.Timer;
@@ -89,6 +90,7 @@ public class FigureFactory {
 		ELLIPSE, 
 		GRAPH, 
 		GRID,
+		FIGURESWITCH,
 		LEFTAXIS,
 		RIGHTAXIS,
 		TOPAXIS,
@@ -136,7 +138,8 @@ public class FigureFactory {
     	put("_leftAxis",       Primitives.LEFTAXIS);    
     	put("_rightAxis",       Primitives.RIGHTAXIS);   
     	put("_topAxis",       Primitives.TOPAXIS);   
-    	put("_bottomAxis",       Primitives.BOTTOMAXIS);   
+    	put("_bottomAxis",       Primitives.BOTTOMAXIS);
+    	put("_fswitch"   ,  Primitives.FIGURESWITCH);
     	put("_leftScreen",  Primitives.LEFTSCREEN);
     	put("_rightScreen", Primitives.RIGHTSCREEN);
     	put("_topScreen",   Primitives.TOPSCREEN);
@@ -251,6 +254,9 @@ public class FigureFactory {
 		case ELLIPSE:
 			return new Ellipse( makeChild(env,c,properties,childPropsNext), properties );
 					
+		case FIGURESWITCH:
+			children = makeList(env,c.get(1),properties,childPropsNext);
+			return new FigureSwitch(c.get(0), children, properties);
 		case GRAPH:
 			
 			if(properties.getStringProperty(Properties.HINT).contains("lattice"))
