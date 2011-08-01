@@ -10,6 +10,15 @@ public class Overlap extends FigureWithNonLocalFigure{
 		super(under,over,properties);
 	}
 	
+
+	@Override
+	public void bbox(){
+		super.bbox();
+		for(boolean flip : BOTH_DIMENSIONS){
+			minSize.setWidth(flip, Math.max(innerFig.minSize.getWidth(flip), nonLocalFigure.minSize.getWidth(flip)/ nonLocalFigure.getHShrinkProperty(flip)));
+		}
+	}
+	
 	
 	public void layout(){
 		super.layout();
@@ -23,11 +32,13 @@ public class Overlap extends FigureWithNonLocalFigure{
 	}
 	
 	public void setSWTZOrder(ISWTZOrdering zorder){
+		zorder.pushOverlap();
 		zorder.register(innerFig);
 		innerFig.setSWTZOrder(zorder);
 		zorder.pushOverlap();
 		zorder.registerOverlap(this);
 		nonLocalFigure.setSWTZOrder(zorder);
+		zorder.popOverlap();
 		zorder.popOverlap();
 	}
 }

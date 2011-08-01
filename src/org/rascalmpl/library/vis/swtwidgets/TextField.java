@@ -10,7 +10,7 @@
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.library.vis.interaction;
+package org.rascalmpl.library.vis.swtwidgets;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;

@@ -101,4 +101,16 @@ public class LatticeGraphEdge extends Figure {
 		size.set(minSize);
 	}
 
+	@Override
+	public void activate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void suspend() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

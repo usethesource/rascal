@@ -7,10 +7,9 @@
  *
  * Contributors:
 
- *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.library.vis.interaction;
+package org.rascalmpl.library.vis.swtwidgets;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -22,37 +21,38 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Combo> {
+public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.List> {
+	private IValue callback;
+	
 
-	;
-
-	public Combo(IFigureConstructionEnv env, String[] choices, IValue cb,  PropertyManager properties) {
-		super(env, cb, properties);
+	public Choice(IFigureConstructionEnv env, String[] choices, IValue fun, PropertyManager properties) {
+		super(env, fun, properties);
 		widget = makeWidget(env.getSWTParent(), env,choices);
 	}
+	
 
-
-	org.eclipse.swt.widgets.Combo makeWidget(Composite comp, IFigureConstructionEnv env,String[] choices) {
-		 org.eclipse.swt.widgets.Combo combo = new org.eclipse.swt.widgets.Combo(comp, SWT.DROP_DOWN
-				| SWT.BORDER);
-		 for(String s : choices){
-			 combo.add(s);
-		 }
-		combo.addSelectionListener(new SelectionAdapter() {
+	org.eclipse.swt.widgets.List makeWidget(Composite comp, IFigureConstructionEnv env,String[] choices) {
+		org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(comp, SWT.SINGLE|SWT.BORDER);
+		for(String val : choices){
+             list.add(val);
+        }
+		list.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (widget.getSelectionCount()!=1) return;
 				executeCallback();
 			}
 		});
-		return combo;
+		return list;
 	}
 
 
-	@Override
-	void executeCallback() {
-		int s = widget.getSelectionIndex();
-		if (s < 0)
-			return;
+	public void executeCallback() {
 		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getItem(s)));
+				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getItem(widget.getSelectionIndex())));
 	}
+
+	
+
+
 }

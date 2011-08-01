@@ -1,6 +1,5 @@
 /*******************************************************************************
  * Copyright (c) 2009-2011 CWI
-
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,10 +7,10 @@
  *
  * Contributors:
 
+ *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
-package org.rascalmpl.library.vis.interaction;
+package org.rascalmpl.library.vis.swtwidgets;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -23,21 +22,37 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class Checkbox extends Button {
+public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Combo> {
 
-	public Checkbox(IFigureConstructionEnv env, String caption, boolean checked, IValue fun,PropertyManager properties) {
-		super(env, caption, fun, properties);
+	;
+
+	public Combo(IFigureConstructionEnv env, String[] choices, IValue cb,  PropertyManager properties) {
+		super(env, cb, properties);
+		widget = makeWidget(env.getSWTParent(), env,choices);
 	}
-	
-	int buttonType(){
-		return SWT.CHECK;
+
+
+	org.eclipse.swt.widgets.Combo makeWidget(Composite comp, IFigureConstructionEnv env,String[] choices) {
+		 org.eclipse.swt.widgets.Combo combo = new org.eclipse.swt.widgets.Combo(comp, SWT.DROP_DOWN
+				| SWT.BORDER);
+		 for(String s : choices){
+			 combo.add(s);
+		 }
+		combo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				executeCallback();
+			}
+		});
+		return combo;
 	}
+
 
 	@Override
-	public void executeCallback() {
-		boolean selected = widget.getSelection();
+	void executeCallback() {
+		int s = widget.getSelectionIndex();
+		if (s < 0)
+			return;
 		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().boolType(), ValueFactoryFactory
-				.getValueFactory().bool(selected));
+				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getItem(s)));
 	}
 }

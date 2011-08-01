@@ -273,10 +273,11 @@ public alias FProperties = list[FProperty];
 data Convert = convert(value v, value id);
 
 data FProperty =
-	   timer                (int delay, int () cb)
+	  mouseOver(Figure fig)
+	 | timer                (int delay, int () cb)
 	 | project              (Figure f0, str p0)
 	 | _child               (FProperties props)
-| align                (num                r0)
+	| align                (num                r0)
 	| align                (computedNum       cr0)
 	| align                (Like              lr0)
 	| align                (Convert           mr0)
@@ -480,7 +481,7 @@ data FProperty =
 	| lineColor            (computedColor     cc0)
 	| lineColor            (Like              lc0)
 	| lineColor            (Convert           mc0)
-	| lineStyle            (str               s0)  // solid, dash, dot, dashdot, dashdotdot
+	| lineStyle            (str                s0)
 	| lineStyle            (computedStr       cs0)
 	| lineStyle            (Like              ls0)
 	| lineStyle            (Convert           ms0)
@@ -488,38 +489,6 @@ data FProperty =
 	| lineWidth            (computedNum       cr0)
 	| lineWidth            (Like              lr0)
 	| lineWidth            (Convert           mr0)
-	| mouseOver            (Figure             f0)
-	| mouseOver            (computedFigure    cf0)
-	| mouseOver            (Like              lf0)
-	| mouseOver            (Convert           mf0)
-	| mouseOverAlign       (num                r0)
-	| mouseOverAlign       (computedNum       cr0)
-	| mouseOverAlign       (Like              lr0)
-	| mouseOverAlign       (Convert           mr0)
-	| mouseOverAlign       (num                r2, num                r1)
-	| mouseOverAlign       (num                r3, computedNum       cr1)
-	| mouseOverAlign       (num                r4, Like              lr1)
-	| mouseOverAlign       (num                r5, Convert           mr1)
-	| mouseOverAlign       (computedNum       cr3, num                r6)
-	| mouseOverAlign       (computedNum       cr4, computedNum       cr2)
-	| mouseOverAlign       (computedNum       cr5, Like              lr2)
-	| mouseOverAlign       (computedNum       cr6, Convert           mr2)
-	| mouseOverAlign       (Like              lr4, num                r7)
-	| mouseOverAlign       (Like              lr5, computedNum       cr7)
-	| mouseOverAlign       (Like              lr6, Like              lr3)
-	| mouseOverAlign       (Like              lr7, Convert           mr3)
-	| mouseOverAlign       (Convert           mr5, num                r8)
-	| mouseOverAlign       (Convert           mr6, computedNum       cr8)
-	| mouseOverAlign       (Convert           mr7, Like              lr8)
-	| mouseOverAlign       (Convert           mr8, Convert           mr4)
-	| mouseOverHalign      (num                r0)
-	| mouseOverHalign      (computedNum       cr0)
-	| mouseOverHalign      (Like              lr0)
-	| mouseOverHalign      (Convert           mr0)
-	| mouseOverValign      (num                r0)
-	| mouseOverValign      (computedNum       cr0)
-	| mouseOverValign      (Like              lr0)
-	| mouseOverValign      (Convert           mr0)
 	| mouseStick           (bool               b0)
 	| mouseStick           (computedBool      cb0)
 	| mouseStick           (Like              lb0)
@@ -918,42 +887,14 @@ data FProperty =
 	| stdLineColor         (computedColor     cc0)
 	| stdLineColor         (Like              lc0)
 	| stdLineColor         (Convert           mc0)
+	| stdLineStyle         (str                s0)
+	| stdLineStyle         (computedStr       cs0)
+	| stdLineStyle         (Like              ls0)
+	| stdLineStyle         (Convert           ms0)
 	| stdLineWidth         (num                r0)
 	| stdLineWidth         (computedNum       cr0)
 	| stdLineWidth         (Like              lr0)
 	| stdLineWidth         (Convert           mr0)
-	| stdMouseOver         (Figure             f0)
-	| stdMouseOver         (computedFigure    cf0)
-	| stdMouseOver         (Like              lf0)
-	| stdMouseOver         (Convert           mf0)
-	| stdMouseOverAlign    (num                r0)
-	| stdMouseOverAlign    (computedNum       cr0)
-	| stdMouseOverAlign    (Like              lr0)
-	| stdMouseOverAlign    (Convert           mr0)
-	| stdMouseOverAlign    (num                r2, num                r1)
-	| stdMouseOverAlign    (num                r3, computedNum       cr1)
-	| stdMouseOverAlign    (num                r4, Like              lr1)
-	| stdMouseOverAlign    (num                r5, Convert           mr1)
-	| stdMouseOverAlign    (computedNum       cr3, num                r6)
-	| stdMouseOverAlign    (computedNum       cr4, computedNum       cr2)
-	| stdMouseOverAlign    (computedNum       cr5, Like              lr2)
-	| stdMouseOverAlign    (computedNum       cr6, Convert           mr2)
-	| stdMouseOverAlign    (Like              lr4, num                r7)
-	| stdMouseOverAlign    (Like              lr5, computedNum       cr7)
-	| stdMouseOverAlign    (Like              lr6, Like              lr3)
-	| stdMouseOverAlign    (Like              lr7, Convert           mr3)
-	| stdMouseOverAlign    (Convert           mr5, num                r8)
-	| stdMouseOverAlign    (Convert           mr6, computedNum       cr8)
-	| stdMouseOverAlign    (Convert           mr7, Like              lr8)
-	| stdMouseOverAlign    (Convert           mr8, Convert           mr4)
-	| stdMouseOverHalign   (num                r0)
-	| stdMouseOverHalign   (computedNum       cr0)
-	| stdMouseOverHalign   (Like              lr0)
-	| stdMouseOverHalign   (Convert           mr0)
-	| stdMouseOverValign   (num                r0)
-	| stdMouseOverValign   (computedNum       cr0)
-	| stdMouseOverValign   (Like              lr0)
-	| stdMouseOverValign   (Convert           mr0)
 	| stdMouseStick        (bool               b0)
 	| stdMouseStick        (computedBool      cb0)
 	| stdMouseStick        (Like              lb0)
@@ -1189,7 +1130,7 @@ public alias Figures = list[Figure];
  
 public data Figure = 
 /* atomic primitives */
-
+	
      _text(str s, FProperties props)		    // text label
    | _text(computedStr sv, FProperties props)
    
@@ -1233,7 +1174,7 @@ public data Figure =
    | _timer(int delay,int () callBack, Figure inner,FProperties props)
 
 /* composition */
-   
+   | _mouseOver(Figure under, Figure over, FProperties props)
    | _fswitch(int () choice,Figures figs, FProperties props)
    | _overlap(Figure under, Figure over, FProperties props)
                        
@@ -1558,8 +1499,25 @@ public Figure normalize(Figure f){
 			} else { fail ; } 
 		}
 	}
+	f = visit(f){
+		case Figure f : {
+			if([_*,mouseOver(y),_*] := f.props){
+				mouseOvers = [];
+				otherProps = [];
+				for(elem <- f.props){
+					if(mouseOver(_) := elem){
+						mouseOvers+=[elem];
+					} else {
+						otherProps+=[elem];
+					}
+				}
+				insert (f[props = otherProps] | _mouseOver(it,p,[]) | mouseOver(p) <- mouseOvers);
+			} else { fail ; } 
+		}
+	}
 	return f;
 }
+
 
 
 public Figure palleteKey (str name, str key,FProperty props...){
@@ -1708,4 +1666,7 @@ public  Figure shapeParallelogram(Figure fig, FProperty props...) {
 	return overlay([shapeParallelogram(props), fig], shapeClosed(true)+props);
 }
 
+public Figure ifFig(bool () cond, Figure onTrue, FProperty props...){
+	return fswitch(int () { return cond() ? 1 : 0;}, [ space(), onTrue], props);
+}
 

@@ -21,9 +21,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.compose.HStack;
 import org.rascalmpl.library.vis.compose.HVCat;
 import org.rascalmpl.library.vis.compose.Grid;
 import org.rascalmpl.library.vis.compose.Overlay;
@@ -47,20 +45,21 @@ import org.rascalmpl.library.vis.graph.spring.SpringGraph;
 import org.rascalmpl.library.vis.graph.spring.SpringGraphEdge;
 import org.rascalmpl.library.vis.graph.leveled.LeveledGraph;
 import org.rascalmpl.library.vis.graph.leveled.LeveledGraphEdge;
-import org.rascalmpl.library.vis.interaction.Button;
-import org.rascalmpl.library.vis.interaction.Checkbox;
-import org.rascalmpl.library.vis.interaction.Choice;
-import org.rascalmpl.library.vis.interaction.Combo;
 import org.rascalmpl.library.vis.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.interaction.FigureSwitch;
-import org.rascalmpl.library.vis.interaction.Scrollable;
-import org.rascalmpl.library.vis.interaction.TextField;
-import org.rascalmpl.library.vis.interaction.Timer;
+import org.rascalmpl.library.vis.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swtwidgets.Button;
+import org.rascalmpl.library.vis.swtwidgets.Checkbox;
+import org.rascalmpl.library.vis.swtwidgets.Choice;
+import org.rascalmpl.library.vis.swtwidgets.Combo;
+import org.rascalmpl.library.vis.swtwidgets.Scrollable;
+import org.rascalmpl.library.vis.swtwidgets.TextField;
+import org.rascalmpl.library.vis.swtwidgets.Timer;
 import org.rascalmpl.library.vis.tree.Tree;
 import org.rascalmpl.library.vis.tree.TreeMap;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -78,16 +77,14 @@ public class FigureFactory {
 	static IList emptyList = vf.list();
 	
 	enum Primitives {
-		BOX,
+		BOX,// scheduled for removal
 		BUTTON,
 		CHECKBOX,
 		CHOICE,
 		COMBO,
 		COMPUTEFIGURE,
-		CONTROLON,
-		CONTROLOFF,
 		EDGE, 
-		ELLIPSE, 
+		ELLIPSE, // scheduled for removal
 		GRAPH, 
 		GRID,
 		FIGURESWITCH,
@@ -99,27 +96,25 @@ public class FigureFactory {
 		RIGHTSCREEN,
 		BOTTOMSCREEN,
 		TOPSCREEN,
-		HSTACK,
-		VSTACK,
 		HVCAT,
+		MOUSEOVER,
 		NOMINALKEY,
 		INTERVALKEY,
-		OUTLINE,
+		OUTLINE,// scheduled for removal
 		OVERLAY, 
 		OVERLAP,
 		PACK, 
-		PLACE,
+		PLACE,// scheduled for removal
 		PROJECTION,
 		ROTATE,
 		SCROLLABLE,
-		SPACE,
+		SPACE,// scheduled for removal
 		TEXT, 
 		TEXTFIELD,
 		TIMER,
 		TREE,
 		TREEMAP,
-		USE,
-		WEDGE,
+		WEDGE,// scheduled for removal...
 		XAXIS
 		}
 					  
@@ -145,8 +140,7 @@ public class FigureFactory {
     	put("_topScreen",   Primitives.TOPSCREEN);
     	put("_bottomScreen",Primitives.BOTTOMSCREEN);
     	put("_hvcat",		Primitives.HVCAT);
-    	put("_hstack",      Primitives.HSTACK);
-    	put("_vstack",      Primitives.VSTACK);
+    	put("_mouseOver"   ,Primitives.MOUSEOVER);
     	put("_nominalKey",  Primitives.NOMINALKEY);
     	put("_intervalKey", Primitives.INTERVALKEY);
       	put("_outline",		Primitives.OUTLINE);	
@@ -163,7 +157,6 @@ public class FigureFactory {
     	put("_timer",		Primitives.TIMER);
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
-    	put("_use",			Primitives.USE);
     	put("_wedge",		Primitives.WEDGE);
     	put("_xaxis",		Primitives.XAXIS);
     }};
@@ -290,6 +283,11 @@ public class FigureFactory {
 		case BOTTOMSCREEN:
 			return new HScreen(false,true, makeChild(env,c,properties,childPropsNext), properties );
 		
+		case MOUSEOVER:
+			child = makeChild(0,env,c,properties,childPropsNext);
+			Figure mouseOver = makeChild(1,env,c,properties,childPropsNext);
+			return new MouseOver(child, mouseOver, properties);
+			
 			
 		case INTERVALKEY:
 			return new IntervalKey(env,c.get(0),c.get(1),properties,childProps);
@@ -299,13 +297,6 @@ public class FigureFactory {
 		case HVCAT:
 			children = makeList(env,c.get(0),properties,childPropsNext);
 			return new HVCat( children, properties);
-			
-		case HSTACK:
-			children = makeList(env,c.get(0),properties,childPropsNext);
-			return new HStack(env,false, children, properties);
-		case VSTACK:
-			children = makeList(env,c.get(0),properties,childPropsNext);
-			return new HStack(env,true, children, properties);
 			
 		case GRID:
 			Figure[][] elems = make2DList(env, c.get(0), properties, childPropsNext);
@@ -380,10 +371,6 @@ public class FigureFactory {
 		case TREEMAP: 			
 			//return new TreeMap(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			throw new Error("Treemap temporarily out of order..");
-			
-		case USE:	
-			throw new Error("Use temporary out of order..");
-			//return new Use(env,makeChild(env,c,properties,childPropsNext,ctx), properties );
 
 		case WEDGE:			
 			return new Wedge( makeChild(env,c,properties,childPropsNext), properties );

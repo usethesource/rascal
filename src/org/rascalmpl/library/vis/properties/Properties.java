@@ -8,10 +8,10 @@ import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.util.Dimension;
 
 public enum Properties {
-	MOUSE_STICK(Types.BOOL,true),
-	SHAPE_CLOSED(Types.BOOL,false), 	
-	SHAPE_CONNECTED(Types.BOOL,false),
-	SHAPE_CURVED(Types.BOOL,false),
+	MOUSE_STICK(Types.BOOL,true),// scheduled for removal
+	SHAPE_CLOSED(Types.BOOL,false), 	// scheduled for removal
+	SHAPE_CONNECTED(Types.BOOL,false),// scheduled for removal
+	SHAPE_CURVED(Types.BOOL,false),	// scheduled for removal
 	HSTART_GAP(Types.BOOL,false),
 	HEND_GAP(Types.BOOL,false),
 	VSTART_GAP(Types.BOOL,false),
@@ -27,15 +27,13 @@ public enum Properties {
 	SHADOW_COLOR(Types.COLOR,FigureColorUtils.dropShadowColor()),
 	
 	HEIGHT(Types.REAL,0.0,Dimension.X),
-	HGAP(Types.REAL,0.0,Dimension.X), 
-	VGAP(Types.REAL,0.0,Dimension.Y), 	
+	HGAP(Types.REAL,0.0,Dimension.X), // scheduled for removal
+	VGAP(Types.REAL,0.0,Dimension.Y), 	// scheduled for removal
 	WIDTH(Types.REAL,0.0,Dimension.Y),
 	HLOC(Types.REAL,0.0,Dimension.X),
 	VLOC(Types.REAL,0.0,Dimension.Y),
 	SHADOWLEFT(Types.REAL,10.0,Dimension.X),
 	SHADOWTOP(Types.REAL,10.0,Dimension.Y),
-	
-	MOUSE_OVER(Types.FIGURE,null),
 	TO_ARROW(Types.FIGURE,null),
 	FROM_ARROW(Types.FIGURE,null),
 	LABEL(Types.FIGURE,null),
@@ -44,7 +42,7 @@ public enum Properties {
 	ON_MOUSEOVER(Types.HANDLER,null,"void ()","h"),
 	ON_MOUSEOFF(Types.HANDLER,null,"void ()","h"),
 	
-	DOI(Types.INT,1000000),            // degree of interest
+	DOI(Types.INT,1000000),           // scheduled for removal
 	FONT_SIZE(Types.INT,12),
 	
 	HGROW(Types.REAL, 1.0, Dimension.X),
@@ -52,21 +50,19 @@ public enum Properties {
 	HALIGN(Types.REAL,0.5,Dimension.X),
 	HCONNECT(Types.REAL,0.5,Dimension.X),
 	VCONNECT(Types.REAL, 0.5, Dimension.Y),
-	MOUSEOVER_HALIGN(Types.REAL,0.5,Dimension.X), // TODO: remove this, replace with overlay rewrite
-	INNERRADIUS(Types.REAL,0.0), // TODO: innerradisu is not axis aligned
+	INNERRADIUS(Types.REAL,0.0), // scheduled for removal
 	LINE_WIDTH(Types.REAL,1.0),
 	LINE_STYLE(Types.STR,"solid"),
-	TEXT_ANGLE(Types.REAL,0.0), 	
-	FROM_ANGLE(Types.REAL,0.0),
-	TO_ANGLE(Types.REAL,0.0),			
+	TEXT_ANGLE(Types.REAL,0.0), 	// scheduled for removal
+	FROM_ANGLE(Types.REAL,0.0),// scheduled for removal
+	TO_ANGLE(Types.REAL,0.0),			// scheduled for removal
 	VALIGN(Types.REAL,0.5,Dimension.Y),	
 	VGROW(Types.REAL, 1.0, Dimension.X),
 	VSHRINK(Types.REAL, 1.0, Dimension.X),
-	MOUSEOVER_VALIGN(Types.REAL,0.5,Dimension.Y),
 	
-	DIRECTION(Types.STR,"TD"),	
-	LAYER(Types.STR,""),		
-	HINT(Types.STR,""),			
+	DIRECTION(Types.STR,"TD"),	// scheduled for removal
+	LAYER(Types.STR,""),		// scheduled for removal
+	HINT(Types.STR,""),			// scheduled for removal
 	ID(Types.STR,""), 		
 	FONT(Types.STR,"Helvetica"),
 	TEXT(Types.STR,""),
@@ -141,7 +137,6 @@ public enum Properties {
 		put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
 		put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
 		
-		put("mouseOver", new PropertySetters.SingleFigurePropertySetter(MOUSE_OVER));
 		put("toArrow", new PropertySetters.SingleFigurePropertySetter(TO_ARROW));
 		put("fromArrow", new PropertySetters.SingleFigurePropertySetter(FROM_ARROW));
 		put("label", new PropertySetters.SingleFigurePropertySetter(LABEL));
@@ -156,7 +151,6 @@ public enum Properties {
 		put("halign", new PropertySetters.SingleIntOrRealPropertySetter(HALIGN));
 		put("hgrow", new PropertySetters.SingleIntOrRealPropertySetter(HGROW));
 		put("hshrink", new PropertySetters.SingleIntOrRealPropertySetter(HSHRINK));
-		put("mouseOverHalign", new PropertySetters.SingleIntOrRealPropertySetter(MOUSEOVER_HALIGN));
 		put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
 		put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
 		put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
@@ -165,12 +159,10 @@ public enum Properties {
 		put("valign", new PropertySetters.SingleRealPropertySetter(VALIGN));
 		put("vgrow", new PropertySetters.SingleIntOrRealPropertySetter(VGROW));
 		put("vshrink", new PropertySetters.SingleIntOrRealPropertySetter(VSHRINK));
-		put("mouseOverValign", new PropertySetters.SingleRealPropertySetter(MOUSEOVER_VALIGN));
 		put("hconnect", new PropertySetters.SingleIntOrRealPropertySetter(HCONNECT));
 		put("vconnect", new PropertySetters.SingleIntOrRealPropertySetter(VCONNECT));
 		// below: aliases
 		put("align", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HALIGN, VALIGN));
-		put("mouseOverAlign", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(MOUSEOVER_HALIGN, MOUSEOVER_VALIGN));
 		put("grow", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGROW, VGROW));
 		put("shrink", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HSHRINK, VSHRINK));
 		put("connect", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HCONNECT, VCONNECT));

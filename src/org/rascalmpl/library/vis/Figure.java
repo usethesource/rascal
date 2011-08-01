@@ -181,6 +181,10 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	
 	public void setSWTZOrder(ISWTZOrdering zorder){}
+
+	public abstract void activate();
+	
+	public abstract void suspend();
 	
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
@@ -191,6 +195,10 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public void drawPart(Rectangle r,GraphicsContext gc){
 			draw(gc);
+	}
+	
+	public boolean isVisible(){
+		return true;
 	}
 	
 	public boolean overlapsWith(Rectangle r){
@@ -798,15 +806,7 @@ public abstract class Figure implements Comparable<Figure> {
 		else
 			return getRealProperty(Properties.VGAP);
 	}
-
-	public boolean isMouseOverSet() {
-		return isFigurePropertySet(Properties.MOUSE_OVER);
-	}
-
-	public Figure getMouseOverProperty() {
-		return getFigureProperty(Properties.MOUSE_OVER);
-	}
-
+	
 	public boolean isOnClickPropertySet() {
 		return isHandlerPropertySet(Properties.MOUSE_CLICK);
 	}

@@ -297,10 +297,10 @@ public class Grid extends Figure {
 	
 	@Override
 	public void drawPart(Rectangle rect,GraphicsContext gc){
-		int startRow = Util.binaryIntervalSearch(columnBorders.getForY(), rect.getY() - getTop());
-		int endRow = Util.binaryIntervalSearch(columnBorders.getForY(), rect.getYDown() - getTop());
-		int startColumn = Util.binaryIntervalSearch(columnBorders.getForX(), rect.getX() - getLeft());
-		int endColumn = Util.binaryIntervalSearch(columnBorders.getForX(), rect.getXRight() - getLeft());
+		int startRow = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForY(), rect.getY() - getTop()));
+		int endRow = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForY(), rect.getYDown() - getTop()));
+		int startColumn = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForX(), rect.getX() - getLeft()));
+		int endColumn = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForX(), rect.getXRight() - getLeft()));
 		for(int row = startRow ; row <= endRow ; row++){
 			for(int collumn = startColumn ; collumn <= endColumn; collumn++){
 				if(		(row == startRow && columnBorders.getForY()[startRow] < rect.getY())
@@ -385,6 +385,35 @@ public class Grid extends Figure {
 		for(Figure[] row : figureMatrix){
 			for(Figure fig : row){
 				fig.setSWTZOrder(zorder);
+			}
+		}
+	}
+	
+
+	public boolean isVisible(){
+		for(Figure[] row : figureMatrix){
+			for(Figure fig : row){
+				if(fig.isVisible()){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+
+	public void activate(){
+		for(Figure[] row : figureMatrix){
+			for(Figure fig : row){
+				fig.activate();
+			}
+		}
+	}
+
+	public void suspend(){
+		for(Figure[] row : figureMatrix){
+			for(Figure fig : row){
+				fig.suspend();
 			}
 		}
 	}

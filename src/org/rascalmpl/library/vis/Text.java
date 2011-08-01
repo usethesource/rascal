@@ -165,4 +165,14 @@ public class Text extends Figure {
 	public void layout() {
 		size.set(minSize);
 	}
+
+	@Override
+	public void activate() {
+		
+	}
+
+	@Override
+	public void suspend() {
+		
+	}
 }

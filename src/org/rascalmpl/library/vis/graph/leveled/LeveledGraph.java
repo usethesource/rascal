@@ -1828,4 +1828,16 @@ public class LeveledGraph extends Figure {
 			edge.layout();
 		}
 	}
+
+	@Override
+	public void activate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void suspend() {
+		// TODO Auto-generated method stub
+		
+	}
 }
