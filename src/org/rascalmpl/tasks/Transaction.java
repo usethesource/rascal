@@ -103,7 +103,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			}
 			monitor.startJob("Producing fact " + formatKey(key, name));
 			Transaction tr = new Transaction(this, stderr);
-			registry.produce(monitor, tr, key, name);
+			boolean status = registry.produce(monitor, tr, key, name);
 			monitor.endJob(true);
 			fact = tr.map.get(k);
 			if (fact != null) {
@@ -111,7 +111,8 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 				deps.add(fact);
 			}
 			else
-				System.err.println("ERROR: failed to produce fact: " + formatKey(key, name));
+				System.err.println("ERROR: failed to produce fact: " + formatKey(key, name)
+						+ "." + (status ? "" : " (producer was not authorative)"));
 //			else
 	//			tr.abandon();
 		}
