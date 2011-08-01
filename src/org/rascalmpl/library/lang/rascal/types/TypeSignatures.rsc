@@ -115,7 +115,42 @@ private RSignature createRSignature(Tree t) {
 //
 // Create the individual signature items in the module body.
 //
-private RSignature createModuleBodySignature(Body b, RSignature sig) {
+private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
+    RSignature signatureForSignature(Visibility vis, Signature s) {
+        if ((Visibility)`public` := vis) { 
+            switch(s) {
+                case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps>` : 
+                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), l));
+                case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), l));
+                default: throw "signatureForSignature case not implemented for item <s>";
+            }
+        }
+        return sig;    
+    }
+    
+    RSignature signatureForFunction(FunctionDeclaration fd) {
+        switch(fd) {
+            // Abstract (i.e., without a body) function declaration
+            case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> ;` : 
+                return signatureForSignature(vis,s,fd@\loc);
+ 
+            // Concrete (i.e., with a body) function declaration
+            case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> <FunctionBody fb>` :
+                return signatureForSignature(vis,s,fd@\loc);
+            
+            // Concrete (i.e., with a body) function declaration, expression form
+            case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> = <Expression exp>;` :
+                return signatureForSignature(vis,s,fd@\loc);
+            
+            // Concrete (i.e., with a body) function declaration, expression form, with condition
+            case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> = <Expression exp> when <{Expression ","}+ conds>;` :
+                return signatureForSignature(vis,s,fd@\loc);
+            
+            default: throw "signatureForFunction case not implemented for item <fd>";
+        }
+    }
+    
     if ((Body)`<Toplevel* ts>` := b) {
         for (Toplevel t <- ts) {
             switch(t) {
@@ -131,43 +166,6 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
                     }
                 }
     
-                // Abstract (i.e., without a body) function declaration
-                case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> ;` : {
-                    if ((Visibility)`public` := vis) { 
-                        switch(s) {
-                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
-                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
-                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
-                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
-                        }
-                    }
-                }
-     
-                // Concrete (i.e., with a body) function declaration
-                case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> <FunctionBody fb>` : {
-                    if ((Visibility)`public` := vis) {
-                        switch(s) {
-                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
-                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
-                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
-                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
-                        }
-                    }
-                }
-
-// TODO: Re-add when this case is available, not in the parser yet
-//                // Concrete (i.e., with a body) function declaration, expression form
-//                case (Toplevel) `<Tags tgs> <Visibility vis> <Signature s> = <Expression exp>;` : {
-//                    if ((Visibility)`public` := vis) {
-//                        switch(s) {
-//                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps>` : 
-//                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
-//                            case (Signature)`<Type typ> <FunctionModifiers ns> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
-//                                sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), t@\loc));
-//                        }
-//                    }
-//                }
-                
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
 //                    if ((Visibility)`public` := vis) {
@@ -187,11 +185,6 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
                     sig = addSignatureItem(sig, RuleSigItem(convertName(n), t@\loc));
                 }
                 
-                // Test -- tests are not part of the signature, but we include them here so we don't throw below on unhandled cases
-                case (Toplevel) `<Test tst> ;` : {
-                    sig = sig;
-                }
-                                
                 // ADT without variants
                 case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> ;` : {
 //                    if ((Visibility)`public` := vis) {
@@ -224,12 +217,10 @@ private RSignature createModuleBodySignature(Body b, RSignature sig) {
 //                    }
                 }
   
-// Views have been removed from the grammar.                              
-//                // View
-//                case (Toplevel) `<Tags tgs> <Visibility vis> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` : {
-//                    throw "Not yet implemented";
-//                }
-                                
+                // Function declaration
+                case (Toplevel) `<FunctionDeclaration fd>` :
+                    sig = signatureForFunction(fd);
+                    
                 default: throw "RSignature case not implemented for item <t>";
             }
         }

@@ -12,8 +12,12 @@ module lang::rascal::checker::constraints::Variable
 
 import ParseTree;
 import IO;
+import List;
+import Set;
+
 import lang::rascal::types::Types;
 import lang::rascal::scoping::SymbolTable;
+import lang::rascal::scoping::ScopedTypes;
 import lang::rascal::checker::constraints::Constraints;
 import lang::rascal::checker::Annotations;
 import lang::rascal::checker::TreeUtils;
@@ -27,23 +31,27 @@ import lang::rascal::syntax::RascalRascal;
 // logic, not here.
 // 
 public ConstraintBase gatherVariableConstraints(STBuilder st, ConstraintBase cb, Variable v) {
+    RType itemType = makeVoidType();
+
     if ((Variable) `<Name n>` := v || (Variable)`<Name n> = <Expression _>` := v) {
-        // We don't know the defined type of n, so give it a fresh type of tv
-        // and indicate that tv is defined by whatever is in the symbol table
-        // for the name at this location.
-        <cb, tv> = makeFreshType(cb);
-        cb = addConstraintForLoc(cb, n@\loc, tv);
-        if (n@\loc in st.itemUses<0>)
-            cb.constraints = cb.constraints + DefinedBy(tv,st.itemUses[n@\loc],n@\loc);
-        else
-            cb.constraints = cb.constraints + ConstrainType(tv, makeFailType("No definition for this variable found",n@\loc), n@\loc);
+        if (n@\loc in st.itemUses<0>) {
+        	definingIds = st.itemUses[n@\loc];
+		    if (size(definingIds) > 1) {
+		        itemType = ROverloadedType({ getTypeForItem(st, itemId) | itemId <- definingIds });
+		    } else {
+		        itemType = getTypeForItem(st, getOneFrom(definingIds));
+		    }
+	        cb = addConstraintForLoc(cb, n@\loc, itemType);
+        } else {
+            cb = addConstraintForLoc(cb, n@\loc, makeFailType("No definition for this variable found",n@\loc));
+        }
 
         if ((Variable) `<Name _> = <Expression e>` := v) {
             // Ensure that the type of the expression e is assignable to n; this should then
             // yield result type tr, which is not necessarily the same as te or tv.
             te = typeForLoc(cb, e@\loc);
             <cb, tr> = makeFreshType(cb);
-            cb.constraints = cb.constraints + Assignable(tv, te, tr, v@\loc);
+            cb.constraints = cb.constraints + Assignable(itemType, te, tr, v@\loc);
         }
 
         return cb;        
