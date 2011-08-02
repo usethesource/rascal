@@ -190,7 +190,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
-				unmatchableNodes.push(next);
+				//unmatchableNodes.push(next);
 				return null;
 			}
 			
@@ -246,7 +246,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
-				unmatchableNodes.push(next);
+				//unmatchableNodes.push(next);
 				return false;
 			}
 			
@@ -774,7 +774,7 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractNode result = first.match(input, location);
 				if(result == null){
-					unmatchableNodes.push(first);
+					//unmatchableNodes.push(first);
 					continue;
 				}
 				
@@ -884,7 +884,7 @@ public abstract class SGTDBF implements IGTD{
 						
 						AbstractNode result = child.match(input, location);
 						if(result == null){
-							unmatchableNodes.push(child);
+							//unmatchableNodes.push(child);
 							continue;
 						}
 						
@@ -1072,23 +1072,24 @@ public abstract class SGTDBF implements IGTD{
 	 * Constructed a error parse tree using the given converter.
 	 */
 	public IConstructor buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor){
+		AbstractContainerNode result;
+		
 		if(parseErrorOccured){
 			ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, positionStore, actionExecutor, input, location, inputURI);
-			return errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
-		}
-		
-		if(filterErrorOccured){
+			result = errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
+		}else if(filterErrorOccured){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
-			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
-			// Invoke "the bulldozer" that constructs error trees while it's flattening the forest.
-			Object rootEnvironment = actionExecutor.createRootEnvironment();
-			try{
-				return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
-			}finally{
-				actionExecutor.completed(rootEnvironment, true);
-			}
+			result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
+		}else{
+			throw new RuntimeException("Cannot build an error tree as no parse error occurred.");
 		}
 		
-		throw new RuntimeException("Cannot build an error tree as no parse error occurred.");
+		// Invoke "the bulldozer" that constructs error trees while it's flattening the forest.
+		Object rootEnvironment = actionExecutor.createRootEnvironment();
+		try{
+			return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
+		}finally{
+			actionExecutor.completed(rootEnvironment, true);
+		}
 	}
 }
