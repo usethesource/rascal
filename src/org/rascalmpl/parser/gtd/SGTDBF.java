@@ -60,8 +60,8 @@ public abstract class SGTDBF implements IGTD{
 	private int queueIndex;
 	
 	private final Stack<AbstractStackNode> stacksToExpand;
-	private DoubleStack<AbstractStackNode, AbstractNode> stacksWithTerminalsToReduce;
 	private final DoubleStack<AbstractStackNode, AbstractContainerNode> stacksWithNonTerminalsToReduce;
+	private DoubleStack<AbstractStackNode, AbstractNode> stacksWithTerminalsToReduce;
 	
 	private final ArrayList<AbstractStackNode> lastExpects;
 	private final HashMap<String, ArrayList<AbstractStackNode>> cachedEdgesForExpect;
@@ -189,7 +189,10 @@ public abstract class SGTDBF implements IGTD{
 			if((location + next.getLength()) > input.length) return null;
 			
 			AbstractNode nextResult = next.match(input, location);
-			if(nextResult == null) return null;
+			if(nextResult == null){
+				unmatchableNodes.push(next);
+				return null;
+			}
 			
 			next = next.getCleanCopyWithResult(location, nextResult);
 		}else{
@@ -242,7 +245,10 @@ public abstract class SGTDBF implements IGTD{
 			if((location + next.getLength()) > input.length) return false;
 			
 			AbstractNode nextResult = next.match(input, location);
-			if(nextResult == null) return false;
+			if(nextResult == null){
+				unmatchableNodes.push(next);
+				return false;
+			}
 			
 			next = next.getCleanCopyWithResult(location, nextResult);
 		}else{
@@ -767,7 +773,10 @@ public abstract class SGTDBF implements IGTD{
 				if(endLocation > input.length) continue;
 				
 				AbstractNode result = first.match(input, location);
-				if(result == null) continue;
+				if(result == null){
+					unmatchableNodes.push(first);
+					continue;
+				}
 				
 				// Handle filtering.
 				IEnterFilter[] enterFilters = first.getEnterFilters();
@@ -872,7 +881,10 @@ public abstract class SGTDBF implements IGTD{
 						if(endLocation > input.length) continue;
 						
 						AbstractNode result = child.match(input, location);
-						if(result == null) continue;
+						if(result == null){
+							unmatchableNodes.push(child);
+							continue;
+						}
 						
 						// Handle filtering
 						IEnterFilter[] childEnterFilters = child.getEnterFilters();
