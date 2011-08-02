@@ -349,7 +349,7 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}
 			
-			// Handle alternative continuations (and prefix sharing).
+			// Handle alternative continuations (related to prefix sharing).
 			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 			if(alternateProds != null){
 				IntegerObjectList<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
@@ -416,7 +416,7 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}
 			
-			// Handle alternative continuations (and prefix sharing).
+			// Handle alternative continuations (related to prefix sharing).
 			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 			if(alternateProds != null){
 				IntegerObjectList<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
@@ -549,7 +549,7 @@ public abstract class SGTDBF implements IGTD{
 	private final IntegerList firstTimeReductions = new IntegerList();
 	
 	/**
-	 * Handles reductions associated with nesting restrictions.
+	 * Handles reductions which may be associated with nesting restrictions.
 	 */
 	private void handleEdgeListWithRestrictions(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, int startLocation, IntegerList filteredParents){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
@@ -560,7 +560,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		// Only add the result to each resultstore once.
-		// Make sure each edge only gets added to the non-terminal reduction list once per level.
+		// Make sure each edge only gets added to the non-terminal reduction list once per level, by keeping track of them.
 		firstTimeRegistration.clear();
 		firstTimeReductions.clear();
 		for(int j = edgeList.size() - 1; j >= 0; --j){
