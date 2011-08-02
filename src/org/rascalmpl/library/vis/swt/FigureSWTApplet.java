@@ -49,6 +49,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.zorder.SWTZOrderManager;
 import org.rascalmpl.library.vis.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
@@ -102,7 +103,7 @@ public class FigureSWTApplet extends ScrolledComposite
 		Figure fig = FigureFactory.make(this, cfig, null, null);
 		fig = new WhiteSpace( fig, new PropertyManager());
 		this.figure = fig;
-		zorderManager = new SWTZOrderManager(this,inner,figure);
+		zorderManager = new SWTZOrderManager(this,inner);
 		overlapFigures = new Vector<Overlap>();
 		mouseOverFigures = new Stack<MouseOver>();
 	}

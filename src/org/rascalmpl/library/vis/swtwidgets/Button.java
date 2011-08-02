@@ -38,7 +38,6 @@ public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 				executeCallback();
 			}
 		});
-		
 		result.setText(caption);
 		return result;
 	}

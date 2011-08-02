@@ -1,4 +1,4 @@
-package org.rascalmpl.library.vis.swt;
+package org.rascalmpl.library.vis.swt.zorder;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -15,15 +15,17 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
+import org.rascalmpl.library.vis.swt.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.Rectangle;
 
-public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveListener {
+public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveListener, IHasZOrder{
 
 	private Figure fig;
 	private Rectangle overlap;
 	private FigureSWTApplet parent;
+	private int zorder;
 	
 	public OverlapCanvas(FigureSWTApplet parent,Composite floor) {
 		super(floor, SWT.NORMAL);
@@ -59,6 +61,22 @@ public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveLis
 		e.x+=fig.globalLocation.getX();
 		e.y+=fig.globalLocation.getY();
 		parent.mouseMove(e);
+	}
+
+	@Override
+	public void setZOrder(int depth) {
+		zorder = depth;
+		
+	}
+
+	@Override
+	public int getZOrder() {
+		return zorder;
+	}
+
+	@Override
+	public Control getElement() {
+		return this;
 	}
 	
 	

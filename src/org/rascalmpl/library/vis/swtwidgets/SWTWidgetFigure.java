@@ -24,13 +24,15 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.FigureSWTApplet;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.swt.ISWTZOrdering;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
+import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
+import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
 
 
-public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure{
+public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure implements IHasZOrder{
 
 	public WidgetType widget;
+	int zorder;
 	
 	SWTWidgetFigure(IFigureConstructionEnv env,PropertyManager properties){
 		super(properties);
@@ -68,7 +70,7 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	
 
 	public void setSWTZOrder(ISWTZOrdering zorder){
-		zorder.registerControl(widget);
+		zorder.registerControl(this);
 	}
 	
 	public void suspend(){
@@ -77,5 +79,17 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	
 	public void activate(){
 		widget.setVisible(true);
+	}
+	
+	public void setZOrder(int depth){
+		zorder = depth;
+	}
+	
+	public int getZOrder(){
+		return zorder;
+	}
+	
+	public Control getElement(){
+		return widget;
 	}
 }

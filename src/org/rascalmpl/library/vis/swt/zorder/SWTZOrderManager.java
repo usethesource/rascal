@@ -1,41 +1,43 @@
-package org.rascalmpl.library.vis.swt;
+package org.rascalmpl.library.vis.swt.zorder;
 
+import java.util.Collections;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.containers.Overlap;
-import org.rascalmpl.library.vis.containers.Space;
-import org.rascalmpl.library.vis.containers.WhiteSpace;
 import org.rascalmpl.library.vis.interaction.MouseOver;
+import org.rascalmpl.library.vis.swt.FigureSWTApplet;
 import org.rascalmpl.library.vis.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.util.Rectangle;
 
 public class SWTZOrderManager implements ISWTZOrdering {
 	
-	private Figure parentFig;
 	private Composite floor;
 	private Vector<Control> currentZOrder;
 	private Stack<Integer> overlapIndexes;
 	private Vector<OverlapCanvas> overlapPool;
 	private int currentIndexOverlapPool;
 	private FigureSWTApplet parent;
+	private Vector<IHasZOrder> allElements;
+	private int currentDepth;
 
 	
-	public SWTZOrderManager(FigureSWTApplet parent,Composite floor,Figure parentFig) {
+	public SWTZOrderManager(FigureSWTApplet parent,Composite floor) {
 		currentZOrder = new Vector<Control>();
 		overlapIndexes = new Stack<Integer>();
 		overlapPool = new Vector<OverlapCanvas>();
+		allElements = new Vector<IHasZOrder>();
 		currentIndexOverlapPool = 0;
-		this.parentFig = parentFig;
 		this.floor = floor;
 		this.parent = parent;
 	}
 
 	public void begin(){
+		currentDepth = 0;
+		allElements.clear();
 		currentZOrder.clear();
 		overlapIndexes.clear();
 		currentIndexOverlapPool = 0;
@@ -47,11 +49,13 @@ public class SWTZOrderManager implements ISWTZOrdering {
 			overlapPool.get(currentIndexOverlapPool).dispose();
 			overlapPool.remove(currentIndexOverlapPool);
 		}
+		setZOrder();
 	}
-	
+
 	@Override
 	public void pushOverlap() {
 		overlapIndexes.push(currentZOrder.size());
+		currentDepth++;
 	}
 
 	@Override
@@ -60,12 +64,13 @@ public class SWTZOrderManager implements ISWTZOrdering {
 			currentZOrder.remove(overlapIndexes.peek());
 		}
 		overlapIndexes.pop();
+		currentDepth--;
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void register(Figure fig) {
 		if(overlapIndexes.isEmpty()){
+			System.out.printf("Weird.. no overlaps\n");
 			return;
 		}
 		if(!(fig instanceof SWTWidgetFigure)){
@@ -102,18 +107,9 @@ public class SWTZOrderManager implements ISWTZOrdering {
 		Rectangle overlap = fig.getRectangleIncludingOuterLines();
 		OverlapCanvas canv = getOverlapCanvasFromPool();
 		canv.setOverlap(fig,overlap);
-		moveAboveAll(canv);
 		currentZOrder.add(canv);
-	}
-	
-	private void moveAboveAll(Control c){
-		c.moveBelow(null);
-		if(!currentZOrder.isEmpty()){
-			c.moveAbove(currentZOrder.lastElement());
-		} else {
-			//System.out.printf("Moving to bottom");
-			
-		}
+		canv.setZOrder(currentDepth);
+		allElements.add(canv);
 	}
 
 	@Override
@@ -129,13 +125,24 @@ public class SWTZOrderManager implements ISWTZOrdering {
 		parent.registerMouseOver(mouseOver);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public void registerControl(Control c) {
-		moveAboveAll(c);
-		currentZOrder.add(c);
+	public void registerControl(SWTWidgetFigure c) {
+		c.setZOrder(currentDepth);
+		currentZOrder.add(c.widget);
+		allElements.add(c);
 	}
 	
-	
+	private void setZOrder() {
+		Collections.sort(allElements, IHasZOrderComparator.instance);
+		Control prev = null;
+		for(IHasZOrder elem : allElements){
+			Control cur = elem.getElement();
+			if(prev == null) cur.moveBelow(null);
+			else cur.moveAbove(prev);
+			prev = cur;
+		}
+	}
 
 
 }
