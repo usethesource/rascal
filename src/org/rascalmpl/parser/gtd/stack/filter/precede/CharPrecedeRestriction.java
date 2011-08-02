@@ -3,6 +3,10 @@ package org.rascalmpl.parser.gtd.stack.filter.precede;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
+/**
+ * A filter that restricts the indicated substring from being preceded by one
+ * of the characters in the set of ranges.
+ */
 public class CharPrecedeRestriction implements IEnterFilter{
 	private final char[][] ranges;
 	

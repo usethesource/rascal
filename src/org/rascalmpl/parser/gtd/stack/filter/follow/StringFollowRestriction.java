@@ -14,6 +14,10 @@ package org.rascalmpl.parser.gtd.stack.filter.follow;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
+/**
+ * A filter that restricts the indicated substring from being followed by the
+ * string associated with this filter.
+ */
 public class StringFollowRestriction implements ICompletionFilter{
 	private final char[] string;
 	

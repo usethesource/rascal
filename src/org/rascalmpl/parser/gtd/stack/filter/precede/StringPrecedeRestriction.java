@@ -14,6 +14,10 @@ package org.rascalmpl.parser.gtd.stack.filter.precede;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
+/**
+ * A filter that restricts the indicated substring from being preceded by the
+ * string associated with this filter.
+ */
 public class StringPrecedeRestriction implements IEnterFilter{
 	private final char[] string;
 	

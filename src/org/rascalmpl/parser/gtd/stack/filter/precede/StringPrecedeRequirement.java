@@ -14,6 +14,10 @@ package org.rascalmpl.parser.gtd.stack.filter.precede;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
+/**
+ * A filter that requires the indicated substring to be preceded by the string
+ * associated with this filter.
+ */
 public class StringPrecedeRequirement implements IEnterFilter{
 	private final char[] string;
 	
