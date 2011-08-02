@@ -2,36 +2,36 @@ package org.rascalmpl.library.vis;
 
 import java.util.Random;
 
-import org.rascalmpl.library.vis.swt.Constants;
+import org.eclipse.swt.SWT;
 
 public class FigureApplet {
 	
 	final static int seed = 22;
 	static Random random = new Random(seed);
 
-	final public static int CORNERS = Constants.CORNERS;
+	final public static int CORNERS = 0;
 	
-	final public static int CORNER = Constants.CORNER;
+	final public static int CORNER = 1;
 	
-	final public static int CENTER  = Constants.CENTER;
+	final public static int CENTER  = SWT.CENTER;
 	
-	final public static int RADIUS  = Constants.RADIUS;
+	final public static int RADIUS  = 2;
 	
-	final public static int LEFT = Constants.LEFT;
+	final public static int LEFT = SWT.LEFT;
 
-	final public static int RIGHT  = Constants.RIGHT;
+	final public static int RIGHT  = SWT.RIGHT;
 	
-	final public static int TOP = Constants.TOP;
+	final public static int TOP = SWT.TOP;
 	
-	final public static int BOTTOM  = Constants.BOTTOM;
+	final public static int BOTTOM  = SWT.BOTTOM;
 	
-	final public static int BASELINE  = Constants.BASELINE;
+	final public static int BASELINE  = 3;
 	
 	final public static double PI = Math.PI;
 	
-	final public static int OPEN = Constants.OPEN;
+	final public static int OPEN = SWT.OPEN;
 	
-	final public static int CLOSE = Constants.CLOSE;
+	final public static int CLOSE = SWT.CLOSE;
 
 	public static double min(double x, double y) {
 		return Math.min(x, y);
@@ -72,7 +72,6 @@ public class FigureApplet {
 	}
 
 	public static double sin(double theta) {
-		// TODO Auto-generated method stub
 		return Math.sin(theta);
 	}
 

@@ -2,7 +2,7 @@ package org.rascalmpl.library.vis.containers;
 
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ISWTZOrdering;
+import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
 
 public class Overlap extends FigureWithNonLocalFigure{
 	

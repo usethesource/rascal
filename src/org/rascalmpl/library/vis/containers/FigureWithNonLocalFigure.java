@@ -6,7 +6,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.swt.ISWTZOrdering;
+import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.Rectangle;

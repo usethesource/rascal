@@ -20,7 +20,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;
-import org.rascalmpl.library.vis.swt.ISWTZOrdering;
+import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
 import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;

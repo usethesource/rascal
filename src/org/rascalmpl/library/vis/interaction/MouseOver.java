@@ -4,7 +4,7 @@ import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.containers.Overlap;
 import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ISWTZOrdering;
+import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
 
 public class MouseOver extends Overlap{
 
