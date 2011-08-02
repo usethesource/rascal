@@ -167,12 +167,6 @@ public abstract class AbstractStackNode{
 	public abstract String getName();
 	
 	/**
-	 * Matches the symbol associated with this node to the input at the specified location.
-	 * This operation is only available on matchable nodes.
-	 */
-	public abstract AbstractNode match(char[] input, int location);
-	
-	/**
 	 * Check whether of this this node is equal to the given node.
 	 */
 	public abstract boolean isEqual(AbstractStackNode stackNode);
@@ -608,6 +602,12 @@ public abstract class AbstractStackNode{
 	}
 	
 	// Matchables.
+	/**
+	 * Matches the symbol associated with this node to the input at the specified location.
+	 * This operation is only available on matchable nodes.
+	 */
+	public abstract AbstractNode match(char[] input, int location);
+	
 	/**
 	 * Returns the length of this node (only applies to matchables).
 	 */

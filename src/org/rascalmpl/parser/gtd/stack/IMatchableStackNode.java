@@ -13,10 +13,20 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 
+/**
+ * Indicates that the stack node is matchable.
+ * Literals and characters are examples of matchable nodes.
+ */
 public interface IMatchableStackNode{
+	/**
+	 * Matches the node to the input string and the indicated location and
+	 * constructs the result in case the match was successful. Null will
+	 * be returned otherwise. 
+	 */
 	AbstractNode match(char[] input, int location);
 	
-	boolean matchWithoutResult(char[] input, int location);
-	
+	/**
+	 * Returns the length (in number of characters) of the matchable.
+	 */
 	int getLength();
 }

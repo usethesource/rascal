@@ -66,13 +66,6 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		return result;
 	}
 	
-	public boolean matchWithoutResult(char[] input, int location){
-		for(int i = literal.length - 1; i >= 0; --i){
-			if(literal[i] != input[location + i]) return false; // Did not match.
-		}
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new LiteralStackNode(this, startLocation);
 	}

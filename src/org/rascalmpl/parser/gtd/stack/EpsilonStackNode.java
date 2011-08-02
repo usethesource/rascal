@@ -43,10 +43,6 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		return result;
 	}
 	
-	public boolean matchWithoutResult(char[] input, int location){
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new EpsilonStackNode(this, startLocation);
 	}

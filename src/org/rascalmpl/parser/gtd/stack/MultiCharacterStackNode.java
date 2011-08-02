@@ -93,23 +93,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		return new LiteralNode(production, resultArray);
 	}
 	
-	public boolean matchWithoutResult(char[] input, int location){
-		int nrOfCharacters = characters.length;
-		OUTER : for(int i = nrOfCharacters - 1; i >= 0; --i){
-			char next = input[location + i];
-			
-			char[] alternatives = characters[i];
-			for(int j = alternatives.length - 1; j >= 0; --j){
-				if(next == alternatives[j]){
-					continue OUTER;
-				}
-			}
-			return false;
-		}
-		
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new MultiCharacterStackNode(this, startLocation);
 	}
