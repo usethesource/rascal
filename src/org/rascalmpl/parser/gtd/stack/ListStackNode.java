@@ -55,6 +55,9 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		emptyChild = original.emptyChild;
 	}
 	
+	/**
+	 * Generates and initializes the alternative for this list.
+	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode child){
 		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
 		listNode.setParentProduction(production);
@@ -62,6 +65,9 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		return new AbstractStackNode[]{listNode};
 	}
 	
+	/**
+	 * Generates and initializes the empty child for this list (in case this is a star list).
+	 */
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setParentProduction(production);

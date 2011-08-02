@@ -49,6 +49,9 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		children = original.children;
 	}
 	
+	/**
+	 * Generates and initializes the alternatives for this sequence.
+	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode[] children){
 		AbstractStackNode[] prod = new AbstractStackNode[children.length];
 		

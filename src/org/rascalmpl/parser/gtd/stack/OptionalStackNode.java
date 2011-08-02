@@ -56,12 +56,18 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		emptyChild = original.emptyChild;
 	}
 	
+	/**
+	 * Generates and initializes the alternative for this optional.
+	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode optional){
 		AbstractStackNode child = optional.getCleanCopy(DEFAULT_START_LOCATION);
 		child.setParentProduction(production);
 		return new AbstractStackNode[]{child};
 	}
 	
+	/**
+	 * Generates and initializes the empty child for this optional.
+	 */
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setParentProduction(production);

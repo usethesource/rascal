@@ -7,6 +7,7 @@
  *
  * Contributors:
 
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
