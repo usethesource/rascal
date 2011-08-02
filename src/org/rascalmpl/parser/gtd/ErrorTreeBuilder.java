@@ -243,16 +243,16 @@ public class ErrorTreeBuilder{
 		while(!unmatchableNodes.isEmpty()){
 			AbstractStackNode unmatchableNode = unmatchableNodes.pop();
 			
-			int startLocation = unmatchableNode.getStartLocation();
+			int length = unmatchableNode.getLength();
 			
-			AbstractNode[] children = new AbstractNode[location - startLocation];
+			AbstractNode[] children = new AbstractNode[length];
 			for(int i = children.length - 1; i >= 0; --i){
-				children[i] = CharNode.createCharNode(input[startLocation - i]);
+				children[i] = CharNode.createCharNode(input[location + i]);
 			}
 			
 			IConstructor symbol = findSymbol(unmatchableNode);
 			
-			AbstractNode result = new ExpectedNode(children, symbol, inputURI, startLocation, location, unmatchableNode.isSeparator(), unmatchableNode.isLayout());
+			AbstractNode result = new ExpectedNode(children, symbol, inputURI, location, location + length, unmatchableNode.isSeparator(), unmatchableNode.isLayout());
 			
 			errorNodes.push(unmatchableNode, result);
 		}

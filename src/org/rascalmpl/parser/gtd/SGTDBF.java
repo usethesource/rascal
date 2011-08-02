@@ -190,7 +190,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
-				//unmatchableNodes.push(next);
+				unmatchableNodes.push(next);
 				return null;
 			}
 			
@@ -246,7 +246,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
-				//unmatchableNodes.push(next);
+				unmatchableNodes.push(next);
 				return false;
 			}
 			
@@ -774,7 +774,7 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractNode result = first.match(input, location);
 				if(result == null){
-					//unmatchableNodes.push(first);
+					unmatchableNodes.push(first);
 					continue;
 				}
 				
@@ -884,7 +884,7 @@ public abstract class SGTDBF implements IGTD{
 						
 						AbstractNode result = child.match(input, location);
 						if(result == null){
-							//unmatchableNodes.push(child);
+							unmatchableNodes.push(child);
 							continue;
 						}
 						
