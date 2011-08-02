@@ -230,7 +230,7 @@ public class ErrorTreeBuilder{
 		throw new RuntimeException("Unknown type of production: "+prod);
 	}
 	
-	IConstructor buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
+	AbstractContainerNode buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
@@ -271,26 +271,19 @@ public class ErrorTreeBuilder{
 			move(errorStackNode, result);
 		}
 		
-		Object rootEnvironment = actionExecutor.createRootEnvironment();
-		try{
-			// Construct the rest of the input as separate character nodes.
-			CharNode[] rest = new CharNode[input.length - location];
-			for(int i = input.length - 1; i >= location; --i){
-				rest[i - location] = new CharNode(input[i]);
-			}
-			
-			// Find the top node.
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
-			AbstractContainerNode result = levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
-			
-			// Update the top node with the rest of the string (it will always be a sort node).
-			((ErrorSortContainerNode) result).setUnmatchedInput(rest);
-			
-			// Flatten error tree.
-			NodeToUPTR converter = new NodeToUPTR();
-			return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
-		}finally{
-			actionExecutor.completed(rootEnvironment, true);
+		// Construct the rest of the input as separate character nodes.
+		CharNode[] rest = new CharNode[input.length - location];
+		for(int i = input.length - 1; i >= location; --i){
+			rest[i - location] = new CharNode(input[i]);
 		}
+		
+		// Find the top node.
+		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
+		ErrorSortContainerNode result = (ErrorSortContainerNode) levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
+		
+		// Update the top node with the rest of the string (it will always be a sort node).
+		result.setUnmatchedInput(rest);
+	
+		return result;
 	}
 }
