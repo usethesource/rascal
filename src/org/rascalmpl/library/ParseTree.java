@@ -247,8 +247,20 @@ public class ParseTree {
 		
 		if (TreeAdapter.isAppl(tree)) {
 			IList args = TreeAdapter.getASTArgs(tree);
+			// this could be optimized.
+			int i = 0;
 			int length = args.length();
-
+			while (i < length) {
+				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
+					length--;
+					args = args.delete(i);
+				}
+				else {
+					i++;
+				}
+			}
+			
+			
 			java.lang.String constructorName = unescapedConsName(tree);			
 			
 			if (constructorName == null) {
