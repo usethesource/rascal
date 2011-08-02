@@ -9,11 +9,11 @@ Syntax:
 Types:
 
 Function:
-`grid(Figures figs, FProperty props...)`
+`grid(list[list[Figure]] figs, FProperty props...)`
 
 Synopsis:
 
-Description: Place figures on a fixed grid. The [width] property determines the horizontal size of the grid
+Description: Layout figures in a grid. Place figures on a fixed grid. The [width] property determines the horizontal size of the grid
 while the vertical size is determined automatically.
 The [hgap] and [vgap] properties determine the distance between grid points.
 
