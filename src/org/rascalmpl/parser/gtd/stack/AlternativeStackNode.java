@@ -49,6 +49,9 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		children = original.children;
 	}
 	
+	/**
+	 * Generates and initializes the alternatives for this alternative.
+	 */
 	private AbstractStackNode[] generateAlternatives(AbstractStackNode[] alternatives){
 		AbstractStackNode[] children = new AbstractStackNode[alternatives.length];
 		

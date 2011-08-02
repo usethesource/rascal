@@ -56,6 +56,9 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		emptyChild = original.emptyChild;
 	}
 	
+	/**
+	 * Generates and initializes the alternative for this separated list.
+	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode child, AbstractStackNode[] separators){
 		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
 		listNode.setParentProduction(production);
@@ -76,6 +79,9 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		return new AbstractStackNode[]{listNode};
 	}
 	
+	/**
+	 * Generates and initializes the empty child for this separated list (if it's a star list).
+	 */
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setParentProduction(production);
