@@ -95,10 +95,10 @@ public void mondriaan(){
 	render(grid([
 			[
 				vcat([box(),box()],hshrink(0.2),vshrink(0.8))
-				,box(fillColor("red"))
+				,box(fillColor("red"),vshrink(0.8))
 			],
 	 		[
-	 			box(fillColor("blue")),
+	 			box(fillColor("blue"),hshrink(0.2)),
 	 			hcat([
 	 				  box(hshrink(0.9)),
 	 				  vcat([box(),box(fillColor("yellow"))])
