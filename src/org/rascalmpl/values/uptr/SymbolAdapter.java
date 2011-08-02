@@ -154,8 +154,15 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isOpt(IConstructor tree) {
-		tree = delabel(tree);
-		return tree.getConstructorType() == Factory.Symbol_Opt;
+		return delabel(tree).getConstructorType() == Factory.Symbol_Opt;
+	}
+	
+	public static boolean isSequence(IConstructor tree){
+		return delabel(tree).getConstructorType() == Factory.Symbol_Seq;
+	}
+	
+	public static boolean isAlternative(IConstructor tree){
+		return delabel(tree).getConstructorType() == Factory.Symbol_Alt;
 	}
 
 	public static String toString(IConstructor symbol) {

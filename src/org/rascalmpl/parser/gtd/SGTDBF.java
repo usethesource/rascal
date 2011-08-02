@@ -1075,7 +1075,7 @@ public abstract class SGTDBF implements IGTD{
 		AbstractContainerNode result;
 		
 		if(parseErrorOccured){
-			ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, positionStore, actionExecutor, input, location, inputURI);
+			ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(this, startNode, input, location, inputURI);
 			result = errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
 		}else if(filterErrorOccured){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);

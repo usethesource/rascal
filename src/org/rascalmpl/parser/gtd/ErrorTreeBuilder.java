@@ -15,11 +15,9 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
@@ -32,7 +30,6 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -41,8 +38,6 @@ public class ErrorTreeBuilder{
 	
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
-	private final PositionStore positionStore;
-	private final IActionExecutor actionExecutor;
 	
 	private final char[] input;
 	private final int location;
@@ -51,15 +46,11 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
-	private final IntegerObjectList<AbstractStackNode> sharedPrefixNext;
-	
-	public ErrorTreeBuilder(SGTDBF parser, AbstractStackNode startNode, PositionStore positionStore, IActionExecutor actionExecutor, char[] input, int location, URI inputURI){
+	public ErrorTreeBuilder(SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
 		super();
 		
 		this.parser = parser;
 		this.startNode = startNode;
-		this.positionStore = positionStore;
-		this.actionExecutor = actionExecutor;
 		
 		this.input = input;
 		this.location = location;
@@ -67,8 +58,6 @@ public class ErrorTreeBuilder{
 		
 		errorNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 		errorResultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String,AbstractContainerNode>>();
-
-		sharedPrefixNext = new IntegerObjectList<AbstractStackNode>();
 	}
 	
 	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
@@ -216,15 +205,30 @@ public class ErrorTreeBuilder{
 		
 		// Regular
 		IConstructor rhs = ProductionAdapter.getType(prod);
-		IConstructor symbol = (IConstructor) rhs.get("symbol");
-		if(dot == 0){
-			return symbol;
+		
+		if(SymbolAdapter.isOpt(rhs)){
+			return (IConstructor) rhs.get("symbol");
 		}
 		
-		if(SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)){
-			IList separators = (IList) rhs.get("separators");
+		if(SymbolAdapter.isAnyList(rhs)){
+			IConstructor symbol = (IConstructor) rhs.get("symbol");
+			if(dot == 0){
+				return symbol;
+			}
 			
-			return (IConstructor) separators.get(dot - 1);
+			if(SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)){
+				IList separators = (IList) rhs.get("separators");
+				return (IConstructor) separators.get(dot - 1);
+			}
+		}
+		
+		if(SymbolAdapter.isSequence(rhs)){
+			IList symbols = (IList) rhs.get("symbols");
+			return (IConstructor) symbols.get(dot);
+		}
+		
+		if(SymbolAdapter.isAlternative(rhs)){
+			// TODO Implement
 		}
 		
 		throw new RuntimeException("Unknown type of production: "+prod);
