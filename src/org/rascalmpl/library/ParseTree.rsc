@@ -154,7 +154,7 @@ Parsetree Implosion
 This function implodes a parsetree by simulataneously traversing the 
 reified ADT and the parse tree. Meanwhile, an AST is constructed as follows:
 
-- Literals and layout nodes are skipped.
+- Literals, layout and empty (i.e. ()) nodes are skipped.
 
 - Regular */+ lists are imploded to list[]s or set[]s depending on what is 
   expected in the ADT.
