@@ -3,6 +3,10 @@ package org.rascalmpl.parser.gtd.stack.filter.follow;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
+/**
+ * A filter that requires the indicated substring to be followed by one of the
+ * characters in the set of ranges.
+ */
 public class CharFollowRequirement implements ICompletionFilter{
 	private final char[][] ranges;
 	

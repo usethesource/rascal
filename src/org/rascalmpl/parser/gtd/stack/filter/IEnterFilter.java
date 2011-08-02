@@ -13,8 +13,18 @@ package org.rascalmpl.parser.gtd.stack.filter;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
 
+/**
+ * A filter that is executed during expansion.
+ */
 public interface IEnterFilter{
+	/**
+	 * Checks whether or not the indicated location in the input string matches
+	 * this filter.
+	 */
 	boolean isFiltered(char[] input, int start, PositionStore positionStore);
 	
+	/**
+	 * Checks filter equality.
+	 */
 	boolean isEqual(IEnterFilter otherEnterFilter);
 }

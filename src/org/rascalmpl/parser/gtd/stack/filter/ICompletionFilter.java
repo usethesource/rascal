@@ -13,8 +13,18 @@ package org.rascalmpl.parser.gtd.stack.filter;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
 
+/**
+ * A filter that is executed before reduction.
+ */
 public interface ICompletionFilter{
+	/**
+	 * Checks whether or not the indicated position in the input string matches
+	 * this filter.
+	 */
 	boolean isFiltered(char[] input, int start, int end, PositionStore positionStore);
 	
+	/**
+	 * Checks filter equality.
+	 */
 	boolean isEqual(ICompletionFilter otherCompletionFilter);
 }

@@ -3,6 +3,9 @@ package org.rascalmpl.parser.gtd.stack.filter.precede;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
+/**
+ * A filter that requires the indicated substring to start at a certain column.
+ */
 public class AtColumnRequirement implements IEnterFilter{
 	private final int column;
 	

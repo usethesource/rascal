@@ -3,6 +3,10 @@ package org.rascalmpl.parser.gtd.stack.filter.follow;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
+/**
+ * A filter that prevents the indicated substring from being followed by any of
+ * the, with this filter associated, series of characters.
+ */
 public class MultiCharFollowRestriction implements ICompletionFilter{
 	private final char[][] characters;
 	
