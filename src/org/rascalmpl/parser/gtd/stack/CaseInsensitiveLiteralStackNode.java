@@ -107,21 +107,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return new LiteralNode(production, resultLiteral);
 	}
 	
-	public boolean matchWithoutResult(char[] input, int location){
-		int literalLength = ciLiteral.length;
-		OUTER : for(int i = literalLength - 1; i >= 0; --i){
-			char[] ciLiteralPart = ciLiteral[i];
-			for(int j = ciLiteralPart.length - 1; j >= 0; --j){
-				char character = ciLiteralPart[j];
-				if(character == input[location + i]){
-					continue OUTER;
-				}
-			}
-			return false; // Did not match.
-		}
-		return true;
-	}
-	
 	public boolean isClean(){
 		return true;
 	}
