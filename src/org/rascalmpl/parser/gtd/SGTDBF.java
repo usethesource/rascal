@@ -868,6 +868,8 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}
 		}else{ // Expandable
+			boolean expanded = false;
+			
 			AbstractStackNode[] listChildren = stack.getChildren();
 			
 			// Unfold the expandable stack node.
@@ -907,6 +909,8 @@ public abstract class SGTDBF implements IGTD{
 					child.initEdges();
 					child.addEdgeWithPrefix(stack, null, location);
 				}
+				
+				expanded = true;
 			}
 			
 			if(stack.canBeEmpty()){ // Star list, optional or such.
@@ -916,6 +920,12 @@ public abstract class SGTDBF implements IGTD{
 				empty.addEdge(stack, location);
 				
 				stacksToExpand.push(empty);
+				
+				expanded = true;
+			}
+			
+			if(!expanded){
+				unexpandableNodes.push(stack);
 			}
 		}
 	}
