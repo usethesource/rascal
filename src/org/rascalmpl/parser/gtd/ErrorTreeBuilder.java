@@ -228,7 +228,7 @@ public class ErrorTreeBuilder{
 		}
 		
 		if(SymbolAdapter.isAlternative(rhs)){
-			// TODO Implement
+			throw new RuntimeException("Retrieving the correct symbol from alternatives is not possible.");
 		}
 		
 		throw new RuntimeException("Unknown type of production: "+prod);
