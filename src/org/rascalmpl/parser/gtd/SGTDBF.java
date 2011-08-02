@@ -163,21 +163,19 @@ public abstract class SGTDBF implements IGTD{
 		AbstractStackNode alternative = sharedNextNodes.get(next.getId());
 		if(alternative != null){ // Sharing check.
 			if(result.isEmpty()){
-				if(alternative.getId() != node.getId() && !(alternative.isSeparator() || node.isSeparator())){ // (Separated) list cycle fix.
-					if(alternative.isMatchable()){
-						if(alternative.isEmptyLeafNode()){
-							// Encountered a stack 'overtake'.
-							propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size());
-							return alternative;
-						}
-					}else{
-						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-						AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
-						if(nextResult != null){
-							// Encountered a stack 'overtake'.
-							propagateEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size());
-							return alternative;
-						}
+				if(alternative.isMatchable()){
+					if(alternative.isEmptyLeafNode()){
+						// Encountered a stack 'overtake'.
+						propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size());
+						return alternative;
+					}
+				}else{
+					ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+					AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
+					if(nextResult != null){
+						// Encountered a stack 'overtake'.
+						propagateEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size());
+						return alternative;
 					}
 				}
 			}
@@ -218,21 +216,19 @@ public abstract class SGTDBF implements IGTD{
 		AbstractStackNode alternative = sharedNextNodes.get(id);
 		if(alternative != null){ // Sharing check.
 			if(result.isEmpty()){
-				if(alternative.getId() != node.getId() && !(alternative.isSeparator() || node.isSeparator())){ // (Separated) list cycle fix.
-					if(alternative.isMatchable()){
-						if(alternative.isEmptyLeafNode()){
-							// Encountered a stack 'overtake'.
-							propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), edgesMap.size(), edgesMap, prefixesMap);
-							return true;
-						}
-					}else{
-						ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-						AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
-						if(nextResult != null){
-							// Encountered a stack 'overtake'.
-							propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, edgesMap.size(), edgesMap, prefixesMap);
-							return true;
-						}
+				if(alternative.isMatchable()){
+					if(alternative.isEmptyLeafNode()){
+						// Encountered a stack 'overtake'.
+						propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), edgesMap.size(), edgesMap, prefixesMap);
+						return true;
+					}
+				}else{
+					ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+					AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
+					if(nextResult != null){
+						// Encountered a stack 'overtake'.
+						propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, edgesMap.size(), edgesMap, prefixesMap);
+						return true;
 					}
 				}
 			}
@@ -347,7 +343,7 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}
 			
-			// Handle alternative nexts (and prefix sharing).
+			// Handle alternative continuations (and prefix sharing).
 			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 			if(alternateProds != null){
 				IntegerObjectList<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
@@ -413,8 +409,8 @@ public abstract class SGTDBF implements IGTD{
 					nextNextAlternative.updateNode(next, nextResult);
 				}
 			}
-
-			// Handle alternative nexts (and prefix sharing).
+			
+			// Handle alternative continuations (and prefix sharing).
 			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 			if(alternateProds != null){
 				IntegerObjectList<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
