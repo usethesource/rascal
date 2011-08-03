@@ -24,6 +24,11 @@ data Node = document(Node root)
 		  | charRef(int code);             
 
 
+public Node attribute(str name, str text) = attribute(none(), name, text);
+public Node element(str name, list[Node] kids) = element(none(), name, kids);
+
+
+
 @javaClass{org.rascalmpl.library.XMLDOM}
 public java Node parseXMLDOM(str src);
 
