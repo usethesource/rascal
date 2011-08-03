@@ -223,14 +223,11 @@ public class GlobalEnvironment {
 		store.put(module, newT);
 	}
 	
-	public Set<String> getDependingModules(String mod) {
+	public Set<String> getImportingModules(String mod) {
 		Set<String> result = new HashSet<String>();
 		
 		for (ModuleEnvironment env : moduleEnvironment.values()) {
 			if (env.getImports().contains(mod)) {
-				result.add(env.getName());
-			}
-			if (env.getExtends().contains(mod)) {
 				result.add(env.getName());
 			}
 		}

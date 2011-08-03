@@ -45,7 +45,7 @@ public class Scripting {
 	public Scripting(IValueFactory values){
 		super();
 		this.values = values;
-		duration = values.integer(1000); // default duration for eval and shell
+		duration = values.integer(1000*100); // default duration for eval and shell
 	}
 
 	public IValue shell(IList lines, IInteger duration, IEvaluatorContext ctx) {

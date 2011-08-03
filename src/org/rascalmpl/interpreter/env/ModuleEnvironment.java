@@ -117,6 +117,22 @@ public class ModuleEnvironment extends Environment {
 		productions.add(x.getTree());
 	}
 	
+	public boolean definesSyntax() {
+		if (!productions.isEmpty()) {
+			return true;
+		}
+		
+		for (String mod : getExtendsTransitive()) {
+			ModuleEnvironment env = heap.getModule(mod);
+			if (env != null) {
+				if (!env.productions.isEmpty()) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 	/** 
 	 * Builds a map to communicate all relevant syntax definitions to the parser generator.
 	 * See lang::rascal::grammar::definition::Modules.modules2grammar()
@@ -700,5 +716,29 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		return Collections.<String>emptySet();
+	}
+	
+	public Set<String> getExtendsTransitive() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		Set<String> result = new HashSet<String>();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getExtends()) {
+				  result.add(e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
 	}
 }
