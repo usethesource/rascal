@@ -63,7 +63,7 @@ public class ListContainerNodeConverter{
 			throw new UnsupportedOperationException();
 		}
 		
-		public boolean isSeparator(){
+		public boolean isNonterminalSeparator(){
 			throw new UnsupportedOperationException();
 		}
 		
@@ -239,7 +239,7 @@ public class ListContainerNodeConverter{
 				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)) return;
 				
-				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle.
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
 					if(cycle != null){
 						prefixNode = cycle;
@@ -286,7 +286,7 @@ public class ListContainerNodeConverter{
 				AbstractNode prefixNode = prefix.getNode();
 				if(blackList.contains(prefixNode)) continue;
 				
-				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle.
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
 					if(cycle != null){
 						gatherProduction(converter, prefix, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor, environment);

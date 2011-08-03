@@ -13,6 +13,9 @@ package org.rascalmpl.parser.gtd.result;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
+/**
+ * A literal result node.
+ */
 public class LiteralNode extends AbstractNode{
 	public final static int ID = 3;
 	
@@ -30,19 +33,31 @@ public class LiteralNode extends AbstractNode{
 		return ID;
 	}
 	
+	/**
+	 * Returns the production associated with this literal.
+	 */
 	public IConstructor getProduction(){
 		return production;
 	}
 	
+	/**
+	 * Returns the substring this literal matched.
+	 */
 	public char[] getContent(){
 		return content;
 	}
 	
+	/**
+	 * Literals aren't allowed to be zero length.
+	 */
 	public boolean isEmpty(){
 		return false;
 	}
 	
-	public boolean isSeparator(){
+	/**
+	 * Literals aren't non-terminals.
+	 */
+	public boolean isNonterminalSeparator(){
 		return false;
 	}
 }

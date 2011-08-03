@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
+/**
+ * A epsilon result node.
+ */
 public class EpsilonNode extends AbstractNode{
 	public final static int ID = 1;
 	
@@ -22,11 +25,17 @@ public class EpsilonNode extends AbstractNode{
 		return ID;
 	}
 	
+	/**
+	 * Epsilons are empty.
+	 */
 	public boolean isEmpty(){
 		return true;
 	}
 	
-	public boolean isSeparator(){
+	/**
+	 * Epsilons aren't non-terminals.
+	 */
+	public boolean isNonterminalSeparator(){
 		return false;
 	}
 }

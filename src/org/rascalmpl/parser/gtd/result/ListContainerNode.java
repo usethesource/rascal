@@ -13,6 +13,10 @@ package org.rascalmpl.parser.gtd.result;
 
 import java.net.URI;
 
+/**
+ * A list result node.
+ * Lists are a type of container.
+ */
 public class ListContainerNode extends AbstractContainerNode{
 	public final static int ID = 5;
 	
