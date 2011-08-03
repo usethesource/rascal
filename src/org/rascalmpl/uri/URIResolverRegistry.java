@@ -21,8 +21,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 public class URIResolverRegistry {
@@ -135,23 +133,47 @@ public class URIResolverRegistry {
 		return resolver.getOutputStream(uri, append);
 	}
 
-	private void mkParentDir(URI uri) throws IOException {
+	/**
+	 * @return a parent uri or null if there is none
+	 */
+	public static URI getParentURI(URI uri) {
 		File file = new File(uri.getPath());
 		File parent = file.getParentFile();
 		
 		if (parent != null && !parent.getName().isEmpty()) {
 			try {
-				URI parentURI = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent.getAbsolutePath(), uri.getQuery(), uri.getFragment());
-
-				if (!exists(parentURI)) {
-					mkDirectory(parentURI);
-				}
-			} 
-			catch (URISyntaxException e) {
-				throw new IOException("malformed uri", e);
+				return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent.getAbsolutePath(), uri.getQuery(), uri.getFragment());
+			} catch (URISyntaxException e) {
+				// can not happen
 			}
 		}
+		
+		return null; // there is no parent;
 	}
-
 	
+	public static URI getChildURI(URI uri, String child) {
+		File file = new File(uri.getPath());
+		File childFile = new File(file, child);
+		
+		try {
+			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), childFile.getAbsolutePath(), uri.getQuery(), uri.getFragment());
+		} catch (URISyntaxException e) {
+			// can not happen
+		}
+		
+		return null; // there is no child?;
+	}
+	
+	public static String getURIName(URI uri) {
+		File file = new File(uri.getPath());
+		return file.getName();
+	}
+	
+	private void mkParentDir(URI uri) throws IOException {
+		URI parentURI = getParentURI(uri);
+		
+		if (parentURI != null && !exists(parentURI)) {
+			mkDirectory(parentURI);
+		}
+	}
 }
