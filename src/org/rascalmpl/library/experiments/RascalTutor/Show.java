@@ -34,9 +34,17 @@ public class Show extends TutorHttpServlet {
 		String concept = escapeForRascal(getStringParameter(request, "concept"));
 		PrintWriter out = response.getWriter();
 		
-		Result<IValue> result = evaluator.eval(null, "showConcept(\"" + concept + "\")", URI.create("stdin:///"));
-		out.println(((IString) result.getValue()).getValue());
-		out.close();
+		try {
+			Result<IValue> result = evaluator.eval(null, "showConcept(\"" + concept + "\")", URI.create("stdin:///"));
+			out.println(((IString) result.getValue()).getValue());
+		}
+		catch (Throwable e) {
+			out.println(escapeForHtml(e.getMessage()));
+			e.printStackTrace(out);
+		}
+		finally {
+			out.close();
+		}
 		//System.err.println("ShowConcept, " + ((IString) result.getValue()).getValue());
 	}
 }

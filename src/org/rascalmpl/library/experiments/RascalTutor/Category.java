@@ -33,9 +33,17 @@ public class Category extends TutorHttpServlet {
 		String pmap = getParametersAsMap(request);
 		
 		PrintWriter out = response.getWriter();
-		Result<IValue> result = evaluator.eval(null, "category(" + pmap + ")", URI.create("stdin:///"));
-
-		out.println(((IString) result.getValue()).getValue());
-		out.close();
+		
+		try {
+			Result<IValue> result = evaluator.eval(null, "category(" + pmap + ")", URI.create("stdin:///"));
+			out.println(((IString) result.getValue()).getValue());
+		}
+		catch (Throwable e) {
+			out.println(escapeForHtml(e.getMessage()));
+			e.printStackTrace(out);
+		}
+		finally {
+			out.close();
+		}
 	}
 }

@@ -31,14 +31,20 @@ public class Eval extends TutorHttpServlet {
 		System.err.println("EvalExpr, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
 		
 		String expr = escapeForRascal(getStringParameter(request,"expr"));
-
-		Result<IValue> result = evaluator.eval(null, expr, URI.create("stdin:///"));
-
 		PrintWriter out = response.getWriter();
-		String resp = "<tt>" + result.getValue().toString() + "</tt>";
-		out.println(resp);
-		out.close();
-		System.err.println("Returns: " + resp);
+
+		try {
+			Result<IValue> result = evaluator.eval(null, expr, URI.create("stdin:///"));
+			String resp = "<tt>" + result.getValue().toString() + "</tt>";
+			out.println(resp);
+		}
+		catch (Throwable e) {
+			out.println(escapeForHtml(e.getMessage()));
+			e.printStackTrace(out);
+		}
+		finally {
+			out.close();
+		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
