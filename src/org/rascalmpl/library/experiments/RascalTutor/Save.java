@@ -35,19 +35,31 @@ public class Save extends TutorHttpServlet {
 		String concept = getStringParameter(request, "concept");
 		String newContent = escapeForRascal(getStringParameter(request, "newcontent"));
 		boolean newConcept = getStringParameter(request, "new").equals("true");
-
-		Result<IValue> result = evaluator.eval(null, "save(\"" + concept + "\",\"" + newContent + "\"," + newConcept + ")", URI.create("stdin:///"));
+		String resp;
 
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
-		
-		String resp = ((IString) result.getValue()).getValue();
-		if(resp.startsWith("<!DOCTYPE"))
-			out.println("<responses><response id=\"replacement\">" + escapeForHtml(resp) + "</response></responses>");
-		else
-			out.println("<responses><response id=\"error\">" + escapeForHtml(resp) + "</response></responses>");
-		out.close();
-		//System.err.println("Response = " + resp);
+
+		try {
+			Result<IValue> result = evaluator.eval(null, "save(\"" + concept + "\",\"" + newContent + "\"," + newConcept + ")", URI.create("stdin:///"));
+		    resp = ((IString) result.getValue()).getValue();
+		    
+		    if (resp.startsWith("<!DOCTYPE")) {
+				out.println("<responses><response id=\"replacement\">" + escapeForHtml(resp) + "</response></responses>");
+		    }
+		    else {
+				out.println("<responses><response id=\"error\">" + escapeForHtml(resp) + "</response></responses>");
+		    }
+			
+		}
+		catch (Throwable e) {
+			out.println("<responses><response id=\"error\">" + escapeForHtml(e.getMessage()));
+			e.printStackTrace(out);
+			out.println("</response></responses>");
+		}
+		finally {
+			out.close();
+		}
 	}
 }

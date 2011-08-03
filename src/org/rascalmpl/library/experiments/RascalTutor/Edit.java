@@ -34,15 +34,22 @@ public class Edit extends TutorHttpServlet {
 		boolean newConcept = getStringParameter(request, "new").equals("true");
 		boolean check = getStringParameter(request, "check").equals("true");
 		
-		Result<IValue> result = evaluator.eval(null, "edit(\"" + concept + "\"," + newConcept + "," + check + ")", URI.create("stdin:///"));
-
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
-		String resp = ((IString) result.getValue()).getValue();
-		out.println(resp);
-		out.close();
-		//System.err.println("Returns: " + resp);
+		
+		try {
+			Result<IValue> result = evaluator.eval(null, "edit(\"" + concept + "\"," + newConcept + "," + check + ")", URI.create("stdin:///"));
+			String resp = ((IString) result.getValue()).getValue();
+			out.println(resp);
+		}
+		catch (Throwable e) {
+			out.println(escapeForHtml(e.getMessage()));
+			e.printStackTrace(out);
+		}
+		finally {
+			out.close();
+		}
 	}
 
 }
