@@ -16,6 +16,11 @@ import java.net.URI;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 
+/**
+ * A error sort result node.
+ * This node is equivalent to the regular sort result node, but (directly or
+ * indirectly) contains incomplete parse results.
+ */
 public class ErrorSortContainerNode extends AbstractContainerNode{
 	public final static int ID = 6;
 	
@@ -31,10 +36,20 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		return ID;
 	}
 	
+	/**
+	 * Sets the unmatched input.
+	 * The unmatched input represents the characters in the input string which
+	 * were not successfully parsed.
+	 */
 	public void setUnmatchedInput(CharNode[] unmatchedInput){
 		this.unmatchedInput = unmatchedInput;
 	}
 	
+	/**
+	 * Retrieves the chracters in the input string which were not successfully
+	 * parsed. Only the top node in the parse tree will be in possession of
+	 * this information. In all other cases 'null' will be returned.
+	 */
 	public CharNode[] getUnmatchedInput(){
 		return unmatchedInput;
 	}
