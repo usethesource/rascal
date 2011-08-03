@@ -286,11 +286,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (path.length() > 1) {
 					int index = path.lastIndexOf('.');
 
-					if (index == -1) {
-						path = path + '.' + ext;
+					if (index == -1 && !ext.isEmpty()) {
+						path = path + (!ext.startsWith(".") ? "." : "") + ext;
+					}
+					else if (!ext.isEmpty()) {
+						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
 					}
 					else {
-						path = path.substring(0, index) + '.' + ext;
+						path = path.substring(0, index);
 					}
 					
 					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());

@@ -98,6 +98,7 @@ public class StringResult extends ElementResult<IString> {
 //		return makeResult(type, s.getValue().concat(getValue()), ctx);
 //	}	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult s) {
 		// Note the reverse concat.
@@ -161,7 +162,16 @@ public class StringResult extends ElementResult<IString> {
 	protected <U extends IValue> Result<U> addSourceLocation(
 			SourceLocationResult that) {
 		Result<IValue> path = that.fieldAccess("path", new TypeStore());
-		return that.fieldUpdate("path", path.add(this), new TypeStore());
+		String parent = ((IString) path.getValue()).getValue();
+		String child = getValue().getValue();
+		if (parent.endsWith("/")) {
+			parent = parent.substring(0, parent.length() - 1);
+		}
+		if (!child.startsWith("/")) {
+			child = "/" + child;
+		}
+		
+		return that.fieldUpdate("path", makeResult(getTypeFactory().stringType(), getValueFactory().string(parent + child), ctx), new TypeStore());
 	}
 	
 	@Override

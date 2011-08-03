@@ -120,15 +120,10 @@ alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 
 public str suffix = ".concept";
 
-public str getFullConceptName(str path, str coursePath){
-   if(/^.*<coursePath><cpath:.*$>/ := path && /^<full:.*>\.concept$/ := cpath){
-      base = basename(full);
-      bb = "<base>/<base>";
-      if(endsWith(full, bb))
-         full = replaceFirst(full, bb, base);
-      return full;
-    }
-    throw "Malformed path <path>";  
+public str getFullConceptName(loc l, str coursePath){
+   if (/^.*<coursePath><name:.*$>/ := l.parent)  
+     return name;
+   throw "Concept not rooted in course path? <l> not in <coursePath>?";
 }
 
 // Get the basename from a ConceptName, eg 

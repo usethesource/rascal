@@ -117,7 +117,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
       throw ConceptError("<file>: Missing section \"Name\"");
       
    name = sections["Name"][0];
-   fullName = getFullConceptName(file.path, coursePath);
+   fullName = getFullConceptName(file, coursePath);
    try {
 	         
 	   if(name != basename(fullName))
@@ -133,7 +133,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	   typesSection 	= sections["Types"] ? [];
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
-	   searchTerms  	= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
+	   searchTs  	= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
        syntaxSynopsis   = markup1(syntaxSection);
        typesSynopsis    = markup1(typesSection);
        functionSynopsis = markup1(functionSection);
@@ -149,7 +149,7 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	   
 	   Concept C = concept(name, file, warnings, optDetails, optCategories, related, synopsis,
 	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
-	                       searchTerms, description, examples, benefits, pitfalls, questions);
+	                       searchTs, description, examples, benefits, pitfalls, questions);
 	   binFile = file[extension = compiledExtension];
 	   println("parseConcept: binFile = <binFile>, uri = <binFile.uri>");
 	   try {
@@ -441,7 +441,7 @@ public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
 //    println(courseFiles);
     for(file <- courseFiles){
        cpt = parseConcept(file, coursePath);
-       fullName = getFullConceptName(file.path, coursePath);
+       fullName = getFullConceptName(file, coursePath);
        if(conceptMap[fullName]?)
        	  println("Double declaration for <fullName>");
        conceptMap[fullName] = cpt;       	 
@@ -484,10 +484,10 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
         warnings += "Roots <roots> unequal to course name \"<rootConcept>\"";
     
     map[str, ConceptName] fullRelated = ();
-    set[str] searchTerms = {};
+    set[str] searchTs = {};
     for(cname <- conceptMap){
        C = conceptMap[cname];
-       searchTerms += C.searchTerms;
+       searchTs += C.searchTerms;
        for(r <- C.related){
          //println("related.r = <r>");
          rbasenames = basenames(r);
@@ -522,7 +522,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     
     // Map same search term with/without capitalization to the one with capitalization
     searchTerms1 = {};
-    for(trm <- searchTerms){
+    for(trm <- searchTs){
         if(/^<S:[a-z]><tail:[A-Za-z0-9]*>$/ := trm){
            if((toUpperCase(S) + tail) notin allBaseConcepts)
               searchTerms1 += {trm};
@@ -532,7 +532,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     
    // println("fullRelated = <fullRelated>");
    // println("searchTerms1= <searchTerms1>");
-   // println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTerms))>");
+   // println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTs))>");
    // println("Warnings:\n<for(w <- warnings){><w>\n<}>");
     return course(title, courseDir, rootConcept, warnings, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated, categories);
 }
