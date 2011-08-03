@@ -28,8 +28,8 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 		return "stdout";
 	}
 
-	public boolean mkDirectory(URI uri) {
-		return false;
+	public void mkDirectory(URI uri) {
+		throw new UnsupportedOperationException("not supported by stdout");
 	}
 
 	public URI getResourceURI(URI uri) {

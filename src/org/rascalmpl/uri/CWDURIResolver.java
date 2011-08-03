@@ -66,8 +66,8 @@ public class CWDURIResolver implements IURIInputOutputResolver {
 		return getAbsolutePath(uri).list();
 	}
 	
-	public boolean mkDirectory(URI uri) {
-		return getAbsolutePath(uri).mkdir();
+	public void mkDirectory(URI uri) {
+		getAbsolutePath(uri).mkdir();
 	}
 
 }
