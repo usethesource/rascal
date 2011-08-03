@@ -14,31 +14,26 @@ import List;
 import experiments::RascalTutor::CourseModel;
 
 public str html(str head, str body) {
-	return "\<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"
-           '\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\>
-           '\<html xmlns=\"http://www.w3.org/1999/xhtml\"\>
-           '  <head>
-           '  <body>
-           '\</html\>";
+	return "\<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n
+            \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\>\n
+            \<html xmlns=\"http://www.w3.org/1999/xhtml\"\>\n
+             <head>\n<body>\n\</html\>"
+           ;
 }
 
 public str head(str txt) {
-  return "\<head\>
-         '  <txt>
-         '\</head\>";
+  return "\n\<head\><txt>\n\</head\>";
 }
 public str title(str txt) {
-  return "\<title\><txt>\</title\>";
+  return "\n\<title\><txt>\</title\>\n";
 }
 
 public str body(str txt) {
-  return "\<body\>
-         '  <txt>
-         '\</body\>";
+  return "\<body\>\n<txt>\n\</body\>";
 }
 
 public str h(int level, str txt) {
-  return "\<h<level>\><txt>\</h<level>\>";
+  return "\<h<level>\><txt>\</h<level>\>\n";
 }
 
 public str h1(str txt) {
@@ -74,15 +69,11 @@ public str tt(str txt){
 }
 
 public str code(str txt){
-  return "\<code\>
-         '  <txt>
-         '\</code\>";
+  return "\<code\><txt>\</code\>";
 }
 
 public str blockquote(str txt){
-  return "\<blockquote\>
-         '  <txt>
-         '\</blockquote\>";
+  return "\<blockquote\><txt>\</blockquote\>";
 }
 
 public str br(){
@@ -106,21 +97,15 @@ return "\<sup\><txt>\</sup\>";
 }
 
 public str ul(str txt){
-  return "\<ul\>
-         '  <txt>
-         '\</ul\>";
+  return "\<ul\><txt>\</ul\>";
 }
 
 public str ol(str txt){
-  return "\<ol\>
-         '  <txt>
-         '\</ol\>";
+  return "\<ol\><txt>\</ol\>";
 }
 
 public str td(str txt, str align){
-  return "\<td align=\"<align>\"\>
-         '  <txt>
-         '\</td\>";
+  return "\<td align=\"<align>\"\><txt>\</td\>";
 }
 
 public str tr(str txt){
@@ -128,9 +113,7 @@ public str tr(str txt){
 }
 
 public str table(str txt){
-  return "\<table\>
-         '  <txt>
-         '\</table\>";
+  return "\<table\><txt>\</table\>";
 }
 
 public str th(str txt, str align){
@@ -187,3 +170,6 @@ public str showConceptPath(ConceptName cn){
   names = basenames(cn);
   return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i), names[i])><}>";
 }
+
+
+
