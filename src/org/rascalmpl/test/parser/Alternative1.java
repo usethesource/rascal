@@ -62,7 +62,7 @@ public class Alternative1 extends SGTDBF implements IParserTest{
 	}
 	
 	public void S(){
-		expect(S_EXPECT_1);
+		expect(S_EXPECT_1[0]);
 	}
 	
 	public IConstructor executeParser(){

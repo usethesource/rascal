@@ -101,18 +101,18 @@ public class UselessSelfLoop extends SGTDBF implements IParserTest{
 	}
 	
 	public void S(){
-		expect(S_EXPECT_1);
-		expect(S_EXPECT_2);
+		expect(S_EXPECT_1[0]);
+		expect(S_EXPECT_2[0]);
 	}
 	
 	public void A(){
-		expect(A_EXPECT_1);
-		expect(A_EXPECT_2);
+		expect(A_EXPECT_1[0]);
+		expect(A_EXPECT_2[0]);
 	}
 	
 	public void B(){
-		expect(B_EXPECT_1);
-		expect(B_EXPECT_2);
+		expect(B_EXPECT_1[0]);
+		expect(B_EXPECT_2[0]);
 	}
 	
 	public IConstructor executeParser(){

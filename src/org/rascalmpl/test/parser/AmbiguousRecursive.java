@@ -74,9 +74,9 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 	}
 	
 	public void S(){
-		expect(S_EXPECT_1);
-		expect(S_EXPECT_2);
-		expect(S_EXPECT_3);
+		expect(S_EXPECT_1[0]);
+		expect(S_EXPECT_2[0]);
+		expect(S_EXPECT_3[0]);
 	}
 	
 	public IConstructor executeParser(){

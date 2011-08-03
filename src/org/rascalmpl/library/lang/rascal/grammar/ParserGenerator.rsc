@@ -236,14 +236,14 @@ public str generate(str package, str name, str super, int () newItem, bool callS
 	         }>
            '	
            '  private static class <value2id(s)> {<for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
-           '    public final static AbstractStackNode[] <id> = _init_<id>();
-           '    private static final AbstractStackNode[] _init_<id>() {
+           '    public final static AbstractStackNode <id> = _init_<id>();
+           '    private static final AbstractStackNode _init_<id>() {
            '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[i].new>;
            '      tmp[<ii>].setProduction(tmp);<}>
            '      tmp[<size(lhses) - 1>].setParentProduction(<name>.<id>);
-           '      return tmp;
+           '      return tmp[0];
            '	}<}>
            '  }<}>
            '	

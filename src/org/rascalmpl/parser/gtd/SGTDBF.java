@@ -123,8 +123,8 @@ public abstract class SGTDBF implements IGTD{
 		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 	}
 	
-	protected void expect(AbstractStackNode... symbolsToExpect){
-		lastExpects.add(symbolsToExpect[0]);
+	protected void expect(AbstractStackNode symbolToExpect){
+		lastExpects.add(symbolToExpect);
 	}
 	
 	/**
