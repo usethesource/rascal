@@ -40,7 +40,7 @@ public list[Message] findCauses(Tree x, Tree y) {
   list[Message] result = [];
   
   if (pX == pY) {
-    result += [info("The alternatives use the same productions", x@\loc)];
+    result += [info("The alternatives use the same productions", x@\loc?|dunno:///|)];
   }
   else {
       result += [info("Production unique to the one: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pX - pY];

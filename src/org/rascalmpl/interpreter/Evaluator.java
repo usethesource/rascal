@@ -570,7 +570,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Class<IGTD> parser = getHeap().getRascalParser(env.getName(), productions);
 
 		if (parser == null) {
-			String parserName = env.getName(); // .replaceAll("::", ".");
+			String parserName = env.getName(); 
 
 			// force regeneration of object parser such that super class name aligns... (a workaround)
 			IGTD objectParser = getObjectParser(env, input, true);
@@ -590,7 +590,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			System.err.println("loading grammar for " + uri);
 			ParserGenerator pgen = getParserGenerator();
 			String main = uri.getAuthority();
 			ModuleEnvironment env = getHeap().getModule(main);
@@ -777,25 +776,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	public IConstructor parseInteraction(IRascalMonitor monitor, String interaction, URI location) {
-//		IRascalMonitor old = setMonitor(monitor);
-//		try {
-//			__setInterrupt(false);
-//			IActionExecutor actionExecutor = new RascalActionExecutor(this, Parser.getInfo());
-//
-//			if (!interaction.contains("`")) {
-//				return new RascalRascal().parse(Parser.START_INTERACTION, location, interaction.toCharArray(), actionExecutor);
-//			}
-//
-//			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-//			return rp.parse(Parser.START_INTERACTION, location, interaction.toCharArray(), actionExecutor);
-//		}
-//		finally {
-//			setMonitor(old);
-//		}
-		return null;
-	}
-
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -860,56 +840,72 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation) {
+		reloadModules(monitor, names, errorLocation, true);
+	}
+	
+	private void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation, boolean recurseToExtending) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
 			Set<String> onHeap = new HashSet<String>();
 			Set<String> extendingModules = new HashSet<String>();
 			
-			monitor.startJob("Cleaning modules", names.size());
-			for (String mod : names) {
-				if (heap.existsModule(mod)) {
-					onHeap.add(mod);
-					extendingModules.addAll(heap.getExtendingModules(mod));
-					heap.removeModule(heap.getModule(mod));
+			try {
+				monitor.startJob("Cleaning modules", names.size());
+				for (String mod : names) {
+					if (heap.existsModule(mod)) {
+						System.err.println("NOTE: will reload " + mod + " + all its dependents");
+						onHeap.add(mod);
+						if (recurseToExtending) {
+							extendingModules.addAll(heap.getExtendingModules(mod));
+						}
+						heap.removeModule(heap.getModule(mod));
+					}
+					monitor.event("Processed " + mod, 1);
 				}
-				monitor.event("Processed " + mod, 1);
+				extendingModules.removeAll(names);
+			} finally {
+				monitor.endJob(true);
 			}
-			extendingModules.removeAll(names);
-			monitor.endJob(true);
-
-			monitor.startJob("Reloading modules", onHeap.size());
-			for (String mod : onHeap) {
-				if (!heap.existsModule(mod)) {
-					stderr.print("Reloading module " + mod);
-					reloadModule(mod, errorLocation);
+			
+			try {
+				monitor.startJob("Reloading modules", onHeap.size());
+				for (String mod : onHeap) {
+					if (!heap.existsModule(mod)) {
+						stderr.print("Reloading module " + mod);
+						reloadModule(mod, errorLocation);
+					}
+					monitor.event("loaded " + mod, 1);
 				}
-				monitor.event("loaded " + mod, 1);
+			} finally {
+				monitor.endJob(true);
 			}
-			monitor.endJob(true);
 			
 			Set<String> depending = new HashSet<String>();
-			depending.addAll(getDependingModules(names));
+			depending.addAll(getImportingModules(names));
 			
-			monitor.startJob("Reconnecting importers of affected modules", depending.size());
-			for (String mod : depending) {
-				ModuleEnvironment env = heap.getModule(mod);
-				Set<String> todo = new HashSet<String>(env.getImports());
-				for (String imp : todo) {
-					if (names.contains(imp)) {
-						env.unImport(imp);
-						ModuleEnvironment imported = heap.getModule(imp);
-						if (imported != null) {
-							env.addImport(imp, imported);
+			try {
+				monitor.startJob("Reconnecting importers of affected modules", depending.size());
+				for (String mod : depending) {
+					ModuleEnvironment env = heap.getModule(mod);
+					Set<String> todo = new HashSet<String>(env.getImports());
+					for (String imp : todo) {
+						if (names.contains(imp)) {
+							env.unImport(imp);
+							ModuleEnvironment imported = heap.getModule(imp);
+							if (imported != null) {
+								env.addImport(imp, imported);
+							}
 						}
+
 					}
-					
+					monitor.event("Reconnected " + mod, 1);
 				}
-				monitor.event("Reconnected " + mod, 1);
+			} finally {
+				monitor.endJob(true);
 			}
-			monitor.endJob(true);
 			
-			if (!extendingModules.isEmpty()) {
-				reloadModules(monitor, extendingModules, errorLocation);
+			if (recurseToExtending && !extendingModules.isEmpty()) {
+				reloadModules(monitor, extendingModules, errorLocation, false);
 			}
 		}
 		finally {
@@ -949,13 +945,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	 * @param names
 	 * @return
 	 */
-	private Set<String> getDependingModules(Set<String> names) {
+	private Set<String> getImportingModules(Set<String> names) {
 		Set<String> found = new HashSet<String>();
 		LinkedList<String> todo = new LinkedList<String>(names);
 		
 		while (!todo.isEmpty()) {
 			String mod = todo.pop();
-			Set<String> dependingModules = heap.getDependingModules(mod);
+			Set<String> dependingModules = heap.getImportingModules(mod);
 			dependingModules.removeAll(found);
 			found.addAll(dependingModules);
 			todo.addAll(dependingModules);
@@ -1157,14 +1153,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parser = new MetaRascalRascal();
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
-			else if (!containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
-				parser = new RascalRascal();
-				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
-			} 
-			else {
+			else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 				parser = getRascalParser(env, location);
 				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			}
+			else {
+				parser = new RascalRascal();
+				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
+			} 
 		}
 		catch (ParseError pe) {
 			if (withErrorTree) {
