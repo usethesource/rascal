@@ -73,7 +73,7 @@ public class EpsilonList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -83,7 +83,7 @@ public class EpsilonList extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		EpsilonList el = new EpsilonList();
-		IConstructor result = el.parse(NONTERMINAL_START_S, null, "".toCharArray(), new NodeToUPTR());
+		IConstructor result = el.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([A+(A()),A+(repeat(A())))]) <- good");

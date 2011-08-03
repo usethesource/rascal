@@ -75,7 +75,7 @@ public class NonTerminalPlusList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -85,7 +85,7 @@ public class NonTerminalPlusList extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		NonTerminalPlusList nrpl = new NonTerminalPlusList();
-		IConstructor result = nrpl.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		IConstructor result = nrpl.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S(A+(A(a),A(a),A(a))) <- good");

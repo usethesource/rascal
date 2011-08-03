@@ -1017,7 +1017,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Parses with post parse filtering.
 	 */
-	public IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
+	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 		return buildTree(result, converter, actionExecutor);
 	}
@@ -1025,7 +1025,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Parses without post parse filtering.
 	 */
-	public IConstructor parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter){
+	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 		return buildTree(result, converter, new VoidActionExecutor());
 	}
@@ -1033,7 +1033,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Parses without post parse filtering.
 	 */
-	protected IConstructor parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter){
+	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter){
 		AbstractNode result = parse(startNode, inputURI, input);
 		return buildTree(result, converter, new VoidActionExecutor());
 	}
@@ -1041,13 +1041,13 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Constructed the final parse tree using the given converter.
 	 */
-	protected IConstructor buildTree(AbstractNode result, INodeConverter converter, IActionExecutor actionExecutor){
+	protected Object buildTree(AbstractNode result, INodeConverter converter, IActionExecutor actionExecutor){
 		FilteringTracker filteringTracker = new FilteringTracker();
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		IConstructor resultTree = null;
 		try{
-			resultTree = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
+			resultTree = (IConstructor) converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
 		}finally{
 			actionExecutor.completed(rootEnvironment, (resultTree == null));
 		}
@@ -1071,7 +1071,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Constructed a error parse tree using the given converter.
 	 */
-	public IConstructor buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor){
+	public Object buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor){
 		AbstractContainerNode result;
 		
 		if(parseErrorOccured){

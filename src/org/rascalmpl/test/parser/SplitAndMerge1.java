@@ -109,7 +109,7 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -119,7 +119,7 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		SplitAndMerge1 ms1 = new SplitAndMerge1();
-		IConstructor result = ms1.parse(NONTERMINAL_START_S, null, "aaaa".toCharArray(), new NodeToUPTR());
+		IConstructor result = ms1.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S(a,[A(a,B(a)),A(B(a),a)],a) <- good");

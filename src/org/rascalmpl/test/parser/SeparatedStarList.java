@@ -81,7 +81,7 @@ public class SeparatedStarList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -91,7 +91,7 @@ public class SeparatedStarList extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		SeparatedStarList nrsl = new SeparatedStarList();
-		IConstructor result = nrsl.parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new NodeToUPTR());
+		IConstructor result = nrsl.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S((Ab)*(A(a),b,A(a),b,A(a))) <- good");

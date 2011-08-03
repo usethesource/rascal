@@ -61,7 +61,7 @@ public class CILiteral extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -71,7 +71,7 @@ public class CILiteral extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		CILiteral cil = new CILiteral();
-		IConstructor result = cil.parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new NodeToUPTR());
+		IConstructor result = cil.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S(Bla) <- good");

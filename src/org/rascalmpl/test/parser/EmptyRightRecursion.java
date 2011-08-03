@@ -102,7 +102,7 @@ public class EmptyRightRecursion extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -112,7 +112,7 @@ public class EmptyRightRecursion extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		EmptyRightRecursion erre = new EmptyRightRecursion();
-		IConstructor result = erre.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		IConstructor result = erre.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S(A(a),[B(cycle(B,1)),B()])");

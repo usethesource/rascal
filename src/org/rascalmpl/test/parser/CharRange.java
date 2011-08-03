@@ -54,7 +54,7 @@ public class CharRange extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -64,7 +64,7 @@ public class CharRange extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		CharRange cr = new CharRange();
-		IConstructor result = cr.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		IConstructor result = cr.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([a-z](a)) <- good");

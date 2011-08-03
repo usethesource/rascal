@@ -80,7 +80,7 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -90,7 +90,7 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		AmbiguousRecursive ar = new AmbiguousRecursive();
-		IConstructor result = ar.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		IConstructor result = ar.executeParser();
 		System.out.println(result);
 		
 		System.out.println("[S(S(a),S(a),S(a)),S(S(a),S(S(a),S(a))),S(S(S(a),S(a)),S(a))] <- good");

@@ -18,9 +18,9 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 
 public interface IGTD{
-	IConstructor parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter);
+	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter);
 	
-	IConstructor parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
+	Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
 	
-	IConstructor buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor);
+	Object buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor);
 }

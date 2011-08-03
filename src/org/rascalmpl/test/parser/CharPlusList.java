@@ -58,7 +58,7 @@ public class CharPlusList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -68,7 +68,7 @@ public class CharPlusList extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		CharPlusList cpl = new CharPlusList();
-		IConstructor result = cpl.parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new NodeToUPTR());
+		IConstructor result = cpl.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([a-z]+([a-z](a),[a-z](b),[a-z](c))) <- good");

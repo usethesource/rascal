@@ -136,7 +136,7 @@ public class SplitAndMerge3 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -146,7 +146,7 @@ public class SplitAndMerge3 extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		SplitAndMerge3 ms3 = new SplitAndMerge3();
-		IConstructor result = ms3.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		IConstructor result = ms3.executeParser();
 		System.out.println(result);
 		
 		System.out.println("[S(C(B(A(B(a),a),a))),S(A(B(A(a),a),a))] <- good");

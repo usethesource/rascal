@@ -105,7 +105,7 @@ public class Ambiguous4 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "bbbbbb".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "bbbbbb".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -115,7 +115,7 @@ public class Ambiguous4 extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		Ambiguous4 a4 = new Ambiguous4();
-		IConstructor result = a4.parse(NONTERMINAL_START_S, null, "bbbbbb".toCharArray(), new NodeToUPTR());
+		IConstructor result = a4.executeParser();
 		System.out.println(result);
 		
 		System.out.println("[S(A(B(bb),B(bb)),A(B(b),B(b))),S(A(B(b),B(b)),A(B(bb),B(bb))),S([A(B(b),B(bb)),A(B(bb),B(b))],[A(B(b),B(bb)),A(B(bb),B(b))])] <- good");

@@ -440,11 +440,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		IConstructor result = null;
 		try{
-			result = parser.parse(name, location, input, exec, new NodeToUPTR());
+			result = (IConstructor) parser.parse(name, location, input, exec, new NodeToUPTR());
 		}catch(ParseError pe){
 			if(withErrorTree){
 				try{
-					IConstructor errorTree = parser.buildErrorTree(new NodeToUPTR(), exec);
+					IConstructor errorTree = (IConstructor) parser.buildErrorTree(new NodeToUPTR(), exec);
 					if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
 				}catch(NullPointerException npex){
 					// Ignore, so we rethrow the orginial parse error.
@@ -719,11 +719,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		if (!command.contains("`")) {
 			IActionExecutor actionExecutor = new BootRascalActionExecutor();
-			tree = new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
+			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
 		} else {
 			IActionExecutor actionExecutor =  new BootRascalActionExecutor();
 			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
+			tree = (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
 		}
 
 		Command stat = getBuilder().buildCommand(tree);
@@ -749,12 +749,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		if (!command.contains("`")) {
 			IActionExecutor actionExecutor =  new BootRascalActionExecutor();
-			return new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
+			return (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
 		}
 		
 		IActionExecutor actionExecutor =  new BootRascalActionExecutor();
 		IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-		return rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
+		return (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
 	}
 
 	public IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
@@ -764,12 +764,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			
 			if (!commands.contains("`")) {
 				IActionExecutor actionExecutor =  new BootRascalActionExecutor();
-				return new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new NodeToUPTR());
+				return (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new NodeToUPTR());
 			}
 
 			IActionExecutor actionExecutor = new BootRascalActionExecutor();
 			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			return rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new NodeToUPTR());
+			return (IConstructor) rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new NodeToUPTR());
 		}
 		finally {
 			setMonitor(old);
@@ -1043,7 +1043,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		__setInterrupt(false);
 		IActionExecutor actionExecutor =  new BootRascalActionExecutor();
 
-		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor, new NodeToUPTR());
+		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor, new NodeToUPTR());
 		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 	}
 	
@@ -1099,7 +1099,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IActionExecutor actions = new BootRascalActionExecutor();
 
 		event("Parsing imports and syntax definitions at " + location);
-		IConstructor prefix = new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new NodeToUPTR());
+		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new NodeToUPTR());
 
 		if (TreeAdapter.isAmb(prefix)) {
 			ISet alts = TreeAdapter.getAlternatives(prefix);
@@ -1130,7 +1130,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		Module preModule = getBuilder().buildModule(top);
 		String name = getModuleName(preModule);
-
+		
 		if(env == null){
 			env = heap.getModule(name);
 			if(env == null){
@@ -1139,33 +1139,33 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			env.setBootstrap(needBootstrapParser(preModule));
 		}
-
+		
 		// take care of imports and declare syntax
 		env.setSyntaxDefined(false);
 		event("Declaring syntax for module " + name);
 		preModule.declareSyntax(this, true);
-
+		
 		IGTD parser = null;
 		IConstructor result = null;
 		event("Parsing complete module " + name);
 		try {
 			if (needBootstrapParser(preModule)) {
 				parser = new MetaRascalRascal();
-				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
+				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
 			else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 				parser = getRascalParser(env, location);
-				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
+				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			}
 			else {
 				parser = new RascalRascal();
-				result = parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
+				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
 		}
 		catch (ParseError pe) {
 			if (withErrorTree) {
 				try {
-					IConstructor errorTree = parser.buildErrorTree(new NodeToUPTR(), actions);
+					IConstructor errorTree = (IConstructor) parser.buildErrorTree(new NodeToUPTR(), actions);
 					if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
 				}
 				catch(NullPointerException npex) {
@@ -1177,7 +1177,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return result;
 	}
-
+	
 	private static boolean containsBackTick(char[] data, int offset) {
 		for (int i = data.length - 1; i >= offset; --i) {
 			if (data[i] == '`')
@@ -1185,7 +1185,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		return false;
 	}
-
+	
 	public boolean needBootstrapParser(Module preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
