@@ -15,11 +15,16 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.result.CharNode;
 
+/**
+ * A expected result node.
+ * Expected nodes represent possible futures in error parse trees.
+ */
 public class ExpectedNode extends AbstractNode{
 	public final static int ID = 8;
 	
-	private final AbstractNode[] mismatchedChildren;
+	private final CharNode[] mismatchedChildren;
 	private final IConstructor symbol;
 	
 	private final URI input;
@@ -29,7 +34,7 @@ public class ExpectedNode extends AbstractNode{
 	private final boolean isSeparator;
 	private final boolean isLayout;
 	
-	public ExpectedNode(AbstractNode[] mismatchedChildren, IConstructor symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ExpectedNode(CharNode[] mismatchedChildren, IConstructor symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super();
 		
 		this.mismatchedChildren = mismatchedChildren;
@@ -47,34 +52,60 @@ public class ExpectedNode extends AbstractNode{
 		return ID;
 	}
 	
-	public AbstractNode[] getMismatchedChildren(){
+	/**
+	 * Returns the mismatched children associated with this node.
+	 * The will only be present in case this node represents a leaf node (like a
+	 * literal or a character).
+	 */
+	public CharNode[] getMismatchedChildren(){
 		return mismatchedChildren;
 	}
 	
+	/**
+	 * Returns the symbol associated with this possible future.
+	 */
 	public IConstructor getSymbol(){
 		return symbol;
 	}
 	
+	/**
+	 * Returns the input location; may be null.
+	 */
 	public URI getInput(){
 		return input;
 	}
 	
+	/**
+	 * Returns the offset in the input string this node starts at.
+	 */
 	public int getOffset(){
 		return offset;
 	}
 	
+	/**
+	 * Returns the offset in the input string at which this node would have ended.
+	 */
 	public int getEndOffset(){
 		return endOffset;
 	}
 	
+	/**
+	 * Returns whether or not this expected node represents layout.
+	 */
 	public boolean isLayout(){
 		return isLayout;
 	}
 	
+	/**
+	 * Expected nodes don't have content.
+	 */
 	public boolean isEmpty(){
 		return false;
 	}
 	
+	/**
+	 * Returns whether or not this expected node represents a separator.
+	 */
 	public boolean isNonterminalSeparator(){
 		return isSeparator;
 	}
