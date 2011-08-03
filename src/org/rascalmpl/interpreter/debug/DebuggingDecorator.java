@@ -49,7 +49,7 @@ import org.rascalmpl.ast.Expression.FieldUpdate;
 import org.rascalmpl.ast.Expression.GetAnnotation;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
-import org.rascalmpl.ast.Expression.Guarded;
+import org.rascalmpl.ast.Expression.AsType;
 import org.rascalmpl.ast.Expression.IfDefinedOtherwise;
 import org.rascalmpl.ast.Expression.IfThenElse;
 import org.rascalmpl.ast.Expression.Implication;
@@ -309,9 +309,9 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 
 
 	@Override
-	public T visitExpressionGuarded(Guarded x) {
+	public T visitExpressionAsType(AsType x) {
 		suspend(x);
-		return evaluator.visitExpressionGuarded(x);
+		return evaluator.visitExpressionAsType(x);
 	}
 
 	@Override

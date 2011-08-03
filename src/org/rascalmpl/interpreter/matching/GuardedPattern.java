@@ -31,7 +31,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
 	private IMatchingResult pat;
 	
-	public GuardedPattern(IEvaluatorContext ctx, Expression.Guarded x, Type type, IMatchingResult pat){
+	public GuardedPattern(IEvaluatorContext ctx, Expression.AsType x, Type type, IMatchingResult pat){
 		super(ctx, x);
 		this.type = type;
 		this.pat = pat;

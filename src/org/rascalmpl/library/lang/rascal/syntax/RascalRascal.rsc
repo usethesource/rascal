@@ -23,7 +23,9 @@ syntax Literal
 	| Boolean: BooleanLiteral booleanLiteral 
 	| String: StringLiteral stringLiteral 
 	| DateTime: DateTimeLiteral dateTimeLiteral 
-	| Location: LocationLiteral locationLiteral ;
+	| Location: LocationLiteral locationLiteral
+	| Rational: RationalLiteral rationalLiteral
+	;
 
 start syntax Module
 	= Default: Header header Body body ;
@@ -435,6 +437,12 @@ syntax StringMiddle
 syntax QualifiedName
 	= Default: {Name "::"}+ names !>> "::" ;
 
+lexical RationalLiteral
+   = [0][r]
+   | [1-9][0-9]* [r]
+   | [1-9][0-9]* [r] [1-9][0-9]* !>> [0-9 A-Z _ a-z]
+   ;
+
 lexical DecimalIntegerLiteral
 	= "0" !>> [0-9 A-Z _ a-z] 
 	| [1-9] [0-9]* !>> [0-9 A-Z _ a-z] ;
@@ -796,7 +804,7 @@ syntax Pattern
 	| ReifiedType         : BasicType basicType "(" {Pattern ","}* arguments ")" 
 	| CallOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
 	> VariableBecomes     : Name name ":" Pattern pattern
-	| AsType              : "[" Type type "]" Pattern pattern 
+	| AsType              : "[" Type type "]" Pattern argument 
 	| Descendant          : "/" Pattern pattern 
 	| Anti                : "!" Pattern pattern 
 	| TypedVariableBecomes: Type type Name name ":" Pattern pattern 
