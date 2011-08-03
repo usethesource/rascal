@@ -261,6 +261,8 @@ public str symbol2rascal(Symbol sym) {
         println("WARNING: empty conditional <sym>");
         return symbol2rascal(s);
     }
+    case empty(): 
+        return "()"; 
   }
   
   throw "symbol2rascal: missing case <sym>";
