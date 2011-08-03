@@ -184,14 +184,16 @@ public str section(str name, str txt){
 
 
 public str searchBox(ConceptName cn){
-  return "\n\<div id=\"searchBox\"\>
-              \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
-              \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"images/magnify.png\"\>
-              \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
-              \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
-              \<div id=\"popups\"\>\</div\>
-              \</form\>
-            \</div\>\n";
+  return "
+         '\<div id=\"searchBox\"\>
+         '  \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
+         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"images/magnify.png\"\>
+         '    \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
+         '    \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
+         '    \<div id=\"popups\"\>\</div\>
+         '  \</form\>
+         '\</div\>
+         ";
 }
 
 public str categoryMenu(ConceptName cn){
@@ -366,7 +368,7 @@ public str save(ConceptName cn, str text, bool newConcept){
      lines = splitLines(text);
      sections = getSections(lines);
      cname = sections["Name"][0];
-     if(/[A-Za-z0-9]+/ !:= cname)
+     if(/[^A-Za-z0-9]/ := cname)
        return saveFeedback("Name \"<cname>\" is not a proper concept name", "");
      fullName = cn + "/" + cname;
 
@@ -381,15 +383,15 @@ public str save(ConceptName cn, str text, bool newConcept){
      	return saveFeedback("File <file> exists already", "");
      
      // Create proper directory if it does not yet exist
-     dir = directory[file = directory.file + "/" + fullName];	
-     if(!isDirectory(dir)){
-       println("Create dir <dir>");
-       if(!mkDirectory(dir))
-       	  return saveFeedback("Cannot create directory <dir>", "");
-     }
+     //dir = directory[file = directory.file + "/" + fullName];	
+     //if(!isDirectory(dir)){
+     //  println("Create dir <dir>");
+     //  if(!mkDirectory(dir))
+     //  	  return saveFeedback("Cannot create directory <dir>", "");
+     //}
      
      // We have now the proper file name for the new concept and process it
-     file = directory[file = directory.file + "/" + fullName + "/" + cname + suffix];
+     file = directory + "/" + fullName + "/" + cname + suffix;
 
      println("Write to file <file>");
      writeFile(file, combine(lines));

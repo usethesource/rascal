@@ -1,1 +1,1 @@
-concept("extractProject",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractProject/extractProject.concept|,[],[],{"Library","Eclipse"},{},"","",""," \<code\>Resource extractProject(loc project)\</code\>\n",{}," Import facts from a Java project.\n","","","",[])
+concept("extractProject",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractProject/extractProject.concept|,[],[],{"Library","Eclipse"},{},"","",""," \<code\>\n  Resource extractProject(loc project)\n\</code\>\n",{}," Import facts from a Java project.\n","","","",[])
