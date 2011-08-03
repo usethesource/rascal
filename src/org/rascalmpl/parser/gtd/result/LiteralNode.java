@@ -26,7 +26,7 @@ public class LiteralNode extends AbstractNode{
 		this.content = content;
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 	

@@ -44,7 +44,7 @@ public class ExpectedNode extends AbstractNode{
 		this.isLayout = isLayout;
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 	

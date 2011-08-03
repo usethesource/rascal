@@ -18,7 +18,7 @@ public class EpsilonNode extends AbstractNode{
 		super();
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 	

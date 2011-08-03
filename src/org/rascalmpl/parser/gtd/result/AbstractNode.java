@@ -14,6 +14,9 @@ package org.rascalmpl.parser.gtd.result;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * All nodes in the resulting tree are a subtype of this class.
+ */
 public abstract class AbstractNode{
 	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
@@ -21,31 +24,26 @@ public abstract class AbstractNode{
 		super();
 	}
 	
-	public abstract int getID();
+	/**
+	 * Returns a unique identifier, indicating the type of result node.
+	 */
+	public abstract int getTypeIdentifier();
 	
+	/**
+	 * Checks whether or not this node is an epsilon node.
+	 */
 	public final boolean isEpsilon(){
 		return (this instanceof EpsilonNode);
 	}
 	
+	/**
+	 * Check whether or not this node is empty (where empty means, that it is
+	 * associated with a zero length location in the input string).
+	 */
 	public abstract boolean isEmpty();
 	
+	/**
+	 * Checks whether or not this node represents a separator.
+	 */
 	public abstract boolean isSeparator();
-	
-	public static class CycleMark{
-		public int depth = Integer.MAX_VALUE;
-		
-		public CycleMark(){
-			super();
-		}
-		
-		public void setMark(int depth){
-			if(depth < this.depth){
-				this.depth = depth;
-			}
-		}
-		
-		public void reset(){
-			depth = Integer.MAX_VALUE;
-		}
-	}
 }

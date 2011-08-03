@@ -27,7 +27,7 @@ public class ErrorSortContainerNode extends AbstractContainerNode{
 		this.unmatchedInput = null;
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 	
