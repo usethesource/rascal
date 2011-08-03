@@ -250,7 +250,7 @@ public enum Properties {
 	
 	static final boolean[] stds = {false,true};
 	
-	static String genPropertyCode(String propertyName,@SuppressWarnings("rawtypes") PropertySetters.PropertySetter setter,boolean std){
+	static String genPropertyCode(String propertyName,@SuppressWarnings("rawtypes") PropertySetters.PropertySetter setter){
 		Types type = setter.getProperty(0).type;
 		HashMap<String, Integer> nameOccurances = new HashMap<String, Integer>();
 		String result = "";
@@ -258,11 +258,7 @@ public enum Properties {
 			Vector<String> argStrings = genArgumentCode(nameOccurances, type, nrTimes,setter.getProperty(0));
 			for(String s : argStrings){
 				String propertyDesc ;
-				if(std){
-					propertyDesc = "std" + capitalize(propertyName);
-				} else {
 					propertyDesc = propertyName;
-				}
 				result= result + String.format("\t| %-20s (%s)\n",propertyDesc,s);
 			}
 		}
@@ -273,11 +269,9 @@ public enum Properties {
 	public static void main(String[] argv){
 		String[] propertyNames = propertySetters.keySet().toArray(new String[0]);
 		Arrays.sort(propertyNames);
-		for(boolean std :stds){
 			for(String propertyName : propertyNames){
-				System.out.print(genPropertyCode(propertyName,propertySetters.get(propertyName),std));
+				System.out.print(genPropertyCode(propertyName,propertySetters.get(propertyName)));
 			}
-		}
 		
 	}
 }
